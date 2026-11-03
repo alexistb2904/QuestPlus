@@ -2,6 +2,20 @@
   "required": true,
   "package": "dev.questplus.fabric.client.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["TabletPlayerPoseMixin", "TabletBlurMixin"],
-  "injectors": {"defaultRequire": 1}
+  "client": [
+    "TabletPlayerPoseMixin",
+    "TabletBlurMixin",
+    "TabletFaceCaptureMixin",
+    "GameRendererAccessor",
+    "TabletGameRendererMixin",
+    "TabletGuiRendererMixin",
+    "TabletGuiExtractorMixin",
+    "TabletNativeArmsMixin",
+    "TabletFpInterpolationMixin",
+    "TabletHudMixin",
+    "TabletModelPartAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

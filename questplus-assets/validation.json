@@ -61,12 +61,12 @@
   "arm_tablet_collisions": {
     "questplus_first_person": {
       "questplus.open": {
-        "sampled_times": 133,
+        "sampled_times": 255,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.close": {
-        "sampled_times": 133,
+        "sampled_times": 255,
         "first_intersections": [],
         "intersection_samples": 0
       }

@@ -38,11 +38,11 @@ public final class QuestButton extends AbstractWidget {
             g.pose().pushMatrix(); g.pose().translate(x+3,y+(height-12)/2f); g.pose().scale(.75f);
             g.item(icon,0,0); g.pose().popMatrix();
         }
-        int available=Math.max(0,width-8-iconWidth);
+        int available=Math.max(0,(int)((width-8-iconWidth)/QuestSkin.TEXT_SCALE));
         String full=getMessage().getString(), label=font.plainSubstrByWidth(full,available);
         if (!label.equals(full) && available>=font.width("…")) label=font.plainSubstrByWidth(full,available-font.width("…"))+"…";
-        int textX=x+iconWidth+(width-iconWidth-font.width(label))/2;
-        g.text(font,label,textX,y+(height-8)/2,active ? QuestSkin.INK : QuestSkin.DIM,false);
+        int textX=x+iconWidth+(int)((width-iconWidth-font.width(label)*QuestSkin.TEXT_SCALE)/2);
+        QuestSkin.text(g,font,label,textX,y+(height-7)/2,active ? QuestSkin.INK : QuestSkin.DIM,false);
     }
     @Override public void onClick(MouseButtonEvent event,boolean doubleClick) { pressed=true; action.run(); }
     @Override public void onRelease(MouseButtonEvent event) { pressed=false; }

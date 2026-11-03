@@ -33,15 +33,13 @@ public final class QuestPlusClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         settings=ClientSettings.load();
         TabletPoseClient.register();
+        QuestClientTabletFlow.register();
         open=KeyMappingHelper.registerKeyMapping(new KeyMapping("questplus.client.open", InputConstants.KEY_J,KeyMapping.Category.MISC));
         ClientPlayNetworking.registerGlobalReceiver(QuestNetwork.State.TYPE,(payload,context) -> context.client().execute(() -> receive(payload)));
         ClientPlayConnectionEvents.JOIN.register((handler,sender,client) -> { clear(); sync(); });
         ClientPlayConnectionEvents.DISCONNECT.register((handler,client) -> clear());
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (open.consumeClick()) if (client.player!=null) {
-                if (client.gui.screen() instanceof QuestScreen screen) screen.onClose();
-                else client.gui.setScreen(new QuestScreen());
-            }
+            while (open.consumeClick()) if (client.player!=null) QuestClientTabletFlow.toggle(client);
             long now=System.currentTimeMillis();
             if (fragments!=null && now-started>15000) { fragments=null; STATE.error="timeout"; }
             if (client.player!=null && !STATE.ready && now-lastSync>10000 && ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE)) sync();

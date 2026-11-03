@@ -1,5 +1,7 @@
 # Client Quest Plus
 
+> État courant : voir [le rapport de correction PR #2](reviews/native-tablet.md). Le reste de ce document décrit les étapes historiques, dont le rendu 2D a été remplacé par une texture hors écran sur le cube `screen`. Les dépendances sont actuellement déclarées `implementation` avec Loom non-remapping. La synchronisation utilise désormais l'horloge PAL, et aucun modèle HUD n'est ajouté pendant la séquence native.
+
 La phase client est autorisée par le brief du 3 novembre 2026. Le Core et les sauvegardes restent indépendants du rendu.
 
 ## Plan et contrats
@@ -25,3 +27,50 @@ Le format actuel n'a pas de politique de quêtes secrètes ; il ne faut pas pré
 L'image annoncée dans le brief n'est pas attachée à cette conversation et Blockbench ne contient aucune référence chargée. La direction disponible est donc la description bois sombre/métal/pierre/améthyste.
 
 La compilation ne valide ni les shaders Iris/Euphoria, ni les skins, ni le rendu multijoueur. Consigner les contrôles réellement exécutés dans la roadmap.
+
+## Correction premiere personne (branche experimentale)
+
+Le mauvais rendu du 3 novembre (video de test) provenait d'une duplication entre les bras
+dessines par `TabletRenderer` dans le GUI et le bras normal que Minecraft dessine dans
+le monde. Une reduction supplementaire a 76 % rendait aussi la tablette illisible.
+**Ces regressions ont ete annulees dans main avant ce nouveau travail.**
+
+La nouvelle integration testee sur branche passe par le vrai pipeline des bras vanilla :
+`First Person PAL Expansion 1.1.1` + `Player Animation Library 1.2.8`.
+Les fichiers `questplus-assets/animations/player/questplus_first_person.animation.json`
+sont charges tels quels depuis `assets/questplus/fp_animations/`.
+`QuestClientTabletFlow` attend les 1,2 seconde de `questplus.open` avant de creer
+`QuestScreen`. En ouverture et fermeture, le HUD dessine uniquement la tablette
+sans faux bras. Pendant la consultation, les bras restent controles par la boucle
+`questplus.idle` et `QuestScreen` dessine le modele sans doublon. Une fermeture
+lance `questplus.close`.
+
+**Limite visuelle restante :** le contenu des quetes est toujours compose en 2D
+dans l'ouverture de l'ecran de la tablette, pas rendu sur une texture GPU de sa
+surface 3D. L'alignement exact avec les mains sous differents FOV et shaders
+demande une validation en jeu. Ne pas qualifier ce rendu de surface 3D native.
+
+Le mod conserve une interface de repli si FP PAL n'est pas installe ; le serveur
+dedie n'a pas besoin des dependances d'animation clientes. Les dependances sont
+resolues automatiquement pour le client de developpement par Gradle.
+
+A verifier : compilation Java 25, lancement `1-Lancer-Client.bat`,
+ouverture sur J (main vanilla droite, seconde main), bascule a 1,2 s,
+absence de bras clone, fermeture/Echap, GUI Scale 1 a 4,
+skins slim/standard, monde multijoueur et server GameTests.
+
+### Diagnostic FP PAL (3 novembre, correction PR #2)
+
+La video montrait l'ancien rendu de `main`, sans mouvement FP PAL. `main` avait ete restaure,
+mais PR #2 n'etait pas encore fusionnee. D'autre part, les dependances de mods etaient declarees
+`implementation` ; elles sont maintenant en `modImplementation` pour etre chargees par Loom.
+
+`assets/questplus/fp_animations/questplus_first_person.animation.json` comporte deja
+`questplus.open`, `questplus.idle`, `questplus.close` et leurs keyframes, sans regenerer les assets.
+FP PAL associe le fichier a `fp_models/questplus_first_person.geo.json` et
+`textures/fp/questplus_first_person.png` : **une seule tablette** est rendue par FP PAL avec les
+vrais bras. Ne pas la rendre une seconde fois via `TabletRenderer` pendant la sequence native.
+
+En jeu, utiliser `/fp_anim list`, puis `/fp_anim play questplus:questplus.open` pour tester
+l'animation independamment de J. Les logs indiquent maintenant si le plugin ou ses assets
+ne se chargent pas, plutot que de basculer silencieusement vers le vieux GUI.

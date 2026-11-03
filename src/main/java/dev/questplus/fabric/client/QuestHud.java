@@ -8,7 +8,7 @@ import java.util.*;
 final class QuestHud {
     static void draw(GuiGraphicsExtractor g) {
         var mc=Minecraft.getInstance(); var settings=QuestPlusClient.settings; var state=QuestPlusClient.STATE;
-        if (mc.player==null || mc.gui.screen() instanceof QuestScreen) return;
+        if (mc.player==null || TabletSurfaceRenderer.hidesHud() || mc.gui.screen() instanceof QuestScreen) return;
         if (settings.hud && state.ready) {
             List<String> lines=new ArrayList<>();
             for (String id:settings.pinned) {

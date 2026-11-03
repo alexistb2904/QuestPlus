@@ -110,7 +110,7 @@ tablet.cube('rear_compass_gem',[-.55,-.55,1.09],[.55,.55,1.35],'crystal',back,[0
 
 def keys(times,values,channel):return [{'channel':channel,'data_points':[dict(zip(('x','y','z'),v))],'uuid':uid(f'{channel}{t}{v}'),'time':t,'color':-1,'interpolation':'linear'} for t,v in zip(times,values)]
 def animation(model,name,length,tracks,loop='once'):
-    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':length,'snapping':50,'animators':{}}
+    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':length,'snapping':100,'animators':{}}
     for bone,channels in tracks.items():
         group=next(g for g in model.groups if g['name']==bone)
         anim['animators'][group['uuid']]={'name':bone,'type':'bone','keyframes':sum([keys(t,v,c) for c,(t,v) in channels.items()],[])}
@@ -154,7 +154,9 @@ def make_mannequin(name,slim=False,third=False):
             # Entire assembly translates together, preserving wrist registration and screen angle.
             if channel=='position':vs=[blend(base,[base[0],base[1]+.045,base[2]],a) for a in breath]
             idle[bone][channel]=(ts,vs)
-    for bone in ['rightArm','leftArm']:idle[bone]['position']=(ts,[[0,round(a*.045,6),0] for a in breath])
+    for bone in ['rightArm','leftArm']:
+        base=opened[bone].get('position',(None,[[0,0,0]]))[1][-1]
+        idle[bone]['position']=(ts,[[base[0],round(base[1]+a*.045,6),base[2]] for a in breath])
     animation(m,prefix+'idle',4,idle,'loop')
     closed={b:{c:([round(DURATION-t,5) for t in reversed(times)],list(reversed(v))) for c,(times,v) in cs.items()} for b,cs in opened.items()}
     animation(m,prefix+'close',DURATION,closed)
@@ -272,5 +274,5 @@ for i,name in [(1,'first_person'),(3,'third_person'),(2,'first_person_slim'),(4,
         for ai,duration in [(0,DURATION),(1,4),(2,DURATION)]:
             for time in np.linspace(0,duration,max(2,round(duration*12))):frames.append(render(m,None,eye,target,29 if fp else 43,m.animations[ai],float(time),(500,400),name))
         frames[0].save(ROOT/'previews'/f'{name}.gif',save_all=True,append_images=frames[1:],duration=83,loop=0)
-save('models/attachment.json',{'units':'model pixels; 16 pixels = 1 Minecraft block','tablet_bounds':{'min':[-12.1,-8.3,-2.12],'max':[12.1,8.65,1.35]},'front_normal':[0,0,-1],'screen':{'min':[-10,-6,-.82],'max':[10,6,-.82],'render_plane_z':-.835,'aspect_ratio':'5:3','origin_uv_top_left':[-10,6,-.835],'u_direction':[1,0,0],'v_direction':[0,-1,0]},'hand_anchors':{'left_hand_anchor':[-11.2,-2,1.1],'right_hand_anchor':[11.2,-2,1.1]},'held_transform':{'scale':[.65,.65,.65],'translation':[0,18.8,-10.5],'rotation':[0,180,0]},'preview_camera':{'eye':[0,25.6,1],'target':[0,17,-9],'projection':'orthographic','vertical_span':25},'note':'Camera is an authoring preview, not a calibrated Minecraft perspective camera. Tablet front faces +Z toward player in held pose. Anchors are prop-local placement guides, not tracked finger joints.'})
+save('models/attachment.json',{'units':'model pixels; 16 pixels = 1 Minecraft block','tablet_bounds':{'min':[-12.1,-8.3,-2.12],'max':[12.1,8.65,1.35]},'front_normal':[0,0,-1],'screen':{'min':[-10,-6,-.82],'max':[10,6,-.82],'render_plane_z':-.835,'aspect_ratio':'5:3','origin_uv_top_left':[-10,6,-.835],'u_direction':[1,0,0],'v_direction':[0,-1,0]},'hand_anchors':{'left_hand_anchor':[-11.2,-2,1.1],'right_hand_anchor':[11.2,-2,1.1]},'held_transform':{'scale':[.65,.65,.65],'translation':[0,18.8,-10.5],'rotation':[0,180,0]},'preview_camera':{'eye':[0,17.6,.5],'target':[0,18.8,-10.5],'projection':'perspective','vertical_span':25},'note':'Camera is an authoring preview, calibrated for the first-person export. Tablet front faces +Z toward player in held pose. Anchors are prop-local placement guides, not tracked finger joints.'})
 print(f'Generated {len(models)} bbmodels, {len(tablet.elements)} tablet cubes, {len(slots)} unique UV islands; atlas last row {sy+row}/256')

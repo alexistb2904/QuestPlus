@@ -1,0 +1,26 @@
+2026-11-04 - Java 25.0.5 / Minecraft 26.3 / Fabric
+
+Final source revision:
+./gradlew.bat build integrationTest runClientGameTest --console=plain
+BUILD SUCCESSFUL in 1m 17s
+79 JUnit tests; 4 required server GameTests; 140 shutdown player saves verified.
+Five native UI setups plus two RemotePlayer avatars rendered in Minecraft.
+Projected mouse clicks, 125% scale, text entry, category scroll and icon hit test, blur on/off, close tail, interrupted open, holder/witness arm transforms before and after local FP rendering.
+Sub-tick arm and tablet motion verified at partial .1/.9 without advancing the PAL controller clock.
+Disconnect while holding clears the UI, native state and interpolation snapshots.
+
+Earlier iterations:
+Initial arm/UI corrections - Minecraft runClientGameTest passed.
+Compact overlay / header fix - build runClientGameTest passed in 1m26s.
+Interpolation trial - rejected: open waited for a tick PAL never emits in hold_on_last_frame.
+Terminal pose correction - final full suite passed (above).
+
+python questplus-assets/tools/validate_assets.py - PASS, no collision samples or warnings
+python questplus-assets/tools/export_third_person.py --check - PASS
+
+Actual screenshots inspected in Minecraft OpenGL on RTX 4070 Ti SUPER.
+Not a two-connection multiplayer test. Vulkan and third party shaders not verified.
+
+Third-person tablet size only: 0.65 -> 0.50 (about -23%).
+./gradlew.bat build runClientGameTest --console=plain - BUILD SUCCESSFUL in 1m21s.
+Front and side Minecraft screenshots inspected; first-person and arm animation code unchanged.

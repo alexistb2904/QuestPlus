@@ -3,7 +3,8 @@ import math
 import numpy as np
 
 DURATION=1.2
-TIMES=[round(i/50,5) for i in range(61)]
+FIRST_PERSON_ARM_SCALE=.45
+TIMES=[round(i/100,2) for i in range(121)]
 HELD=np.array([0,18.8,-10.5])
 RIGHT_REST=[53,0,6]
 LEFT_REST=[53,0,-6]
@@ -38,7 +39,7 @@ def tracks_for(third=False):
     def rounded(values):return [[round(float(x),6) for x in v] for v in values]
     tracks={'rightArm':{'rotation':(TIMES,rounded(rr))},'leftArm':{'rotation':(TIMES,rounded(lr))},'tablet_root':{'position':(TIMES,rounded(positions)),'rotation':(TIMES,rounded(tr))}}
     if not third:
-        right_rise=[(0,[0,-12,2]),(.24,[0,-6,1]),(.50,[0,-2,.4]),(.78,[0,0,0]),(DURATION,[0,0,0])]
+        right_rise=[(0,[0,0,0]),(.24,[0,-12,2]),(.50,[0,-2,.4]),(.78,[0,0,0]),(DURATION,[0,0,0])]
         left_rise=[(0,[0,-14,0]),(.48,[0,-14,0]),(.70,[0,-7,0]),(1.04,[0,0,0]),(DURATION,[0,0,0])]
         for bone,path in [('rightArm',right_rise),('leftArm',left_rise)]:tracks[bone]['position']=(TIMES,rounded([curve(path,t) for t in TIMES]))
         tracks['tablet_root']['position']=(TIMES,rounded([p+curve(right_rise,t) for p,t in zip(positions,TIMES)]))
@@ -85,6 +86,19 @@ def clear_palm_contacts(tracks,elements):
     for i,offset in enumerate(smoothed):
         normal=rotation(tracks['tablet_root']['rotation'][1][i])@np.array([0,0,-1])
         tracks['tablet_root']['position'][1][i]=[round(float(v),6) for v in np.array(tracks['tablet_root']['position'][1][i])-normal*offset]
-    # Visibility switches at the grip, not while the hand is reaching into the pocket.
-    tracks['tablet_root']['scale']=([0,.24,.26,DURATION],[[0,0,0],[0,0,0],[1,1,1],[1,1,1]])
+    # The pocket trajectory occludes the prop; its physical size never changes.
+    tracks['tablet_root']['scale']=([0,DURATION],[[1,1,1],[1,1,1]])
+    if 'position' in tracks['rightArm']:
+        # Shrink the real arms about the grip, keeping their palm contacts stationary.
+        for name,sign in [('rightArm',1),('leftArm',-1)]:
+            for i in range(len(TIMES)):
+                delta=rotation(tracks[name]['rotation'][1][i])@((1-FIRST_PERSON_ARM_SCALE)*np.array([sign,-10,0]))
+                tracks[name]['position'][1][i]=[round(float(v),6) for v in np.array(tracks[name]['position'][1][i])+delta]
+            tracks[name]['scale']=([0,DURATION],[[FIRST_PERSON_ARM_SCALE]*3,[FIRST_PERSON_ARM_SCALE]*3])
+            for i in range(len(TIMES)):
+                old=tracks[name]['rotation'][1][i];new=[180-old[0],old[1],old[2]]
+                palm=FIRST_PERSON_ARM_SCALE*np.array([sign,-10,0])
+                delta=rotation(old)@palm-rotation(new)@palm
+                tracks[name]['position'][1][i]=[round(float(v),6) for v in np.array(tracks[name]['position'][1][i])+delta]
+                tracks[name]['rotation'][1][i]=new
     return tracks

@@ -50,6 +50,43 @@ sur un joueur simulé et contrôle les fichiers après arrêt. Le serveur de tes
 cette tâche accepte l'EULA Minecraft pour ce monde de test. Les tests ne se trouvent pas dans le JAR distribué.
 Résultats : `build/reports/tests/test/index.html`, `build/gametest-results.xml`.
 
+## Tester l'animation Blockbench de la tablette (PR #2)
+
+**La version native est pour le moment sur `fix/native-first-person-tablet` ; elle n'est pas encore fusionnee
+dans `main`.** Pour verifier les animations avec `1-Lancer-Client.bat`, faites :
+
+```powershell
+git fetch origin
+git switch fix/native-first-person-tablet
+git pull origin fix/native-first-person-tablet
+```
+
+Cette branche installe FP PAL 1.1.1 et Player Animation Library 1.2.8 dans le
+client de developpement via **`implementation`** (Fabric Loom non-remapping, Minecraft 26.3). Aucun export Blockbench
+supplementaire n'est necessaire : la branche contient les animations `open`,
+`idle` et `close` de `questplus_first_person.bbmodel` et le modele
+`fp_models/questplus_first_person.geo.json` avec sa texture.
+
+Pour diagnostiquer le chargement, dans le chat du jeu :
+
+```text
+/fp_anim list
+/fp_anim play questplus:questplus.open
+```
+
+La premiere commande doit lister les animations `questplus:questplus.open`,
+`questplus:questplus.idle` et `questplus:questplus.close`.
+La seconde doit jouer **l'animation des vrais bras vanilla**, meme sans appuyer sur J.
+Si `/fp_anim` est inconnue, verifier le chargement des mods FP PAL et PAL.
+Si l'animation est absente, consulter `run/client/logs/latest.log` et
+les lignes `FP animation` / `Quest Plus has fallen back`.
+Ce test isole le probleme de chargement du rendu de la tablette.
+
+La tablette est maintenant rendue automatiquement par FP PAL pendant le mouvement,
+en meme temps que les bras. L'interface des quetes utilise encore une couche 2D
+a aligner sur la surface visible de la tablette ; le rendu GPU de l'ecran sur
+la surface 3D et la validation visuelle FOV/GUI Scale ne sont **pas encore termines**.
+
 ## Lancer le mod depuis Windows (.bat)
 
 Les raccourcis suivants se trouvent **a la racine du depot**. Lancez `0-Menu-Tests.bat` pour choisir une operation,

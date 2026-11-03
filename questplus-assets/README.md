@@ -1,6 +1,8 @@
 # Quest Plus — tablette et animations
 
-Sources éditables, textures et exports graphiques indépendants du backend. Dernière révision : 3 novembre 2026.
+Sources éditables, textures et exports graphiques indépendants du backend. Dernière révision : 4 novembre 2026.
+
+L’intégration Minecraft actuelle, les essais visuels et leurs limites sont détaillés dans [le rapport PR #2](../docs/reviews/native-tablet.md). Les aperçus ci-dessous documentent la fabrication initiale ; la première personne de référence utilise désormais une caméra `[0,17.6,0.5]` et des bras arrivant par le bas.
 
 La dernière demande visuelle est appliquée : **aucune grappe d'améthyste**, livre ouvert détaillé sur le médaillon supérieur, écran tourné vers le joueur pendant la consultation. Un observateur devant le personnage voit le dos de la tablette. Le petit cabochon du dos est conservé ; ce n'est pas une grappe.
 
@@ -118,7 +120,7 @@ Les heuristiques génériques de contrôle de rig signalent l'absence de coudes 
 
 La référence fournie a été comparée visuellement : cadre, cuivre, pierre et livre reprennent sa composition, sans copier son interface. Aucun score de comparaison automatique n'est revendiqué : l'image jointe au chat n'était pas disponible comme fichier local dans le pont.
 
-**Pas encore exécuté :** chargement par PAL/FP PAL/GeckoLib dans Minecraft, contrôle multijoueur, skins réels, FOV variables et interaction de la pose de tête avec le mouvement de caméra. Les exports sont des ressources préparées pour cette intégration, pas une fonctionnalité Minecraft certifiée.
+**Intégration exécutée depuis :** chargement Minecraft par PAL/FP PAL, cinq configurations FOV/résolution/GUI Scale, skins classiques/fins, interface sur la face et interactions. Le renderer extérieur a été contrôlé avec deux avatars et les paquets du serveur intégré. Deux connexions de joueurs réels et les shaders tiers restent à valider ; voir le rapport PR #2.
 
 ## Reproduire
 
@@ -133,4 +135,10 @@ python questplus-assets/tools/capture_motion.py
 
 Le deuxième script nécessite Blockbench ouvert avec le pont local actif. Il utilise le codec natif, réenregistre les sources et actualise les captures. Le premier script **reconstruit les assets et écrase les retouches manuelles** : ne le relancer que pour repartir de la recette. Pour retoucher les modèles, travailler directement dans Blockbench et conserver les `.bbmodel`.
 
-Tout ce dossier peut être versionné indépendamment sur GitHub. Il n'a pas été publié et n'a pas été ajouté au JAR Quest Plus.
+Les ressources nécessaires sont copiées sous `src/main/resources/assets/questplus/` et incluses dans le JAR. Pour exporter les sources de référence sans les reconstruire :
+
+```powershell
+python questplus-assets/tools/export_first_person.py
+python questplus-assets/tools/export_third_person.py
+python questplus-assets/tools/export_third_person.py --check
+```

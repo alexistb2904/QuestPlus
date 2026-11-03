@@ -78,16 +78,16 @@
   "preview_camera": {
     "eye": [
       0,
-      25.6,
-      1
+      17.6,
+      0.5
     ],
     "target": [
       0,
-      17,
-      -9
+      18.8,
+      -10.5
     ],
-    "projection": "orthographic",
+    "projection": "perspective",
     "vertical_span": 25
   },
-  "note": "Camera is an authoring preview, not a calibrated Minecraft perspective camera. Tablet front faces +Z toward player in held pose. Anchors are prop-local placement guides, not tracked finger joints."
+  "note": "First-person perspective camera used by the Blockbench export. Tablet front faces +Z in held pose; arm scale is authored about the palm contact."
 }
