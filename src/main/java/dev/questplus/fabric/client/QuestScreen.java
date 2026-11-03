@@ -69,10 +69,10 @@ public final class QuestScreen extends Screen {
     public QuestScreen() { super(Component.literal("Quest Plus")); }
     private Component t(String key,Object... args) { return tr(key,args); }
     private QuestButton button(String key,int x,int y,int w,Runnable action) {
-        return addRenderableWidget(new QuestButton(t(key),x,y,w,18,action));
+        return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
     }
     @Override protected void init() {
-        int margin=Math.max(12,(int)(Math.min(width,height)*0.20));
+        int margin=Math.max(12,(int)(Math.min(width,height)*0.20)); // Scale the UI controls, not the 3D tablet.
         int fw=Math.min(width-margin*2,(int)(760*settings.scale));
         int fh=Math.min(height-margin*2,(int)(fw*0.6));
         if (settings.tablet) fw=Math.min(fw,(int)(fh/0.6));
@@ -82,11 +82,11 @@ public final class QuestScreen extends Screen {
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
         cachedLeft=Double.NaN; questAction=null;
         clearWidgets();
-        int tabWidth=Math.min(94,(fw-35)/3);
+        int tabWidth=Math.min(78,(fw-35)/3);
         button("quests",left+5,top+6,tabWidth,() -> switchTab("quests")).selected(tab.equals("quests")).icon(tabWidth>=80 ? icon("minecraft:book") : ItemStack.EMPTY);
         button("team",left+7+tabWidth,top+6,tabWidth,() -> switchTab("team")).selected(tab.equals("team")).icon(tabWidth>=80 ? icon("minecraft:player_head") : ItemStack.EMPTY);
         button("settings",left+9+tabWidth*2,top+6,tabWidth,() -> switchTab("settings")).selected(tab.equals("settings")).icon(tabWidth>=80 ? icon("minecraft:comparator") : ItemStack.EMPTY);
-        button("close",right-23,top+6,18,this::onClose).setMessage(Component.literal("×"));
+        button("close",right-20,top+6,15,this::onClose).setMessage(Component.literal("×"));
         if (tab.equals("quests")) {
             int treeWidth=treeRight-treeLeft;
             boolean compact=treeWidth<230;
@@ -154,24 +154,24 @@ public final class QuestScreen extends Screen {
         g.fill(left+3,top+3,right-3,top+27,0xff241c18);
         g.fill(left+4,top+27,right-4,top+28,0xff815a3d);
         if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g); }
-        if (!state.ready) g.centeredText(font,t(state.error==null ? "loading" : "network_error"),width/2,height/2,0xffe4dec9);
+        if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),width/2,height/2,0xffe4dec9);
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
-        else g.text(font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
-        if (state.error!=null) g.text(font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
+        else QuestSkin.text(g,font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
+        if (state.error!=null) QuestSkin.text(g,font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
         super.extractRenderState(g,mx,my,delta);
         g.pose().popMatrix();
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
         var categories=new ArrayList<>(state.categories.values());
-        int count=Math.max(1,(treeBottom-treeTop)/30);
+        int count=Math.max(1,(treeBottom-treeTop)/26);
         categoryScroll=Math.clamp(categoryScroll,0,Math.max(0,categories.size()-count));
         for (int i=categoryScroll;i<Math.min(categories.size(),categoryScroll+count);i++) {
-            var c=categories.get(i); int x=left+7,y=treeTop+(i-categoryScroll)*30;
+            var c=categories.get(i); int x=left+7,y=treeTop+(i-categoryScroll)*26;
             boolean active=c.get("id").getAsString().equals(category);
-            QuestSkin.panel(g,x,y,25,25,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
-            g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+4,y+4);
-            if (mx>=x && mx<x+25 && my>=y && my<y+25) g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))),mx,my);
+            QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
+            g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
+            if (mx>=x && mx<x+22 && my>=y && my<y+22) g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))),mx,my);
         }
     }
     private String localized(JsonObject map) { Map<String,String> values=new HashMap<>(); map.entrySet().forEach(e -> values.put(e.getKey(),e.getValue().getAsString())); return state.text(values); }
@@ -180,12 +180,12 @@ public final class QuestScreen extends Screen {
         int x=treeLeft,w=treeRight-treeLeft;
         QuestSkin.panel(g,x,top+33,w,29,0xff3b2b21,0xff866046);
         g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+6,top+39);
-        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+27,top+37,QuestSkin.INK,false);
-        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+27,top+49,QuestSkin.DIM,false);
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+27,top+37,QuestSkin.INK,false);
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+27,top+49,QuestSkin.DIM,false);
         long done=completedNodes;
         if (w>260) {
             int bar=80,bx=treeRight-bar-8;
-            g.text(font,done+" / "+layout.points().size(),bx,top+37,QuestSkin.INK,false);
+            QuestSkin.text(g,font,done+" / "+layout.points().size(),bx,top+37,QuestSkin.INK,false);
             QuestSkin.panel(g,bx,top+49,bar,5,0xff211a17,0xff715849);
             if (!layout.points().isEmpty()) g.fill(bx+2,top+51,bx+2+(int)((bar-4)*done/layout.points().size()),top+52,0xffa37bab);
         }
@@ -222,12 +222,12 @@ public final class QuestScreen extends Screen {
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
             g.pose().pushMatrix(); g.pose().translate(x-8*(float)camera.zoom(),y-8*(float)camera.zoom()); g.pose().scale((float)camera.zoom());
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
-            if (!state.quests.get(id).progression().equals("once")) g.text(font,"+",x+r-6,y+r-8,0xffe4cf96,false);
+            if (!state.quests.get(id).progression().equals("once")) QuestSkin.text(g,font,"+",x+r-6,y+r-8,0xffe4cf96,false);
             if (statuses.get(id).equals("completed")) { g.fill(x+r-5,y+r-6,x+r+2,y+r+1,0xff34492e); g.fill(x+r-4,y+r-3,x+r-2,y+r-1,0xffd6e4b2); g.fill(x+r-2,y+r-4,x+r,y+r-2,0xffd6e4b2); g.fill(x+r,y+r-6,x+r+2,y+r-3,0xffd6e4b2); }
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
             if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()),mx,my);
         }
-        if (!any && layout.points().isEmpty()) g.centeredText(font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
+        if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
     }
     private void updateRenderCache() {
@@ -295,7 +295,7 @@ public final class QuestScreen extends Screen {
         detailLines=List.copyOf(lines);
         }
         detailsScroll=Math.clamp(detailsScroll,0,Math.max(0,detailLines.size()*11-(bottom-49-y)));
-        for (int i=0;i<detailLines.size();i++) if (y+i*11-detailsScroll>y-11 && y+i*11-detailsScroll<bottom-49) g.text(font,detailLines.get(i),x,y+i*11-detailsScroll,0xffd8dccb,false);
+        for (int i=0;i<detailLines.size();i++) if (y+i*11-detailsScroll>y-11 && y+i*11-detailsScroll<bottom-49) QuestSkin.text(g,font,detailLines.get(i),x,y+i*11-detailsScroll,0xffd8dccb,false);
         g.disableScissor();
     }
     private void append(List<String> lines,String text,int w) { for (var line:font.split(Component.literal(text),Math.max(20,w))) { StringBuilder b=new StringBuilder(); line.accept((i,style,cp) -> { b.appendCodePoint(cp); return true; }); lines.add(b.toString()); } lines.add(""); }
@@ -339,15 +339,15 @@ public final class QuestScreen extends Screen {
         int x=left+14;
         if (state.team==null) {
             int capacity=Math.max(1,(bottom-(top+70)-38)/25),start=teamPage*capacity;
-            for (int i=start;i<Math.min(state.invitations.size(),start+capacity);i++) { var invitation=state.invitations.get(i).getAsJsonObject(); g.text(font,font.plainSubstrByWidth(invitation.get("name").getAsString(),Math.max(30,right-left-183)),x,top+75+(i-start)*25,0xffd8dccb,false); }
-            if (state.invitations.isEmpty()) g.text(font,t("no_invitations"),x,top+79,0xffa9b3a5,false);
+            for (int i=start;i<Math.min(state.invitations.size(),start+capacity);i++) { var invitation=state.invitations.get(i).getAsJsonObject(); QuestSkin.text(g,font,font.plainSubstrByWidth(invitation.get("name").getAsString(),Math.max(30,right-left-183)),x,top+75+(i-start)*25,0xffd8dccb,false); }
+            if (state.invitations.isEmpty()) QuestSkin.text(g,font,t("no_invitations"),x,top+79,0xffa9b3a5,false);
         } else {
-            g.text(font,font.plainSubstrByWidth(state.team.get("name").getAsString(),right-left-28),x,top+40,0xffe4d6b1,false);
-            g.text(font,t("owner",state.team.get("owner").getAsString()),x,top+53,0xffa9b3a5,false);
+            QuestSkin.text(g,font,font.plainSubstrByWidth(state.team.get("name").getAsString(),right-left-28),x,top+40,0xffe4d6b1,false);
+            QuestSkin.text(g,font,t("owner",state.team.get("owner").getAsString()),x,top+53,0xffa9b3a5,false);
             var members=state.team.getAsJsonArray("members"); int capacity=Math.max(1,(bottom-top-143)/23),start=teamPage*capacity;
-            for (int i=start;i<Math.min(members.size(),start+capacity);i++) { var m=members.get(i).getAsJsonObject(); String name=m.has("name") ? m.get("name").getAsString() : m.get("id").getAsString(); g.text(font,font.plainSubstrByWidth((QuestClientState.flag(m,"online") ? "● " : "○ ")+name,Math.max(30,right-left-169)),x,top+104+(i-start)*23,0xffd8dccb,false); }
+            for (int i=start;i<Math.min(members.size(),start+capacity);i++) { var m=members.get(i).getAsJsonObject(); String name=m.has("name") ? m.get("name").getAsString() : m.get("id").getAsString(); QuestSkin.text(g,font,font.plainSubstrByWidth((QuestClientState.flag(m,"online") ? "● " : "○ ")+name,Math.max(30,right-left-169)),x,top+104+(i-start)*23,0xffd8dccb,false); }
         }
-        if (confirmation!=null) g.text(font,t("confirm_hint"),x,bottom-42,0xffe3b991,false);
+        if (confirmation!=null) QuestSkin.text(g,font,t("confirm_hint"),x,bottom-42,0xffe3b991,false);
     }
     private void settingsWidgets() {
         int x=left+14,y=top+39,w=(right-left-36)/2;
