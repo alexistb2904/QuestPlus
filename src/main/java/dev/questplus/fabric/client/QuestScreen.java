@@ -11,6 +11,8 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.*;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.*;
@@ -45,7 +47,8 @@ public final class QuestScreen extends Screen {
     private long filteredSequence=-2,filteredCatalogue=-2;
     private String filteredQuery,filteredLanguage,filteredFilter;
     private double cachedLeft=Double.NaN,cachedTop,cachedRight,cachedBottom;
-    private List<String> detailLines=List.of();
+    private record DetailRow(List<String> lines,ItemStack icon,String progress) {}
+    private List<DetailRow> detailLines=List.of();
     private String detailQuest,detailLanguage;
     private long detailSequence=-2;
     private int detailWidth;
@@ -108,11 +111,13 @@ public final class QuestScreen extends Screen {
             int searchWidth=attachedToScreenFace ? right-searchX-26 : Math.max(30,treeWidth-(compact ? 43 : 120));
             search=addRenderableWidget(new QuestTextField(font,searchX,searchY,searchWidth,14,t("search")));
             search.setMaxLength(128); search.setHint(t("search")); search.setValue(query); search.setResponder(value -> query=value);
+            if (!overlayDetails) {
             var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,attachedToScreenFace || compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
             button("fit",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
             button("zoom_out",treeRight-40,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
             button("zoom_in",treeRight-21,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            }
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
         else settingsWidgets();
@@ -177,7 +182,7 @@ public final class QuestScreen extends Screen {
         int headerBottom=top+(attachedToScreenFace ? 23 : 27);
         g.fill(left+3,top+3,right-3,headerBottom,0xff241c18);
         g.fill(left+4,headerBottom,right-4,headerBottom+1,0xff815a3d);
-        if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g); }
+        if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g,mx,my); }
         if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),(left+right)/2,(top+bottom)/2,0xffe4dec9);
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
@@ -198,22 +203,28 @@ public final class QuestScreen extends Screen {
             g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
             if (mx>=x && mx<x+22 && my>=y && my<y+22) g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))),mx,my);
         }
+        if (categories.size()>count) {
+            if (categoryScroll>0) g.fill(left+14,treeTop-3,left+23,treeTop-2,QuestSkin.HIGHLIGHT);
+            if (categoryScroll+count<categories.size()) g.fill(left+14,treeTop+count*26-3,left+23,treeTop+count*26-2,QuestSkin.HIGHLIGHT);
+        }
     }
     private String localized(JsonObject map) { Map<String,String> values=new HashMap<>(); map.entrySet().forEach(e -> values.put(e.getKey(),e.getValue().getAsString())); return state.text(values); }
-    private void drawCategoryHeader(GuiGraphicsExtractor g) {
+    private void drawCategoryHeader(GuiGraphicsExtractor g,int mx,int my) {
         var c=state.categories.get(category); if (c==null) return;
-        int x=treeLeft,w=treeRight-treeLeft;
+        int x=treeLeft,w=right-7-treeLeft;
         QuestSkin.panel(g,x,top+(attachedToScreenFace ? 26 : 33),w,attachedToScreenFace ? 23 : 29,0xff3b2b21,0xff866046);
         g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+5,top+(attachedToScreenFace ? 30 : 39));
-        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+24,top+(attachedToScreenFace ? 30 : 37),QuestSkin.INK,false);
-        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+24,top+(attachedToScreenFace ? 39 : 49),QuestSkin.DIM,false);
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(1,w-32-(w>260 ? 90 : 0))),x+24,top+(attachedToScreenFace ? 30 : 37),QuestSkin.INK,false);
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(1,w-32-(w>260 ? 90 : 0))),x+24,top+(attachedToScreenFace ? 39 : 49),QuestSkin.DIM,false);
         long done=completedNodes;
         if (w>260) {
-            int bar=80,bx=treeRight-bar-8;
+            int bar=80,bx=right-7-bar-8;
             QuestSkin.text(g,font,done+" / "+layout.points().size(),bx,top+(attachedToScreenFace ? 30 : 37),QuestSkin.INK,false);
             QuestSkin.panel(g,bx,top+(attachedToScreenFace ? 40 : 49),bar,4,0xff211a17,0xff715849);
             if (!layout.points().isEmpty()) g.fill(bx+2,top+(attachedToScreenFace ? 41 : 51),bx+2+(int)((bar-4)*done/layout.points().size()),top+(attachedToScreenFace ? 42 : 52),0xffa37bab);
         }
+        if (mx>=x && mx<x+w && my>=top+26 && my<treeTop)
+            g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"))),mx,my);
     }
     private void drawPaper(GuiGraphicsExtractor g) {
         QuestSkin.panel(g,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,0xff38291f,0xff805d42);
@@ -294,12 +305,12 @@ public final class QuestScreen extends Screen {
     }
     private void drawDetails(GuiGraphicsExtractor g) {
         var q=state.quests.get(selected); if (q==null) return;
-        int x=detailLeft,w=right-x-8,y=treeTop+(attachedToScreenFace ? 55 : 26);
+        int x=detailLeft,w=right-x-8,y=treeTop+(attachedToScreenFace ? 55 : 26),end=bottom-(attachedToScreenFace ? 7 : 49);
         if (overlayDetails) QuestSkin.panel(g,treeLeft,treeTop,right-treeLeft-5,treeBottom-treeTop,0xff30251e,QuestSkin.EDGE);
-        g.enableScissor(x,y,right-5,bottom-49);
+        g.enableScissor(x,y,right-5,end);
         if (!Objects.equals(detailQuest,selected) || detailSequence!=state.sequence || detailWidth!=w || !Objects.equals(detailLanguage,minecraft.options.languageCode)) {
         detailQuest=selected; detailSequence=state.sequence; detailWidth=w; detailLanguage=minecraft.options.languageCode;
-        List<String> lines=new ArrayList<>();
+        List<DetailRow> lines=new ArrayList<>();
         append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
         append(lines,state.text(q.description()),w);
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
@@ -307,23 +318,86 @@ public final class QuestScreen extends Screen {
         append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString(),w);
         for (var o:q.objectives()) {
             long value=counters!=null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
-            append(lines,state.text(o.text())+"  "+value+" / "+QuestPresentation.target(q,o,p),w);
+            String label=state.text(o.text());
+            if (label.isBlank() || label.contains(o.target())) label=objectiveLabel(o);
+            appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p));
             if (o.conditions()!=null) append(lines,condition(o.conditions()),w);
         }
         if (q.requires()!=null) { append(lines,t("requires").getString(),w); append(lines,condition(q.requires()),w); }
         if (!q.progression().equals("once")) append(lines,t("cycles",QuestClientState.count(p,"cycles"),QuestClientState.count(p,"tier")).getString(),w);
         append(lines,t("rewards").getString(),w);
-        for (var r:q.rewards()) append(lines,reward(r),w);
-        for (var tier:q.tiers()) { append(lines,t("tier",tier.threshold()).getString(),w); for (var r:tier.rewards()) append(lines,reward(r),w); }
+        for (var r:q.rewards()) appendTile(lines,reward(r),w,rewardIcon(r));
+        for (var tier:q.tiers()) { append(lines,t("tier",tier.threshold()).getString(),w); for (var r:tier.rewards()) appendTile(lines,reward(r),w,rewardIcon(r)); }
         if (q.timeLimitSeconds()>0) append(lines,t("time_limit",q.timeLimitSeconds()).getString(),w);
         if (q.noDeath()) append(lines,t("no_death").getString(),w);
         detailLines=List.copyOf(lines);
         }
-        detailsScroll=Math.clamp(detailsScroll,0,Math.max(0,detailLines.size()*11-(bottom-49-y)));
-        for (int i=0;i<detailLines.size();i++) if (y+i*11-detailsScroll>y-11 && y+i*11-detailsScroll<bottom-49) QuestSkin.text(g,font,detailLines.get(i),x,y+i*11-detailsScroll,0xffd8dccb,false);
+        int total=detailLines.stream().mapToInt(this::detailHeight).sum();
+        detailsScroll=Math.clamp(detailsScroll,0,Math.max(0,total-(end-y)));
+        int rowY=y-detailsScroll;
+        for (var row:detailLines) {
+            int h=detailHeight(row);
+            if (rowY+h>y && rowY<end) {
+                int textX=x;
+                if (!row.icon().isEmpty()) {
+                    QuestSkin.panel(g,x,rowY,w,h-2,0xff29211c,QuestSkin.EDGE);
+                    g.item(row.icon(),x+3,rowY+2);
+                    textX+=23;
+                }
+                for (int i=0;i<row.lines().size();i++) QuestSkin.text(g,font,row.lines().get(i),textX,rowY+(!row.icon().isEmpty() ? 3 : 0)+i*10,QuestSkin.INK,false);
+                if (row.progress()!=null) QuestSkin.text(g,font,row.progress(),x+w-3-font.width(row.progress()),rowY+3+row.lines().size()*10,QuestSkin.DIM,false);
+            }
+            rowY+=h;
+        }
         g.disableScissor();
     }
-    private void append(List<String> lines,String text,int w) { for (var line:font.split(Component.literal(text),Math.max(20,w))) { StringBuilder b=new StringBuilder(); line.accept((i,style,cp) -> { b.appendCodePoint(cp); return true; }); lines.add(b.toString()); } lines.add(""); }
+    private int detailHeight(DetailRow row) { return row.icon().isEmpty() ? row.lines().size()*10+4 : Math.max(22,row.lines().size()*10+6+(row.progress()!=null ? 10 : 0)); }
+    private List<String> wrap(String text,int width) {
+        List<String> lines=new ArrayList<>();
+        for (var line:font.split(Component.literal(text),Math.max(1,width))) {
+            StringBuilder b=new StringBuilder(); line.accept((i,style,cp) -> { b.appendCodePoint(cp); return true; }); lines.add(b.toString());
+        }
+        return lines;
+    }
+    private void append(List<DetailRow> rows,String text,int width) { if (!text.isBlank()) rows.add(new DetailRow(wrap(text,width),ItemStack.EMPTY,null)); }
+    private void appendTile(List<DetailRow> rows,String text,int width,ItemStack item) { appendTile(rows,text,width,item,null); }
+    private void appendTile(List<DetailRow> rows,String text,int width,ItemStack item,String progress) { rows.add(new DetailRow(wrap(text,Math.max(1,width-26)),item,progress)); }
+    private ItemStack iconForObjective(QuestDefinition q,QuestDefinition.Objective o) {
+        var id=Identifier.tryParse(o.target().startsWith("#") ? o.target().substring(1) : o.target());
+        if (id!=null && o.target().startsWith("#") && minecraft.level!=null) {
+            var blocks=minecraft.level.registryAccess().lookupOrThrow(Registries.BLOCK);
+            var tag=blocks.get(TagKey.create(Registries.BLOCK,id));
+            if (tag.isPresent()) for (var holder:tag.get()) {
+                var item=holder.value().asItem();
+                if (item!=Items.AIR) return new ItemStack(item);
+            }
+        }
+        if (id!=null && o.event().equals("entity_kill")) {
+            var entity=BuiltInRegistries.ENTITY_TYPE.getOptional(id);
+            if (entity.isPresent()) {
+                var egg=SpawnEggItem.byId(entity.get());
+                if (egg.isPresent()) return new ItemStack(egg.get().value());
+            }
+        }
+        return id!=null && BuiltInRegistries.ITEM.containsKey(id) ? icon(o.target()) : icon(q.icon());
+    }
+    private String objectiveLabel(QuestDefinition.Objective o) {
+        var id=Identifier.tryParse(o.target().startsWith("#") ? o.target().substring(1) : o.target());
+        String target=id==null ? o.target() : id.getPath().replace('_',' ').replace('/',' ');
+        if (id!=null && o.event().equals("entity_kill")) {
+            var entity=BuiltInRegistries.ENTITY_TYPE.getOptional(id);
+            if (entity.isPresent()) target=entity.get().getDescription().getString();
+        } else if (id!=null && !o.target().startsWith("#") && BuiltInRegistries.ITEM.containsKey(id)) target=icon(o.target()).getHoverName().getString();
+        String event=switch(o.event()) {
+            case "block_break", "block_place", "item_obtained", "inventory_count", "entity_kill", "biome_visit", "dimension_enter", "travel_distance" -> o.event();
+            default -> "other";
+        };
+        return t("objective."+event,target).getString();
+    }
+    private ItemStack rewardIcon(QuestDefinition.Reward r) {
+        if (r.item()!=null) return icon(r.item());
+        return new ItemStack(r.type().equals("experience") ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
+    }
     private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
     private String condition(QuestDefinition.Condition c) {
         if (c.operator().equals("quest")) { var q=state.quests.get(c.value()); return q==null ? t("unknown_quest").getString() : state.text(q.title()); }
@@ -439,7 +513,10 @@ public final class QuestScreen extends Screen {
         }
         y-=visualOffset;
         if (tab.equals("quests")) {
-            if (x<treeLeft) { categoryScroll-= (int)Math.signum(vertical); return true; }
+            if (x>=left+7 && x<treeLeft && y>=treeTop && y<treeBottom) {
+                int count=Math.max(1,(treeBottom-treeTop)/26);
+                categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,state.categories.size()-count)); return true;
+            }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
             if (inTree(x,y)) { camera.zoomAt(Math.pow(1.15,vertical),x,y); return true; }
         }

@@ -71,7 +71,7 @@ abstract class TabletFaceCaptureMixin {
     private static void questplus$screenUv(FpGeoModel.Cube cube,FpGeoModel model,int face,CallbackInfoReturnable<float[]> cir) {
         var screen=model.bone("screen");
         if (questplus$usesAtlas() && face==FpGeoModel.FACE_NORTH && screen!=null && screen.cubes().contains(cube))
-            cir.setReturnValue(new float[]{TabletSurfaceRenderer.SCREEN_X+TabletSurfaceRenderer.WIDTH,TabletSurfaceRenderer.ATLAS_HEIGHT-TabletSurfaceRenderer.HEIGHT,-TabletSurfaceRenderer.WIDTH,TabletSurfaceRenderer.HEIGHT});
+            cir.setReturnValue(new float[]{TabletSurfaceRenderer.SCREEN_X+TabletSurfaceRenderer.SCREEN_WIDTH,TabletSurfaceRenderer.ATLAS_HEIGHT-TabletSurfaceRenderer.SCREEN_HEIGHT,-TabletSurfaceRenderer.SCREEN_WIDTH,TabletSurfaceRenderer.SCREEN_HEIGHT});
     }
     @Inject(method="uv",at=@At("RETURN"),cancellable=true,remap=false)
     private static void questplus$atlasUv(FpGeoModel.Cube cube,FpGeoModel model,int face,CallbackInfoReturnable<float[]> cir) {

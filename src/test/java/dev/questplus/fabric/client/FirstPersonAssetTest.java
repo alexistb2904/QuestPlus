@@ -23,6 +23,10 @@ class FirstPersonAssetTest {
             // Prevent a one-frame reset before FP PAL switches to the matching idle clip.
             assertEquals("hold_on_last_frame",
                 animations.getAsJsonObject("questplus.open").get("loop").getAsString());
+            assertEquals("hold_on_last_frame",
+                animations.getAsJsonObject("questplus.close").get("loop").getAsString());
+            assertTrue(animations.getAsJsonObject("questplus.open").getAsJsonObject("bones")
+                .getAsJsonObject("rightArm").getAsJsonObject("rotation").size()>=121);
             var open=animations.getAsJsonObject("questplus.open").getAsJsonObject("bones");
             var idle=animations.getAsJsonObject("questplus.idle").getAsJsonObject("bones");
             for (String bone:new String[]{"rightArm","leftArm","tablet_root"}) {

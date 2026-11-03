@@ -27,8 +27,17 @@ final class FirstPersonPalBridge {
         var expected=FpAnimationResources.getAnimation(id);
         if (expected==null) return false;
         var current=controller.getCurrentAnimationInstance();
-        return current==expected ? controller.getAnimationTicks()>=expected.length()
+        boolean ended=current==expected ? controller.getAnimationTicks()>=expected.length()
             : current==null && controller.hasAnimationFinished();
+        return ended && TabletFrameInterpolation.settled(id,expected.length());
     }
-    static void stop() { FpAnimationSystem.stopFpAnimation(); }
+    static void prepareFrame(float partialTick) { TabletFrameInterpolation.apply(partialTick); }
+    static void stop() {
+        TabletFrameInterpolation.reset();
+        FpAnimationSystem.stopFpAnimation();
+        if (Minecraft.getInstance().player instanceof IFpAnimatedPlayer animated) {
+            var controller=animated.fpPal$getFpAnimationController();
+            if (controller!=null) controller.setActive(false);
+        }
+    }
 }

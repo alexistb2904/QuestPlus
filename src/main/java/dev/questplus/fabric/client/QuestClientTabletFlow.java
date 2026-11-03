@@ -16,7 +16,7 @@ final class QuestClientTabletFlow {
 
     static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(QuestClientTabletFlow::tick);
-        ClientPlayConnectionEvents.DISCONNECT.register((handler,client) -> reset());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler,client) -> { stop();reset(); });
         // FP PAL itself renders the Blockbench model from fp_models/ and textures/fp/.
         // No separate HUD tablet should be drawn here.
     }

@@ -12,12 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class TabletPlayerPoseMixin {
     @Inject(method="setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V",at=@At("TAIL"))
     private void questplus$pose(AvatarRenderState state, CallbackInfo ci) {
-        float progress=TabletPoseClient.progress(state);
-        if (progress<=0 || state.isSpectator) return;
-        var model=(PlayerModel)(Object)this;
-        model.rightArm.xRot+=( -1.15f-model.rightArm.xRot)*progress; model.leftArm.xRot+=(-1.15f-model.leftArm.xRot)*progress;
-        model.rightArm.yRot+=(-.2f-model.rightArm.yRot)*progress; model.leftArm.yRot+=(.2f-model.leftArm.yRot)*progress;
-        model.rightArm.zRot+=(.15f-model.rightArm.zRot)*progress; model.leftArm.zRot+=(-.15f-model.leftArm.zRot)*progress;
-        model.rightSleeve.loadPose(model.rightArm.storePose()); model.leftSleeve.loadPose(model.leftArm.storePose());
+        TabletPoseClient.apply((PlayerModel)(Object)this,state);
     }
 }

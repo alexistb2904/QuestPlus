@@ -17,7 +17,9 @@ import java.util.List;
 
 /** Persistent GUI atlas drawn by Minecraft's own backend-independent renderer. */
 public final class TabletSurfaceRenderer {
-    public static final int WIDTH=500, HEIGHT=300, ATLAS_WIDTH=1024, ATLAS_HEIGHT=512, SCREEN_X=256;
+    public static final int WIDTH=500, HEIGHT=300, PIXEL_SCALE=3,
+        SCREEN_WIDTH=WIDTH*PIXEL_SCALE, SCREEN_HEIGHT=HEIGHT*PIXEL_SCALE,
+        ATLAS_WIDTH=2048, ATLAS_HEIGHT=1024, SCREEN_X=256;
     public static final Identifier TEXTURE=Identifier.fromNamespaceAndPath("questplus","dynamic/tablet_surface");
     private static final Identifier BODY=Identifier.fromNamespaceAndPath("questplus","textures/fp/questplus_first_person.png");
     private static final GuiRenderState STATE=new GuiRenderState();
@@ -25,6 +27,7 @@ public final class TabletSurfaceRenderer {
     private static GuiRenderer renderer;
     private static boolean rendering;
     private TabletSurfaceRenderer() {}
+    public static boolean hidesHud() { return QuestClientTabletFlow.nativeHandsActive(); }
     static float uiScale() { return (float)QuestPlusClient.settings.scale; }
     static int logicalWidth() { return Math.round(WIDTH/uiScale()); }
     static int logicalHeight() { return Math.round(HEIGHT/uiScale()); }
@@ -37,6 +40,8 @@ public final class TabletSurfaceRenderer {
     public static RenderTarget target() { return rendering ? target : null; }
 
     public static void render() {
+        if (QuestClientTabletFlow.nativeHandsActive())
+            FirstPersonPalBridge.prepareFrame(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
         if (!active()) return;
         var mc=Minecraft.getInstance();
         if (target==null) {
@@ -56,7 +61,7 @@ public final class TabletSurfaceRenderer {
             graphics.nextStratum();
             graphics.pose().pushMatrix();
             graphics.pose().translate(SCREEN_X,0);
-            graphics.pose().scale(uiScale());
+            graphics.pose().scale(PIXEL_SCALE*uiScale());
             graphics.enableScissor(0,0,logicalWidth(),logicalHeight());
             ((QuestScreen)mc.gui.screen()).extractTablet(graphics,x,y,mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
             graphics.extractDeferredElements(x,y,mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
@@ -79,7 +84,7 @@ public final class TabletSurfaceRenderer {
     private static final class AtlasTexture extends AbstractTexture {
         AtlasTexture(RenderTarget target) {
             texture=target.getColorTexture(); textureView=target.getColorTextureView();
-            sampler=RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
+            sampler=RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);
         }
         @Override public void close() { }
     }

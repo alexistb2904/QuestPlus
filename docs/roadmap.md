@@ -66,7 +66,7 @@
 - [x] Tests JUnit du core, de la persistance, des équipes et des progressions avancées.
 - [x] Tests GameTest serveur pour des événements vanilla, récompenses et scénarios d'équipe.
 - [x] Schéma JSON de définitions et documentation des règles.
-- [ ] Refaire `./gradlew build integrationTest` sur la **dernière révision** et consigner les rapports : non exécuté depuis cet environnement d'audit.
+- [x] `./gradlew build integrationTest` exécuté le 4 novembre 2026 : 79 tests unitaires, quatre GameTests obligatoires et relecture des sauvegardes après arrêt (140 UUID). Voir le rapport PR #2.
 - [ ] Test réel deux clients ; tests sur de longues sessions et serveurs moddés.
 - [ ] Tests d'arrêt forcé à chaque point critique des transactions et des réservations de récompenses.
 - [ ] Profilage CPU/mémoire avec grand catalogue et beaucoup de joueurs, éviction éventuelle du cache UUID.
@@ -78,3 +78,5 @@
 ## Validation client sur la branche PR #2 — 3 novembre 2026
 
 Le brief client ultérieur autorise la correction de la tablette sur `fix/native-first-person-tablet`. Voir [le rapport natif](reviews/native-tablet.md) : build Java 25, tests unitaires et serveur, cinq configurations Minecraft avec captures et interactions sur la face 3D. Cette validation ne change pas les cases backend ci-dessus et ne constitue pas une validation multijoueur avec deux vrais clients ni Vulkan/shaders tiers. Aucune fusion dans `main`.
+
+Retouches du 4 novembre : HUD masqué, bras venant du bas, close sans flash, GUI suréchantillonné, flou vanilla, catégories défilables, blocs objectifs/récompenses et pose extérieure exportée de Blockbench. Les nouvelles captures et contrôles sont dans le même rapport. Le test extérieur utilise deux avatars RemotePlayer et les paquets du serveur intégré ; il ne remplace pas deux connexions réseau réelles.

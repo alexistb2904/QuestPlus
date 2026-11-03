@@ -26,6 +26,7 @@ def export():
         clip['bones']['fp_player_arms'] = {'rotation': {'0.0': [-math.degrees(pitch),0,0]}}
         clip['player_animation_library'] = {'fpDisplayTranslation': display, 'fpDisplayScale': 1, 'fpDisplayAnchor': 'camera'}
     animation['animations']['questplus.open']['loop'] = 'hold_on_last_frame'
+    animation['animations']['questplus.close']['loop'] = 'hold_on_last_frame'
     for bone in bones:
         if bone['name'] in ('rightArm','leftArm'):
             bone.pop('cubes', None)

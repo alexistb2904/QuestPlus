@@ -110,7 +110,7 @@ tablet.cube('rear_compass_gem',[-.55,-.55,1.09],[.55,.55,1.35],'crystal',back,[0
 
 def keys(times,values,channel):return [{'channel':channel,'data_points':[dict(zip(('x','y','z'),v))],'uuid':uid(f'{channel}{t}{v}'),'time':t,'color':-1,'interpolation':'linear'} for t,v in zip(times,values)]
 def animation(model,name,length,tracks,loop='once'):
-    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':length,'snapping':50,'animators':{}}
+    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':length,'snapping':100,'animators':{}}
     for bone,channels in tracks.items():
         group=next(g for g in model.groups if g['name']==bone)
         anim['animators'][group['uuid']]={'name':bone,'type':'bone','keyframes':sum([keys(t,v,c) for c,(t,v) in channels.items()],[])}
@@ -154,7 +154,9 @@ def make_mannequin(name,slim=False,third=False):
             # Entire assembly translates together, preserving wrist registration and screen angle.
             if channel=='position':vs=[blend(base,[base[0],base[1]+.045,base[2]],a) for a in breath]
             idle[bone][channel]=(ts,vs)
-    for bone in ['rightArm','leftArm']:idle[bone]['position']=(ts,[[0,round(a*.045,6),0] for a in breath])
+    for bone in ['rightArm','leftArm']:
+        base=opened[bone].get('position',(None,[[0,0,0]]))[1][-1]
+        idle[bone]['position']=(ts,[[base[0],round(base[1]+a*.045,6),base[2]] for a in breath])
     animation(m,prefix+'idle',4,idle,'loop')
     closed={b:{c:([round(DURATION-t,5) for t in reversed(times)],list(reversed(v))) for c,(times,v) in cs.items()} for b,cs in opened.items()}
     animation(m,prefix+'close',DURATION,closed)

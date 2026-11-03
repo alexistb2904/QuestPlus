@@ -10,7 +10,10 @@
     "TabletGameRendererMixin",
     "TabletGuiRendererMixin",
     "TabletGuiExtractorMixin",
-    "TabletNativeArmsMixin"
+    "TabletNativeArmsMixin",
+    "TabletFpInterpolationMixin",
+    "TabletHudMixin",
+    "TabletModelPartAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -4,7 +4,7 @@ import numpy as np
 
 DURATION=1.2
 FIRST_PERSON_ARM_SCALE=.45
-TIMES=[round(i/50,5) for i in range(61)]
+TIMES=[round(i/100,2) for i in range(121)]
 HELD=np.array([0,18.8,-10.5])
 RIGHT_REST=[53,0,6]
 LEFT_REST=[53,0,-6]
@@ -95,4 +95,10 @@ def clear_palm_contacts(tracks,elements):
                 delta=rotation(tracks[name]['rotation'][1][i])@((1-FIRST_PERSON_ARM_SCALE)*np.array([sign,-10,0]))
                 tracks[name]['position'][1][i]=[round(float(v),6) for v in np.array(tracks[name]['position'][1][i])+delta]
             tracks[name]['scale']=([0,DURATION],[[FIRST_PERSON_ARM_SCALE]*3,[FIRST_PERSON_ARM_SCALE]*3])
+            for i in range(len(TIMES)):
+                old=tracks[name]['rotation'][1][i];new=[180-old[0],old[1],old[2]]
+                palm=FIRST_PERSON_ARM_SCALE*np.array([sign,-10,0])
+                delta=rotation(old)@palm-rotation(new)@palm
+                tracks[name]['position'][1][i]=[round(float(v),6) for v in np.array(tracks[name]['position'][1][i])+delta]
+                tracks[name]['rotation'][1][i]=new
     return tracks

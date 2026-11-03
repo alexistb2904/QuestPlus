@@ -12,6 +12,7 @@ import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import dev.questplus.fabric.client.mixin.TabletModelPartAccessor;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +24,7 @@ public final class TabletNativeArms {
 
     public static boolean active() {
         var player=Minecraft.getInstance().player;
-        if (!(player instanceof IFpAnimatedPlayer animated)) return false;
+        if (!QuestClientTabletFlow.nativeHandsActive() || !(player instanceof IFpAnimatedPlayer animated)) return false;
         var controller=animated.fpPal$getFpAnimationController();
         var id=controller==null ? null : controller.getCurrentFpAnimation();
         return id!=null && id.getNamespace().equals("questplus")
@@ -35,6 +36,8 @@ public final class TabletNativeArms {
         float[] pivot=right ? RIGHT : LEFT;
         ModelPart arm=right ? model.rightArm : model.leftArm;
         ModelPart sleeve=right ? model.rightSleeve : model.leftSleeve;
+        var cubes=java.util.List.copyOf(((TabletModelPartAccessor)(Object)arm).questplus$cubes());
+        var sleeveCubes=sleeve.visible ? java.util.List.copyOf(((TabletModelPartAccessor)(Object)sleeve).questplus$cubes()) : java.util.List.<ModelPart.Cube>of();
         pose.pushPose();
         try {
             FpArmRenderUtil.applyBoneTransform(pose,bone,pivot);
@@ -42,13 +45,9 @@ public final class TabletNativeArms {
             // Vanilla player parts use the mirrored X/downward Y frame of AvatarRenderer.
             pose.scale(-1,-1,1);
             buffer.drawGeometry(pose,RenderTypes.entityCutout(skin),(matrix,vertices) -> {
-                var armPose=arm.storePose(); var sleevePose=sleeve.storePose();
-                try {
-                    arm.resetPose(); arm.setPos(0,0,0); arm.setRotation(0,0,0);
-                    sleeve.resetPose(); sleeve.setPos(0,0,0); sleeve.setRotation(0,0,0);
-                    arm.render(matrix,vertices,light,OverlayTexture.NO_OVERLAY);
-                    sleeve.render(matrix,vertices,light,OverlayTexture.NO_OVERLAY);
-                } finally { arm.loadPose(armPose); sleeve.loadPose(sleevePose); }
+                // Immutable meshes only: vanilla sleeves are children of the arms in 26.3.
+                for (var cube:cubes) cube.compile(matrix.last(),vertices,light,OverlayTexture.NO_OVERLAY,-1);
+                for (var cube:sleeveCubes) cube.compile(matrix.last(),vertices,light,OverlayTexture.NO_OVERLAY,-1);
             });
         } finally { pose.popPose(); }
     }

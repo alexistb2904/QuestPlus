@@ -38,6 +38,9 @@ for path in sorted((ROOT/'blockbench').glob('*.bbmodel')):
             from export_first_person import export
             compiled,_=export()
         else:
+            from export_third_person import export, OUTPUT
+            compiled=export()
+            OUTPUT.write_text(json.dumps(compiled,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
             for anim in compiled['animations'].values():anim['bones'].pop('tablet_root',None)
         write('animations/player/'+path.stem+'.animation.json',compiled)
     if path.stem!='questplus_tablet':
@@ -49,7 +52,8 @@ for path in sorted((ROOT/'blockbench').glob('*.bbmodel')):
         evidence[path.name]['rig_check']=call('check_rig')
         call('execute_script',{'code':'Modes.options.animate.select(); Animation.all[1].select(); Timeline.setTime(0); Animator.preview(); return true;'})
         if 'first_person' in path.stem:
-            call('set_camera_angle',{'position':[0,25.6,1],'target':[0,18.8,-10.5]})
+            camera=json.loads((ROOT/'models/attachment.json').read_text(encoding='utf-8'))['preview_camera']
+            call('set_camera_angle',{'position':camera['eye'],'target':camera['target']})
         else:call('set_camera_angle',{'position':[30,28,-40],'target':[0,19,-4]})
         call('execute_script',{'code':'Preview.selected.camera.zoom=1; Preview.selected.camera.fov=65; Preview.selected.camera.updateProjectionMatrix(); return true;'})
         shot('blockbench_'+path.stem.replace('questplus_','')+'.png')
