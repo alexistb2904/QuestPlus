@@ -58,6 +58,11 @@ public final class QuestScreen extends Screen {
     private boolean contentReady() {
         return closingAt==0 && (!animatedTablet() || System.nanoTime()-opened>=TabletFirstPersonAnimation.OPEN_NANOS);
     }
+    /** Do not use unscaled mouse coordinates while the screen-pop is still animating. */
+    private boolean interactiveReady() {
+        return contentReady() && (!animatedTablet()
+            || System.nanoTime()-opened>=TabletFirstPersonAnimation.OPEN_NANOS+CONTENT_POP_NANOS);
+    }
     public boolean tabletIsOpen() { return closingAt==0 && settings.tablet; }
     public double animationProgress() {
         if (!animatedTablet()) return closingAt==0 ? 1 : 0;
@@ -387,7 +392,7 @@ public final class QuestScreen extends Screen {
         button("blur_intensity",x,y+105,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
-        if (!contentReady()) return false;
+        if (!interactiveReady()) return false;
         if (super.mouseClicked(event,doubleClick)) return true;
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
@@ -400,12 +405,12 @@ public final class QuestScreen extends Screen {
     }
     private boolean inTree(double x,double y) { return x>=treeLeft && x<treeRight && y>=treeTop && y<treeBottom; }
     @Override public boolean mouseDragged(MouseButtonEvent event,double dx,double dy) {
-        if (!contentReady()) return false;
+        if (!interactiveReady()) return false;
         if (dragging) { if (Math.hypot(event.x()-downX,event.y()-downY)>3) dragged=true; if (dragged) camera.pan(dx,dy); return true; }
         return super.mouseDragged(event,dx,dy);
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
-        if (!contentReady()) return false;
+        if (!interactiveReady()) return false;
         if (dragging && event.button()==InputConstants.MOUSE_BUTTON_LEFT) {
             dragging=false;
             if (!dragged && inTree(event.x(),event.y())) layout.hit(camera.worldX(event.x()),camera.worldY(event.y())).filter(this::shown).ifPresent(id -> { selected=id; detailsScroll=0; init(); });
@@ -414,7 +419,7 @@ public final class QuestScreen extends Screen {
         return super.mouseReleased(event);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical) {
-        if (!contentReady()) return false;
+        if (!interactiveReady()) return false;
         if (tab.equals("quests")) {
             if (x<treeLeft) { categoryScroll-= (int)Math.signum(vertical); return true; }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
@@ -423,7 +428,7 @@ public final class QuestScreen extends Screen {
         return super.mouseScrolled(x,y,horizontal,vertical);
     }
     @Override public boolean keyPressed(KeyEvent event) {
-        if (!contentReady()) {
+        if (!interactiveReady()) {
             if (event.key()==InputConstants.KEY_ESCAPE) { onClose(); return true; }
             return true;
         }
