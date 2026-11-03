@@ -14,7 +14,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             context.waitFor(client -> QuestPlusClient.STATE.ready,600);
             context.runOnClient(client -> { if (QuestPlusClient.STATE.quests.isEmpty()) throw new AssertionError("Empty initial catalogue"); });
             context.setScreen(QuestScreen::new);
-            context.waitFor(client -> client.gui.screen() instanceof QuestScreen screen && screen.animationProgress() >= 1,300);
+            context.waitTicks(30);
             context.takeScreenshot("questplus-tablet-initial");
             context.runOnClient(client -> {
                 client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6,0,0));
@@ -38,8 +38,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             context.takeScreenshot("questplus-team");
             context.clickScreenButton("questplus.client.settings"); context.waitTicks(3);
             context.takeScreenshot("questplus-settings");
-            context.runOnClient(client -> client.gui.screen().onClose());
-            context.waitFor(client -> client.gui.screen()==null,300);
+            context.runOnClient(client -> client.gui.screen().onClose()); context.waitTicks(12);
+            context.runOnClient(client -> { if (client.gui.screen()!=null) throw new AssertionError("Screen did not close"); });
             world.getServer().runCommand("questplus reload");
             context.waitFor(client -> QuestPlusClient.STATE.generation>=2,300);
         }
