@@ -50,6 +50,12 @@ dependencies {
 
 loom {
     runs {
+        client {
+            runDir 'run/client'
+        }
+        server {
+            runDir 'run/server'
+        }
         gameTest {
             runDir 'build/gametest'
             vmArg '-Xmx1G'

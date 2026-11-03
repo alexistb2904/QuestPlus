@@ -42,13 +42,48 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-25.0.5.0.3'
 
 Sous Linux/macOS avec Java 25 : `./gradlew build integrationTest`.
 Le premier lancement télécharge les outils et dépendances. Le JAR installable est
-`build/libs/questplus-0.1.0.jar` ; le JAR `-sources` est destiné au développement.
+`build/libs/questplus-0.2.0.jar` ; le JAR `-sources` est destiné au développement.
 Installer le JAR avec Fabric API sur le serveur Fabric 26.3. Aucun mod client n'est requis pour les commandes/chat.
 
 `build` exécute les tests Java. `integrationTest` démarre un vrai serveur GameTest dédié, effectue des actions
 sur un joueur simulé et contrôle les fichiers après arrêt. Le serveur de test fonctionne dans `build/gametest` ;
 cette tâche accepte l'EULA Minecraft pour ce monde de test. Les tests ne se trouvent pas dans le JAR distribué.
 Résultats : `build/reports/tests/test/index.html`, `build/gametest-results.xml`.
+
+## Lancer le mod depuis Windows (.bat)
+
+Les raccourcis suivants se trouvent **a la racine du depot**. Lancez `0-Menu-Tests.bat` pour choisir une operation,
+ou double-cliquez directement sur le fichier voulu. Ils utilisent le wrapper Gradle inclus (pas d'installation Gradle requise)
+et les **sources actuelles** : aucun JAR a copier dans `mods/`.
+
+| Fichier | Fonction |
+| --- | --- |
+| `1-Lancer-Client.bat` | Lance Minecraft 26.3 + Fabric API + Quest Plus en mode developpement (`runClient`). |
+| `2-Lancer-Serveur.bat` | Lance un serveur Fabric local de test avec Quest Plus (`runServer`). |
+| `3-Compiler-Mod.bat` | Compile et execute les tests Gradle (`build`). |
+| `4-Tests-Serveur.bat` | Lance `build integrationTest`, y compris les GameTests et controles des JSON de sauvegarde. |
+| `5-Tests-Client.bat` | Lance les Client GameTests configures par Fabric (`runClientGameTest`). |
+
+**Prerequis :** Windows, JDK 25 accessible via `JAVA_HOME` ou `PATH`, et connexion Internet
+au premier demarrage pour telecharger les dependances Minecraft/Fabric/Gradle. Les scripts
+affichent le resultat et restent ouverts apres la fermeture du jeu ou la fin des tests.
+
+**Dossiers isoles :** le client utilise `run/client/` (mondes dans `run/client/saves/`),
+le serveur `run/server/` (monde et `questplus/` dans ce repertoire), les GameTests serveur
+`build/gametest/`. Ces repertoires sont ignores par Git.
+
+**Serveur local :** `2-Lancer-Serveur.bat` demande votre accord explicite avec
+[l'EULA Minecraft](https://aka.ms/MinecraftEULA). Au premier lancement, il cree seulement
+`run/server/server.properties` avec `server-ip=127.0.0.1` et `online-mode=false`
+pour que le client de developpement puisse se connecter **en local uniquement**. Ne publiez
+pas cette configuration sur Internet. Le port par defaut est `25565` ;
+depuis le client, ouvrez *Multijoueur > Connexion directe > localhost:25565*.
+Les scripts ne modifient plus les proprietes serveur si le fichier existe deja.
+
+**Note :** le backend peut aussi etre utilise sans UI graphique. Les fichiers JSON de
+quetes du serveur sont crees dans `run/server/world/questplus/` (nom de monde vanilla par defaut).
+Pour tester le partage des quetes avec deux utilisateurs reels, utilisez des sessions/client
+et identites distinctes. Les Client GameTests ne remplacent pas ce test multijoueur manuel.
 
 ## Fichiers du monde
 
