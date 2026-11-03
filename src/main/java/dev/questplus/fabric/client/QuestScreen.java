@@ -90,7 +90,10 @@ public final class QuestScreen extends Screen {
             left=(width-fw)/2;right=left+fw;top=(height-fh)/2;bottom=top+fh;
         }
         overlayDetails=selected!=null && fw<480;
-        treeLeft=left+36; treeTop=top+66; treeRight=selected==null || overlayDetails ? right-8 : right-Math.min(220,fw*2/5); treeBottom=bottom-25;
+        treeLeft=left+(attachedToScreenFace ? 30 : 36);
+        treeTop=top+(attachedToScreenFace ? 52 : 66);
+        treeRight=selected==null || overlayDetails ? right-7 : right-Math.min(170,fw*2/5);
+        treeBottom=bottom-(attachedToScreenFace ? 19 : 25);
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
         cachedLeft=Double.NaN; questAction=null;
         clearWidgets();
@@ -102,13 +105,13 @@ public final class QuestScreen extends Screen {
         if (tab.equals("quests")) {
             int treeWidth=treeRight-treeLeft;
             boolean compact=treeWidth<230;
-            search=addRenderableWidget(new QuestTextField(font,treeLeft,bottom-21,Math.max(30,treeWidth-(compact ? 48 : 138)),16,t("search")));
+            search=addRenderableWidget(new QuestTextField(font,treeLeft,bottom-18,Math.max(30,treeWidth-(compact ? 43 : 120)),14,t("search")));
             search.setMaxLength(128); search.setHint(t("search")); search.setValue(query); search.setResponder(value -> query=value);
-            var f=button("filter."+filter,compact ? treeRight-43 : treeRight-134,compact ? top+40 : bottom-22,compact ? 18 : 86,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
+            var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
-            button("fit",treeRight-21,top+40,18,this::fit).setMessage(Component.literal("o"));
-            button("zoom_out",treeRight-43,bottom-20,18,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
-            button("zoom_in",treeRight-21,bottom-20,18,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            button("fit",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
+            button("zoom_out",treeRight-40,bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
+            button("zoom_in",treeRight-21,bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
         else settingsWidgets();
@@ -129,7 +132,7 @@ public final class QuestScreen extends Screen {
         camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(0.25,2.5));
         if (fresh) fit();
     }
-    private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,24); }
+    private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,attachedToScreenFace ? 15 : 24); }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
         // During the first post-open model frame the 3D surface becomes available.
@@ -170,10 +173,11 @@ public final class QuestScreen extends Screen {
         else { g.fill(left-5,top-5,right+5,bottom+5,0xff342820); g.outline(left-5,top-5,right-left+10,bottom-top+10,0xff756553); }
         if (attachedToScreenFace) g.enableScissor(left,top,right,bottom);
         QuestSkin.panel(g,left,top,right-left,bottom-top,0xff30231e,0xff805c40);
-        g.fill(left+3,top+3,right-3,top+27,0xff241c18);
-        g.fill(left+4,top+27,right-4,top+28,0xff815a3d);
+        int headerBottom=top+(attachedToScreenFace ? 23 : 27);
+        g.fill(left+3,top+3,right-3,headerBottom,0xff241c18);
+        g.fill(left+4,headerBottom,right-4,headerBottom+1,0xff815a3d);
         if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g); }
-        if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),width/2,height/2,0xffe4dec9);
+        if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),(left+right)/2,(top+bottom)/2,0xffe4dec9);
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
         else QuestSkin.text(g,font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
@@ -198,16 +202,16 @@ public final class QuestScreen extends Screen {
     private void drawCategoryHeader(GuiGraphicsExtractor g) {
         var c=state.categories.get(category); if (c==null) return;
         int x=treeLeft,w=treeRight-treeLeft;
-        QuestSkin.panel(g,x,top+33,w,29,0xff3b2b21,0xff866046);
-        g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+6,top+39);
-        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+27,top+37,QuestSkin.INK,false);
-        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+27,top+49,QuestSkin.DIM,false);
+        QuestSkin.panel(g,x,top+(attachedToScreenFace ? 26 : 33),w,attachedToScreenFace ? 23 : 29,0xff3b2b21,0xff866046);
+        g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+5,top+(attachedToScreenFace ? 30 : 39));
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+24,top+(attachedToScreenFace ? 30 : 37),QuestSkin.INK,false);
+        QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+24,top+(attachedToScreenFace ? 39 : 49),QuestSkin.DIM,false);
         long done=completedNodes;
         if (w>260) {
             int bar=80,bx=treeRight-bar-8;
-            QuestSkin.text(g,font,done+" / "+layout.points().size(),bx,top+37,QuestSkin.INK,false);
-            QuestSkin.panel(g,bx,top+49,bar,5,0xff211a17,0xff715849);
-            if (!layout.points().isEmpty()) g.fill(bx+2,top+51,bx+2+(int)((bar-4)*done/layout.points().size()),top+52,0xffa37bab);
+            QuestSkin.text(g,font,done+" / "+layout.points().size(),bx,top+(attachedToScreenFace ? 30 : 37),QuestSkin.INK,false);
+            QuestSkin.panel(g,bx,top+(attachedToScreenFace ? 40 : 49),bar,4,0xff211a17,0xff715849);
+            if (!layout.points().isEmpty()) g.fill(bx+2,top+(attachedToScreenFace ? 41 : 51),bx+2+(int)((bar-4)*done/layout.points().size()),top+(attachedToScreenFace ? 42 : 52),0xffa37bab);
         }
     }
     private void drawPaper(GuiGraphicsExtractor g) {
@@ -370,13 +374,15 @@ public final class QuestScreen extends Screen {
         if (confirmation!=null) QuestSkin.text(g,font,t("confirm_hint"),x,bottom-42,0xffe3b991,false);
     }
     private void settingsWidgets() {
-        int x=left+14,y=top+39,w=(right-left-36)/2;
+        int x=left+14,y=top+(attachedToScreenFace ? 28 : 39),w=(right-left-36)/2;
+        int row=attachedToScreenFace ? 20 : 25,extra=attachedToScreenFace ? 65 : 80,
+            finalRow=attachedToScreenFace ? 85 : 105;
         String[] names={"tablet","blur","animations","reduced_motion","notifications","hud"};
         boolean[] values={settings.tablet,settings.blur,settings.animations,settings.reducedMotion,settings.notifications,settings.hud};
-        for (int i=0;i<names.length;i++) { final int n=i; QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*25,w,() -> { switch(n) { case 0 -> settings.tablet=!settings.tablet; case 1 -> settings.blur=!settings.blur; case 2 -> settings.animations=!settings.animations; case 3 -> settings.reducedMotion=!settings.reducedMotion; case 4 -> settings.notifications=!settings.notifications; case 5 -> settings.hud=!settings.hud; } settings.save(); init(); }); b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off"))); }
-        button("hud_position",x,y+80,w,() -> { settings.hudPosition=(settings.hudPosition+1)%9; settings.save(); init(); }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
-        button("scale",x+w+8,y+80,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
-        button("blur_intensity",x,y+105,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
+        for (int i=0;i<names.length;i++) { final int n=i; QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*row,w,() -> { switch(n) { case 0 -> settings.tablet=!settings.tablet; case 1 -> settings.blur=!settings.blur; case 2 -> settings.animations=!settings.animations; case 3 -> settings.reducedMotion=!settings.reducedMotion; case 4 -> settings.notifications=!settings.notifications; case 5 -> settings.hud=!settings.hud; } settings.save(); init(); }); b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off"))); }
+        button("hud_position",x,y+extra,w,() -> { settings.hudPosition=(settings.hudPosition+1)%9; settings.save(); init(); }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
+        button("scale",x+w+8,y+extra,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
+        button("blur_intensity",x,y+finalRow,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());

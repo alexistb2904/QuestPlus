@@ -40,7 +40,7 @@ public final class TabletFaceAnchor {
         Rectangle result=last;
         if (result==null || result.left()<0 || result.top()<0
             || result.right()>windowWidth || result.bottom()>windowHeight
-            || result.width()<220 || result.height()<125) return null;
+            || result.width()<260 || result.height()<150) return null;
         return result;
     }
 
@@ -89,7 +89,7 @@ public final class TabletFaceAnchor {
                 (int)Math.ceil(maxX),(int)Math.ceil(maxY));
             // Reject faces that are too tilted, tiny or behind the camera.
             double ratio=projected.width()/(double)Math.max(1,projected.height());
-            if (ratio<1.2 || ratio>2.2 || projected.width()<220 || projected.height()<125
+            if (ratio<1.2 || ratio>2.2 || projected.width()<260 || projected.height()<150
                 || projected.width()>w*.95 || projected.height()>h*.85) return;
             last=projected;lastCapture=System.nanoTime();
         } finally { modelFrame.popPose(); }
