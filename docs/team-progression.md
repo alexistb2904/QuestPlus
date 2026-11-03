@@ -1,7 +1,10 @@
-# Progression des équipes — contrat de phase 3
+# Progression des équipes — contrat et implémentation 0.2.0
 
-**Statut : spécification uniquement.** La version 0.1.0 utilise exclusivement les fichiers personnels.
-Elle n'expose aucune commande `team`, aucun partage de progression, aucun fichier d'équipe et aucun faux résultat de test d'équipe.
+**Statut : implémenté, avec tests unitaires et GameTest serveur ; validation sur deux clients réels encore à effectuer.**
+`TeamManager` fournit la création, les invitations expirantes, la découverte des invitations reçues, l'adhésion,
+le départ, l'expulsion, le transfert et la dissolution. `QuestRuntime` relaie les événements à la progression
+partagée et persiste les opérations multi-fichiers par journal. Les règles ci-dessous décrivent
+à la fois les garanties du code actuel et les limites qu'il reste à vérifier expérimentalement.
 
 ## Autorité et appartenance
 

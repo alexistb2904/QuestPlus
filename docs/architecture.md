@@ -1,6 +1,6 @@
 # Architecture et frontières
 
-## Tranche 0.1.0 implémentée
+## Architecture initiale 0.1.0 et extensions backend 0.2.0
 
 Trois packages de responsabilité suffisent à ce stade ; aucun système avancé n'est représenté par une classe vide.
 
@@ -71,7 +71,19 @@ Les structures déjà générées seront découvertes progressivement aux charge
 fera foi, sans nouvelle loterie à chaque visite. Les choix/dialogues seront des événements serveur liés à un joueur responsable.
 Cette politique est une spécification, pas un spawner implémenté.
 
-## Validation exécutée le 3 novembre 2026
+## Extensions backend présentes en version 0.2.0
+
+- `team.TeamManager`, `team.TeamData` : équipe unique par joueur, invitations temporaires, union rétroactive,
+  séparation et commandes ; snapshots avant commit puis activation après transaction durable.
+- `persistence.JsonProgressStore` : schéma de joueur v2, snapshots d'équipes, journal d'opérations
+  inter-fichiers et récupération à l'initialisation.
+- `core.QuestEngine` : cycles répétables ou infinis, paliers, ordre séquentiel, tentatives chronométrées,
+  contraintes sans mort et lecture du stock actuel dans l'inventaire.
+- `core.QuestExtensions` : enregistrement d'événements, conditions et types de récompenses supplémentaires.
+- `fabric.AdvancedEvents` et mixins : événements étendus et échantillonnage borné de l'exploration.
+- Le schéma de quêtes v2 conserve les positions de diagramme facultatives ; il n'existe aucun rendu client.
+
+## Validation historique (tranche 0.1.0) exécutée le 3 novembre 2026
 
 `gradlew.bat build integrationTest` sous Java 25 : compilation et 17 tests Java réussis.
 Le GameTest Quest Plus exécute réellement les hooks de casse, mort et ramassage sur un serveur dédié 26.3,

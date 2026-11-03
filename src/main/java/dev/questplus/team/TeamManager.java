@@ -39,6 +39,15 @@ public final class TeamManager {
         return Optional.of(team);
     }
     public Collection<TeamData> allTeams() { return teams.values().stream().filter(t -> !t.disbanded).toList(); }
+    /** Read-only view of valid invitations for one player. Expired invitations are never advertised. */
+    public List<TeamData> invitationsFor(UUID player,long now) {
+        Objects.requireNonNull(player);
+        checkTime(now);
+        return teams.values().stream()
+            .filter(t -> !t.disbanded && t.invitations.getOrDefault(player,0L) > now)
+            .sorted(Comparator.comparing(t -> t.id.toString()))
+            .toList();
+    }
     public void apply(Change change) {
         change.players().values().forEach(PlayerProgress::validate); change.teams().values().forEach(TeamData::validate);
         playerCache.putAll(change.players()); teams.putAll(change.teams());

@@ -1,19 +1,25 @@
-# Quest Plus — backend 0.1.0
+# Quest Plus — backend 0.2.0
 
-Moteur de quêtes indépendant pour **Minecraft Java 26.3 / Fabric**, créé de zéro.
-Cette première tranche est individuelle et sans interface graphique. Les équipes sont spécifiées,
-mais ne sont pas encore implémentées : voir [roadmap](docs/roadmap.md).
+Moteur de quêtes serveur indépendant pour **Minecraft Java 26.3 / Fabric**, créé de zéro.
+Le backend prend en charge les équipes et leur progression partagée, les quêtes répétables/infinies/à paliers,
+les objectifs avancés et les transactions JSON. **Il n'y a pas encore de client graphique.**
+Les validations multi-clients réels, PNJ narratifs et profils de charge sont encore à faire :
+voir [roadmap](docs/roadmap.md).
 
 ## Fonctionnement disponible
 
-- Un fichier JSON par quête, six exemples anglais/français générés dans chaque monde sans écraser les fichiers présents.
+- Un fichier JSON par quête, douze exemples anglais/français générés au premier lancement sans écraser les fichiers présents.
 - Casse réelle de blocs, kills crédités au joueur (dont dégâts de projectiles), ramassage exact d'objets, tags vanilla/moddés.
 - Objectifs multiples, compteurs saturés, prérequis en graphe sans cycle et expressions `and` / `or` / `not`.
 - Conditions au moment de l'événement : dimension, outil, accroupissement, santé (`2` = un cœur).
 - Quêtes à complétion unique, récompenses multiples en objets et points d'expérience, réclamation manuelle.
 - Sauvegardes JSON compactes par UUID, cache paresseux, écritures regroupées et atomiques, sauvegarde précédente `.bak`.
 - Rechargement validé avant application, conservation des historiques et rejet des sauvegardes corrompues.
-- API pour que des mods serveur soumettent les événements normalisés actuellement pris en charge.
+- API pour que des mods serveur enregistrent des événements/conditions/récompenses et soumettent les événements normalisés.
+- Équipes : création, invitation avec expiration, acceptation/refus, départ, expulsion, transfert et dissolution ; union rétroactive et instantanés de séparation.
+- Quêtes répétables/infinies/à paliers, objectifs séquentiels, délais et contraintes sans mort.
+- Événements étendus : fabrication, cuisson, pêche, placement, interaction, apprivoisement, élevage, échanges, biome, dimension, structure et déplacement.
+- Les invitations reçues peuvent être listées avec `/questplus team invitations`.
 
 Les événements naturels ignorent les joueurs créatifs et spectateurs. « Obtenir » signifie ici **ramasser une entité objet** ;
 ce n'est pas un état d'inventaire. Déplacer un objet depuis un coffre, crafter, recevoir une commande `/give`
@@ -53,7 +59,9 @@ world/
 │   ├── categories/*.json
 │   └── npcs/                     # répertoire pour la suite, sans apparition active
 └── data/questplus/
-    └── players/<uuid>.json        # créé uniquement quand nécessaire
+    ├── players/<uuid>.json        # progression personnelle et droits aux récompenses
+    ├── teams/<uuid>.json          # progression partagée et membres
+    └── transactions/pending.json  # uniquement pendant une transaction multi-fichiers
 ```
 
 `config.json` contient `schemaVersion: 1` et `autosaveSeconds: 5` (1 à 300 secondes).
@@ -76,7 +84,11 @@ Schéma et exemples : [format JSON](docs/json-schema.md), [JSON Schema](docs/que
 
 Les IDs complets, par exemple `questplus:survival/logs`, sont suggérés. `grant`, `reset` et `debug <uuid>`
 fonctionnent aussi sur les sauvegardes de joueurs déconnectés. La console peut administrer ; `progress` et `claim` requièrent un joueur.
-Les commandes `team` arriveront avec la phase 3 et ne sont pas simulées dans cette version.
+Les commandes `/questplus team create/invite/invitations/join/decline/leave/kick/transfer/disband/info`
+sont disponibles. Les invitations sont adressées à des UUID, expirent après cinq minutes et
+ne sont visibles que pour le destinataire via `/questplus team invitations`.
+Les fusions rétroactives ne réattribuent pas automatiquement les récompenses historiques.
+Lancer un test à deux vrais clients reste une étape de validation à effectuer.
 
 ## Sauvegardes et récompenses
 
