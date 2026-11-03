@@ -56,3 +56,19 @@ A verifier : compilation Java 25, lancement `1-Lancer-Client.bat`,
 ouverture sur J (main vanilla droite, seconde main), bascule a 1,2 s,
 absence de bras clone, fermeture/Echap, GUI Scale 1 a 4,
 skins slim/standard, monde multijoueur et server GameTests.
+
+### Diagnostic FP PAL (3 novembre, correction PR #2)
+
+La video montrait l'ancien rendu de `main`, sans mouvement FP PAL. `main` avait ete restaure,
+mais PR #2 n'etait pas encore fusionnee. D'autre part, les dependances de mods etaient declarees
+`implementation` ; elles sont maintenant en `modImplementation` pour etre chargees par Loom.
+
+`assets/questplus/fp_animations/questplus_first_person.animation.json` comporte deja
+`questplus.open`, `questplus.idle`, `questplus.close` et leurs keyframes, sans regenerer les assets.
+FP PAL associe le fichier a `fp_models/questplus_first_person.geo.json` et
+`textures/fp/questplus_first_person.png` : **une seule tablette** est rendue par FP PAL avec les
+vrais bras. Ne pas la rendre une seconde fois via `TabletRenderer` pendant la sequence native.
+
+En jeu, utiliser `/fp_anim list`, puis `/fp_anim play questplus:questplus.open` pour tester
+l'animation independamment de J. Les logs indiquent maintenant si le plugin ou ses assets
+ne se chargent pas, plutot que de basculer silencieusement vers le vieux GUI.

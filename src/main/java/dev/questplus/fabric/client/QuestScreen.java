@@ -145,9 +145,9 @@ public final class QuestScreen extends Screen {
         visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
         g.pose().pushMatrix(); g.pose().translate(0,visualOffset); my-=(int)visualOffset;
         if (settings.tablet) {
-            if (QuestClientTabletFlow.nativeHandsActive()) TabletRenderer.draw(g,left,top,right,bottom,false,
-                TabletFirstPersonAnimation.pose("questplus.idle",QuestClientTabletFlow.idleSeconds()));
-            else TabletRenderer.draw(g,left,top,right,bottom);
+            // FP PAL renders the REAL arms and Blockbench tablet model itself;
+            // do not paint a second 3D tablet over it.
+            if (!QuestClientTabletFlow.nativeHandsActive()) TabletRenderer.draw(g,left,top,right,bottom);
         }
         else { g.fill(left-5,top-5,right+5,bottom+5,0xff342820); g.outline(left-5,top-5,right-left+10,bottom-top+10,0xff756553); }
         QuestSkin.panel(g,left,top,right-left,bottom-top,0xff30231e,0xff805c40);

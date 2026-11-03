@@ -4,10 +4,7 @@ import dev.questplus.fabric.QuestPlusMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
 
 /**
  * Animate the actual Minecraft first-person arms BEFORE opening the GUI.
@@ -23,8 +20,8 @@ final class QuestClientTabletFlow {
     static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(QuestClientTabletFlow::tick);
         ClientPlayConnectionEvents.DISCONNECT.register((handler,client) -> reset());
-        HudElementRegistry.addLast(Identifier.parse("questplus:tablet_transition"),
-            (graphics,delta) -> drawTransition(graphics));
+        // FP PAL itself renders the Blockbench model from fp_models/ and textures/fp/.
+        // No separate HUD tablet should be drawn here.
     }
     static boolean nativeHandsActive() { return nativeHands && stage!=Stage.CLOSED; }
     static boolean thirdPersonHolding() { return nativeHands && (stage==Stage.OPENING || stage==Stage.HELD); }
@@ -48,13 +45,22 @@ final class QuestClientTabletFlow {
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
                     nativeHands=true;stage=Stage.OPENING;started=System.nanoTime();
+                    QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.2 s)");
                     return;
                 }
+                QuestPlusMod.LOGGER.warn("FP PAL could not play questplus:questplus.open. Loaded asset: {}",
+                    FirstPersonPalBridge.loaded("questplus.open"));
             } catch (LinkageError | RuntimeException error) {
                 QuestPlusMod.LOGGER.warn("Cannot start FP PAL animation; standard UI fallback",error);
             }
         }
         nativeHands=false;stage=Stage.CLOSED;
+        if (QuestPlusClient.settings.animations && QuestPlusClient.settings.tablet
+            && !QuestPlusClient.settings.reducedMotion) {
+            QuestPlusMod.LOGGER.warn("Quest Plus has fallen back to legacy GUI: fp_pal={}, player_animation_library={}.",
+                FabricLoader.getInstance().isModLoaded("fp_pal"),
+                FabricLoader.getInstance().isModLoaded("player_animation_library"));
+        }
         client.gui.setScreen(new QuestScreen());
     }
     static void close() {
@@ -103,18 +109,4 @@ final class QuestClientTabletFlow {
     }
     private static void reset() { stage=Stage.CLOSED;nativeHands=false;started=0; }
 
-    private static void drawTransition(GuiGraphicsExtractor graphics) {
-        if (!nativeHands || (stage!=Stage.OPENING && stage!=Stage.CLOSING)) return;
-        var client=Minecraft.getInstance();
-        if (client.gui.screen()!=null || client.player==null || !QuestPlusClient.settings.tablet) return;
-        var pose=TabletFirstPersonAnimation.pose(stage==Stage.OPENING ? "questplus.open" : "questplus.close",
-            (System.nanoTime()-started)/1_000_000_000.0);
-        int width=client.getWindow().getGuiScaledWidth(),height=client.getWindow().getGuiScaledHeight();
-        int margin=Math.max(12,(int)(Math.min(width,height)*.20));
-        int w=Math.min(width-margin*2,(int)(760*QuestPlusClient.settings.scale));
-        int h=Math.min(height-margin*2,(int)(w*.6));
-        w=Math.min(w,(int)(h/.6));
-        TabletRenderer.draw(graphics,(width-w)/2,(height-h)/2,
-            (width+w)/2,(height+h)/2,false,pose);
-    }
 }
