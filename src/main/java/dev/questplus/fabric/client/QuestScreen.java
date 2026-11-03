@@ -88,7 +88,7 @@ public final class QuestScreen extends Screen {
         return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
     }
     @Override protected void init() {
-        int margin=Math.max(8,(int)(Math.min(width,height)*0.12));
+        int margin=Math.max(12,(int)(Math.min(width,height)*0.20));
         // 100% is deliberately a compact tablet; scaling is relative to the *previous* oversized layout.
         // Keep a minimum practical size at very low GUI resolutions.
         double compact=(width<440 || height<260) ? 1.0 : 0.76;

@@ -11,7 +11,7 @@ class TabletAnimationControllerTest {
         float halfway=pose.value(1_600_000_000L,true);
         assertEquals(.5f,halfway,1e-6);
         pose.set(false,1_600_000_000L,true);
-        assertEquals(halfway,pose.value(1_125_000_000L,true),1e-6);
+        assertEquals(halfway,pose.value(1_600_000_000L,true),1e-6);
         pose.set(true,1_800_000_000L,true);
         assertEquals(1,pose.value(3_000_000_000L,true));
         pose.set(false,3_000_000_000L,true);

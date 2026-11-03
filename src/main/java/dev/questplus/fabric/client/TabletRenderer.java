@@ -22,12 +22,20 @@ public final class TabletRenderer {
         {arms(true,0),arms(true,1),arms(true,2),arms(true,3)}};
     private TabletRenderer() {}
 
-    /** The requested aperture is 5:3; the caller must draw the UI after this method. */
-    public static void draw(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom) {
+    /** The screen aperture is 5:3; the UI is composited there after the 1.2 s opening. */
+    public static void draw(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom,
+                            TabletFirstPersonAnimation.Pose pose) {
         int width = right - left, height = bottom - top;
         if (width <= 0 || height <= 0) return;
         int marginX = Math.max(4, (int) Math.ceil(width * .13));
         int marginY = Math.max(4, (int) Math.ceil(height * .24));
+
+        // Real Blockbench first-person animation curves, sampled from the exported clip.
+        // The authoring coordinates are in model-pixels, so translate them proportionally
+        // to the screen aperture (not to the physical window resolution).
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(-pose.tabletPosition().x() * width / 24f * .8f,
+            -pose.tabletPosition().y() * height / 17f * .55f);
         var minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
             var skin = minecraft.player.getSkin();
@@ -35,16 +43,34 @@ public final class TabletRenderer {
             int sleeves = (minecraft.options.isModelPartEnabled(PlayerModelPart.LEFT_SLEEVE) ? 1 : 0)
                 | (minecraft.options.isModelPartEnabled(PlayerModelPart.RIGHT_SLEEVE) ? 2 : 0);
             var arms = ARMS[slim ? 1 : 0][sleeves];
+            setArm(arms.root().getChild("left"),-1,pose.leftRotation(),pose.leftPosition());
+            setArm(arms.root().getChild("right"),1,pose.rightRotation(),pose.rightPosition());
             int armBottom = bottom + (int)(height * .9);
             arms.root().y = 25.616f - (armBottom - (top + bottom) / 2f) * 16f / (width * .8f);
             graphics.skin(arms, skin.body().texturePath(), width * .8f, 0, 0, 0,
                 left - marginX * 2, top - marginY, right + marginX * 2, armBottom);
             graphics.nextStratum();
         }
-        MODEL.root().y = 25.616f - (height + 2 * marginY) * 8f / (width * .8f);
-        graphics.skin(MODEL, TEXTURE, width * .8f, 0, 0, 0,
-            left - marginX, top - marginY, right + marginX, bottom + marginY);
-        graphics.nextStratum();
+        if (pose.tabletVisible()) {
+            var rotation=pose.tabletRotation();
+            MODEL.root().xRot=(float)Math.toRadians(rotation.x());
+            // Blockbench's idle yaw is -180 deg; the static GUI model already faces the viewer.
+            MODEL.root().yRot=(float)Math.toRadians(rotation.y()+180);
+            MODEL.root().zRot=(float)Math.toRadians(rotation.z());
+            MODEL.root().y = 25.616f - (height + 2 * marginY) * 8f / (width * .8f);
+            graphics.skin(MODEL, TEXTURE, width * .8f, 0, 0, 0,
+                left - marginX, top - marginY, right + marginX, bottom + marginY);
+            graphics.nextStratum();
+        }
+        graphics.pose().popMatrix();
+    }
+
+    private static void setArm(ModelPart arm, int side, TabletFirstPersonAnimation.Vector rotation,
+                               TabletFirstPersonAnimation.Vector position) {
+        arm.setPos(side * 11f + position.x() * .45f,2 - position.y() * .5f,-1 + position.z() * .35f);
+        arm.xRot=(float)Math.toRadians(rotation.x());
+        arm.yRot=(float)Math.toRadians(rotation.y());
+        arm.zRot=(float)Math.toRadians(-side * 20 + rotation.z());
     }
 
     private static Model.Simple arms(boolean slim, int sleeves) {
