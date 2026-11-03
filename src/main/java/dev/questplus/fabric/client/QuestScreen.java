@@ -51,6 +51,7 @@ public final class QuestScreen extends Screen {
     private int detailWidth;
     private long closingAt;
     private float visualOffset;
+    private boolean attachedToScreenFace;
     private String keyboardQuest;
     private long completedNodes;
     public double animationProgress() {
@@ -72,11 +73,22 @@ public final class QuestScreen extends Screen {
         return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
     }
     @Override protected void init() {
-        int margin=Math.max(12,(int)(Math.min(width,height)*0.20)); // Scale the UI controls, not the 3D tablet.
-        int fw=Math.min(width-margin*2,(int)(760*settings.scale));
-        int fh=Math.min(height-margin*2,(int)(fw*0.6));
-        if (settings.tablet) fw=Math.min(fw,(int)(fh/0.6));
-        left=(width-fw)/2; right=left+fw; top=(height-fh)/2; bottom=top+fh;
+        int margin=Math.max(12,(int)(Math.min(width,height)*0.20)); // Controls shrink independently of 3D tablet.
+        var face=QuestClientTabletFlow.nativeHandsActive() && settings.tablet
+            ? TabletFaceAnchor.current(width,height) : null;
+        attachedToScreenFace=face!=null;
+        int fw,fh;
+        if (face!=null) {
+            // Snap the 2D widget layer to the quad detected from FP PAL's model pose.
+            left=face.left()+2;right=face.right()-2;
+            top=face.top()+2;bottom=face.bottom()-2;
+            fw=right-left;fh=bottom-top;
+        } else {
+            fw=Math.min(width-margin*2,(int)(760*settings.scale));
+            fh=Math.min(height-margin*2,(int)(fw*0.6));
+            if (settings.tablet) fw=Math.min(fw,(int)(fh/0.6));
+            left=(width-fw)/2;right=left+fw;top=(height-fh)/2;bottom=top+fh;
+        }
         overlayDetails=selected!=null && fw<480;
         treeLeft=left+36; treeTop=top+66; treeRight=selected==null || overlayDetails ? right-8 : right-Math.min(220,fw*2/5); treeBottom=bottom-25;
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
@@ -120,6 +132,10 @@ public final class QuestScreen extends Screen {
     private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,24); }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
+        // During the first post-open model frame the 3D surface becomes available.
+        // Attach only once to avoid reinitializing focused widgets on idle micro-motion.
+        if (!attachedToScreenFace && QuestClientTabletFlow.nativeHandsActive() && settings.tablet
+            && TabletFaceAnchor.current(width,height)!=null) init();
         refreshCatalogue();
         if (sequence!=state.sequence) {
             sequence=state.sequence;
@@ -138,6 +154,8 @@ public final class QuestScreen extends Screen {
         return icons.computeIfAbsent(id,key -> { var resource=Identifier.tryParse(key); return resource!=null && BuiltInRegistries.ITEM.containsKey(resource) ? new ItemStack(BuiltInRegistries.ITEM.getValue(resource)) : new ItemStack(Items.BOOK); });
     }
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta) {
+        // Preserve the real first-person tablet frame; an opaque GUI backdrop would hide it.
+        if (QuestClientTabletFlow.nativeHandsActive()) return;
         if (settings.blur && settings.blurIntensity>0) extractBlurredBackground(g);
         g.fill(0,0,width,height,0x660d100e);
     }
@@ -150,6 +168,7 @@ public final class QuestScreen extends Screen {
             if (!QuestClientTabletFlow.nativeHandsActive()) TabletRenderer.draw(g,left,top,right,bottom);
         }
         else { g.fill(left-5,top-5,right+5,bottom+5,0xff342820); g.outline(left-5,top-5,right-left+10,bottom-top+10,0xff756553); }
+        if (attachedToScreenFace) g.enableScissor(left,top,right,bottom);
         QuestSkin.panel(g,left,top,right-left,bottom-top,0xff30231e,0xff805c40);
         g.fill(left+3,top+3,right-3,top+27,0xff241c18);
         g.fill(left+4,top+27,right-4,top+28,0xff815a3d);
@@ -160,6 +179,7 @@ public final class QuestScreen extends Screen {
         else QuestSkin.text(g,font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
         if (state.error!=null) QuestSkin.text(g,font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
         super.extractRenderState(g,mx,my,delta);
+        if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {

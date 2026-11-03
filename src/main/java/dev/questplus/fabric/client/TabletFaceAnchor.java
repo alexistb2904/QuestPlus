@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * clipped to the true screen bounds, but this does NOT create an offscreen GPU
  * texture or perspective-correct UV mapping on the 3D polygon.
  */
-final class TabletFaceAnchor {
+public final class TabletFaceAnchor {
     record Rectangle(int left,int top,int right,int bottom) {
         int width() { return right-left; }
         int height() { return bottom-top; }
@@ -48,7 +48,7 @@ final class TabletFaceAnchor {
      * Called inside FP PAL's model pass with its calibrated camera/hand pose.
      * The 'tablet_root' bone transform is applied exactly once.
      */
-    static void capture(PoseStack modelFrame) {
+    public static void capture(PoseStack modelFrame) {
         var mc=Minecraft.getInstance();
         if (mc.player==null || !(mc.gui.screen() instanceof QuestScreen)
             || !QuestClientTabletFlow.nativeHandsActive()) return;
