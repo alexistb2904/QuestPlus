@@ -50,8 +50,9 @@ public final class TabletFaceAnchor {
      */
     public static void capture(PoseStack modelFrame) {
         var mc=Minecraft.getInstance();
-        if (mc.player==null || !(mc.gui.screen() instanceof QuestScreen)
-            || !QuestClientTabletFlow.nativeHandsActive()) return;
+        // Capture during OPENING too: the first QuestScreen.init runs immediately
+        // after the clip, and must already have a valid face projection.
+        if (mc.player==null || !QuestClientTabletFlow.nativeHandsActive()) return;
         var bone=FpRenderState.getExtraBone("tablet_root");
         if (bone==null) return;
 

@@ -1892,7 +1892,8 @@
         ],
         "fpDisplayScale": 1,
         "fpDisplayAnchor": "camera"
-      }
+      },
+      "loop": "hold_on_last_frame"
     },
     "questplus.idle": {
       "loop": true,
