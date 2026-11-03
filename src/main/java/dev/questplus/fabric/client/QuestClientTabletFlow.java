@@ -107,6 +107,6 @@ final class QuestClientTabletFlow {
             QuestPlusMod.LOGGER.warn("Cannot stop FP PAL animation",error);
         }
     }
-    private static void reset() { stage=Stage.CLOSED;nativeHands=false;started=0; }
+    private static void reset() { stage=Stage.CLOSED;nativeHands=false;started=0;TabletFaceAnchor.reset(); }
 
 }
