@@ -2,7 +2,7 @@ package dev.questplus.fabric.client;
 
 /** Interruptible pose transition using monotonic time. */
 public final class TabletAnimationController {
-    private static final long DURATION = 250_000_000L;
+    private static final long DURATION = TabletFirstPersonAnimation.OPEN_NANOS;
     private float from, target;
     private long started;
 

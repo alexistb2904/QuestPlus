@@ -8,8 +8,8 @@ La phase client est autorisée par le brief du 3 novembre 2026. Le Core et les s
 2. B : Screen natif, catégories serveur, placement DAG déterministe mis en cache, index spatial, caméra indépendante, sélection et panneau défilant.
 3. C : actions d'équipe exclusivement serveur, affichage après transaction durable, confirmations locales des départs/dissolutions.
 4. D : recherche et filtres, épingles/HUD, notifications regroupées, traductions Minecraft et paramètres locaux.
-5. E : modèle Blockbench conservé avec texture vierge ; rendu de modèle 3D natif sous une interface 2D alignée. Cette approche évite une texture dynamique et ses ressources GPU supplémentaires.
-6. F : bras utilisant le skin connecté, animations interruptibles, poses distantes séparées des données de quêtes, flou natif désactivable.
+5. E : modèle Blockbench conservé avec texture vierge ; rendu de modèle 3D natif sous une interface 2D alignée. L'animation FPS utilise les courbes exportées du modèle Blockbench (1,2 s) avant de révéler l'UI ; le panneau se déploie dans l'ouverture de l'écran au lieu de glisser depuis le bas. Cette approche évite une texture dynamique et ses ressources GPU supplémentaires.
+6. F : bras utilisant le skin connecté, animations de sortie à droite/consultation/fermeture chargées depuis les keyframes Blockbench, fermeture interruptible, poses distantes séparées des données de quêtes, flou natif désactivable. Le contenu (et les widgets) n'apparaît qu'après la fin de l'ouverture.
 7. G : compilation/tests, serveur dédié, lancement client et inspection visuelle si le poste le permet. Les validations non exécutées restent explicitement ouvertes.
 
 Les imports Minecraft/Fabric restent sous `dev.questplus.fabric`. Le placement et les transformations sont du Java pur. Les paquets C2S n'identifient jamais l'acteur : la connexion le fournit. Les droits réclamables proviennent de l'état personnel, les compteurs de l'état collectif éventuel.
@@ -19,6 +19,8 @@ Le catalogue initial est fragmenté et appliqué atomiquement. Les changements d
 L'API 26.3 utilise `GuiGraphicsExtractor` et l'extraction d'états de rendu. Les éléments hors viewport sont éliminés avant dessin ; le placement ne change qu'avec les définitions ou la catégorie. Le mode 2D demeure disponible. Aucun appel OpenGL direct.
 
 ## Points à valider
+
+À 100 % la surface UI est volontairement plus compacte (~76 % du gabarit initial aux résolutions normales) ; petites résolutions conservent un plancher et disposent du mode 2D. La synchronisation de la durée de pose extérieure est fixée à 1,2 s, mais son interpolation reste une approximation et non une application complète des courbes de troisième personne.
 
 Le format actuel n'a pas de politique de quêtes secrètes ; il ne faut pas prétendre cacher une quête uniquement dans l'écran. Toute introduction de visibilité doit filtrer la projection serveur et les références avant transmission, avec tests.
 

@@ -34,6 +34,7 @@ public final class QuestScreen extends Screen {
     private JsonObject lastTeam;
     private JsonArray lastInvitations;
     private final long opened=System.nanoTime();
+    private static final long CONTENT_POP_NANOS=160_000_000L;
     private QuestButton questAction;
     private String currentAction;
     private boolean overlayDetails;
@@ -50,49 +51,75 @@ public final class QuestScreen extends Screen {
     private long detailSequence=-2;
     private int detailWidth;
     private long closingAt;
-    private float visualOffset;
     private String keyboardQuest;
     private long completedNodes;
+    private boolean animatedTablet() { return settings.tablet && settings.animations && !settings.reducedMotion; }
+    /** The UI stays hidden until Blockbench's complete 1.2 s opening clip ends. */
+    private boolean contentReady() {
+        return closingAt==0 && (!animatedTablet() || System.nanoTime()-opened>=TabletFirstPersonAnimation.OPEN_NANOS);
+    }
+    public boolean tabletIsOpen() { return closingAt==0 && settings.tablet; }
     public double animationProgress() {
-        if (!settings.animations || settings.reducedMotion) return closingAt==0 ? 1 : 0;
-        double p=Math.clamp((System.nanoTime()-(closingAt==0 ? opened : closingAt))/250_000_000.0,0,1);
-        p=p*p*(3-2*p); return closingAt==0 ? p : 1-p;
+        if (!animatedTablet()) return closingAt==0 ? 1 : 0;
+        double duration=TabletFirstPersonAnimation.OPEN_NANOS;
+        return closingAt==0 ? Math.clamp((System.nanoTime()-opened)/duration,0,1)
+            : 1-Math.clamp((System.nanoTime()-closingAt)/duration,0,1);
+    }
+    private TabletFirstPersonAnimation.Pose tabletPose(long now) {
+        if (!animatedTablet()) return TabletFirstPersonAnimation.pose("questplus.idle",0);
+        if (closingAt!=0) return TabletFirstPersonAnimation.pose("questplus.close",(now-closingAt)/1_000_000_000.0);
+        if (now-opened<TabletFirstPersonAnimation.OPEN_NANOS)
+            return TabletFirstPersonAnimation.pose("questplus.open",(now-opened)/1_000_000_000.0);
+        return TabletFirstPersonAnimation.pose("questplus.idle",
+            (now-opened-TabletFirstPersonAnimation.OPEN_NANOS)/1_000_000_000.0);
     }
     @Override public void onClose() {
-        if (!settings.animations || settings.reducedMotion) super.onClose();
-        else if (closingAt==0) closingAt=System.nanoTime();
+        if (!animatedTablet()) super.onClose();
+        else if (closingAt==0) {
+            long now=System.nanoTime();
+            long openingElapsed=Math.clamp(now-opened,0,TabletFirstPersonAnimation.OPEN_NANOS);
+            // The Blockbench close clip reverses the open clip; interruption is continuous.
+            closingAt=now-(TabletFirstPersonAnimation.OPEN_NANOS-openingElapsed);
+        }
     }
     public QuestScreen() { super(Component.literal("Quest Plus")); }
     private Component t(String key,Object... args) { return tr(key,args); }
     private QuestButton button(String key,int x,int y,int w,Runnable action) {
-        return addRenderableWidget(new QuestButton(t(key),x,y,w,18,action));
+        return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
     }
     @Override protected void init() {
-        int margin=Math.max(12,(int)(Math.min(width,height)*0.20));
-        int fw=Math.min(width-margin*2,(int)(760*settings.scale));
-        int fh=Math.min(height-margin*2,(int)(fw*0.6));
-        if (settings.tablet) fw=Math.min(fw,(int)(fh/0.6));
+        int margin=Math.max(8,(int)(Math.min(width,height)*0.12));
+        // 100% is deliberately a compact tablet; scaling is relative to the *previous* oversized layout.
+        // Keep a minimum practical size at very low GUI resolutions.
+        double compact=(width<440 || height<260) ? 1.0 : 0.76;
+        int originalWidth=Math.min(width-2*margin,760);
+        int originalHeight=Math.min(height-2*margin,(int)(originalWidth*0.6));
+        if (settings.tablet) originalWidth=Math.min(originalWidth,(int)(originalHeight/0.6));
+        int fw=Math.max(1,(int)(originalWidth*compact*settings.scale));
+        int fh=Math.max(1,(int)(originalHeight*compact*settings.scale));
+        fw=Math.min(fw,width-8); fh=Math.min(fh,height-8);
+        if (settings.tablet) { fw=Math.min(fw,(int)(fh/0.6)); fh=Math.min(fh,(int)(fw*0.6)); }
         left=(width-fw)/2; right=left+fw; top=(height-fh)/2; bottom=top+fh;
-        overlayDetails=selected!=null && fw<480;
-        treeLeft=left+36; treeTop=top+66; treeRight=selected==null || overlayDetails ? right-8 : right-Math.min(220,fw*2/5); treeBottom=bottom-25;
+        overlayDetails=selected!=null && fw<395;
+        treeLeft=left+33; treeTop=top+53; treeRight=selected==null || overlayDetails ? right-6 : right-Math.min(170,fw*2/5); treeBottom=bottom-19;
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
         cachedLeft=Double.NaN; questAction=null;
         clearWidgets();
-        int tabWidth=Math.min(94,(fw-35)/3);
-        button("quests",left+5,top+6,tabWidth,() -> switchTab("quests")).selected(tab.equals("quests")).icon(tabWidth>=80 ? icon("minecraft:book") : ItemStack.EMPTY);
-        button("team",left+7+tabWidth,top+6,tabWidth,() -> switchTab("team")).selected(tab.equals("team")).icon(tabWidth>=80 ? icon("minecraft:player_head") : ItemStack.EMPTY);
-        button("settings",left+9+tabWidth*2,top+6,tabWidth,() -> switchTab("settings")).selected(tab.equals("settings")).icon(tabWidth>=80 ? icon("minecraft:comparator") : ItemStack.EMPTY);
-        button("close",right-23,top+6,18,this::onClose).setMessage(Component.literal("×"));
+        int tabWidth=Math.max(25,Math.min(80,(fw-32)/3));
+        button("quests",left+4,top+4,tabWidth,() -> switchTab("quests")).selected(tab.equals("quests")).icon(tabWidth>=76 ? icon("minecraft:book") : ItemStack.EMPTY);
+        button("team",left+6+tabWidth,top+4,tabWidth,() -> switchTab("team")).selected(tab.equals("team")).icon(tabWidth>=76 ? icon("minecraft:player_head") : ItemStack.EMPTY);
+        button("settings",left+8+tabWidth*2,top+4,tabWidth,() -> switchTab("settings")).selected(tab.equals("settings")).icon(tabWidth>=76 ? icon("minecraft:comparator") : ItemStack.EMPTY);
+        button("close",right-20,top+4,15,this::onClose).setMessage(Component.literal("×"));
         if (tab.equals("quests")) {
             int treeWidth=treeRight-treeLeft;
             boolean compact=treeWidth<230;
-            search=addRenderableWidget(new QuestTextField(font,treeLeft,bottom-21,Math.max(30,treeWidth-(compact ? 48 : 138)),16,t("search")));
+            search=addRenderableWidget(new QuestTextField(font,treeLeft,bottom-17,Math.max(30,treeWidth-(compact ? 44 : 111)),14,t("search")));
             search.setMaxLength(128); search.setHint(t("search")); search.setValue(query); search.setResponder(value -> query=value);
-            var f=button("filter."+filter,compact ? treeRight-43 : treeRight-134,compact ? top+40 : bottom-22,compact ? 18 : 86,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
+            var f=button("filter."+filter,compact ? treeRight-41 : treeRight-108,compact ? top+32 : bottom-18,compact ? 15 : 72,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
-            button("fit",treeRight-21,top+40,18,this::fit).setMessage(Component.literal("o"));
-            button("zoom_out",treeRight-43,bottom-20,18,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
-            button("zoom_in",treeRight-21,bottom-20,18,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            button("fit",treeRight-18,top+32,15,this::fit).setMessage(Component.literal("o"));
+            button("zoom_out",treeRight-38,bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
+            button("zoom_in",treeRight-20,bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
         else settingsWidgets();
@@ -113,7 +140,7 @@ public final class QuestScreen extends Screen {
         camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(0.25,2.5));
         if (fresh) fit();
     }
-    private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,24); }
+    private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,16); }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
         refreshCatalogue();
@@ -138,20 +165,29 @@ public final class QuestScreen extends Screen {
         g.fill(0,0,width,height,0x660d100e);
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta) {
-        visualOffset=(float)((1-animationProgress())*(height-top));
-        g.pose().pushMatrix(); g.pose().translate(0,visualOffset); my-=(int)visualOffset;
-        if (settings.tablet) TabletRenderer.draw(g,left,top,right,bottom);
+        long now=System.nanoTime();
+        if (settings.tablet) TabletRenderer.draw(g,left,top,right,bottom,tabletPose(now));
         else { g.fill(left-5,top-5,right+5,bottom+5,0xff342820); g.outline(left-5,top-5,right-left+10,bottom-top+10,0xff756553); }
+        // The panel is strictly the tablet's 5:3 screen aperture, not a second sliding window.
+        if (!contentReady()) return;
+        float pop=animatedTablet() ? Math.clamp((float)(now-opened-TabletFirstPersonAnimation.OPEN_NANOS)/CONTENT_POP_NANOS,0,1) : 1;
+        float zoom=0.93f+0.07f*pop;
+        g.pose().pushMatrix();
+        g.pose().translate((left+right)/2f,(top+bottom)/2f);
+        g.pose().scale(zoom);
+        g.pose().translate(-(left+right)/2f,-(top+bottom)/2f);
+        g.enableScissor(left,top,right,bottom);
         QuestSkin.panel(g,left,top,right-left,bottom-top,0xff30231e,0xff805c40);
-        g.fill(left+3,top+3,right-3,top+27,0xff241c18);
-        g.fill(left+4,top+27,right-4,top+28,0xff815a3d);
+        g.fill(left+3,top+3,right-3,top+22,0xff241c18);
+        g.fill(left+4,top+22,right-4,top+23,0xff815a3d);
         if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g); }
-        if (!state.ready) g.centeredText(font,t(state.error==null ? "loading" : "network_error"),width/2,height/2,0xffe4dec9);
+        if (!state.ready) g.centeredText(font,t(state.error==null ? "loading" : "network_error"),(left+right)/2,(top+bottom)/2,0xffe4dec9);
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
-        else g.text(font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
-        if (state.error!=null) g.text(font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
+        else g.text(font,t("settings_hint"),left+10,bottom-20,0xffaaa99a,false);
+        if (state.error!=null) g.text(font,t("error."+state.error),left+9,bottom-10,0xffe3a692,false);
         super.extractRenderState(g,mx,my,delta);
+        g.disableScissor();
         g.pose().popMatrix();
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
@@ -170,16 +206,16 @@ public final class QuestScreen extends Screen {
     private void drawCategoryHeader(GuiGraphicsExtractor g) {
         var c=state.categories.get(category); if (c==null) return;
         int x=treeLeft,w=treeRight-treeLeft;
-        QuestSkin.panel(g,x,top+33,w,29,0xff3b2b21,0xff866046);
-        g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+6,top+39);
-        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+27,top+37,QuestSkin.INK,false);
-        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+27,top+49,QuestSkin.DIM,false);
+        QuestSkin.panel(g,x,top+26,w,23,0xff3b2b21,0xff866046);
+        g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+5,top+30);
+        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(20,w-80)),x+24,top+28,QuestSkin.INK,false);
+        g.text(font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(20,w-80)),x+24,top+39,QuestSkin.DIM,false);
         long done=completedNodes;
         if (w>260) {
             int bar=80,bx=treeRight-bar-8;
-            g.text(font,done+" / "+layout.points().size(),bx,top+37,QuestSkin.INK,false);
-            QuestSkin.panel(g,bx,top+49,bar,5,0xff211a17,0xff715849);
-            if (!layout.points().isEmpty()) g.fill(bx+2,top+51,bx+2+(int)((bar-4)*done/layout.points().size()),top+52,0xffa37bab);
+            g.text(font,done+" / "+layout.points().size(),bx,top+28,QuestSkin.INK,false);
+            QuestSkin.panel(g,bx,top+39,bar,5,0xff211a17,0xff715849);
+            if (!layout.points().isEmpty()) g.fill(bx+2,top+41,bx+2+(int)((bar-4)*done/layout.points().size()),top+42,0xffa37bab);
         }
     }
     private void drawPaper(GuiGraphicsExtractor g) {
@@ -347,11 +383,11 @@ public final class QuestScreen extends Screen {
         boolean[] values={settings.tablet,settings.blur,settings.animations,settings.reducedMotion,settings.notifications,settings.hud};
         for (int i=0;i<names.length;i++) { final int n=i; QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*25,w,() -> { switch(n) { case 0 -> settings.tablet=!settings.tablet; case 1 -> settings.blur=!settings.blur; case 2 -> settings.animations=!settings.animations; case 3 -> settings.reducedMotion=!settings.reducedMotion; case 4 -> settings.notifications=!settings.notifications; case 5 -> settings.hud=!settings.hud; } settings.save(); init(); }); b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off"))); }
         button("hud_position",x,y+80,w,() -> { settings.hudPosition=(settings.hudPosition+1)%9; settings.save(); init(); }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
-        button("scale",x+w+8,y+80,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
+        button("scale",x+w+8,y+80,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : Math.round((settings.scale+0.25)*100)/100.0; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
         button("blur_intensity",x,y+105,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
-        event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
+        if (!contentReady()) return false;
         if (super.mouseClicked(event,doubleClick)) return true;
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
@@ -364,12 +400,12 @@ public final class QuestScreen extends Screen {
     }
     private boolean inTree(double x,double y) { return x>=treeLeft && x<treeRight && y>=treeTop && y<treeBottom; }
     @Override public boolean mouseDragged(MouseButtonEvent event,double dx,double dy) {
-        event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
+        if (!contentReady()) return false;
         if (dragging) { if (Math.hypot(event.x()-downX,event.y()-downY)>3) dragged=true; if (dragged) camera.pan(dx,dy); return true; }
         return super.mouseDragged(event,dx,dy);
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
-        event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
+        if (!contentReady()) return false;
         if (dragging && event.button()==InputConstants.MOUSE_BUTTON_LEFT) {
             dragging=false;
             if (!dragged && inTree(event.x(),event.y())) layout.hit(camera.worldX(event.x()),camera.worldY(event.y())).filter(this::shown).ifPresent(id -> { selected=id; detailsScroll=0; init(); });
@@ -378,7 +414,7 @@ public final class QuestScreen extends Screen {
         return super.mouseReleased(event);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical) {
-        y-=visualOffset;
+        if (!contentReady()) return false;
         if (tab.equals("quests")) {
             if (x<treeLeft) { categoryScroll-= (int)Math.signum(vertical); return true; }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
@@ -387,6 +423,10 @@ public final class QuestScreen extends Screen {
         return super.mouseScrolled(x,y,horizontal,vertical);
     }
     @Override public boolean keyPressed(KeyEvent event) {
+        if (!contentReady()) {
+            if (event.key()==InputConstants.KEY_ESCAPE) { onClose(); return true; }
+            return true;
+        }
         if (event.key()==InputConstants.KEY_F6 && tab.equals("quests")) {
             updateRenderCache(); var ids=filtered.stream().sorted().toList();
             if (!ids.isEmpty()) { keyboardQuest=ids.get((ids.indexOf(keyboardQuest)+1)%ids.size()); clearFocus(); triggerImmediateNarration(false); }
