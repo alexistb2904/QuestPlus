@@ -1,5 +1,6 @@
 {
   "id": "questplus:exploration",
+  "icon": "minecraft:compass",
   "title": { "en_us": "Exploration", "fr_fr": "Exploration" },
   "description": { "en_us": "Find valuable discoveries on your travels.", "fr_fr": "Faites de précieuses découvertes au fil de vos voyages." }
 }

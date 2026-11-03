@@ -24,6 +24,7 @@
     "cooldownSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 },
     "timeLimitSeconds": { "type": "integer", "minimum": 1, "maximum": 31536000 },
     "noDeath": { "type": "boolean" },
+    "hidden": { "type": "boolean", "default": false },
     "layout": {
       "type": "object", "additionalProperties": false, "required": ["x", "y"],
       "properties": { "x": { "type": "number" }, "y": { "type": "number" } }

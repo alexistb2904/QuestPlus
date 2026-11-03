@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public final class QuestPlusMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("questplus");
     private static QuestRuntime runtime;
+    private static int networkTicks;
     private record BreakTool(BlockPos position,String tool) {}
     private static final Map<UUID,BreakTool> BREAK_TOOLS = new HashMap<>();
 
@@ -27,6 +28,8 @@ public final class QuestPlusMod implements ModInitializer {
     }
 
     @Override public void onInitialize() {
+        QuestNetwork.register();
+        TabletPoseNetwork.register();
         AdvancedEvents.register();
         CommandRegistrationCallback.EVENT.register((dispatcher,access,environment) -> QuestCommands.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
@@ -41,10 +44,14 @@ public final class QuestPlusMod implements ModInitializer {
                 runtime = null;
             }
             BREAK_TOOLS.clear();
+            QuestNetwork.clear();
+            TabletPoseNetwork.clear();
         });
-        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); } });
+        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); QuestNetwork.tick(server,++networkTicks); TabletPoseNetwork.tick(server); } });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server) -> {
             if (runtime != null) runtime.disconnect(handler.player.getUUID());
+            QuestNetwork.disconnect(handler.player.getUUID(),server);
+            TabletPoseNetwork.disconnect(handler.player);
             BREAK_TOOLS.remove(handler.player.getUUID());
         });
         PlayerBlockBreakEvents.BEFORE.register((world,player,pos,state,blockEntity) -> {

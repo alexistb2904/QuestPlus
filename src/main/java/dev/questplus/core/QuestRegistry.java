@@ -98,7 +98,7 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement");
+            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = translations(object(o,"description"));
@@ -160,7 +160,7 @@ public final class QuestRegistry {
             +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
-            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement);
+            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"));
     }
     private static List<QuestDefinition.Reward> rewards(JsonArray array,ValidationHook hook) {
         if (array.size()>64) throw new IllegalArgumentException("Too many rewards");

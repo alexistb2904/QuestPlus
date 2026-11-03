@@ -38,7 +38,7 @@ final class QuestCommands {
                 .executes(c -> execute(c,s -> {
                     var player = s.getPlayerOrException();
                     var progress = QuestPlusMod.runtime().state(player.getUUID());
-                    for (var q : QuestPlusMod.runtime().registry().all().stream().sorted(Comparator.comparing(dev.questplus.core.QuestDefinition::id)).limit(50).toList()) {
+                    for (var q : QuestPlusMod.runtime().visibleQuests(player.getUUID()).stream().sorted(Comparator.comparing(dev.questplus.core.QuestDefinition::id)).limit(50).toList()) {
                         var p = progress.quests.get(q.id());
                         s.sendSuccess(() -> Component.literal(q.id() + " | " + QuestPlusMod.runtime().title(player,q) + " | " + (p==null ? "0" : p.completed ? "completed" : p.counters.toString())),false);
                     }
@@ -46,19 +46,24 @@ final class QuestCommands {
                 .then(questArgument().executes(c -> execute(c,s -> {
                     var player = s.getPlayerOrException(); var runtime = QuestPlusMod.runtime();
                     String id = StringArgumentType.getString(c,"quest");
+                    runtime.visibleQuest(player.getUUID(),id);
                     var progress = runtime.state(player.getUUID()); var personal=runtime.player(player.getUUID()); var p = runtime.engine().progress(progress,id);
                     s.sendSuccess(() -> Component.literal(id + " | " + (p==null ? "0" : p.completed ? "completed" : p.counters.toString())
                         + " | cycles="+(p==null ? 0 : p.cycles)+" tier="+(p==null ? 0 : p.tier)+" restart="+(p!=null && p.waitingRestart)
                         + " | rewards="+personal.entitlements.values().stream().filter(r -> r.questId().equals(id)).count()+" | " + runtime.engine().diagnostic(progress,id).orElse("compatible")),false);
                 }))))
-            .then(literal("claim").then(questArgument().executes(c -> execute(c,s -> QuestPlusMod.runtime().claim(s.getPlayerOrException(),StringArgumentType.getString(c,"quest"))))))
+            .then(literal("claim").then(questArgument().executes(c -> execute(c,s -> {
+                var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
+                QuestPlusMod.runtime().visibleQuest(player.getUUID(),id); QuestPlusMod.runtime().claim(player,id);
+            }))))
             .then(literal("restart").then(questArgument().executes(c -> execute(c,s -> {
-                QuestPlusMod.runtime().mutate(s.getPlayerOrException().getUUID(),StringArgumentType.getString(c,"quest"),"restart");
+                var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
+                QuestPlusMod.runtime().visibleQuest(player.getUUID(),id); QuestPlusMod.runtime().mutate(player.getUUID(),id,"restart");
                 s.sendSuccess(() -> Messages.text(s.getPlayer(),"questplus.restarted"),false);
             }))))
             .then(literal("trigger").then(questArgument().executes(c -> execute(c,s -> {
                 var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
-                QuestPlusMod.runtime().registry().get(id);
+                QuestPlusMod.runtime().visibleQuest(player.getUUID(),id);
                 QuestPlusMod.runtime().event(player,new dev.questplus.core.QuestEvent("manual",id,Set.of(),1,QuestPlusMod.context(player)));
             }))))
             .then(teamCommands())
@@ -69,8 +74,12 @@ final class QuestCommands {
     }
     private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack,String> questArgument() {
         return argument("quest",StringArgumentType.greedyString()).suggests((context,builder) -> {
-            try { QuestPlusMod.runtime().registry().all().stream().map(dev.questplus.core.QuestDefinition::id)
+            try { var source=context.getSource(); var player=source.getPlayer();
+                var quests=player==null || source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
+                    ? QuestPlusMod.runtime().registry().all() : QuestPlusMod.runtime().visibleQuests(player.getUUID());
+                quests.stream().map(dev.questplus.core.QuestDefinition::id)
                 .filter(id -> id.startsWith(builder.getRemaining())).sorted().forEach(builder::suggest); } catch (IllegalStateException ignored) {}
+            catch (java.io.IOException ignored) {}
             return builder.buildFuture();
         });
     }

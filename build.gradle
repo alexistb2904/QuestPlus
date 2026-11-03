@@ -38,13 +38,14 @@ fabricApi {
         createSourceSet = true
         modId = 'questplus-test'
         enableGameTests = true
-        enableClientGameTests = false
+        enableClientGameTests = true
         eula = true
     }
 }
 
 dependencies {
     gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
+    gametestImplementation fabricApi.module('fabric-client-gametest-api-v1', project.fabric_version)
 }
 
 loom {

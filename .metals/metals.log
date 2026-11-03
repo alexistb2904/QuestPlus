@@ -44,3 +44,7 @@ INFOS: Unsupported notification method: $/setTrace
 2026.11.03 17:16:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\persistence\JsonProgressStoreTest.java. Using fallback presentation compiler.
 2026.11.03 17:16:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\persistence\JsonTransactionTest.java. Using fallback presentation compiler.
 2026.11.03 17:16:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\team\TeamManagerTest.java. Using fallback presentation compiler.
+nov. 03, 2026 6:10:28 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFOS: Unsupported notification method: $/setTrace
+nov. 03, 2026 6:10:30 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFOS: Unsupported notification method: $/setTrace

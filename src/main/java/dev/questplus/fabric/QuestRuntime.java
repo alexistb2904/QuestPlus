@@ -1,6 +1,7 @@
 package dev.questplus.fabric;
 
 import dev.questplus.core.*;
+import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.persistence.JsonProgressStore;
 import dev.questplus.team.*;
 import net.minecraft.core.Registry;
@@ -40,6 +41,8 @@ public final class QuestRuntime implements AutoCloseable {
     private boolean storageFailed;
     private String teamRewardPolicy="all_members";
     private QuestRegistry registry;
+    private List<ClientProjection.Category> categories = List.of();
+    private long catalogGeneration;
     private QuestEngine engine;
     private int autosaveTicks;
     private int ticks;
@@ -68,14 +71,15 @@ public final class QuestRuntime implements AutoCloseable {
         String policy=config.has("teamRewardPolicy") ? config.get("teamRewardPolicy").getAsString() : "all_members";
         if (!Set.of("all_members","contributor").contains(policy)) throw new IllegalArgumentException("Invalid teamRewardPolicy");
         QuestRegistry candidate = QuestRegistry.load(definitions.resolve("quests"), this::validateRegistryReference);
-        Set<String> categories = new HashSet<>();
+        Set<String> categoryIds = new HashSet<>();
+        List<ClientProjection.Category> candidateCategories = new ArrayList<>();
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!category.keySet().equals(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
-                if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categories.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
+                if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
                 for (String field : List.of("title","description")) {
                     var values = category.getAsJsonObject(field);
                     if (!values.has("en_us")) throw new IllegalArgumentException("Missing category en_us: " + path);
@@ -83,14 +87,26 @@ public final class QuestRuntime implements AutoCloseable {
                             || !value.getValue().getAsJsonPrimitive().isString() || value.getValue().getAsString().isBlank())
                         throw new IllegalArgumentException("Invalid category translation: " + path);
                 }
+                if (category.has("icon") && (!category.get("icon").isJsonPrimitive() || !category.get("icon").getAsJsonPrimitive().isString()
+                        || !category.get("icon").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+")))
+                    throw new IllegalArgumentException("Invalid category icon: " + path);
+                String icon=category.has("icon") ? category.get("icon").getAsString() : "minecraft:book";
+                validateRegistryReference("icon",icon);
+                Map<String,String> title=new HashMap<>(),description=new HashMap<>();
+                category.getAsJsonObject("title").entrySet().forEach(e -> title.put(e.getKey(),e.getValue().getAsString()));
+                category.getAsJsonObject("description").entrySet().forEach(e -> description.put(e.getKey(),e.getValue().getAsString()));
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon));
             }
         }
-        for (var quest : candidate.all()) if (!categories.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
+        for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
         registry = candidate;
+        categories = candidateCategories.stream().sorted(Comparator.comparing(ClientProjection.Category::id)).toList();
+        catalogGeneration++;
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
         teamRewardPolicy=policy;
         autosaveTicks = seconds * 20;
+        QuestNetwork.invalidateAll(server);
     }
 
     private void validateRegistryReference(String kind, String target) {
@@ -123,7 +139,16 @@ public final class QuestRuntime implements AutoCloseable {
     }
 
     public QuestRegistry registry() { return registry; }
+    public List<ClientProjection.Category> categories() { return categories; }
+    public long catalogGeneration() { return catalogGeneration; }
     public QuestEngine engine() { return engine; }
+    public List<QuestDefinition> visibleQuests(UUID id) throws IOException {
+        return ClientProjection.visible(registry.all(),state(id));
+    }
+    public QuestDefinition visibleQuest(UUID player,String id) throws IOException {
+        return visibleQuests(player).stream().filter(q -> q.id().equals(id)).findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Unknown quest"));
+    }
     public PlayerProgress player(UUID id) throws IOException {
         assertThread();
         if (storageFailed) throw new IOException("Quest Plus storage requires recovery; restart after inspecting the transaction log");
@@ -194,6 +219,8 @@ public final class QuestRuntime implements AutoCloseable {
     public void changed(UUID id) {
         assertThread(); var p=players.get(id);
         if (p!=null && p.teamId!=null) dirtyTeams.add(p.teamId); else dirty.add(id);
+        if (p!=null && p.teamId!=null) teams.get(p.teamId).members.forEach(QuestNetwork::invalidate);
+        else QuestNetwork.invalidate(id);
     }
     public void tick() {
         if (storageFailed) return;
@@ -236,10 +263,13 @@ public final class QuestRuntime implements AutoCloseable {
         assertThread(); ensureFree(Set.of());
         TeamManager.Change change=action.prepare(teams);
         Set<UUID> affected=new HashSet<>(change.affectedPlayers());
+        Set<UUID> notify=new HashSet<>(affected);
         for (var team:change.teams().values()) {
             affected.addAll(team.members);
-            try { affected.addAll(teams.get(team.id).members); } catch (IllegalArgumentException newTeam) {}
+            notify.addAll(team.invitations.keySet());
+            try { var old=teams.get(team.id); affected.addAll(old.members); notify.addAll(old.invitations.keySet()); } catch (IllegalArgumentException newTeam) {}
         }
+        notify.addAll(affected);
         ensureFree(affected); busy.addAll(affected);
         var io=store.transaction(change.players(),change.teams());
         var write=new TeamWrite(change,io); pendingTeams.add(write);
@@ -247,6 +277,7 @@ public final class QuestRuntime implements AutoCloseable {
         io.whenComplete((ok,error) -> server.execute(() -> {
             if (!write.applied && error==null) {
                 teams.apply(change); write.applied=true;
+                notify.forEach(QuestNetwork::invalidate);
                 dirty.removeAll(change.players().keySet()); dirtyTeams.removeAll(change.teams().keySet());
             }
             if (error!=null) { failStorage(error); result.completeExceptionally(error); } else result.complete(null);
@@ -289,6 +320,7 @@ public final class QuestRuntime implements AutoCloseable {
         if (claiming.contains(uuid)) throw new IllegalArgumentException("Reward already reserved; pending claims require administrator review");
         if (!fits(player,rewards)) throw new IllegalArgumentException("Inventory needs more free space");
         progress.claims.put(key,"reserved");
+        QuestNetwork.invalidate(uuid);
         Set<UUID> affected=group(uuid); busy.addAll(affected);
         claiming.add(uuid);
         save(uuid).whenComplete((ok,error) -> server.execute(() -> {
@@ -316,6 +348,7 @@ public final class QuestRuntime implements AutoCloseable {
                 }
                 progress.claims.put(key,"delivered");
                 progress.entitlements.remove(key);
+                QuestNetwork.invalidate(uuid);
                 dirty.add(uuid);
                 player.sendSystemMessage(Messages.text(player,"questplus.claimed",title(player,quest)));
             } catch (RuntimeException ex) { QuestPlusMod.LOGGER.error("Reserved reward requires manual recovery for {} {}",uuid,id,ex); }
