@@ -89,7 +89,12 @@ public final class QuestRegistry {
         if (states.getOrDefault(id,0) == 1) throw new IllegalArgumentException("Quest dependency cycle: " + id);
         if (states.getOrDefault(id,0) == 2) return;
         states.put(id,1); var refs = new HashSet<String>(); var req = quests.get(id).requires(); if (req != null) req.questReferences(refs);
-        refs.forEach(ref -> visit(ref,quests,states)); states.put(id,2);
+        refs.forEach(ref -> {
+            var prerequisite = quests.get(ref);
+            if (prerequisite != null && prerequisite.kind().equals("information") && prerequisite.acknowledgement().equals("read_only"))
+                throw new IllegalArgumentException("Read-only information quest cannot be a prerequisite: " + ref);
+            visit(ref,quests,states);
+        }); states.put(id,2);
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
@@ -130,6 +135,8 @@ public final class QuestRegistry {
         } else if (objectives.isEmpty()) throw new IllegalArgumentException("Objectives cannot be empty");
         var requires = o.has("requires") ? condition(object(o,"requires"),true,hook,0,new int[1]) : null;
         List<QuestDefinition.Reward> rewards = rewards(array(o,"rewards"),hook);
+        if (kind.equals("information") && acknowledgement.equals("read_only") && !rewards.isEmpty())
+            throw new IllegalArgumentException("Read-only information quests cannot have rewards");
         List<QuestDefinition.Tier> tiers=new ArrayList<>(); Set<String> tierIds=new HashSet<>(); long previous=0;
         if (o.has("tiers")) {
             if (!progression.equals("tiered") || array(o,"tiers").size()>256) throw new IllegalArgumentException("Invalid tiers");

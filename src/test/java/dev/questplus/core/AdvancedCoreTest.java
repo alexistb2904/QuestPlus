@@ -55,6 +55,13 @@ class AdvancedCoreTest {
         assertTrue(new QuestEngine(registry).apply(new PlayerProgress(),event("manual","questplus:test",1,Map.of())).isEmpty());
         write(simple("once","",""));
         assertThrows(IllegalArgumentException.class,this::load);
+        write("""
+          {"schemaVersion":2,"kind":"information","acknowledgement":"read_only","id":"questplus:test",
+           "category":"questplus:general","icon":"minecraft:book",
+           "title":{"en_us":"Info"},"description":{"en_us":"Info"},"objectives":[],
+           "rewards":[{"type":"experience","amount":5}],"progression":"once"}
+          """);
+        assertThrows(IllegalArgumentException.class,this::load);
     }
 
     @Test void informationQuestsRejectOrdinaryGameplayObjectives() throws Exception {
