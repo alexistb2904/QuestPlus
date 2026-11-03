@@ -18,6 +18,11 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew build --no-daemon --console plain
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test Quest Studio offline editor
+        run: node --test web/editor/tests/*.test.mjs
       - name: Upload test reports when failed
         if: failure()
         uses: actions/upload-artifact@v4
