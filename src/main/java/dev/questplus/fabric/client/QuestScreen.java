@@ -54,12 +54,16 @@ public final class QuestScreen extends Screen {
     private String keyboardQuest;
     private long completedNodes;
     public double animationProgress() {
+        if (QuestClientTabletFlow.nativeHandsActive()) return 1;
         if (!settings.animations || settings.reducedMotion) return closingAt==0 ? 1 : 0;
         double p=Math.clamp((System.nanoTime()-(closingAt==0 ? opened : closingAt))/250_000_000.0,0,1);
         p=p*p*(3-2*p); return closingAt==0 ? p : 1-p;
     }
     @Override public void onClose() {
-        if (!settings.animations || settings.reducedMotion) super.onClose();
+        if (QuestClientTabletFlow.nativeHandsActive()) {
+            QuestClientTabletFlow.close();
+            super.onClose();
+        } else if (!settings.animations || settings.reducedMotion) super.onClose();
         else if (closingAt==0) closingAt=System.nanoTime();
     }
     public QuestScreen() { super(Component.literal("Quest Plus")); }
@@ -138,9 +142,13 @@ public final class QuestScreen extends Screen {
         g.fill(0,0,width,height,0x660d100e);
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta) {
-        visualOffset=(float)((1-animationProgress())*(height-top));
+        visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
         g.pose().pushMatrix(); g.pose().translate(0,visualOffset); my-=(int)visualOffset;
-        if (settings.tablet) TabletRenderer.draw(g,left,top,right,bottom);
+        if (settings.tablet) {
+            if (QuestClientTabletFlow.nativeHandsActive()) TabletRenderer.draw(g,left,top,right,bottom,false,
+                TabletFirstPersonAnimation.pose("questplus.idle",QuestClientTabletFlow.idleSeconds()));
+            else TabletRenderer.draw(g,left,top,right,bottom);
+        }
         else { g.fill(left-5,top-5,right+5,bottom+5,0xff342820); g.outline(left-5,top-5,right-left+10,bottom-top+10,0xff756553); }
         QuestSkin.panel(g,left,top,right-left,bottom-top,0xff30231e,0xff805c40);
         g.fill(left+3,top+3,right-3,top+27,0xff241c18);

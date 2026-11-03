@@ -34,7 +34,8 @@ public final class TabletPoseClient {
             if (!animate) POSES.values().forEach(p -> p.settle(time));
             POSES.values().removeIf(p -> p.finishedClosed(time,animate));
             if (client.player==null || !ClientPlayNetworking.canSend(TabletPoseNetwork.Request.TYPE)) return;
-            boolean now=client.gui.screen() instanceof QuestScreen && client.player.isAlive() && !client.player.isSpectator();
+            boolean now=(client.gui.screen() instanceof QuestScreen || QuestClientTabletFlow.thirdPersonHolding())
+                && client.player.isAlive() && !client.player.isSpectator();
             if (now!=sent || (now && ++heartbeat>=100)) {
                 if (now!=sent) transition(client.player.getUUID(),now);
                 ClientPlayNetworking.send(new TabletPoseNetwork.Request(now)); sent=now; heartbeat=0;
