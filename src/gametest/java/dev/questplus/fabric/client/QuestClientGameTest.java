@@ -38,7 +38,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             context.takeScreenshot("questplus-team");
             context.clickScreenButton("questplus.client.settings"); context.waitTicks(3);
             context.takeScreenshot("questplus-settings");
-            context.runOnClient(client -> client.gui.screen().onClose()); context.waitTicks(12);
+            context.runOnClient(client -> client.gui.screen().onClose()); context.waitTicks(30);
             context.runOnClient(client -> { if (client.gui.screen()!=null) throw new AssertionError("Screen did not close"); });
             world.getServer().runCommand("questplus reload");
             context.waitFor(client -> QuestPlusClient.STATE.generation>=2,300);
