@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "questplus",
+  "version": "${version}",
+  "name": "Quest Plus",
+  "description": "Server-authoritative JSON quest engine. Independent backend preview.",
+  "environment": "*",
+  "entrypoints": {"main": ["dev.questplus.fabric.QuestPlusMod"]},
+  "mixins": ["questplus.mixins.json"],
+  "depends": {"fabricloader": ">=0.20.1", "minecraft": "26.3", "java": ">=25", "fabric-api": ">=0.165.2+26.3"}
+}

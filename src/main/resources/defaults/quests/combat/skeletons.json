@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "questplus:combat/skeletons",
+  "category": "questplus:combat",
+  "icon": "minecraft:bone",
+  "title": { "en_us": "Keep Your Distance", "fr_fr": "Gardez vos distances" },
+  "description": { "en_us": "Deal with the skeletons harassing the road.", "fr_fr": "Débarrassez la route des squelettes qui la menacent." },
+  "objectives": [
+    {
+      "id": "skeletons",
+      "event": "entity_kill",
+      "target": "minecraft:skeleton",
+      "count": 5,
+      "text": { "en_us": "Defeat 5 skeletons", "fr_fr": "Vainquez 5 squelettes" }
+    }
+  ],
+  "rewards": [
+    { "type": "experience", "amount": 100 },
+    { "type": "item", "item": "minecraft:arrow", "count": 16 }
+  ],
+  "progression": "once"
+}

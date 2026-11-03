@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "questplus:mining/iron_ore",
+  "category": "questplus:mining",
+  "icon": "minecraft:iron_pickaxe",
+  "title": { "en_us": "Iron Prospector", "fr_fr": "Prospecteur de fer" },
+  "description": { "en_us": "Follow your first supplies into the deeper veins.", "fr_fr": "Après vos premières réserves, partez vers des filons plus profonds." },
+  "objectives": [
+    {
+      "id": "iron_ore",
+      "event": "block_break",
+      "target": "#minecraft:iron_ores",
+      "count": 32,
+      "text": { "en_us": "Break 32 iron ores", "fr_fr": "Cassez 32 minerais de fer" },
+      "conditions": {
+        "and": [
+          { "dimension": "minecraft:overworld" },
+          { "or": [
+            { "tool": "minecraft:iron_pickaxe" },
+            { "tool": "minecraft:diamond_pickaxe" }
+          ] }
+        ]
+      }
+    }
+  ],
+  "requires": {
+    "and": [
+      { "quest": "questplus:survival/logs" },
+      { "quest": "questplus:mining/stone" }
+    ]
+  },
+  "rewards": [
+    { "type": "experience", "amount": 180 },
+    { "type": "item", "item": "minecraft:iron_ingot", "count": 8 }
+  ],
+  "progression": "once"
+}

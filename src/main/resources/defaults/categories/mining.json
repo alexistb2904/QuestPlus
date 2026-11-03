@@ -1,0 +1,5 @@
+{
+  "id": "questplus:mining",
+  "title": { "en_us": "Mining", "fr_fr": "Minage" },
+  "description": { "en_us": "Gather stone and ore with care.", "fr_fr": "Récoltez la pierre et le minerai avec méthode." }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "id": "questplus:combat/iron_and_zombie",
+  "category": "questplus:combat",
+  "icon": "minecraft:iron_ingot",
+  "title": { "en_us": "Armed for Trouble", "fr_fr": "Prêt au combat" },
+  "description": { "en_us": "Carry 64 iron ingots and defeat a zombie.", "fr_fr": "Ayez 64 lingots de fer et vainquez un zombie." },
+  "objectives": [
+    { "id": "iron", "event": "inventory_count", "target": "minecraft:iron_ingot", "count": 64 },
+    { "id": "zombie", "event": "entity_kill", "target": "minecraft:zombie", "count": 1 }
+  ],
+  "rewards": [{ "type": "experience", "amount": 75 }],
+  "progression": "once"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "id": "questplus:survival/composite_sequence",
+  "category": "questplus:survival",
+  "icon": "minecraft:oak_log",
+  "title": { "en_us": "Shelter in Order", "fr_fr": "Abri, dans l'ordre" },
+  "description": { "en_us": "Break 3 oak logs, then 8 stone.", "fr_fr": "Cassez 3 bûches de chêne, puis 8 pierres." },
+  "objectives": [
+    { "id": "logs", "event": "block_break", "target": "minecraft:oak_log", "count": 3 },
+    { "id": "stone", "event": "block_break", "target": "minecraft:stone", "count": 8 }
+  ],
+  "rewards": [{ "type": "item", "item": "minecraft:bread", "count": 4 }],
+  "progression": "once",
+  "objectiveMode": "sequence"
+}

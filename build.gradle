@@ -1,0 +1,87 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.18.4'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories { mavenCentral() }
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+
+test { useJUnitPlatform() }
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'questplus-test'
+        enableGameTests = true
+        enableClientGameTests = false
+        eula = true
+    }
+}
+
+dependencies {
+    gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
+}
+
+loom {
+    runs {
+        gameTest {
+            runDir 'build/gametest'
+            vmArg '-Xmx1G'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.output=${layout.buildDirectory.file('integration-saves.json').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.teams=${layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath}"
+        }
+    }
+}
+
+tasks.register('integrationTest') {
+    group = 'verification'
+    description = 'Run real dedicated-server gameplay tests and verify final JSON saves after shutdown.'
+    dependsOn tasks.named('runGameTest')
+    doLast {
+        def expected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-saves.json').get().asFile)
+        assert expected.players.size() >= 140
+        expected.players.each { uuid ->
+            def saved = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${uuid}.json"))
+            assert saved.schemaVersion == 2
+            assert saved.quests['questplus:survival/logs'].completed
+        }
+        def recipient = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${expected.recipient}.json"))
+        assert recipient.claims['questplus:survival/logs'] == 'delivered'
+        def teamExpected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-teams.json').get().asFile)
+        def memberA = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.a}.json"))
+        def memberB = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.b}.json"))
+        def team = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "teams/${teamExpected.team}.json"))
+        assert memberA.teamId == null && memberB.teamId == null
+        assert memberA.quests['questplus:team_integration'].completed && memberB.quests['questplus:team_integration'].completed
+        assert memberA.claims['questplus:team_integration'] == 'delivered'
+        assert memberB.entitlements['questplus:team_integration'] != null
+        assert team.disbanded && team.members.empty
+        logger.lifecycle("Quest Plus shutdown saves verified: ${expected.players.size()} UUIDs and durable reward ledger")
+    }
+}

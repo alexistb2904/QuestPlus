@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "id": "questplus:combat/skeleton_repeat",
+  "category": "questplus:combat",
+  "icon": "minecraft:bone",
+  "title": { "en_us": "Skeleton Patrol", "fr_fr": "Patrouille de squelettes" },
+  "description": { "en_us": "Defeat 100 skeletons, then restart after the cooldown.", "fr_fr": "Vainquez 100 squelettes, puis recommencez après le délai." },
+  "objectives": [{ "id": "skeletons", "event": "entity_kill", "target": "minecraft:skeleton", "count": 100 }],
+  "rewards": [{ "type": "experience", "amount": 100, "text": { "en_us": "100 experience", "fr_fr": "100 points d'expérience" } }],
+  "progression": "repeatable",
+  "cooldownSeconds": 100
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "questplus-test",
+  "version": "1.0.0",
+  "name": "Quest Plus integration tests",
+  "environment": "server",
+  "entrypoints": {"fabric-gametest": ["dev.questplus.fabric.QuestIntegrationTest", "dev.questplus.fabric.AdvancedEventsTest", "dev.questplus.fabric.TeamIntegrationTest"]},
+  "depends": {"questplus": "*", "fabric-gametest-api-v1": "*"}
+}
