@@ -6,3 +6,12 @@
 2026.11.03 16:28:38 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\core\QuestCoreTest.java. Using fallback presentation compiler.
 nov. 03, 2026 5:13:36 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFOS: Unsupported notification method: $/setTrace
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\AdvancedEventsTest.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\QuestIntegrationTest.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\TeamIntegrationTest.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\Localization.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\PlayerProgress.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestDefinition.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestEngine.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestEvent.java. Using fallback presentation compiler.
+2026.11.03 17:13:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestExtensions.java. Using fallback presentation compiler.
