@@ -101,7 +101,7 @@ public final class QuestRegistry {
             "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
-        var title = translations(object(o,"title")); var description = translations(object(o,"description"));
+        var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
         String progression=string(o,"progression");
         if (!Set.of("once","repeatable","infinite","tiered").contains(progression) || (version==1 && !progression.equals("once"))) throw new IllegalArgumentException("Invalid progression/schema version");
         String mode=o.has("objectiveMode") ? string(o,"objectiveMode") : "all";
