@@ -65,7 +65,7 @@ Les définitions montrent les formats configurés, pas la preuve que chaque év�
 
 ## Texte automatique et annotations de l'arbre
 
-La `description` d'une quête est facultative. Sans description, seuls les objectifs sont affichés, générés automatiquement dans la langue du joueur à partir de l'événement, de la quantité et du nom localisé de la cible. Un texte `objective.text` explicite reste prioritaire. Si la description répète exactement l'unique objectif, l'interface ne l'affiche qu'une fois.
+La `description` d'une quête est facultative. Sans description, seuls les objectifs sont affichés, générés automatiquement dans la langue du joueur à partir de l'événement, de la quantité et du nom localisé de la cible. Un texte `objective.text` explicite reste prioritaire. Si la description répète exactement le texte d'un objectif, l'interface ne l'affiche qu'une fois.
 
 Chaque catégorie accepte désormais `annotations` (au plus 128 objets), par exemple :
 

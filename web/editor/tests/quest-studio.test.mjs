@@ -20,6 +20,9 @@ test('description-free quest generates locale-aware objectives without repetitio
   q.description={en_us:'Break 32 stone',fr_fr:'Casser 32 stone'};
   assert.equal(visibleDescription(q,'en_us'),'');
   assert.equal(visibleDescription(q,'fr_fr'),'');
+  q.objectives.push({id:'more',event:'item_craft',target:'minecraft:iron_pickaxe',count:1});
+  assert.equal(visibleDescription(q,'fr_fr'),'');
+  q.objectives.pop();
   q.description={en_us:'This is a custom narrative',fr_fr:'Narration supplémentaire'};
   assert.equal(visibleDescription(q),'Narration supplémentaire');
 });

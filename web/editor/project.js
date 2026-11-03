@@ -63,7 +63,7 @@ export function objectiveLabel(o,lang='fr_fr'){
 export function visibleDescription(q,lang='fr_fr'){
   const description=text(q.description,lang).trim();
   if(!description)return '';
-  if((q.objectives||[]).length===1 && normalized(description)===normalized(objectiveLabel(q.objectives[0],lang)))return '';
+  if((q.objectives||[]).some(o=>normalized(description)===normalized(objectiveLabel(o,lang))))return '';
   return description;
 }
 const normalized=s=>String(s).normalize('NFKC').toLowerCase().replace(/[\p{P}\s]+/gu,' ').trim();

@@ -56,8 +56,8 @@ public final class QuestPresentation {
     /** Do not display the same sentence twice for a single-objective quest. */
     public static boolean redundantDescription(String description,java.util.List<String> labels) {
         if (description==null || description.isBlank()) return true;
-        if (labels.size()!=1) return false;
-        return normalizeText(description).equals(normalizeText(labels.getFirst()));
+        String normalized=normalizeText(description);
+        return labels.stream().anyMatch(label -> normalized.equals(normalizeText(label)));
     }
     private static String normalizeText(String text) {
         return java.text.Normalizer.normalize(text,java.text.Normalizer.Form.NFKC)

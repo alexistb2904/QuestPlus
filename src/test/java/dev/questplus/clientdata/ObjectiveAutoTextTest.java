@@ -28,7 +28,7 @@ class ObjectiveAutoTextTest {
         assertTrue(QuestPresentation.redundantDescription("",List.of("Break 32 Cobblestone")));
         assertTrue(QuestPresentation.redundantDescription("Break 32 Cobblestone.",List.of("Break 32 Cobblestone")));
         assertFalse(QuestPresentation.redundantDescription("Build a shelter",List.of("Break 32 Cobblestone")));
-        assertFalse(QuestPresentation.redundantDescription("Break 32 Cobblestone",List.of("Break 32 Cobblestone","Craft 1 Pickaxe")));
+        assertTrue(QuestPresentation.redundantDescription("Break 32 Cobblestone",List.of("Break 32 Cobblestone","Craft 1 Pickaxe")));
         assertEquals("Craft 4 Pickaxes",QuestPresentation.objectiveText(
             new QuestDefinition.Objective("c","item_craft","minecraft:iron_pickaxe",4,Map.of(),null),"en_us","Pickaxes"));
     }
