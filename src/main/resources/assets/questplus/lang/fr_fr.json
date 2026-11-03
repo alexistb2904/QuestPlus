@@ -1,8 +1,10 @@
 {
-  "questplus.help": "/questplus progress [quête] | claim <quête> | restart <quête> | trigger <quête> | team create/invite/join/decline/leave/kick/transfer/disband/info. Administration : reload | debug [uuid] | quest grant/reset <uuid> <quête>.",
+  "questplus.help": "/questplus progress [quête] | claim <quête> | restart <quête> | trigger <quête> | team create/invite/invitations/join/decline/leave/kick/transfer/disband/info. Administration : reload | debug [uuid] | quest grant/reset <uuid> <quête>.",
   "questplus.restarted": "Tentative de quête redémarrée.",
   "questplus.team_saved": "Opération d'équipe sauvegardée. /questplus team info affiche son identifiant et ses membres.",
   "questplus.no_team": "Vous n'appartenez à aucune équipe.",
+  "questplus.no_invitations": "Vous n'avez aucune invitation d'équipe en attente.",
+  "questplus.team_invitation": "Invitation de l'équipe %s (rejoindre avec /questplus team join %s)",
   "questplus.completed": "Quête terminée : %s. Réclamation : /questplus claim %s",
   "questplus.claimed": "Récompenses reçues : %s",
   "questplus.error": "Quest Plus : %s",

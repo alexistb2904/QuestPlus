@@ -23,6 +23,52 @@ class AdvancedCoreTest {
             """.formatted(objective, progression, fields);
     }
 
+    @Test void informationQuestAcknowledgementIsGeneratedFromEmptyObjectives() throws Exception {
+        write("""
+          {"schemaVersion":2,"kind":"information","acknowledgement":"manual","id":"questplus:test",
+           "category":"questplus:general","icon":"minecraft:book",
+           "title":{"en_us":"Information","fr_fr":"Information"},"description":{"en_us":"Read this guide"},
+           "narrative":{"en_us":"A story page","fr_fr":"Une page d'histoire"},
+           "objectives":[],"rewards":[],"progression":"once"}
+          """);
+        QuestRegistry registry=load();
+        var quest=registry.get("questplus:test");
+        assertEquals("information",quest.kind());
+        assertEquals("manual",quest.acknowledgement());
+        assertEquals(1,quest.objectives().size());
+        assertEquals("manual",quest.objectives().getFirst().event());
+        assertEquals("questplus:test",quest.objectives().getFirst().target());
+        var player=new PlayerProgress();
+        assertEquals(List.of("questplus:test"),new QuestEngine(registry).apply(player,event("manual","questplus:test",1,Map.of())));
+        assertTrue(player.quests.get("questplus:test").completed);
+    }
+
+    @Test void readOnlyInformationDoesNotCreateGameplayObjective() throws Exception {
+        write("""
+          {"schemaVersion":2,"kind":"information","acknowledgement":"read_only","id":"questplus:test",
+           "category":"questplus:general","icon":"minecraft:book",
+           "title":{"en_us":"Information"},"description":{"en_us":"Read only"},
+           "objectives":[],"rewards":[],"progression":"once"}
+          """);
+        var registry=load();
+        assertEquals(0,registry.get("questplus:test").objectives().size());
+        assertTrue(new QuestEngine(registry).apply(new PlayerProgress(),event("manual","questplus:test",1,Map.of())).isEmpty());
+        write(simple("once","",""));
+        assertThrows(IllegalArgumentException.class,this::load);
+        write("""
+          {"schemaVersion":2,"kind":"information","acknowledgement":"read_only","id":"questplus:test",
+           "category":"questplus:general","icon":"minecraft:book",
+           "title":{"en_us":"Info"},"description":{"en_us":"Info"},"objectives":[],
+           "rewards":[{"type":"experience","amount":5}],"progression":"once"}
+          """);
+        assertThrows(IllegalArgumentException.class,this::load);
+    }
+
+    @Test void informationQuestsRejectOrdinaryGameplayObjectives() throws Exception {
+        write(simple("once",",\"kind\":\"information\"","{\"id\":\"one\",\"event\":\"block_break\",\"target\":\"minecraft:stone\",\"count\":1}"));
+        assertThrows(IllegalArgumentException.class,this::load);
+    }
+
     @Test void repeatableRequiresRestartAndHonorsCooldown() throws Exception {
         write(simple("repeatable", ",\"cooldownSeconds\":10", "{\"id\":\"one\",\"event\":\"block_break\",\"target\":\"minecraft:stone\",\"count\":1}"));
         AtomicLong now = new AtomicLong(1_000);

@@ -4,6 +4,7 @@ categories/mining.json
 categories/combat.json
 categories/exploration.json
 quests/survival/logs.json
+quests/survival/welcome.json
 quests/survival/composite_sequence.json
 quests/mining/stone.json
 quests/mining/stone_infinite.json

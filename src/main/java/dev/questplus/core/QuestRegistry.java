@@ -89,11 +89,16 @@ public final class QuestRegistry {
         if (states.getOrDefault(id,0) == 1) throw new IllegalArgumentException("Quest dependency cycle: " + id);
         if (states.getOrDefault(id,0) == 2) return;
         states.put(id,1); var refs = new HashSet<String>(); var req = quests.get(id).requires(); if (req != null) req.questReferences(refs);
-        refs.forEach(ref -> visit(ref,quests,states)); states.put(id,2);
+        refs.forEach(ref -> {
+            var prerequisite = quests.get(ref);
+            if (prerequisite != null && prerequisite.kind().equals("information") && prerequisite.acknowledgement().equals("read_only"))
+                throw new IllegalArgumentException("Read-only information quest cannot be a prerequisite: " + ref);
+            visit(ref,quests,states);
+        }); states.put(id,2);
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath");
+            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = translations(object(o,"description"));
@@ -104,6 +109,14 @@ public final class QuestRegistry {
         long cooldown=o.has("cooldownSeconds") ? integer(o,"cooldownSeconds",0,31_536_000) : 0;
         long timeLimit=o.has("timeLimitSeconds") ? integer(o,"timeLimitSeconds",1,31_536_000) : 0;
         boolean noDeath=o.has("noDeath") && bool(o,"noDeath");
+        String kind=o.has("kind") ? string(o,"kind") : "standard";
+        if (!Set.of("standard","information").contains(kind)) throw new IllegalArgumentException("Invalid quest kind");
+        String acknowledgement=o.has("acknowledgement") ? string(o,"acknowledgement") : "manual";
+        if (!Set.of("manual","read_only").contains(acknowledgement) || (o.has("acknowledgement") && !kind.equals("information")))
+            throw new IllegalArgumentException("Invalid information acknowledgement");
+        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode")
+                || cooldown!=0 || timeLimit!=0 || noDeath))
+            throw new IllegalArgumentException("Information quests require schemaVersion 2 and once progression without timers or tiers");
         if (version==1 && (o.has("objectiveMode") || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
             throw new IllegalArgumentException("Advanced progression requires schemaVersion 2");
         List<QuestDefinition.Objective> objectives = new ArrayList<>(); Set<String> ids = new HashSet<>();
@@ -116,9 +129,14 @@ public final class QuestRegistry {
             identifier(target.startsWith("#") ? target.substring(1) : target); hook.validate(event,target);
             objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null));
         }
-        if (objectives.isEmpty()) throw new IllegalArgumentException("Objectives cannot be empty");
+        if (kind.equals("information")) {
+            if (!objectives.isEmpty()) throw new IllegalArgumentException("Information quests must not define gameplay objectives");
+            if (acknowledgement.equals("manual")) objectives.add(new QuestDefinition.Objective("acknowledge","manual",id,1,Map.of(),null));
+        } else if (objectives.isEmpty()) throw new IllegalArgumentException("Objectives cannot be empty");
         var requires = o.has("requires") ? condition(object(o,"requires"),true,hook,0,new int[1]) : null;
         List<QuestDefinition.Reward> rewards = rewards(array(o,"rewards"),hook);
+        if (kind.equals("information") && acknowledgement.equals("read_only") && !rewards.isEmpty())
+            throw new IllegalArgumentException("Read-only information quests cannot have rewards");
         List<QuestDefinition.Tier> tiers=new ArrayList<>(); Set<String> tierIds=new HashSet<>(); long previous=0;
         if (o.has("tiers")) {
             if (!progression.equals("tiered") || array(o,"tiers").size()>256) throw new IllegalArgumentException("Invalid tiers");
@@ -137,11 +155,12 @@ public final class QuestRegistry {
         if (o.has("layout")) { var l = object(o,"layout"); fields(l,"x","y"); double x = number(l,"x"), y = number(l,"y"); layout = new QuestDefinition.Layout(x,y); }
         String fingerprint;
         String mechanical=mechanics(objectives);
+        if (kind.equals("information")) mechanical += "|information|"+acknowledgement;
         if (version==2) mechanical += "|v2|"+progression+"|"+mode+"|"+afterLast+"|"+cooldown+"|"+timeLimit+"|"+noDeath
             +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
-            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath);
+            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement);
     }
     private static List<QuestDefinition.Reward> rewards(JsonArray array,ValidationHook hook) {
         if (array.size()>64) throw new IllegalArgumentException("Too many rewards");

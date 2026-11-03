@@ -1,8 +1,10 @@
 {
-  "questplus.help": "/questplus progress [quest] | claim <quest> | restart <quest> | trigger <quest> | team create/invite/join/decline/leave/kick/transfer/disband/info. Administrators: reload | debug [uuid] | quest grant/reset <uuid> <quest>.",
+  "questplus.help": "/questplus progress [quest] | claim <quest> | restart <quest> | trigger <quest> | team create/invite/invitations/join/decline/leave/kick/transfer/disband/info. Administrators: reload | debug [uuid] | quest grant/reset <uuid> <quest>.",
   "questplus.restarted": "Quest attempt restarted.",
   "questplus.team_saved": "Team operation saved. Use /questplus team info to see its ID and members.",
   "questplus.no_team": "You do not belong to a team.",
+  "questplus.no_invitations": "You have no pending team invitations.",
+  "questplus.team_invitation": "Team invitation: %s (join with /questplus team join %s)",
   "questplus.completed": "Quest completed: %s. Claim with /questplus claim %s",
   "questplus.claimed": "Rewards received: %s",
   "questplus.error": "Quest Plus: %s",

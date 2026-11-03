@@ -92,6 +92,12 @@ final class QuestCommands {
             .then(literal("kick").then(argument("player",UuidArgument.uuid()).executes(c -> team(c,m -> m.kick(actor(c),UuidArgument.getUuid(c,"player"))))))
             .then(literal("transfer").then(argument("player",UuidArgument.uuid()).executes(c -> team(c,m -> m.transfer(actor(c),UuidArgument.getUuid(c,"player"))))))
             .then(literal("disband").executes(c -> team(c,m -> m.disband(actor(c)))))
+            .then(literal("invitations").executes(c -> execute(c,s -> {
+                var invitations=QuestPlusMod.runtime().teams().invitationsFor(s.getPlayerOrException().getUUID(),System.currentTimeMillis());
+                if (invitations.isEmpty()) s.sendSuccess(() -> Messages.text(s.getPlayer(),"questplus.no_invitations"),false);
+                for (var invite:invitations)
+                    s.sendSuccess(() -> Messages.text(s.getPlayer(),"questplus.team_invitation",invite.name,invite.id.toString()),false);
+            })))
             .then(literal("info").executes(c -> execute(c,s -> {
                 var value=QuestPlusMod.runtime().teams().teamOf(s.getPlayerOrException().getUUID());
                 s.sendSuccess(() -> value.<Component>map(t -> Component.literal(t.id+" | "+t.name+" | owner="+t.owner+" | members="+t.members+" | invites="+t.invitations.keySet()))

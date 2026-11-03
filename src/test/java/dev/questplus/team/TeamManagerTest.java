@@ -61,6 +61,19 @@ class TeamManagerTest {
             assertThrows(IllegalArgumentException.class,() -> manager.decline(b,team));
         }
     }
+    @Test void invitationDiscoveryIsPrivateExpiresAndDisappearsAfterJoining() throws Exception {
+        try (var store = new JsonProgressStore(root.resolve("data"))) {
+            var manager = new TeamManager(store,registry(),new HashMap<>());
+            UUID team = create(store,manager);
+            assertTrue(manager.invitationsFor(b,1_000).isEmpty());
+            commit(store,manager,manager.invite(a,b,1_000));
+            assertEquals(List.of(team),manager.invitationsFor(b,1_001).stream().map(t -> t.id).toList());
+            assertTrue(manager.invitationsFor(c,1_001).isEmpty());
+            assertTrue(manager.invitationsFor(b,301_000).isEmpty());
+            commit(store,manager,manager.join(b,team,300_999));
+            assertTrue(manager.invitationsFor(b,300_999).isEmpty());
+        }
+    }
     @Test void mergeUsesMaximumRecognizesHistoricalCompletionWithoutRewards() throws Exception {
         try (var store = new JsonProgressStore(root.resolve("data"))) {
             var registry = registry(); Map<UUID,PlayerProgress> cache = new HashMap<>();

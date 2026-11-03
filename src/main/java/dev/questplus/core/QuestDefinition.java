@@ -5,7 +5,8 @@ import java.util.*;
 public record QuestDefinition(String id, String category, String icon, Map<String,String> title,
     Map<String,String> description, List<Objective> objectives, Condition requires,
     List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
-    String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath) {
+    String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
+    String kind, String acknowledgement) {
     public record Objective(String id, String event, String target, long count, Map<String,String> text, Condition conditions) {}
     public record Reward(String type, String item, int count, int amount, String data, Map<String,String> text) {
         public Reward(String type,String item,int count,int amount) { this(type,item,count,amount,"{}",Map.of()); }
