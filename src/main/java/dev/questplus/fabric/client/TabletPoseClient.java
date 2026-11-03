@@ -127,7 +127,7 @@ public final class TabletPoseClient {
             pose.rotateDegrees(Axis.ZP,rotation.z());
             pose.rotateDegrees(Axis.YP,-rotation.y());
             pose.rotateDegrees(Axis.XP,-rotation.x());
-            pose.scale(-.65f*scale.x(),.65f*scale.y(),.65f*scale.z());
+            pose.scale(-.5f*scale.x(),.5f*scale.y(),.5f*scale.z());
             nodes.submitModel(model,Unit.INSTANCE,pose,TabletRenderer.texture(),light,OverlayTexture.NO_OVERLAY,0);
             pose.popPose();
         }

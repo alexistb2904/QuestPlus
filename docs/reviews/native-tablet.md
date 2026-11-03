@@ -99,3 +99,5 @@ python questplus-assets/tools/export_third_person.py --check
 ```
 
 Validation serveur : quatre GameTests obligatoires passent ; `integrationTest` relit les sauvegardes après arrêt et vérifie 140 UUID et les historiques de récompenses/équipes. La scène graphique vérifie les paquets de pose et le renderer de deux avatars locaux ; une partie avec deux vrais clients, les shaders tiers et Vulkan restent à contrôler.
+
+Réglage demandé ensuite le 4 novembre : échelle de la tablette extérieure seule passée de 0,65 à 0,50 (environ 23 % plus petite), autour du même pivot. Les bras, les pistes d’animation et la tablette subjective restent inchangés. `build runClientGameTest` passe (1 min 21 s), avec les captures de face/profil contrôlées et actualisées dans ce rapport.
