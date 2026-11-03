@@ -12,12 +12,13 @@ echo  2. Lancer un serveur local de test
 echo  3. Compiler le mod et lancer les tests unitaires
 echo  4. Lancer les tests d'integration serveur
 echo  5. Lancer les tests du client
+echo  6. Installer Java JDK 25 (avec confirmation)
 echo  Q. Quitter
 echo ===================================================
 echo.
 echo Tapez un chiffre puis appuyez sur Entree.
 set "SELECTION="
-set /p "SELECTION=Votre choix [1-5 ou Q] : "
+set /p "SELECTION=Votre choix [1-6 ou Q] : "
 if errorlevel 1 goto INPUT_ERROR
 if /I "%SELECTION%"=="Q" goto END
 if "%SELECTION%"=="1" goto CLIENT
@@ -25,8 +26,9 @@ if "%SELECTION%"=="2" goto SERVER
 if "%SELECTION%"=="3" goto BUILD
 if "%SELECTION%"=="4" goto SERVER_TEST
 if "%SELECTION%"=="5" goto CLIENT_TEST
+if "%SELECTION%"=="6" goto JAVA25
 echo.
-echo [Quest Plus] Choix invalide : choisissez 1, 2, 3, 4, 5 ou Q.
+echo [Quest Plus] Choix invalide : choisissez 1, 2, 3, 4, 5, 6 ou Q.
 pause
 goto MENU
 
@@ -48,6 +50,10 @@ goto MENU
 
 :CLIENT_TEST
 call "%~dp05-Tests-Client.bat"
+goto MENU
+
+:JAVA25
+call "%~dp06-Installer-Java-25.bat"
 goto MENU
 
 :INPUT_ERROR

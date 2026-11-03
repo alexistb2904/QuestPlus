@@ -63,10 +63,24 @@ et les **sources actuelles** : aucun JAR a copier dans `mods/`.
 | `3-Compiler-Mod.bat` | Compile et execute les tests Gradle (`build`). |
 | `4-Tests-Serveur.bat` | Lance `build integrationTest`, y compris les GameTests et controles des JSON de sauvegarde. |
 | `5-Tests-Client.bat` | Lance les Client GameTests configures par Fabric (`runClientGameTest`). |
+| `6-Installer-Java-25.bat` | Installe Eclipse Temurin JDK 25 via winget, **uniquement apres confirmation**. |
 
-**Prerequis :** Windows, JDK 25 accessible via `JAVA_HOME` ou `PATH`, et connexion Internet
-au premier demarrage pour telecharger les dependances Minecraft/Fabric/Gradle. Les scripts
-affichent le resultat et restent ouverts apres la fermeture du jeu ou la fin des tests.
+**Prerequis :** Windows, JDK 25 et connexion Internet au premier demarrage pour
+telecharger les dependances Minecraft/Fabric/Gradle. Si Java 17 reste le Java par defaut
+du PC, `scripts/Find-Java25.ps1` recherche automatiquement une installation Java 25
+dans `JAVA_HOME`, `PATH`, les dossiers habituels des fournisseurs et les JDK d'IDE.
+Le lanceur force `JAVA_HOME` uniquement dans son processus ; il ne change pas la
+configuration globale de Windows ni celle de tes autres jeux/outils.
+
+Si le JDK 25 n'est pas trouve, choisir **6** dans le menu, confirmer l'installation,
+puis choisir **1**. Installation manuelle alternative :
+`winget install -e --id EclipseAdoptium.Temurin.25.JDK`.
+Pour une installation personnalisee, definir la variable d'environnement
+`QUESTPLUS_JAVA_HOME` vers le **repertoire racine du JDK 25**
+(contenant `bin/java.exe` et `bin/javac.exe`), avant de lancer le script.
+
+Les scripts affichent le resultat et restent ouverts apres la fermeture du jeu
+ou la fin des tests.
 
 **Dossiers isoles :** le client utilise `run/client/` (mondes dans `run/client/saves/`),
 le serveur `run/server/` (monde et `questplus/` dans ce repertoire), les GameTests serveur
