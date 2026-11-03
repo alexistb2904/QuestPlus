@@ -9,8 +9,8 @@ public final class QuestSkin {
     public static final int PAPER=0xff35251d, INK=0xffe3cdb1, DIM=0xffac927a;
     public static final int EDGE=0xff76513b, HIGHLIGHT=0xffd0a26d, SELECTED=0xffd4ad70;
     private QuestSkin() {}
-    /** Reduced text (80 %) without shrinking the tablet or changing hitboxes. */
-    public static final float TEXT_SCALE=.80f;
+    /** Whole texture pixels keep the compact 500x300 screen font legible. */
+    public static final float TEXT_SCALE=1f;
     public static void text(GuiGraphicsExtractor g,Font font,String text,int x,int y,int color,boolean shadow) {
         g.pose().pushMatrix();
         g.pose().translate(x,y);

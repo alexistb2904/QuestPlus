@@ -1,5 +1,7 @@
 # Client Quest Plus
 
+> État courant : voir [le rapport de correction PR #2](reviews/native-tablet.md). Le reste de ce document décrit les étapes historiques, dont le rendu 2D a été remplacé par une texture hors écran sur le cube `screen`. Les dépendances sont actuellement déclarées `implementation` avec Loom non-remapping. La synchronisation utilise désormais l'horloge PAL, et aucun modèle HUD n'est ajouté pendant la séquence native.
+
 La phase client est autorisée par le brief du 3 novembre 2026. Le Core et les sauvegardes restent indépendants du rendu.
 
 ## Plan et contrats

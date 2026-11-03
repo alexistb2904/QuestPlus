@@ -73,15 +73,13 @@ public final class QuestScreen extends Screen {
         return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
     }
     @Override protected void init() {
-        int margin=Math.max(12,(int)(Math.min(width,height)*0.20)); // Controls shrink independently of 3D tablet.
-        var face=QuestClientTabletFlow.nativeHandsActive() && settings.tablet
-            ? TabletFaceAnchor.current(width,height) : null;
-        attachedToScreenFace=face!=null;
+        attachedToScreenFace=TabletSurfaceRenderer.active();
+        if (attachedToScreenFace) { width=TabletSurfaceRenderer.logicalWidth();height=TabletSurfaceRenderer.logicalHeight(); }
+        else if (minecraft!=null) { width=minecraft.getWindow().getGuiScaledWidth();height=minecraft.getWindow().getGuiScaledHeight(); }
+        int margin=Math.max(12,(int)(Math.min(width,height)*0.20));
         int fw,fh;
-        if (face!=null) {
-            // Snap the 2D widget layer to the quad detected from FP PAL's model pose.
-            left=face.left()+2;right=face.right()-2;
-            top=face.top()+2;bottom=face.bottom()-2;
+        if (attachedToScreenFace) {
+            left=0;top=0;right=width;bottom=height;
             fw=right-left;fh=bottom-top;
         } else {
             fw=Math.min(width-margin*2,(int)(760*settings.scale));
@@ -105,13 +103,16 @@ public final class QuestScreen extends Screen {
         if (tab.equals("quests")) {
             int treeWidth=treeRight-treeLeft;
             boolean compact=treeWidth<230;
-            search=addRenderableWidget(new QuestTextField(font,treeLeft,bottom-18,Math.max(30,treeWidth-(compact ? 43 : 120)),14,t("search")));
+            int searchX=attachedToScreenFace ? left+249 : treeLeft;
+            int searchY=attachedToScreenFace ? top+6 : bottom-18;
+            int searchWidth=attachedToScreenFace ? right-searchX-26 : Math.max(30,treeWidth-(compact ? 43 : 120));
+            search=addRenderableWidget(new QuestTextField(font,searchX,searchY,searchWidth,14,t("search")));
             search.setMaxLength(128); search.setHint(t("search")); search.setValue(query); search.setResponder(value -> query=value);
-            var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
+            var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,attachedToScreenFace || compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
             button("fit",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
-            button("zoom_out",treeRight-40,bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
-            button("zoom_in",treeRight-21,bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            button("zoom_out",treeRight-40,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
+            button("zoom_in",treeRight-21,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
         else settingsWidgets();
@@ -135,10 +136,6 @@ public final class QuestScreen extends Screen {
     private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,attachedToScreenFace ? 15 : 24); }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
-        // During the first post-open model frame the 3D surface becomes available.
-        // Attach only once to avoid reinitializing focused widgets on idle micro-motion.
-        if (!attachedToScreenFace && QuestClientTabletFlow.nativeHandsActive() && settings.tablet
-            && TabletFaceAnchor.current(width,height)!=null) init();
         refreshCatalogue();
         if (sequence!=state.sequence) {
             sequence=state.sequence;
@@ -163,6 +160,10 @@ public final class QuestScreen extends Screen {
         g.fill(0,0,width,height,0x660d100e);
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta) {
+        if (attachedToScreenFace) return;
+        extractTablet(g,mx,my,delta);
+    }
+    void extractTablet(GuiGraphicsExtractor g,int mx,int my,float delta) {
         visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
         g.pose().pushMatrix(); g.pose().translate(0,visualOffset); my-=(int)visualOffset;
         if (settings.tablet) {
@@ -280,8 +281,8 @@ public final class QuestScreen extends Screen {
     private void detailsButtons() {
         int x=detailLeft,w=right-x-8;
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
-        button(settings.pinned.contains(selected) ? "unpin" : "pin",x,bottom-44,w,() -> { if (!settings.pinned.remove(selected) && settings.pinned.size()<3) settings.pinned.add(selected); settings.save(); init(); });
-        questAction=button("claim",x,bottom-23,w,() -> { if (currentAction!=null) action(currentAction,selected); }); updateQuestAction();
+        button(settings.pinned.contains(selected) ? "unpin" : "pin",x,attachedToScreenFace ? treeTop+18 : bottom-44,w,() -> { if (!settings.pinned.remove(selected) && settings.pinned.size()<3) settings.pinned.add(selected); settings.save(); init(); });
+        questAction=button("claim",x,attachedToScreenFace ? treeTop+36 : bottom-23,w,() -> { if (currentAction!=null) action(currentAction,selected); }); updateQuestAction();
     }
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
@@ -293,7 +294,7 @@ public final class QuestScreen extends Screen {
     }
     private void drawDetails(GuiGraphicsExtractor g) {
         var q=state.quests.get(selected); if (q==null) return;
-        int x=detailLeft,w=right-x-8,y=treeTop+26;
+        int x=detailLeft,w=right-x-8,y=treeTop+(attachedToScreenFace ? 55 : 26);
         if (overlayDetails) QuestSkin.panel(g,treeLeft,treeTop,right-treeLeft-5,treeBottom-treeTop,0xff30251e,QuestSkin.EDGE);
         g.enableScissor(x,y,right-5,bottom-49);
         if (!Objects.equals(detailQuest,selected) || detailSequence!=state.sequence || detailWidth!=w || !Objects.equals(detailLanguage,minecraft.options.languageCode)) {
@@ -353,11 +354,11 @@ public final class QuestScreen extends Screen {
                 if (!id.equals(state.team.get("owner").getAsString())) { button("kick",right-143,yy,58,() -> confirm("kick",id)); button("transfer",right-81,yy,67,() -> confirm("transfer",id)); }
             }
             if (members.size()>capacity) pages(capacity,members.size());
-            button(owner ? "disband" : "leave",x,bottom-28,112,() -> confirm(owner ? "disband" : "leave",""));
+            button(owner ? "disband" : "leave",attachedToScreenFace ? right-126 : x,attachedToScreenFace ? top+24 : bottom-28,112,() -> confirm(owner ? "disband" : "leave",""));
         }
-        if (confirmation!=null) { String[] parts=confirmation.split("\n",2); button("confirm",right-170,bottom-28,74,() -> { action(parts[0],parts[1]); confirmation=null; init(); }); button("cancel",right-90,bottom-28,76,() -> { confirmation=null; init(); }); }
+        if (confirmation!=null) { String[] parts=confirmation.split("\n",2); int confirmY=attachedToScreenFace ? top+90 : bottom-28; button("confirm",right-170,confirmY,74,() -> { action(parts[0],parts[1]); confirmation=null; init(); }); button("cancel",right-90,confirmY,76,() -> { confirmation=null; init(); }); }
     }
-    private void pages(int capacity,int total) { button("previous",left+132,bottom-28,52,() -> { teamPage=Math.max(0,teamPage-1); init(); }); button("next",left+188,bottom-28,52,() -> { teamPage=Math.min((total-1)/capacity,teamPage+1); init(); }); }
+    private void pages(int capacity,int total) { int y=attachedToScreenFace ? top+24 : bottom-28; button("previous",attachedToScreenFace ? right-240 : left+132,y,52,() -> { teamPage=Math.max(0,teamPage-1); init(); }); button("next",attachedToScreenFace ? right-184 : left+188,y,52,() -> { teamPage=Math.min((total-1)/capacity,teamPage+1); init(); }); }
     private void confirm(String action,String argument) { confirmation=action+"\n"+argument; init(); }
     private void drawTeam(GuiGraphicsExtractor g) {
         int x=left+14;
@@ -371,7 +372,7 @@ public final class QuestScreen extends Screen {
             var members=state.team.getAsJsonArray("members"); int capacity=Math.max(1,(bottom-top-143)/23),start=teamPage*capacity;
             for (int i=start;i<Math.min(members.size(),start+capacity);i++) { var m=members.get(i).getAsJsonObject(); String name=m.has("name") ? m.get("name").getAsString() : m.get("id").getAsString(); QuestSkin.text(g,font,font.plainSubstrByWidth((QuestClientState.flag(m,"online") ? "● " : "○ ")+name,Math.max(30,right-left-169)),x,top+104+(i-start)*23,0xffd8dccb,false); }
         }
-        if (confirmation!=null) QuestSkin.text(g,font,t("confirm_hint"),x,bottom-42,0xffe3b991,false);
+        if (confirmation!=null) QuestSkin.text(g,font,t("confirm_hint"),x,attachedToScreenFace ? top+92 : bottom-42,0xffe3b991,false);
     }
     private void settingsWidgets() {
         int x=left+14,y=top+(attachedToScreenFace ? 28 : 39),w=(right-left-36)/2;
@@ -385,24 +386,43 @@ public final class QuestScreen extends Screen {
         button("blur_intensity",x,y+finalRow,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
+        if (attachedToScreenFace) event=tabletEvent(event);
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
         if (super.mouseClicked(event,doubleClick)) return true;
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
         if (x>=left+7 && x<left+32 && y>=treeTop && y<treeBottom) {
-            int index=categoryScroll+(int)((y-treeTop)/30); var ids=new ArrayList<>(state.categories.keySet());
+            int index=categoryScroll+(int)((y-treeTop)/26); var ids=new ArrayList<>(state.categories.keySet());
             if (index<ids.size()) { selected=null; chooseCategory(ids.get(index)); init(); } return true;
         }
         if (!overlayDetails && inTree(x,y)) { dragging=true; dragged=false; downX=x; downY=y; return true; }
         return false;
     }
     private boolean inTree(double x,double y) { return x>=treeLeft && x<treeRight && y>=treeTop && y<treeBottom; }
+    private MouseButtonEvent tabletEvent(MouseButtonEvent event) {
+        var point=TabletFaceAnchor.pointer(event.x(),event.y());
+        return new MouseButtonEvent(point==null ? -10000 : point.x()/TabletSurfaceRenderer.uiScale(),point==null ? -10000 : point.y()/TabletSurfaceRenderer.uiScale(),event.buttonInfo());
+    }
+    @Override public void mouseMoved(double x,double y) {
+        if (attachedToScreenFace) {
+            var point=TabletFaceAnchor.pointer(x,y);
+            x=point==null ? -10000 : point.x()/TabletSurfaceRenderer.uiScale(); y=point==null ? -10000 : point.y()/TabletSurfaceRenderer.uiScale();
+        }
+        super.mouseMoved(x,y);
+    }
     @Override public boolean mouseDragged(MouseButtonEvent event,double dx,double dy) {
+        if (attachedToScreenFace) {
+            var previous=TabletFaceAnchor.pointer(event.x()-dx,event.y()-dy);
+            event=tabletEvent(event);
+            if (previous==null || event.x()<0) { dx=0;dy=0; }
+            else { dx=event.x()-previous.x()/TabletSurfaceRenderer.uiScale();dy=event.y()-previous.y()/TabletSurfaceRenderer.uiScale(); }
+        }
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
         if (dragging) { if (Math.hypot(event.x()-downX,event.y()-downY)>3) dragged=true; if (dragged) camera.pan(dx,dy); return true; }
         return super.mouseDragged(event,dx,dy);
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (attachedToScreenFace) event=tabletEvent(event);
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
         if (dragging && event.button()==InputConstants.MOUSE_BUTTON_LEFT) {
             dragging=false;
@@ -412,6 +432,11 @@ public final class QuestScreen extends Screen {
         return super.mouseReleased(event);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical) {
+        if (attachedToScreenFace) {
+            var point=TabletFaceAnchor.pointer(x,y);
+            if (point==null) return false;
+            x=point.x()/TabletSurfaceRenderer.uiScale();y=point.y()/TabletSurfaceRenderer.uiScale();
+        }
         y-=visualOffset;
         if (tab.equals("quests")) {
             if (x<treeLeft) { categoryScroll-= (int)Math.signum(vertical); return true; }
@@ -433,6 +458,7 @@ public final class QuestScreen extends Screen {
         switch(event.key()) {
             case InputConstants.KEY_LEFT -> camera.pan(24,0); case InputConstants.KEY_RIGHT -> camera.pan(-24,0); case InputConstants.KEY_UP -> camera.pan(0,24); case InputConstants.KEY_DOWN -> camera.pan(0,-24);
             case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.zoomAt(1.15,width/2.0,height/2.0); case InputConstants.KEY_MINUS -> camera.zoomAt(1/1.15,width/2.0,height/2.0);
+            case InputConstants.KEY_J -> onClose();
             case InputConstants.KEY_ESCAPE -> { if (selected!=null) { selected=null; init(); } else onClose(); }
             default -> { return super.keyPressed(event); }
         }

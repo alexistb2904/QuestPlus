@@ -5,7 +5,12 @@
   "client": [
     "TabletPlayerPoseMixin",
     "TabletBlurMixin",
-    "TabletFaceCaptureMixin"
+    "TabletFaceCaptureMixin",
+    "GameRendererAccessor",
+    "TabletGameRendererMixin",
+    "TabletGuiRendererMixin",
+    "TabletGuiExtractorMixin",
+    "TabletNativeArmsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

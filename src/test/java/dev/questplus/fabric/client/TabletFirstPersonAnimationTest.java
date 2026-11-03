@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TabletFirstPersonAnimationTest {
-    @Test void usesRealBlockbenchTimingAndPocketReveal() {
+    @Test void usesRealBlockbenchTimingAndConstantPhysicalSize() {
         assertEquals(1_200_000_000L,TabletFirstPersonAnimation.OPEN_NANOS);
-        assertFalse(TabletFirstPersonAnimation.pose("questplus.open",0).tabletVisible());
+        assertTrue(TabletFirstPersonAnimation.pose("questplus.open",0).tabletVisible());
+        float initial=TabletFirstPersonAnimation.pose("questplus.open",0).rightPosition().y();
+        assertTrue(TabletFirstPersonAnimation.pose("questplus.open",.24).rightPosition().y()<initial-10);
         assertTrue(TabletFirstPersonAnimation.pose("questplus.open",.26).tabletVisible());
         assertTrue(TabletFirstPersonAnimation.pose("questplus.open",1.2).tabletVisible());
     }
@@ -17,6 +19,6 @@ class TabletFirstPersonAnimationTest {
         assertEquals(last.tabletPosition(),first.tabletPosition());
         assertEquals(last.tabletRotation(),first.tabletRotation());
         assertEquals(first.tabletPosition(),closing.tabletPosition());
-        assertFalse(TabletFirstPersonAnimation.pose("questplus.close",1.2).tabletVisible());
+        assertTrue(TabletFirstPersonAnimation.pose("questplus.close",1.2).tabletVisible());
     }
 }

@@ -35,14 +35,8 @@ for path in sorted((ROOT/'blockbench').glob('*.bbmodel')):
         write('animations/tablet/questplus_tablet.animation.json',compiled)
     elif not path.stem.endswith('slim'):
         if 'first_person' in path.stem:
-            compiled['azurelib_format_version']=2
-            for anim in compiled['animations'].values():
-                anim['bones']['fp_player_arms']={'position':{'0.0':[0,0,0]}}
-                anim['player_animation_library']={'fpDisplayTranslation':[0,-22,-2],'fpDisplayScale':1,'fpDisplayAnchor':'camera'}
-            fpgeo=call('execute_script',{'code':'return Codecs.bedrock.compile({raw:true});'})
-            for bone in fpgeo['minecraft:geometry'][0]['bones']:
-                if bone['name'] in ('rightArm','leftArm'):bone.pop('cubes',None)
-            write('models/questplus_first_person.geo.json',fpgeo)
+            from export_first_person import export
+            compiled,_=export()
         else:
             for anim in compiled['animations'].values():anim['bones'].pop('tablet_root',None)
         write('animations/player/'+path.stem+'.animation.json',compiled)

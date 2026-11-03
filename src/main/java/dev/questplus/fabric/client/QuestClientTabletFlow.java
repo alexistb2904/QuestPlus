@@ -6,15 +6,12 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 
-/**
- * Animate the actual Minecraft first-person arms BEFORE opening the GUI.
- * A standalone HUD draw shows only the tablet prop during the transitions.
- */
+/** Opens the surface UI only after PAL reaches the final two-handed pose. */
 final class QuestClientTabletFlow {
     private enum Stage { CLOSED, OPENING, HELD, CLOSING }
     private static Stage stage=Stage.CLOSED;
-    private static long started;
     private static boolean nativeHands;
+    private static boolean closeRequested;
     private QuestClientTabletFlow() {}
 
     static void register() {
@@ -25,7 +22,6 @@ final class QuestClientTabletFlow {
     }
     static boolean nativeHandsActive() { return nativeHands && stage!=Stage.CLOSED; }
     static boolean thirdPersonHolding() { return nativeHands && (stage==Stage.OPENING || stage==Stage.HELD); }
-    static double idleSeconds() { return Math.max(0,(System.nanoTime()-started)/1_000_000_000.0); }
 
     static void toggle(Minecraft client) {
         if (client.gui.screen() instanceof QuestScreen quest) { quest.onClose(); return; }
@@ -44,7 +40,7 @@ final class QuestClientTabletFlow {
         if (animationAvailable()) {
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
-                    nativeHands=true;stage=Stage.OPENING;started=System.nanoTime();
+                    nativeHands=true;stage=Stage.OPENING;
                     QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.2 s)");
                     return;
                 }
@@ -66,8 +62,8 @@ final class QuestClientTabletFlow {
     static void close() {
         if (!nativeHands || stage==Stage.CLOSED) return;
         if (stage==Stage.OPENING) {
-            // A quick second press should not jump to the full two-handed closing pose.
-            stop();reset();return;
+            closeRequested=true;
+            return;
         }
         if (stage==Stage.CLOSING) return;
         try {
@@ -76,25 +72,29 @@ final class QuestClientTabletFlow {
             QuestPlusMod.LOGGER.warn("Cannot play FP PAL close animation",error);
             stop();reset();return;
         }
-        stage=Stage.CLOSING; started=System.nanoTime();
+        stage=Stage.CLOSING;
     }
     private static void tick(Minecraft client) {
         if (stage==Stage.CLOSED) return;
         if (client.player==null || !client.player.isAlive() || client.player.isSpectator()) {
             stop();reset();return;
         }
-        long elapsed=System.nanoTime()-started;
-        if (stage==Stage.OPENING && elapsed>=TabletFirstPersonAnimation.OPEN_NANOS) {
+        if (stage==Stage.OPENING && FirstPersonPalBridge.finished("questplus.open")) {
             if (client.gui.screen()!=null) { stop();reset();return; }
+            if (closeRequested) {
+                stage=Stage.HELD;
+                close();
+                return;
+            }
             try {
                 if (!FirstPersonPalBridge.play("questplus.idle")) { stop();reset();return; }
             } catch (LinkageError | RuntimeException error) {
                 QuestPlusMod.LOGGER.warn("Cannot start FP PAL tablet idle",error);
                 stop();reset();return;
             }
-            stage=Stage.HELD;started=System.nanoTime();
+            stage=Stage.HELD;
             client.gui.setScreen(new QuestScreen());
-        } else if (stage==Stage.CLOSING && elapsed>=TabletFirstPersonAnimation.OPEN_NANOS) {
+        } else if (stage==Stage.CLOSING && FirstPersonPalBridge.finished("questplus.close")) {
             stop();reset();
         } else if (stage==Stage.HELD && !(client.gui.screen() instanceof QuestScreen)) {
             // Another mod/screen replaced our GUI; clear the lingering pose.
@@ -107,6 +107,6 @@ final class QuestClientTabletFlow {
             QuestPlusMod.LOGGER.warn("Cannot stop FP PAL animation",error);
         }
     }
-    private static void reset() { stage=Stage.CLOSED;nativeHands=false;started=0;TabletFaceAnchor.reset(); }
+    private static void reset() { stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset(); }
 
 }

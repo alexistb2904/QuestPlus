@@ -74,3 +74,7 @@
 - [ ] Tests de sécurité des extensions tierces et de compatibilité Fabric/versions.
 
 **Hors périmètre :** interface graphique, modèle Blockbench, animations, shaders et éditeur web.
+
+## Validation client sur la branche PR #2 — 3 novembre 2026
+
+Le brief client ultérieur autorise la correction de la tablette sur `fix/native-first-person-tablet`. Voir [le rapport natif](reviews/native-tablet.md) : build Java 25, tests unitaires et serveur, cinq configurations Minecraft avec captures et interactions sur la face 3D. Cette validation ne change pas les cases backend ci-dessus et ne constitue pas une validation multijoueur avec deux vrais clients ni Vulkan/shaders tiers. Aucune fusion dans `main`.
