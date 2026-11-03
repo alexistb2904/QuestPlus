@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#15131c">
+  <title>Quest Studio — QuestPlus</title>
+  <meta name="description" content="Éditeur visuel de quêtes, catégories, objectifs et annotations pour QuestPlus Minecraft.">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./editor.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">QUEST <span>STUDIO</span></div><div class="brand-caption">Visual quest designer <span class="version">v1.0</span></div></div></div>
+      <div class="workspace-name"><span class="active-dot"></span><span id="project-name">Nouveau projet</span><span id="changes-badge" class="changes-badge">Modifications locales</span></div>
+      <div class="top-actions">
+        <button id="undo" class="icon-button" title="Annuler (Ctrl+Z)" aria-label="Annuler">↶</button>
+        <button id="redo" class="icon-button" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir">↷</button>
+        <span class="divider"></span>
+        <button id="open-import" class="button secondary"><span>↥</span> Importer</button>
+        <button id="run-validate" class="button secondary"><span>✓</span> Valider</button>
+        <button id="export-zip" class="button primary"><span>⬇</span> Exporter ZIP</button>
+      </div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-header"><div class="overline">WORKSPACE</div><h2>Bibliothèque</h2><p>Crée et organise les chapitres de ton aventure.</p></div>
+        <div class="sidebar-actions"><button id="new-category" class="button primary block">＋ Nouvelle catégorie</button></div>
+        <div class="sidebar-section-head"><span>CATÉGORIES</span><span id="category-count" class="count">0</span></div>
+        <div id="categories" class="category-list" role="navigation" aria-label="Catégories de quêtes"></div>
+        <div class="sidebar-section-head quests-head"><span>QUÊTES</span><span id="quest-count" class="count">0</span></div>
+        <div class="search-box"><span>⌕</span><input id="quest-search" type="search" placeholder="Rechercher une quête…" aria-label="Rechercher une quête"></div>
+        <div id="quest-list" class="quest-list"></div>
+        <div class="sidebar-footer"><div class="save-dot"></div><div><strong>Sauvegarde locale</strong><small id="autosave-status">Dans ce navigateur uniquement</small></div><button id="reset-project" class="subtle" title="Nouveau projet vide">↺</button></div>
+      </aside>
+      <main class="main">
+        <div class="canvas-heading">
+          <div><div class="breadcrumbs"><span>QuestPlus</span><span class="slash">/</span><span id="crumb-category">Catégorie</span></div><h1 id="canvas-title">Arbre de quêtes</h1><p id="canvas-subtitle">Glisse une quête pour choisir sa position.</p></div>
+          <div class="canvas-actions">
+            <button id="new-note" class="button secondary">✎ Annotation</button>
+            <button id="new-quest" class="button primary">＋ Nouvelle quête</button>
+          </div>
+        </div>
+        <div class="canvas-shell">
+          <div class="canvas-toolbar">
+            <div class="seg"><button id="select-category" class="tool-button" title="Modifier cette catégorie">☷ Catégorie</button><span class="segline"></span><button id="auto-layout" class="tool-button" title="Positionner automatiquement les quêtes sans coordonnées">⚑ Disposer</button></div>
+            <div class="canvas-zoom"><button id="zoom-out" title="Dézoomer">−</button><span id="zoom-value">100%</span><button id="zoom-in" title="Zoomer">+</button><span class="segline"></span><button id="zoom-fit" title="Ajuster la vue">⤢</button></div>
+          </div>
+          <div id="viewport" class="viewport" tabindex="0" aria-label="Éditeur graphique de l'arbre">
+            <svg id="edges" class="edges" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="nodes" class="nodes"></div>
+            <div id="empty-tree" class="empty-state hidden"><div class="empty-symbol">◇</div><h3>Ton arbre commence ici</h3><p>Crée une quête, puis positionne-la dans l’espace. Tu peux aussi ajouter des annotations.</p><button id="empty-add" class="button primary">Créer ma première quête</button></div>
+          </div>
+          <div class="canvas-bottom"><span class="legend"><i class="legend-dot purple"></i> Quête <i class="legend-dot gold"></i> Annotation <i class="legend-line"></i> Prérequis</span><span id="coordinates">x: 0 · y: 0</span><span>Molette : zoom · Glisser : déplacer</span></div>
+        </div>
+        <div class="issues-bar" id="issues-bar"><span class="issues-icon">✓</span><span id="issues-summary">Projet prêt à être exporté</span><button id="show-issues" class="subtle">Voir les contrôles →</button></div>
+        <div id="issues-list" class="issues-list hidden"></div>
+      </main>
+      <aside class="inspector"><div class="inspector-head"><div class="overline">INSPECTEUR</div><h2 id="inspector-title">Propriétés</h2><p id="inspector-subtitle">Sélectionne une quête ou une annotation</p></div><div id="inspector-body" class="inspector-body"></div><div class="inspector-footer"><button id="open-json" class="button secondary block">{ } Éditer le JSON avancé</button></div></aside>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card">
+    <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Éditeur avancé</h2></div><button id="modal-close" class="icon-button" aria-label="Fermer">×</button></div>
+    <p id="modal-description" class="modal-description">Modifier le JSON sans perdre les champs avancés du format QuestPlus.</p>
+    <textarea id="json-input" spellcheck="false" aria-label="JSON avancé"></textarea>
+    <div id="json-error" class="error-line" role="alert"></div>
+    <div class="modal-actions"><button id="modal-cancel" class="button secondary">Annuler</button><button id="modal-apply" class="button primary">Appliquer</button></div>
+  </div></div>
+  <div id="import-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="import-title"><div class="modal-card small">
+    <div class="modal-head"><div><div class="overline">IMPORT</div><h2 id="import-title">Ouvrir un pack QuestPlus</h2></div><button id="import-close" class="icon-button" aria-label="Fermer">×</button></div>
+    <p class="modal-description">Importe un ZIP exporté par Quest Studio ou les fichiers JSON de ton dossier serveur. L'import remplace le projet courant après confirmation.</p>
+    <div class="import-choices"><button id="choose-zip" class="import-choice"><strong>▣ Archive ZIP</strong><small>Un pack complet .zip</small></button><button id="choose-folder" class="import-choice"><strong>▤ Dossier QuestPlus</strong><small>Catégories, quêtes et config</small></button><button id="choose-files" class="import-choice"><strong>⧉ Fichiers JSON</strong><small>Sélection multiple</small></button></div>
+    <input id="file-zip" type="file" accept=".zip,application/zip" hidden><input id="file-folder" type="file" webkitdirectory directory multiple hidden><input id="file-json" type="file" accept=".json,application/json" multiple hidden>
+  </div></div>
+</body>
+</html>
