@@ -18,6 +18,21 @@ class FirstPersonAssetTest {
             var animations=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8))
                 .getAsJsonObject().getAsJsonObject("animations");
             assertEquals(1.2,animations.getAsJsonObject("questplus.open").get("animation_length").getAsDouble(),.00001);
+            // Prevent a one-frame reset before FP PAL switches to the matching idle clip.
+            assertEquals("hold_on_last_frame",
+                animations.getAsJsonObject("questplus.open").get("loop").getAsString());
+            var open=animations.getAsJsonObject("questplus.open").getAsJsonObject("bones");
+            var idle=animations.getAsJsonObject("questplus.idle").getAsJsonObject("bones");
+            for (String bone:new String[]{"rightArm","leftArm","tablet_root"}) {
+                for (String channel:new String[]{"rotation","position"}) {
+                    var end=open.getAsJsonObject(bone).getAsJsonObject(channel);
+                    var begin=idle.getAsJsonObject(bone).getAsJsonObject(channel);
+                    String endKey=end.keySet().stream().max(java.util.Comparator.comparingDouble(Double::parseDouble)).orElseThrow();
+                    String beginKey=begin.keySet().stream().min(java.util.Comparator.comparingDouble(Double::parseDouble)).orElseThrow();
+                    assertEquals(end.get(endKey),begin.get(beginKey),
+                        "Blockbench open/idle discontinuity: "+bone+" "+channel);
+                }
+            }
             assertTrue(animations.getAsJsonObject("questplus.open").getAsJsonObject("bones").has("rightArm"));
             assertTrue(animations.getAsJsonObject("questplus.open").getAsJsonObject("bones").has("leftArm"));
             assertTrue(animations.getAsJsonObject("questplus.open").getAsJsonObject("bones").has("tablet_root"));
