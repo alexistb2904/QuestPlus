@@ -96,12 +96,12 @@ public final class QuestScreen extends Screen {
         int margin=Math.max(12,(int)(Math.min(width,height)*0.20));
         // 100% is deliberately a compact tablet; scaling is relative to the *previous* oversized layout.
         // Keep a minimum practical size at very low GUI resolutions.
-        double compact=(width<440 || height<260) ? 1.0 : 0.76;
+        double compactScale=(width<440 || height<260) ? 1.0 : 0.76;
         int originalWidth=Math.min(width-2*margin,760);
         int originalHeight=Math.min(height-2*margin,(int)(originalWidth*0.6));
         if (settings.tablet) originalWidth=Math.min(originalWidth,(int)(originalHeight/0.6));
-        int fw=Math.max(1,(int)(originalWidth*compact*settings.scale));
-        int fh=Math.max(1,(int)(originalHeight*compact*settings.scale));
+        int fw=Math.max(1,(int)(originalWidth*compactScale*settings.scale));
+        int fh=Math.max(1,(int)(originalHeight*compactScale*settings.scale));
         fw=Math.min(fw,width-8); fh=Math.min(fh,height-8);
         if (settings.tablet) { fw=Math.min(fw,(int)(fh/0.6)); fh=Math.min(fh,(int)(fw*0.6)); }
         left=(width-fw)/2; right=left+fw; top=(height-fh)/2; bottom=top+fh;
