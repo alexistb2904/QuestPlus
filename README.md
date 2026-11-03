@@ -62,7 +62,7 @@ git pull origin fix/native-first-person-tablet
 ```
 
 Cette branche installe FP PAL 1.1.1 et Player Animation Library 1.2.8 dans le
-client de developpement via **`modImplementation`**. Aucun export Blockbench
+client de developpement via **`implementation`** (Fabric Loom non-remapping, Minecraft 26.3). Aucun export Blockbench
 supplementaire n'est necessaire : la branche contient les animations `open`,
 `idle` et `close` de `questplus_first_person.bbmodel` et le modele
 `fp_models/questplus_first_person.geo.json` avec sa texture.
