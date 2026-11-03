@@ -27,7 +27,7 @@ Quest Plus lit des fichiers `.json` indépendants dans le dossier `quests`. Le s
 
 - `schemaVersion` vaut `1` ou `2`. La version 1 conserve le format initial: `progression` doit être `once` et les champs de progression v2 sont interdits. La version 2 accepte `once`, `repeatable`, `infinite` et `tiered`.
 - Les objets rejettent les propriétés inconnues. `id`, `category` et `icon` sont des identifiants `namespace:path`. Chaque carte de texte (`title`, `description`, `text`, `narrative`, et texte de récompense) exige une traduction anglaise `en_us`; les autres langues sont facultatives.
-- Une quête contient de 1 à 256 objectifs et au plus 64 récompenses par liste. Les identifiants locaux d'objectifs et de paliers restent stables.
+- Une quête standard contient de 1 à 256 objectifs. Une quête `kind: "information"` (v2) indique `objectives: []`, et `acknowledgement` vaut `manual` (défaut : un objectif virtuel `manual` reconnaît la lecture via `/questplus trigger <id>`) ou `read_only` (lecture sans progression, jamais automatiquement complétée). Les conditions de lecture/déclenchement et l'affichage de la modale seront pris en charge par le futur client. Les quêtes d'information restent `once`, sans timers ni paliers. Toutes les listes de récompenses ont au plus 64 entrées. Les identifiants locaux d'objectifs et de paliers restent stables.
 - `objectiveMode` vaut `all` (défaut), `any` ou `sequence`. `all` exige tous les objectifs, `any` un seul. `sequence` débloque les objectifs dans l'ordre; un événement ne valide qu'une étape.
 - `cooldownSeconds` accepte 0 à 31 536 000 secondes. `timeLimitSeconds` accepte 1 à 31 536 000 secondes. `noDeath` est un booléen. `afterLast` vaut `stop` (défaut) ou `repeat`, uniquement pour `tiered`.
 
@@ -58,6 +58,6 @@ Le fingerprint mécanique v1 reste identique pour les définitions v1. En v2, la
 
 ## Définitions fournies
 
-[`../src/main/resources/defaults/quests/`](../src/main/resources/defaults/quests/) contient six quêtes v1 historiques et des exemples v2 de répétition avec délai, cycles infinis, paliers, séquence, quantité d'inventaire et exploration. [`../src/main/resources/defaults/index.txt`](../src/main/resources/defaults/index.txt) inventorie les ressources livrées. L'installation initiale préserve les fichiers utilisateur; un monde déjà initialisé ne reçoit pas automatiquement les nouvelles définitions.
+[`../src/main/resources/defaults/quests/`](../src/main/resources/defaults/quests/) contient six quêtes v1 historiques, une quête informative et des exemples v2 de répétition avec délai, cycles infinis, paliers, séquence, quantité d'inventaire et exploration. [`../src/main/resources/defaults/index.txt`](../src/main/resources/defaults/index.txt) inventorie les ressources livrées. L'installation initiale préserve les fichiers utilisateur; un monde déjà initialisé ne reçoit pas automatiquement les nouvelles définitions.
 
 Les définitions montrent les formats configurés, pas la preuve que chaque événement a un hook de jeu. La couverture effective des hooks et leur comportement serveur doivent être vérifiés dans les tests d'intégration appropriés. Les sauvegardes corrompues ou de version inconnue ne doivent jamais être remplacées par une progression vide.

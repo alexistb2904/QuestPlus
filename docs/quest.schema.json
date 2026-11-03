@@ -12,7 +12,9 @@
     "icon": { "$ref": "#/$defs/identifier" },
     "title": { "$ref": "#/$defs/translations" },
     "description": { "$ref": "#/$defs/translations" },
-    "objectives": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/objective" } },
+    "objectives": { "type": "array", "minItems": 0, "maxItems": 256, "items": { "$ref": "#/$defs/objective" } },
+    "kind": { "enum": ["standard", "information"] },
+    "acknowledgement": { "enum": ["manual", "read_only"] },
     "requires": { "$ref": "#/$defs/prerequisite" },
     "rewards": { "type": "array", "maxItems": 64, "items": { "$ref": "#/$defs/reward" } },
     "progression": { "enum": ["once", "repeatable", "infinite", "tiered"] },
@@ -29,6 +31,9 @@
     "narrative": { "$ref": "#/$defs/translations" }
   },
   "allOf": [
+    { "if": { "not": { "required": ["kind"], "properties": { "kind": { "const": "information" } } } }, "then": { "properties": { "objectives": { "minItems": 1 } } } },
+    { "if": { "properties": { "kind": { "const": "information" } }, "required": ["kind"] }, "then": { "properties": { "schemaVersion": { "const": 2 }, "progression": { "const": "once" }, "objectives": { "maxItems": 0 } } } },
+    { "if": { "required": ["acknowledgement"] }, "then": { "properties": { "kind": { "const": "information" } }, "required": ["kind"] } },
     { "if": { "properties": { "schemaVersion": { "const": 1 } } }, "then": { "properties": { "progression": { "const": "once" } }, "not": { "anyOf": [{ "required": ["objectiveMode"] }, { "required": ["tiers"] }, { "required": ["afterLast"] }, { "required": ["cooldownSeconds"] }, { "required": ["timeLimitSeconds"] }, { "required": ["noDeath"] }] } } },
     { "if": { "properties": { "progression": { "const": "tiered" } } }, "then": { "required": ["tiers"] } },
     { "if": { "required": ["tiers"] }, "then": { "properties": { "progression": { "const": "tiered" } } } },

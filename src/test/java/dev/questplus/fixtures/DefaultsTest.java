@@ -26,7 +26,7 @@ class DefaultsTest {
             manifest = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))
                 .lines().filter(line -> !line.isBlank()).toList();
         }
-        assertEquals(17, manifest.size());
+        assertEquals(18, manifest.size());
         assertEquals(manifest.size(), new HashSet<>(manifest).size());
 
         for (String path : manifest) {
@@ -46,7 +46,7 @@ class DefaultsTest {
 
         assertEquals(4, categoryIds.size());
         QuestRegistry registry = QuestRegistry.load(tempDir.resolve("quests"), (kind, id) -> {});
-        assertEquals(12, registry.all().size());
+        assertEquals(13, registry.all().size());
         for (QuestDefinition quest : registry.all()) {
             assertTrue(categoryIds.contains(quest.category()), "Unknown category: " + quest.category());
             Set<String> references = new HashSet<>();

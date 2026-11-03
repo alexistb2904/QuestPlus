@@ -8,7 +8,7 @@ voir [roadmap](docs/roadmap.md).
 
 ## Fonctionnement disponible
 
-- Un fichier JSON par quête, douze exemples anglais/français générés au premier lancement sans écraser les fichiers présents.
+- Un fichier JSON par quête, treize exemples anglais/français générés au premier lancement sans écraser les fichiers présents.
 - Casse réelle de blocs, kills crédités au joueur (dont dégâts de projectiles), ramassage exact d'objets, tags vanilla/moddés.
 - Objectifs multiples, compteurs saturés, prérequis en graphe sans cycle et expressions `and` / `or` / `not`.
 - Conditions au moment de l'événement : dimension, outil, accroupissement, santé (`2` = un cœur).
@@ -18,6 +18,7 @@ voir [roadmap](docs/roadmap.md).
 - API pour que des mods serveur enregistrent des événements/conditions/récompenses et soumettent les événements normalisés.
 - Équipes : création, invitation avec expiration, acceptation/refus, départ, expulsion, transfert et dissolution ; union rétroactive et instantanés de séparation.
 - Quêtes répétables/infinies/à paliers, objectifs séquentiels, délais et contraintes sans mort.
+- Quêtes informatives sans objectif de gameplay, avec acquittement manuel ou lecture seule (la modale graphique arrivera avec le client).
 - Événements étendus : fabrication, cuisson, pêche, placement, interaction, apprivoisement, élevage, échanges, biome, dimension, structure et déplacement.
 - Les invitations reçues peuvent être listées avec `/questplus team invitations`.
 

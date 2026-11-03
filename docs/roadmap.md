@@ -56,7 +56,8 @@
 
 - [x] Champ narratif traduit et événement manuel de complétion disponibles côté moteur.
 - [x] Règles d'apparition probabiliste par instance de structure spécifiées dans `docs/architecture.md`.
-- [ ] Modèle JSON de quête **purement informative** / lecture sans objectif gameplay, avec règle d'acquittement explicite.
+- [x] Modèle JSON de quête **purement informative** v2, avec `acknowledgement: manual/read_only` et objectif d'acquittement virtuel.
+- [ ] Brancher l'acquittement à la lecture/validation de la modale lors du futur développement client.
 - [ ] NPC Manager réellement fonctionnel : définitions JSON, chances par structure/biome/dimension, décisions persistantes et spawn contrôlé.
 - [ ] Interactions de dialogues, choix, conséquences et tests de reprise après redémarrage.
 
