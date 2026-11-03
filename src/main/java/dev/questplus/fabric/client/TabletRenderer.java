@@ -22,14 +22,24 @@ public final class TabletRenderer {
         {arms(true,0),arms(true,1),arms(true,2),arms(true,3)}};
     private TabletRenderer() {}
 
-    /** The requested aperture is 5:3; the caller must draw the UI after this method. */
+    /** The requested aperture is 5:3; the caller draws the GUI inside it afterwards. */
     public static void draw(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom) {
+        draw(graphics,left,top,right,bottom,true,null);
+    }
+
+    /** When FP PAL is playing, NEVER draw artificial arms over the player's vanilla hands. */
+    public static void draw(GuiGraphicsExtractor graphics,int left,int top,int right,int bottom,
+                            boolean artificialArms,TabletFirstPersonAnimation.Pose pose) {
         int width = right - left, height = bottom - top;
         if (width <= 0 || height <= 0) return;
         int marginX = Math.max(4, (int) Math.ceil(width * .13));
         int marginY = Math.max(4, (int) Math.ceil(height * .24));
+        graphics.pose().pushMatrix();
+        if (pose!=null) graphics.pose().translate(
+            -pose.tabletPosition().x() * width / 24f * .8f,
+            -pose.tabletPosition().y() * height / 17f * .55f);
         var minecraft = Minecraft.getInstance();
-        if (minecraft.player != null) {
+        if (artificialArms && minecraft.player != null) {
             var skin = minecraft.player.getSkin();
             boolean slim = skin.model() == PlayerModelType.SLIM;
             int sleeves = (minecraft.options.isModelPartEnabled(PlayerModelPart.LEFT_SLEEVE) ? 1 : 0)
@@ -41,10 +51,19 @@ public final class TabletRenderer {
                 left - marginX * 2, top - marginY, right + marginX * 2, armBottom);
             graphics.nextStratum();
         }
-        MODEL.root().y = 25.616f - (height + 2 * marginY) * 8f / (width * .8f);
-        graphics.skin(MODEL, TEXTURE, width * .8f, 0, 0, 0,
-            left - marginX, top - marginY, right + marginX, bottom + marginY);
-        graphics.nextStratum();
+        if (pose==null || pose.tabletVisible()) {
+            if (pose!=null) {
+                var rotation=pose.tabletRotation();
+                MODEL.root().xRot=(float)Math.toRadians(rotation.x());
+                MODEL.root().yRot=(float)Math.toRadians(rotation.y()+180);
+                MODEL.root().zRot=(float)Math.toRadians(rotation.z());
+            } else MODEL.root().setRotation(0,0,0);
+            MODEL.root().y = 25.616f - (height + 2 * marginY) * 8f / (width * .8f);
+            graphics.skin(MODEL, TEXTURE, width * .8f, 0, 0, 0,
+                left - marginX, top - marginY, right + marginX, bottom + marginY);
+            graphics.nextStratum();
+        }
+        graphics.pose().popMatrix();
     }
 
     private static Model.Simple arms(boolean slim, int sleeves) {
