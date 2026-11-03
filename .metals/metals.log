@@ -48,3 +48,84 @@ nov. 03, 2026 6:10:28 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint noti
 INFOS: Unsupported notification method: $/setTrace
 nov. 03, 2026 6:10:30 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFOS: Unsupported notification method: $/setTrace
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestDefinition.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\core\QuestRegistry.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestCommands.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestPlusMod.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\clientdata\ClientProjection.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\clientdata\QuestPresentation.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestNetwork.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\TabletPoseNetwork.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\ClientSettings.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestClientState.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestHud.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestPlusClient.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletAnimationController.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletPoseClient.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletRenderer.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\mixin\TabletBlurMixin.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\mixin\TabletPlayerPoseMixin.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\ui\QuestButton.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\ui\QuestSkin.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\ui\QuestTextField.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\clientdata\ClientLanguageTest.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\clientdata\ClientProjectionTest.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\clientdata\QuestPresentationTest.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\clientmodel\QuestLayoutTest.java. Using fallback presentation compiler.
+2026.11.03 18:37:39 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\fabric\client\TabletAnimationControllerTest.java. Using fallback presentation compiler.
+nov. 03, 2026 7:14:46 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleNotification
+AVERTISSEMENT: Notification threw an exception: {
+  "jsonrpc": "2.0",
+  "method": "metals/didFocusTextDocument",
+  "params": [
+    "git:/c%3A/Users/alexi/Downloads/QuestPlus/src/main/java/dev/questplus/fabric/client/QuestScreen.java?%7B%22path%22%3A%22c%3A%5C%5CUsers%5C%5Calexi%5C%5CDownloads%5C%5CQuestPlus%5C%5Csrc%5C%5Cmain%5C%5Cjava%5C%5Cdev%5C%5Cquestplus%5C%5Cfabric%5C%5Cclient%5C%5CQuestScreen.java%22%2C%22ref%22%3A%2289a1b9b7f7ea43b4f39b4695aae95fafec087052%22%7D"
+  ]
+}
+java.nio.file.FileSystemNotFoundException: Provider "git" not installed
+	at java.base/java.nio.file.Path.of(Path.java:212)
+	at java.base/java.nio.file.Paths.get(Paths.java:98)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionURIMtags.toAbsolutePath(MtagsEnrichments.scala:149)
+	at scala.meta.internal.mtags.MtagsEnrichments$XtensionStringMtags.toAbsolutePath(MtagsEnrichments.scala:221)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:787)
+	at scala.meta.internal.metals.MetalsEnrichments$XtensionString.toAbsolutePath(MetalsEnrichments.scala:784)
+	at scala.meta.internal.metals.WorkspaceLspService.didFocus(WorkspaceLspService.scala:810)
+	at scala.meta.metals.lsp.DelegatingScalaService.didFocus(DelegatingScalaService.scala:42)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$recursiveFindRpcMethods$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.notify(GenericEndpoint.java:160)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleNotification(RemoteEndpoint.java:225)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:192)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\FirstPersonPalBridge.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestClientTabletFlow.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestPlusClient.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletAnimationController.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletFirstPersonAnimation.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletPoseClient.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\client\TabletRenderer.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\fabric\client\TabletFirstPersonAnimationTest.java. Using fallback presentation compiler.
+2026.11.03 19:51:27 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\test\java\dev\questplus\fabric\client\TabletAnimationControllerTest.java. Using fallback presentation compiler.
+2026.11.04 00:16:05 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+nov. 04, 2026 12:16:05 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 10
+2026.11.04 00:16:05 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 00:17:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 00:17:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 00:19:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
