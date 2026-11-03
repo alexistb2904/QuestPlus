@@ -1,0 +1,1690 @@
+{
+  "questplus_first_person.bbmodel": {
+    "loaded": {
+      "name": "questplus_first_person",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "check_model": {
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "texture_size": [
+        256,
+        256
+      ],
+      "animation_format": true,
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "issue_count": 0,
+      "by_type": {},
+      "issues": []
+    },
+    "reopened": {
+      "name": "questplus_first_person",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "animation_analysis": [
+      {
+        "animation": "questplus.open",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 370,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 26.76,
+            "max_forward": 12.25,
+            "at_forward_time": 0.6,
+            "max_backward": 10.77,
+            "at_backward_time": 0.225,
+            "rise": 3.47,
+            "drop": -25.15,
+            "loop_gap": 31.79
+          },
+          "hand_left": {
+            "travel": 31.36,
+            "max_forward": 1.59,
+            "at_forward_time": 1.05,
+            "max_backward": 10.77,
+            "at_backward_time": 0.225,
+            "rise": 0.55,
+            "drop": -25.15,
+            "loop_gap": 27.23
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.idle",
+        "length": 4,
+        "loop": "loop",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 119,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 51,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 14.63,
+            "max_forward": 1.43,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 14.63,
+            "max_forward": 1.43,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.close",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 370,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 26.76,
+            "max_forward": 12.25,
+            "at_forward_time": 0.6,
+            "max_backward": 10.77,
+            "at_backward_time": 0.975,
+            "rise": 3.47,
+            "drop": -25.15,
+            "loop_gap": 31.79
+          },
+          "hand_left": {
+            "travel": 31.36,
+            "max_forward": 1.59,
+            "at_forward_time": 0.15,
+            "max_backward": 10.77,
+            "at_backward_time": 0.975,
+            "rise": 0.55,
+            "drop": -25.15,
+            "loop_gap": 27.23
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      }
+    ],
+    "rig_check": {
+      "rig": {
+        "kind": "armed",
+        "root": "tablet_root",
+        "hips": null,
+        "spine": [
+          "body",
+          "tablet_body"
+        ],
+        "chest": null,
+        "neck": [],
+        "head": "head",
+        "jaw": null,
+        "tail": [],
+        "arms": {
+          "left": {
+            "bones": [
+              "left_hand_anchor"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "left_hand_anchor",
+            "lower": null,
+            "extremity": null,
+            "side": "left"
+          },
+          "right": {
+            "bones": [
+              "right_hand_anchor"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "right_hand_anchor",
+            "lower": null,
+            "extremity": null,
+            "side": "right"
+          }
+        },
+        "legs": {
+          "left": null,
+          "right": null
+        }
+      },
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "bone_count": 15,
+      "issue_count": 4,
+      "by_type": {
+        "limb_too_few_segments": 2,
+        "missing_limb": 2
+      },
+      "issues": [
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "right arm",
+          "segments": 1,
+          "bones": [
+            "right_hand_anchor"
+          ],
+          "hint": "right arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "left arm",
+          "segments": 1,
+          "bones": [
+            "left_hand_anchor"
+          ],
+          "hint": "left arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "right leg",
+          "hint": "No right leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "left leg",
+          "hint": "No left leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        }
+      ],
+      "ready_to_animate": false,
+      "verdict": "NOT ready to animate — fix the blocking issues above first (especially limb segmentation and left/right).",
+      "right_axis": "+x"
+    }
+  },
+  "questplus_first_person_slim.bbmodel": {
+    "loaded": {
+      "name": "questplus_first_person_slim",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "check_model": {
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "texture_size": [
+        256,
+        256
+      ],
+      "animation_format": true,
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "issue_count": 0,
+      "by_type": {},
+      "issues": []
+    },
+    "reopened": {
+      "name": "questplus_first_person_slim",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 83,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "animation_analysis": [
+      {
+        "animation": "questplus.open",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 370,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 26.76,
+            "max_forward": 12.25,
+            "at_forward_time": 0.6,
+            "max_backward": 10.77,
+            "at_backward_time": 0.225,
+            "rise": 3.47,
+            "drop": -25.15,
+            "loop_gap": 31.79
+          },
+          "hand_left": {
+            "travel": 31.36,
+            "max_forward": 1.59,
+            "at_forward_time": 1.05,
+            "max_backward": 10.77,
+            "at_backward_time": 0.225,
+            "rise": 0.55,
+            "drop": -25.15,
+            "loop_gap": 27.23
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.idle",
+        "length": 4,
+        "loop": "loop",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 119,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 51,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 14.63,
+            "max_forward": 1.43,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 14.63,
+            "max_forward": 1.43,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.close",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 3,
+        "total_keyframes": 370,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 122,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 26.76,
+            "max_forward": 12.25,
+            "at_forward_time": 0.6,
+            "max_backward": 10.77,
+            "at_backward_time": 0.975,
+            "rise": 3.47,
+            "drop": -25.15,
+            "loop_gap": 31.79
+          },
+          "hand_left": {
+            "travel": 31.36,
+            "max_forward": 1.59,
+            "at_forward_time": 0.15,
+            "max_backward": 10.77,
+            "at_backward_time": 0.975,
+            "rise": 0.55,
+            "drop": -25.15,
+            "loop_gap": 27.23
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 2,
+        "by_type": {
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      }
+    ],
+    "rig_check": {
+      "rig": {
+        "kind": "armed",
+        "root": "tablet_root",
+        "hips": null,
+        "spine": [
+          "body",
+          "tablet_body"
+        ],
+        "chest": null,
+        "neck": [],
+        "head": "head",
+        "jaw": null,
+        "tail": [],
+        "arms": {
+          "left": {
+            "bones": [
+              "left_hand_anchor"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "left_hand_anchor",
+            "lower": null,
+            "extremity": null,
+            "side": "left"
+          },
+          "right": {
+            "bones": [
+              "right_hand_anchor"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "right_hand_anchor",
+            "lower": null,
+            "extremity": null,
+            "side": "right"
+          }
+        },
+        "legs": {
+          "left": null,
+          "right": null
+        }
+      },
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "bone_count": 15,
+      "issue_count": 4,
+      "by_type": {
+        "limb_too_few_segments": 2,
+        "missing_limb": 2
+      },
+      "issues": [
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "right arm",
+          "segments": 1,
+          "bones": [
+            "right_hand_anchor"
+          ],
+          "hint": "right arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "left arm",
+          "segments": 1,
+          "bones": [
+            "left_hand_anchor"
+          ],
+          "hint": "left arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "right leg",
+          "hint": "No right leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "left leg",
+          "hint": "No left leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        }
+      ],
+      "ready_to_animate": false,
+      "verdict": "NOT ready to animate — fix the blocking issues above first (especially limb segmentation and left/right).",
+      "right_axis": "+x"
+    }
+  },
+  "questplus_tablet.bbmodel": {
+    "loaded": {
+      "name": "questplus_tablet",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 79,
+      "groups": 10,
+      "textures": 1,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "check_model": {
+      "cubes": 79,
+      "groups": 10,
+      "textures": 1,
+      "texture_size": [
+        256,
+        256
+      ],
+      "animation_format": true,
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "issue_count": 0,
+      "by_type": {},
+      "issues": []
+    },
+    "reopened": {
+      "name": "questplus_tablet",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 79,
+      "groups": 10,
+      "textures": 1,
+      "animations": 3,
+      "mode": "edit"
+    }
+  },
+  "questplus_third_person.bbmodel": {
+    "loaded": {
+      "name": "questplus_third_person",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "check_model": {
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "texture_size": [
+        256,
+        256
+      ],
+      "animation_format": true,
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "issue_count": 0,
+      "by_type": {},
+      "issues": []
+    },
+    "reopened": {
+      "name": "questplus_third_person",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "animation_analysis": [
+      {
+        "animation": "questplus.third_person_open",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 309,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.third_person_idle",
+        "length": 4,
+        "loop": "loop",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 136,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 51,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 17,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0.05,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0.05,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.third_person_close",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 309,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      }
+    ],
+    "rig_check": {
+      "rig": {
+        "kind": "armed",
+        "root": "tablet_root",
+        "hips": null,
+        "spine": [
+          "body",
+          "tablet_body"
+        ],
+        "chest": null,
+        "neck": [],
+        "head": "head",
+        "jaw": null,
+        "tail": [],
+        "arms": {
+          "left": {
+            "bones": [
+              "leftArm"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "leftArm",
+            "lower": null,
+            "extremity": null,
+            "side": "left"
+          },
+          "right": {
+            "bones": [
+              "rightArm"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "rightArm",
+            "lower": null,
+            "extremity": null,
+            "side": "right"
+          }
+        },
+        "legs": {
+          "left": null,
+          "right": null
+        }
+      },
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "bone_count": 15,
+      "issue_count": 4,
+      "by_type": {
+        "limb_too_few_segments": 2,
+        "missing_limb": 2
+      },
+      "issues": [
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "right arm",
+          "segments": 1,
+          "bones": [
+            "rightArm"
+          ],
+          "hint": "right arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "left arm",
+          "segments": 1,
+          "bones": [
+            "leftArm"
+          ],
+          "hint": "left arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "right leg",
+          "hint": "No right leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "left leg",
+          "hint": "No left leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        }
+      ],
+      "ready_to_animate": false,
+      "verdict": "NOT ready to animate — fix the blocking issues above first (especially limb segmentation and left/right).",
+      "right_axis": "+x"
+    }
+  },
+  "questplus_third_person_slim.bbmodel": {
+    "loaded": {
+      "name": "questplus_third_person_slim",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "check_model": {
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "texture_size": [
+        256,
+        256
+      ],
+      "animation_format": true,
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "issue_count": 0,
+      "by_type": {},
+      "issues": []
+    },
+    "reopened": {
+      "name": "questplus_third_person_slim",
+      "format": "free",
+      "format_name": "Modèle libre",
+      "texture_width": 256,
+      "texture_height": 256,
+      "cubes": 87,
+      "groups": 15,
+      "textures": 2,
+      "animations": 3,
+      "mode": "edit"
+    },
+    "animation_analysis": [
+      {
+        "animation": "questplus.third_person_open",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 309,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.third_person_idle",
+        "length": 4,
+        "loop": "loop",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 136,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 34,
+            "channels": [
+              "rotation",
+              "position"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 51,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 17,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0.05,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0.05,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0.05,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      },
+      {
+        "animation": "questplus.third_person_close",
+        "length": 1.2,
+        "loop": "once",
+        "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+        "samples": 17,
+        "bones_with_keyframes": 4,
+        "total_keyframes": 309,
+        "per_bone": [
+          {
+            "bone": "rightArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "leftArm",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          },
+          {
+            "bone": "tablet_root",
+            "keyframes": 126,
+            "channels": [
+              "rotation",
+              "position",
+              "scale"
+            ]
+          },
+          {
+            "bone": "head",
+            "keyframes": 61,
+            "channels": [
+              "rotation"
+            ]
+          }
+        ],
+        "motion": {
+          "head": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_right": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          },
+          "hand_left": {
+            "travel": 0,
+            "max_forward": 0,
+            "at_forward_time": 0,
+            "max_backward": 0,
+            "at_backward_time": 0,
+            "rise": 0,
+            "drop": 0,
+            "loop_gap": 0
+          }
+        },
+        "motion_legend": "Distances are in model units along the model's own axes. \"forward\" = -z (the way it faces).",
+        "direction_check": null,
+        "issue_count": 3,
+        "by_type": {
+          "no_visible_motion": 1,
+          "all_linear": 1,
+          "stiff_limbs": 1
+        },
+        "issues": [
+          {
+            "issue": "no_visible_motion",
+            "hint": "Nothing moves more than half a unit — the amplitudes are far too small to read in game."
+          },
+          {
+            "issue": "all_linear",
+            "hint": "Every keyframe is linear, which is what makes motion look mechanical. Use catmullrom for swings and settles; keep linear only for snappy impacts."
+          },
+          {
+            "issue": "stiff_limbs",
+            "details": [
+              "right_arm: only 1 segment(s) — it physically cannot bend.",
+              "left_arm: only 1 segment(s) — it physically cannot bend."
+            ],
+            "hint": "Animate the lower segments too: elbows bend forward, knees bend backward."
+          }
+        ],
+        "verdict": "Fix the issues above, then re-run analyze_animation — do not show this to the user yet."
+      }
+    ],
+    "rig_check": {
+      "rig": {
+        "kind": "armed",
+        "root": "tablet_root",
+        "hips": null,
+        "spine": [
+          "body",
+          "tablet_body"
+        ],
+        "chest": null,
+        "neck": [],
+        "head": "head",
+        "jaw": null,
+        "tail": [],
+        "arms": {
+          "left": {
+            "bones": [
+              "leftArm"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "leftArm",
+            "lower": null,
+            "extremity": null,
+            "side": "left"
+          },
+          "right": {
+            "bones": [
+              "rightArm"
+            ],
+            "segments": 1,
+            "bendable": false,
+            "upper": "rightArm",
+            "lower": null,
+            "extremity": null,
+            "side": "right"
+          }
+        },
+        "legs": {
+          "left": null,
+          "right": null
+        }
+      },
+      "orientation": "The model FACES -z. Its own RIGHT is +x, its own LEFT is -x.",
+      "bone_count": 15,
+      "issue_count": 4,
+      "by_type": {
+        "limb_too_few_segments": 2,
+        "missing_limb": 2
+      },
+      "issues": [
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "right arm",
+          "segments": 1,
+          "bones": [
+            "rightArm"
+          ],
+          "hint": "right arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "limb_too_few_segments",
+          "limb": "left arm",
+          "segments": 1,
+          "bones": [
+            "leftArm"
+          ],
+          "hint": "left arm has 1 bone(s). With fewer than 3 (upper / lower / hand) there is no elbow to bend and every animation will look stiff. Split it: upper + lower + hand."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "right leg",
+          "hint": "No right leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        },
+        {
+          "issue": "missing_limb",
+          "limb": "left leg",
+          "hint": "No left leg found. Bones must contain \"arm\"/\"leg\" and \"left\"/\"right\" in their names to be animatable."
+        }
+      ],
+      "ready_to_animate": false,
+      "verdict": "NOT ready to animate — fix the blocking issues above first (especially limb segmentation and left/right).",
+      "right_axis": "+x"
+    }
+  }
+}

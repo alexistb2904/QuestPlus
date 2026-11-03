@@ -1,0 +1,143 @@
+{
+  "passed": [
+    "256x256 texture",
+    "atlas bounds and non-overlap",
+    "Blockbench UUID/outliner/UV/embedded-texture structure",
+    "blank display clearance",
+    "GeckoLib geometry cube count",
+    "first-person PAL root and animation export",
+    "standalone tablet synchronized with third-person prop track",
+    "hand/tablet OBB scan at 41 uniform samples, keyframes and midpoints per transition",
+    "third-person head/torso OBB scan at transition samples"
+  ],
+  "warnings": [],
+  "models": {
+    "questplus_first_person": {
+      "cubes": 83,
+      "groups": 15,
+      "animations": [
+        "questplus.open",
+        "questplus.idle",
+        "questplus.close"
+      ]
+    },
+    "questplus_first_person_slim": {
+      "cubes": 83,
+      "groups": 15,
+      "animations": [
+        "questplus.open",
+        "questplus.idle",
+        "questplus.close"
+      ]
+    },
+    "questplus_tablet": {
+      "cubes": 79,
+      "groups": 10,
+      "animations": [
+        "questplus.tablet_open",
+        "questplus.tablet_idle",
+        "questplus.tablet_close"
+      ]
+    },
+    "questplus_third_person": {
+      "cubes": 87,
+      "groups": 15,
+      "animations": [
+        "questplus.third_person_open",
+        "questplus.third_person_idle",
+        "questplus.third_person_close"
+      ]
+    },
+    "questplus_third_person_slim": {
+      "cubes": 87,
+      "groups": 15,
+      "animations": [
+        "questplus.third_person_open",
+        "questplus.third_person_idle",
+        "questplus.third_person_close"
+      ]
+    }
+  },
+  "arm_tablet_collisions": {
+    "questplus_first_person": {
+      "questplus.open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    },
+    "questplus_first_person_slim": {
+      "questplus.open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    },
+    "questplus_third_person": {
+      "questplus.third_person_open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.third_person_close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    },
+    "questplus_third_person_slim": {
+      "questplus.third_person_open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.third_person_close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    }
+  },
+  "choreography": {
+    "right_hand_starts_first": true,
+    "tablet_starts_lower_right": true,
+    "held_screen_faces_player": true,
+    "open_close_reverse_path_samples": 41
+  },
+  "body_tablet_collisions": {
+    "questplus_third_person": {
+      "questplus.third_person_open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.third_person_close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    },
+    "questplus_third_person_slim": {
+      "questplus.third_person_open": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      },
+      "questplus.third_person_close": {
+        "sampled_times": 133,
+        "first_intersections": [],
+        "intersection_samples": 0
+      }
+    }
+  }
+}

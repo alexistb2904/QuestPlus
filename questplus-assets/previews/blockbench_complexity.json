@@ -1,0 +1,71 @@
+{
+  "verdict": "acceptable",
+  "ready_for_texturing": true,
+  "target": "prop",
+  "budget": {
+    "target": "prop",
+    "minimum": 30,
+    "acceptable_from": 30,
+    "high_detail_from": 80,
+    "label": "simple prop / small item"
+  },
+  "cubes": 79,
+  "groups": 10,
+  "rig_kind": "armed",
+  "metrics": {
+    "micro_cubes": 29,
+    "micro_pct": 37,
+    "small_cubes": 62,
+    "overlapping_cubes": 54,
+    "overlapping_pct": 68,
+    "overlapping_pairs": 151,
+    "rotated_elements": 17,
+    "inflated_cubes": 0,
+    "bone_depth": 2,
+    "cubes_per_bone": 7.9,
+    "largest_cube_share_pct": 45,
+    "total_cube_volume": 937.237,
+    "pairwise_analysis": true
+  },
+  "monoliths": [
+    {
+      "cube": "solid_walnut_core",
+      "volume_share_pct": 45,
+      "size": [
+        23.9,
+        15.9,
+        1.1
+      ],
+      "overlays": 48
+    }
+  ],
+  "issue_count": 2,
+  "issues": [
+    {
+      "issue": "undetailed_slab",
+      "count": 1,
+      "cubes": [
+        {
+          "cube": "blank_display",
+          "face": "north",
+          "bare_face_area": 240,
+          "size": [
+            20,
+            12,
+            0.46
+          ]
+        }
+      ],
+      "hint": "These cubes have a large face with nothing on or near it — a bare flat wall (the named face is the worst one). Break it with an overlay, a bevel cube at 45 degrees, or a generate_array row."
+    },
+    {
+      "issue": "shallow_hierarchy",
+      "bone_depth": 2,
+      "hint": "The bone tree is only 2 deep. Segmented limbs and chains need root -> hips -> spine -> chest -> limb upper -> lower -> hand, i.e. 5+ levels. check_rig has the details."
+    }
+  ],
+  "recommendations": [
+    "Break bare slabs with overlapping trim, 45-degree bevel cubes, or a fringe row."
+  ],
+  "note": "Density is necessary, not sufficient: a high cube count with no layering still looks flat. Pair this with compare_reference (silhouette) and check_model (z-fighting, untextured faces)."
+}

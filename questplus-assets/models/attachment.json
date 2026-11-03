@@ -1,0 +1,93 @@
+{
+  "units": "model pixels; 16 pixels = 1 Minecraft block",
+  "tablet_bounds": {
+    "min": [
+      -12.1,
+      -8.3,
+      -2.12
+    ],
+    "max": [
+      12.1,
+      8.65,
+      1.35
+    ]
+  },
+  "front_normal": [
+    0,
+    0,
+    -1
+  ],
+  "screen": {
+    "min": [
+      -10,
+      -6,
+      -0.82
+    ],
+    "max": [
+      10,
+      6,
+      -0.82
+    ],
+    "render_plane_z": -0.835,
+    "aspect_ratio": "5:3",
+    "origin_uv_top_left": [
+      -10,
+      6,
+      -0.835
+    ],
+    "u_direction": [
+      1,
+      0,
+      0
+    ],
+    "v_direction": [
+      0,
+      -1,
+      0
+    ]
+  },
+  "hand_anchors": {
+    "left_hand_anchor": [
+      -11.2,
+      -2,
+      1.1
+    ],
+    "right_hand_anchor": [
+      11.2,
+      -2,
+      1.1
+    ]
+  },
+  "held_transform": {
+    "scale": [
+      0.65,
+      0.65,
+      0.65
+    ],
+    "translation": [
+      0,
+      18.8,
+      -10.5
+    ],
+    "rotation": [
+      0,
+      180,
+      0
+    ]
+  },
+  "preview_camera": {
+    "eye": [
+      0,
+      25.6,
+      1
+    ],
+    "target": [
+      0,
+      17,
+      -9
+    ],
+    "projection": "orthographic",
+    "vertical_span": 25
+  },
+  "note": "Camera is an authoring preview, not a calibrated Minecraft perspective camera. Tablet front faces +Z toward player in held pose. Anchors are prop-local placement guides, not tracked finger joints."
+}
