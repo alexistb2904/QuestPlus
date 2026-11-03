@@ -55,6 +55,7 @@ const iconFor=id=>{
 const categoryLabel=()=>text(currentCategory()?.title,language)||'Aucune catégorie';
 function refresh(){
   ensureCategory();
+  $('#preview-language').value=language;
   document.title='Quest Studio — '+categoryLabel();
   $('#project-name').textContent='QuestPlus · '+project.categories.length+' catégories';
   $('#crumb-category').textContent=categoryLabel();
@@ -302,6 +303,7 @@ inspector.addEventListener('click',e=>{const btn=e.target.closest('[data-action]
 $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data-cat]');if(node)selectCategory(node.dataset.cat);});
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
+$('#preview-language').addEventListener('change',e=>{language=e.target.value;refresh();persist();});
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
