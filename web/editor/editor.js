@@ -1,3 +1,4 @@
+import {storedUiLocale,setUiLocale,getUiLocale,tUI,translateUI} from './ui-i18n.js';
 import {questId as generatedQuestId,categoryId as generatedCategoryId} from './quest-ids.js';
 import {atPath,setAt,addChild,wrap,leaf,OBJECTIVE_KINDS} from './conditions.js';
 import {gameLayout,gameFit,NODE_SIZE} from './game-layout.js';
@@ -10,6 +11,7 @@ import {inspectorData} from './inspector.js';
 const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='questplus.quest-studio.v1',LIMIT=65;
+setUiLocale(storedUiLocale());
 let project=demoProject(),categoryId=project.categories[0].id,selection={type:'category',id:categoryId};
 let camera={x:0,y:30,zoom:1},language='en_us',history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
 const pointers=new Map();let gesture=null;
@@ -29,13 +31,13 @@ const getSelected=()=>{
   if(selection.type==='quest')return project.quests.find(q=>q.id===selection.id);
   return currentCategory()?.annotations?.find(n=>n.id===selection.id);
 };
-function notify(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3100);}
+function notify(message){const el=$('#toast');el.textContent=tUI(message);el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3100);}
 function snapshot(){return {project:copy(project),categoryId,selection:copy(selection),camera:copy(camera)};}
 function persist(){
   clearTimeout(savedTimer);
   savedTimer=setTimeout(()=>{
-    try{localStorage.setItem(STORAGE,JSON.stringify({...snapshot(),language}));$('#autosave-status').textContent='Enregistré dans ce navigateur';}
-    catch(e){$('#autosave-status').textContent='Stockage local indisponible';notify('Sauvegarde locale impossible : exportez un ZIP.');}
+    try{localStorage.setItem(STORAGE,JSON.stringify({...snapshot(),language}));$('#autosave-status').textContent=tUI('Saved in this browser');}
+    catch(e){$('#autosave-status').textContent=tUI('Local storage unavailable');notify('Export a ZIP to keep your changes.');}
   },500);
 }
 function remember(before){history.push(before);if(history.length>LIMIT)history.shift();future=[];}
@@ -100,33 +102,34 @@ function renderLanguages(){
     escape((LOCALE_LABELS[code]||code)+' · '+code)+'</option>').join('');
   select.value=language;
 }
-const categoryLabel=()=>text(currentCategory()?.title,language)||'Aucune catégorie';
+const categoryLabel=()=>text(currentCategory()?.title,language)||tUI('No category');
 function refresh(){
   ensureCategory();
   renderLanguages();
   document.title='Quest Studio — '+categoryLabel();
-  $('#project-name').textContent='QuestPlus · '+project.categories.length+' catégories';
+  $('#project-name').textContent='QuestPlus · '+project.categories.length+' '+tUI('Categories').toLowerCase();
   $('#crumb-category').textContent=categoryLabel();
   $('#canvas-title').textContent=categoryLabel();
-  $('#canvas-subtitle').textContent=(categoryQuests().length)+' quêtes · '+(currentCategory()?.annotations?.length||0)+' annotations';
+  $('#canvas-subtitle').textContent=categoryQuests().length+' '+tUI('Quests').toLowerCase()+' · '+(currentCategory()?.annotations?.length||0)+' '+tUI('Annotation').toLowerCase();
   $('#category-count').textContent=project.categories.length;
   $('#quest-count').textContent=categoryQuests().length;
   $('#undo').disabled=!history.length;$('#redo').disabled=!future.length;
   $('#target-version').value=project.targetMinecraftVersion||'26.3';
   $('#new-quest').disabled=!currentCategory();$('#new-note').disabled=!currentCategory();
-  $('#categories').innerHTML=project.categories.map(c=>`<button class="category-item ${c.id===categoryId?'active':''}" data-cat="${escape(c.id)}"><span class="cat-icon">${iconFor(c.icon)}</span><span><strong class="cat-name">${escape(text(c.title,language))}</strong><small class="cat-sub">${escape(c.id)}</small></span></button>`).join('')||'<div class="tip">Aucune catégorie</div>';
+  $('#categories').innerHTML=project.categories.map(c=>`<button class="category-item ${c.id===categoryId?'active':''}" data-cat="${escape(c.id)}"><span class="cat-icon">${iconFor(c.icon)}</span><span><strong class="cat-name">${escape(text(c.title,language))}</strong><small class="cat-sub">${escape(c.id)}</small></span></button>`).join('')||'<div class="tip">'+escape(tUI('No category'))+'</div>';
   const needle=$('#quest-search').value.trim().toLowerCase();
   $('#quest-list').innerHTML=categoryQuests().filter(q=>!needle||text(q.title,language).toLowerCase().includes(needle)||q.id.includes(needle)).map(q=>
     `<button class="quest-item ${selection?.type==='quest'&&selection.id===q.id?'active':''}" data-quest="${escape(q.id)}">
       <span class="quest-glyph">${iconFor(q.icon)}</span><span class="quest-label"><strong>${escape(text(q.title,language))}</strong><small>${escape(q.id.split('/').pop())}</small></span></button>`).join('')||
-    '<div class="tip">Aucune quête.</div>';
-  renderInspector();renderScene();renderIssues();
+    '<div class="tip">'+escape(tUI('No quests'))+'</div>';
+  renderInspector();renderScene();renderIssues();translateUI(document);
 }
 function renderInspector(){
   const old=$('#inspector-body'),opened=new Set([...old.querySelectorAll('details[open][data-panel]')].map(x=>x.dataset.panel));
   const i=inspectorData(project,selection,categoryId,language);
   $('#inspector-title').textContent=i.title;$('#inspector-subtitle').textContent=i.subtitle;old.innerHTML=i.html;
   for(const el of old.querySelectorAll('details[data-panel]'))if(opened.has(el.dataset.panel))el.open=true;
+  translateUI(document);
 }
 function renderIssues(){
   const issues=validate(project),bar=$('#issues-bar');
@@ -134,10 +137,10 @@ function renderIssues(){
   bar.querySelector('.issues-icon').textContent=issues.length?'!':'✓';
   const allIcons=[...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)];
   const warnings=[...new Set(allIcons)].map(id=>versionWarning(project,id)).filter(Boolean);
-  $('#issues-summary').textContent=issues.length?issues.length+' erreur'+(issues.length>1?'s':''):
-   warnings.length?warnings.length+' avertissement'+(warnings.length>1?'s':'')+' de version':'Prêt à exporter';
-  $('#issues-list').innerHTML=(issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')+
-    warnings.map(s=>`<div class="version-alert">${escape(s)}</div>`).join(''))||'<div>Aucune erreur.</div>';
+  $('#issues-summary').textContent=issues.length?issues.length+' '+tUI('errors'):
+   warnings.length?warnings.length+' '+tUI('version warnings'):tUI('Ready to export');
+  $('#issues-list').innerHTML=(issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(tUI(i.message))}</div>`).join('')+
+    warnings.map(s=>`<div class="version-alert">${escape(s)}</div>`).join(''))||'<div>'+escape(tUI('No errors'))+'</div>';
 }
 function worldToPixel(x,y){const box=$('#viewport');return {x:(x-camera.x)*camera.zoom+box.clientWidth/2,y:(y-camera.y)*camera.zoom+box.clientHeight/2};}
 function pixelToWorld(x,y){const box=$('#viewport');return {x:(x-box.clientWidth/2)/camera.zoom+camera.x,y:(y-box.clientHeight/2)/camera.zoom+camera.y};}
@@ -201,7 +204,7 @@ function placeAuto(){
 }
 function unique(base,ids){let id=base,index=2;while(ids.has(id))id=base+'_'+index++;return id;}
 function createCategory(){
-  const name=prompt('Category name (English):','New category');
+  const name=prompt(tUI('Category name (English):'),tUI('New category'));
   if(name===null)return;const title=name.trim()||'New category';
   mutate(()=>{
     const id=generatedCategoryId(title,new Set(project.categories.map(c=>c.id)));
@@ -212,7 +215,7 @@ function createCategory(){
 }
 function createQuest(){
   const cat=currentCategory();if(!cat)return notify('Crée d’abord une catégorie.');
-  const name=prompt('Quest name (English):','New quest');
+  const name=prompt(tUI('Quest name (English):'),tUI('New quest'));
   if(name===null)return;
   mutate(()=>{
     const title=name.trim()||'New quest',base=cat.id.split(':')[1].replace(/\/$/,'');
@@ -292,12 +295,12 @@ function deleteSelected(){
   const selected=getSelected();if(!selected)return;
   if(selection.type==='category'){
     if(categoryQuests().length)return notify('Déplace ou supprime les quêtes avant cette catégorie.');
-    if(!confirm('Supprimer la catégorie '+selected.id+' ?'))return;
+    if(!confirm(tUI('Delete the category')+' '+selected.id+' ?'))return;
     mutate(()=>{project.categories=project.categories.filter(c=>c!==selected);categoryId=project.categories[0]?.id||null;selection=categoryId?{type:'category',id:categoryId}:null;});
   }else if(selection.type==='quest'){
     const used=project.quests.filter(q=>q.id!==selected.id&&references(q.requires).includes(selected.id));
     if(used.length)return notify('Cette quête est un prérequis de '+used.length+' autre(s) quête(s).');
-    if(!confirm('Supprimer définitivement cette quête ?'))return;
+    if(!confirm(tUI('Delete this quest permanently?')))return;
     mutate(()=>{project.quests=project.quests.filter(q=>q!==selected);selection={type:'category',id:categoryId};});
   }else{
     mutate(()=>{currentCategory().annotations=currentCategory().annotations.filter(a=>a!==selected);selection={type:'category',id:categoryId};});
@@ -337,10 +340,10 @@ function renderIconPicker(){
   const matches=vanillaCatalog().filter(v=>(pickerKind==='all'||v.kind===pickerKind||v.kind==='both')&&
    (v.id+' '+v.label).toLowerCase().includes(query));
   const items=matches.slice(0,pickerLimit);
-  $('#icon-count').textContent=matches.length+' résultats';
+  $('#icon-count').textContent=matches.length+' '+tUI('results');
   $('#icon-more').hidden=items.length>=matches.length;
   $('#icon-grid').innerHTML=items.map(item=>`<button class="icon-choice" data-pick-icon="${escape(item.id)}" title="${escape(item.id)}">
-    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">Aucun résultat</div>';
+    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">'+escape(tUI('No results'))+'</div>';
 }
 inspector.addEventListener('click',e=>{
   const button=e.target.closest('[data-icon-open]');if(!button)return;
@@ -455,7 +458,7 @@ inspector.addEventListener('change',e=>{
  const el=e.target;
  if(!el.matches('[data-icon-version]'))return;
  const version=el.value.trim(),id=el.dataset.iconVersion;
- if(!/^\d+\.\d+$/.test(version))return notify('Version invalide, exemple : 26.4');
+ if(!/^\d+\.\d+$/.test(version))return notify('Invalid version (e.g. 26.4)');
  mutate(()=>{
   project.iconVersions||={};project.iconVersions[id]=version;
  });
@@ -485,8 +488,13 @@ $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
 $('#preview-language').addEventListener('change',e=>{language=e.target.value;refresh();persist();});
+$('#ui-language').value=getUiLocale();
+$('#ui-language').addEventListener('change',e=>{
+ setUiLocale(e.target.value,{save:true});
+ refresh();
+});
 $('#add-language').onclick=()=>{
-  const value=prompt('Minecraft locale code (e.g. de_de, es_es, ja_jp):','de_de');
+  const value=prompt(tUI('Minecraft locale code (e.g. de_de, es_es, ja_jp):'),'de_de');
   if(value===null)return;
   const code=value.trim().toLowerCase();
   if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(code)){notify('Code de langue invalide (ex : de_de).');return;}
@@ -497,21 +505,21 @@ $('#add-language').onclick=()=>{
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
 $('#target-version').addEventListener('change',e=>{
  const v=e.target.value.trim();
- if(!/^\d+\.\d+$/.test(v)){e.target.value=project.targetMinecraftVersion||'26.3';return notify('Version invalide');}
+ if(!/^\d+\.\d+$/.test(v)){e.target.value=project.targetMinecraftVersion||'26.3';return notify('Invalid version');}
  mutate(()=>{project.targetMinecraftVersion=v;});renderIssues();
 });
 $('#load-default').onclick=()=>{
-  if(!confirm('Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.'))return;
+  if(!confirm(tUI('Restore the quests shipped with QuestPlus? This replaces your current draft.')))return;
   mutate(()=>{project=demoProject();categoryId=project.categories[0]?.id||null;selection={type:'category',id:categoryId};camera={x:0,y:0,zoom:1};fit();});
   notify('Quêtes du mod restaurées');
 };
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
-$('#auto-layout').onclick=()=>{if(!confirm('Repositionner automatiquement toutes les quêtes de cette catégorie ?'))return;mutate(placeAuto);notify('Disposition recalculée');};
+$('#auto-layout').onclick=()=>{if(!confirm(tUI('Reposition every quest in this category?')))return;mutate(placeAuto);notify('Disposition recalculée');};
 $('#zoom-fit').onclick=()=>{fit();renderScene();};$('#zoom-in').onclick=()=>{const el=$('#viewport');zoomAt(1.18,el.clientWidth/2,el.clientHeight/2);};
 $('#zoom-out').onclick=()=>{const el=$('#viewport');zoomAt(1/1.18,el.clientWidth/2,el.clientHeight/2);};
 $('#undo').onclick=undo;$('#redo').onclick=redo;
-$('#reset-project').onclick=()=>{if(!confirm('Créer un projet vierge ? Le projet actuel reste exportable seulement s’il a déjà été téléchargé.'))return;mutate(()=>{project=emptyProject();categoryId=null;selection=null;camera={x:0,y:0,zoom:1};});};
+$('#reset-project').onclick=()=>{if(!confirm(tUI('Create an empty project? Export your current work first.')))return;mutate(()=>{project=emptyProject();categoryId=null;selection=null;camera={x:0,y:0,zoom:1};});};
 $('#run-validate').onclick=()=>{renderIssues();$('#issues-list').classList.remove('hidden');notify(validate(project).length?'Corrige les alertes de validation':'Structure du projet vérifiée ✓');};
 $('#show-issues').onclick=()=>$('#issues-list').classList.toggle('hidden');
 const viewport=$('#viewport');
