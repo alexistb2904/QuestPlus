@@ -32,12 +32,12 @@ Example exported category:
 - Identical data URIs are exported once **per category**, no matter the annotation or locale.
 - Broken/out-of-range refs, non-image base64, and mixed `data`+`ref` are rejected on import.
 - Old JSON without `images` (and with inline `data`) works unchanged.
-- Media upload limit: **2 MiB per PNG/JPEG/GIF**, decoded image up to **4096 × 4096**.
+- Media upload policy: **no authoring size cap for PNG/JPEG/GIF**, decoded image with no fixed pixel maximum.
   Imported WebP is converted to PNG in Studio (also subject to 2 MiB).
-- Per-category JSON size max **12 MiB** after deduplication; sync snapshot max **24M characters**.
-  A large set of different images can exceed the aggregate sync cap.
-- Annotation width **60–800 px**, height **20–600 px**. Embedded image W/H **8–400 × 8–300 px**.
-- Quest `size` **24–96 px**, default **32 px**. No `size` means legacy size.
+- Per-category JSON size has no hardcoded byte maximum after deduplication; sync snapshot is fragmented for transport without a fixed document-length ceiling.
+  Large images still consume memory and bandwidth; normal device limits apply.
+- Annotation width and height: any positive integer in pixels. Embedded image W/H **8–400 × 8–300 px**.
+- Quest `size` any positive integer in pixels, default **32 px**. No `size` means legacy size.
 - Diagram coordinates pan and zoom, but quest and annotation rendered sizes are *screen pixels*.
 - A new preview/translation language is seeded from authored content, including rich image
   parts. Missing values do not overwrite existing translated values; author edits are independent.
