@@ -9,7 +9,7 @@ import {
 	Search,
 	Grid2X2,
 	Magnet,
-	Maximize,
+	Focus,
 	MousePointer2,
 	Hand,
 	Workflow,
@@ -330,8 +330,8 @@ export default function App() {
 								<button className="icon-button" disabled={!cat} onClick={studio.autoLayout} title={tUI("Auto-layout")} aria-label={tUI("Auto-layout")}>
 									<Workflow size={18} />
 								</button>
-								<button className="icon-button" onClick={() => changeCamera(studio.fit())} title={tUI("Fit")} aria-label={tUI("Fit")}>
-									<Maximize size={18} />
+								<button className="icon-button" onClick={() => changeCamera(studio.fit())} title={tUI("Center tree")} aria-label={tUI("Center tree")}>
+									<Focus size={18} />
 								</button>
 							</div>
 						</div>
