@@ -1,0 +1,2135 @@
+{
+  "categories": [
+    {
+      "id": "questplus:equipment",
+      "order": 15,
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Master of Equipment",
+        "fr_fr": "Maître des équipements"
+      },
+      "description": {
+        "en_us": "Collect, equip and optimize legendary armors, weapons and tools.",
+        "fr_fr": "Collectionnez et perfectionnez vos armures, armes et outils légendaires."
+      },
+      "annotations": []
+    }
+  ],
+  "quests": [
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_leather",
+      "category": "questplus:equipment",
+      "icon": "minecraft:leather_chestplate",
+      "title": {
+        "en_us": "Master of Leather",
+        "fr_fr": "Maître du cuir"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:leather_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:leather_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:leather_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:leather_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: leather helmet • chest: leather chestplate • legs: leather leggings • feet: leather boots",
+            "fr_fr": "Tête : leather helmet • Torse : leather chestplate • Jambes : leather leggings • Pieds : leather boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 60
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_copper",
+      "category": "questplus:equipment",
+      "icon": "minecraft:copper_chestplate",
+      "title": {
+        "en_us": "Copper Age",
+        "fr_fr": "L'âge du cuivre"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:copper_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:copper_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:copper_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:copper_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: copper helmet • chest: copper chestplate • legs: copper leggings • feet: copper boots",
+            "fr_fr": "Tête : copper helmet • Torse : copper chestplate • Jambes : copper leggings • Pieds : copper boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 80
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_iron",
+      "category": "questplus:equipment",
+      "icon": "minecraft:iron_chestplate",
+      "title": {
+        "en_us": "Iron Knight",
+        "fr_fr": "Le chevalier de fer"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:iron_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:iron_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:iron_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:iron_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: iron helmet • chest: iron chestplate • legs: iron leggings • feet: iron boots",
+            "fr_fr": "Tête : iron helmet • Torse : iron chestplate • Jambes : iron leggings • Pieds : iron boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 100
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_golden",
+      "category": "questplus:equipment",
+      "icon": "minecraft:golden_chestplate",
+      "title": {
+        "en_us": "Golden Sovereign",
+        "fr_fr": "L'armure du roi"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:golden_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:golden_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:golden_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:golden_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: golden helmet • chest: golden chestplate • legs: golden leggings • feet: golden boots",
+            "fr_fr": "Tête : golden helmet • Torse : golden chestplate • Jambes : golden leggings • Pieds : golden boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 120
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_chainmail",
+      "category": "questplus:equipment",
+      "icon": "minecraft:chainmail_chestplate",
+      "title": {
+        "en_us": "Forgotten Mail",
+        "fr_fr": "Les mailles oubliées"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:chainmail_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:chainmail_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:chainmail_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:chainmail_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: chainmail helmet • chest: chainmail chestplate • legs: chainmail leggings • feet: chainmail boots",
+            "fr_fr": "Tête : chainmail helmet • Torse : chainmail chestplate • Jambes : chainmail leggings • Pieds : chainmail boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 250
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_diamond",
+      "category": "questplus:equipment",
+      "icon": "minecraft:diamond_chestplate",
+      "title": {
+        "en_us": "Diamond Warrior",
+        "fr_fr": "Le guerrier de diamant"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:diamond_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:diamond_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:diamond_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:diamond_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: diamond helmet • chest: diamond chestplate • legs: diamond leggings • feet: diamond boots",
+            "fr_fr": "Tête : diamond helmet • Torse : diamond chestplate • Jambes : diamond leggings • Pieds : diamond boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 350
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/set_netherite",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Netherite Lord",
+        "fr_fr": "Le seigneur de Netherite"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet • chest: netherite chestplate • legs: netherite leggings • feet: netherite boots",
+            "fr_fr": "Tête : netherite helmet • Torse : netherite chestplate • Jambes : netherite leggings • Pieds : netherite boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 750
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/armor_collector",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Armor Collector",
+        "fr_fr": "Le collectionneur d'armures"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {}
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet • chest: netherite chestplate • legs: netherite leggings • feet: netherite boots",
+            "fr_fr": "Tête : netherite helmet • Torse : netherite chestplate • Jambes : netherite leggings • Pieds : netherite boots"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 600
+        }
+      ],
+      "progression": "once",
+      "requires": {
+        "and": [
+          {
+            "quest": "questplus:equipment/set_leather"
+          },
+          {
+            "quest": "questplus:equipment/set_copper"
+          },
+          {
+            "quest": "questplus:equipment/set_iron"
+          },
+          {
+            "quest": "questplus:equipment/set_golden"
+          },
+          {
+            "quest": "questplus:equipment/set_chainmail"
+          },
+          {
+            "quest": "questplus:equipment/set_diamond"
+          },
+          {
+            "quest": "questplus:equipment/set_netherite"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/diamond_p4",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Diamond Bulwark",
+        "fr_fr": "Le rempart de diamant"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:diamond_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:diamond_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:diamond_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:diamond_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: diamond helmet [protection IV] • chest: diamond chestplate [protection IV] • legs: diamond leggings [protection IV] • feet: diamond boots [protection IV]",
+            "fr_fr": "Tête : diamond helmet [Protection IV] • Torse : diamond chestplate [Protection IV] • Jambes : diamond leggings [Protection IV] • Pieds : diamond boots [Protection IV]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 550
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/netherite_p4",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Netherite Bulwark",
+        "fr_fr": "Le rempart de Netherite"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV] • chest: netherite chestplate [protection IV] • legs: netherite leggings [protection IV] • feet: netherite boots [protection IV]",
+            "fr_fr": "Tête : netherite helmet [Protection IV] • Torse : netherite chestplate [Protection IV] • Jambes : netherite leggings [Protection IV] • Pieds : netherite boots [Protection IV]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 800
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/netherite_unbreaking",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Built to Last",
+        "fr_fr": "À l'épreuve du temps"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [unbreaking III] • chest: netherite chestplate [unbreaking III] • legs: netherite leggings [unbreaking III] • feet: netherite boots [unbreaking III]",
+            "fr_fr": "Tête : netherite helmet [Solidité III] • Torse : netherite chestplate [Solidité III] • Jambes : netherite leggings [Solidité III] • Pieds : netherite boots [Solidité III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 700
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/perfect_bulwark",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Perfect Bulwark",
+        "fr_fr": "Le blindage parfait"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV, unbreaking III] • chest: netherite chestplate [protection IV, unbreaking III] • legs: netherite leggings [protection IV, unbreaking III] • feet: netherite boots [protection IV, unbreaking III]",
+            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III] • Torse : netherite chestplate [Protection IV, Solidité III] • Jambes : netherite leggings [Protection IV, Solidité III] • Pieds : netherite boots [Protection IV, Solidité III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 1200
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/eternal_armor",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Eternal Armor",
+        "fr_fr": "L'équipement éternel"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I] • chest: netherite chestplate [protection IV, unbreaking III, mending I] • legs: netherite leggings [protection IV, unbreaking III, mending I] • feet: netherite boots [protection IV, unbreaking III, mending I]",
+            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 1800
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/deep_helmet",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Helm of the Depths",
+        "fr_fr": "Le casque des profondeurs"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:respiration": 3,
+                    "minecraft:aqua_affinity": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I, respiration III, aqua affinity I]",
+            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I, Respiration III, Affinité aquatique I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 450
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/explorer_boots",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Explorer's Boots",
+        "fr_fr": "Les bottes de l'explorateur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:feather_falling": 4,
+                    "minecraft:depth_strider": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "feet: netherite boots [protection IV, unbreaking III, mending I, feather falling IV, depth strider III]",
+            "fr_fr": "Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I, Chute amortie IV, Agilité aquatique III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 550
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/shadow_leggings",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Shadow Leggings",
+        "fr_fr": "Les jambières de l'ombre"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:swift_sneak": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "legs: netherite leggings [protection IV, unbreaking III, mending I, swift sneak III]",
+            "fr_fr": "Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I, Furtivité rapide III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 600
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/titan_chest",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Titan's Chestplate",
+        "fr_fr": "Le plastron du titan"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:thorns": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "chest: netherite chestplate [protection IV, unbreaking III, mending I, thorns III]",
+            "fr_fr": "Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I, Épines III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 400
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/imperial_armor",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Imperial Armor",
+        "fr_fr": "L'armure impériale"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:respiration": 3,
+                    "minecraft:aqua_affinity": 1
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:thorns": 3
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:swift_sneak": 3
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:feather_falling": 4,
+                    "minecraft:depth_strider": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I, respiration III, aqua affinity I] • chest: netherite chestplate [protection IV, unbreaking III, mending I, thorns III] • legs: netherite leggings [protection IV, unbreaking III, mending I, swift sneak III] • feet: netherite boots [protection IV, unbreaking III, mending I, feather falling IV, depth strider III]",
+            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I, Respiration III, Affinité aquatique I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I, Épines III] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I, Furtivité rapide III] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I, Chute amortie IV, Agilité aquatique III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 2200
+        }
+      ],
+      "progression": "once",
+      "requires": {
+        "and": [
+          {
+            "quest": "questplus:equipment/eternal_armor"
+          },
+          {
+            "quest": "questplus:equipment/deep_helmet"
+          },
+          {
+            "quest": "questplus:equipment/explorer_boots"
+          },
+          {
+            "quest": "questplus:equipment/shadow_leggings"
+          },
+          {
+            "quest": "questplus:equipment/titan_chest"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/netherite_blade",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_sword",
+      "title": {
+        "en_us": "Blade from the Depths",
+        "fr_fr": "La lame des profondeurs"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_sword",
+                  "enchantments": {}
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite sword",
+            "fr_fr": "Inventaire : netherite sword"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 180
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/sharp_blade",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_sword",
+      "title": {
+        "en_us": "A Keen Edge",
+        "fr_fr": "Une lame bien aiguisée"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_sword",
+                  "enchantments": {
+                    "minecraft:sharpness": 5
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite sword [sharpness V]",
+            "fr_fr": "Inventaire : netherite sword [Tranchant V]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 350
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/sword_master",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_sword",
+      "title": {
+        "en_us": "Sword Master",
+        "fr_fr": "Le maître épéiste"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_sword",
+                  "enchantments": {
+                    "minecraft:sharpness": 5,
+                    "minecraft:looting": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:sweeping_edge": 3
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite sword [sharpness V, looting III, unbreaking III, mending I, sweeping edge III]",
+            "fr_fr": "Inventaire : netherite sword [Tranchant V, Butin III, Solidité III, Raccommodage I, Affilage III]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 1000
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/battle_axe",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_axe",
+      "title": {
+        "en_us": "Warrior's Axe",
+        "fr_fr": "La hache du guerrier"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_axe",
+                  "enchantments": {
+                    "minecraft:sharpness": 5,
+                    "minecraft:efficiency": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite axe [sharpness V, efficiency V, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite axe [Tranchant V, Efficacité V, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 650
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/legendary_bow",
+      "category": "questplus:equipment",
+      "icon": "minecraft:bow",
+      "title": {
+        "en_us": "Legendary Bow",
+        "fr_fr": "L'arc légendaire"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:bow",
+                  "enchantments": {
+                    "minecraft:power": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:flame": 1,
+                    "minecraft:infinity": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: bow [power V, unbreaking III, flame I, infinity I]",
+            "fr_fr": "Inventaire : bow [Puissance V, Solidité III, Flamme I, Infinité I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 500
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/hunter_crossbow",
+      "category": "questplus:equipment",
+      "icon": "minecraft:crossbow",
+      "title": {
+        "en_us": "Hunter's Crossbow",
+        "fr_fr": "L'arbalète du chasseur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:crossbow",
+                  "enchantments": {
+                    "minecraft:quick_charge": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:multishot": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: crossbow [quick charge III, unbreaking III, multishot I]",
+            "fr_fr": "Inventaire : crossbow [Charge rapide III, Solidité III, Tir multiple I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 450
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/storm_trident",
+      "category": "questplus:equipment",
+      "icon": "minecraft:trident",
+      "title": {
+        "en_us": "Storm Trident",
+        "fr_fr": "Le trident des tempêtes"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:trident",
+                  "enchantments": {
+                    "minecraft:impaling": 5,
+                    "minecraft:loyalty": 3,
+                    "minecraft:channeling": 1,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: trident [impaling V, loyalty III, channeling I, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : trident [Empalement V, Loyauté III, Canalisation I, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 650
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/riptide_trident",
+      "category": "questplus:equipment",
+      "icon": "minecraft:trident",
+      "title": {
+        "en_us": "Wandering Trident",
+        "fr_fr": "Le trident du voyageur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:trident",
+                  "enchantments": {
+                    "minecraft:riptide": 3,
+                    "minecraft:impaling": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: trident [riptide III, impaling V, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : trident [Impulsion III, Empalement V, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 600
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/titan_mace",
+      "category": "questplus:equipment",
+      "icon": "minecraft:mace",
+      "title": {
+        "en_us": "Titan's Mace",
+        "fr_fr": "La masse du titan"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:mace",
+                  "enchantments": {
+                    "minecraft:density": 5,
+                    "minecraft:wind_burst": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: mace [density V, wind burst III, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : mace [Densité V, Rafale de vent III, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 900
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/legendary_spear",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_spear",
+      "title": {
+        "en_us": "Legendary Spear",
+        "fr_fr": "La lance légendaire"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_spear",
+                  "enchantments": {
+                    "minecraft:lunge": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite spear [lunge III, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite spear [Lunge III, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 600
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/fortune_pick",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_pickaxe",
+      "title": {
+        "en_us": "Fortune Pickaxe",
+        "fr_fr": "La pioche du mineur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:fortune": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 700
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/silk_pick",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_pickaxe",
+      "title": {
+        "en_us": "Silk Touch Pickaxe",
+        "fr_fr": "Le toucher de soie"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:silk_touch": 1,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 650
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/woodcutter_axe",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_axe",
+      "title": {
+        "en_us": "Woodcutter's Axe",
+        "fr_fr": "La hache du bûcheron"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_axe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite axe [efficiency V, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite axe [Efficacité V, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 350
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/endless_shovel",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_shovel",
+      "title": {
+        "en_us": "Endless Shovel",
+        "fr_fr": "La pelle infatigable"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_shovel",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite shovel [efficiency V, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite shovel [Efficacité V, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 350
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/farmer_hoe",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_hoe",
+      "title": {
+        "en_us": "Farmer's Tool",
+        "fr_fr": "L'outil du cultivateur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_hoe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite hoe [efficiency V, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite hoe [Efficacité V, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 350
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/eternal_wings",
+      "category": "questplus:equipment",
+      "icon": "minecraft:elytra",
+      "title": {
+        "en_us": "Eternal Wings",
+        "fr_fr": "Les ailes éternelles"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:elytra",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: elytra [unbreaking III, mending I]",
+            "fr_fr": "Inventaire : elytra [Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 400
+        }
+      ],
+      "progression": "once"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/miners_kit",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_pickaxe",
+      "title": {
+        "en_us": "The Miner's Collection",
+        "fr_fr": "La panoplie du mineur"
+      },
+      "description": {
+        "en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:fortune": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:silk_touch": 1,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I] • inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I]",
+            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I] • Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 650
+        }
+      ],
+      "progression": "once",
+      "requires": {
+        "and": [
+          {
+            "quest": "questplus:equipment/fortune_pick"
+          },
+          {
+            "quest": "questplus:equipment/silk_pick"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "questplus:equipment/equipment_master",
+      "category": "questplus:equipment",
+      "icon": "minecraft:netherite_chestplate",
+      "title": {
+        "en_us": "Master of Equipment",
+        "fr_fr": "Le maître des équipements"
+      },
+      "description": {
+        "en_us": "Own an optimized Netherite armor set, legendary sword, complementary pickaxes, and enchanted Elytra at the same time.",
+        "fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+      },
+      "objectives": [
+        {
+          "id": "equipment",
+          "event": "equipment_check",
+          "target": "questplus:gear",
+          "count": 1,
+          "conditions": {
+            "questplus:gear": {
+              "items": [
+                {
+                  "slot": "head",
+                  "item": "minecraft:netherite_helmet",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "chest",
+                  "item": "minecraft:netherite_chestplate",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "legs",
+                  "item": "minecraft:netherite_leggings",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "feet",
+                  "item": "minecraft:netherite_boots",
+                  "enchantments": {
+                    "minecraft:protection": 4,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_sword",
+                  "enchantments": {
+                    "minecraft:sharpness": 5,
+                    "minecraft:looting": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1,
+                    "minecraft:sweeping_edge": 3
+                  }
+                },
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:fortune": 3,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:netherite_pickaxe",
+                  "enchantments": {
+                    "minecraft:efficiency": 5,
+                    "minecraft:silk_touch": 1,
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                },
+                {
+                  "slot": "inventory",
+                  "item": "minecraft:elytra",
+                  "enchantments": {
+                    "minecraft:unbreaking": 3,
+                    "minecraft:mending": 1
+                  }
+                }
+              ]
+            }
+          },
+          "text": {
+            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I] • chest: netherite chestplate [protection IV, unbreaking III, mending I] • legs: netherite leggings [protection IV, unbreaking III, mending I] • feet: netherite boots [protection IV, unbreaking III, mending I] • inventory: netherite sword [sharpness V, looting III, unbreaking III, mending I, sweeping edge III] • inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I] • inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I] • inventory: elytra [unbreaking III, mending I]",
+            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I] • Inventaire : netherite sword [Tranchant V, Butin III, Solidité III, Raccommodage I, Affilage III] • Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I] • Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I] • Inventaire : elytra [Solidité III, Raccommodage I]"
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "type": "experience",
+          "amount": 3500
+        }
+      ],
+      "progression": "once",
+      "requires": {
+        "and": [
+          {
+            "quest": "questplus:equipment/eternal_armor"
+          },
+          {
+            "quest": "questplus:equipment/sword_master"
+          },
+          {
+            "quest": "questplus:equipment/fortune_pick"
+          },
+          {
+            "quest": "questplus:equipment/silk_pick"
+          },
+          {
+            "quest": "questplus:equipment/eternal_wings"
+          }
+        ]
+      }
+    }
+  ]
+}

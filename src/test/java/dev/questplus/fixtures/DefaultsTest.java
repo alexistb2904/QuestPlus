@@ -56,6 +56,35 @@ class DefaultsTest {
         }
     }
 
+    @Test void fullChallengeCatalogueIsInstalledAndParsesWithoutMissingPrerequisites() throws Exception {
+        Path definitions=tempDir.resolve("full-catalogue");
+        Defaults.install(definitions);
+        QuestRegistry registry=QuestRegistry.load(definitions.resolve("quests"),(kind,id)->{});
+        assertEquals(222,registry.all().size(),"Legacy fixtures + 209 challenge quests");
+
+        Set<String> categories=new HashSet<>();
+        try(var files=Files.walk(definitions.resolve("categories"))) {
+            files.filter(Files::isRegularFile).forEach(path->{
+                try {
+                    categories.add(JsonParser.parseString(Files.readString(path)).getAsJsonObject().get("id").getAsString());
+                } catch(IOException failure) {throw new UncheckedIOException(failure);}
+            });
+        }
+        assertEquals(20,categories.size());
+        for (QuestDefinition quest:registry.all()) {
+            assertTrue(categories.contains(quest.category()),"Missing category for "+quest.id());
+            Set<String> references=new HashSet<>();
+            if(quest.requires()!=null)quest.requires().questReferences(references);
+            for(String reference:references)assertTrue(registry.find(reference).isPresent(),
+                "Unresolved prerequisite "+reference+" from "+quest.id());
+        }
+        assertEquals("tiered",registry.get("questplus:quarries/stone_mountain").progression());
+        assertEquals("repeatable",registry.get("questplus:contracts/skeleton_bounty").progression());
+        assertEquals("infinite",registry.get("questplus:contracts/eternal_quarry").progression());
+        assertTrue(registry.get("questplus:trials/three_giants").noDeath());
+        assertEquals("equipment_check",registry.get("questplus:equipment/equipment_master").objectives().getFirst().event());
+    }
+
     @Test void installingDefaultsPreservesExistingDefinitions() throws Exception {
         Path definitions = tempDir.resolve("world/questplus");
         Path existingQuest = definitions.resolve("quests/survival/logs.json");

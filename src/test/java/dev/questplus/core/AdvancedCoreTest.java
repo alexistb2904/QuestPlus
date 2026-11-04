@@ -23,6 +23,31 @@ class AdvancedCoreTest {
             """.formatted(objective, progression, fields);
     }
 
+    @Test void enchantedGearSnapshotCompletesThroughTheEngineEvenWithInventoryContext() throws Exception {
+        write("""
+            {"schemaVersion":2,"id":"questplus:test","category":"questplus:equipment",
+             "icon":"minecraft:netherite_chestplate","title":{"en_us":"Enchanted Gear"},
+             "objectives":[{"id":"gear","event":"equipment_check","target":"questplus:gear","count":1,
+               "conditions":{"questplus:gear":{"items":[
+                 {"slot":"head","item":"minecraft:netherite_helmet","enchantments":{"minecraft:protection":4}}
+               ]}}}],
+             "rewards":[{"type":"experience","amount":1800}],"progression":"once"}
+            """);
+        var engine=new QuestEngine(load());
+        var player=new PlayerProgress();
+        var inventory=Map.<String,Object>of("inventory",Map.of("minecraft:diamond",64));
+        var badGear=Map.<String,Object>of("head",List.of(Map.of("item","minecraft:netherite_helmet",
+            "enchantments",Map.of("minecraft:protection",3))),"inventory",List.of());
+        assertTrue(engine.apply(player,event("equipment_check","questplus:gear",1,
+            Map.of("gear",badGear,"inventory",inventory))).isEmpty());
+        var goodGear=Map.<String,Object>of("head",List.of(Map.of("item","minecraft:netherite_helmet",
+            "enchantments",Map.of("minecraft:protection",4))),"inventory",List.of());
+        var completions=engine.applyDetailed(player,event("equipment_check","questplus:gear",1,
+            Map.of("gear",goodGear,"inventory",inventory)));
+        assertEquals(1,completions.size());
+        assertEquals(1800,completions.getFirst().rewards().getFirst().amount());
+    }
+
     @Test void informationQuestAcknowledgementIsGeneratedFromEmptyObjectives() throws Exception {
         write("""
           {"schemaVersion":2,"kind":"information","acknowledgement":"manual","id":"questplus:test",

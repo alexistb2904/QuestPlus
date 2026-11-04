@@ -6,10 +6,10 @@ export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
   ['item_obtained','Obtenir des objets'],['item_craft','Fabriquer'],['item_smelt','Cuire'],['item_use','Utiliser un objet'],
   ['item_consume','Consommer'],['fish_item','Pêcher un objet'],['trade','Échanger'],['entity_kill','Tuer des entités'],
-  ['fish_entity','Pêcher une entité'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
+  ['fish_entity','Pêcher une entité'],['questplus:fish_any','Pêcher des poissons (toutes espèces)'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
   ['npc_interact','Parler à un PNJ'],['biome_visit','Visiter un biome'],['structure_visit','Visiter une structure'],
   ['dimension_enter','Entrer dans une dimension'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
-  ['location','Atteindre une position'],['player_death','Mourir'],['manual','Manuel']
+  ['location','Atteindre une position'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
 ];
 export const EVENT_KEYS = EVENTS.map(([id])=>id);
 export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
@@ -85,7 +85,7 @@ export function seedProjectLocale(project,locale){
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
-/** The editor starts from the exact 4 categories and 13 quests shipped by QuestPlus. */
+/** The editor starts from the exact packaged challenge catalogue plus historical examples. */
 export function demoProject(){return copy(BUILTIN_PROJECT);}
 /** Missing order sorts after explicitly ordered categories; ties are deterministic. */
 export function orderedCategories(categories){
