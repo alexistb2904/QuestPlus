@@ -1,4 +1,4 @@
-name: Deploy Quest Studio to GitHub Pages
+name: Deploy React Quest Studio to GitHub Pages
 
 on:
   push:
@@ -17,48 +17,38 @@ concurrency:
 
 jobs:
   build:
-    name: Test and package static site
+    name: Build production React site
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js for tests
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Test Quest Studio
-        run: node --test web/editor/tests/*.test.mjs
-
-      - name: Package only public site assets
-        shell: bash
+      - name: Install dependencies
+        working-directory: web/editor
+        run: npm install --no-audit --no-fund
+      - name: Test, typecheck, and build
+        working-directory: web/editor
         run: |
-          set -euo pipefail
-          mkdir -p _site
-          for asset in index.html style.css editor.js inspector.js project.js zip.js default-data.js game-layout.js minecraft-icons.js vanilla-registry-26.3.js conditions.js quest-ids.js ui-i18n.js; do
-            test -s "web/editor/$asset"
-            cp "web/editor/$asset" "_site/$asset"
-          done
-          touch _site/.nojekyll
-          # The app uses relative module imports, so it works at /QuestPlus/
-          # as well as a custom-domain root without rewriting asset paths.
-          test -s _site/index.html
-          test -s _site/editor.js
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+          npm test
+          npm run typecheck
+          npm run build
+      - name: Verify static bundle
+        run: |
+          test -s web/editor/dist/index.html
+          test -d web/editor/dist/assets
+          test -s web/editor/dist/questplus-logo.png
+          touch web/editor/dist/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
         with:
-          path: _site
+          path: web/editor/dist
 
   deploy:
-    name: Deploy static site
+    name: Deploy React app
     runs-on: ubuntu-latest
     needs: build
     permissions:
@@ -69,6 +59,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - uses: actions/deploy-pages@v4
         id: deployment
-        uses: actions/deploy-pages@v4
