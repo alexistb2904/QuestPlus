@@ -48,6 +48,8 @@ export function objectiveLabel(o,lang='fr_fr'){
     inventory_count:['Posséder','Hold'],travel_distance:['Parcourir','Travel'],location:['Atteindre','Reach'],
     player_death:['Mourir','Die'],manual:['Valider','Acknowledge']
   };
+  if(o.event==='travel_distance')return (fr?'Parcourir ':'Travel ')+Number(((o.count||0)/100).toFixed(2))+' m';
+  if(o.event==='location')return fr?'Atteindre la position':'Reach location';
   const name=String(o.target||'').replace(/^#?/,'').split(':').pop().replace(/[_/]/g,' ');
   return (names[o.event]||['Accomplir','Complete'])[fr?0:1]+' '+(o.count||1)+' '+name;
 }
