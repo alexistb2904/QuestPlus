@@ -59,6 +59,11 @@ final class QuestClientTabletFlow {
             }
         }
         nativeHands=false;stage=Stage.CLOSED;
+        // No PAL animation is running, so do not leave the camera overridden.
+        if (previousCamera!=null) {
+            client.options.setCameraType(previousCamera);
+            previousCamera=null;
+        }
         if (QuestPlusClient.settings.animations && QuestPlusClient.settings.tablet
             && !QuestPlusClient.settings.reducedMotion) {
             QuestPlusMod.LOGGER.warn("Quest Plus has fallen back to legacy GUI: fp_pal={}, player_animation_library={}.",
