@@ -1,66 +1,546 @@
-/**
- * Quest Studio UI language layer.
- * English is the fallback language. UI locale is separate from Minecraft quest content locale.
- * The 4 primary locales are bundled and work completely offline.
- */
-const ROWS=[["Interface","Interface","Interfaz","界面"],["Quest text","Texte des quêtes","Texto de misiones","任务文本"],["Quest content language","Langue du contenu des quêtes","Idioma del contenido","任务内容语言"],["Interface language","Langue de l'interface","Idioma de la interfaz","界面语言"],["Local changes","Modifications locales","Cambios locales","本地更改"],["New project","Nouveau projet","Proyecto nuevo","新项目"],["Library","Bibliothèque","Biblioteca","资料库"],["Category","Catégorie","Categoría","类别"],["Categories","Catégories","Categorías","类别"],["CATEGORIES","CATÉGORIES","CATEGORÍAS","类别"],["QUESTS","QUÊTES","MISIONES","任务"],["Quest","Quête","Misión","任务"],["Quests","Quêtes","Misiones","任务"],["Draft","Brouillon","Borrador","草稿"],["Local","Local","Local","本地"],["Defaults","Défaut","Predeterminadas","默认内容"],["Quest tree","Arbre de quêtes","Árbol de misiones","任务树"],["Annotation","Annotation","Anotación","标注"],["Prerequisite","Prérequis","Requisito previo","前置条件"],["Properties","Propriétés","Propiedades","属性"],["EDITOR","ÉDITION","EDICIÓN","编辑"],["QUEST PACK","PACK DE QUÊTES","PAQUETE DE MISIONES","任务包"],["Create quest","Créer une quête","Crear misión","创建任务"],["Empty tree","Arbre vide","Árbol vacío","空任务树"],["Advanced JSON","JSON avancé","JSON avanzado","高级 JSON"],["Export ZIP","Exporter ZIP","Exportar ZIP","导出 ZIP"],["Import","Importer","Importar","导入"],["Validate","Valider","Validar","验证"],["Undo","Annuler","Deshacer","撤销"],["Redo","Rétablir","Rehacer","重做"],["Add quest translation","Ajouter une traduction","Añadir traducción","添加任务翻译"],["Target Minecraft version","Version Minecraft cible","Versión de Minecraft","目标 Minecraft 版本"],["Auto-layout","Disposer","Distribuir automáticamente","自动布局"],["Fit view","Ajuster la vue","Ajustar vista","适应视图"],["Zoom out","Dézoomer","Alejar","缩小"],["Zoom in","Zoomer","Acercar","放大"],["Edit category","Modifier cette catégorie","Editar categoría","编辑类别"],["Drag · Scroll · Pinch","Glisser · Molette · Pincer","Arrastrar · Rueda · Pellizcar","拖动 · 滚轮 · 双指缩放"],["Search quests…","Rechercher une quête…","Buscar misiones…","搜索任务…"],["Search quests","Rechercher une quête","Buscar misiones","搜索任务"],["Details →","Voir les contrôles →","Detalles →","详情 →"],["Ready to export","Prêt à exporter","Listo para exportar","可以导出"],["Choose an icon","Choisir une icône","Elegir icono","选择图标"],["Search every item and block…","Chercher parmi tous les items et blocs…","Buscar objetos y bloques…","搜索所有物品和方块…"],["Search Minecraft items","Rechercher un objet Minecraft","Buscar objetos de Minecraft","搜索 Minecraft 物品"],["Filter icons","Filtrer les icônes","Filtrar iconos","筛选图标"],["All","Tout","Todos","全部"],["Items","Items","Objetos","物品"],["Blocks","Blocs","Bloques","方块"],["Load more","Afficher plus","Mostrar más","加载更多"],["For modded items, type their namespaced ID directly.","Pour un mod, entre directement son ID dans le champ.","Para objetos de mods, escribe su ID directamente.","模组物品可直接输入带命名空间的 ID。"],["Restore default quests","Restaurer les quêtes fournies par le mod","Restaurar misiones predeterminadas","恢复默认任务"],["New blank project","Nouveau projet vide","Nuevo proyecto vacío","新建空项目"],["Close","Fermer","Cerrar","关闭"],["Cancel","Annuler","Cancelar","取消"],["Apply","Appliquer","Aplicar","应用"],["Advanced editor","Éditeur avancé","Editor avanzado","高级编辑器"],["Open a QuestPlus pack","Ouvrir un pack QuestPlus","Abrir paquete QuestPlus","打开 QuestPlus 包"],["Import a ZIP pack or JSON files. Your current project will be replaced after confirmation.","Importe un ZIP exporté par Quest Studio ou les fichiers JSON de ton dossier serveur. L'import remplace le projet courant après confirmation.","Importa un ZIP o archivos JSON. Se pedirá confirmación antes de reemplazar el proyecto.","导入 ZIP 包或 JSON 文件，替换当前项目之前会要求确认。"],["ZIP archive","Archive ZIP","Archivo ZIP","ZIP 压缩包"],["A complete .zip pack","Un pack complet .zip","Paquete .zip completo","完整的 .zip 包"],["QuestPlus folder","Dossier QuestPlus","Carpeta QuestPlus","QuestPlus 文件夹"],["Categories, quests and config","Catégories, quêtes et config","Categorías, misiones y configuración","类别、任务和配置"],["JSON files","Fichiers JSON","Archivos JSON","JSON 文件"],["Select multiple files","Sélection multiple","Seleccionar varios","选择多个文件"],["Name","Nom","Nombre","名称"],["Icon","Icône","Icono","图标"],["Description","Description","Descripción","描述"],["Identity","Identité","Identidad","标识"],["Actions","Actions","Acciones","操作"],["Options","Options","Opciones","选项"],["General","Général","General","常规"],["Objectives","Objectifs","Objetivos","目标"],["Objective","+ Objectif","+ Objetivo","+ 目标"],["+ Objective","+ Objectif","+ Objetivo","+ 目标"],["+ Quest","+ Quête","+ Misión","+ 任务"],["+ Annotation","+ Annotation","+ Anotación","+ 标注"],["Position","Position","Posición","位置"],["Prerequisites","Prérequis","Requisitos previos","前置条件"],["Rewards","Récompenses","Recompensas","奖励"],["Progression","Progression","Progreso","进度"],["Type","Type","Tipo","类型"],["Action","Action","Acción","动作"],["Block / item / entity","Bloc / objet / entité","Bloque / objeto / entidad","方块 / 物品 / 实体"],["Quantity","Quantité","Cantidad","数量"],["Custom label","Libellé personnalisé","Etiqueta personalizada","自定义名称"],["Conditions","Conditions","Condiciones","条件"],["Identifier","Identifiant","Identificador","标识符"],["Text","Texte","Texto","文本"],["Content","Contenu","Contenido","内容"],["Style","Style","Estilo","样式"],["Color","Couleur","Color","颜色"],["Appearance","Aspect","Apariencia","外观"],["Framed note","Encadré","Nota enmarcada","边框备注"],["Heading","Titre","Título","标题"],["Label","Étiquette","Etiqueta","标签"],["Select an element.","Sélectionne un élément.","Selecciona un elemento.","请选择一个元素。"],["Editor","Éditeur","Editor","编辑器"],["Browse","Parcourir","Explorar","浏览"],["Choose from Minecraft items","Choisir dans les objets Minecraft","Elegir entre objetos de Minecraft","从 Minecraft 物品中选择"],["Minimum version","Version min.","Versión mínima","最低版本"],["Minimum Minecraft version for this item","Version Minecraft minimum pour cet objet","Versión mínima de este objeto","该物品支持的最低版本"],["Optional","Facultatif","Opcional","可选"],["Optional translation","Traduction facultative","Traducción opcional","可选翻译"],["English source","English source","Fuente en inglés","英文原文"],["Delete","Supprimer","Eliminar","删除"],["Duplicate","Dupliquer","Duplicar","复制"],["+ XP","+ XP","+ XP","+ 经验值"],["+ Item","+ Objet","+ Objeto","+ 物品"],["Item","Objet","Objeto","物品"],["Points","Points","Puntos","点数"],["Item ID","ID de l’item","ID del objeto","物品 ID"],["Editable in advanced JSON","Éditable dans le JSON avancé","Editable en JSON avanzado","可在高级 JSON 中编辑"],["Information","Information","Información","信息"],["Quest type","Type de quête","Misión","任务"],["Acknowledgement","Validation","Confirmación","确认"],["Manual","À valider","Manual","手动"],["Read-only","Lecture seule","Solo lectura","只读"],["Unique","Unique","Única","一次性"],["Repeatable","Répétable","Repetible","可重复"],["Infinite","Infinie","Infinita","无限"],["Tiers","Paliers","Niveles","阶段"],["All objectives","Tous","Todos","全部"],["Any objective","Au choix","Cualquiera","任意"],["In order","Dans l’ordre","En orden","按顺序"],["Mode","Mode","Modo","模式"],["Hide until unlocked","Masquer avant déblocage","Ocultar hasta desbloquear","解锁前隐藏"],["Cooldown (s)","Délai (s)","Espera (s)","冷却时间（秒）"],["Time limit (s)","Temps (s)","Límite (s)","限时（秒）"],["Without dying","Sans mourir","Sin morir","不可死亡"],["ID & actions","ID & actions","ID y acciones","ID 与操作"],["No conditions","Aucune condition","Sin condiciones","无条件"],["Search a quest…","Chercher une quête…","Buscar misión…","搜索任务…"],["No quests","Aucune quête","Sin misiones","无任务"],["No category","Aucune catégorie","Sin categorías","无类别"],["No results","Aucun résultat","Sin resultados","无结果"],["AND · all","ET · tous","Y · todos","与 · 全部"],["OR · any","OU · au choix","O · cualquiera","或 · 任意"],["NOT","NON","NO","非"],["+ AND","+ ET","+ Y","+ 与"],["+ OR","+ OU","+ O","+ 或"],["+ NOT","+ NON","+ NO","+ 非"],["+ Condition","+ Condition","+ Condición","+ 条件"],["Group type","Type de groupe","Tipo de grupo","分组类型"],["Dimension","Dimension","Dimensión","维度"],["Tool","Outil","Herramienta","工具"],["Biome","Biome","Bioma","生物群系"],["Effect","Effet","Efecto","效果"],["Health ≤","Vie ≤","Salud ≤","生命值 ≤"],["Health ≥","Vie ≥","Salud ≥","生命值 ≥"],["Sneaking","Accroupi","Agachado","潜行"],["Yes","Oui","Sí","是"],["No","Non","No","否"],["Remove","Supprimer","Eliminar","移除"],["Create quest","Créer une quête","Crear misión","创建任务"],["Create category first.","Crée d’abord une catégorie.","Crea una categoría primero.","请先创建类别。"],["Category created","Catégorie créée","Categoría creada","类别已创建"],["Quest created. Drag it on the tree.","Quête créée. Déplace-la sur l’arbre.","Misión creada. Arrástrala en el árbol.","任务已创建，请拖放到任务树。"],["Annotation created","Annotation créée","Anotación creada","标注已创建"],["Project restored","Quêtes du mod restaurées","Misiones restauradas","已恢复默认任务"],["Layout updated","Disposition recalculée","Diseño actualizado","布局已更新"],["Pack downloaded","Pack QuestPlus téléchargé","Paquete descargado","任务包已下载"],["JSON applied","JSON appliqué","JSON aplicado","已应用 JSON"],["Invalid version","Version invalide","Versión inválida","版本无效"],["Invalid condition","Condition invalide","Condición inválida","条件无效"],["No more than 16 levels","Profondeur maximale : 16 niveaux","Máximo 16 niveles","最多 16 层"],["Create another quest to start.","Crée une autre quête pour commencer.","Crea otra misión para empezar.","请先创建另一个任务。"],["Name (English)","Nom (anglais)","Nombre (inglés)","名称（英文）"],["Category name (English):","Category name (English):","Nombre de categoría (inglés):","类别名称（英文）："],["Quest name (English):","Quest name (English):","Nombre de misión (inglés):","任务名称（英文）："],["New category","New category","Nueva categoría","新类别"],["New quest","New quest","Nueva misión","新任务"],["Reposition every quest in this category?","Repositionner automatiquement toutes les quêtes de cette catégorie ?","¿Reordenar todas las misiones de esta categoría?","重新排列该类别中的全部任务？"],["Restore the quests shipped with QuestPlus? This replaces your current draft.","Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.","¿Restaurar las misiones originales? Se reemplazará el borrador.","恢复 QuestPlus 原始任务？这会替换当前草稿。"],["Create an empty project? Export your current work first.","Créer un projet vierge ? Le projet actuel reste exportable seulement s’il a déjà été téléchargé.","¿Crear un proyecto vacío? Exporta antes el actual.","创建空项目？请先导出当前项目。"],["Delete this quest permanently?","Supprimer définitivement cette quête ?","¿Eliminar esta misión permanentemente?","永久删除该任务？"],["Delete the category","Supprimer la catégorie","Eliminar categoría","删除类别"],["Invalid locale code (e.g. de_de).","Code de langue invalide (ex : de_de).","Código de idioma inválido (ej.: de_de).","语言代码无效（例如 de_de）。"],["Minecraft locale code (e.g. de_de, es_es, ja_jp):","Minecraft locale code (e.g. de_de, es_es, ja_jp):","Código de idioma Minecraft (p. ej. de_de):","Minecraft 语言代码（如 de_de）："],["Invalid version (e.g. 26.4)","Version invalide, exemple : 26.4","Versión inválida (ej. 26.4)","版本无效（例如 26.4）"],["Saved in this browser","Enregistré dans ce navigateur","Guardado en el navegador","已保存到浏览器"],["Local storage unavailable","Stockage local indisponible","Almacenamiento local no disponible","本地存储不可用"],["Checks passed","Structure du projet vérifiée ✓","Estructura validada ✓","验证通过 ✓"],["Fix validation warnings","Corrige les alertes de validation","Corrige los avisos de validación","请修复验证警告"],["No errors","Aucune erreur.","Sin errores.","没有错误。"],["Ready to export","Prêt à exporter","Listo para exportar","可以导出"],["Advanced JSON","JSON avancé","JSON avanzado","高级 JSON"],["Open pack","Ouvrir un pack QuestPlus","Abrir paquete","打开任务包"],["Cancel","Annuler","Cancelar","取消"],["Apply","Appliquer","Aplicar","应用"],["Export blocked","Export bloqué","Exportación bloqueada","导出已阻止"],["Import failed","Import impossible","Importación fallida","导入失败"],["Export failed","Export impossible","Exportación fallida","导出失败"],["Search all items and blocks","Chercher parmi tous les items et blocs…","Buscar todos los objetos y bloques","搜索所有物品和方块"],["Editor settings","Paramètres de l'éditeur","Ajustes del editor","编辑器设置"],["errors","erreurs","errores","错误"],["version warnings","avertissements de version","avisos de versión","版本警告"],["results","résultats","resultados","条结果"],["Break blocks","Casser des blocs","Romper bloques","破坏方块"],["Place blocks","Placer des blocs","Colocar bloques","放置方块"],["Interact with block","Interagir avec un bloc","Interactuar con bloque","与方块交互"],["Obtain items","Obtenir des objets","Conseguir objetos","获取物品"],["Craft items","Fabriquer","Fabricar","合成"],["Smelt items","Cuire","Fundir","熔炼"],["Use item","Utiliser un objet","Usar objeto","使用物品"],["Consume item","Consommer","Consumir","消耗物品"],["Fish item","Pêcher un objet","Pescar objeto","钓取物品"],["Trade","Échanger","Intercambiar","交易"],["Kill entities","Tuer des entités","Derrotar entidades","击败实体"],["Fish entity","Pêcher une entité","Pescar entidad","钓取实体"],["Tame animal","Apprivoiser","Domesticar animal","驯服动物"],["Breed animals","Reproduire","Criar animales","繁殖动物"],["Talk to NPC","Parler à un PNJ","Hablar con PNJ","与 NPC 对话"],["Visit biome","Visiter un biome","Visitar bioma","访问生物群系"],["Visit structure","Visiter une structure","Visitar estructura","访问结构"],["Enter dimension","Entrer dans une dimension","Entrar en dimensión","进入维度"],["Have items","Posséder des objets","Tener objetos","持有物品"],["Travel distance","Parcourir une distance","Recorrer distancia","移动距离"],["Reach location","Atteindre une position","Llegar a posición","到达位置"],["Die","Mourir","Morir","死亡"],["Default / manual","Manuel","Manual","手动"],["Cannot delete a category with quests.","Déplace ou supprime les quêtes avant cette catégorie.","Mueve o elimina las misiones antes de borrar la categoría.","删除类别前请移动或删除所有任务。"],["A standard quest needs at least one objective.","Une quête standard doit avoir au moins un objectif.","Una misión estándar necesita un objetivo.","标准任务至少需要一个目标。"],["Select an element to edit.","Choisis un élément à éditer.","Selecciona un elemento para editar.","请选择一个元素进行编辑。"],["Export despite version incompatibilities?","Exporter malgré ces incompatibilités ?","¿Exportar pese a las incompatibilidades?","仍要导出不兼容内容吗？"],["Edit","Modifier","Editar","编辑"],["Selection","la sélection","la selección","所选项目"],["Icon missing","Icône manquante","Icono no disponible","图标缺失"],["Project imported","Projet importé","Proyecto importado","已导入项目"],["Replace current project with","Remplacer le projet en cours par","¿Reemplazar proyecto con","替换当前项目："],["Quest is a prerequisite for","Cette quête est un prérequis de","Esta misión es un requisito de","该任务是前置条件，共"],["Export a ZIP to keep your changes.","Sauvegarde locale impossible : exportez un ZIP.","Exporta un ZIP para guardar los cambios.","请导出 ZIP 保存更改。"]];
-const translations=new Map();
-for(const [en,fr,es,zh] of ROWS){
-  const row={en,fr,es,zh};
-  for(const alias of [en,fr,es,zh])translations.set(alias,row);
+const ROWS = [
+	["Interface", "Interface", "Interfaz", "界面"],
+	["Preview quest language", "Langue aperçu de quêtes", "Idioma de vista previa", "预览语言"],
+	["Quest text", "Texte des quêtes", "Texto de misiones", "任务文本"],
+	["Quest content language", "Langue du contenu des quêtes", "Idioma del contenido", "任务内容语言"],
+	["Interface language", "Langue de l'interface", "Idioma de la interfaz", "界面语言"],
+	["Local changes", "Modifications locales", "Cambios locales", "本地更改"],
+	["New project", "Nouveau projet", "Proyecto nuevo", "新项目"],
+	["Library", "Bibliothèque", "Biblioteca", "资料库"],
+	["Category", "Catégorie", "Categoría", "类别"],
+	["Categories", "Catégories", "Categorías", "类别"],
+	["CATEGORIES", "CATÉGORIES", "CATEGORÍAS", "类别"],
+	["QUESTS", "QUÊTES", "MISIONES", "任务"],
+	["Quest", "Quête", "Misión", "任务"],
+	["Quests", "Quêtes", "Misiones", "任务"],
+	["Draft", "Brouillon", "Borrador", "草稿"],
+	["Local", "Local", "Local", "本地"],
+	["Defaults", "Défaut", "Predeterminadas", "默认内容"],
+	["Quest tree", "Arbre de quêtes", "Árbol de misiones", "任务树"],
+	["Annotation", "Annotation", "Anotación", "标注"],
+	["Prerequisite", "Prérequis", "Requisito previo", "前置条件"],
+	["Properties", "Propriétés", "Propiedades", "属性"],
+	["EDITOR", "ÉDITION", "EDICIÓN", "编辑"],
+	["QUEST PACK", "PACK DE QUÊTES", "PAQUETE DE MISIONES", "任务包"],
+	["Create quest", "Créer une quête", "Crear misión", "创建任务"],
+	["Empty tree", "Arbre vide", "Árbol vacío", "空任务树"],
+	["Advanced JSON", "JSON avancé", "JSON avanzado", "高级 JSON"],
+	["Export ZIP", "Exporter ZIP", "Exportar ZIP", "导出 ZIP"],
+	["Import", "Importer", "Importar", "导入"],
+	["Validate", "Valider", "Validar", "验证"],
+	["Undo", "Annuler", "Deshacer", "撤销"],
+	["Redo", "Rétablir", "Rehacer", "重做"],
+	["Add quest translation", "Ajouter une traduction", "Añadir traducción", "添加任务翻译"],
+	["Target Minecraft version", "Version Minecraft cible", "Versión de Minecraft", "目标 Minecraft 版本"],
+	["Auto-layout", "Disposer", "Distribuir automáticamente", "自动布局"],
+	["Fit view", "Ajuster la vue", "Ajustar vista", "适应视图"],
+	["Zoom out", "Dézoomer", "Alejar", "缩小"],
+	["Zoom in", "Zoomer", "Acercar", "放大"],
+	["Edit category", "Modifier cette catégorie", "Editar categoría", "编辑类别"],
+	["Drag · Scroll · Pinch", "Glisser · Molette · Pincer", "Arrastrar · Rueda · Pellizcar", "拖动 · 滚轮 · 双指缩放"],
+	["Search quests…", "Rechercher une quête…", "Buscar misiones…", "搜索任务…"],
+	["Search quests", "Rechercher une quête", "Buscar misiones", "搜索任务"],
+	["Details →", "Voir les contrôles →", "Detalles →", "详情 →"],
+	["Ready to export", "Prêt à exporter", "Listo para exportar", "可以导出"],
+	["Choose an icon", "Choisir une icône", "Elegir icono", "选择图标"],
+	["Search every item and block…", "Chercher parmi tous les items et blocs…", "Buscar objetos y bloques…", "搜索所有物品和方块…"],
+	["Search Minecraft items", "Rechercher un objet Minecraft", "Buscar objetos de Minecraft", "搜索 Minecraft 物品"],
+	["Filter icons", "Filtrer les icônes", "Filtrar iconos", "筛选图标"],
+	["All", "Tout", "Todos", "全部"],
+	["Items", "Items", "Objetos", "物品"],
+	["Blocks", "Blocs", "Bloques", "方块"],
+	["Load more", "Afficher plus", "Mostrar más", "加载更多"],
+	[
+		"For modded items, type their namespaced ID directly.",
+		"Pour un mod, entre directement son ID dans le champ.",
+		"Para objetos de mods, escribe su ID directamente.",
+		"模组物品可直接输入带命名空间的 ID。",
+	],
+	["Restore default quests", "Restaurer les quêtes fournies par le mod", "Restaurar misiones predeterminadas", "恢复默认任务"],
+	["New blank project", "Nouveau projet vide", "Nuevo proyecto vacío", "新建空项目"],
+	["Close", "Fermer", "Cerrar", "关闭"],
+	["Cancel", "Annuler", "Cancelar", "取消"],
+	["Apply", "Appliquer", "Aplicar", "应用"],
+	["Advanced editor", "Éditeur avancé", "Editor avanzado", "高级编辑器"],
+	["Open a QuestPlus pack", "Ouvrir un pack QuestPlus", "Abrir paquete QuestPlus", "打开 QuestPlus 包"],
+	[
+		"Import a ZIP pack or JSON files. Your current project will be replaced after confirmation.",
+		"Importe un ZIP exporté par Quest Studio ou les fichiers JSON de ton dossier serveur. L'import remplace le projet courant après confirmation.",
+		"Importa un ZIP o archivos JSON. Se pedirá confirmación antes de reemplazar el proyecto.",
+		"导入 ZIP 包或 JSON 文件，替换当前项目之前会要求确认。",
+	],
+	["ZIP archive", "Archive ZIP", "Archivo ZIP", "ZIP 压缩包"],
+	["A complete .zip pack", "Un pack complet .zip", "Paquete .zip completo", "完整的 .zip 包"],
+	["QuestPlus folder", "Dossier QuestPlus", "Carpeta QuestPlus", "QuestPlus 文件夹"],
+	["Categories, quests and config", "Catégories, quêtes et config", "Categorías, misiones y configuración", "类别、任务和配置"],
+	["JSON files", "Fichiers JSON", "Archivos JSON", "JSON 文件"],
+	["Select multiple files", "Sélection multiple", "Seleccionar varios", "选择多个文件"],
+	["Name", "Nom", "Nombre", "名称"],
+	["Icon", "Icône", "Icono", "图标"],
+	["Description", "Description", "Descripción", "描述"],
+	["Identity", "Identité", "Identidad", "标识"],
+	["Actions", "Actions", "Acciones", "操作"],
+	["Options", "Options", "Opciones", "选项"],
+	["General", "Général", "General", "常规"],
+	["Objectives", "Objectifs", "Objetivos", "目标"],
+	["Objective", "+ Objectif", "+ Objetivo", "+ 目标"],
+	["+ Objective", "+ Objectif", "+ Objetivo", "+ 目标"],
+	["+ Quest", "+ Quête", "+ Misión", "+ 任务"],
+	["+ Annotation", "+ Annotation", "+ Anotación", "+ 标注"],
+	["Position", "Position", "Posición", "位置"],
+	["Prerequisites", "Prérequis", "Requisitos previos", "前置条件"],
+	["Rewards", "Récompenses", "Recompensas", "奖励"],
+	["Progression", "Progression", "Progreso", "进度"],
+	["Type", "Type", "Tipo", "类型"],
+	["Action", "Action", "Acción", "动作"],
+	["Block / item / entity", "Bloc / objet / entité", "Bloque / objeto / entidad", "方块 / 物品 / 实体"],
+	["Quantity", "Quantité", "Cantidad", "数量"],
+	["Custom label", "Libellé personnalisé", "Etiqueta personalizada", "自定义名称"],
+	["Conditions", "Conditions", "Condiciones", "条件"],
+	["Identifier", "Identifiant", "Identificador", "标识符"],
+	["Text", "Texte", "Texto", "文本"],
+	["Content", "Contenu", "Contenido", "内容"],
+	["Style", "Style", "Estilo", "样式"],
+	["Color", "Couleur", "Color", "颜色"],
+	["Appearance", "Aspect", "Apariencia", "外观"],
+	["Framed note", "Encadré", "Nota enmarcada", "边框备注"],
+	["Heading", "Titre", "Título", "标题"],
+	["Label", "Étiquette", "Etiqueta", "标签"],
+	["Select an element.", "Sélectionne un élément.", "Selecciona un elemento.", "请选择一个元素。"],
+	["Editor", "Éditeur", "Editor", "编辑器"],
+	["Browse", "Parcourir", "Explorar", "浏览"],
+	["Choose from Minecraft items", "Choisir dans les objets Minecraft", "Elegir entre objetos de Minecraft", "从 Minecraft 物品中选择"],
+	["Minimum version", "Version min.", "Versión mínima", "最低版本"],
+	["Minimum Minecraft version for this item", "Version Minecraft minimum pour cet objet", "Versión mínima de este objeto", "该物品支持的最低版本"],
+	["Optional", "Facultatif", "Opcional", "可选"],
+	["Optional translation", "Traduction facultative", "Traducción opcional", "可选翻译"],
+	["English source", "English source", "Fuente en inglés", "英文原文"],
+	["Delete", "Supprimer", "Eliminar", "删除"],
+	["Duplicate", "Dupliquer", "Duplicar", "复制"],
+	["+ XP", "+ XP", "+ XP", "+ 经验值"],
+	["+ Item", "+ Objet", "+ Objeto", "+ 物品"],
+	["Item", "Objet", "Objeto", "物品"],
+	["Points", "Points", "Puntos", "点数"],
+	["Item ID", "ID de l’item", "ID del objeto", "物品 ID"],
+	["Editable in advanced JSON", "Éditable dans le JSON avancé", "Editable en JSON avanzado", "可在高级 JSON 中编辑"],
+	["Information", "Information", "Información", "信息"],
+	["Quest type", "Type de quête", "Misión", "任务"],
+	["Acknowledgement", "Validation", "Confirmación", "确认"],
+	["Manual", "À valider", "Manual", "手动"],
+	["Read-only", "Lecture seule", "Solo lectura", "只读"],
+	["Unique", "Unique", "Única", "一次性"],
+	["Repeatable", "Répétable", "Repetible", "可重复"],
+	["Infinite", "Infinie", "Infinita", "无限"],
+	["Tiers", "Paliers", "Niveles", "阶段"],
+	["All objectives", "Tous", "Todos", "全部"],
+	["Any objective", "Au choix", "Cualquiera", "任意"],
+	["In order", "Dans l’ordre", "En orden", "按顺序"],
+	["Mode", "Mode", "Modo", "模式"],
+	["Hide until unlocked", "Masquer avant déblocage", "Ocultar hasta desbloquear", "解锁前隐藏"],
+	["Cooldown (s)", "Délai (s)", "Espera (s)", "冷却时间（秒）"],
+	["Time limit (s)", "Temps (s)", "Límite (s)", "限时（秒）"],
+	["Without dying", "Sans mourir", "Sin morir", "不可死亡"],
+	["ID & actions", "ID & actions", "ID y acciones", "ID 与操作"],
+	["No conditions", "Aucune condition", "Sin condiciones", "无条件"],
+	["Search a quest…", "Chercher une quête…", "Buscar misión…", "搜索任务…"],
+	["No quests", "Aucune quête", "Sin misiones", "无任务"],
+	["No category", "Aucune catégorie", "Sin categorías", "无类别"],
+	["No results", "Aucun résultat", "Sin resultados", "无结果"],
+	["AND · all", "ET · tous", "Y · todos", "与 · 全部"],
+	["OR · any", "OU · au choix", "O · cualquiera", "或 · 任意"],
+	["NOT", "NON", "NO", "非"],
+	["+ AND", "+ ET", "+ Y", "+ 与"],
+	["+ OR", "+ OU", "+ O", "+ 或"],
+	["+ NOT", "+ NON", "+ NO", "+ 非"],
+	["+ Condition", "+ Condition", "+ Condición", "+ 条件"],
+	["Group type", "Type de groupe", "Tipo de grupo", "分组类型"],
+	["Dimension", "Dimension", "Dimensión", "维度"],
+	["Tool", "Outil", "Herramienta", "工具"],
+	["Biome", "Biome", "Bioma", "生物群系"],
+	["Effect", "Effet", "Efecto", "效果"],
+	["Health ≤", "Vie ≤", "Salud ≤", "生命值 ≤"],
+	["Health ≥", "Vie ≥", "Salud ≥", "生命值 ≥"],
+	["Sneaking", "Accroupi", "Agachado", "潜行"],
+	["Yes", "Oui", "Sí", "是"],
+	["No", "Non", "No", "否"],
+	["Remove", "Supprimer", "Eliminar", "移除"],
+	["Create quest", "Créer une quête", "Crear misión", "创建任务"],
+	["Create category first.", "Crée d’abord une catégorie.", "Crea una categoría primero.", "请先创建类别。"],
+	["Category created", "Catégorie créée", "Categoría creada", "类别已创建"],
+	["Quest created. Drag it on the tree.", "Quête créée. Déplace-la sur l’arbre.", "Misión creada. Arrástrala en el árbol.", "任务已创建，请拖放到任务树。"],
+	["Annotation created", "Annotation créée", "Anotación creada", "标注已创建"],
+	["Project restored", "Quêtes du mod restaurées", "Misiones restauradas", "已恢复默认任务"],
+	["Layout updated", "Disposition recalculée", "Diseño actualizado", "布局已更新"],
+	["Pack downloaded", "Pack QuestPlus téléchargé", "Paquete descargado", "任务包已下载"],
+	["JSON applied", "JSON appliqué", "JSON aplicado", "已应用 JSON"],
+	["Invalid version", "Version invalide", "Versión inválida", "版本无效"],
+	["Invalid condition", "Condition invalide", "Condición inválida", "条件无效"],
+	["No more than 16 levels", "Profondeur maximale : 16 niveaux", "Máximo 16 niveles", "最多 16 层"],
+	["Create another quest to start.", "Crée une autre quête pour commencer.", "Crea otra misión para empezar.", "请先创建另一个任务。"],
+	["Name (English)", "Nom (anglais)", "Nombre (inglés)", "名称（英文）"],
+	["Category name (English):", "Category name (English):", "Nombre de categoría (inglés):", "类别名称（英文）："],
+	["Quest name (English):", "Quest name (English):", "Nombre de misión (inglés):", "任务名称（英文）："],
+	["New category", "New category", "Nueva categoría", "新类别"],
+	["New quest", "New quest", "Nueva misión", "新任务"],
+	[
+		"Reposition every quest in this category?",
+		"Repositionner automatiquement toutes les quêtes de cette catégorie ?",
+		"¿Reordenar todas las misiones de esta categoría?",
+		"重新排列该类别中的全部任务？",
+	],
+	[
+		"Restore the quests shipped with QuestPlus? This replaces your current draft.",
+		"Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.",
+		"¿Restaurar las misiones originales? Se reemplazará el borrador.",
+		"恢复 QuestPlus 原始任务？这会替换当前草稿。",
+	],
+	[
+		"Create an empty project? Export your current work first.",
+		"Créer un projet vierge ? Le projet actuel reste exportable seulement s’il a déjà été téléchargé.",
+		"¿Crear un proyecto vacío? Exporta antes el actual.",
+		"创建空项目？请先导出当前项目。",
+	],
+	["Delete this quest permanently?", "Supprimer définitivement cette quête ?", "¿Eliminar esta misión permanentemente?", "永久删除该任务？"],
+	["Delete the category", "Supprimer la catégorie", "Eliminar categoría", "删除类别"],
+	["Invalid locale code (e.g. de_de).", "Code de langue invalide (ex : de_de).", "Código de idioma inválido (ej.: de_de).", "语言代码无效（例如 de_de）。"],
+	[
+		"Minecraft locale code (e.g. de_de, es_es, ja_jp):",
+		"Minecraft locale code (e.g. de_de, es_es, ja_jp):",
+		"Código de idioma Minecraft (p. ej. de_de):",
+		"Minecraft 语言代码（如 de_de）：",
+	],
+	["Invalid version (e.g. 26.4)", "Version invalide, exemple : 26.4", "Versión inválida (ej. 26.4)", "版本无效（例如 26.4）"],
+	["Saved in this browser", "Enregistré dans ce navigateur", "Guardado en el navegador", "已保存到浏览器"],
+	["Local storage unavailable", "Stockage local indisponible", "Almacenamiento local no disponible", "本地存储不可用"],
+	["Checks passed", "Structure du projet vérifiée ✓", "Estructura validada ✓", "验证通过 ✓"],
+	["Fix validation warnings", "Corrige les alertes de validation", "Corrige los avisos de validación", "请修复验证警告"],
+	["No errors", "Aucune erreur.", "Sin errores.", "没有错误。"],
+	["Ready to export", "Prêt à exporter", "Listo para exportar", "可以导出"],
+	["Advanced JSON", "JSON avancé", "JSON avanzado", "高级 JSON"],
+	["Open pack", "Ouvrir un pack QuestPlus", "Abrir paquete", "打开任务包"],
+	["Cancel", "Annuler", "Cancelar", "取消"],
+	["Apply", "Appliquer", "Aplicar", "应用"],
+	["Export blocked", "Export bloqué", "Exportación bloqueada", "导出已阻止"],
+	["Import failed", "Import impossible", "Importación fallida", "导入失败"],
+	["Export failed", "Export impossible", "Exportación fallida", "导出失败"],
+	["Search all items and blocks", "Chercher parmi tous les items et blocs…", "Buscar todos los objetos y bloques", "搜索所有物品和方块"],
+	["Editor settings", "Paramètres de l'éditeur", "Ajustes del editor", "编辑器设置"],
+	["errors", "erreurs", "errores", "错误"],
+	["version warnings", "avertissements de version", "avisos de versión", "版本警告"],
+	["results", "résultats", "resultados", "条结果"],
+	["Break blocks", "Casser des blocs", "Romper bloques", "破坏方块"],
+	["Place blocks", "Placer des blocs", "Colocar bloques", "放置方块"],
+	["Interact with block", "Interagir avec un bloc", "Interactuar con bloque", "与方块交互"],
+	["Obtain items", "Obtenir des objets", "Conseguir objetos", "获取物品"],
+	["Craft items", "Fabriquer", "Fabricar", "合成"],
+	["Smelt items", "Cuire", "Fundir", "熔炼"],
+	["Use item", "Utiliser un objet", "Usar objeto", "使用物品"],
+	["Consume item", "Consommer", "Consumir", "消耗物品"],
+	["Fish item", "Pêcher un objet", "Pescar objeto", "钓取物品"],
+	["Trade", "Échanger", "Intercambiar", "交易"],
+	["Kill entities", "Tuer des entités", "Derrotar entidades", "击败实体"],
+	["Fish entity", "Pêcher une entité", "Pescar entidad", "钓取实体"],
+	["Tame animal", "Apprivoiser", "Domesticar animal", "驯服动物"],
+	["Breed animals", "Reproduire", "Criar animales", "繁殖动物"],
+	["Talk to NPC", "Parler à un PNJ", "Hablar con PNJ", "与 NPC 对话"],
+	["Visit biome", "Visiter un biome", "Visitar bioma", "访问生物群系"],
+	["Visit structure", "Visiter une structure", "Visitar estructura", "访问结构"],
+	["Enter dimension", "Entrer dans une dimension", "Entrar en dimensión", "进入维度"],
+	["Have items", "Posséder des objets", "Tener objetos", "持有物品"],
+	["Travel distance", "Parcourir une distance", "Recorrer distancia", "移动距离"],
+	["Reach location", "Atteindre une position", "Llegar a posición", "到达位置"],
+	["Die", "Mourir", "Morir", "死亡"],
+	["Default / manual", "Manuel", "Manual", "手动"],
+	[
+		"Cannot delete a category with quests.",
+		"Déplace ou supprime les quêtes avant cette catégorie.",
+		"Mueve o elimina las misiones antes de borrar la categoría.",
+		"删除类别前请移动或删除所有任务。",
+	],
+	[
+		"A standard quest needs at least one objective.",
+		"Une quête standard doit avoir au moins un objectif.",
+		"Una misión estándar necesita un objetivo.",
+		"标准任务至少需要一个目标。",
+	],
+	["Select an element to edit.", "Choisis un élément à éditer.", "Selecciona un elemento para editar.", "请选择一个元素进行编辑。"],
+	["Export despite version incompatibilities?", "Exporter malgré ces incompatibilités ?", "¿Exportar pese a las incompatibilidades?", "仍要导出不兼容内容吗？"],
+	["Edit", "Modifier", "Editar", "编辑"],
+	["Selection", "la sélection", "la selección", "所选项目"],
+	["Icon missing", "Icône manquante", "Icono no disponible", "图标缺失"],
+	["Project imported", "Projet importé", "Proyecto importado", "已导入项目"],
+	["Replace current project with", "Remplacer le projet en cours par", "¿Reemplazar proyecto con", "替换当前项目："],
+	["Quest is a prerequisite for", "Cette quête est un prérequis de", "Esta misión es un requisito de", "该任务是前置条件，共"],
+	["Export a ZIP to keep your changes.", "Sauvegarde locale impossible : exportez un ZIP.", "Exporta un ZIP para guardar los cambios.", "请导出 ZIP 保存更改。"],
+];
+ROWS.push(
+	...[
+		["Quest Editor for Minecraft Mods", "Éditeur de quêtes pour Minecraft", "Quest Editor for Minecraft Mods", "Quest Editor for Minecraft Mods"],
+		["Quest Editor", "Éditeur de quêtes", "Quest Editor", "Quest Editor"],
+		["Minecraft landscape", "Paysage Minecraft", "Minecraft landscape", "Minecraft landscape"],
+		["Editor actions", "Actions de l’éditeur", "Editor actions", "Editor actions"],
+		["Preview", "Aperçu", "Preview", "Preview"],
+		["Zoom out", "Dézoomer", "Zoom out", "Zoom out"],
+		["Zoom in", "Zoomer", "Zoom in", "Zoom in"],
+		["Reset zoom", "Réinitialiser le zoom", "Reset zoom", "Reset zoom"],
+		["Show grid", "Afficher la grille", "Show grid", "Show grid"],
+		["Grid size", "Taille de la grille", "Grid size", "Grid size"],
+		["Snap", "Aligner", "Snap", "Snap"],
+		["Add Category", "Ajouter une catégorie", "Add Category", "Add Category"],
+		["Add Quest", "Ajouter une quête", "Add Quest", "Add Quest"],
+		["Open library", "Ouvrir la bibliothèque", "Open library", "Open library"],
+		["Quest Diagram", "Arbre de quêtes", "Quest Diagram", "Quest Diagram"],
+		["Select", "Sélectionner", "Select", "Select"],
+		["Pan", "Déplacer la vue", "Pan", "Pan"],
+		["Drag to move · Scroll to zoom", "Glisser pour déplacer · Molette pour zoomer", "Drag to move · Scroll to zoom", "Drag to move · Scroll to zoom"],
+		["Add annotation", "Ajouter une annotation", "Add annotation", "Add annotation"],
+		["Validation: No issues found", "Validation : aucun problème", "Validation: No issues found", "Validation: No issues found"],
+		["errors", "erreurs", "errors", "errors"],
+		["Saved locally", "Enregistré en local", "Saved locally", "Saved locally"],
+		["Local save failed", "Échec de sauvegarde", "Local save failed", "Local save failed"],
+		["Saving…", "Enregistrement…", "Saving…", "Saving…"],
+		["Quest pack", "Pack de quêtes", "Quest pack", "Quest pack"],
+		["Quest text", "Textes des quêtes", "Quest text", "Quest text"],
+		["Target Minecraft version", "Version Minecraft cible", "Target Minecraft version", "Target Minecraft version"],
+		["Quest preview", "Aperçu de la quête", "Quest preview", "Quest preview"],
+		[
+			"Content preview · Player progress is not simulated",
+			"Aperçu du contenu · La progression du joueur n’est pas simulée",
+			"Content preview · Player progress is not simulated",
+			"Content preview · Player progress is not simulated",
+		],
+		["Quest Library", "Bibliothèque de quêtes", "Quest Library", "Quest Library"],
+		["Collapse library", "Réduire la bibliothèque", "Collapse library", "Collapse library"],
+		["Search categories / quests…", "Rechercher catégories / quêtes…", "Search categories / quests…", "Search categories / quests…"],
+		["Collapse category", "Réduire la catégorie", "Collapse category", "Collapse category"],
+		["Expand category", "Déplier la catégorie", "Expand category", "Expand category"],
+		["No quests yet", "Aucune quête pour le moment", "No quests yet", "No quests yet"],
+		["No results", "Aucun résultat", "No results", "No results"],
+		["Folder", "Dossier", "Folder", "Folder"],
+		["Project options", "Options du projet", "Project options", "Project options"],
+		["Load defaults", "Charger les exemples", "Load defaults", "Load defaults"],
+		["New project", "Nouveau projet", "New project", "New project"],
+		["New Category", "Nouvelle catégorie", "New Category", "New Category"],
+		["Interactive quest tree", "Arbre de quêtes interactif", "Interactive quest tree", "Interactive quest tree"],
+		["Quest overview", "Vue d’ensemble des quêtes", "Quest overview", "Quest overview"],
+		["Quest details", "Détails de la quête", "Quest details", "Quest details"],
+		[
+			"Select a quest to edit its objectives and rewards.",
+			"Sélectionnez une quête pour modifier ses objectifs et récompenses.",
+			"Select a quest to edit its objectives and rewards.",
+			"Select a quest to edit its objectives and rewards.",
+		],
+		["NPC", "PNJ", "NPC", "NPC"],
+		["Quest objectives", "Objectifs de la quête", "Quest objectives", "Quest objectives"],
+		["No rewards", "Aucune récompense", "No rewards", "No rewards"],
+		["Remove objective", "Supprimer l’objectif", "Remove objective", "Remove objective"],
+		["Remove reward", "Supprimer la récompense", "Remove reward", "Remove reward"],
+		[
+			"A quest becomes available when its prerequisites are complete.",
+			"La quête se débloque lorsque ses prérequis sont accomplis.",
+			"A quest becomes available when its prerequisites are complete.",
+			"A quest becomes available when its prerequisites are complete.",
+		],
+		["Once", "Unique", "Once", "Once"],
+		["Infinite", "Infinie", "Infinite", "Infinite"],
+		["Tiered", "À paliers", "Tiered", "Tiered"],
+		["Any", "Au choix", "Any", "Any"],
+		["Sequence", "Séquentiels", "Sequence", "Sequence"],
+		["After last tier", "Après le dernier palier", "After last tier", "After last tier"],
+		["Stop", "Terminer", "Stop", "Stop"],
+		["Repeat last tier", "Répéter le dernier palier", "Repeat last tier", "Repeat last tier"],
+		["Tier", "Palier", "Tier", "Tier"],
+		["Threshold", "Multiplicateur", "Threshold", "Threshold"],
+		["Remove tier", "Supprimer le palier", "Remove tier", "Remove tier"],
+		["Remove this tier and its rewards?", "Supprimer ce palier et ses récompenses ?", "Remove this tier and its rewards?", "Remove this tier and its rewards?"],
+		["NPC interaction", "Interaction avec un PNJ", "NPC interaction", "NPC interaction"],
+		[
+			"An NPC interaction is an objective. Its target is an entity type, not a unique NPC.",
+			"L’interaction avec un PNJ est un objectif. Sa cible est un type d’entité, pas un PNJ unique.",
+			"An NPC interaction is an objective. Its target is an entity type, not a unique NPC.",
+			"An NPC interaction is an objective. Its target is an entity type, not a unique NPC.",
+		],
+		[
+			"To unlock another quest after an interaction, create an NPC interaction quest and select it as a prerequisite. Dialogues and direct NPC unlocks are not available in the current engine.",
+			"Pour débloquer une quête après une interaction, créez une quête avec cet objectif puis choisissez-la comme prérequis. Les dialogues et le déblocage direct par PNJ ne sont pas disponibles dans le moteur actuel.",
+			"To unlock another quest after an interaction, create an NPC interaction quest and select it as a prerequisite. Dialogues and direct NPC unlocks are not available in the current engine.",
+			"To unlock another quest after an interaction, create an NPC interaction quest and select it as a prerequisite. Dialogues and direct NPC unlocks are not available in the current engine.",
+		],
+		["NPC interaction objective", "Objectif d’interaction PNJ", "NPC interaction objective", "NPC interaction objective"],
+		["Localization", "Traductions", "Localization", "Localization"],
+		[
+			"Edit the English source and the selected quest language.",
+			"Modifiez le texte source anglais et la traduction de la langue sélectionnée.",
+			"Edit the English source and the selected quest language.",
+			"Edit the English source and the selected quest language.",
+		],
+		[
+			"Information quests are completed once.",
+			"Les quêtes informatives sont à complétion unique.",
+			"Information quests are completed once.",
+			"Information quests are completed once.",
+		],
+		[
+			"Changing progression removes the tiers and their rewards. Continue?",
+			"Changer de progression supprimera les paliers et leurs récompenses. Continuer ?",
+			"Changing progression removes the tiers and their rewards. Continue?",
+			"Changing progression removes the tiers and their rewards. Continue?",
+		],
+		[
+			"Changing to information removes the objectives. Continue?",
+			"Passer en information supprimera les objectifs. Continuer ?",
+			"Changing to information removes the objectives. Continue?",
+			"Changing to information removes the objectives. Continue?",
+		],
+		["Equipment", "Équipement", "Equipment", "Equipment"],
+		["Context", "Contexte", "Context", "Context"],
+		[
+			"Edit custom conditions in Advanced JSON.",
+			"Modifiez cette condition personnalisée dans le JSON avancé.",
+			"Edit custom conditions in Advanced JSON.",
+			"Edit custom conditions in Advanced JSON.",
+		],
+		[
+			"Edit custom rewards in Advanced JSON.",
+			"Modifiez cette récompense personnalisée dans le JSON avancé.",
+			"Edit custom rewards in Advanced JSON.",
+			"Edit custom rewards in Advanced JSON.",
+		],
+		["Without dying", "Sans mourir", "Without dying", "Without dying"],
+		[
+			"Storage is full. Export your project as ZIP.",
+			"Sauvegarde locale impossible. Exportez votre projet en ZIP.",
+			"Storage is full. Export your project as ZIP.",
+			"Storage is full. Export your project as ZIP.",
+		],
+		["Add translation", "Ajouter une traduction", "Add translation", "Add translation"],
+		["Empty tree", "Arbre vide", "Empty tree", "Empty tree"],
+		["Add a quest to begin", "Ajoutez une quête pour commencer", "Add a quest to begin", "Add a quest to begin"],
+		["Advanced JSON", "JSON avancé", "Advanced JSON", "Advanced JSON"],
+		["Visibility", "Visibilité", "Visibility", "Visibility"],
+		["Hidden until unlocked", "Masquée jusqu’au déblocage", "Hidden until unlocked", "Hidden until unlocked"],
+		["No conditions", "Aucune condition", "No conditions", "No conditions"],
+		["Optional", "Facultatif", "Optional", "Optional"],
+		["Item ID", "Identifiant d’objet", "Item ID", "Item ID"],
+		["Target ID", "Identifiant cible", "Target ID", "Target ID"],
+		["Custom label", "Libellé personnalisé", "Custom label", "Custom label"],
+		["Time limit (s)", "Temps limite (s)", "Time limit (s)", "Time limit (s)"],
+		["Cooldown (s)", "Délai entre répétitions (s)", "Cooldown (s)", "Cooldown (s)"],
+		["Read only", "Lecture seule", "Read only", "Read only"],
+		["Acknowledge", "Acquittement manuel", "Acknowledge", "Acknowledge"],
+		["Framed", "Encadrée", "Framed", "Framed"],
+		["Heading", "Titre", "Heading", "Heading"],
+		["Label", "Texte libre", "Label", "Label"],
+		["Category ID", "Identifiant de catégorie", "Category ID", "Category ID"],
+		["Count", "Quantité", "Count", "Count"],
+		["Completion", "Complétion", "Completion", "Completion"],
+		["Mode", "Mode", "Mode", "Mode"],
+		["Type", "Type", "Type", "Type"],
+		["Action", "Action", "Action", "Action"],
+		["Content", "Contenu", "Content", "Content"],
+		["Browse", "Parcourir", "Browse", "Browse"],
+		["Save", "Enregistrer", "Save", "Save"],
+		["Fit", "Recentrer", "Fit", "Fit"],
+		["Auto-layout", "Disposition auto", "Auto-layout", "Auto-layout"],
+		["Condition type", "Type de condition", "Condition type", "Condition type"],
+		["Condition value", "Valeur de condition", "Condition value", "Condition value"],
+		["Select quest…", "Choisir une quête…", "Select quest…", "Select quest…"],
+		[
+			"Modded items: enter a namespaced ID (e.g. create:brass_ingot) directly.",
+			"Objets moddés : saisissez leur identifiant directement (ex. create:brass_ingot).",
+			"Modded items: enter a namespaced ID (e.g. create:brass_ingot) directly.",
+			"Modded items: enter a namespaced ID (e.g. create:brass_ingot) directly.",
+		],
+		["Icon", "Icône", "Icono", "图标"],
+		["Add", "Ajouter", "Añadir", "添加"],
+		[
+			"Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?",
+			"Passer en information supprimera les objectifs, les paliers et leurs récompenses, ainsi que les contraintes de jeu. Continuer ?",
+			"Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?",
+			"Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?",
+		],
+		["Remove condition", "Supprimer la condition", "Remove condition", "Remove condition"],
+		["Prerequisite quest", "Quête prérequise", "Prerequisite quest", "Prerequisite quest"],
+		[
+			"Remove this quest from its dependents first:",
+			"Retirez d’abord cette quête des prérequis de :",
+			"Remove this quest from its dependents first:",
+			"Remove this quest from its dependents first:",
+		],
+		["Objective", "Objectif", "Objetivo", "目标"],
+	]
+);
+const translations = new Map();
+for (const [en, fr, es, zh] of ROWS) {
+	const row = { en, fr, es, zh };
+	for (const alias of [en, fr, es, zh]) translations.set(alias, row);
 }
-export const UI_LANGUAGES=['en','fr','es','zh'];
-const LOCALE_KEY='questplus.studio.uiLocale';
-export function detectUiLocale(languages=['en']){
- for(const value of languages){
-  const language=String(value||'').toLowerCase().split(/[-_]/)[0];
-  if(UI_LANGUAGES.includes(language))return language;
- }
- return 'en';
+export const UI_LANGUAGES = ["en", "fr", "es", "zh"];
+const LOCALE_KEY = "questplus.studio.uiLocale";
+export function detectUiLocale(languages = ["en"]) {
+	for (const value of languages) {
+		const language = String(value || "")
+			.toLowerCase()
+			.split(/[-_]/)[0];
+		if (UI_LANGUAGES.includes(language)) return language;
+	}
+	return "en";
 }
-export function storedUiLocale(storage=globalThis.localStorage,navigatorLanguages=globalThis.navigator?.languages||['en']){
- try{
-  const saved=storage?.getItem(LOCALE_KEY);
-  if(UI_LANGUAGES.includes(saved))return saved;
- }catch{}
- return detectUiLocale(navigatorLanguages);
+export function storedUiLocale(storage = globalThis.localStorage, navigatorLanguages = globalThis.navigator?.languages || ["en"]) {
+	try {
+		const saved = storage?.getItem(LOCALE_KEY);
+		if (UI_LANGUAGES.includes(saved)) return saved;
+	} catch {}
+	return detectUiLocale(navigatorLanguages);
 }
-let current='en';
-export function getUiLocale(){return current;}
-export function setUiLocale(locale,{save=false,storage=globalThis.localStorage}={}){
- current=UI_LANGUAGES.includes(locale)?locale:'en';
- if(save)try{storage?.setItem(LOCALE_KEY,current);}catch{}
- return current;
+let current = "en";
+export function getUiLocale() {
+	return current;
 }
-export function tUI(value,locale=current){
- const message=String(value??''),row=translations.get(message.trim());
- if(row)return row[locale]??row.en;
- return message;
+export function setUiLocale(locale, { save = false, storage = globalThis.localStorage } = {}) {
+	current = UI_LANGUAGES.includes(locale) ? locale : "en";
+	if (save)
+		try {
+			storage?.setItem(LOCALE_KEY, current);
+		} catch {}
+	return current;
 }
-const originals=new WeakMap();
-const attrOriginals=new WeakMap();
-const ATTRIBUTES=['title','aria-label','placeholder'];
-const EXCLUDED='.cat-name,.quest-label,.node-title,.mini-card-title,.cond-quest-label,.cond-search-result span:last-child,.annotation-node,.generated-id,.cat-sub,.quest-glyph,.mc-icon,.icon-choice span:last-child,.icon-count,#canvas-title,#crumb-category,#coordinates,#json-input,#issues-list';
-/** Localize only UI text nodes; never overwrite user quest text, form values, or IDs. */
-export function translateUI(root=globalThis.document,locale=current){
- if(!root||!root.createTreeWalker)return;
- const walker=root.createTreeWalker(root.body||root,4);
- let node;
- while(node=walker.nextNode()){
-  const parent=node.parentElement;
-  if(!parent||parent.closest(EXCLUDED)||['SCRIPT','STYLE','TEXTAREA','OPTION'].includes(parent.tagName)&&parent.tagName!=='OPTION')continue;
-  if(parent.matches('[data-field]'))continue;
-  const base=originals.get(node)??node.textContent;
-  if(!originals.has(node))originals.set(node,base);
-  const trim=base.trim();const translation=tUI(trim,locale);
-  if(translation!==trim)node.textContent=base.replace(trim,translation);
-  else node.textContent=base;
- }
- for(const el of (root.body||root).querySelectorAll('*')){
-  if(el.closest(EXCLUDED))continue;
-  let original=attrOriginals.get(el);
-  if(!original){original={};for(const key of ATTRIBUTES)if(el.hasAttribute(key))original[key]=el.getAttribute(key);attrOriginals.set(el,original);}
-  for(const [key,value] of Object.entries(original))el.setAttribute(key,tUI(value,locale));
- }
- if(root.documentElement)root.documentElement.lang=locale==='zh'?'zh-CN':locale;
+export function tUI(value, locale = current) {
+	const message = String(value ?? ""),
+		row = translations.get(message.trim());
+	if (row) return row[locale] ?? row.en;
+	return message;
+}
+const originals = new WeakMap();
+const attrOriginals = new WeakMap();
+const ATTRIBUTES = ["title", "aria-label", "placeholder"];
+const EXCLUDED =
+	".cat-name,.quest-label,.node-title,.mini-card-title,.cond-quest-label,.cond-search-result span:last-child,.annotation-node,.generated-id,.cat-sub,.quest-glyph,.mc-icon,.icon-choice span:last-child,.icon-count,#canvas-title,#crumb-category,#coordinates,#json-input,#issues-list";
+
+export function translateUI(root = globalThis.document, locale = current) {
+	if (!root || !root.createTreeWalker) return;
+	const walker = root.createTreeWalker(root.body || root, 4);
+	let node;
+	while ((node = walker.nextNode())) {
+		const parent = node.parentElement;
+		if (!parent || parent.closest(EXCLUDED) || (["SCRIPT", "STYLE", "TEXTAREA", "OPTION"].includes(parent.tagName) && parent.tagName !== "OPTION")) continue;
+		if (parent.matches("[data-field]")) continue;
+		const base = originals.get(node) ?? node.textContent;
+		if (!originals.has(node)) originals.set(node, base);
+		const trim = base.trim();
+		const translation = tUI(trim, locale);
+		if (translation !== trim) node.textContent = base.replace(trim, translation);
+		else node.textContent = base;
+	}
+	for (const el of (root.body || root).querySelectorAll("*")) {
+		if (el.closest(EXCLUDED)) continue;
+		let original = attrOriginals.get(el);
+		if (!original) {
+			original = {};
+			for (const key of ATTRIBUTES) if (el.hasAttribute(key)) original[key] = el.getAttribute(key);
+			attrOriginals.set(el, original);
+		}
+		for (const [key, value] of Object.entries(original)) el.setAttribute(key, tUI(value, locale));
+	}
+	if (root.documentElement) root.documentElement.lang = locale === "zh" ? "zh-CN" : locale;
 }

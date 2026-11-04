@@ -1,40 +1,43 @@
-import React,{useCallback,useMemo} from 'react';
-import {EVENTS,MODES,PROGRESSIONS,objectiveLabel,text} from '../core/project.js';
-import {childrenOf,atPath,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
+import React,{useId,useState} from 'react';
+import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target} from 'lucide-react';
+import {text} from '../core/project.js';
+import {gameLayout} from '../core/game-layout.js';
+import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
 import {versionWarning} from '../ui/minecraft-icons.js';
 import {ItemIcon} from './IconPicker';
-import {RichEditor} from './RichEditor';
-import type {Project,Selection,Category,Quest,Annotation,RichPart} from '../types';
+import {RichEditor,DescriptionEditor} from './RichEditor';
+import {tUI} from '../ui/ui-i18n.js';
+import type {Project,Selection} from '../types';
 
-type Props={project:Project;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;};
+export type Props={project:Project;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;};
 type FieldProps={label:string;value:any;onChange:(value:any)=>void;type?:string;placeholder?:string;rows?:number};
-function Field({label,value,onChange,type='text',placeholder='',rows}:FieldProps){
- return <label className="field"><span>{label}</span>{rows?
-  <textarea rows={rows} value={value??''} placeholder={placeholder} onChange={e=>onChange(e.target.value)}/>:
-  <input type={type} value={value??''} placeholder={placeholder} onChange={e=>onChange(type==='number'?Number(e.target.value):e.target.value)}/>}
+export function Field({label,value,onChange,type='text',placeholder='',rows}:FieldProps){
+ return <label className="field"><span>{tUI(label)}</span>{rows?
+  <textarea aria-label={tUI(label)} rows={rows} value={value??''} placeholder={tUI(placeholder)} onChange={e=>onChange(e.target.value)}/>:
+  <input aria-label={tUI(label)} type={type} value={value??''} placeholder={tUI(placeholder)} onChange={e=>onChange(type==='number'?Number(e.target.value):e.target.value)}/>}
  </label>;
 }
-function Select({label,value,options,onChange}:{label:string;value:any;options:[string,string][];onChange:(v:string)=>void}){
- return <label className="field"><span>{label}</span><select value={value??''} onChange={e=>onChange(e.target.value)}>{options.map(([id,name])=><option value={id} key={id}>{name}</option>)}</select></label>;
+export function Select({label,value,options,onChange}:{label:string;value:any;options:[string,string][];onChange:(v:string)=>void}){
+ return <label className="field"><span>{tUI(label)}</span><select aria-label={tUI(label)} value={value??''} onChange={e=>onChange(e.target.value)}>{options.map(([id,name])=><option value={id} key={id}>{tUI(name)}</option>)}</select></label>;
 }
-function Section({title,children}:{title:string;children:React.ReactNode}){return <section className="section"><div className="section-title">{title}</div>{children}</section>;}
-function Disclosure({title,children}:{title:string;children:React.ReactNode}){return <details className="editor-details"><summary>{title}</summary><div className="details-body">{children}</div></details>;}
-function Translated({value,prefix,label,language,onUpdate}:{value:any;prefix:string;label:string;language:string;onUpdate:(path:string,value:any)=>void}){
- return <div className="translation-stack">
-  <Field label={label+' · en_us'} value={value?.en_us||''} onChange={v=>onUpdate(prefix+'.en_us',v)}/>
-  {language!=='en_us'&&<Field label={label+' · '+language} value={value?.[language]||''} placeholder="Optional" onChange={v=>onUpdate(prefix+'.'+language,v)}/>}
- </div>;
+export function Section({title,children}:{title:string;children:React.ReactNode}){return <section className="section"><div className="section-title">{tUI(title)}</div>{children}</section>;}
+export function Disclosure({title,children}:{title:string;children:React.ReactNode}){
+ const [open,setOpen]=useState(false),id=useId(),Icon=title==='Conditions'?SlidersHorizontal:PenLine;
+ return <div className={'disclosure'+(open?' open':'')}><button type="button" className="disclosure-trigger" aria-expanded={open} aria-controls={id} onClick={()=>setOpen(v=>!v)}><Icon size={14}/><span>{tUI(title)}</span><ChevronDown className="disclosure-icon" size={14}/></button><div className="disclosure-content" id={id} hidden={!open}>{children}</div></div>;
+}
+export function Translated({value,prefix,label,onUpdate}:{value:any;prefix:string;label:string;language?:string;onUpdate:(path:string,value:any)=>void}){
+ return <Field label={tUI(label)+' · en_us'} value={value?.en_us||''} onChange={v=>onUpdate(prefix+'.en_us',v)}/>;
 }
 function IconField({id,onUpdate,onChooseIcon,project}:{id:string;onUpdate:(v:string)=>void;onChooseIcon:()=>void;project:Project}){
- return <div className="field"><span>Icon</span><div className="react-icon-field">
+ return <div className="field"><span>{tUI('Icon')}</span><div className="react-icon-field">
   <ItemIcon id={id}/>
-  <input spellCheck={false} value={id||''} onChange={e=>onUpdate(e.target.value)} placeholder="minecraft:book / mod:item"/>
-  <button type="button" className="button secondary" onClick={onChooseIcon}>Browse</button>
+  <input aria-label={tUI('Icon')} spellCheck={false} value={id||''} onChange={e=>onUpdate(e.target.value)} placeholder="minecraft:book / mod:item"/>
+  <button type="button" className="button secondary" onClick={onChooseIcon}>{tUI('Browse')}</button>
  </div>{versionWarning(project,id)&&<small className="version-alert">{versionWarning(project,id)}</small>}</div>;
 }
-function ConditionEditor({value,scope,project,onChange}:{value:any;scope:string;project:Project;onChange:(next:any)=>void}){
+export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{value:any;scope:string;project:Project;onChange:(next:any)=>void;currentQuestId?:string}){
  const requires=scope==='requires';
- const available=project.quests.filter(q=>q.id).map(q=>[q.id,text(q.title,'en_us')||q.id] as [string,string]);
+ const available=project.quests.filter(q=>q.id&&q.id!==currentQuestId&&!(q.kind==='information'&&q.acknowledgement==='read_only')).map(q=>[q.id,text(q.title,'en_us')||q.id] as [string,string]);
  const mutate=(fn:(root:any)=>any)=>{try{onChange(fn(value))}catch(e){console.error(e)}};
  const newLeaf=()=>requires?{quest:available[0]?.[0]||''}:{dimension:'minecraft:overworld'};
  const add=(path:string,child:any)=>mutate(root=>addChild(root,path,child));
@@ -46,115 +49,103 @@ function ConditionEditor({value,scope,project,onChange}:{value:any;scope:string;
    return <div key={path} className={'cond-group depth-'+Math.min(depth,4)}>
     <div className="cond-group-head"><select className="cond-op" aria-label="Logical operator" value={child.type} onChange={e=>group(path,e.target.value as any)}>
      <option value="and">AND</option><option value="or">OR</option><option value="not">NOT</option>
-    </select><button className="cond-remove" onClick={()=>remove(path)}>×</button></div>
+    </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>
     <div className="cond-children">{child.children.map((c:any,i:number)=>render(c,path?path+'.'+i:String(i),depth+1))}</div>
-    {child.type!=='not'&&<div className="cond-tools"><button onClick={()=>add(path,newLeaf())}>+ {requires?'Quest':'Condition'}</button></div>}
+    {child.type!=='not'&&<div className="cond-tools"><button disabled={requires&&!available.length} onClick={()=>add(path,newLeaf())}>+ {tUI(requires?'Quest':'Condition')}</button></div>}
    </div>;
   }
   if(requires){
-   return <div className="cond-leaf" key={path}><select value={node?.quest||''} onChange={e=>mutate(root=>setAt(root,path,{quest:e.target.value}))}>
-    <option value="">Select quest…</option>{available.map(([id,name])=><option key={id} value={id}>{name}</option>)}
-   </select><button className="cond-remove" onClick={()=>remove(path)}>×</button></div>;
+   return <div className="cond-leaf" key={path}><select aria-label={tUI('Prerequisite quest')} value={node?.quest||''} onChange={e=>mutate(root=>setAt(root,path,{quest:e.target.value}))}>
+    <option value="">{tUI('Select quest…')}</option>{node?.quest&&!available.some(([id])=>id===node.quest)&&<option value={node.quest}>{node.quest}</option>}{available.map(([id,name])=><option key={id} value={id}>{name}</option>)}
+   </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>;
   }
-  const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
+ const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
+ const choices=[...OBJECTIVE_KINDS,['equipment','Equipment'],['position','Position'],['context','Context']];
+ const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},position:{xMin:0},context:{key:'',equals:true}};
+ const setKind=(next:string)=>mutate(root=>setAt(root,path,{[next]:defaults[next]??(next.startsWith('health')?2:'minecraft:overworld')}));
+ const setMember=(member:string,next:any)=>mutate(root=>setAt(root,path,{[kind]:{...val,[member]:next}}));
   return <div className="cond-leaf" key={path}>
-   <select aria-label="Condition type" value={kind} onChange={e=>mutate(root=>setAt(root,path,e.target.value==='sneaking'?{sneaking:true}:{[e.target.value]:e.target.value.startsWith('health')?2:'minecraft:overworld'}))}>
-    {OBJECTIVE_KINDS.map(([key,name]:[string,string])=><option key={key} value={key}>{name}</option>)}
+   <select aria-label={tUI('Condition type')} value={kind} onChange={e=>setKind(e.target.value)}>
+    {choices.map(([key,name]:[string,string])=><option key={key} value={key}>{tUI(name)}</option>)}
+    {!choices.some(([key])=>key===kind)&&<option value={kind}>{kind}</option>}
    </select>
-   {kind==='sneaking'?<select value={String(val)} onChange={e=>mutate(root=>setAt(root,path,{sneaking:e.target.value==='true'}))}><option value="true">True</option><option value="false">False</option></select>:
-    <input aria-label="Condition value" value={val??''} onChange={e=>mutate(root=>setAt(root,path,{[kind]:kind.startsWith('health')?Number(e.target.value):e.target.value}))}/>}
-   <button className="cond-remove" onClick={()=>remove(path)}>×</button>
+   {kind==='sneaking'?<select aria-label={tUI('Condition value')} value={String(val)} onChange={e=>mutate(root=>setAt(root,path,{sneaking:e.target.value==='true'}))}><option value="true">{tUI('Yes')}</option><option value="false">{tUI('No')}</option></select>:
+    kind==='equipment'?<><select aria-label="Equipment slot" value={val?.slot||'mainhand'} onChange={e=>setMember('slot',e.target.value)}>{['mainhand','offhand','head','chest','legs','feet'].map(s=><option key={s} value={s}>{s}</option>)}</select><input aria-label="Equipment item" value={val?.item||''} onChange={e=>setMember('item',e.target.value)}/></>:
+    kind==='position'?<div className="field-row">{['xMin','xMax','yMin','yMax','zMin','zMax'].map(axis=><label className="field" key={axis}><span>{axis}</span><input type="number" value={val?.[axis]??''} onChange={e=>{const next={...val};if(e.target.value==='')delete next[axis];else next[axis]=Number(e.target.value);mutate(root=>setAt(root,path,{position:next}));}}/></label>)}</div>:
+    kind==='context'?<><input aria-label="Context key" value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label="Context value (JSON)" defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:
+    typeof val==='object'?<small>{tUI('Edit custom conditions in Advanced JSON.')}</small>:
+    <input aria-label={tUI('Condition value')} value={val??''} onChange={e=>mutate(root=>setAt(root,path,{[kind]:kind.startsWith('health')?Number(e.target.value):e.target.value}))}/>}
+   <button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button>
   </div>;
  }
- return <div className="condition-builder">{value?render(value,'',0):<div className="cond-empty">No conditions</div>}
+ return <div className="condition-builder">{value?render(value,'',0):<div className="cond-empty">{tUI('No conditions')}</div>}
   <div className="cond-tools root-tools">
-   <button onClick={()=>add('',newLeaf())}>+ {requires?'Quest':'Condition'}</button>
-   <button onClick={()=>group('','and')}>AND</button><button onClick={()=>group('','or')}>OR</button><button onClick={()=>group('','not')}>NOT</button>
+   <button disabled={requires&&!available.length} onClick={()=>add('',newLeaf())}>+ {tUI(requires?'Quest':'Condition')}</button>
+   <button disabled={!value&&requires&&!available.length} onClick={()=>group('','and')}>AND</button><button disabled={!value&&requires&&!available.length} onClick={()=>group('','or')}>OR</button><button disabled={!value&&requires&&!available.length} onClick={()=>group('','not')}>NOT</button>
   </div>
  </div>;
 }
-export function Inspector({project,selection,language,onUpdate,onAction,onChooseIcon,onCondition}:Props){
- const group=project.categories.find(c=>c.id===(selection?.type==='category'?selection?.id:selection?.type==='quest'?project.quests.find(q=>q.id===selection.id)?.category:project.categories.find(c=>c.annotations?.some(a=>a.id===selection.id))?.id));
- if(!selection)return <aside className="inspector"><div className="inspector-head"><h2>Properties</h2></div></aside>;
- const category=selection.type==='category'?project.categories.find(c=>c.id===selection.id):group;
- const quest=selection.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
- const note=selection.type==='annotation'?project.categories.flatMap(c=>c.annotations||[]).find(a=>a.id===selection.id):undefined;
- const update=onUpdate;
+export function Inspector({project,selection,language,onUpdate,onAction,onChooseIcon}:Props){
+ const [copyStatus,setCopyStatus]=useState<'idle'|'copied'|'error'>('idle');
+ const category=selection?.type==='category'?project.categories.find(c=>c.id===selection.id):undefined;
+ const quest=selection?.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
+ const note=selection?.type==='annotation'?project.categories.flatMap(c=>c.annotations||[]).find(a=>a.id===selection.id):undefined;
+ let position=quest?.layout;
+ if(quest&&!position){try{position=gameLayout(project.quests.filter(q=>q.category===quest.category)).points.get(quest.id)}catch{/* Invalid prerequisites remain editable while validation reports the cycle. */}}
+ const changeKind=(next:string)=>{if(next===(quest?.kind||'standard'))return;if(next==='information'&&!confirm(tUI('Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?')))return;onAction('kind:'+next)};
+ const name=quest?text(quest.title,'en_us'):category?text(category.title,'en_us'):note?text(note.text,language):'';
  return <aside className="inspector">
-  <div className="inspector-head"><div className="overline">EDITOR</div><h2>{quest?'Quest':note?'Annotation':'Category'}</h2><p title={selection.id}>{selection.id}</p></div>
-  <div className="inspector-body">
-   {category&&selection.type==='category'&&<>
-    <Section title="Category">
-     <Translated label="Name" value={category.title} prefix="title" language={language} onUpdate={update}/>
-     <IconField id={category.icon} project={project} onUpdate={v=>update('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
-     <Disclosure title="Description"><Translated label="Description" value={category.description} prefix="description" language={language} onUpdate={update}/></Disclosure>
-    </Section>
-    <Section title="Add"><div className="toolbar-row">
-     <button className="button secondary" onClick={()=>onAction('create-quest')}>+ Quest</button>
-     <button className="button secondary" onClick={()=>onAction('create-annotation')}>+ Annotation</button>
-    </div></Section>
-    <Disclosure title="Category ID"><Field label="ID" value={category.id} onChange={v=>update('id',v)}/><button className="button danger" onClick={()=>onAction('delete-category')}>Delete category</button></Disclosure>
-   </>}
-   {note&&<>
-    <Section title="Annotation">
-     <RichEditor key={note.id+'-'+language} locale={language}
+  <div className="inspector-head"><h2>{tUI('Properties')}</h2></div>
+  {!selection?<div className="inspector-body"><p>{tUI('Select an element to edit.')}</p></div>:<>
+   <div className="selection-overview"><div className="selection-summary">
+    {(quest||category)&&<ItemIcon id={(quest||category)!.icon} size={36}/>}
+    <div><strong>{name}</strong><small title={selection.id}>{selection.id}</small></div>
+    <span>{tUI(quest?'Quest':note?'Annotation':'Category')}</span>
+   </div>{quest&&<div className="selection-counts"><span><Target size={14}/>{tUI('Objectives')}: {quest.objectives?.length||0}</span><span><Gift size={14}/>{tUI('Rewards')}: {quest.rewards?.length||0}</span></div>}</div>
+   <div className="inspector-body">
+    {category&&<>
+     <Section title="Category">
+      <Field label="Name" value={category.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/>
+      <IconField id={category.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
+      <Field label="Description" value={category.description?.en_us||''} onChange={v=>onUpdate('description.en_us',v)} rows={3}/>
+     </Section>
+     <Section title="Add"><div className="toolbar-row">
+      <button className="button secondary" onClick={()=>onAction('create-quest')}>+ {tUI('Quest')}</button>
+      <button className="button secondary" onClick={()=>onAction('create-annotation')}>+ {tUI('Annotation')}</button>
+     </div></Section>
+     <Disclosure title="Category ID"><Field label="ID" value={category.id} onChange={v=>onUpdate('id',v)}/><button className="button danger" onClick={()=>onAction('delete-category')}>{tUI('Delete category')}</button></Disclosure>
+    </>}
+    {note&&<>
+     <Section title="Annotation">
+      <RichEditor key={note.id+'-'+language} locale={language}
        content={note.rich?.[language]||[{type:'text',text:note.text?.[language]||note.text?.en_us||'',font:'default'}]}
        onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>
-     <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>update('style',v)}/>
-     <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>update('color',v)}/>
-     <div className="field-row"><Field label="X" type="number" value={note.x} onChange={v=>update('x',v)}/><Field label="Y" type="number" value={note.y} onChange={v=>update('y',v)}/></div>
-    </Section>
-    <Disclosure title="Actions"><button className="button secondary" onClick={()=>onAction('duplicate-annotation')}>Duplicate</button> <button className="button danger" onClick={()=>onAction('delete-annotation')}>Delete</button></Disclosure>
-   </>}
-   {quest&&<>
-    <Section title="Quest">
-     <Translated label="Name" prefix="title" value={quest.title} language={language} onUpdate={update}/>
-     <IconField id={quest.icon} project={project} onUpdate={v=>update('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
-     <Select label="Category" value={quest.category} options={project.categories.map(c=>[c.id,text(c.title,language)])} onChange={v=>update('category',v)}/>
-     <Disclosure title="Description"><Translated label="Description" prefix="description" value={quest.description} language={language} onUpdate={update}/></Disclosure>
-    </Section>
-    <Section title="Objectives">
-     <Select label="Type" value={quest.kind||'standard'} options={[['standard','Quest'],['information','Information']]} onChange={v=>onAction('kind:'+v)}/>
-     {(quest.kind||'standard')==='information'?<>
-      <Translated label="Content" prefix="narrative" value={quest.narrative} language={language} onUpdate={update}/>
-      <Select label="Completion" value={quest.acknowledgement||'manual'} options={[[ 'manual','Acknowledge'],['read_only','Read only']]} onChange={v=>update('acknowledgement',v)}/>
-     </>:<>
-      {(quest.objectives||[]).map((o,i)=><div className="mini-card" key={o.id+'-'+i}>
-       <div className="mini-card-head"><strong>{i+1}. {objectiveLabel(o,language)}</strong><button className="tiny danger" title="Remove objective" onClick={()=>onAction('remove-objective',i)}>×</button></div>
-       <Select label="Action" value={o.event} options={[...(EVENTS as [string,string][]),...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event] as [string,string]]:[])]} onChange={v=>update('objectives.'+i+'.event',v)}/>
-       <Field label="Target ID" value={o.target} onChange={v=>update('objectives.'+i+'.target',v)} placeholder="minecraft:cobblestone"/>
-       <Field label="Count" type="number" value={o.count} onChange={v=>update('objectives.'+i+'.count',Math.max(1,v))}/>
-       <Disclosure title="Custom label"><Translated label="Text" prefix={'objectives.'+i+'.text'} value={o.text} language={language} onUpdate={update}/></Disclosure>
-       <Disclosure title="Conditions"><ConditionEditor project={project} scope={'objective:'+i} value={o.conditions} onChange={v=>onCondition('objective:'+i,v)}/></Disclosure>
-      </div>)}
-      <button className="add-line" onClick={()=>onAction('add-objective')}>+ Objective</button>
-     </>}
-    </Section>
-    <Section title="Position"><div className="field-row">
-     <Field label="X" type="number" value={quest.layout?.x??0} onChange={v=>update('layout.x',v)}/>
-     <Field label="Y" type="number" value={quest.layout?.y??0} onChange={v=>update('layout.y',v)}/>
-    </div></Section>
-    <Disclosure title="Prerequisites"><ConditionEditor value={quest.requires} scope="requires" project={project} onChange={v=>onCondition('requires',v)}/></Disclosure>
-    <Disclosure title="Rewards">
-     {(quest.rewards||[]).map((r,i)=><div className="mini-card" key={i}>
-      <div className="mini-card-head"><strong>{r.type==='experience'?'Experience':'Item'}</strong><button className="tiny danger" onClick={()=>onAction('remove-reward',i)}>×</button></div>
-      {r.type==='experience'?<Field label="XP" type="number" value={r.amount} onChange={v=>update('rewards.'+i+'.amount',v)}/>:
-       r.type==='item'?<><Field label="Item ID" value={r.item} onChange={v=>update('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>update('rewards.'+i+'.count',v)}/></>:<small>Edit custom rewards in Advanced JSON.</small>}
-     </div>)}
-     <div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-item')}>+ Item</button></div>
-    </Disclosure>
-    <Disclosure title="Progression">
-     <Select label="Mode" value={quest.progression} options={PROGRESSIONS.map((x:string)=>[x,x])} onChange={v=>update('progression',v)}/>
-     <Select label="Objectives" value={quest.objectiveMode||'all'} options={MODES.map((x:string)=>[x,x])} onChange={v=>update('objectiveMode',v)}/>
-     <label className="checkbox-row"><input type="checkbox" checked={!!quest.hidden} onChange={e=>update('hidden',e.target.checked)}/> Hidden until unlocked</label>
-     <Field label="Cooldown (s)" type="number" value={quest.cooldownSeconds||0} onChange={v=>update('cooldownSeconds',v)}/>
-     <Field label="Time limit (s)" type="number" value={quest.timeLimitSeconds||0} onChange={v=>update('timeLimitSeconds',v)}/>
-    </Disclosure>
-    <Disclosure title="Quest ID & actions"><p className="generated-id">{quest.id}</p>
-     <button className="button secondary" onClick={()=>onAction('duplicate-quest')}>Duplicate</button> <button className="button danger" onClick={()=>onAction('delete-quest')}>Delete</button>
-    </Disclosure>
-   </>}
-  </div>
-  <div className="inspector-footer"><button className="button secondary block" onClick={()=>onAction('advanced-json')}>Advanced JSON</button></div>
+      <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>onUpdate('style',v)}/>
+      <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
+      <div className="field-row"><Field label="X" type="number" value={note.x} onChange={v=>onUpdate('x',v)}/><Field label="Y" type="number" value={note.y} onChange={v=>onUpdate('y',v)}/></div>
+     </Section>
+    </>}
+    {quest&&<>
+     <Section title="Quest">
+      <label className="field"><span>{tUI('Quest ID')}</span><span className="id-field"><input aria-label={tUI('Quest ID')} readOnly value={quest.id}/><button type="button" className="icon-button" aria-label={tUI('Copy quest ID')} title={copyStatus==='copied'?tUI('Copied'):copyStatus==='error'?tUI('Copy unavailable'):tUI('Copy quest ID')} onClick={async()=>{try{await navigator.clipboard.writeText(quest.id);setCopyStatus('copied')}catch{setCopyStatus('error')}}}>{copyStatus==='copied'?<Check size={16}/>:<Copy size={16}/>}</button></span>{copyStatus==='error'&&<small role="status">{tUI('Copy unavailable')}</small>}</label>
+      <Field label="Title" value={quest.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/>
+      <Select label="Type" value={quest.kind||'standard'} options={[['standard','Quest'],['information','Information']]} onChange={changeKind}/>
+      <Select label="Category" value={quest.category} options={project.categories.map(c=>[c.id,text(c.title,language)])} onChange={v=>onUpdate('category',v)}/>
+      <IconField id={quest.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
+      <div className="description-field"><span>{tUI('Description')}</span><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us} onChange={v=>onUpdate('description.en_us',v)}/></div>
+     </Section>
+     <Section title="Position"><div className="field-row">
+      <Field label="X" type="number" value={position?.x??0} onChange={v=>onUpdate('layout.x',v)}/>
+      <Field label="Y" type="number" value={position?.y??0} onChange={v=>onUpdate('layout.y',v)}/>
+     </div></Section>
+     <Section title="Visibility"><label className="checkbox-row"><input type="checkbox" checked={!!quest.hidden} onChange={e=>onUpdate('hidden',e.target.checked)}/> {tUI('Hidden until unlocked')}</label></Section>
+    </>}
+   </div>
+   <div className="inspector-footer">
+    {quest&&<><button className="button secondary" onClick={()=>onAction('duplicate-quest')}>{tUI('Duplicate')}</button><button className="button danger" onClick={()=>onAction('delete-quest')}>{tUI('Delete')}</button></>}
+    {note&&<><button className="button secondary" onClick={()=>onAction('duplicate-annotation')}>{tUI('Duplicate')}</button><button className="button danger" onClick={()=>onAction('delete-annotation')}>{tUI('Delete')}</button></>}
+    <button className="button secondary" onClick={()=>onAction('advanced-json')}>{tUI('Advanced JSON')}</button>
+   </div>
+  </>}
  </aside>;
 }

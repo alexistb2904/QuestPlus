@@ -80,3 +80,14 @@
 Le brief client ultérieur autorise la correction de la tablette sur `fix/native-first-person-tablet`. Voir [le rapport natif](reviews/native-tablet.md) : build Java 25, tests unitaires et serveur, cinq configurations Minecraft avec captures et interactions sur la face 3D. Cette validation ne change pas les cases backend ci-dessus et ne constitue pas une validation multijoueur avec deux vrais clients ni Vulkan/shaders tiers. Aucune fusion dans `main`.
 
 Retouches du 4 novembre : HUD masqué, bras venant du bas, close sans flash, GUI suréchantillonné, flou vanilla, catégories défilables, blocs objectifs/récompenses et pose extérieure exportée de Blockbench. Les nouvelles captures et contrôles sont dans le même rapport. Le test extérieur utilise deux avatars RemotePlayer et les paquets du serveur intégré ; il ne remplace pas deux connexions réseau réelles.
+
+
+## Éditeur web — demande du 4 novembre 2026
+
+Cette demande ultérieure autorise explicitement la refonte du web editor, indépendamment du périmètre backend initial ci-dessus.
+La bibliothèque, le graphe et les propriétés reprennent la référence Minecraft fournie ; les réglages des quêtes sont regroupés en onglets.
+Vérifié dans cette session : TypeScript, 30 tests Node, build Vite, workflow navigateur (édition/annulation, progression atomique, PNJ,
+export et réimport ZIP, déplacement avec accrochage, zoom et sauvegarde locale), captures 1440/1672/390 px.
+Le build Java 25 a également passé 81 tests unitaires et les quatre GameTests serveur requis. Les interactions PNJ se configurent avec
+`npc_interact` et des quêtes prérequises ; aucune définition de PNJ unique ou de dialogue à choix n’a été ajoutée au moteur.
+Les tests manuels avec deux clients, les lecteurs d’écran, les charges réelles et les reprises après crash restent hors de cette validation.

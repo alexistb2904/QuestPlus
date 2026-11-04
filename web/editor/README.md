@@ -66,3 +66,40 @@ of truth for Minecraft compatibility:
 The editor root contains only application configuration, the HTML entry point,
 tests, documentation and the Windows launcher; generated `dist/` and
 `node_modules/` are ignored by Git.
+
+
+## Minecraft workspace (4 November 2026)
+
+The desktop editor follows the supplied reference: wood quest library, stone controls,
+labelled graph cards, violet selection, details tabs below the graph and persistent
+properties on the right. At narrow widths these panels stack; tabs remain horizontally
+scrollable. The design contract is in `../../DESIGN.md`.
+
+- Save / Ctrl+S stores the browser draft; the footer reports success or storage failure.
+  Export ZIP creates the server pack. These operations are separate.
+- Grid visibility/spacing, snapping, selection/pan tools, fitting, wheel zoom and
+  pointer/touch movement operate without changing Minecraft's layout coordinate system.
+- Details expose objectives, rewards, prerequisites, progression/tiers/timers/no-death,
+  information quests, translations and advanced JSON. Rich annotations remain editable.
+- PNJ/NPC uses `npc_interact` with an entity-type target. To unlock a follow-up quest,
+  make the interaction quest its prerequisite. Unique NPC definitions, direct NPC unlocks
+  and branching dialogues are outside the current server schema.
+- Progression changes are one undoable operation. Converting to information warns about
+  removed mechanics; converting back preserves narrative text. Quests with dependents
+  and categories containing quests cannot be deleted until their references/content are moved.
+
+Executed checks on 2026-11-04: TypeScript, 30 Node tests, production build, browser workflow
+(undo/redo, conversion cancel/preservation, NPC objective, blocked referenced deletion,
+preview, ZIP download/reimport, snapped drag and undo, wheel zoom, saved reload), and desktop/mobile captures.
+The repository Java 25 `gradlew.bat build` also passed (81 unit tests and 4 required server GameTests).
+These checks do not establish real two-client multiplayer behavior, screen-reader usability
+or the future NPC/dialogue manager.
+
+To repeat the browser workflow against a disposable browser session with the bundled
+four categories and thirteen quests, start Vite, open it with Playwright CLI, then run
+`playwright-cli run-code --filename=web/editor/tests/browser-workflow.mjs` from the repository root.
+The workflow creates its ZIP artifact under `output/playwright/`. Its final result is stored
+in sessionStorage key `__studioWorkflowResult` because native confirmation dialogs can
+make the CLI return before the whole async workflow has finished.
+
+Asset provenance and font license: `public/ASSETS.md`, `public/fonts/OFL.txt`.

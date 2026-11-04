@@ -13,6 +13,7 @@ import net.minecraft.client.input.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.*;
@@ -47,7 +48,10 @@ public final class QuestScreen extends Screen {
     private long filteredSequence=-2,filteredCatalogue=-2;
     private String filteredQuery,filteredLanguage,filteredFilter;
     private double cachedLeft=Double.NaN,cachedTop,cachedRight,cachedBottom;
-    private record DetailRow(List<String> lines,ItemStack icon,String progress) {}
+    private record DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted) {
+        DetailRow(List<String> lines,ItemStack icon,String progress) { this(lines,icon,progress,null); }
+        int lineCount() { return formatted==null ? lines.size() : formatted.size(); }
+    }
     private List<DetailRow> detailLines=List.of();
     private String detailQuest,detailLanguage;
     private long detailSequence=-2;
@@ -341,7 +345,12 @@ public final class QuestScreen extends Screen {
         append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
         String description=state.text(q.description());
         List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
-        if (!QuestPresentation.redundantDescription(description,labels)) append(lines,description,w);
+        var formattedDescription=QuestDescriptionText.prepare(description);
+        String plainDescription=formattedDescription.plain();
+        if (!QuestPresentation.redundantDescription(plainDescription,labels) && !plainDescription.isBlank()) {
+            var formatted=font.split(formattedDescription.component(),Math.max(1,w)).stream().map(formattedDescription::restore).toList();
+            lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,formatted));
+        }
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
         var p=state.progress(q.id()); var counters=p.getAsJsonObject("counters");
         append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString(),w);
@@ -372,14 +381,21 @@ public final class QuestScreen extends Screen {
                     g.item(row.icon(),x+3,rowY+2);
                     textX+=23;
                 }
-                for (int i=0;i<row.lines().size();i++) QuestSkin.text(g,font,row.lines().get(i),textX,rowY+(!row.icon().isEmpty() ? 3 : 0)+i*10,QuestSkin.INK,false);
-                if (row.progress()!=null) QuestSkin.text(g,font,row.progress(),x+w-3-font.width(row.progress()),rowY+3+row.lines().size()*10,QuestSkin.DIM,false);
+                for (int i=0;i<row.lineCount();i++) {
+                    int textY=rowY+(!row.icon().isEmpty() ? 3 : 0)+i*10;
+                    if (row.formatted()==null) QuestSkin.text(g,font,row.lines().get(i),textX,textY,QuestSkin.INK,false);
+                    else {
+                        g.pose().pushMatrix(); g.pose().translate(textX,textY); g.pose().scale(QuestSkin.TEXT_SCALE);
+                        g.text(font,row.formatted().get(i),0,0,QuestSkin.INK,false); g.pose().popMatrix();
+                    }
+                }
+                if (row.progress()!=null) QuestSkin.text(g,font,row.progress(),x+w-3-font.width(row.progress()),rowY+3+row.lineCount()*10,QuestSkin.DIM,false);
             }
             rowY+=h;
         }
         g.disableScissor();
     }
-    private int detailHeight(DetailRow row) { return row.icon().isEmpty() ? row.lines().size()*10+4 : Math.max(22,row.lines().size()*10+6+(row.progress()!=null ? 10 : 0)); }
+    private int detailHeight(DetailRow row) { return row.icon().isEmpty() ? row.lineCount()*10+4 : Math.max(22,row.lineCount()*10+6+(row.progress()!=null ? 10 : 0)); }
     private List<String> wrap(String text,int width) {
         List<String> lines=new ArrayList<>();
         for (var line:font.split(Component.literal(text),Math.max(1,width))) {

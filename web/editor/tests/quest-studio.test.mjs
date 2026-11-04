@@ -98,3 +98,48 @@ test('information quests and annotation localization validate',()=>{
   p.categories[0].annotations=[annotation('intro',20,40)];
   assert.deepEqual(validate(p),[]);
 });
+
+test('tiered quests validate thresholds, reward bounds and export round trip',async()=>{
+ const p=emptyProject(),cat=category('questplus:tiers'),q=quest(cat,'questplus:tiers/stone');
+ p.categories.push(cat);p.quests.push(q);
+ q.progression='tiered';q.objectives[0].count=16;q.afterLast='repeat';
+ q.tiers=[{id:'first',threshold:1,rewards:[{type:'item',item:'minecraft:diamond',count:2,text:{en_us:'Diamond'}}]},
+          {id:'second',threshold:5,rewards:[{type:'experience',amount:20}]}];
+ assert.deepEqual(validate(p),[]);
+ const after=importDocuments(await readZip(makeZip(fileMap(p))));
+ assert.deepEqual(after.quests[0],q);assert.deepEqual(validate(after),[]);
+ const cases=[
+  [x=>x.tiers[1].id='first','ID de palier'],
+  [x=>x.tiers[1].threshold=1,'Seuils de paliers'],
+  [x=>x.tiers[1].threshold=1000000000,'Quantité d’objectif'],
+  [x=>x.tiers[0].rewards[0].count=0,'Récompense objet'],
+  [x=>x.tiers[0].rewards[0].text.fr_fr='','Texte récompense'],
+  [x=>x.afterLast='forever','dernier palier'],
+  [x=>x.progression='once','Liste de paliers']
+ ];
+ for(const [edit,message] of cases){
+  const broken=structuredClone(p);edit(broken.quests[0]);
+  assert.ok(validate(broken).some(issue=>issue.message.includes(message)),message);
+ }
+});
+
+test('information, timers and structured conditions reject definitions the server cannot parse',()=>{
+ const p=emptyProject(),cat=category('questplus:rules'),q=quest(cat,'questplus:rules/test');
+ p.categories.push(cat);p.quests.push(q);
+ q.objectives[0].conditions={and:[{equipment:{slot:'mainhand',item:'minecraft:stick'}},{position:{xMin:0,xMax:5}},{context:{key:'questplus:test',equals:true}}]};
+ q.noDeath=true;q.cooldownSeconds=0;q.timeLimitSeconds=60;
+ assert.deepEqual(validate(p),[]);
+ const cases=[
+  [x=>x.objectives[0].conditions.and[0].equipment.slot='invalid','Condition'],
+  [x=>x.objectives[0].conditions.and[1].position.xMax=-1,'Condition'],
+  [x=>x.objectives[0].conditions.and[2].context.key='','Condition'],
+  [x=>x.timeLimitSeconds=0,'Limite de temps'],
+  [x=>x.noDeath='yes','sans mort'],
+  [x=>x.acknowledgement='manual','lecture'],
+  [x=>{x.kind='information';x.objectives=[];x.noDeath=false;delete x.timeLimitSeconds;x.acknowledgement='read_only';x.rewards=[{type:'experience',amount:1}]},'aucune récompense']
+ ];
+ for(const [edit,message] of cases){
+  const broken=structuredClone(p);edit(broken.quests[0]);
+  assert.ok(validate(broken).some(issue=>issue.message.includes(message)),message);
+ }
+});

@@ -212,9 +212,6 @@ public final class QuestRuntime implements AutoCloseable {
         if (target.startsWith("#")) {
             if (values.getTags().noneMatch(t -> t.key().location().equals(id))) throw new IllegalArgumentException("Unknown " + kind + " tag " + target);
         } else if (!values.containsKey(id)) {
-            // Icons are presentation-only: keep future-version quest packs loadable.
-            // The client renders minecraft:barrier when this registry entry is unavailable.
-            // Objective targets, conditions and item rewards remain strictly validated.
             if (kind.equals("icon")) QuestPlusMod.LOGGER.warn("Quest Plus: icon {} unavailable on this Minecraft version; using client fallback", target);
             else throw new IllegalArgumentException("Unknown " + kind + " id " + target);
         }

@@ -16,7 +16,7 @@ export const itemExists=id=>isVanilla(id)&&itemSet.has(id.slice('minecraft:'.len
 export const blockExists=id=>isVanilla(id)&&blockSet.has(id.slice('minecraft:'.length));
 export const inVanillaRegistry=id=>itemExists(id)||blockExists(id);
 export const knownVersion=id=>inVanillaRegistry(id)?VERSION:null;
-const textureName=id=>encodeURIComponent(String(id).split(':').slice(1).join(':').split('/').pop());
+const textureName=id=>{const name=String(id).split(':').slice(1).join(':').split('/').pop();return encodeURIComponent(name==='compass'?'compass_16':name==='clock'?'clock_00':name)};
 export function iconUrl(id,version=VERSION){
  if(!isVanilla(id))return '';
  return 'https://assets.mcasset.cloud/'+encodeURIComponent(version)+'/assets/minecraft/textures/item/'+textureName(id)+'.png';

@@ -129,3 +129,83 @@ AVERTISSEMENT: Unmatched cancel notification for request id 10
 2026.11.04 00:17:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
 2026.11.04 00:17:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
 2026.11.04 00:19:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 11:08:52 INFO  Started: Metals version 1.6.9 in folders 'C:\Users\alexi\Downloads\QuestPlus' for client Visual Studio Code 1.144.1.
+2026.11.04 11:08:54 INFO  Memory monitor started
+2026.11.04 11:08:59 WARN  Using H2 2.5.250 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.11.04 11:08:59 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 11:09:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 11:09:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 11:09:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 11:09:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+nov. 04, 2026 11:09:00 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 6
+2026.11.04 11:09:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+nov. 04, 2026 11:13:18 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFOS: Unsupported notification method: $/setTrace
+2026.11.04 11:30:18 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\gametest\java\dev\questplus\fabric\client\QuestClientGameTest.java. Using fallback presentation compiler.
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+nov. 04, 2026 12:36:29 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 14
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:35 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+nov. 04, 2026 12:36:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 22
+2026.11.04 12:36:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+nov. 04, 2026 12:36:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 28
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:36 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+nov. 04, 2026 12:36:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 32
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+nov. 04, 2026 12:36:36 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 34
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:36 INFO  Created report: Optional[file:///C:/Users/alexi/Downloads/QuestPlus/src/main/java/dev/questplus/fabric/QuestRuntime.java]
+2026.11.04 12:36:36 INFO  empty definition using pc, found symbol in pc: _empty_/BuiltInRegistries# (full report at: "C:\Users\alexi\Downloads\QuestPlus\.metals\.reports\metals-full\2026-11-04\r_empty-definition_12-36-36-825.md")
+2026.11.04 12:36:48 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:48 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+nov. 04, 2026 12:36:48 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 38
+2026.11.04 12:36:48 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:48 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:48 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:50 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:50 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+nov. 04, 2026 12:36:50 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 43
+2026.11.04 12:36:50 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:50 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:50 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:51 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:52 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 INFO  Created report: Optional[file:///C:/Users/alexi/Downloads/QuestPlus/src/main/java/dev/questplus/fabric/QuestRuntime.java]
+2026.11.04 12:36:53 INFO  empty definition using pc, found symbol in pc: _empty_/`<any>`#key#location#equals# (full report at: "C:\Users\alexi\Downloads\QuestPlus\.metals\.reports\metals-full\2026-11-04\r_empty-definition_12-36-53-953.md")
+nov. 04, 2026 12:36:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 65
+2026.11.04 12:36:53 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:54 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:54 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.
+2026.11.04 12:36:53 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\src\main\java\dev\questplus\fabric\QuestRuntime.java. Using fallback presentation compiler.

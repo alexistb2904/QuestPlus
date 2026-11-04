@@ -81,7 +81,7 @@ test('React quest tree supports pointer drag, pinch, wheel and Minecraft layout 
  assert.match(rich,/toEmbeddedImage/);
  assert.match(app,/IconPicker/);
  assert.ok(css.includes('touch-action:none'));
- assert.ok(css.includes('--pane:#30231e'));
- assert.ok(css.includes('--text:#e3cdb1'));
+ assert.match(css,/--pane:#242327/);
+ assert.match(css,/--text:#f1eee9/);
  assert.ok(!html.includes('editor.js'));
 });

@@ -8,3 +8,8 @@ run-gametest/
 web/editor/node_modules/
 web/editor/dist/
 web/editor/.vite/
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/
+.impeccable/review/

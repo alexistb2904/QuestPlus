@@ -65,6 +65,39 @@ export function references(req,out=[]){
 export function validate(p){
   const issues=[], seenC=new Set(),seenQ=new Set();
   const fail=(where,message)=>issues.push({where,message});
+  const translations=value=>value&&typeof value==='object'&&!Array.isArray(value)&&typeof value.en_us==='string'&&value.en_us.trim()&&Object.values(value).every(s=>typeof s==='string'&&s.trim());
+  const validateRewards=(list,label)=>{
+    if(!Array.isArray(list)){fail(label,'Liste de récompenses invalide');return;}
+    if(list.length>64)fail(label,'64 récompenses maximum');
+    for(const r of list){
+      if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
+      if(r.type==='experience'&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
+      else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
+      else if(!['experience','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
+      if(Object.hasOwn(r,'text')&&!translations(r.text))fail(label,'Texte récompense : traduction anglaise et textes non vides requis');
+    }
+  };
+  const validateCondition=(root,label,prerequisite=false)=>{
+    let nodes=0;
+    const visit=(node,depth)=>{
+      if(++nodes>256||depth>16||!node||typeof node!=='object'||Array.isArray(node)||Object.keys(node).length!==1)return false;
+      const [key,value]=Object.entries(node)[0];
+      if(key==='and'||key==='or')return Array.isArray(value)&&value.length>0&&value.every(child=>visit(child,depth+1));
+      if(key==='not')return visit(value,depth+1);
+      if(prerequisite)return key==='quest'&&typeof value==='string'&&ID.test(value);
+      if(['dimension','tool','biome','effect'].includes(key))return typeof value==='string'&&ID.test(value);
+      if(key==='sneaking')return typeof value==='boolean';
+      if(['healthAtMost','healthAtLeast'].includes(key))return Number.isFinite(value)&&value>=0;
+      if(key==='equipment')return value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&['head','chest','legs','feet','mainhand','offhand'].includes(value.slot)&&typeof value.item==='string'&&ID.test(value.item);
+      if(key==='position'){
+        if(!value||typeof value!=='object'||Array.isArray(value)||!Object.keys(value).length)return false;
+        return Object.entries(value).every(([k,v])=>/^[xyz](Min|Max)$/.test(k)&&Number.isFinite(v))&&['x','y','z'].every(axis=>value[axis+'Min']===undefined||value[axis+'Max']===undefined||value[axis+'Min']<=value[axis+'Max']);
+      }
+      if(key==='context')return value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&typeof value.key==='string'&&value.key.trim()&&['string','number','boolean'].includes(typeof value.equals)&&(typeof value.equals!=='number'||Number.isFinite(value.equals));
+      return ID.test(key);
+    };
+    if(!visit(root,0))fail(label,prerequisite?'Prérequis invalide':'Condition d’objectif invalide');
+  };
   if(!p || !Array.isArray(p.categories)||!Array.isArray(p.quests))return [{where:'Projet',message:'Format de projet invalide'}];
   if(p.quests.length>5000)fail('Projet','Plus de 5 000 quêtes');
   for(const c of p.categories){
@@ -102,28 +135,51 @@ export function validate(p){
     if(!ID.test(q.icon||''))fail(label,'Icône invalide');
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
-    if(q.objectiveMode&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
+    if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
     if(q.layout&&(!Number.isFinite(q.layout.x)||!Number.isFinite(q.layout.y)))fail(label,'Position invalide');
     const info=q.kind==='information';
-    if(info && (q.schemaVersion!==2||q.progression!=='once'||q.objectives?.length))fail(label,'Quête informative incompatible');
+    if(Object.hasOwn(q,'kind')&&!['standard','information'].includes(q.kind))fail(label,'Type de quête invalide');
+    if(Object.hasOwn(q,'acknowledgement')&&(!info||!['manual','read_only'].includes(q.acknowledgement)))fail(label,'Mode de lecture invalide');
+    if(info && (q.schemaVersion!==2||q.progression!=='once'||q.objectives?.length||Object.hasOwn(q,'tiers')||Object.hasOwn(q,'objectiveMode')||q.cooldownSeconds||q.timeLimitSeconds||q.noDeath))fail(label,'Quête informative incompatible');
+    if(info&&q.acknowledgement==='read_only'&&q.rewards?.length)fail(label,'Lecture seule : aucune récompense autorisée');
+    if(Object.hasOwn(q,'narrative')&&!translations(q.narrative))fail(label,'Texte narratif : traduction anglaise et textes non vides requis');
+    if(!Array.isArray(q.objectives))fail(label,'Liste d’objectifs invalide');
     if(!info && (!Array.isArray(q.objectives)||!q.objectives.length))fail(label,'Au moins un objectif requis');
     if((q.objectives||[]).length>256)fail(label,'256 objectifs maximum');
     const objs=new Set();
-    for(const o of q.objectives||[]){
+    for(const o of Array.isArray(q.objectives)?q.objectives:[]){
+      if(!o||typeof o!=='object'||Array.isArray(o)){fail(label,'Objectif invalide');continue;}
       if(!LOCAL.test(o.id)||objs.has(o.id))fail(label,'Objectif : ID invalide ou dupliqué');
       objs.add(o.id);
       if(!EVENT_KEYS.includes(o.event)&&!ID.test(o.event))fail(label,'Événement non reconnu');
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
-      if(o.text && !o.text.en_us?.trim())fail(label,'Texte objectif : en_us requis');
+      if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
+      if(Object.hasOwn(o,'conditions'))validateCondition(o.conditions,label);
     }
-    if((q.rewards||[]).length>64)fail(label,'64 récompenses maximum');
-    for(const r of q.rewards||[]){
-      if(r.type==='experience'&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
-      else if(r.type==='item'&&(!ID.test(r.item)||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
-      else if(!['experience','item'].includes(r.type)&&!ID.test(r.type||''))fail(label,'Type de récompense invalide');
+    if(Object.hasOwn(q,'requires'))validateCondition(q.requires,label,true);
+    validateRewards(q.rewards,label);
+    if(Object.hasOwn(q,'cooldownSeconds')&&(!Number.isInteger(q.cooldownSeconds)||q.cooldownSeconds<0||q.cooldownSeconds>31536000))fail(label,'Délai invalide');
+    if(Object.hasOwn(q,'timeLimitSeconds')&&(!Number.isInteger(q.timeLimitSeconds)||q.timeLimitSeconds<1||q.timeLimitSeconds>31536000))fail(label,'Limite de temps invalide');
+    if(Object.hasOwn(q,'noDeath')&&typeof q.noDeath!=='boolean')fail(label,'Contrainte sans mort invalide');
+    if(Object.hasOwn(q,'hidden')&&typeof q.hidden!=='boolean')fail(label,'Visibilité invalide');
+    if(Object.hasOwn(q,'afterLast')&&(q.progression!=='tiered'||!['stop','repeat'].includes(q.afterLast)))fail(label,'Action après le dernier palier invalide');
+    if(q.progression==='tiered'&&(!Array.isArray(q.tiers)||!q.tiers.length))fail(label,'Paliers requis');
+    if(Object.hasOwn(q,'tiers')){
+      if(q.progression!=='tiered'||!Array.isArray(q.tiers)||q.tiers.length>256)fail(label,'Liste de paliers invalide');
+      if(Array.isArray(q.tiers)){
+        const ids=new Set();let previous=0;
+        for(const tier of q.tiers){
+          if(!tier||typeof tier!=='object'||Array.isArray(tier)){fail(label,'Palier invalide');continue;}
+          if(!LOCAL.test(tier.id||'')||ids.has(tier.id))fail(label,'ID de palier invalide ou dupliqué');
+          ids.add(tier.id);
+          if(!Number.isInteger(tier.threshold)||tier.threshold<1||tier.threshold>1000000000||tier.threshold<=previous)fail(label,'Seuils de paliers : entiers strictement croissants requis');
+          if((Array.isArray(q.objectives)?q.objectives:[]).some(o=>Number.isInteger(o?.count)&&Number.isInteger(tier.threshold)&&o.count*tier.threshold>1000000000))fail(label,'Quantité d’objectif trop grande pour ce palier');
+          previous=tier.threshold;
+          validateRewards(tier.rewards,label);
+        }
+      }
     }
-    if(q.progression==='tiered'&&!(q.tiers||[]).length)fail(label,'Paliers requis');
     if(q.schemaVersion===1&&['objectiveMode','tiers','afterLast','cooldownSeconds','timeLimitSeconds','noDeath'].some(k=>Object.hasOwn(q,k)))fail(label,'Fonctions v2 interdites dans le schéma v1');
   }
   const questMap=new Map(p.quests.map(q=>[q.id,q])),state=new Map();
@@ -152,7 +208,7 @@ export function fileMap(p){
   // on quest/category/config JSON objects.
   put('queststudio-compatibility.json',{
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
-    iconVersions:p.iconVersions||{}
+    iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
   for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',c);
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
@@ -167,7 +223,9 @@ export function importDocuments(documents){
     let obj;try{obj=JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON invalide dans '+name+' : '+e.message);}
     if(/(?:^|\/)queststudio-compatibility\.json$/i.test(path)){
       p.targetMinecraftVersion=obj.targetMinecraftVersion||'26.3';
-      p.iconVersions=obj.iconVersions||{};continue;
+      p.iconVersions=obj.iconVersions||{};
+      if(obj.editorLocales!==undefined&&(!Array.isArray(obj.editorLocales)||obj.editorLocales.length>128||obj.editorLocales.some(id=>typeof id!=='string'||!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))))throw Error('Invalid editor language list');
+      p.editorLocales=obj.editorLocales||[];continue;
     }
     if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(obj);
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);
