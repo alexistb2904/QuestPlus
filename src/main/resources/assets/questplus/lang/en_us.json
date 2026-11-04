@@ -177,5 +177,12 @@
   "questplus.client.condition.detail.slot.inventory": "Inventory",
   "questplus.client.claim_all": "Claim all rewards",
   "questplus.client.claim_all_empty": "No rewards to claim",
-  "questplus.client.toast.unlocked": "QUEST UNLOCKED"
+  "questplus.client.toast.unlocked": "QUEST UNLOCKED",
+  "questplus.client.condition.detail.gear.material.leather": "leather",
+  "questplus.client.condition.detail.gear.material.copper": "copper",
+  "questplus.client.condition.detail.gear.material.chainmail": "chainmail",
+  "questplus.client.condition.detail.gear.material.iron": "iron",
+  "questplus.client.condition.detail.gear.material.golden": "gold",
+  "questplus.client.condition.detail.gear.material.diamond": "diamond",
+  "questplus.client.condition.detail.gear.material.netherite": "netherite"
 }
