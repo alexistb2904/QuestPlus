@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {mkdtemp,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
@@ -25,11 +25,15 @@ async function api(base,route,{method='GET',body,key:serverKey,origin}={}){
  return {status:response.status,data:await response.json()};
 }
 test('Hub enforces browser approval and immutable packs before Minecraft publish',async()=>{
- const dir=await mkdtemp(path.join(tmpdir(),'questplus-hub-test-')),PORT=await port();
+ const dir=await mkdtemp(path.join(tmpdir(),'questplus-web-test-')),PORT=await port();
  const base='http://127.0.0.1:'+PORT;
+ const publicRoot=path.join(dir,'public');
+ await mkdir(path.join(publicRoot,'assets'),{recursive:true});
+ await writeFile(path.join(publicRoot,'index.html'),'<html><div id="root">Quest Studio</div></html>');
+ await writeFile(path.join(publicRoot,'assets','app.js'),'console.log("studio");');
  const child=spawn(process.execPath,['server.mjs'],{
-  cwd:new URL('..',import.meta.url),env:{...process.env,PORT:String(PORT),HUB_PUBLIC_URL:base,HUB_DATA_DIR:dir,
-  HUB_SERVER_KEY:key,STUDIO_ORIGIN:'http://localhost:5173',STUDIO_URL:'http://localhost:5173/'},
+  cwd:new URL('..',import.meta.url),env:{...process.env,PORT:String(PORT),HUB_PUBLIC_URL:base,HUB_DATA_DIR:path.join(dir,'packs'),WEB_STATIC_DIR:publicRoot,
+  HUB_SERVER_KEY:key,STUDIO_ORIGIN:base,STUDIO_URL:base+'/'},
   stdio:['ignore','pipe','pipe']
  });
  try{
@@ -37,12 +41,19 @@ test('Hub enforces browser approval and immutable packs before Minecraft publish
    try{const r=await api(base,'/health');if(r.status===200){ready=true;break}}catch{}
    await new Promise(ok=>setTimeout(ok,50));
   }
-  assert.ok(ready,'hub starts');
+  assert.ok(ready,'web starts');
+  const page=await fetch(base+'/');assert.equal(page.status,200);
+  assert.match(await page.text(),/id="root"/);
+  const js=await fetch(base+'/assets/app.js');
+  assert.equal(js.status,200);assert.match(js.headers.get('content-type'),/javascript/);
+  assert.equal((await fetch(base+'/../hidden.txt')).status,404);
+  assert.equal((await fetch(base+'/v1/notfound')).status,404);
   assert.equal((await api(base,'/v1/server/sessions',{method:'POST',body:{serverName:'test',files}})).status,401);
   assert.equal((await api(base,'/v1/packs',{method:'POST',origin:'https://evil.example',body:{files}})).status,403);
   const start=await api(base,'/v1/server/sessions',{method:'POST',key,body:{serverName:'Test server',files,registry:{items:['mymod:crystal']}}});
   assert.equal(start.status,201);
   const id=start.data.id;
+  assert.ok(start.data.url.startsWith(base+'/?session='));
   assert.ok(start.data.url.includes('session='+id));
   const pending=await api(base,'/v1/editor/sessions/'+id+'/request',{method:'POST',body:{}});
   assert.equal(pending.status,201);

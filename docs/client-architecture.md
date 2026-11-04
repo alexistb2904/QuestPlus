@@ -1,3 +1,9 @@
+> **2026-11 architecture update:** all client-only source and tablet
+resources are now under `client/src/main/` and split from authoritative
+`server/src/main/`. Both compile into a single Fabric mod JAR. For the
+process trust boundaries and live web API, see
+[docs/architecture.md](architecture.md).
+
 # Client Quest Plus
 
 > État courant : voir [le rapport de correction PR #2](reviews/native-tablet.md). Le reste de ce document décrit les étapes historiques, dont le rendu 2D a été remplacé par une texture hors écran sur le cube `screen`. Les dépendances sont actuellement déclarées `implementation` avec Loom non-remapping. La synchronisation utilise désormais l'horloge PAL, et aucun modèle HUD n'est ajouté pendant la séquence native.
