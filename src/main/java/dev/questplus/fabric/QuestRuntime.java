@@ -117,7 +117,7 @@ public final class QuestRuntime implements AutoCloseable {
                             throw new IllegalArgumentException("Invalid pooled image: "+path);
                         String data=item.getAsString();
                         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                            || data.length()>524400 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>384*1024)
+                            || data.length()>2_800_000 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>2*1024*1024)
                             throw new IllegalArgumentException("Pooled image too large/invalid: "+path);
                         images.add(data);
                     }
@@ -169,7 +169,7 @@ public final class QuestRuntime implements AutoCloseable {
                                     var item=part.getAsJsonObject();
                                     String type=item.has("type") ? item.get("type").getAsString() : "";
                                     if(type.equals("text")) {
-                                        if(!Set.of("type","text","font","size","color","highlight","bold","italic","underline","strike").containsAll(item.keySet())
+                                        if(!Set.of("type","text","font","size","sizePx","color","highlight","bold","italic","underline","strike").containsAll(item.keySet())
                                                 || !item.has("text") || !item.get("text").isJsonPrimitive()
                                                 || item.get("text").getAsString().length()>2048)
                                             throw new IllegalArgumentException("Invalid rich text: "+aid);
@@ -178,6 +178,8 @@ public final class QuestRuntime implements AutoCloseable {
                                         if(item.has("size") && (item.get("size").getAsDouble()<0.75 || item.get("size").getAsDouble()>2
                                                 || !Double.isFinite(item.get("size").getAsDouble())))
                                             throw new IllegalArgumentException("Invalid rich size: "+aid);
+                                        if(item.has("sizePx")&&(item.get("sizePx").getAsInt()<6||item.get("sizePx").getAsInt()>128))
+                                            throw new IllegalArgumentException("Invalid rich text pixel size: "+aid);
                                         for(String key:List.of("bold","italic","underline","strike"))
                                             if(item.has(key) && (!item.get(key).isJsonPrimitive() || !item.get(key).getAsJsonPrimitive().isBoolean()))
                                                 throw new IllegalArgumentException("Invalid rich formatting: "+aid);
@@ -189,8 +191,8 @@ public final class QuestRuntime implements AutoCloseable {
                                                 !item.keySet().containsAll(Set.of("width","height")) ||
                                                 item.has("data")==item.has("ref"))
                                             throw new IllegalArgumentException("Invalid rich image: "+aid);
-                                        if(item.get("width").getAsInt()<8 || item.get("width").getAsInt()>400
-                                            || item.get("height").getAsInt()<8 || item.get("height").getAsInt()>300)
+                                        if(item.get("width").getAsInt()<8 || item.get("width").getAsInt()>2048
+                                            || item.get("height").getAsInt()<8 || item.get("height").getAsInt()>2048)
                                             throw new IllegalArgumentException("Invalid rich image dimensions: "+aid);
                                         if(item.has("ref")){
                                             if(!item.get("ref").isJsonPrimitive()||!item.get("ref").getAsJsonPrimitive().isNumber())
@@ -200,7 +202,7 @@ public final class QuestRuntime implements AutoCloseable {
                                         }else{
                                             String data=item.get("data").getAsString();
                                             if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                                                || data.length()>524400 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>384*1024)
+                                                || data.length()>2_800_000 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>2*1024*1024)
                                                 throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
                                         }
                                     } else throw new IllegalArgumentException("Unknown rich part: "+aid);
