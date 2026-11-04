@@ -176,5 +176,6 @@
   "questplus.client.condition.detail.gear.enchanted": "Armure enchantée",
   "questplus.client.condition.detail.slot.inventory": "Inventaire",
   "questplus.client.claim_all": "Tout récupérer",
-  "questplus.client.claim_all_empty": "Aucune récompense à récupérer"
+  "questplus.client.claim_all_empty": "Aucune récompense à récupérer",
+  "questplus.client.toast.unlocked": "QUÊTE DÉBLOQUÉE"
 }
