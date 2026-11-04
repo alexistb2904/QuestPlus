@@ -35,7 +35,7 @@ public final class Defaults {
     }
 
     static JsonObject readObject(Path path) throws IOException {
-try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             return QuestRegistry.parseStrict(reader).getAsJsonObject();
         } catch (RuntimeException ex) { throw new IOException("Invalid JSON " + path + ": " + ex.getMessage(), ex); }
     }
