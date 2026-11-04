@@ -62,3 +62,15 @@ Le fingerprint mécanique v1 reste identique pour les définitions v1. En v2, la
 [`../src/main/resources/defaults/quests/`](../src/main/resources/defaults/quests/) contient six quêtes v1 historiques, une quête informative et des exemples v2 de répétition avec délai, cycles infinis, paliers, séquence, quantité d'inventaire et exploration. [`../src/main/resources/defaults/index.txt`](../src/main/resources/defaults/index.txt) inventorie les ressources livrées. L'installation initiale préserve les fichiers utilisateur; un monde déjà initialisé ne reçoit pas automatiquement les nouvelles définitions.
 
 Les définitions montrent les formats configurés, pas la preuve que chaque événement a un hook de jeu. La couverture effective des hooks et leur comportement serveur doivent être vérifiés dans les tests d'intégration appropriés. Les sauvegardes corrompues ou de version inconnue ne doivent jamais être remplacées par une progression vide.
+
+## Texte automatique et annotations de l'arbre
+
+La `description` d'une quête est facultative. Sans description, seuls les objectifs sont affichés, générés automatiquement dans la langue du joueur à partir de l'événement, de la quantité et du nom localisé de la cible. Un texte `objective.text` explicite reste prioritaire. Si la description répète exactement le texte d'un objectif, l'interface ne l'affiche qu'une fois.
+
+Chaque catégorie accepte désormais `annotations` (au plus 128 objets), par exemple :
+
+```json
+{"annotations":[{"id":"depart","x":0,"y":-70,"text":{"en_us":"Start here","fr_fr":"Commencez ici"},"style":"heading","color":"#c6a986"}]}
+```
+
+Les styles admis sont `note`, `heading` et `label`. Les annotations utilisent le même repère `layout.x/y` et la même caméra zoom/pan que les quêtes ; elles sont uniquement visuelles. `x` et `y` doivent être finis et entre ±100000, et l'ID unique par catégorie.

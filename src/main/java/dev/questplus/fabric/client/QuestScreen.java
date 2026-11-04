@@ -241,6 +241,7 @@ public final class QuestScreen extends Screen {
         updateRenderCache();
         g.enableScissor(treeLeft,treeTop,treeRight,treeBottom);
         drawPaper(g);
+        drawAnnotations(g);
         for (var edge:visibleEdges) {
             var a=layout.points().get(edge.from()); var b=layout.points().get(edge.to());
             int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y()+16),x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y()-16);
@@ -265,6 +266,28 @@ public final class QuestScreen extends Screen {
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
+    }
+    /** Annotation coordinates use the same world-space camera as quest nodes. */
+    private void drawAnnotations(GuiGraphicsExtractor g) {
+        var data=state.categories.get(category);
+        if (data==null || !data.has("annotations")) return;
+        for (var entry:data.getAsJsonArray("annotations")) {
+            var note=entry.getAsJsonObject();
+            int x=(int)camera.screenX(note.get("x").getAsDouble());
+            int y=(int)camera.screenY(note.get("y").getAsDouble());
+            if (x<treeLeft-180 || x>treeRight+180 || y<treeTop-24 || y>treeBottom+24) continue;
+            String label=localized(note.getAsJsonObject("text"));
+            String style=note.has("style")?note.get("style").getAsString():"note";
+            String hex=note.has("color")?note.get("color").getAsString():"#c6a986";
+            int color=0xff000000|Integer.parseInt(hex.substring(1),16);
+            int w=Math.min(170,Math.max(35,font.width(label)+12));
+            if (style.equals("heading")) {
+                QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-4),x-w/2,y-5,color,true);
+            } else {
+                if (!style.equals("label")) QuestSkin.panel(g,x-w/2,y-10,w,20,0xdd33271f,color);
+                QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-10),x-w/2+5,y-4,color,false);
+            }
+        }
     }
     private void updateRenderCache() {
         String language=minecraft.options.languageCode;
@@ -312,14 +335,15 @@ public final class QuestScreen extends Screen {
         detailQuest=selected; detailSequence=state.sequence; detailWidth=w; detailLanguage=minecraft.options.languageCode;
         List<DetailRow> lines=new ArrayList<>();
         append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
-        append(lines,state.text(q.description()),w);
+        String description=state.text(q.description());
+        List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
+        if (!QuestPresentation.redundantDescription(description,labels)) append(lines,description,w);
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
         var p=state.progress(q.id()); var counters=p.getAsJsonObject("counters");
         append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString(),w);
         for (var o:q.objectives()) {
             long value=counters!=null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
-            String label=state.text(o.text());
-            if (label.isBlank() || label.contains(o.target())) label=objectiveLabel(o);
+            String label=objectiveLabelForDisplay(o);
             appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p));
             if (o.conditions()!=null) append(lines,condition(o.conditions()),w);
         }
@@ -381,6 +405,10 @@ public final class QuestScreen extends Screen {
         }
         return id!=null && BuiltInRegistries.ITEM.containsKey(id) ? icon(o.target()) : icon(q.icon());
     }
+    private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
+        String custom=state.text(o.text());
+        return custom.isBlank()?objectiveLabel(o):custom;
+    }
     private String objectiveLabel(QuestDefinition.Objective o) {
         var id=Identifier.tryParse(o.target().startsWith("#") ? o.target().substring(1) : o.target());
         String target=id==null ? o.target() : id.getPath().replace('_',' ').replace('/',' ');
@@ -388,11 +416,7 @@ public final class QuestScreen extends Screen {
             var entity=BuiltInRegistries.ENTITY_TYPE.getOptional(id);
             if (entity.isPresent()) target=entity.get().getDescription().getString();
         } else if (id!=null && !o.target().startsWith("#") && BuiltInRegistries.ITEM.containsKey(id)) target=icon(o.target()).getHoverName().getString();
-        String event=switch(o.event()) {
-            case "block_break", "block_place", "item_obtained", "inventory_count", "entity_kill", "biome_visit", "dimension_enter", "travel_distance" -> o.event();
-            default -> "other";
-        };
-        return t("objective."+event,target).getString();
+        return QuestPresentation.objectiveText(o,minecraft.options.languageCode,target);
     }
     private ItemStack rewardIcon(QuestDefinition.Reward r) {
         if (r.item()!=null) return icon(r.item());

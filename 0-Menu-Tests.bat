@@ -13,12 +13,13 @@ echo  3. Compiler le mod et lancer les tests unitaires
 echo  4. Lancer les tests d'integration serveur
 echo  5. Lancer les tests du client
 echo  6. Installer Java JDK 25 (avec confirmation)
+echo  7. Ouvrir Quest Studio (editeur web)
 echo  Q. Quitter
 echo ===================================================
 echo.
 echo Tapez un chiffre puis appuyez sur Entree.
 set "SELECTION="
-set /p "SELECTION=Votre choix [1-6 ou Q] : "
+set /p "SELECTION=Votre choix [1-7 ou Q] : "
 if errorlevel 1 goto INPUT_ERROR
 if /I "%SELECTION%"=="Q" goto END
 if "%SELECTION%"=="1" goto CLIENT
@@ -27,8 +28,9 @@ if "%SELECTION%"=="3" goto BUILD
 if "%SELECTION%"=="4" goto SERVER_TEST
 if "%SELECTION%"=="5" goto CLIENT_TEST
 if "%SELECTION%"=="6" goto JAVA25
+if "%SELECTION%"=="7" goto WEB_EDITOR
 echo.
-echo [Quest Plus] Choix invalide : choisissez 1, 2, 3, 4, 5, 6 ou Q.
+echo [Quest Plus] Choix invalide : choisissez 1, 2, 3, 4, 5, 6, 7 ou Q.
 pause
 goto MENU
 
@@ -54,6 +56,15 @@ goto MENU
 
 :JAVA25
 call "%~dp06-Installer-Java-25.bat"
+goto MENU
+
+:WEB_EDITOR
+if not exist "%~dp0web\editor\start.bat" (
+    echo [Quest Studio] Lanceur introuvable. Mettez le depot a jour.
+    pause
+) else (
+    start "" "%~dp0web\editor\start.bat"
+)
 goto MENU
 
 :INPUT_ERROR

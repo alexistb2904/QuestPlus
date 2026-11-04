@@ -87,6 +87,19 @@ en meme temps que les bras. L'interface des quetes utilise encore une couche 2D
 a aligner sur la surface visible de la tablette ; le rendu GPU de l'ecran sur
 la surface 3D et la validation visuelle FOV/GUI Scale ne sont **pas encore termines**.
 
+## Quest Studio — éditeur web visuel des quêtes
+
+Quest Studio est disponible sous [`web/editor/`](web/editor/README.md). Sous Windows, choisir
+**7. Ouvrir Quest Studio** dans `0-Menu-Tests.bat` ou double-cliquer sur `web/editor/start.bat`.
+Il ouvre l'éditeur à `http://localhost:5173/web/editor/` et ne nécessite ni compte ni serveur distant.
+
+L'éditeur permet de créer et modifier les catégories, quêtes, objectifs, récompenses et annotations,
+de positionner les quêtes en glisser-déposer sur leur arbre, et d'importer/exporter un pack ZIP.
+La `description` des quêtes est désormais facultative : les objectifs sont formulés
+automatiquement dans la langue du joueur, sans les répéter dans les détails.
+L'export produit les définitions JSON du serveur : le remplacer manuellement après sauvegarde,
+puis lancer `/questplus reload`. Les sauvegardes joueurs ne sont jamais incluses.
+
 ## Lancer le mod depuis Windows (.bat)
 
 Les raccourcis suivants se trouvent **a la racine du depot**. Lancez `0-Menu-Tests.bat` pour choisir une operation,

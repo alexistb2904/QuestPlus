@@ -76,7 +76,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -95,7 +95,40 @@ public final class QuestRuntime implements AutoCloseable {
                 Map<String,String> title=new HashMap<>(),description=new HashMap<>();
                 category.getAsJsonObject("title").entrySet().forEach(e -> title.put(e.getKey(),e.getValue().getAsString()));
                 category.getAsJsonObject("description").entrySet().forEach(e -> description.put(e.getKey(),e.getValue().getAsString()));
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon));
+                List<ClientProjection.Annotation> annotations=new ArrayList<>();
+                if (category.has("annotations")) {
+                    if (!category.get("annotations").isJsonArray() || category.getAsJsonArray("annotations").size()>128)
+                        throw new IllegalArgumentException("Invalid annotations in "+path);
+                    Set<String> annotationIds=new HashSet<>();
+                    for (var element:category.getAsJsonArray("annotations")) {
+                        if (!element.isJsonObject()) throw new IllegalArgumentException("Invalid annotation in "+path);
+                        var note=element.getAsJsonObject();
+                        if (!Set.of("id","x","y","text","style","color").containsAll(note.keySet())
+                                || !note.keySet().containsAll(Set.of("id","x","y","text")))
+                            throw new IllegalArgumentException("Invalid annotation fields in "+path);
+                        String aid=note.get("id").getAsString();
+                        if (!aid.matches("[a-z0-9_.-]+") || !annotationIds.add(aid))
+                            throw new IllegalArgumentException("Invalid annotation ID: "+aid);
+                        double x=note.get("x").getAsDouble(),y=note.get("y").getAsDouble();
+                        if (!Double.isFinite(x) || !Double.isFinite(y) || Math.abs(x)>100000 || Math.abs(y)>100000)
+                            throw new IllegalArgumentException("Invalid annotation position: "+aid);
+                        String style=note.has("style") ? note.get("style").getAsString() : "note";
+                        String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
+                        if (!Set.of("note","heading","label").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
+                            throw new IllegalArgumentException("Invalid annotation style/color: "+aid);
+                        if (!note.get("text").isJsonObject() || !note.getAsJsonObject("text").has("en_us"))
+                            throw new IllegalArgumentException("Annotation requires en_us: "+aid);
+                        Map<String,String> noteText=new HashMap<>();
+                        for (var entry:note.getAsJsonObject("text").entrySet()) {
+                            if (!entry.getValue().isJsonPrimitive() || !entry.getValue().getAsJsonPrimitive().isString()
+                                    || entry.getValue().getAsString().isBlank())
+                                throw new IllegalArgumentException("Invalid annotation text: "+aid);
+                            noteText.put(entry.getKey(),entry.getValue().getAsString());
+                        }
+                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color));
+                    }
+                }
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations)));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
