@@ -47,11 +47,11 @@ public final class QuestPlusClient implements ClientModInitializer {
     private static void clear() { STATE.clear(); fragments=null; transfer=-1; QuestToast.clear(); lastSync=0; }
     private static void receive(QuestNetwork.State packet) {
         try {
-            if (packet.total()<1 || packet.total()>2048 || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
+            if (packet.total()<1 || packet.total()>4096 || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
             if (transfer!=packet.transfer()) { transfer=packet.transfer(); fragments=new String[packet.total()]; received=bytes=0; started=System.currentTimeMillis(); }
             if (fragments==null || fragments.length!=packet.total()) throw new IllegalArgumentException("fragment count");
             if (fragments[packet.index()]!=null) return;
-            bytes+=packet.data().length(); if (bytes>16*1024*1024) throw new IllegalArgumentException("transfer too large");
+            bytes+=packet.data().length(); if (bytes>32*1024*1024) throw new IllegalArgumentException("transfer too large");
             fragments[packet.index()]=packet.data(); received++;
             if (received!=fragments.length) return;
             var message=dev.questplus.core.QuestRegistry.parseStrict(new java.io.StringReader(String.join("",fragments))).getAsJsonObject(); fragments=null;
