@@ -16,7 +16,32 @@ export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
 export const MODES=['all','any','sequence'];
 const ID=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const LOCAL=/^[a-z0-9_.-]+$/;
-export const text=(value,lang='en_us')=>value?.[lang] || value?.en_us || '';
+export const text=(value,lang='en_us')=>{
+  if(!value||typeof value!=='object')return '';
+  const valid=s=>typeof s==='string'&&s.trim().length>0;
+  if(valid(value[lang]))return value[lang];
+  if(valid(value.en_us))return value.en_us;
+  const key=Object.keys(value).sort().find(k=>valid(value[k]));
+  return key?value[key]:'';
+};
+/** Locale fallback for authored annotations; ignore the studio's untouched "Note" seed. */
+export const annotationText=(annotation,lang='en_us')=>{
+  const map=annotation?.text||{};
+  const authored=Object.entries(map).filter(([,value])=>typeof value==='string'&&value.trim()&&value.trim()!=='Note');
+  if(authored.length) {
+    const locale=authored.find(([key])=>key===lang)||authored.find(([key])=>key==='en_us')||authored.sort(([a],[b])=>a.localeCompare(b))[0];
+    return locale[1];
+  }
+  return text(map,lang);
+};
+export const annotationRich=(annotation,lang='en_us')=>{
+  const rich=annotation?.rich||{};
+  const usable=parts=>Array.isArray(parts)&&parts.some(p=>p?.type==='image'&&typeof p.data==='string'&&p.data.length>0 || p?.type==='text'&&typeof p.text==='string'&&p.text.trim().length>0);
+  if(usable(rich[lang]))return rich[lang];
+  if(usable(rich.en_us))return rich.en_us;
+  const key=Object.keys(rich).sort().find(k=>usable(rich[k]));
+  return key?rich[key]:null;
+};
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
@@ -121,7 +146,9 @@ export function validate(p){
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
-      if(!a.text?.en_us?.trim())fail(label,'Annotation : texte anglais requis');
+      const hasTranslatedText=Object.values(a.text||{}).some(v=>typeof v==='string'&&v.trim());
+      const hasRichContent=Object.values(a.rich||{}).some(parts=>Array.isArray(parts)&&parts.some(part=>part?.type==='image'&&part.data||part?.type==='text'&&part.text?.trim()));
+      if(!hasTranslatedText&&!hasRichContent)fail(label,'Annotation : contenu requis dans au moins une langue');
       if(a.rich){
        if(typeof a.rich!=='object'||Array.isArray(a.rich)||!Object.keys(a.rich).length)fail(label,'Invalid rich annotation');
        else for(const [locale,parts] of Object.entries(a.rich)){

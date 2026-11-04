@@ -39,7 +39,7 @@ export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'
    return vanillaCatalog().filter((item:any)=>kind==='block'?item.kind==='block'||item.kind==='both':item.kind==='item'||item.kind==='both').map((item:any)=>item.id);
  },[kind]);
  const matches=useMemo(()=>catalogue.filter(id=>id.toLowerCase().includes(search.trim().toLowerCase())),[catalogue,search]);
- const valid=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(custom.trim());
+ const valid=/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(custom.trim());
  return <Dialog title={tUI('Choose target')} onClose={onClose} className="icon-dialog">
    <div className="picker-filters"><input autoFocus value={search} onChange={e=>{setSearch(e.target.value);setLimit(96)}} placeholder={tUI('Search targets…')} aria-label={tUI('Search targets…')}/></div>
    <div className="picker-count">{matches.length} {tUI('results')}</div>

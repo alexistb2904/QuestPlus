@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {gameLayout} from '../core/game-layout.js';
 import {dependencyError} from '../core/quest-links.js';
-import {text} from '../core/project.js';
+import {text,annotationText,annotationRich} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
 import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
 import {screenPoint,worldPoint,snapEditor,SCALE_X,SCALE_Y} from '../core/editor-geometry.js';
@@ -137,10 +137,10 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
    {(category?.annotations||[]).map(a=>{
     const pt=ghost?.id===a.id?ghost:a,p=pixel(pt);
     if(Math.abs(p.x)>size.width+240||Math.abs(p.y)>size.height+240)return null;
-    const rich=a.rich?.[language]||a.rich?.en_us||Object.values(a.rich||{})[0];
-    return <div role="button" tabIndex={0} aria-label={text(a.text,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
+    const rich=annotationRich(a,language);
+    return <div role="button" tabIndex={0} aria-label={annotationText(a,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
        data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+camera.zoom+')'}}>
-       {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:text(a.text,language)}
+       {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:annotationText(a,language)}
       </div>;
    })}
   </div>

@@ -89,3 +89,21 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .description-field .translation-help{position:relative;z-index:2;flex:0 0 23px}
 .description-field>.description-editor{width:100%;min-width:0}
 @media(max-width:700px){.target-field{flex-wrap:wrap}.target-field>.button{min-width:72px}}
+
+/* All objective types share the same compact rhythm, but the input meanings stay visible. */
+.objective-row>.objective-inputs{grid-template-columns:minmax(130px,1.15fr) minmax(170px,1.7fr) minmax(95px,.85fr);align-items:end;gap:8px}
+.objective-row>.objective-inputs-position{grid-template-columns:minmax(130px,1fr) minmax(220px,2.6fr)}
+.objective-row>.objective-inputs-manual{grid-template-columns:minmax(130px,1fr) minmax(150px,2fr) minmax(95px,.8fr)}
+.objective-row>.objective-inputs-distance{grid-template-columns:minmax(130px,1fr) minmax(120px,1fr)}
+.objective-row>.objective-inputs-death{grid-template-columns:minmax(130px,1fr) minmax(120px,1fr) minmax(80px,.7fr)}
+.objective-inputs>.field{min-width:0}
+.objective-inputs .field>span{position:static;width:auto;height:auto;clip-path:none;overflow:visible;display:block;margin-bottom:4px;font-size:10px;color:#c7bacf}
+.objective-inputs .target-field>.field{min-width:0}
+.objective-coordinates{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.objective-coordinates .field input{min-width:0;width:100%}
+.objective-inputs .fixed-target{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px;white-space:normal;overflow-wrap:anywhere}
+.objective-inputs .fixed-target code{font:11px Consolas,monospace;color:#bda6ce;overflow-wrap:anywhere}
+@media(max-width:700px){
+ .objective-row>.objective-inputs,.objective-row>.objective-inputs-position,.objective-row>.objective-inputs-manual,.objective-row>.objective-inputs-distance,.objective-row>.objective-inputs-death{grid-template-columns:1fr}
+ .objective-coordinates{grid-template-columns:repeat(4,minmax(0,1fr))}
+}

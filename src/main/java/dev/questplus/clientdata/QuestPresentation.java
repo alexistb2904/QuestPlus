@@ -57,6 +57,10 @@ public final class QuestPresentation {
         }
         if (objective.event().equals("location"))
             return new String[]{"Reach location","Atteindre la position","Llegar a la posición","到达指定位置"}[column];
+        if (objective.event().equals("manual"))
+            return new String[]{"Confirm","Confirmer","Confirmar","确认"}[column];
+        if (objective.event().equals("player_death"))
+            return new String[]{"Die","Mourir","Morir","死亡"}[column];
         String target=targetName==null||targetName.isBlank()?objective.target():targetName;
         return verbs[column]+" "+objective.count()+" "+target;
     }

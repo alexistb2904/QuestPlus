@@ -235,6 +235,21 @@ public final class QuestScreen extends Screen {
         }
     }
     private String localized(JsonObject map) { Map<String,String> values=new HashMap<>(); map.entrySet().forEach(e -> values.put(e.getKey(),e.getValue().getAsString())); return state.text(values); }
+    private String annotationLabel(JsonObject map) {
+        if (map==null) return "";
+        Map<String,String> values=new HashMap<>();
+        map.entrySet().forEach(e -> {
+            if (e.getValue().isJsonPrimitive()&&e.getValue().getAsJsonPrimitive().isString())
+                values.put(e.getKey(),e.getValue().getAsString());
+        });
+        // "Note" is the studio's initial placeholder, not an authored translation.
+        Map<String,String> authored=new HashMap<>();
+        values.forEach((key,value) -> {
+            if (!value.isBlank() && !value.trim().equals("Note")) authored.put(key,value);
+        });
+        return state.text(authored.isEmpty()?values:authored);
+    }
+
     private void drawCategoryHeader(GuiGraphicsExtractor g,int mx,int my) {
         var c=state.categories.get(category); if (c==null) return;
         int x=treeLeft,w=right-7-treeLeft;
@@ -312,7 +327,7 @@ public final class QuestScreen extends Screen {
             int y=(int)camera.screenY(note.get("y").getAsDouble());
             if (x<treeLeft-180 || x>treeRight+180 || y<treeTop-24 || y>treeBottom+24) continue;
             if (RichAnnotationRenderer.render(g,font,note,minecraft.options.languageCode,x,y)) continue;
-            String label=localized(note.getAsJsonObject("text"));
+            String label=annotationLabel(note.getAsJsonObject("text"));
             String style=note.has("style")?note.get("style").getAsString():"note";
             String hex=note.has("color")?note.get("color").getAsString():"#c6a986";
             int color=0xff000000|Integer.parseInt(hex.substring(1),16);
@@ -365,7 +380,9 @@ public final class QuestScreen extends Screen {
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
-        currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : q.kind().equals("information") && q.acknowledgement().equals("manual") && !QuestClientState.flag(p,"completed") ? "trigger" : null;
+        currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : (q.kind().equals("information") && q.acknowledgement().equals("manual") ||
+            q.objectives().stream().anyMatch(o -> o.event().equals("manual") && o.target().equals(q.id())))
+            && !QuestClientState.flag(p,"completed") ? "trigger" : null;
         questAction.visible=currentAction!=null;
         boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
             && System.currentTimeMillis()-pendingManualAt<2500L;

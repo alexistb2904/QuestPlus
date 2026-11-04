@@ -53,9 +53,13 @@ final class RichAnnotationRenderer {
         JsonObject locales=note.getAsJsonObject("rich");
         // Older imported annotations may contain only fr_fr rich content while en_us
         // still has the studio placeholder "Note": use the authored rich entry.
-        JsonElement raw=locales.has(language)?locales.get(language)
-            :locales.has("en_us")?locales.get("en_us")
-            :locales.entrySet().isEmpty()?null:locales.entrySet().iterator().next().getValue();
+        // Empty arrays must not mask a usable translation in another language.
+        JsonElement raw=nonEmptyRich(locales,language);
+        if(raw==null)raw=nonEmptyRich(locales,"en_us");
+        if(raw==null)for(String locale:locales.keySet().stream().sorted().toList()) {
+            raw=nonEmptyRich(locales,locale);
+            if(raw!=null)break;
+        }
         String style=note.has("style")?note.get("style").getAsString():"note";
         if(raw==null||!raw.isJsonArray())return false;
         JsonArray arr=raw.getAsJsonArray();
@@ -144,6 +148,21 @@ final class RichAnnotationRenderer {
         }
         return true;
     }
+    private static JsonElement nonEmptyRich(JsonObject locales,String language) {
+        if(!locales.has(language))return null;
+        JsonElement value=locales.get(language);
+        if(!value.isJsonArray())return null;
+        for(JsonElement part:value.getAsJsonArray()) {
+            if(!part.isJsonObject())continue;
+            JsonObject node=part.getAsJsonObject();
+            if(!node.has("type"))continue;
+            String type=node.get("type").getAsString();
+            if(type.equals("image")&&node.has("data")&&!node.get("data").getAsString().isBlank())return value;
+            if(type.equals("text")&&node.has("text")&&!node.get("text").getAsString().isBlank())return value;
+        }
+        return null;
+    }
+
     private static boolean bool(JsonObject obj,String key){return obj.has(key)&&obj.get(key).getAsBoolean();}
     private static int hex(String value,int fallback){
         return value.matches("#[0-9a-fA-F]{6}")?0xff000000|Integer.parseInt(value.substring(1),16):fallback;

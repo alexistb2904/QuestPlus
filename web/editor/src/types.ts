@@ -12,7 +12,7 @@ export type Camera={x:number;y:number;zoom:number};
 export const supportedLocales:Record<string,string>={en_us:'English (US)',fr_fr:'Français',en_gb:'English (UK)',es_es:'Español',es_mx:'Español (MX)',de_de:'Deutsch',ja_jp:'日本語',zh_cn:'简体中文',zh_tw:'繁體中文',pt_br:'Português',it_it:'Italiano',ko_kr:'한국어'};
 export function localesOf(project:Project){
  const codes=new Set(['en_us',...(project.editorLocales||[])]);
- const visit=(o:any)=>{if(!o||typeof o!=='object')return;for(const [k,v] of Object.entries(o)){if(/^[a-z]{2,3}_[a-z]{2,4}$/.test(k)&&typeof v==='string')codes.add(k);else if(typeof v==='object')visit(v);}};
+ const visit=(o:any)=>{if(!o||typeof o!=='object')return;for(const [k,v] of Object.entries(o)){if(/^[a-z]{2,3}_[a-z]{2,4}$/.test(k)&&(typeof v==='string'||Array.isArray(v)&&v.length>0))codes.add(k);else if(typeof v==='object')visit(v);}};
  project.categories.forEach(visit);project.quests.forEach(visit);
  return [...codes].sort((a,b)=>a==='en_us'?-1:b==='en_us'?1:a.localeCompare(b));
 }

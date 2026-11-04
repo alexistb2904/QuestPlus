@@ -3,13 +3,13 @@ import {Target,Gift,GitBranch,Repeat2,MessageCircle,Globe,Trash2,Plus,Search,Che
 import {EVENTS,objectiveLabel,text} from '../core/project.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon,TargetPicker} from './IconPicker';
-import {DIMENSIONS,initialTarget,targetKind,coordinateBounds,positionValue} from '../core/objective-targets.js';
+import {DIMENSIONS,EVENT_LABELS,objectiveUi,changeObjectiveEvent,positionCoordinate,positionRadius,setPositionCoordinate,setPositionRadius} from '../core/objective-targets.js';
 import {DescriptionEditor} from './RichEditor';
 import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
 import {Field,Select,Translated,Disclosure,ConditionEditor} from './Inspector';
 import type {Props} from './Inspector';
-import type {Reward,Project,Quest,Category} from '../types';
+import type {Reward,Project,Quest,Category,Objective} from '../types';
 
 type Tier={id:string;threshold:number;rewards:Reward[]};
 type Tab='objectives'|'rewards'|'conditions'|'progression'|'npc'|'localization';
@@ -38,13 +38,64 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
   <div className="detail-heading"><div><strong>{tUI('Localization')}</strong><p>{tUI('English is the source. Add a language to translate this content.')}</p></div><button type="button" className="button primary" aria-expanded={adding} onClick={()=>setAdding(v=>!v)}><Plus size={15}/>{tUI('Add a language')}</button></div>
   {adding&&<div className="locale-picker"><div className="locale-search"><Search size={16}/><input autoFocus aria-label={tUI('Search languages')} placeholder={tUI('Search languages')} value={search} onChange={e=>setSearch(e.target.value)}/><button type="button" className="icon-button" aria-label={tUI('Close')} onClick={()=>setAdding(false)}><X size={15}/></button></div><div className="locale-picker-list">{choices.map(([id,name])=><button type="button" className="locale-picker-option" key={id} onClick={()=>add(id)}><span><strong>{name}</strong><small>{id}</small></span><Plus size={15}/></button>)}{custom&&<button type="button" className="locale-picker-option" onClick={()=>add(custom)}><span><strong>{custom}</strong><small>{tUI('Custom language code')}</small></span><Plus size={15}/></button>}{!choices.length&&!custom&&<p className="localization-empty">{tUI('No languages found')}</p>}</div></div>}
   {locales.length?<><div className="localization-languages" aria-label={tUI('Translation language')}>{locales.map(code=><button type="button" className={'locale-chip'+(locale===code?' active':'')} aria-pressed={locale===code} onClick={()=>setSelected(code)} key={code}>{locale===code&&<Check size={13}/>}<span>{supportedLocales[code]||code}</span><small>{code}</small></button>)}</div>
-   <div className="localization-columns"><span>{tUI('English source')} · en_us</span><span>{supportedLocales[locale]||locale} · {locale}</span></div>
+   <div className="localization-columns"><span>{tUI('Source')}</span><span>{supportedLocales[locale]||locale} · {locale}</span></div>
    {fields.map(field=>{
-    const source=field.value?.en_us||'',value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
+    const source=text(field.value,'en_us'),value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
     const sourceText=field.rich?descriptionParts(source).map((part:any)=>part.text).join(''):source;
     return <div className="localization-field" key={field.path}><div className="localization-source"><span>{tUI(field.label)}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder={tUI("Optional")} rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
    })}
   </>:<div className="localization-empty"><Globe size={22}/><strong>{tUI('No translations yet')}</strong><p>{tUI('Choose a language to start translating.')}</p></div>}
+ </div>;
+}
+
+
+type PickerKind='block'|'item'|'entity'|'biome'|'structure';
+function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBrowse}:{
+ objective:Objective;index:number;questId:string;onUpdate:Props['onUpdate'];onCondition:Props['onCondition'];
+ onBrowse:(index:number,kind:PickerKind)=>void;
+}){
+ const kind=objectiveUi(o.event).kind as string;
+ const label=objectiveUi(o.event).amount;
+ const path='objectives.'+i;
+ const editTarget=(value:string)=>onUpdate(path+'.target',value);
+ const editCount=(value:number)=>onUpdate(path+'.count',Math.max(1,Math.floor(value)||1));
+ const browse=['block','item','entity','biome','structure'].includes(kind);
+ const modifier=(next:any)=>onCondition('objective:'+i,next);
+ const field=()=>{
+  if(kind==='position')return <div className="coordinate-fields objective-coordinates">
+    {(['x','y','z'] as const).map(axis=><label className="field" key={axis}>
+      <span>{axis.toUpperCase()}</span>
+      <input type="number" step="any" aria-label={axis.toUpperCase()} value={positionCoordinate(o.conditions,axis)}
+        onChange={e=>modifier(setPositionCoordinate(o.conditions,axis,e.target.value))}/>
+    </label>)}
+    <label className="field"><span>{tUI('Radius')}</span><input aria-label={tUI('Radius')} type="number" min={0} max={128} step="any" value={positionRadius(o.conditions)}
+      onChange={e=>modifier(setPositionRadius(o.conditions,e.target.value))}/></label>
+   </div>;
+  if(kind==='distance')return <Field label="Distance (m)" type="number" value={Number((o.count/100).toFixed(2))} onChange={v=>onUpdate(path+'.count',Math.max(1,Math.min(1000000000,Math.round(v*100)||1)))}/>;
+  if(kind==='death')return <span className="fixed-target">{tUI('Player death')}</span>;
+  if(kind==='manual')return <div className="target-field">
+    <Field label="Manual event ID" value={o.target} onChange={editTarget} placeholder={questId}/>
+    <button type="button" className="button secondary" onClick={()=>editTarget(questId)}>{tUI('Quest ID')}</button>
+   </div>;
+  if(kind==='dimension')return <div className="dimension-target">
+    <select aria-label={tUI('Dimension')} value={DIMENSIONS.some(([id])=>id===o.target)?o.target:'custom'}
+      onChange={e=>editTarget(e.target.value==='custom'?'modid:dimension':e.target.value)}>
+      {DIMENSIONS.map(([id,name])=><option key={id} value={id}>{tUI(name)}</option>)}
+      <option value="custom">{tUI('Custom dimension')}</option>
+    </select>
+    {!DIMENSIONS.some(([id])=>id===o.target)&&<Field label="Target ID" value={o.target} onChange={editTarget} placeholder="modid:dimension"/>}
+   </div>;
+  return <div className="target-field">
+     <Field label={kind==='custom'?'Custom target ID':'Target ID'} value={o.target} onChange={editTarget} placeholder={kind==='custom'?'modid:target':'minecraft:stone'}/>
+     {browse&&<button type="button" className="button secondary" onClick={()=>onBrowse(i,kind as PickerKind)}>{tUI('Browse')}</button>}
+   </div>;
+ };
+ return <div className={'field-row objective-inputs objective-inputs-'+kind}>
+  <Select label="Action" value={o.event}
+    options={[...EVENTS.map(([id])=>[id,EVENT_LABELS[id]||id] as [string,string]),...(!EVENTS.some(([id])=>id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
+    onChange={event=>onUpdate(path,changeObjectiveEvent(o,event,questId))}/>
+  {field()}
+  {label&&kind!=='distance'&&<Field label={label} type="number" value={o.count} onChange={editCount}/>}
  </div>;
 }
 
@@ -99,31 +150,8 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
       <Select label="Completion" value={quest.acknowledgement||'manual'} options={[[ 'manual','Acknowledge'],['read_only','Read only']]} onChange={v=>onUpdate('acknowledgement',v)}/></div>:
      <div className="objectives-list">{(quest.objectives||[]).map((o,i)=><div className="mini-card objective-row" key={o.id}>
       <div className="mini-card-head"><ItemIcon id={o.target?.replace(/^#/,'')} size={25}/><strong>{i+1}. {objectiveLabel(o,language)}</strong><small title={o.id}>{o.id}</small><button className="tiny danger" aria-label={ui('Remove objective')} title={ui('Remove objective')} onClick={()=>onAction('remove-objective',i)}><Trash2 size={14}/></button></div>
-      <div className="field-row">
-       <Select label="Action" value={o.event} options={[...(EVENTS as [string,string][]),...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event] as [string,string]]:[])]} onChange={v=>{
-         onUpdate('objectives.'+i+'.event',v);
-         onUpdate('objectives.'+i+'.target',initialTarget(v));
-         if(v==='travel_distance'||v==='location')onUpdate('objectives.'+i+'.count',v==='location'?1:100);
-        }}/>
-       {o.event==='location'?<div className="coordinate-fields">{(['x','y','z'] as const).map(axis=>
-         <Field key={axis} label={axis.toUpperCase()} type="number" value={positionValue(o.conditions,axis)} placeholder={axis.toUpperCase()} onChange={v=>{
-           const raw=String(v);
-           const position=coordinateBounds(o.conditions,axis,Number.isFinite(v)?raw:'');
-           onCondition('objective:'+i,position);
-         }}/>)}</div>:
-        o.event==='dimension_enter'?<div className="dimension-target">
-          <select aria-label={ui('Dimension')} value={DIMENSIONS.some(([id])=>id===o.target)?o.target:'custom'} onChange={e=>onUpdate('objectives.'+i+'.target',e.target.value==='custom'?'modid:dimension':e.target.value)}>
-           {DIMENSIONS.map(([id,label])=><option key={id} value={id}>{ui(label)}</option>)}<option value="custom">{ui('Custom dimension')}</option>
-          </select>
-          {!DIMENSIONS.some(([id])=>id===o.target)&&<Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="modid:dimension"/>}
-         </div>:
-        o.event==='travel_distance'?<Field label="Distance (m)" type="number" value={o.count/100} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,Math.round(v*100)))}/>:
-        o.event==='player_death'?<span className="fixed-target">{ui('Player death')}</span>:
-        <div className="target-field"><Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="modid:target"/>
-          {targetKind(o.event)&&<button type="button" className="button secondary" onClick={()=>setTargetBrowser({index:i,kind:targetKind(o.event) as 'block'|'item'|'entity'|'biome'|'structure'})}>{ui('Browse')}</button>}
-         </div>}
-       {!['location','travel_distance'].includes(o.event)&&<Field label="Count" type="number" value={o.count} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,v))}/>}
-      </div>
+      <ObjectiveInputs objective={o} index={i} questId={quest.id} onUpdate={onUpdate} onCondition={onCondition}
+       onBrowse={(index,kind)=>setTargetBrowser({index,kind})}/>
       <Disclosure title="Custom label"><Translated label="Text" prefix={'objectives.'+i+'.text'} value={o.text} language={language} onUpdate={onUpdate}/></Disclosure>
       <Disclosure title="Conditions"><ConditionEditor project={project} scope={'objective:'+i} value={o.conditions} onChange={v=>onCondition('objective:'+i,v)}/></Disclosure>
      </div>)}</div>}
