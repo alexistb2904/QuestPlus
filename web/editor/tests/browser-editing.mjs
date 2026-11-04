@@ -2,11 +2,11 @@ async page => {
  const assert=(value,message)=>{if(!value)throw Error(message)};
  const save=async()=>{await page.getByRole('button',{name:'Save',exact:true}).click();return page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')))};
  const choose=async name=>page.locator('.quest-item').filter({hasText:name}).click();
- const source='questplus:combat/iron_and_zombie',target='questplus:combat/skeleton_repeat';
+ const source='questplus:equipment/set_leather',target='questplus:equipment/set_copper';
  const node=id=>page.locator('[data-node-id="'+id+'"]');
  const drag=async(from,to)=>{const a=await node(from).locator('.node-connector').boundingBox(),b=await node(to).locator('.node-select').boundingBox();await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});assert(await page.locator('.connection-preview').count()===1,'live cable preview');await page.mouse.up();};
  await page.setViewportSize({width:1440,height:1000});await page.reload();await page.locator('#ui-language').selectOption('en');await page.locator('#preview-language').selectOption('en_us');
- await choose('Armed for Trouble');await page.getByRole('button',{name:'Fit',exact:true}).click();
+ await choose('Master of Leather');await page.getByRole('button',{name:'Fit',exact:true}).click();
  const baseline=(await save()).project;
  assert(await page.locator('.minimap').count()===0,'minimap removed');
  assert(await page.locator('.inspector').getByLabel('Title (English)',{exact:true}).count()===1,'single source title');
@@ -20,7 +20,7 @@ async page => {
  await page.getByRole('button',{name:'Undo',exact:true}).click();assert(JSON.stringify((await save()).project)===JSON.stringify(baseline),'one undo removes cable');
  await page.getByRole('button',{name:'Redo',exact:true}).click();assert((await save()).project.quests.find(q=>q.id===target).requires.quest===source,'redo restores cable');
  await page.getByRole('button',{name:'Undo',exact:true}).click();
- await choose('Armed for Trouble');
+ await choose('Master of Leather');
  const editor=page.getByRole('textbox',{name:'Description · en_us',exact:true});
  const original=(await save()).project.quests.find(q=>q.id===source).description;
  await editor.fill('Build your first shelter.');await editor.press('ControlOrMeta+A');
@@ -40,7 +40,7 @@ async page => {
  const translation=page.getByRole('textbox',{name:'Title · '+locale,exact:true});await translation.fill('Ein neues Abenteuer');
  state=await save();assert(state.project.quests.find(q=>q.id===source).title[locale]==='Ein neues Abenteuer','localized title saved');
  await translation.fill('');state=await save();assert(!Object.hasOwn(state.project.quests.find(q=>q.id===source).title,locale),'empty optional translation removed safely');
- assert(state.project.quests.find(q=>q.id===source).title.en_us==='Armed for Trouble','source title unchanged');
+ assert(state.project.quests.find(q=>q.id===source).title.en_us==='Master of Leather','source title unchanged');
  await page.setViewportSize({width:390,height:844});
  await page.locator('.workspace-switcher').getByRole('button',{name:'Properties',exact:true}).click();assert(await page.locator('.inspector').isVisible(),'mobile properties reachable');assert(!await page.locator('#graph-panel').isVisible(),'mobile panel focus');
  await page.locator('.workspace-switcher').getByRole('button',{name:'Quest Diagram',exact:true}).click();assert(await page.locator('#viewport').isVisible(),'mobile canvas reachable');
