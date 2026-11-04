@@ -161,5 +161,8 @@
   "questplus.client.repeat_count": "Completada ×%s",
   "questplus.client.tier_count": "Hito %s",
   "questplus.client.information_read": "Leer la información",
-  "questplus.completed_no_reward": "Misión completada: %s"
+  "questplus.completed_no_reward": "Misión completada: %s",
+  "questplus.client.stay_open_on_damage": "Mantener abierta al recibir daño",
+  "questplus.client.navigate_up": "Desplazar hacia arriba",
+  "questplus.client.navigate_down": "Desplazar hacia abajo"
 }
