@@ -21,6 +21,10 @@ export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
 /** The editor starts from the exact 4 categories and 13 quests shipped by QuestPlus. */
 export function demoProject(){return copy(BUILTIN_PROJECT);}
+/** Missing order sorts after explicitly ordered categories; ties are deterministic. */
+export function orderedCategories(categories){
+  return [...categories].sort((a,b)=>(a.order??Number.MAX_SAFE_INTEGER)-(b.order??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
+}
 export function category(id='questplus:new_category',en='New category'){
   return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
 }
@@ -104,6 +108,7 @@ export function validate(p){
     const label=c?.id||'Catégorie';
     if(!ID.test(label)||seenC.has(label))fail(label,'ID de catégorie invalide ou dupliqué');
     seenC.add(label);
+    if(Object.hasOwn(c,'order')&&(!Number.isSafeInteger(c.order)||c.order<0||c.order>1000000))fail(label,'L’ordre doit être un entier de 0 à 1 000 000');
     if(!c.title?.en_us?.trim())fail(label,'Nom anglais requis');
     if(c.description && !c.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
