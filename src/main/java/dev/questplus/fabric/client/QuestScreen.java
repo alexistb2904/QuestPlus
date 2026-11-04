@@ -424,19 +424,18 @@ public final class QuestScreen extends Screen {
         List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
         var richDescription=q.descriptionRich()==null?null:selectRichDescription(q.descriptionRich(),minecraft.options.languageCode);
         if(richDescription!=null && !richDescription.isEmpty()) {
+            JsonArray inline=new JsonArray();
             for(var entry:richDescription) {
                 if(!entry.isJsonObject())continue;
                 var part=entry.getAsJsonObject();
                 if(!part.has("type"))continue;
-                int height=richDetailHeight(part,w);
-                var note=new JsonObject();
-                note.addProperty("style","label");
-                note.addProperty("width",Math.max(60,Math.min(400,w)));
-                note.addProperty("height",Math.min(300,Math.max(20,height-8)));
-                var rich=new JsonObject(),array=new JsonArray();
-                array.add(part.deepCopy());rich.add("en_us",array);note.add("rich",rich);
-                lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,null,note,height));
+                if("image".equals(part.get("type").getAsString())){
+                    if(!inline.isEmpty()){appendRichRow(lines,inline,w);inline=new JsonArray();}
+                    var single=new JsonArray();single.add(part.deepCopy());
+                    appendRichRow(lines,single,w);
+                }else if("text".equals(part.get("type").getAsString())) inline.add(part.deepCopy());
             }
+            if(!inline.isEmpty())appendRichRow(lines,inline,w);
         }else {
             var formattedDescription=QuestDescriptionText.prepare(description);
             String plainDescription=formattedDescription.plain();
@@ -506,6 +505,30 @@ public final class QuestScreen extends Screen {
         if(value!=null&&!value.isEmpty())return value;
         return values.entrySet().stream().filter(e->e.getValue()!=null&&!e.getValue().isEmpty())
             .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).findFirst().orElse(null);
+    }
+    private void appendRichRow(List<DetailRow> lines,JsonArray parts,int width) {
+        int height=0;
+        int textPixels=0,maxLine=11,breaks=1;
+        for(var el:parts){
+            var part=el.getAsJsonObject();
+            if("image".equals(part.get("type").getAsString())){
+                height=12+Math.min(280,part.get("height").getAsInt());
+                break;
+            }
+            float scale=part.has("sizePx")?Math.clamp(part.get("sizePx").getAsFloat()/9f,6f/9f,128f/9f)
+                :part.has("size")?Math.clamp(part.get("size").getAsFloat(),.75f,2f):1f;
+            maxLine=Math.max(maxLine,(int)Math.ceil(11*scale));
+            String value=part.has("text")?part.get("text").getAsString():"";
+            for(String fragment:value.split("\\n",-1))textPixels+=(int)Math.ceil(font.width(fragment)*scale);
+            breaks+=(int)value.chars().filter(c->c=='\n').count();
+        }
+        if(height==0)height=Math.min(3000,12+Math.max(breaks,(int)Math.ceil(textPixels/(double)Math.max(1,Math.min(400,width)-15)))*maxLine);
+        var note=new JsonObject();
+        note.addProperty("style","label");
+        note.addProperty("width",Math.max(60,Math.min(400,width)));
+        note.addProperty("height",Math.min(300,Math.max(20,height-8)));
+        var rich=new JsonObject();rich.add("en_us",parts);note.add("rich",rich);
+        lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,null,note,height));
     }
     private int richDetailHeight(JsonObject part,int width){
         if("image".equals(part.get("type").getAsString()))
