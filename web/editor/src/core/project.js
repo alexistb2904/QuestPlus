@@ -175,7 +175,7 @@ export function validate(p){
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
     if(new TextEncoder().encode(JSON.stringify(compactCategoryImages(c))).byteLength>RICH_MAX_CATEGORY)
-      fail(label,'Category exceeds 4 MiB (deduplicated images included)');
+      fail(label,'Category exceeds 12 MiB (deduplicated images included)');
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
