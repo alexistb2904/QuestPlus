@@ -94,6 +94,7 @@ export const OBJECTIVE_UI=Object.freeze({
   travel_distance:{kind:'distance',amount:'Distance (m)'},
   location:{kind:'position',amount:null},
   player_death:{kind:'death',amount:'Deaths'},
+  equipment_check:{kind:'custom',amount:null},
   manual:{kind:'manual',amount:'Confirmations'}
 });
 export const objectiveUi=event=>OBJECTIVE_UI[event]||{kind:'custom',amount:'Count'};
@@ -112,7 +113,7 @@ export const changeObjectiveEvent=(objective,event,questId)=>{
   const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
   // Switching between related events must not erase an already chosen modded ID.
   const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','custom'].includes(newKind);
-  const target=sameRegistry?objective.target:event==='manual'?(questId||'questplus:manual'):initialTarget(event);
+  const target=sameRegistry?objective.target:event==='equipment_check'?'questplus:gear':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
   const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
   const cleaned=removePositionCondition(objective.conditions);
   if(cleaned)next.conditions=cleaned;
@@ -180,5 +181,6 @@ export const EVENT_LABELS={
   "travel_distance": "Travel distance",
   "location": "Reach position",
   "player_death": "Die",
+  "equipment_check": "Verify enchanted equipment",
   "manual": "Manual confirmation"
 };
