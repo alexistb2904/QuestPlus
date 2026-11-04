@@ -268,3 +268,15 @@ avant chaque demarrage. Voir [tests Windows](docs/windows-testing.md).
 un rendu de tablette mat anti-bloom et éviter le flou global supplémentaire.
 L'API de Punchy! 3.1+ rend les mains temporairement à FP PAL quand la
 tablette est active. Voir [les tests dédiés](docs/shader-punchy-testing.md).
+
+### Correction des réglages shaders / Échap
+
+L'option supplémentaire « Écran compatible shaders (Iris) » a été retirée :
+c'est **Self Illumination** qui détermine l'éclairage selon l'activation
+réelle d'un shader. Le Background Blur est automatiquement désactivé avec
+tout shader actif. Le HUD et la hotbar se rétablissent immédiatement
+après Échap, même lorsque l'animation finale FP PAL se bloque. Le modèle
+du cadre 3D utilise la texture statique d'origine sous shaders pour limiter
+la réflexion excessive sous Bliss.
+
+Voir [la matrice de tests mise à jour](docs/shader-punchy-testing.md).

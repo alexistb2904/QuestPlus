@@ -154,12 +154,17 @@ Un ancien lanceur passait la racine `%~dp0` avec un antislash final entre
 ### Régression et diagnostic Iris / Punchy
 
 Pour les captures montrant un flou global (Complementary), une tablette
-réfléchissante (Bliss) ou un écran surexposé (MakeUp) : QuestPlus possède
-maintenant une option **Écran compatible shaders (Iris)** dans les paramètres
-(en quatre langues). Le mode évite le blur Minecraft supplémentaire et
-utilise un matériau mat lumineux contrôlé sous Iris. Les shaders restent
-libres de leur post-traitement DOF/SSR propre : en cas de flou persistant,
-tester en désactivant DOF dans le menu du shader.
+réfléchissante (Bliss) ou un écran surexposé (MakeUp) : quand Iris utilise
+réellement un shader, QuestPlus désactive automatiquement le Background
+Blur, indépendamment de l'état Self Illumination. Le matériau écran devient
+mat pour les deux réglages, mais sa luminosité maximale n'est activée que
+par Self Illumination. Le cadre 3D reçoit sa texture statique d'origine.
+
+L'ancienne option distincte « Écran compatible shaders (Iris) » est
+supprimée. La fermeture sécurisée restitue immédiatement le HUD et les
+contrôleurs FP PAL reçoivent un délai de sécurité pour éviter tout blocage
+de l'interface. Les shaders gardent leurs propres DOF/SSR : si le flou
+persiste, tester la désactivation de DOF dans le menu du shader.
 
 La prise en charge de **Punchy! 3.1+** exploite l'API publique pour
 laisser FP PAL gérer la tablette lorsque J est pressé. L'option 25 de ce

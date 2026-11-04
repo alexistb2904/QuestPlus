@@ -38,11 +38,18 @@ Pour sauter la preparation des packs, definir
 
 ### Compatibilite avec Iris / Complementary / Bliss / MakeUp
 
-QuestPlus detecte facultativement Iris via son API publique : lorsque les
-shaders sont activés, le mode **Écran compatible shaders (Iris)** rend l'écran
-en matériau mat avec lumière contrôlée et évite d'appliquer une seconde passe
-de flou globale. Le réglage est activé par défaut et désactivable dans
-l'onglet Paramètres de la tablette. L'affichage Vanilla reste inchangé.
+QuestPlus teste si **un shader pack est actif**, pas seulement la
+présence d'Iris. Dès qu'un shader fonctionne, le flou de fond est désactivé
+automatiquement (sans écraser la préférence utilisateur). Le réglage
+**Self Illumination** remplace l'ancien mode « Écran compatible shaders » :
+shader ON + Self Illumination ON = écran mat éclairé et limité en luminosité ;
+shader ON + Self Illumination OFF = écran mat non émissif éclairé par le monde.
+Le cadre utilise la texture statique d'origine pour réduire les reflets Bliss.
+Sans shader, le rendu Self Illumination conserve son comportement d'origine.
+
+La fermeture de la tablette restitue maintenant immédiatement le HUD ; des
+délais de sécurité interrompent les animations FP PAL bloquées pour éviter la
+disparition prolongée de l'interface Minecraft.
 
 **Punchy! 3.1+** expose `PunchyApi.disable`, que QuestPlus utilise pendant
 son animation FP PAL uniquement. Punchy reste actif en dehors de la tablette.
