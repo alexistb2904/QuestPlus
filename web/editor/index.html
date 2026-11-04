@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#171d15">
+  <meta name="theme-color" content="#30231e">
   <title>Quest Studio · Minecraft QuestPlus</title>
-  <meta name="description" content="Éditeur visuel de quêtes, catégories, objectifs et annotations pour QuestPlus Minecraft.">
+  <meta name="description" content="Create Minecraft QuestPlus quests, categories and quest trees with a visual editor.">
   <link rel="stylesheet" href="./style.css">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
   <script type="module" src="./editor.js"></script>
@@ -14,87 +14,86 @@
   <div class="app">
     <header class="topbar">
       <div class="brand"><div class="brand-mark"><i data-lucide="pickaxe"></i></div><div><div class="brand-name">QUEST <span>STUDIO</span></div><div class="brand-caption">MINECRAFT QUEST EDITOR <span class="version">26.3</span></div></div></div>
-      <div class="workspace-name"><span class="active-dot"></span><span id="project-name">Nouveau projet</span><span id="changes-badge" class="changes-badge">Modifications locales</span></div>
+      <div class="workspace-name"><span class="active-dot"></span><span id="project-name">New project</span><span id="changes-badge" class="changes-badge">Local changes</span></div>
       <div class="top-actions">
-        <label class="language-control">Langue <select id="preview-language" aria-label="Langue de prévisualisation"><option value="en_us">English · en_us</option></select></label>
-        <button id="add-language" class="icon-button" title="Ajouter une langue" aria-label="Ajouter une langue"><i data-lucide="languages"></i></button>
-        <button id="undo" class="icon-button" title="Annuler (Ctrl+Z)" aria-label="Annuler"><i data-lucide="undo-2"></i></button>
-        <button id="redo" class="icon-button" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir"><i data-lucide="redo-2"></i></button>
+        <label class="language-control"><i data-lucide="languages"></i> Interface
+          <select id="ui-language" aria-label="Interface language">
+            <option value="en">English</option><option value="fr">Français</option>
+            <option value="es">Español</option><option value="zh">简体中文</option>
+          </select></label>
+        <label class="language-control">Quest text
+          <select id="preview-language" aria-label="Quest content language"><option value="en_us">English · en_us</option></select>
+        </label>
+        <button id="add-language" class="icon-button" title="Add quest translation" aria-label="Add quest translation"><i data-lucide="languages"></i></button>
+        <button id="undo" class="icon-button" title="Undo (Ctrl+Z)" aria-label="Undo"><i data-lucide="undo-2"></i></button>
+        <button id="redo" class="icon-button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><i data-lucide="redo-2"></i></button>
         <span class="divider"></span>
-        <label class="version-selector" title="Version Minecraft cible">Minecraft <input id="target-version" value="26.3" inputmode="decimal" aria-label="Version Minecraft cible"></label>
-        <button id="open-import" class="button secondary"><i data-lucide="folder-open"></i> Importer</button>
-        <button id="run-validate" class="button secondary"><i data-lucide="check-circle-2"></i> Valider</button>
-        <button id="export-zip" class="button primary"><i data-lucide="download"></i> Exporter ZIP</button>
+        <label class="version-selector" title="Target Minecraft version">Minecraft <input id="target-version" value="26.3" inputmode="decimal" aria-label="Target Minecraft version"></label>
+        <button id="open-import" class="button secondary"><i data-lucide="folder-open"></i> Import</button>
+        <button id="run-validate" class="button secondary"><i data-lucide="check-circle-2"></i> Validate</button>
+        <button id="export-zip" class="button primary"><i data-lucide="download"></i> Export ZIP</button>
       </div>
     </header>
     <div class="workspace">
       <aside class="sidebar">
-        <div class="sidebar-header"><div class="overline">QUEST PACK</div><h2>Bibliothèque</h2></div>
-        <div class="sidebar-actions"><button id="new-category" class="button primary block"><i data-lucide="folder-plus"></i> Catégorie</button></div>
-        <div class="sidebar-section-head"><span>CATÉGORIES</span><span id="category-count" class="count">0</span></div>
-        <div id="categories" class="category-list" role="navigation" aria-label="Catégories de quêtes"></div>
-        <div class="sidebar-section-head quests-head"><span>QUÊTES</span><span id="quest-count" class="count">0</span></div>
-        <div class="search-box"><i data-lucide="search"></i><input id="quest-search" type="search" placeholder="Rechercher une quête…" aria-label="Rechercher une quête"></div>
+        <div class="sidebar-header"><div class="overline">QUEST PACK</div><h2>Library</h2></div>
+        <div class="sidebar-actions"><button id="new-category" class="button primary block"><i data-lucide="folder-plus"></i> Category</button></div>
+        <div class="sidebar-section-head"><span>CATEGORIES</span><span id="category-count" class="count">0</span></div>
+        <div id="categories" class="category-list" role="navigation" aria-label="Quest categories"></div>
+        <div class="sidebar-section-head quests-head"><span>QUESTS</span><span id="quest-count" class="count">0</span></div>
+        <div class="search-box"><i data-lucide="search"></i><input id="quest-search" type="search" placeholder="Search quests…" aria-label="Search quests"></div>
         <div id="quest-list" class="quest-list"></div>
-        <div class="sidebar-footer"><div class="save-dot"></div><div><strong>Brouillon</strong><small id="autosave-status">Local</small></div><button id="load-default" class="subtle" title="Restaurer les quêtes fournies par le mod">Défaut</button><button id="reset-project" class="subtle" title="Nouveau projet vide">↺</button></div>
+        <div class="sidebar-footer"><div class="save-dot"></div><div><strong>Draft</strong><small id="autosave-status">Local</small></div><button id="load-default" class="subtle" title="Restore default quests">Defaults</button><button id="reset-project" class="subtle" title="New blank project">↺</button></div>
       </aside>
       <main class="main">
         <div class="canvas-heading">
-          <div><div class="breadcrumbs"><span>QUESTPLUS</span><span class="slash">/</span><span id="crumb-category">Catégorie</span></div><h1 id="canvas-title">Arbre de quêtes</h1><p id="canvas-subtitle"></p></div>
+          <div><div class="breadcrumbs"><span>QUESTPLUS</span><span class="slash">/</span><span id="crumb-category">Category</span></div><h1 id="canvas-title">Quest tree</h1><p id="canvas-subtitle"></p></div>
           <div class="canvas-actions">
             <button id="new-note" class="button secondary"><i data-lucide="sticky-note"></i> Annotation</button>
-            <button id="new-quest" class="button primary"><i data-lucide="plus"></i> Quête</button>
+            <button id="new-quest" class="button primary"><i data-lucide="plus"></i> Quest</button>
           </div>
         </div>
         <div class="canvas-shell">
           <div class="canvas-toolbar">
-            <div class="seg"><button id="select-category" class="tool-button" title="Modifier cette catégorie"><i data-lucide="folder"></i> Catégorie</button><span class="segline"></span><button id="auto-layout" class="tool-button" title="Disposer automatiquement les quêtes"><i data-lucide="workflow"></i> Disposer</button><span class="segline"></span><button id="preview-toggle" class="tool-button" aria-pressed="false"><i data-lucide="eye"></i> Aperçu jeu</button></div>
-            <div class="canvas-zoom"><button id="zoom-out" title="Dézoomer" aria-label="Dézoomer"><i data-lucide="minus"></i></button><span id="zoom-value">100%</span><button id="zoom-in" title="Zoomer" aria-label="Zoomer"><i data-lucide="plus"></i></button><span class="segline"></span><button id="zoom-fit" title="Ajuster la vue" aria-label="Ajuster la vue"><i data-lucide="maximize"></i></button></div>
+            <div class="seg"><button id="select-category" class="tool-button" title="Edit category"><i data-lucide="folder"></i> Category</button><span class="segline"></span><button id="auto-layout" class="tool-button" title="Auto-arrange quests"><i data-lucide="workflow"></i> Auto-layout</button></div>
+            <div class="canvas-zoom"><button id="zoom-out" title="Zoom out" aria-label="Zoom out"><i data-lucide="minus"></i></button><span id="zoom-value">100%</span><button id="zoom-in" title="Zoom in" aria-label="Zoom in"><i data-lucide="plus"></i></button><span class="segline"></span><button id="zoom-fit" title="Fit view" aria-label="Fit view"><i data-lucide="maximize"></i></button></div>
           </div>
-          <div id="viewport" class="viewport" tabindex="0" aria-label="Éditeur graphique de l'arbre">
+          <div id="viewport" class="viewport" tabindex="0" aria-label="Interactive quest tree editor">
             <svg id="edges" class="edges" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
             <div id="nodes" class="nodes"></div>
-            <div id="empty-tree" class="empty-state hidden"><div class="empty-symbol">◇</div><h3>Arbre vide</h3><button id="empty-add" class="button primary">Créer une quête</button></div>
-            <div id="minecraft-preview" class="minecraft-preview hidden" aria-label="Prévisualisation du menu de quêtes Minecraft">
-              <div class="game-tablet">
-                <div class="game-header"><span>▤ QUEST PLUS</span><div class="game-tabs"><span>Quêtes</span><span>Équipe</span><span>Paramètres</span></div><span>✕</span></div>
-                <div id="game-categories" class="game-categories"></div>
-                <div id="game-tree" class="game-tree"><svg id="game-edges" aria-hidden="true"></svg><div id="game-nodes"></div></div>
-                <div class="game-footer">⌕ Rechercher <span>◈ · − / +</span></div>
-              </div>
-            </div>
+            <div id="empty-tree" class="empty-state hidden"><div class="empty-symbol">◇</div><h3>Empty tree</h3><button id="empty-add" class="button primary">Create quest</button></div>
           </div>
-          <div class="canvas-bottom"><span class="legend"><i class="legend-dot purple"></i> Quête <i class="legend-dot gold"></i> Annotation <i class="legend-line"></i> Prérequis</span><span id="coordinates">x: 0 · y: 0</span><span id="canvas-hint">Glisser · Molette · Pincer</span></div>
+          <div class="canvas-bottom"><span class="legend"><i class="legend-dot purple"></i> Quest <i class="legend-dot gold"></i> Annotation <i class="legend-line"></i> Prerequisite</span><span id="coordinates">x: 0 · y: 0</span><span id="canvas-hint">Drag · Scroll · Pinch</span></div>
         </div>
-        <div class="issues-bar" id="issues-bar"><span class="issues-icon">✓</span><span id="issues-summary">Projet prêt à être exporté</span><button id="show-issues" class="subtle">Voir les contrôles →</button></div>
+        <div class="issues-bar" id="issues-bar"><span class="issues-icon">✓</span><span id="issues-summary">Ready to export</span><button id="show-issues" class="subtle">Details →</button></div>
         <div id="issues-list" class="issues-list hidden"></div>
       </main>
-      <aside class="inspector"><div class="inspector-head"><div class="overline">ÉDITION</div><h2 id="inspector-title">Propriétés</h2><p id="inspector-subtitle"></p></div><div id="inspector-body" class="inspector-body"></div><div class="inspector-footer"><button id="open-json" class="button secondary block"><i data-lucide="braces"></i> JSON avancé</button></div></aside>
+      <aside class="inspector"><div class="inspector-head"><div class="overline">EDITOR</div><h2 id="inspector-title">Properties</h2><p id="inspector-subtitle"></p></div><div id="inspector-body" class="inspector-body"></div><div class="inspector-footer"><button id="open-json" class="button secondary block"><i data-lucide="braces"></i> Advanced JSON</button></div></aside>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="icon-picker" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="icon-title">
-    <div class="modal-card icon-modal"><div class="modal-head"><div><div class="overline">MINECRAFT 26.3</div><h2 id="icon-title">Choisir une icône</h2></div><button id="icon-close" class="icon-button" aria-label="Fermer">×</button></div>
-      <div class="icon-filter-row"><input id="icon-search" type="search" class="icon-search" placeholder="Chercher parmi tous les items et blocs…" aria-label="Rechercher un objet Minecraft">
-        <select id="icon-filter" aria-label="Filtrer les icônes">
-          <option value="all">Tout</option><option value="item">Items</option><option value="block">Blocs</option>
+    <div class="modal-card icon-modal"><div class="modal-head"><div><div class="overline">MINECRAFT 26.3</div><h2 id="icon-title">Choose an icon</h2></div><button id="icon-close" class="icon-button" aria-label="Close">×</button></div>
+      <div class="icon-filter-row"><input id="icon-search" type="search" class="icon-search" placeholder="Search every item and block…" aria-label="Search Minecraft items">
+        <select id="icon-filter" aria-label="Filter icons">
+          <option value="all">All</option><option value="item">Items</option><option value="block">Blocks</option>
         </select></div>
       <div id="icon-count" class="icon-count">1 658 items</div>
-      <div id="icon-grid" class="icon-grid"></div><button id="icon-more" class="button secondary" hidden>Afficher plus</button>
-      <div class="icon-picker-bottom">Pour un mod, entre directement son ID dans le champ.</div>
+      <div id="icon-grid" class="icon-grid"></div><button id="icon-more" class="button secondary" hidden>Load more</button>
+      <div class="icon-picker-bottom">For modded items, type their namespaced ID directly.</div>
     </div>
   </div>
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card">
-    <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Éditeur avancé</h2></div><button id="modal-close" class="icon-button" aria-label="Fermer">×</button></div>
+    <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Advanced editor</h2></div><button id="modal-close" class="icon-button" aria-label="Close">×</button></div>
     <p id="modal-description" class="modal-description"></p>
-    <textarea id="json-input" spellcheck="false" aria-label="JSON avancé"></textarea>
+    <textarea id="json-input" spellcheck="false" aria-label="Advanced JSON"></textarea>
     <div id="json-error" class="error-line" role="alert"></div>
-    <div class="modal-actions"><button id="modal-cancel" class="button secondary">Annuler</button><button id="modal-apply" class="button primary">Appliquer</button></div>
+    <div class="modal-actions"><button id="modal-cancel" class="button secondary">Cancel</button><button id="modal-apply" class="button primary">Apply</button></div>
   </div></div>
   <div id="import-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="import-title"><div class="modal-card small">
-    <div class="modal-head"><div><div class="overline">IMPORT</div><h2 id="import-title">Ouvrir un pack QuestPlus</h2></div><button id="import-close" class="icon-button" aria-label="Fermer">×</button></div>
-    <p class="modal-description">Importe un ZIP exporté par Quest Studio ou les fichiers JSON de ton dossier serveur. L'import remplace le projet courant après confirmation.</p>
-    <div class="import-choices"><button id="choose-zip" class="import-choice"><strong>▣ Archive ZIP</strong><small>Un pack complet .zip</small></button><button id="choose-folder" class="import-choice"><strong>▤ Dossier QuestPlus</strong><small>Catégories, quêtes et config</small></button><button id="choose-files" class="import-choice"><strong>⧉ Fichiers JSON</strong><small>Sélection multiple</small></button></div>
+    <div class="modal-head"><div><div class="overline">IMPORT</div><h2 id="import-title">Open a QuestPlus pack</h2></div><button id="import-close" class="icon-button" aria-label="Close">×</button></div>
+    <p class="modal-description">Import a ZIP pack or JSON files. Your current project will be replaced after confirmation.</p>
+    <div class="import-choices"><button id="choose-zip" class="import-choice"><strong>▣ Archive ZIP</strong><small>A complete .zip pack</small></button><button id="choose-folder" class="import-choice"><strong>▤ Dossier QuestPlus</strong><small>Categories, quests and config</small></button><button id="choose-files" class="import-choice"><strong>⧉ Fichiers JSON</strong><small>Select multiple files</small></button></div>
     <input id="file-zip" type="file" accept=".zip,application/zip" hidden><input id="file-folder" type="file" webkitdirectory directory multiple hidden><input id="file-json" type="file" accept=".json,application/json" multiple hidden>
   </div></div>
 </body>

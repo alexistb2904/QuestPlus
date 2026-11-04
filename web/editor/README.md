@@ -34,6 +34,31 @@ Les projets modifiés restent dans le stockage local du navigateur et ne sont **
 automatiquement publiés ou synchronisés d'un appareil à l'autre. Utiliser l'export
 ZIP pour transférer des définitions entre appareils ou vers Minecraft.
 
+## Design system & internationalization
+
+Quest Studio mirrors the QuestPlus Minecraft GUI in
+`src/main/java/dev/questplus/fabric/client/ui/QuestSkin.java`:
+PAPER `#35251d`, INK `#e3cdb1`, DIM `#ac927a`,
+EDGE `#76513b`, SELECTED `#d4ad70`, background `#30231e`
+and tree canvas `#38291f`. The green-themed website was replaced by the
+actual in-game copper/parchment palette.
+
+**One editor tree only.** The former `Aperçu jeu` mode was removed as
+redundant; the canvas itself uses QuestLayout world coordinates, supports
+mouse-wheel zoom, drag-to-pan, and touch pinch zoom.
+
+**Site UI localization:** English by default. Browser detection uses
+`navigator.languages` for English, French, Spanish and Simplified Chinese,
+falling back to English when unsupported. A separate **Interface** dropdown
+stores a manual override under `questplus.studio.uiLocale`.
+Translations are bundled in `web/editor/ui-i18n.js` for offline use.
+**Quest text localization is separate:** the "Quest text" field always starts
+with the canonical English `en_us` source and offers `fr_fr`,
+`es_es`, `zh_cn` as immediate translation targets, plus custom Minecraft
+locale codes. Switching the site's interface language never rewrites
+quest/category/objective translations. Previously saved editor drafts
+stay in localStorage without data migration.
+
 ## Éditeur Minecraft 26.3
 
 Le site démarre sur **les 4 catégories et 13 quêtes réellement intégrées au mod**
@@ -62,11 +87,7 @@ du mod correspondant. Les textures originales appartiennent à Mojang Studios.
 **Coordonnées :** `game-layout.js` reproduit les règles de `QuestLayout.java`
 pour les nœuds 32 × 32, l'espacement automatique 64 × 72, les dépendances,
 la priorité des positions `layout.x/y` explicites, ainsi que les bornes
-de zoom de `QuestCamera.java`. Le bouton **Aperçu jeu** affiche un cadre
-et un arbre avec les mêmes coordonnées et les connexions orthogonales du
-client Minecraft. C'est un aperçu CSS/DOM inspiré du jeu, **pas une capture
-du moteur 3D** ; FOV, textures de packs et comportement d'autres mods ne
-peuvent pas être garantis dans le navigateur.
+de zoom de `QuestCamera.java`. Le diagramme de l'éditeur est la seule représentation de l'arbre ; il utilise directement les coordonnées du mod.
 
 La création reste compacte : nom anglais, icône, objectifs, position ;
 les récompenses, prérequis et paramètres se trouvent dans des sections
@@ -90,9 +111,7 @@ repliables. La description est facultative, sans répétition de l'objectif.
 
 ## Studio : gestes, conditions et compatibilité
 
-Le navigateur a deux caméras indépendantes (édition/aperçu) : glisser pour
-déplacer, molette pour zoomer/dézoomer et pincer avec deux doigts sur mobile.
-Les boutons +, − et ajuster fonctionnent dans les deux vues.
+Le navigateur utilise une seule caméra : glisser pour déplacer, molette pour zoomer/dézoomer et pincer avec deux doigts sur mobile. Les boutons +, − et ajuster restent disponibles.
 
 **IDs** : à la création, le titre anglais donne `questplus:category/title-name`.
 En cas de doublon, le prochain suffixe libre est `-2`, `-3`… Si le titre

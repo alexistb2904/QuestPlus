@@ -1,3 +1,4 @@
+import {storedUiLocale,setUiLocale,getUiLocale,tUI,translateUI} from './ui-i18n.js';
 import {questId as generatedQuestId,categoryId as generatedCategoryId} from './quest-ids.js';
 import {atPath,setAt,addChild,wrap,leaf,OBJECTIVE_KINDS} from './conditions.js';
 import {gameLayout,gameFit,NODE_SIZE} from './game-layout.js';
@@ -10,8 +11,9 @@ import {inspectorData} from './inspector.js';
 const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='questplus.quest-studio.v1',LIMIT=65;
+setUiLocale(storedUiLocale());
 let project=demoProject(),categoryId=project.categories[0].id,selection={type:'category',id:categoryId};
-let camera={x:0,y:30,zoom:1},previewCamera=null,language='en_us',previewMode=false,history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
+let camera={x:0,y:30,zoom:1},language='en_us',history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
 const pointers=new Map();let gesture=null;
 try {
   const data=JSON.parse(localStorage.getItem(STORAGE)||'null');
@@ -29,13 +31,13 @@ const getSelected=()=>{
   if(selection.type==='quest')return project.quests.find(q=>q.id===selection.id);
   return currentCategory()?.annotations?.find(n=>n.id===selection.id);
 };
-function notify(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3100);}
+function notify(message){const el=$('#toast');el.textContent=tUI(message);el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3100);}
 function snapshot(){return {project:copy(project),categoryId,selection:copy(selection),camera:copy(camera)};}
 function persist(){
   clearTimeout(savedTimer);
   savedTimer=setTimeout(()=>{
-    try{localStorage.setItem(STORAGE,JSON.stringify({...snapshot(),language}));$('#autosave-status').textContent='Enregistré dans ce navigateur';}
-    catch(e){$('#autosave-status').textContent='Stockage local indisponible';notify('Sauvegarde locale impossible : exportez un ZIP.');}
+    try{localStorage.setItem(STORAGE,JSON.stringify({...snapshot(),language}));$('#autosave-status').textContent=tUI('Saved in this browser');}
+    catch(e){$('#autosave-status').textContent=tUI('Local storage unavailable');notify('Export a ZIP to keep your changes.');}
   },500);
 }
 function remember(before){history.push(before);if(history.length>LIMIT)history.shift();future=[];}
@@ -82,7 +84,7 @@ const LOCALE_LABELS={
   gl_es:'Galego',af_za:'Afrikaans'
 };
 const userLocales=()=>{
-  const codes=new Set(['en_us',...(project.editorLocales||[]),language]);
+  const codes=new Set(['en_us','fr_fr','es_es','zh_cn',...(project.editorLocales||[]),language]);
   const collect=o=>{
     if(!o||typeof o!=='object')return;
     for(const [key,v] of Object.entries(o)){
@@ -100,33 +102,34 @@ function renderLanguages(){
     escape((LOCALE_LABELS[code]||code)+' · '+code)+'</option>').join('');
   select.value=language;
 }
-const categoryLabel=()=>text(currentCategory()?.title,language)||'Aucune catégorie';
+const categoryLabel=()=>text(currentCategory()?.title,language)||tUI('No category');
 function refresh(){
   ensureCategory();
   renderLanguages();
   document.title='Quest Studio — '+categoryLabel();
-  $('#project-name').textContent='QuestPlus · '+project.categories.length+' catégories';
+  $('#project-name').textContent='QuestPlus · '+project.categories.length+' '+tUI('Categories').toLowerCase();
   $('#crumb-category').textContent=categoryLabel();
   $('#canvas-title').textContent=categoryLabel();
-  $('#canvas-subtitle').textContent=(categoryQuests().length)+' quêtes · '+(currentCategory()?.annotations?.length||0)+' annotations';
+  $('#canvas-subtitle').textContent=categoryQuests().length+' '+tUI('Quests').toLowerCase()+' · '+(currentCategory()?.annotations?.length||0)+' '+tUI('Annotation').toLowerCase();
   $('#category-count').textContent=project.categories.length;
   $('#quest-count').textContent=categoryQuests().length;
   $('#undo').disabled=!history.length;$('#redo').disabled=!future.length;
   $('#target-version').value=project.targetMinecraftVersion||'26.3';
   $('#new-quest').disabled=!currentCategory();$('#new-note').disabled=!currentCategory();
-  $('#categories').innerHTML=project.categories.map(c=>`<button class="category-item ${c.id===categoryId?'active':''}" data-cat="${escape(c.id)}"><span class="cat-icon">${iconFor(c.icon)}</span><span><strong class="cat-name">${escape(text(c.title,language))}</strong><small class="cat-sub">${escape(c.id)}</small></span></button>`).join('')||'<div class="tip">Aucune catégorie</div>';
+  $('#categories').innerHTML=project.categories.map(c=>`<button class="category-item ${c.id===categoryId?'active':''}" data-cat="${escape(c.id)}"><span class="cat-icon">${iconFor(c.icon)}</span><span><strong class="cat-name">${escape(text(c.title,language))}</strong><small class="cat-sub">${escape(c.id)}</small></span></button>`).join('')||'<div class="tip">'+escape(tUI('No category'))+'</div>';
   const needle=$('#quest-search').value.trim().toLowerCase();
   $('#quest-list').innerHTML=categoryQuests().filter(q=>!needle||text(q.title,language).toLowerCase().includes(needle)||q.id.includes(needle)).map(q=>
     `<button class="quest-item ${selection?.type==='quest'&&selection.id===q.id?'active':''}" data-quest="${escape(q.id)}">
       <span class="quest-glyph">${iconFor(q.icon)}</span><span class="quest-label"><strong>${escape(text(q.title,language))}</strong><small>${escape(q.id.split('/').pop())}</small></span></button>`).join('')||
-    '<div class="tip">Aucune quête.</div>';
-  renderInspector();renderScene();renderIssues();
+    '<div class="tip">'+escape(tUI('No quests'))+'</div>';
+  renderInspector();renderScene();renderIssues();translateUI(document);
 }
 function renderInspector(){
   const old=$('#inspector-body'),opened=new Set([...old.querySelectorAll('details[open][data-panel]')].map(x=>x.dataset.panel));
   const i=inspectorData(project,selection,categoryId,language);
   $('#inspector-title').textContent=i.title;$('#inspector-subtitle').textContent=i.subtitle;old.innerHTML=i.html;
   for(const el of old.querySelectorAll('details[data-panel]'))if(opened.has(el.dataset.panel))el.open=true;
+  translateUI(document);
 }
 function renderIssues(){
   const issues=validate(project),bar=$('#issues-bar');
@@ -134,29 +137,20 @@ function renderIssues(){
   bar.querySelector('.issues-icon').textContent=issues.length?'!':'✓';
   const allIcons=[...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)];
   const warnings=[...new Set(allIcons)].map(id=>versionWarning(project,id)).filter(Boolean);
-  $('#issues-summary').textContent=issues.length?issues.length+' erreur'+(issues.length>1?'s':''):
-   warnings.length?warnings.length+' avertissement'+(warnings.length>1?'s':'')+' de version':'Prêt à exporter';
-  $('#issues-list').innerHTML=(issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')+
-    warnings.map(s=>`<div class="version-alert">${escape(s)}</div>`).join(''))||'<div>Aucune erreur.</div>';
+  $('#issues-summary').textContent=issues.length?issues.length+' '+tUI('errors'):
+   warnings.length?warnings.length+' '+tUI('version warnings'):tUI('Ready to export');
+  $('#issues-list').innerHTML=(issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(tUI(i.message))}</div>`).join('')+
+    warnings.map(s=>`<div class="version-alert">${escape(s)}</div>`).join(''))||'<div>'+escape(tUI('No errors'))+'</div>';
 }
 function worldToPixel(x,y){const box=$('#viewport');return {x:(x-camera.x)*camera.zoom+box.clientWidth/2,y:(y-camera.y)*camera.zoom+box.clientHeight/2};}
 function pixelToWorld(x,y){const box=$('#viewport');return {x:(x-box.clientWidth/2)/camera.zoom+camera.x,y:(y-box.clientHeight/2)/camera.zoom+camera.y};}
 function renderScene(){
   const el=$('#viewport'),width=el.clientWidth,height=el.clientHeight;if(!width||!height)return;
   const rows=categoryQuests(),layout=gameLayout(rows),positions=layout.points;
-  $('#zoom-value').textContent=Math.round((previewMode?(previewCamera?.zoom||1):camera.zoom)*100)+'%';
+  $('#zoom-value').textContent=Math.round(camera.zoom*100)+'%';
   el.style.backgroundSize=`${32*camera.zoom}px ${32*camera.zoom}px`;
   el.style.backgroundPosition=`${-camera.x*camera.zoom+width/2}px ${-camera.y*camera.zoom+height/2}px`;
-  $('#empty-tree').classList.toggle('hidden',previewMode||rows.length>0||(currentCategory()?.annotations||[]).length>0);
-  $('#minecraft-preview').classList.toggle('hidden',!previewMode);
-  $('#preview-toggle').setAttribute('aria-pressed',String(previewMode));
-  if($('#preview-toggle').dataset.mode!==String(previewMode)){
-    $('#preview-toggle').dataset.mode=String(previewMode);
-    $('#preview-toggle').innerHTML=previewMode?'<i data-lucide="pencil"></i> Édition':'<i data-lucide="eye"></i> Aperçu jeu';
-    window.lucide?.createIcons();
-  }
-  $('#canvas-hint').textContent=previewMode?'Aperçu du rendu Minecraft':'Molette : zoom · Glisser : déplacer';
-  if(previewMode){$('#nodes').innerHTML='';$('#edges').innerHTML='';renderGamePreview(layout);return;}
+  $('#empty-tree').classList.toggle('hidden',rows.length>0||(currentCategory()?.annotations||[]).length>0);
   const shapes=[];
   for(const q of rows){
     const pos=positions.get(q.id),pt=worldToPixel(pos.x,pos.y);
@@ -186,47 +180,13 @@ function renderScene(){
   $('#edges').setAttribute('viewBox',`0 0 ${width} ${height}`);
   $('#edges').innerHTML=lines.join('');
 }
-function renderGamePreview(layout){
-  const target=$('#game-tree'),width=target.clientWidth,height=target.clientHeight;
-  if(!width||!height){requestAnimationFrame(()=>{if(previewMode)renderGamePreview(layout);});return;}
-  if(!previewCamera)previewCamera=gameFit(layout.points.values(),width,height,24);
-  const previewCam=previewCamera;
-  const point=(x,y)=>({x:(x-previewCam.x)*previewCam.zoom+width/2,y:(y-previewCam.y)*previewCam.zoom+height/2});
-  $('#game-categories').innerHTML=project.categories.map(c=>
-    `<button class="game-category ${c.id===categoryId?'selected':''}" data-preview-category="${escape(c.id)}" title="${escape(text(c.title,language))}">${iconFor(c.icon)}</button>`).join('');
-  const rows=categoryQuests();
-  $('#game-nodes').innerHTML=rows.map(q=>{
-    const v=layout.points.get(q.id);if(!v)return '';
-    const p=point(v.x,v.y),selected=selection?.id===q.id;
-    return `<button class="game-quest ${selected?'selected':''}" data-preview-quest="${escape(q.id)}"
-      title="${escape(text(q.title,language))}" style="left:${p.x}px;top:${p.y}px;transform:translate(-50%,-50%) scale(${previewCam.zoom})">${iconFor(q.icon)}</button>`;
-  }).join('')+(currentCategory()?.annotations||[]).map(a=>{
-    const p=point(a.x,a.y);
-    return `<div class="game-note ${escape(a.style||'note')}" style="left:${p.x}px;top:${p.y}px;transform:translate(-50%,-50%) scale(${previewCam.zoom});color:${escape(a.color||'#c6a986')}">${escape(text(a.text,language))}</div>`;
-  }).join('');
-  const edges=layout.edges.map(({from,to})=>{
-    const a=layout.points.get(from),b=layout.points.get(to);
-    const p=point(a.x,a.y+16),q=point(b.x,b.y-16);
-    return `<path d="M ${p.x} ${p.y} V ${(p.y+q.y)/2} H ${q.x} V ${q.y}"/>`;
-  });
-  $('#game-edges').setAttribute('viewBox',`0 0 ${width} ${height}`);
-  $('#game-edges').innerHTML=edges.join('');
-}
-function selectCategory(id){categoryId=id;selection={type:'category',id};previewCamera=null;fit();refresh();}
+function selectCategory(id){categoryId=id;selection={type:'category',id};fit();refresh();}
 function selectObject(type,id){selection={type,id};refresh();}
 function fit(){
   const graph=gameLayout(categoryQuests());
   const points=[...graph.points.values(),...(currentCategory()?.annotations||[]).map(a=>({x:a.x,y:a.y}))];
   const el=$('#viewport');
   camera=gameFit(points,Math.max(1,el.clientWidth),Math.max(1,el.clientHeight),48);
-}
-function zoomPreviewAt(factor,x,y){
-  const el=$('#game-tree'),w=el.clientWidth,h=el.clientHeight;
-  if(!previewCamera)previewCamera=gameFit(gameLayout(categoryQuests()).points.values(),w,h,24);
-  const c=previewCamera,worldX=(x-w/2)/c.zoom+c.x,worldY=(y-h/2)/c.zoom+c.y;
-  c.zoom=Math.max(.25,Math.min(2.5,c.zoom*factor));
-  c.x=worldX-(x-w/2)/c.zoom;c.y=worldY-(y-h/2)/c.zoom;
-  renderScene();
 }
 function zoomAt(factor,x,y){
   const el=$('#viewport'),before=pixelToWorld(x,y);
@@ -244,7 +204,7 @@ function placeAuto(){
 }
 function unique(base,ids){let id=base,index=2;while(ids.has(id))id=base+'_'+index++;return id;}
 function createCategory(){
-  const name=prompt('Category name (English):','New category');
+  const name=prompt(tUI('Category name (English):'),tUI('New category'));
   if(name===null)return;const title=name.trim()||'New category';
   mutate(()=>{
     const id=generatedCategoryId(title,new Set(project.categories.map(c=>c.id)));
@@ -255,7 +215,7 @@ function createCategory(){
 }
 function createQuest(){
   const cat=currentCategory();if(!cat)return notify('Crée d’abord une catégorie.');
-  const name=prompt('Quest name (English):','New quest');
+  const name=prompt(tUI('Quest name (English):'),tUI('New quest'));
   if(name===null)return;
   mutate(()=>{
     const title=name.trim()||'New quest',base=cat.id.split(':')[1].replace(/\/$/,'');
@@ -334,13 +294,13 @@ function setField(field,value){
 function deleteSelected(){
   const selected=getSelected();if(!selected)return;
   if(selection.type==='category'){
-    if(categoryQuests().length)return notify('Déplace ou supprime les quêtes avant cette catégorie.');
-    if(!confirm('Supprimer la catégorie '+selected.id+' ?'))return;
+    if(categoryQuests().length)return notify('Cannot delete a category with quests.');
+    if(!confirm(tUI('Delete the category')+' '+selected.id+' ?'))return;
     mutate(()=>{project.categories=project.categories.filter(c=>c!==selected);categoryId=project.categories[0]?.id||null;selection=categoryId?{type:'category',id:categoryId}:null;});
   }else if(selection.type==='quest'){
     const used=project.quests.filter(q=>q.id!==selected.id&&references(q.requires).includes(selected.id));
-    if(used.length)return notify('Cette quête est un prérequis de '+used.length+' autre(s) quête(s).');
-    if(!confirm('Supprimer définitivement cette quête ?'))return;
+    if(used.length)return notify(tUI('Quest is a prerequisite for')+' '+used.length+' '+tUI('Quests').toLowerCase());
+    if(!confirm(tUI('Delete this quest permanently?')))return;
     mutate(()=>{project.quests=project.quests.filter(q=>q!==selected);selection={type:'category',id:categoryId};});
   }else{
     mutate(()=>{currentCategory().annotations=currentCategory().annotations.filter(a=>a!==selected);selection={type:'category',id:categoryId};});
@@ -365,7 +325,7 @@ function inspectorAction(action,index){
       o.objectives||=[];o.objectives.push({id,event:'block_break',target:'minecraft:stone',count:1});
     });
     case 'remove-objective':return mutate(()=>{
-      if(o.objectives.length===1)return notify('Une quête standard doit avoir au moins un objectif.')&&false;
+      if(o.objectives.length===1)return notify('A standard quest needs at least one objective.')&&false;
       o.objectives.splice(index,1);
     });
     case 'add-xp':return mutate(()=>{o.rewards||=[];o.rewards.push({type:'experience',amount:5});});
@@ -380,10 +340,10 @@ function renderIconPicker(){
   const matches=vanillaCatalog().filter(v=>(pickerKind==='all'||v.kind===pickerKind||v.kind==='both')&&
    (v.id+' '+v.label).toLowerCase().includes(query));
   const items=matches.slice(0,pickerLimit);
-  $('#icon-count').textContent=matches.length+' résultats';
+  $('#icon-count').textContent=matches.length+' '+tUI('results');
   $('#icon-more').hidden=items.length>=matches.length;
   $('#icon-grid').innerHTML=items.map(item=>`<button class="icon-choice" data-pick-icon="${escape(item.id)}" title="${escape(item.id)}">
-    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">Aucun résultat</div>';
+    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">'+escape(tUI('No results'))+'</div>';
 }
 inspector.addEventListener('click',e=>{
   const button=e.target.closest('[data-icon-open]');if(!button)return;
@@ -498,7 +458,7 @@ inspector.addEventListener('change',e=>{
  const el=e.target;
  if(!el.matches('[data-icon-version]'))return;
  const version=el.value.trim(),id=el.dataset.iconVersion;
- if(!/^\d+\.\d+$/.test(version))return notify('Version invalide, exemple : 26.4');
+ if(!/^\d+\.\d+$/.test(version))return notify('Invalid version (e.g. 26.4)');
  mutate(()=>{
   project.iconVersions||={};project.iconVersions[id]=version;
  });
@@ -528,8 +488,13 @@ $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
 $('#preview-language').addEventListener('change',e=>{language=e.target.value;refresh();persist();});
+$('#ui-language').value=getUiLocale();
+$('#ui-language').addEventListener('change',e=>{
+ setUiLocale(e.target.value,{save:true});
+ refresh();
+});
 $('#add-language').onclick=()=>{
-  const value=prompt('Minecraft locale code (e.g. de_de, es_es, ja_jp):','de_de');
+  const value=prompt(tUI('Minecraft locale code (e.g. de_de, es_es, ja_jp):'),'de_de');
   if(value===null)return;
   const code=value.trim().toLowerCase();
   if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(code)){notify('Code de langue invalide (ex : de_de).');return;}
@@ -538,35 +503,28 @@ $('#add-language').onclick=()=>{
   remember(before);language=code;refresh();persist();notify('Langue : '+code);
 };
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
-$('#preview-toggle').onclick=()=>{previewMode=!previewMode;if(previewMode)previewCamera=null;renderScene();};
 $('#target-version').addEventListener('change',e=>{
  const v=e.target.value.trim();
- if(!/^\d+\.\d+$/.test(v)){e.target.value=project.targetMinecraftVersion||'26.3';return notify('Version invalide');}
+ if(!/^\d+\.\d+$/.test(v)){e.target.value=project.targetMinecraftVersion||'26.3';return notify('Invalid version');}
  mutate(()=>{project.targetMinecraftVersion=v;});renderIssues();
 });
-$('#game-categories').addEventListener('click',e=>{const b=e.target.closest('[data-preview-category]');if(b)selectCategory(b.dataset.previewCategory);});
-$('#game-nodes').addEventListener('click',e=>{const b=e.target.closest('[data-preview-quest]');if(b)selectObject('quest',b.dataset.previewQuest);});
 $('#load-default').onclick=()=>{
-  if(!confirm('Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.'))return;
+  if(!confirm(tUI('Restore the quests shipped with QuestPlus? This replaces your current draft.')))return;
   mutate(()=>{project=demoProject();categoryId=project.categories[0]?.id||null;selection={type:'category',id:categoryId};camera={x:0,y:0,zoom:1};fit();});
   notify('Quêtes du mod restaurées');
 };
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
-$('#auto-layout').onclick=()=>{if(!confirm('Repositionner automatiquement toutes les quêtes de cette catégorie ?'))return;mutate(placeAuto);notify('Disposition recalculée');};
-$('#zoom-fit').onclick=()=>{if(previewMode)previewCamera=null;else fit();renderScene();};$('#zoom-in').onclick=()=>{if(previewMode){const el=$('#game-tree');zoomPreviewAt(1.18,el.clientWidth/2,el.clientHeight/2);}else{const el=$('#viewport');zoomAt(1.18,el.clientWidth/2,el.clientHeight/2);}};
-$('#zoom-out').onclick=()=>{if(previewMode){const el=$('#game-tree');zoomPreviewAt(1/1.18,el.clientWidth/2,el.clientHeight/2);}else{const el=$('#viewport');zoomAt(1/1.18,el.clientWidth/2,el.clientHeight/2);}};
+$('#auto-layout').onclick=()=>{if(!confirm(tUI('Reposition every quest in this category?')))return;mutate(placeAuto);notify('Disposition recalculée');};
+$('#zoom-fit').onclick=()=>{fit();renderScene();};$('#zoom-in').onclick=()=>{const el=$('#viewport');zoomAt(1.18,el.clientWidth/2,el.clientHeight/2);};
+$('#zoom-out').onclick=()=>{const el=$('#viewport');zoomAt(1/1.18,el.clientWidth/2,el.clientHeight/2);};
 $('#undo').onclick=undo;$('#redo').onclick=redo;
-$('#reset-project').onclick=()=>{if(!confirm('Créer un projet vierge ? Le projet actuel reste exportable seulement s’il a déjà été téléchargé.'))return;mutate(()=>{project=emptyProject();categoryId=null;selection=null;camera={x:0,y:0,zoom:1};});};
+$('#reset-project').onclick=()=>{if(!confirm(tUI('Create an empty project? Export your current work first.')))return;mutate(()=>{project=emptyProject();categoryId=null;selection=null;camera={x:0,y:0,zoom:1};});};
 $('#run-validate').onclick=()=>{renderIssues();$('#issues-list').classList.remove('hidden');notify(validate(project).length?'Corrige les alertes de validation':'Structure du projet vérifiée ✓');};
 $('#show-issues').onclick=()=>$('#issues-list').classList.toggle('hidden');
 const viewport=$('#viewport');
-function surface(){return previewMode?$('#game-tree'):viewport;}
-function surfaceCamera(){
- if(previewMode && !previewCamera)previewCamera=gameFit(gameLayout(categoryQuests()).points.values(),
-    Math.max(1,$('#game-tree').clientWidth),Math.max(1,$('#game-tree').clientHeight),24);
- return previewMode?previewCamera:camera;
-}
+function surface(){return viewport;}
+function surfaceCamera(){return camera;}
 function gestureStart(){
  const pts=[...pointers.values()].slice(0,2),rect=surface().getBoundingClientRect();
  const mid={x:(pts[0].x+pts[1].x)/2-rect.left,y:(pts[0].y+pts[1].y)/2-rect.top};
@@ -578,11 +536,10 @@ function gestureStart(){
 }
 viewport.addEventListener('pointerdown',e=>{
  if(e.button!==0||e.target.closest('button,input'))return;
- if(previewMode&&!e.target.closest('#game-tree'))return;
  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
  if(pointers.size===2){gestureStart();viewport.setPointerCapture(e.pointerId);return;}
  if(pointers.size>2)return;
- const node=!previewMode?e.target.closest('[data-node-type]'):null;
+ const node=e.target.closest('[data-node-type]');
  const type=node?.dataset.nodeType,id=node?.dataset.nodeId;
  if(node){
   selection={type,id};renderInspector();renderScene();
@@ -597,9 +554,7 @@ viewport.addEventListener('pointerdown',e=>{
 });
 viewport.addEventListener('pointermove',e=>{
  const rect=surface().getBoundingClientRect();
- const pos=previewMode?{x:(e.clientX-rect.left-rect.width/2)/(previewCamera?.zoom||1)+(previewCamera?.x||0),
- y:(e.clientY-rect.top-rect.height/2)/(previewCamera?.zoom||1)+(previewCamera?.y||0)}
- :pixelToWorld(e.clientX-rect.left,e.clientY-rect.top);
+ const pos=pixelToWorld(e.clientX-rect.left,e.clientY-rect.top);
  $('#coordinates').textContent='x: '+Math.round(pos.x)+' · y: '+Math.round(pos.y);
  if(!pointers.has(e.pointerId))return;
  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -608,7 +563,7 @@ viewport.addEventListener('pointermove',e=>{
   const pts=[...pointers.values()].slice(0,2),mid={x:(pts[0].x+pts[1].x)/2-rect.left,y:(pts[0].y+pts[1].y)/2-rect.top};
   const distance=Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
   const c=surfaceCamera();
-  c.zoom=Math.max(.25,Math.min(previewMode?2.5:3,gesture.zoom*distance/gesture.distance));
+  c.zoom=Math.max(.25,Math.min(3,gesture.zoom*distance/gesture.distance));
   c.x=gesture.worldX-(mid.x-rect.width/2)/c.zoom;c.y=gesture.worldY-(mid.y-rect.height/2)/c.zoom;
   renderScene();return;
  }
@@ -644,20 +599,15 @@ viewport.addEventListener('pointercancel',finishPointer);
 viewport.addEventListener('lostpointercapture',e=>{if(pointers.has(e.pointerId))finishPointer(e);});
 viewport.addEventListener('wheel',e=>{
  e.preventDefault();
- if(previewMode){
-  const rect=$('#game-tree').getBoundingClientRect();
-  zoomPreviewAt(Math.exp(-e.deltaY*.0014),Math.max(0,Math.min(rect.width,e.clientX-rect.left)),Math.max(0,Math.min(rect.height,e.clientY-rect.top)));
- }else{
-  const rect=viewport.getBoundingClientRect();
-  zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);
- }
+ const rect=viewport.getBoundingClientRect();
+ zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);
 },{passive:false});
 function showModal(m){$(m).classList.remove('hidden');}
 function hideModal(m){$(m).classList.add('hidden');}
 $('#open-json').onclick=()=>{
-  const obj=getSelected();if(!obj)return notify('Choisis un élément à éditer.');
+  const obj=getSelected();if(!obj)return notify('Select an element to edit.');
   $('#json-input').value=JSON.stringify(obj,null,2);$('#json-error').textContent='';
-  $('#modal-kicker').textContent=selection.type.toUpperCase();$('#modal-title').textContent='Modifier '+(obj.id||'la sélection');
+  $('#modal-kicker').textContent=tUI(selection.type==='category'?'Category':selection.type==='quest'?'Quest':'Annotation').toUpperCase();$('#modal-title').textContent=tUI('Edit')+' '+(obj.id||tUI('Selection'));
   showModal('#modal');$('#json-input').focus();
 };
 $('#modal-close').onclick=$('#modal-cancel').onclick=()=>hideModal('#modal');
@@ -686,10 +636,10 @@ async function importSelection(el,zip=false){
   try{
     const docs=zip?await readZip(files[0]):await Promise.all(files.filter(f=>f.name.endsWith('.json')).map(async f=>({name:f.webkitRelativePath||f.name,content:await f.text()})));
     const imported=importDocuments(docs);
-    if(!confirm('Remplacer le projet en cours par '+imported.quests.length+' quêtes et '+imported.categories.length+' catégories ?'))return;
+    if(!confirm(tUI('Replace current project with')+' '+imported.quests.length+' '+tUI('Quests').toLowerCase()+' / '+imported.categories.length+' '+tUI('Categories').toLowerCase()+' ?'))return;
     mutate(()=>{project=imported;categoryId=project.categories[0]?.id||null;selection=categoryId?{type:'category',id:categoryId}:null;camera={x:0,y:0,zoom:1};fit();});
-    hideModal('#import-modal');notify('Projet importé : '+project.quests.length+' quêtes');
-  }catch(e){console.error(e);notify('Import impossible : '+e.message);}
+    hideModal('#import-modal');notify(tUI('Project imported')+': '+project.quests.length+' '+tUI('Quests').toLowerCase());
+  }catch(e){console.error(e);notify(tUI('Import failed')+': '+e.message);}
   finally{el.value='';}
 }
 $('#file-zip').onchange=e=>importSelection(e.target,true);
@@ -697,15 +647,15 @@ $('#file-folder').onchange=e=>importSelection(e.target);
 $('#file-json').onchange=e=>importSelection(e.target);
 async function exportZip(){
   const issues=validate(project);
-  if(issues.length){renderIssues();$('#issues-list').classList.remove('hidden');return notify('Export bloqué : '+issues.length+' erreur(s) à corriger.');}
+  if(issues.length){renderIssues();$('#issues-list').classList.remove('hidden');return notify(tUI('Export blocked')+': '+issues.length+' '+tUI('errors'));}
   const warned=[...new Set([...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)])]
      .map(id=>versionWarning(project,id)).filter(Boolean);
-  if(warned.length&&!confirm(warned.join('\n')+'\n\nExporter malgré ces incompatibilités ?'))return;
+  if(warned.length&&!confirm(warned.join('\n')+'\n\n'+tUI('Export despite version incompatibilities?')))return;
   try{
     const blob=makeZip(fileMap(project)),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='questplus-pack.zip';document.body.append(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),2000);notify('Pack QuestPlus téléchargé');
-  }catch(e){notify('Export impossible : '+e.message);}
+  }catch(e){notify(tUI('Export failed')+': '+e.message);}
 }
 $('#export-zip').onclick=exportZip;
 document.addEventListener('keydown',e=>{

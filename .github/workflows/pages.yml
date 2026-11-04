@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          for asset in index.html style.css editor.js inspector.js project.js zip.js default-data.js game-layout.js minecraft-icons.js vanilla-registry-26.3.js conditions.js quest-ids.js; do
+          for asset in index.html style.css editor.js inspector.js project.js zip.js default-data.js game-layout.js minecraft-icons.js vanilla-registry-26.3.js conditions.js quest-ids.js ui-i18n.js; do
             test -s "web/editor/$asset"
             cp "web/editor/$asset" "_site/$asset"
           done
