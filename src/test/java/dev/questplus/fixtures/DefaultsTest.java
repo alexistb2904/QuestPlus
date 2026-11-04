@@ -26,7 +26,7 @@ class DefaultsTest {
             manifest = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))
                 .lines().filter(line -> !line.isBlank()).toList();
         }
-        assertEquals(18, manifest.size());
+        assertEquals(List.of("config.json"),manifest,"Legacy sample categories must no longer ship by default");
         assertEquals(manifest.size(), new HashSet<>(manifest).size());
 
         for (String path : manifest) {
@@ -44,23 +44,17 @@ class DefaultsTest {
             }
         }
 
-        assertEquals(4, categoryIds.size());
-        QuestRegistry registry = QuestRegistry.load(tempDir.resolve("quests"), (kind, id) -> {});
-        assertEquals(13, registry.all().size());
-        for (QuestDefinition quest : registry.all()) {
-            assertTrue(categoryIds.contains(quest.category()), "Unknown category: " + quest.category());
-            Set<String> references = new HashSet<>();
-            if (quest.requires() != null) quest.requires().questReferences(references);
-            for (String reference : references)
-                assertTrue(registry.find(reference).isPresent(), "Unknown quest prerequisite: " + reference);
-        }
+        assertTrue(categoryIds.isEmpty(),"Legacy demo chapters are not installed from index.txt");
+        Defaults.install(tempDir.resolve("catalogue-world"));
+        assertTrue(Files.isRegularFile(tempDir.resolve("catalogue-world/categories/homestead.json")));
+        assertFalse(Files.exists(tempDir.resolve("catalogue-world/categories/combat.json")));
     }
 
     @Test void fullChallengeCatalogueIsInstalledAndParsesWithoutMissingPrerequisites() throws Exception {
         Path definitions=tempDir.resolve("full-catalogue");
         Defaults.install(definitions);
         QuestRegistry registry=QuestRegistry.load(definitions.resolve("quests"),(kind,id)->{});
-        assertEquals(222,registry.all().size(),"Legacy fixtures + 209 challenge quests");
+        assertEquals(209,registry.all().size(),"Only maintained challenge and equipment quests");
 
         Set<String> categories=new HashSet<>();
         try(var files=Files.walk(definitions.resolve("categories"))) {
@@ -70,7 +64,7 @@ class DefaultsTest {
                 } catch(IOException failure) {throw new UncheckedIOException(failure);}
             });
         }
-        assertEquals(20,categories.size());
+        assertEquals(16,categories.size());
         for (QuestDefinition quest:registry.all()) {
             assertTrue(categories.contains(quest.category()),"Missing category for "+quest.id());
             Set<String> references=new HashSet<>();
@@ -96,10 +90,37 @@ class DefaultsTest {
 
         assertArrayEquals(userDefinition, Files.readAllBytes(existingQuest));
         assertTrue(Files.isRegularFile(definitions.resolve("config.json")));
-        assertTrue(Files.isRegularFile(definitions.resolve("quests/mining/stone.json")));
-        Files.delete(definitions.resolve("quests/mining/stone.json"));
+        assertTrue(Files.isRegularFile(definitions.resolve("quests/quarries/stone_mountain.json")));
+        Files.delete(definitions.resolve("quests/quarries/stone_mountain.json"));
         Defaults.install(definitions);
-        assertFalse(Files.exists(definitions.resolve("quests/mining/stone.json")),"Deleted quest must stay deleted after initialization");
+        assertFalse(Files.exists(definitions.resolve("quests/quarries/stone_mountain.json")),"Deleted quest must stay deleted after initialization");
+    }
+
+    @Test void removesOnlyUnmodifiedLegacySamplesInExistingWorlds() throws Exception {
+        Path root=tempDir.resolve("existing-world");
+        Defaults.install(root);
+        for(String p:List.of("categories/combat.json","quests/combat/skeletons.json")){
+            Path target=root.resolve(p);
+            Files.createDirectories(target.getParent());
+            try(var source=resource(getClass().getClassLoader(),"defaults/"+p)){
+                Files.copy(source,target);
+            }
+        }
+        Defaults.install(root);
+        assertFalse(Files.exists(root.resolve("categories/combat.json")));
+        assertFalse(Files.exists(root.resolve("quests/combat/skeletons.json")));
+
+        Path changed=root.resolve("categories/exploration.json");
+        Path quest=root.resolve("quests/exploration/diamond.json");
+        Files.createDirectories(changed.getParent());
+        Files.createDirectories(quest.getParent());
+        Files.writeString(changed,"User-customized category");
+        try(var source=resource(getClass().getClassLoader(),"defaults/quests/exploration/diamond.json")){
+            Files.copy(source,quest);
+        }
+        Defaults.install(root);
+        assertTrue(Files.exists(changed),"Never delete user-edited category");
+        assertTrue(Files.exists(quest),"Never orphan its quests");
     }
 
     private static InputStream resource(ClassLoader loader, String path) {
