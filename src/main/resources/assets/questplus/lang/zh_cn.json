@@ -157,5 +157,7 @@
   "questplus.client.condition.detail.slot.head": "头部",
   "questplus.client.condition.detail.slot.chest": "胸部",
   "questplus.client.condition.detail.slot.legs": "腿部",
-  "questplus.client.condition.detail.slot.feet": "脚部"
+  "questplus.client.condition.detail.slot.feet": "脚部",
+  "questplus.client.repeat_count": "已完成 ×%s",
+  "questplus.client.tier_count": "阶段 %s"
 }
