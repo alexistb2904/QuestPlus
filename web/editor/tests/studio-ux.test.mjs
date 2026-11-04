@@ -65,13 +65,19 @@ test('compatibility export carries future item versions separately from mod JSON
  assert.equal(reimport.iconVersions['minecraft:future_item'],'26.4');
  assert.equal(reimport.targetMinecraftVersion,'26.3');
 });
-test('editor source includes independent preview camera, wheel, pinch, and icon fallback',()=>{
+test('single in-site tree supports wheel, pinch and fallback without game-preview overlay',()=>{
  const editor=fs.readFileSync(new URL('../editor.js',import.meta.url),'utf8');
  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
  const css=fs.readFileSync(new URL('../style.css',import.meta.url),'utf8');
  const java=fs.readFileSync(new URL('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java',import.meta.url),'utf8');
- for(const token of ['zoomPreviewAt','gestureStart','pointermove','wheel','pointercancel','pickerLimit','renderConditionSuggestions'])assert.ok(editor.includes(token),token);
+ for(const token of ['zoomAt','gestureStart','pointermove','wheel','pointercancel','pickerLimit','renderConditionSuggestions'])assert.ok(editor.includes(token),token);
  for(const token of ['icon-filter','target-version','zoom-in','zoom-out','data-lucide'])assert.ok(html.includes(token),token);
  assert.ok(css.includes('touch-action:none'));
+ assert.ok(css.includes('--pane:#30231e'));
+ assert.ok(css.includes('--text:#e3cdb1'));
+ assert.ok(!html.includes('id="minecraft-preview"'));
+ assert.ok(!html.includes('id="preview-toggle"'));
+ assert.ok(!editor.includes('previewMode'));
+ assert.ok(!editor.includes('renderGamePreview'));
  assert.ok(java.includes('Items.BARRIER'));
 });
