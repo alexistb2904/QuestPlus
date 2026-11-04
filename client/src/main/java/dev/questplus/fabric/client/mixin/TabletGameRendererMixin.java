@@ -2,6 +2,7 @@ package dev.questplus.fabric.client.mixin;
 
 import dev.questplus.fabric.client.TabletSurfaceRenderer;
 import dev.questplus.fabric.client.QuestPlusClient;
+import dev.questplus.fabric.client.TabletShaderCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +15,8 @@ abstract class TabletGameRendererMixin {
     @Inject(method="render3dHud",at=@At("HEAD"))
     private void questplus$blurWorldBeforeHands(CallbackInfo ci) {
         var settings=QuestPlusClient.settings;
-        if (TabletSurfaceRenderer.active() && settings.blur && settings.blurIntensity>0)
+        if (TabletSurfaceRenderer.active() && settings.blur && settings.blurIntensity>0
+            && !TabletShaderCompat.safeRendering())
             Minecraft.getInstance().gameRenderer.processBlurEffect();
     }
     @Inject(method="render",at=@At(value="INVOKE",target="Lnet/minecraft/client/renderer/GameRenderer;renderLevel()V"))

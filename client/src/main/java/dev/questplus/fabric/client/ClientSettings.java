@@ -16,6 +16,8 @@ public final class ClientSettings {
     public int hudPosition = 2, notificationPosition = 1, detail = 1;
     /** First-person screen emits its own light by default; backlight can be dimmed. */
     public boolean screenEmissive = true;
+    /** Automatic anti-bloom, matte screen and no double scene blur under Iris. */
+    public boolean shaderSafeMode = true;
     public double screenBrightness = 1.0;
     public double scale = 1, blurIntensity = 0.4;
     public Set<String> pinned = new LinkedHashSet<>();
@@ -29,6 +31,7 @@ public final class ClientSettings {
                     settings.notificationPosition=1;
                 // Gson does not initialize newly-added instance fields for older configs.
                 if(settings!=null && !json.has("screenEmissive")) settings.screenEmissive=true;
+                if(settings!=null && !json.has("shaderSafeMode")) settings.shaderSafeMode=true;
                 if(settings!=null && !json.has("screenBrightness")) settings.screenBrightness=1.0;
                 if (settings == null || settings.pinned == null || settings.pinned.size() > 1024
                     || settings.hudPosition < 0 || settings.hudPosition > 8

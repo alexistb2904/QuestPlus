@@ -873,6 +873,14 @@ public final class QuestScreen extends Screen {
         // These options affect the illuminated first-person 3D screen only.
         // The 2D fallback does not use the 3D backlight.
         if(settings.tablet){
+            QuestButton shaderSafe=button("shader_safe_mode",x,y+7*row,w,() -> {
+                settings.shaderSafeMode=!settings.shaderSafeMode;
+                settings.save();init();
+            });
+            Component shaderLabel=t("shader_safe_mode").copy().append(": ")
+                .append(t(settings.shaderSafeMode ? "on" : "off"));
+            shaderSafe.setMessage(shaderLabel);
+            shaderSafe.hoverText(shaderLabel);
             QuestButton emissive=button("screen_emissive",x,y+6*row,w,() -> {
                 settings.screenEmissive=!settings.screenEmissive;
                 settings.save(); init();

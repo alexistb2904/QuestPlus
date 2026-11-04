@@ -18,7 +18,10 @@ public final class TabletIdleEffects {
         float opacity(int index) { return animated ? (float)(.65*Math.pow(Math.sin(Math.PI*phase(index)),2)) : 0; }
     }
     private TabletIdleEffects() {}
-    public static RenderType renderType() { return RenderTypes.entityTranslucentEmissive(TEXTURE); }
+    public static RenderType renderType() {
+        return TabletShaderCompat.safeRendering() ? RenderTypes.entityTranslucent(TEXTURE)
+            : RenderTypes.entityTranslucentEmissive(TEXTURE);
+    }
     public static Frame frame() {
         var mc=Minecraft.getInstance();
         var settings=QuestPlusClient.settings;

@@ -66,7 +66,8 @@ public final class TabletSurfaceRenderer {
             ((QuestScreen)mc.gui.screen()).extractTablet(graphics,x,y,mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
             // Dim only the 3D atlas, not the 2D fallback. Applied in a separate
             // stratum, after the UI, to preserve all authored colors and icons.
-            double brightness=Math.clamp(QuestPlusClient.settings.screenBrightness,0,1);
+            double brightness=TabletShaderCompat.screenBrightness(
+                QuestPlusClient.settings.screenBrightness,TabletShaderCompat.safeRendering());
             if(brightness<.999){
                 graphics.nextStratum();
                 int darkness=(int)Math.round((1-brightness)*255);

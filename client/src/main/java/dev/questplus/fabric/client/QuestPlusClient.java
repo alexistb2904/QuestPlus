@@ -33,6 +33,7 @@ public final class QuestPlusClient implements ClientModInitializer {
         settings=ClientSettings.load();
         TabletPoseClient.register();
         QuestClientTabletFlow.register();
+        PunchyTabletCompat.register();
         open=KeyMappingHelper.registerKeyMapping(new KeyMapping("questplus.client.open", InputConstants.KEY_J,KeyMapping.Category.MISC));
         ClientPlayNetworking.registerGlobalReceiver(QuestNetwork.State.TYPE,(payload,context) -> context.client().execute(() -> receive(payload)));
         ClientPlayConnectionEvents.JOIN.register((handler,sender,client) -> { clear(); sync(); });

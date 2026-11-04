@@ -7,6 +7,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.questplus.fabric.client.TabletFaceAnchor;
 import dev.questplus.fabric.client.TabletIdleEffects;
 import dev.questplus.fabric.client.TabletSurfaceRenderer;
+import dev.questplus.fabric.client.TabletShaderCompat;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
@@ -16,6 +18,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -41,7 +44,13 @@ abstract class TabletFaceCaptureMixin {
         });
         // Bright by default. When disabled, the screen receives the same world
         // light as any other translucent entity surface.
-        var screenType=dev.questplus.fabric.client.QuestPlusClient.settings.screenEmissive
+        // In Iris, a translucent emissive entity is often interpreted by shader
+        // packs as glass/mirror (Bliss) or HDR bloom (MakeUp). Use a MATTE
+        // cutout plane for the tablet UI instead of shader-dependent materials.
+        var settings=dev.questplus.fabric.client.QuestPlusClient.settings;
+        boolean shaderSafe=TabletShaderCompat.safeRendering();
+        var screenType=shaderSafe ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
+            : settings.screenEmissive
             ? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
             : RenderTypes.entityTranslucent(TabletSurfaceRenderer.TEXTURE);
         buffer.drawGeometry(pose,screenType,(p,c) -> {
@@ -54,6 +63,15 @@ abstract class TabletFaceCaptureMixin {
             questplus$effects=effects;
             try { geometry.render(p,c); } finally { questplus$pass=0; questplus$effects=null; }
         });
+    }
+
+    // Screen-only full lightmap under shader-safe MATTE rendering. This
+    // preserves readability in caves without an emissive HDR/bloom material.
+    // The other tablet surfaces keep their real world lighting.
+    @ModifyVariable(method="renderCube",at=@At("HEAD"),argsOnly=true,ordinal=0,remap=false)
+    private static int questplus$matteScreenLight(int light) {
+        return questplus$pass==2 && TabletShaderCompat.safeRendering()
+            ? LightCoordsUtil.FULL_BRIGHT : light;
     }
 
     @Inject(method="renderCube",at=@At("HEAD"),cancellable=true,remap=false)

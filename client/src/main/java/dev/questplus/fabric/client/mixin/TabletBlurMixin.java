@@ -13,6 +13,7 @@ abstract class TabletBlurMixin {
     @Inject(method="getMenuBackgroundBlurriness",at=@At("RETURN"),cancellable=true)
     private void questplus$blur(CallbackInfoReturnable<Integer> result) {
         if (Minecraft.getInstance().gui.screen() instanceof QuestScreen screen && QuestPlusClient.settings!=null) {
+            if(TabletShaderCompat.safeRendering()){result.setReturnValue(0);return;}
             var settings=QuestPlusClient.settings;
             result.setReturnValue(settings.blur ? (int)Math.round(8*settings.blurIntensity*screen.animationProgress()) : 0);
         }
