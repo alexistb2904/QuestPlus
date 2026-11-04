@@ -177,5 +177,12 @@
   "questplus.client.condition.detail.slot.inventory": "Inventario",
   "questplus.client.claim_all": "Reclamar todo",
   "questplus.client.claim_all_empty": "No hay recompensas pendientes",
-  "questplus.client.toast.unlocked": "MISIÓN DESBLOQUEADA"
+  "questplus.client.toast.unlocked": "MISIÓN DESBLOQUEADA",
+  "questplus.client.condition.detail.gear.material.leather": "cuero",
+  "questplus.client.condition.detail.gear.material.copper": "cobre",
+  "questplus.client.condition.detail.gear.material.chainmail": "cota de malla",
+  "questplus.client.condition.detail.gear.material.iron": "hierro",
+  "questplus.client.condition.detail.gear.material.golden": "oro",
+  "questplus.client.condition.detail.gear.material.diamond": "diamante",
+  "questplus.client.condition.detail.gear.material.netherite": "netherita"
 }
