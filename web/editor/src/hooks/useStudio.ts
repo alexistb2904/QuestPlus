@@ -162,10 +162,15 @@ export function useStudio() {
 	const quests = state.project.quests.filter((q) => q.category === state.categoryId);
 	function fit(group = currentCategory, rows = quests) {
 		const el = document.getElementById("viewport");
+		const padding={
+			x:Math.max(81,...rows.map(q=>81*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.width??170)/2)),
+			y:Math.max(33,...rows.map(q=>33*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.height??100)/2))
+		};
 		return fitEditor(
 			[...gameLayout(rows).points.values(), ...(group?.annotations || []).map((n) => ({ x: n.x, y: n.y }))],
 			el?.clientWidth || 720,
-			el?.clientHeight || 450
+			el?.clientHeight || 450,
+			padding
 		) as Camera;
 	}
 	function selectCategory(id: string) {
