@@ -1,5 +1,6 @@
-// Presentation stretches the tiny in-game slots into labelled cards; saved coordinates stay unchanged.
-export const SCALE_X=2.8, SCALE_Y=1.5;
+// A single world unit must map identically in Quest Studio and Minecraft.
+// Only the camera zoom scales distances between points; the rendered art is screen-sized.
+export const SCALE_X=1, SCALE_Y=1;
 export function screenPoint(point,camera,size){
  return {x:(point.x-camera.x)*SCALE_X*camera.zoom+size.width/2,y:(point.y-camera.y)*SCALE_Y*camera.zoom+size.height/2};
 }

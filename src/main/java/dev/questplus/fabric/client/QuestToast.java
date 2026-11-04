@@ -36,9 +36,11 @@ final class QuestToast {
         }
         if (active==null) return;
 
-        int w=Math.min(248,g.guiWidth()-20);
+        float scale=(float)Math.clamp(Math.min(g.guiWidth()/700.0,g.guiHeight()/420.0),0.68,1.0);
+        int virtualWidth=(int)(g.guiWidth()/scale);
+        int w=Math.min(188,virtualWidth-20);
         if (w<80) return;
-        int x=(g.guiWidth()-w)/2;
+        int x=(virtualWidth-w)/2;
         long elapsed=now-started;
         double progress=1;
         if (!QuestPlusClient.settings.reducedMotion && QuestPlusClient.settings.animations) {
@@ -49,22 +51,23 @@ final class QuestToast {
         int y=8-(int)Math.round((1-progress)*55);
         boolean finish=active.kind.equals("completed");
         int accent=finish?0xffd9ae73:0xffa9c08b;
-        // One compact toast: icon, event, quest title. No duplicated paragraphs.
-        g.fill(x+1,y+2,x+w+2,y+45,0x55000000);
-        g.fill(x,y,x+w,y+43,0xed191b1a);
-        g.fill(x,y,x+3,y+43,accent);
-        g.fill(x+7,y+7,x+32,y+34,0xff302820);
-        g.outline(x+7,y+7,25,27,0xff61513e);
+        g.pose().pushMatrix(); g.pose().scale(scale);
+        // One compact toast: icon, event, quest title; no colored left-side banner.
+        g.fill(x+1,y+2,x+w+1,y+40,0x44000000);
+        g.fill(x,y,x+w,y+38,0xe5191b1a);
+        g.fill(x+6,y+5,x+30,y+31,0xff302820);
+        g.outline(x+6,y+5,24,26,0xff61513e);
         var id=Identifier.tryParse(active.icon);
         ItemStack icon=id!=null&&BuiltInRegistries.ITEM.containsKey(id)
             ?new ItemStack(BuiltInRegistries.ITEM.getValue(id)):new ItemStack(Items.BOOK);
-        g.item(icon,x+11,y+12);
+        g.item(icon,x+10,y+10);
         String heading=QuestPlusClient.tr("toast."+active.kind).getString();
-        String name=mc.font.plainSubstrByWidth(active.name,w-50);
-        g.text(mc.font,heading,x+40,y+9,accent,false);
-        g.text(mc.font,name,x+40,y+23,0xffe6e0d5,false);
-        g.fill(x+7,y+40,x+w-7,y+41,0xff4c4842);
+        String name=mc.font.plainSubstrByWidth(active.name,w-43);
+        g.text(mc.font,heading,x+36,y+7,accent,false);
+        g.text(mc.font,name,x+36,y+20,0xffe6e0d5,false);
+        g.fill(x+7,y+35,x+w-7,y+36,0xff4c4842);
         int bar=(int)Math.round((w-14)*Math.clamp((double)(DURATION-elapsed)/DURATION,0,1));
-        g.fill(x+7,y+40,x+7+bar,y+41,accent);
+        g.fill(x+7,y+35,x+7+bar,y+36,accent);
+        g.pose().popMatrix();
     }
 }
