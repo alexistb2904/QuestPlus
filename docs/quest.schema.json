@@ -136,6 +136,98 @@
       "minimum": 24,
       "maximum": 96,
       "description": "Quest icon width/height in UI pixels, independent of graph zoom. Default 32."
+    },
+    "descriptionRich": {
+      "type": "object",
+      "description": "Optional rich display content per locale; legacy description remains available as fallback. Pixel text size and embedded PNG/JPEG/GIF images are displayed by the Minecraft tablet.",
+      "additionalProperties": {
+        "type": "array",
+        "maxItems": 96,
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "text"
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "sizePx": {
+                  "type": "integer",
+                  "minimum": 6,
+                  "maximum": 128
+                },
+                "font": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "uniform",
+                    "alt",
+                    "illageralt"
+                  ]
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "underline": {
+                  "type": "boolean"
+                },
+                "strike": {
+                  "type": "boolean"
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "highlight": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              },
+              "required": [
+                "type",
+                "text"
+              ],
+              "additionalProperties": true
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "image"
+                },
+                "data": {
+                  "type": "string",
+                  "pattern": "^data:image/(png|jpeg|gif);base64,"
+                },
+                "width": {
+                  "type": "integer",
+                  "minimum": 8,
+                  "maximum": 2048
+                },
+                "height": {
+                  "type": "integer",
+                  "minimum": 8,
+                  "maximum": 2048
+                }
+              },
+              "required": [
+                "type",
+                "data",
+                "width",
+                "height"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
     }
   },
   "allOf": [
