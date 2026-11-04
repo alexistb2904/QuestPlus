@@ -224,3 +224,12 @@ Cette exécution a utilisé les capacités natives disponibles avec des modèles
 La syntaxe a été vérifiée avec le schéma officiel Codex et la [documentation des sous-agents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 Les versions Fabric ont été vérifiées sur les [métadonnées officielles](https://meta.fabricmc.net/v2/versions/loader/26.3)
 et le [dépôt Maven Fabric](https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/).
+
+
+## Experimental QuestPlus Hub web editor
+
+The feature branch feat/questplus-hub-live-editor includes an opt-in Hub with
+in-game authorized editing, versioned online publication, immutable shareable
+packs and modded registry browsers. The offline ZIP workflow remains intact.
+Read hub/README.md for setup, commands, security and known limitations.
+This branch is work in progress and should be reviewed before production use.
