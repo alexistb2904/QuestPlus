@@ -11,6 +11,8 @@ public final class ClientSettings {
     private static final Gson JSON = new Gson();
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
     public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
+    /** Off by default: damage closes the tablet and plays its close animation. */
+    public boolean stayOpenOnDamage = false;
     public int hudPosition = 2, detail = 1;
     public double scale = 1, blurIntensity = 0.4;
     public Set<String> pinned = new LinkedHashSet<>();
