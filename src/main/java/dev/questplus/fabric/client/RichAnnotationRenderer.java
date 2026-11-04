@@ -29,7 +29,7 @@ import java.util.*;
  * hosting. Media is bounded, decoded on the client, and cached as native GPU textures.
  */
 final class RichAnnotationRenderer {
-    private static final int MAX_WIDTH=400, MAX_HEIGHT=300, MAX_CACHE=24;
+    private static final int MAX_WIDTH=800, MAX_HEIGHT=600, MAX_CACHE=24;
     private static final LinkedHashMap<String,AnimatedImage> MEDIA=new LinkedHashMap<>(32,.75f,true);
     private record Frame(DynamicTexture texture,int delay) {}
     private record AnimatedImage(List<Frame> frames,int cycle) {
