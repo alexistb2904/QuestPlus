@@ -2,12 +2,16 @@ import http from 'node:http';
 import {randomBytes,timingSafeEqual,createHash} from 'node:crypto';
 import {mkdir,readFile,writeFile,readdir,unlink} from 'node:fs/promises';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 const PORT=Number(process.env.PORT||8787);
 const BIND=process.env.HUB_BIND||'127.0.0.1';
 const PUBLIC_URL=(process.env.HUB_PUBLIC_URL||'http://localhost:'+PORT).replace(/\/$/,'');
-const ALLOWED_ORIGIN=process.env.STUDIO_ORIGIN||'http://localhost:5173';
-const STUDIO_URL=(process.env.STUDIO_URL||ALLOWED_ORIGIN+'/').replace(/\/$/,'/');
+// React and the API are served from the SAME origin in production.
+const ALLOWED_ORIGIN=process.env.STUDIO_ORIGIN||new URL(PUBLIC_URL).origin;
+const STUDIO_URL=(process.env.STUDIO_URL||PUBLIC_URL+'/').replace(/\/$/,'/');
+const STATIC_DIR=path.resolve(process.env.WEB_STATIC_DIR||
+  path.join(path.dirname(fileURLToPath(import.meta.url)),'../editor/dist'));
 const SERVER_KEY=process.env.HUB_SERVER_KEY||'';
 const DATA_DIR=path.resolve(process.env.HUB_DATA_DIR||'./data/packs');
 const MAX_BYTES=12*1024*1024, SESSION_MS=30*60*1000, PACK_MS=7*24*60*60*1000;
@@ -62,6 +66,27 @@ async function readPack(id){if(!/^[A-Za-z0-9_-]{32}$/.test(id))throw fail(404,'U
  let stored=packs.get(id);if(!stored)try{stored=JSON.parse(await readFile(path.join(DATA_DIR,id+'.json'),'utf8'));packs.set(id,stored)}catch{throw fail(404,'Unknown pack')}
  if(stored.expires<=Date.now())throw fail(410,'Pack expired');
  return stored;
+}
+const fileTypes={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
+ '.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8',
+ '.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg',
+ '.webp':'image/webp','.gif':'image/gif','.ico':'image/x-icon','.woff2':'font/woff2',
+ '.ttf':'font/ttf'};
+async function serveStudio(res,p) {
+ let route;try{route=decodeURIComponent(p)}catch{throw fail(400,'Invalid path encoding')}
+ if(route.includes('\\')||route.includes('\\0')||route.split('/').includes('..')||route.startsWith('//'))
+  throw fail(400,'Unsafe static path');
+ if(route==='/'||route==='/index.html')route='/index.html';
+ if(!/^\/(?:index\.html|assets\/[a-zA-Z0-9_./-]+|fonts\/[a-zA-Z0-9_./-]+|textures\/[a-zA-Z0-9_./-]+|[a-zA-Z0-9_-]+\.(?:png|webp|svg|ico|json))$/.test(route))
+  throw fail(404,'Unknown static resource');
+ const file=path.resolve(STATIC_DIR,'.'+route);
+ if(!file.startsWith(STATIC_DIR+path.sep))throw fail(404,'Unknown static resource');
+ let body;try{body=await readFile(file)}catch{throw fail(404,'Quest Studio has not been built or asset is missing')}
+ const ext=path.extname(file);
+ res.writeHead(200,{'Content-Type':fileTypes[ext]||'application/octet-stream',
+  'Content-Length':body.byteLength,'X-Content-Type-Options':'nosniff',
+  'Cache-Control':route==='/index.html'?'no-cache':'public, max-age=3600'});
+ res.end(body);
 }
 async function handler(req,res){
  try{
@@ -158,9 +183,10 @@ async function handler(req,res){
    rateLimit(req,'readpacks',90,60_000);const pack=await readPack(p.split('/').pop());
    return json(res,200,{files:pack.files,sha256:pack.sha256,expires:pack.expires});
   }
+  if(req.method==='GET'&&!p.startsWith('/v1/'))return await serveStudio(res,p);
   throw fail(404,'Unknown endpoint');
  }catch(error){json(res,error.status||500,{error:error.status?error.message:'Internal server error'});if(!error.status)console.error(error)}
 }
 await mkdir(DATA_DIR,{recursive:true});
 setInterval(()=>{clean().catch(console.error)},10*60_000).unref();
-http.createServer(handler).listen(PORT,BIND,()=>console.log('QuestPlus Hub listening on port '+PORT));
+http.createServer(handler).listen(PORT,BIND,()=>console.log('QuestPlus Web listening on port '+PORT));

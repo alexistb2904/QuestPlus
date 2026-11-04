@@ -8,7 +8,8 @@ import type {Project} from '../types';
 
 type HubData={files:{name:string;content:string}[];registry?:Record<string,unknown>;revision:string;serverName?:string};
 const params=new URLSearchParams(window.location.search);
-const defaultHub=String(params.get('hub')||import.meta.env.VITE_QUESTPLUS_HUB_URL||'http://localhost:8787').replace(/\/$/,'');
+const defaultHub=String(params.get('hub')||import.meta.env.VITE_QUESTPLUS_HUB_URL||
+ (import.meta.env.DEV?'http://localhost:8787':window.location.origin)).replace(/\/$/,'');
 const linkedSession=params.get('session')||'';
 const linkedPack=params.get('pack')||'';
 const documents=(p:Project)=>[...fileMap(p)].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content}));

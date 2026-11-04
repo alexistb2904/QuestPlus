@@ -30,6 +30,18 @@ java {
     withSourcesJar()
 }
 
+// ONE universal Fabric JAR compiled from the client and server trees.
+// Package names stay unchanged for Fabric entrypoints, mixins and saved data.
+sourceSets {
+    main {
+        java.setSrcDirs(['server/src/main/java', 'client/src/main/java'])
+        resources.setSrcDirs(['server/src/main/resources', 'client/src/main/resources'])
+    }
+    test {
+        java.setSrcDirs(['server/src/test/java', 'client/src/test/java'])
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 25
@@ -55,6 +67,13 @@ fabricApi {
         enableClientGameTests = true
         eula = true
     }
+}
+
+// Fabric API creates the gametest source set above. Use split source folders
+// without creating a second mod or duplicating entrypoints.
+sourceSets.named('gametest') {
+    java.setSrcDirs(['server/src/gametest/java', 'client/src/gametest/java'])
+    resources.setSrcDirs(['server/src/gametest/resources', 'client/src/gametest/resources'])
 }
 
 dependencies {
