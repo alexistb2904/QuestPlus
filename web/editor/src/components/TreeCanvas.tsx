@@ -15,6 +15,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
  const resize=useRef<{type:'quest'|'annotation';id:string;startX:number;startY:number;width:number;height:number;size:number;pointer:number}|null>(null);
  const [resizeGhost,setResizeGhost]=useState<{id:string;width?:number;height?:number;size?:number}|null>(null);
+ const resizePending=useRef<{id:string;width?:number;height?:number;size?:number}|null>(null);
  const startResize=(e:React.PointerEvent,type:'quest'|'annotation',id:string,width:number,height:number,nodeSize:number)=>{
    e.preventDefault();e.stopPropagation();onSelect({type,id});
    resize.current={type,id,startX:e.clientX,startY:e.clientY,width,height,size:nodeSize,pointer:e.pointerId};
@@ -24,16 +25,18 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
    const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
    e.stopPropagation();
    const dx=e.clientX-v.startX,dy=e.clientY-v.startY;
+   let next:{id:string;width?:number;height?:number;size?:number};
    if(v.type==='quest'){
      const sz=Math.max(24,Math.min(96,Math.round(v.size+dx/5)));
-     setResizeGhost({id:v.id,size:sz});
-   }else setResizeGhost({id:v.id,width:Math.max(60,Math.min(400,Math.round(v.width+dx))),height:Math.max(20,Math.min(300,Math.round(v.height+dy)))});
+     next={id:v.id,size:sz};
+   }else next={id:v.id,width:Math.max(60,Math.min(400,Math.round(v.width+dx))),height:Math.max(20,Math.min(300,Math.round(v.height+dy)))};
+   resizePending.current=next;setResizeGhost(next);
  };
  const endResize=(e:React.PointerEvent)=>{
    const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
    e.stopPropagation();
-   if(e.type!=='pointercancel'&&resizeGhost?.id===v.id)onResize?.(v.type,v.id,resizeGhost);
-   resize.current=null;setResizeGhost(null);
+   if(e.type!=='pointercancel'&&resizePending.current?.id===v.id)onResize?.(v.type,v.id,resizePending.current);
+   resize.current=null;resizePending.current=null;setResizeGhost(null);
    try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{}
  };
  const handle=(type:'quest'|'annotation',id:string,width:number,height:number,sz:number)=>
@@ -158,7 +161,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
       <button className="node-select" type="button" aria-pressed={selection?.type==='quest'&&selection.id===q.id} onClick={()=>selectNode(q.id)}>
        <span className="node-icon"><ItemIcon id={q.icon} size={Math.round(28*nodeSize/32)}/></span><span className="node-title" title={q.id}>{text(q.title,language)}</span>
       </button>
-      <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':Math.max(1,.85/camera.zoom)} as React.CSSProperties}
+      <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':1} as React.CSSProperties}
        onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+33*nodeSize/32},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
       {q.objectives?.some(o=>o.event==='npc_interact')&&<MessageCircle className="node-npc" size={13}/>}
       {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,162,66,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
