@@ -66,7 +66,7 @@ final class RichAnnotationRenderer {
         String style=note.has("style")?note.get("style").getAsString():"note";
         if(raw==null||!raw.isJsonArray())return false;
         JsonArray arr=raw.getAsJsonArray();
-        if(arr.size()>96)return false;
+        
         List<Line> lines=new ArrayList<>();Line line=new Line();lines.add(line);
         for(var entry:arr){
             if(!entry.isJsonObject())continue;
@@ -185,7 +185,7 @@ final class RichAnnotationRenderer {
     private static synchronized AnimatedImage image(String data){
         AnimatedImage cached=MEDIA.get(data);
         if(cached!=null)return cached;
-        if(MEDIA.size()>=MAX_CACHE)return null; // Bound total GPU allocations per session.
+        // Image cache uses LRU eviction instead of refusing the next asset.
         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))return null;
         try{
             byte[] bytes=Base64.getDecoder().decode(data.substring(data.indexOf(',')+1));
@@ -252,7 +252,16 @@ final class RichAnnotationRenderer {
             }
             if(frames.isEmpty())return null;
             AnimatedImage media=new AnimatedImage(List.copyOf(frames),cycle);
-            MEDIA.put(data,media);return media;
+            MEDIA.put(data,media);
+            if(MEDIA.size()>MAX_CACHE){
+                var iterator=MEDIA.entrySet().iterator();
+                if(iterator.hasNext()){
+                    var old=iterator.next();
+                    iterator.remove();
+                    for(var frame:old.getValue().frames())frame.texture().close();
+                }
+            }
+            return media;
         }catch(Exception ex){return null;}
     }
 }
