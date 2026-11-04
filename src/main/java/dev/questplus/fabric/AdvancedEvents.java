@@ -99,7 +99,7 @@ public final class AdvancedEvents {
         state.dimension = dimension; state.biome = biome; state.distances = distances;
     }
 
-    private static Map<String,Object> gearSnapshot(ServerPlayer player) {
+    public static Map<String,Object> gearSnapshot(ServerPlayer player) {
         Map<String,Object> gear=new HashMap<>();
         List<Map<String,Object>> inventory=new ArrayList<>();
         for(int i=0;i<36;i++) {
