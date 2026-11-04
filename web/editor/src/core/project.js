@@ -1,5 +1,5 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
-import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
+import {validRich,RICH_MAX_CATEGORY,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
@@ -174,7 +174,8 @@ export function validate(p){
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
-    if(new TextEncoder().encode(JSON.stringify(c)).byteLength>RICH_MAX_CATEGORY)fail(label,'Category exceeds 900 KiB (embedded images included)');
+    if(new TextEncoder().encode(JSON.stringify(compactCategoryImages(c))).byteLength>RICH_MAX_CATEGORY)
+      fail(label,'Category exceeds 4 MiB (deduplicated images included)');
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
@@ -274,6 +275,44 @@ export function validate(p){
   for(const q of p.quests)visit(q.id);
   return issues;
 }
+/** Export-only per-category deduplication. Studio never edits pooled references. */
+export function compactCategoryImages(category){
+  const result=structuredClone(category),pool=[],indexes=new Map();
+  for(const note of result.annotations||[]){
+    for(const parts of Object.values(note.rich||{})){
+      if(!Array.isArray(parts))continue;
+      for(const part of parts){
+        if(part?.type!=='image'||typeof part.data!=='string')continue;
+        let ref=indexes.get(part.data);
+        if(ref===undefined){ref=pool.length;pool.push(part.data);indexes.set(part.data,ref);}
+        delete part.data;
+        part.ref=ref;
+      }
+    }
+  }
+  if(pool.length)result.images=pool;
+  else delete result.images;
+  return result;
+}
+/** Accept both legacy inline data URIs and compact exports; reject broken references. */
+export function expandCategoryImages(category){
+  if(!category.images)return category;
+  const result=structuredClone(category),pool=result.images;
+  if(!Array.isArray(pool))throw Error('Invalid category image pool');
+  for(const note of result.annotations||[])for(const parts of Object.values(note.rich||{})){
+    if(!Array.isArray(parts))continue;
+    for(const part of parts){
+      if(part?.type!=='image'||part.ref===undefined)continue;
+      if(!Number.isSafeInteger(part.ref)||part.ref<0||part.ref>=pool.length||!mediaPattern.test(pool[part.ref]))
+        throw Error('Invalid image reference '+part.ref+' in '+category.id);
+      if(part.data!==undefined)throw Error('Ambiguous image data/ref in '+category.id);
+      part.data=pool[part.ref];
+      delete part.ref;
+    }
+  }
+  delete result.images;
+  return result;
+}
 export function fileMap(p){
   const map=new Map(), used=new Set();
   function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,JSON.stringify(obj,null,2)+'\n');}
@@ -285,7 +324,7 @@ export function fileMap(p){
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
     iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
-  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',c);
+  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',compactCategoryImages(c));
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
   return map;
@@ -302,7 +341,7 @@ export function importDocuments(documents){
       if(obj.editorLocales!==undefined&&(!Array.isArray(obj.editorLocales)||obj.editorLocales.length>128||obj.editorLocales.some(id=>typeof id!=='string'||!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))))throw Error('Invalid editor language list');
       p.editorLocales=obj.editorLocales||[];continue;
     }
-    if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(obj);
+    if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(expandCategoryImages(obj));
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);
     else if(/(?:^|\/)config\.json$/i.test(path))p.config=obj;
     else continue;
