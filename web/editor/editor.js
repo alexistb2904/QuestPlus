@@ -129,7 +129,7 @@ function pixelToWorld(x,y){const box=$('#viewport');return {x:(x-box.clientWidth
 function renderScene(){
   const el=$('#viewport'),width=el.clientWidth,height=el.clientHeight;if(!width||!height)return;
   const rows=categoryQuests(),layout=gameLayout(rows),positions=layout.points;
-  $('#zoom-value').textContent=Math.round(camera.zoom*100)+'%';
+  $('#zoom-value').textContent=Math.round((previewMode?(previewCamera?.zoom||1):camera.zoom)*100)+'%';
   el.style.backgroundSize=`${32*camera.zoom}px ${32*camera.zoom}px`;
   el.style.backgroundPosition=`${-camera.x*camera.zoom+width/2}px ${-camera.y*camera.zoom+height/2}px`;
   $('#empty-tree').classList.toggle('hidden',previewMode||rows.length>0||(currentCategory()?.annotations||[]).length>0);
@@ -170,7 +170,8 @@ function renderScene(){
 function renderGamePreview(layout){
   const target=$('#game-tree'),width=target.clientWidth,height=target.clientHeight;
   if(!width||!height){requestAnimationFrame(()=>{if(previewMode)renderGamePreview(layout);});return;}
-  const previewCam=gameFit(layout.points.values(),width,height,24);
+  if(!previewCamera)previewCamera=gameFit(layout.points.values(),width,height,24);
+  const previewCam=previewCamera;
   const point=(x,y)=>({x:(x-previewCam.x)*previewCam.zoom+width/2,y:(y-previewCam.y)*previewCam.zoom+height/2});
   $('#game-categories').innerHTML=project.categories.map(c=>
     `<button class="game-category ${c.id===categoryId?'selected':''}" data-preview-category="${escape(c.id)}" title="${escape(text(c.title,language))}">${iconFor(c.icon)}</button>`).join('');
@@ -199,6 +200,14 @@ function fit(){
   const points=[...graph.points.values(),...(currentCategory()?.annotations||[]).map(a=>({x:a.x,y:a.y}))];
   const el=$('#viewport');
   camera=gameFit(points,Math.max(1,el.clientWidth),Math.max(1,el.clientHeight),48);
+}
+function zoomPreviewAt(factor,x,y){
+  const el=$('#game-tree'),w=el.clientWidth,h=el.clientHeight;
+  if(!previewCamera)previewCamera=gameFit(gameLayout(categoryQuests()).points.values(),w,h,24);
+  const c=previewCamera,worldX=(x-w/2)/c.zoom+c.x,worldY=(y-h/2)/c.zoom+c.y;
+  c.zoom=Math.max(.25,Math.min(2.5,c.zoom*factor));
+  c.x=worldX-(x-w/2)/c.zoom;c.y=worldY-(y-h/2)/c.zoom;
+  renderScene();
 }
 function zoomAt(factor,x,y){
   const el=$('#viewport'),before=pixelToWorld(x,y);
@@ -403,7 +412,7 @@ $('#add-language').onclick=()=>{
   remember(before);language=code;refresh();persist();notify('Langue : '+code);
 };
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
-$('#preview-toggle').onclick=()=>{previewMode=!previewMode;renderScene();};
+$('#preview-toggle').onclick=()=>{previewMode=!previewMode;if(previewMode)previewCamera=null;renderScene();};
 $('#game-categories').addEventListener('click',e=>{const b=e.target.closest('[data-preview-category]');if(b)selectCategory(b.dataset.previewCategory);});
 $('#game-nodes').addEventListener('click',e=>{const b=e.target.closest('[data-preview-quest]');if(b)selectObject('quest',b.dataset.previewQuest);});
 $('#load-default').onclick=()=>{
@@ -414,42 +423,104 @@ $('#load-default').onclick=()=>{
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
 $('#auto-layout').onclick=()=>{if(!confirm('Repositionner automatiquement toutes les quêtes de cette catégorie ?'))return;mutate(placeAuto);notify('Disposition recalculée');};
-$('#zoom-fit').onclick=()=>{fit();renderScene();};$('#zoom-in').onclick=()=>{const el=$('#viewport');zoomAt(1.18,el.clientWidth/2,el.clientHeight/2);};
-$('#zoom-out').onclick=()=>{const el=$('#viewport');zoomAt(1/1.18,el.clientWidth/2,el.clientHeight/2);};
+$('#zoom-fit').onclick=()=>{if(previewMode)previewCamera=null;else fit();renderScene();};$('#zoom-in').onclick=()=>{if(previewMode){const el=$('#game-tree');zoomPreviewAt(1.18,el.clientWidth/2,el.clientHeight/2);}else{const el=$('#viewport');zoomAt(1.18,el.clientWidth/2,el.clientHeight/2);}};
+$('#zoom-out').onclick=()=>{if(previewMode){const el=$('#game-tree');zoomPreviewAt(1/1.18,el.clientWidth/2,el.clientHeight/2);}else{const el=$('#viewport');zoomAt(1/1.18,el.clientWidth/2,el.clientHeight/2);}};
 $('#undo').onclick=undo;$('#redo').onclick=redo;
 $('#reset-project').onclick=()=>{if(!confirm('Créer un projet vierge ? Le projet actuel reste exportable seulement s’il a déjà été téléchargé.'))return;mutate(()=>{project=emptyProject();categoryId=null;selection=null;camera={x:0,y:0,zoom:1};});};
 $('#run-validate').onclick=()=>{renderIssues();$('#issues-list').classList.remove('hidden');notify(validate(project).length?'Corrige les alertes de validation':'Structure du projet vérifiée ✓');};
 $('#show-issues').onclick=()=>$('#issues-list').classList.toggle('hidden');
-$('#viewport').addEventListener('pointerdown',e=>{
-  if(previewMode||e.button!==0||e.target.closest('button'))return;
-  const el=$('#viewport'),rect=el.getBoundingClientRect(),node=e.target.closest('[data-node-type]');
-  const type=node?.dataset.nodeType,id=node?.dataset.nodeId;
-  if(node){
-    selection={type,id};renderInspector();renderScene();
-    const obj=getSelected(),computed=type==='quest'?gameLayout(categoryQuests()).points.get(id):null;
-    drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,from:{x:type==='quest'?computed.x:obj.x,y:type==='quest'?computed.y:obj.y},before:snapshot(),moved:false};
-  }else{
-    drag={mode:'pan',startX:e.clientX,startY:e.clientY,from:{x:camera.x,y:camera.y},moved:false};
-  }
-  el.setPointerCapture(e.pointerId);
+const viewport=$('#viewport');
+function surface(){return previewMode?$('#game-tree'):viewport;}
+function surfaceCamera(){
+ if(previewMode && !previewCamera)previewCamera=gameFit(gameLayout(categoryQuests()).points.values(),
+    Math.max(1,$('#game-tree').clientWidth),Math.max(1,$('#game-tree').clientHeight),24);
+ return previewMode?previewCamera:camera;
+}
+function gestureStart(){
+ const pts=[...pointers.values()].slice(0,2),rect=surface().getBoundingClientRect();
+ const mid={x:(pts[0].x+pts[1].x)/2-rect.left,y:(pts[0].y+pts[1].y)/2-rect.top};
+ const cam=surfaceCamera(),w=rect.width,h=rect.height;
+ gesture={distance:Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)||1,
+  worldX:(mid.x-w/2)/cam.zoom+cam.x,worldY:(mid.y-h/2)/cam.zoom+cam.y,
+  zoom:cam.zoom};
+ drag=null;
+}
+viewport.addEventListener('pointerdown',e=>{
+ if(e.button!==0||e.target.closest('button,input'))return;
+ if(previewMode&&!e.target.closest('#game-tree'))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size===2){gestureStart();viewport.setPointerCapture(e.pointerId);return;}
+ if(pointers.size>2)return;
+ const node=!previewMode?e.target.closest('[data-node-type]'):null;
+ const type=node?.dataset.nodeType,id=node?.dataset.nodeId;
+ if(node){
+  selection={type,id};renderInspector();renderScene();
+  const obj=getSelected(),computed=type==='quest'?gameLayout(categoryQuests()).points.get(id):null;
+  drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,
+   from:{x:type==='quest'?computed.x:obj.x,y:type==='quest'?computed.y:obj.y},before:snapshot(),moved:false};
+ }else{
+  const c=surfaceCamera();
+  drag={mode:'pan',startX:e.clientX,startY:e.clientY,from:{x:c.x,y:c.y},moved:false};
+ }
+ viewport.setPointerCapture(e.pointerId);
 });
-$('#viewport').addEventListener('pointermove',e=>{
-  const rect=$('#viewport').getBoundingClientRect(),pos=pixelToWorld(e.clientX-rect.left,e.clientY-rect.top);
-  $('#coordinates').textContent='x: '+Math.round(pos.x)+' · y: '+Math.round(pos.y);
-  if(!drag)return;
-  const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
-  if(drag.mode==='pan'){camera.x=drag.from.x-dx/camera.zoom;camera.y=drag.from.y-dy/camera.zoom;}
-  else{
-    const obj=drag.type==='quest'?project.quests.find(q=>q.id===drag.id):currentCategory()?.annotations.find(a=>a.id===drag.id);
-    if(!obj)return;
-    const x=Math.round((drag.from.x+dx/camera.zoom)/8)*8,y=Math.round((drag.from.y+dy/camera.zoom)/8)*8;
-    if(drag.type==='quest')obj.layout={x,y};else {obj.x=x;obj.y=y;}
-  }
-  renderScene();
+viewport.addEventListener('pointermove',e=>{
+ const rect=surface().getBoundingClientRect();
+ const pos=previewMode?{x:(e.clientX-rect.left-rect.width/2)/(previewCamera?.zoom||1)+(previewCamera?.x||0),
+ y:(e.clientY-rect.top-rect.height/2)/(previewCamera?.zoom||1)+(previewCamera?.y||0)}
+ :pixelToWorld(e.clientX-rect.left,e.clientY-rect.top);
+ $('#coordinates').textContent='x: '+Math.round(pos.x)+' · y: '+Math.round(pos.y);
+ if(!pointers.has(e.pointerId))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size>=2){
+  if(!gesture)gestureStart();
+  const pts=[...pointers.values()].slice(0,2),mid={x:(pts[0].x+pts[1].x)/2-rect.left,y:(pts[0].y+pts[1].y)/2-rect.top};
+  const distance=Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
+  const c=surfaceCamera();
+  c.zoom=Math.max(.25,Math.min(previewMode?2.5:3,gesture.zoom*distance/gesture.distance));
+  c.x=gesture.worldX-(mid.x-rect.width/2)/c.zoom;c.y=gesture.worldY-(mid.y-rect.height/2)/c.zoom;
+  renderScene();return;
+ }
+ if(!drag)return;
+ const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
+ if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
+ if(drag.mode==='pan'){
+  const c=surfaceCamera();
+  c.x=drag.from.x-dx/c.zoom;c.y=drag.from.y-dy/c.zoom;
+ }else{
+  const obj=drag.type==='quest'?project.quests.find(q=>q.id===drag.id):currentCategory()?.annotations.find(a=>a.id===drag.id);
+  if(!obj)return;
+  const x=Math.round((drag.from.x+dx/camera.zoom)/8)*8,y=Math.round((drag.from.y+dy/camera.zoom)/8)*8;
+  if(drag.type==='quest')obj.layout={x,y};else {obj.x=x;obj.y=y;}
+ }
+ renderScene();
 });
-function finishPointer(){if(!drag)return;if(drag.mode==='node'&&drag.moved){remember(drag.before);persist();renderInspector();}drag=null;}
-$('#viewport').addEventListener('pointerup',finishPointer);$('#viewport').addEventListener('pointercancel',finishPointer);
-$('#viewport').addEventListener('wheel',e=>{if(previewMode)return;e.preventDefault();const rect=$('#viewport').getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);},{passive:false});
+function finishPointer(e){
+ pointers.delete(e.pointerId);
+ if(pointers.size===1){
+  gesture=null;
+  const p=[...pointers.values()][0],c=surfaceCamera();
+  drag={mode:'pan',startX:p.x,startY:p.y,from:{x:c.x,y:c.y},moved:false};
+  return;
+ }
+ if(pointers.size>1){gestureStart();return;}
+ gesture=null;
+ if(drag?.mode==='node'&&drag.moved){remember(drag.before);persist();renderInspector();}
+ drag=null;
+}
+viewport.addEventListener('pointerup',finishPointer);
+viewport.addEventListener('pointercancel',finishPointer);
+viewport.addEventListener('lostpointercapture',e=>{if(pointers.has(e.pointerId))finishPointer(e);});
+viewport.addEventListener('wheel',e=>{
+ e.preventDefault();
+ if(previewMode){
+  const rect=$('#game-tree').getBoundingClientRect();
+  zoomPreviewAt(Math.exp(-e.deltaY*.0014),Math.max(0,Math.min(rect.width,e.clientX-rect.left)),Math.max(0,Math.min(rect.height,e.clientY-rect.top)));
+ }else{
+  const rect=viewport.getBoundingClientRect();
+  zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);
+ }
+},{passive:false});
 function showModal(m){$(m).classList.remove('hidden');}
 function hideModal(m){$(m).classList.add('hidden');}
 $('#open-json').onclick=()=>{
