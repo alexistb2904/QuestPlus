@@ -97,12 +97,12 @@ public final class QuestScreen extends Screen {
             // as the 3D tablet; this also avoids invalid widget sizes on GUI resize.
             int hostWidth=Math.max(1,minecraft.getWindow().getGuiScaledWidth());
             int hostHeight=Math.max(1,minecraft.getWindow().getGuiScaledHeight());
-            width=TabletSurfaceRenderer.WIDTH;
-            height=TabletSurfaceRenderer.HEIGHT;
-            screenScale=Math.max(.05,Math.min(settings.scale,
-                Math.min((hostWidth-12.0)/width,(hostHeight-12.0)/height)));
-            screenOffsetX=(hostWidth-width*screenScale)/2.0;
-            screenOffsetY=(hostHeight-height*screenScale)/2.0;
+            width=TabletUiViewport.WIDTH;
+            height=TabletUiViewport.HEIGHT;
+            var viewport=TabletUiViewport.fit(hostWidth,hostHeight,settings.scale);
+            screenScale=viewport.scale();
+            screenOffsetX=viewport.offsetX();
+            screenOffsetY=viewport.offsetY();
         }
         left=0;top=0;right=width;bottom=height;
         int fw=width,fh=height;
