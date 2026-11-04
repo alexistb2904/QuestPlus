@@ -139,9 +139,9 @@ public final class QuestRuntime implements AutoCloseable {
                         double x=note.get("x").getAsDouble(),y=note.get("y").getAsDouble();
                         if (!Double.isFinite(x) || !Double.isFinite(y) || Math.abs(x)>100000 || Math.abs(y)>100000)
                             throw new IllegalArgumentException("Invalid annotation position: "+aid);
-                        int width=note.has("width") ? note.get("width").getAsInt() : 170;
-                        int height=note.has("height") ? note.get("height").getAsInt() : 100;
-                        if(width<60||width>400||height<20||height>300)
+                        Integer width=note.has("width") ? note.get("width").getAsInt() : null;
+                        Integer height=note.has("height") ? note.get("height").getAsInt() : null;
+                        if(width!=null&&(width<60||width>400)||height!=null&&(height<20||height>300))
                             throw new IllegalArgumentException("Annotation size outside 60..400 × 20..300: "+aid);
                         String style=note.has("style") ? note.get("style").getAsString() : "note";
                         String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
