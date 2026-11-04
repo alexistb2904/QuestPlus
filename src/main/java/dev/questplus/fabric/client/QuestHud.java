@@ -13,7 +13,9 @@ import java.util.*;
 
 /** Compact pinned-objective tracker, aligned to all nine client HUD positions. */
 final class QuestHud {
-    private record ObjectiveLine(String label,long current,long target) {}
+    private record ObjectiveLine(String label,String modifier,long current,long target) {
+        int height() { return 24+(modifier.isBlank()?0:12); }
+    }
     private record Panel(QuestDefinition quest,String name,String status,List<ObjectiveLine> lines,int height) {}
     private QuestHud() {}
 
@@ -33,7 +35,7 @@ final class QuestHud {
                 List<ObjectiveLine> objectives=new ArrayList<>();
                 if (q.kind().equals("information")) {
                     if (!QuestClientState.flag(progress,"completed"))
-                        objectives.add(new ObjectiveLine(QuestPlusClient.tr("information_review").getString(),0,0));
+                        objectives.add(new ObjectiveLine(QuestPlusClient.tr("information_review").getString(),"",0,0));
                 } else {
                     for (var objective:q.objectives()) {
                         if (objectives.size()>=2) break;
@@ -43,14 +45,14 @@ final class QuestHud {
                             String target=objective.target().replace("#","").replace("minecraft:","").replace('_',' ').replace('/',' ');
                             base=QuestPresentation.objectiveText(objective,mc.options.languageCode,target);
                         }
-                        String label=QuestConditionText.withConditions(base,objective.conditions(),qid->{
+                        String modifier=objective.conditions()==null?"":QuestConditionText.describe(objective.conditions(),qid->{
                             var other=state.quests.get(qid);
                             return other==null?QuestPlusClient.tr("unknown_quest").getString():state.text(other.title());
                         });
-                        objectives.add(new ObjectiveLine(label,count,QuestPresentation.target(q,objective,progress)));
+                        objectives.add(new ObjectiveLine(base,modifier,count,QuestPresentation.target(q,objective,progress)));
                     }
                 }
-                int height=29+objectives.size()*24+(q.objectives().size()>2?10:0);
+                int height=29+objectives.stream().mapToInt(ObjectiveLine::height).sum()+(q.objectives().size()>2?10:0);
                 if (!panels.isEmpty() && total+height+5>maxHeight) break;
                 panels.add(new Panel(q,state.text(q.title()),QuestPresentation.status(q,progress),List.copyOf(objectives),height));
                 total+=height+5;
@@ -90,13 +92,16 @@ final class QuestHud {
                 int countWidth=mc.font.width(count);
                 String label=mc.font.plainSubstrByWidth(line.label,Math.max(1,w-18-countWidth));
                 g.text(mc.font,label,x+9,row,0xffd3d1ca,false);
+                if (!count.isEmpty()) g.text(mc.font,count,x+w-8-countWidth,row,0xffa9a7a1,false);
+                if (!line.modifier.isBlank())
+                    g.text(mc.font,mc.font.plainSubstrByWidth("› "+line.modifier,w-20),x+12,row+11,0xffbfb3a4,false);
                 if (!count.isEmpty()) {
-                    g.text(mc.font,count,x+w-8-countWidth,row,0xffa9a7a1,false);
-                    g.fill(x+9,row+12,x+w-9,row+14,0xff454341);
+                    int barY=row+(line.modifier.isBlank()?12:24);
+                    g.fill(x+9,barY,x+w-9,barY+2,0xff454341);
                     int width=w-18,progress=(int)(width*Math.clamp((double)line.current/Math.max(1,line.target),0,1));
-                    if (progress>0) g.fill(x+9,row+12,x+9+progress,row+14,accent);
+                    if (progress>0) g.fill(x+9,barY,x+9+progress,barY+2,accent);
                 }
-                row+=24;
+                row+=line.height();
             }
             if (panel.quest.objectives().size()>2)
                 g.text(mc.font,QuestPlusClient.tr("hud.more",panel.quest.objectives().size()-2).getString(),x+9,row-2,0xff979591,false);
