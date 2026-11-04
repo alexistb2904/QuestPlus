@@ -51,7 +51,12 @@ final class RichAnnotationRenderer {
     static boolean render(GuiGraphicsExtractor g,Font font,JsonObject note,String language,int x,int y){
         if(!note.has("rich")||!note.get("rich").isJsonObject())return false;
         JsonObject locales=note.getAsJsonObject("rich");
-        JsonElement raw=locales.has(language)?locales.get(language):locales.get("en_us");
+        // Older imported annotations may contain only fr_fr rich content while en_us
+        // still has the studio placeholder "Note": use the authored rich entry.
+        JsonElement raw=locales.has(language)?locales.get(language)
+            :locales.has("en_us")?locales.get("en_us")
+            :locales.entrySet().isEmpty()?null:locales.entrySet().iterator().next().getValue();
+        String style=note.has("style")?note.get("style").getAsString():"note";
         if(raw==null||!raw.isJsonArray())return false;
         JsonArray arr=raw.getAsJsonArray();
         if(arr.size()>96)return false;
@@ -72,10 +77,12 @@ final class RichAnnotationRenderer {
                 String s=p.get("text").getAsString();
                 if(s.length()>2048)continue;
                 float scale=p.has("size")?Math.clamp(p.get("size").getAsFloat(),.75f,2f):1f;
+                if (style.equals("heading")) scale=Math.min(2f,scale*1.45f);
+                else if (style.equals("label")) scale=Math.max(.75f,scale*.9f);
                 String face=p.has("font")?p.get("font").getAsString():"default";
                 if(!Set.of("default","uniform","alt","illageralt").contains(face))face="default";
                 Style st=Style.EMPTY.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("minecraft",face)))
-                        .withBold(bool(p,"bold")).withItalic(bool(p,"italic"))
+                        .withBold(style.equals("heading")||bool(p,"bold")).withItalic(bool(p,"italic"))
                         .withUnderlined(bool(p,"underline")).withStrikethrough(bool(p,"strike"));
                 int color=p.has("color")?hex(p.get("color").getAsString(),0xffe3cdb1):0xffe3cdb1;
                 int highlight=p.has("highlight")?hex(p.get("highlight").getAsString(),0):0;
@@ -112,11 +119,13 @@ final class RichAnnotationRenderer {
         }
         if(lines.size()>1&&lines.getLast().parts.isEmpty())lines.removeLast();
         int total=lines.stream().mapToInt(l->l.height).sum()+10;
-        String style=note.has("style")?note.get("style").getAsString():"note";
         int border=hex(note.has("color")?note.get("color").getAsString():"#c6a986",0xffc6a986);
         int w=Math.min(MAX_WIDTH,Math.max(38,lines.stream().mapToInt(l->l.width).max().orElse(28)+12));
         int top=y-total/2, left=x-w/2;
-        if(!style.equals("heading")&&!style.equals("label"))QuestSkin.panel(g,left,top,w,total,0xdd33271f,border);
+        if (style.equals("heading")) {
+            g.fill(left,top-3,left+w,top-2,border);
+            g.fill(left,top+total+1,left+w,top+total+2,border);
+        } else if (style.equals("note")) QuestSkin.panel(g,left,top,w,total,0xdd33271f,border);
         int cy=top+5;
         for(var row:lines){
             int cx=x-row.width/2;
