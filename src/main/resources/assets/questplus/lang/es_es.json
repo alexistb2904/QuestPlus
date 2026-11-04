@@ -176,5 +176,6 @@
   "questplus.client.condition.detail.gear.enchanted": "Armadura encantada",
   "questplus.client.condition.detail.slot.inventory": "Inventario",
   "questplus.client.claim_all": "Reclamar todo",
-  "questplus.client.claim_all_empty": "No hay recompensas pendientes"
+  "questplus.client.claim_all_empty": "No hay recompensas pendientes",
+  "questplus.client.toast.unlocked": "MISIÓN DESBLOQUEADA"
 }
