@@ -1,5 +1,6 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Display order (lowest first)", "Ordre d'affichage (plus petit en premier)", "Orden de aparición (menor primero)", "显示顺序（数字越小越靠前）"],
   [
     "Title",
     "Titre",
