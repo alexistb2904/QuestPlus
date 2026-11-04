@@ -127,8 +127,8 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
        onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>
       <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>onUpdate('style',v)}/>
       <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
-      <div className="field-row"><Field label="Width" type="number" value={note.width??170} onChange={v=>onUpdate('width',Math.max(60,Math.min(400,Math.round(v)||60)))}/>
-      <Field label="Height" type="number" value={note.height??100} onChange={v=>onUpdate('height',Math.max(20,Math.min(300,Math.round(v)||20)))}/></div>
+      <div className="field-row"><Field label="Width" type="number" value={note.width??170} onChange={v=>onUpdate('width',Math.max(60,Math.min(800,Math.round(v)||60)))}/>
+      <Field label="Height" type="number" value={note.height??100} onChange={v=>onUpdate('height',Math.max(20,Math.min(600,Math.round(v)||20)))}/></div>
       <div className="field-row"><Field label="X" type="number" value={note.x} onChange={v=>onUpdate('x',v)}/><Field label="Y" type="number" value={note.y} onChange={v=>onUpdate('y',v)}/></div>
      </Section>
     </>}
