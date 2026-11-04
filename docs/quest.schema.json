@@ -133,9 +133,8 @@
     },
     "size": {
       "type": "integer",
-      "minimum": 24,
-      "maximum": 96,
-      "description": "Quest icon width/height in UI pixels, independent of graph zoom. Default 32."
+      "minimum": 1,
+      "description": "Quest icon size in screen pixels, unbounded positive integer (physical display/hardware limits still apply)."
     },
     "descriptionRich": {
       "type": "object",
@@ -157,8 +156,7 @@
                 },
                 "sizePx": {
                   "type": "integer",
-                  "minimum": 6,
-                  "maximum": 128
+                  "minimum": 1
                 },
                 "font": {
                   "type": "string",
@@ -208,13 +206,11 @@
                 },
                 "width": {
                   "type": "integer",
-                  "minimum": 8,
-                  "maximum": 2048
+                  "minimum": 1
                 },
                 "height": {
                   "type": "integer",
-                  "minimum": 8,
-                  "maximum": 2048
+                  "minimum": 1
                 }
               },
               "required": [
