@@ -159,5 +159,6 @@
   "questplus.client.condition.detail.slot.legs": "piernas",
   "questplus.client.condition.detail.slot.feet": "pies",
   "questplus.client.repeat_count": "Completada ×%s",
-  "questplus.client.tier_count": "Hito %s"
+  "questplus.client.tier_count": "Hito %s",
+  "questplus.client.information_read": "Leer la información"
 }
