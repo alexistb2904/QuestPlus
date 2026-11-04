@@ -16,7 +16,7 @@ import java.util.*;
 /** Server-authoritative, per-recipient projection. No persisted records cross the network. */
 public final class QuestNetwork {
     private static final Gson JSON=new Gson();
-    private static final int CHARS=6000, MAX_DOCUMENT=12_000_000;
+    private static final int CHARS=6000, MAX_DOCUMENT=24_000_000;
     private static final Map<UUID,Session> SESSIONS=new HashMap<>();
     private static final Set<UUID> DIRTY=new HashSet<>();
     private static long transfer;
@@ -126,7 +126,7 @@ public final class QuestNetwork {
     }
     private static void send(ServerPlayer player,JsonObject document) {
         String data=JSON.toJson(document);
-        if (data.length()>MAX_DOCUMENT) throw new IllegalStateException("Quest Plus sync exceeds 12 million characters; reduce image sizes or number of categories");
+        if (data.length()>MAX_DOCUMENT) throw new IllegalStateException("Quest Plus sync exceeds 24 million characters; reduce image sizes or number of categories");
         List<String> parts=new ArrayList<>();
         for (int start=0;start<data.length();) {
             int end=Math.min(start+CHARS,data.length());
