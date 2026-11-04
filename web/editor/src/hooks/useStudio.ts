@@ -183,7 +183,8 @@ export function useStudio() {
 		if (!name) return;
 		mutate((s) => {
 			const id = categoryId(name, new Set(s.project.categories.map((c) => c.id)));
-			s.project.categories.push(newCategory(id, name));
+			s.project.categories.forEach((c,i)=>{ if(c.order===undefined)c.order=i; });
+            s.project.categories.push({...newCategory(id, name),order:s.project.categories.length});
 			s.categoryId = id;
 			s.selection = { type: "category", id };
 			s.camera = { x: 0, y: 0, zoom: 1 };
