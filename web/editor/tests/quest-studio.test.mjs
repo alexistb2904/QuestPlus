@@ -10,19 +10,19 @@ import {makeZip,readZip} from '../src/core/zip.js';
 test('new editor sessions start with EXACT quest definitions shipped by QuestPlus',()=>{
   const p=demoProject();
   assert.deepEqual(p,BUILTIN_PROJECT);
-  assert.equal(p.categories.length,20);
-  assert.equal(p.quests.length,222);
+  assert.equal(p.categories.length,16);
+  assert.equal(p.quests.length,209);
   assert.deepEqual(validate(p),[]);
   const files=fileMap(p);
-  assert.ok(files.has('quests/mining/stone.json'));
+  assert.ok(files.has('quests/quarries/stone_mountain.json'));
   assert.ok(files.has('quests/equipment/equipment_master.json'));
   assert.ok(files.has('quests/trials/three_giants.json'));
   assert.ok(files.has('categories/equipment.json'));
-  assert.ok(files.has('categories/combat.json'));
-  assert.ok(files.has('quests/survival/welcome.json'));
+  assert.ok(!files.has('categories/combat.json'));
+  assert.ok(!files.has('quests/survival/welcome.json'));
   assert.ok(files.has('config.json'));assert.ok(files.has('index.txt'));
-  assert.deepEqual(JSON.parse(files.get('quests/mining/stone.json')),
-    BUILTIN_PROJECT.quests.find(q=>q.id==='questplus:mining/stone'));
+  assert.deepEqual(JSON.parse(files.get('quests/quarries/stone_mountain.json')),
+    BUILTIN_PROJECT.quests.find(q=>q.id==='questplus:quarries/stone_mountain'));
   p.quests[0].title.en_us='Edited';
   assert.notEqual(p.quests[0].title.en_us,demoProject().quests[0].title.en_us);
 });
@@ -54,7 +54,7 @@ test('ZIP import/export preserves the shipped data and edited world coordinates'
   p.categories[0].annotations=[annotation('intro',20,40)];
   p.categories[0].annotations[0].text.ja_jp='はじめ';
   const zip=makeZip(fileMap(p)),docs=await readZip(zip),after=importDocuments(docs);
-  assert.equal(after.quests.length,222);assert.equal(after.categories.length,20);
+  assert.equal(after.quests.length,209);assert.equal(after.categories.length,16);
   assert.deepEqual(after.quests.map(q=>q.layout),p.quests.map(q=>q.layout));
   assert.deepEqual(after.categories[0].annotations,p.categories[0].annotations);
   assert.deepEqual(validate(after),[]);
