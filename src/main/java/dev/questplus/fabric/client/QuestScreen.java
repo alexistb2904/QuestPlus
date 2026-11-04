@@ -196,11 +196,24 @@ public final class QuestScreen extends Screen {
         g.fill(left+3,top+3,right-3,headerBottom,0xff241c18);
         g.fill(left+4,headerBottom,right-4,headerBottom+1,0xff815a3d);
         if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g,mx,my); }
-        if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),(left+right)/2,(top+bottom)/2,0xffe4dec9);
+        if (!state.ready) {
+            QuestSkin.centered(g,font,t(state.error==null ? "loading" : "error."+state.error),(left+right)/2,(top+bottom)/2-24,0xffe4dec9);
+            if (state.errorDetail!=null) {
+                int ey=(top+bottom)/2-8, available=Math.max(80,right-left-36);
+                for (String line:wrap(state.errorDetail,available)) {
+                    QuestSkin.text(g,font,line,left+18,ey,0xfff2ac9e,false);
+                    ey+=11;
+                    if (ey>bottom-16) break;
+                }
+            }
+        }
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
         else QuestSkin.text(g,font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
-        if (state.error!=null) QuestSkin.text(g,font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
+        if (state.ready && state.error!=null) {
+            String message=state.errorDetail==null?t("error."+state.error).getString():state.errorDetail;
+            QuestSkin.text(g,font,font.plainSubstrByWidth(message,Math.max(1,right-left-30)),left+12,bottom-11,0xffe3a692,false);
+        }
         super.extractRenderState(g,mx,my,delta);
         if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
