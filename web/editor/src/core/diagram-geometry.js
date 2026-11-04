@@ -4,6 +4,12 @@ export function edgePoints(start,end,waypoints){
  return waypoints?.length ? [start,...waypoints,end]
   : [start,{x:start.x,y:(start.y+end.y)/2},{x:end.x,y:(start.y+end.y)/2},end];
 }
+/** Persist only user-authored bend points, never inferred orthogonal elbows. */
+export function insertWaypoint(points,index,point){
+ const next=(points||[]).map(p=>({x:p.x,y:p.y}));
+ next.splice(Math.max(0,Math.min(next.length,index)),0,{x:point.x,y:point.y});
+ return next;
+}
 export function nearestSegment(points,point){
  let best=0,distance=Infinity;
  for(let i=0;i<points.length-1;i++){

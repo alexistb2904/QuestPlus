@@ -160,9 +160,15 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .annotation-node:not(.selected){overflow:hidden}
 .annotation-node .node-resize-handle{flex-shrink:0}
 /* Adjustable workspace: visual separators are keyboard and pointer operable. */
-@media (min-width:901px){
- .workspace{grid-template-columns:minmax(180px,min(var(--library-width,270px),25vw)) 8px minmax(220px,1fr) 8px minmax(240px,min(var(--properties-width,355px),35vw));gap:0}
- .workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px minmax(240px,min(var(--properties-width,355px),35vw))}
+@media (min-width:1200px){
+ .workspace{grid-template-columns:clamp(180px,var(--library-width,270px),min(600px,calc(100% - var(--properties-width,355px) - 294px))) 8px minmax(220px,1fr) 8px clamp(240px,var(--properties-width,355px),min(700px,calc(100% - var(--library-width,270px) - 294px)));gap:0}
+ .workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px clamp(240px,var(--properties-width,355px),min(700px,calc(100% - 294px)))}
+}
+/* At laptop widths the library is an overlay; it must not consume a grid track.
+   Keep the properties handle live for the diagram/properties split. */
+@media (min-width:901px) and (max-width:1199px){
+ .workspace,.workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px clamp(240px,var(--properties-width,320px),min(700px,calc(100% - 294px)));gap:0}
+ .pane-separator-vertical[aria-label="Resize library"]{display:none}
 }
 .pane-separator{position:relative;z-index:10;flex:none;touch-action:none;outline-offset:-2px}
 .pane-separator:before{content:'';position:absolute;border-radius:4px;background:#77657e;opacity:.65}
@@ -209,3 +215,7 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .link-waypoint{fill:#191a1f;stroke:#dec2ff;stroke-width:2;pointer-events:all;cursor:move}
 .link-waypoint:focus{outline:none;stroke:#fff}
 .background-draft{position:absolute;border:1px dashed #dec2ff;background:#ae73e822;pointer-events:none;z-index:3}
+
+/* Section headings align with the Minecraft tablet's left-aligned label text. */
+.annotation-node.label{align-items:flex-start;text-align:left}
+.annotation-node.label>span{text-align:left}
