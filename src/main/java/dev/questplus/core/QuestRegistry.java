@@ -41,7 +41,6 @@ public final class QuestRegistry {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
         if (Files.exists(dir)) try (var paths = Files.walk(dir)) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
-                if (Files.size(path) > 1_048_576) throw new IllegalArgumentException("Quest file exceeds 1 MiB: " + path);
                 try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
                     reader.setStrictness(Strictness.STRICT);
                     var root = readJson(reader, 0);
