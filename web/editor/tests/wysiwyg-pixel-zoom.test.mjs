@@ -49,9 +49,9 @@ test('WYSIWYG allows direct pixel sizing and drag-resizing in both editing modes
  for(const token of ['sizePx','applyPixelSize','image-grip','onPointerMove','onPointerUp','mode="description"','onRichChange'])
   assert.ok(editor.includes(token),token);
  assert.match(editor,/image&&<div className="rich-image-tools">/);
- const renderer=read('../../../src/main/java/dev/questplus/fabric/client/RichAnnotationRenderer.java');
+ const renderer=read('../../../client/src/main/java/dev/questplus/fabric/client/RichAnnotationRenderer.java');
  assert.match(renderer,/get\("sizePx"\)/);
- const registry=read('../../../src/main/java/dev/questplus/core/QuestRegistry.java');
+ const registry=read('../../../server/src/main/java/dev/questplus/core/QuestRegistry.java');
  assert.match(registry,/descriptionRich\(/);
  assert.match(registry,/sizePx/);
 });

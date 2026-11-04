@@ -4,8 +4,8 @@ import fs from 'node:fs';
 
 const source=(p)=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 test('2D fallback reuses exact native 500x300 3D layout and transforms mouse input',()=>{
- const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
- const viewport=source('../../../src/main/java/dev/questplus/clientmodel/TabletUiViewport.java');
+ const screen=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const viewport=source('../../../client/src/main/java/dev/questplus/clientmodel/TabletUiViewport.java');
  assert.match(screen,/width=TabletUiViewport\.WIDTH/);
  assert.match(screen,/height=TabletUiViewport\.HEIGHT/);
  assert.match(screen,/screenScale=viewport\.scale\(\)/);
@@ -23,10 +23,10 @@ test('2D fallback reuses exact native 500x300 3D layout and transforms mouse inp
  assert.doesNotMatch(screen,/settings\.scale=settings\.scale>=1\.25 \? 0\.75 : settings\.scale\+0\.25;\s*settings\.save\(\); init\(\);/);
 });
 test('3D lighting is self-illuminated by default, brightness only affects 3D atlas',()=>{
- const settings=source('../../../src/main/java/dev/questplus/fabric/client/ClientSettings.java');
- const surface=source('../../../src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
- const shader=source('../../../src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java');
- const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const settings=source('../../../client/src/main/java/dev/questplus/fabric/client/ClientSettings.java');
+ const surface=source('../../../client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
+ const shader=source('../../../client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java');
+ const screen=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(settings,/boolean screenEmissive = true/);
  assert.match(settings,/double screenBrightness = 1\.0/);
  assert.match(settings,/!json\.has\("screenEmissive"\)/);
@@ -40,7 +40,7 @@ test('3D lighting is self-illuminated by default, brightness only affects 3D atl
 });
 test('all 3D screen controls have localized labels',()=>{
  for(const locale of ['en_us','fr_fr','es_es','zh_cn']){
-  const lang=JSON.parse(source('../../../src/main/resources/assets/questplus/lang/'+locale+'.json'));
+  const lang=JSON.parse(source('../../../client/src/main/resources/assets/questplus/lang/'+locale+'.json'));
   assert.ok(lang['questplus.client.screen_emissive'],locale);
   assert.ok(lang['questplus.client.screen_brightness'],locale);
  }
