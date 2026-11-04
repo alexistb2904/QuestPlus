@@ -84,7 +84,7 @@ const LOCALE_LABELS={
   gl_es:'Galego',af_za:'Afrikaans'
 };
 const userLocales=()=>{
-  const codes=new Set(['en_us',...(project.editorLocales||[]),language]);
+  const codes=new Set(['en_us','fr_fr','es_es','zh_cn',...(project.editorLocales||[]),language]);
   const collect=o=>{
     if(!o||typeof o!=='object')return;
     for(const [key,v] of Object.entries(o)){
@@ -294,12 +294,12 @@ function setField(field,value){
 function deleteSelected(){
   const selected=getSelected();if(!selected)return;
   if(selection.type==='category'){
-    if(categoryQuests().length)return notify('Déplace ou supprime les quêtes avant cette catégorie.');
+    if(categoryQuests().length)return notify('Cannot delete a category with quests.');
     if(!confirm(tUI('Delete the category')+' '+selected.id+' ?'))return;
     mutate(()=>{project.categories=project.categories.filter(c=>c!==selected);categoryId=project.categories[0]?.id||null;selection=categoryId?{type:'category',id:categoryId}:null;});
   }else if(selection.type==='quest'){
     const used=project.quests.filter(q=>q.id!==selected.id&&references(q.requires).includes(selected.id));
-    if(used.length)return notify('Cette quête est un prérequis de '+used.length+' autre(s) quête(s).');
+    if(used.length)return notify(tUI('Quest is a prerequisite for')+' '+used.length+' '+tUI('Quests').toLowerCase());
     if(!confirm(tUI('Delete this quest permanently?')))return;
     mutate(()=>{project.quests=project.quests.filter(q=>q!==selected);selection={type:'category',id:categoryId};});
   }else{
@@ -325,7 +325,7 @@ function inspectorAction(action,index){
       o.objectives||=[];o.objectives.push({id,event:'block_break',target:'minecraft:stone',count:1});
     });
     case 'remove-objective':return mutate(()=>{
-      if(o.objectives.length===1)return notify('Une quête standard doit avoir au moins un objectif.')&&false;
+      if(o.objectives.length===1)return notify('A standard quest needs at least one objective.')&&false;
       o.objectives.splice(index,1);
     });
     case 'add-xp':return mutate(()=>{o.rewards||=[];o.rewards.push({type:'experience',amount:5});});
@@ -605,9 +605,9 @@ viewport.addEventListener('wheel',e=>{
 function showModal(m){$(m).classList.remove('hidden');}
 function hideModal(m){$(m).classList.add('hidden');}
 $('#open-json').onclick=()=>{
-  const obj=getSelected();if(!obj)return notify('Choisis un élément à éditer.');
+  const obj=getSelected();if(!obj)return notify('Select an element to edit.');
   $('#json-input').value=JSON.stringify(obj,null,2);$('#json-error').textContent='';
-  $('#modal-kicker').textContent=selection.type.toUpperCase();$('#modal-title').textContent='Modifier '+(obj.id||'la sélection');
+  $('#modal-kicker').textContent=tUI(selection.type==='category'?'Category':selection.type==='quest'?'Quest':'Annotation').toUpperCase();$('#modal-title').textContent=tUI('Edit')+' '+(obj.id||tUI('Selection'));
   showModal('#modal');$('#json-input').focus();
 };
 $('#modal-close').onclick=$('#modal-cancel').onclick=()=>hideModal('#modal');
@@ -636,10 +636,10 @@ async function importSelection(el,zip=false){
   try{
     const docs=zip?await readZip(files[0]):await Promise.all(files.filter(f=>f.name.endsWith('.json')).map(async f=>({name:f.webkitRelativePath||f.name,content:await f.text()})));
     const imported=importDocuments(docs);
-    if(!confirm('Remplacer le projet en cours par '+imported.quests.length+' quêtes et '+imported.categories.length+' catégories ?'))return;
+    if(!confirm(tUI('Replace current project with')+' '+imported.quests.length+' '+tUI('Quests').toLowerCase()+' / '+imported.categories.length+' '+tUI('Categories').toLowerCase()+' ?'))return;
     mutate(()=>{project=imported;categoryId=project.categories[0]?.id||null;selection=categoryId?{type:'category',id:categoryId}:null;camera={x:0,y:0,zoom:1};fit();});
-    hideModal('#import-modal');notify('Projet importé : '+project.quests.length+' quêtes');
-  }catch(e){console.error(e);notify('Import impossible : '+e.message);}
+    hideModal('#import-modal');notify(tUI('Project imported')+': '+project.quests.length+' '+tUI('Quests').toLowerCase());
+  }catch(e){console.error(e);notify(tUI('Import failed')+': '+e.message);}
   finally{el.value='';}
 }
 $('#file-zip').onchange=e=>importSelection(e.target,true);
@@ -647,15 +647,15 @@ $('#file-folder').onchange=e=>importSelection(e.target);
 $('#file-json').onchange=e=>importSelection(e.target);
 async function exportZip(){
   const issues=validate(project);
-  if(issues.length){renderIssues();$('#issues-list').classList.remove('hidden');return notify('Export bloqué : '+issues.length+' erreur(s) à corriger.');}
+  if(issues.length){renderIssues();$('#issues-list').classList.remove('hidden');return notify(tUI('Export blocked')+': '+issues.length+' '+tUI('errors'));}
   const warned=[...new Set([...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)])]
      .map(id=>versionWarning(project,id)).filter(Boolean);
-  if(warned.length&&!confirm(warned.join('\n')+'\n\nExporter malgré ces incompatibilités ?'))return;
+  if(warned.length&&!confirm(warned.join('\n')+'\n\n'+tUI('Export despite version incompatibilities?')))return;
   try{
     const blob=makeZip(fileMap(project)),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='questplus-pack.zip';document.body.append(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),2000);notify('Pack QuestPlus téléchargé');
-  }catch(e){notify('Export impossible : '+e.message);}
+  }catch(e){notify(tUI('Export failed')+': '+e.message);}
 }
 $('#export-zip').onclick=exportZip;
 document.addEventListener('keydown',e=>{

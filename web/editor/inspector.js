@@ -1,3 +1,4 @@
+import {tUI} from './ui-i18n.js';
 import {EVENTS,MODES,PROGRESSIONS,objectiveLabel,text,references} from './project.js';
 import {iconUrl,knownVersion,versionWarning} from './minecraft-icons.js';
 import {renderConditionTree} from './conditions.js';
@@ -12,8 +13,8 @@ const disclosure=(label,body,opened=false)=>`<details class="editor-details" dat
 const action=(id,label)=>`<button class="button secondary" data-action="${attr(id)}">${esc(label)}</button>`;
 const mini=(action,index)=>`<button class="tiny danger" data-action="${attr(action)}" data-index="${index}" title="Supprimer">×</button>`;
 const loc=(value,name,label,language,optional=false)=>`<div class="translation-stack">
-  ${field(label+' · en_us',name+'.en_us',value?.en_us||'',optional?'Facultatif':'English source')}
-  ${language!=='en_us'?field(label+' · '+language,name+'.'+language,value?.[language]||'','Traduction facultative'):''}
+  ${field(tUI(label)+' · en_us',name+'.en_us',value?.en_us||'',optional?tUI('Optional'):tUI('English source'))}
+  ${language!=='en_us'?field(tUI(label)+' · '+language,name+'.'+language,value?.[language]||'',tUI('Optional translation')):''}
 </div>`;
 function iconField(label,fieldName,id,project){
   const version=project.iconVersions?.[id]||knownVersion(id)||'26.3',image=iconUrl(id,version);
