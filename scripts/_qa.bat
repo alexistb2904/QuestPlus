@@ -181,7 +181,7 @@ set "WEB_STATIC_DIR=%ROOT%\web\editor\dist"
 echo [QuestPlus Web] Serveur local React + API : http://localhost:8787/
 echo [QuestPlus Web] Fermez la console / CTRL+C pour arreter.
 pushd "%ROOT%\web\api" || exit /b 1
-start "" "http://localhost:8787/"
+if not "%QUESTPLUS_NO_BROWSER%"=="1" start "" "http://localhost:8787/"
 node server.mjs
 set "RESULT=%ERRORLEVEL%"
 popd

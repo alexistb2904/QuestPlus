@@ -12,6 +12,7 @@ exit /b 2
 :WEB
 title QuestPlus - React et API
 echo [WEB] Compilation de React et demarrage de l'API sur localhost:8787.
+set "QUESTPLUS_NO_BROWSER=1"
 call "%ROOT%\scripts\_qa.bat" api-run
 goto DONE
 

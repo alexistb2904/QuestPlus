@@ -44,5 +44,5 @@ echo.
 if not "%STATUS%"=="0" echo [Quest Plus] Server stopped with an error. Check the logs above.
 if "%STATUS%"=="0" echo [Quest Plus] Server stopped.
 echo.
-pause
+if /I not "%~1"=="--nopause" pause
 exit /b %STATUS%

@@ -77,3 +77,18 @@ Le JDK 25 et Node 22+ sont obligatoires pour toute la suite ; Docker est
 facultatif. Les nouveaux scripts ne touchent pas aux donnees d'une
 sauvegarde de production. La validation finale des .bat doit etre
 effectuee sur une machine Windows avec Fabric 26.3 et un vrai client.
+
+## Lancement complet en un clic (option 24)
+
+`13-Demarrer-Tout.bat` lance le frontend React et l'API dans une
+console, puis attend la disponibilite HTTP avant de lancer le serveur
+Fabric dans sa console, attend l'ouverture de `localhost:25565`, et
+demarre une instance client Minecraft dans une troisieme console.
+La configuration de developpement est creee/reutilisee automatiquement.
+
+En cas de premier demarrage, **lisez et acceptez manuellement l'EULA**
+dans la console serveur. Aucune acceptation n'est automatique.
+Les ports 8787 et 25565 doivent etre libres. Les fenetres restent
+ouvertes pour afficher les logs. Pour arreter proprement, quitter le
+client, taper `stop` dans la console du serveur, puis Ctrl+C dans
+celle du web. Aucun serveur de production n'est modifie.

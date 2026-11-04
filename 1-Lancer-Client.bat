@@ -11,5 +11,5 @@ echo.
 if not "%STATUS%"=="0" echo [Quest Plus] Echec : consulter les logs Minecraft / Gradle.
 if "%STATUS%"=="0" echo [Quest Plus] Client arrete normalement.
 echo.
-pause
+if /I not "%~1"=="--nopause" pause
 exit /b %STATUS%

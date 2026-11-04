@@ -36,12 +36,13 @@ echo  20. Construire le Docker web unifie (sans deployer)
 echo  21. Afficher les rapports de tests
 echo  22. Tout tester + GameTests client avec interface graphique
 echo  23. Reinstaller les dependances React (npm ci)
+echo  24. DEMARRER TOUT : Web + API + serveur + client Minecraft
 echo.
 echo   Q. Quitter
 echo ====================================================================
 echo.
 set "SELECTION="
-set /p "SELECTION=Choix [1-23 / Q] : "
+set /p "SELECTION=Choix [1-24 / Q] : "
 if errorlevel 1 goto INPUT_ERROR
 if /I "%SELECTION%"=="Q" exit /b 0
 if "%SELECTION%"=="1" goto CLIENT
@@ -67,8 +68,9 @@ if "%SELECTION%"=="20" (set "TASK=docker-build" & goto RUN_TASK)
 if "%SELECTION%"=="21" (set "TASK=reports" & goto RUN_TASK)
 if "%SELECTION%"=="22" goto ALL_GUI
 if "%SELECTION%"=="23" (set "TASK=studio-ci" & goto RUN_TASK)
+if "%SELECTION%"=="24" goto START_FULL
 echo.
-echo [QuestPlus] Choix invalide : entrez un numero entre 1 et 23 ou Q.
+echo [QuestPlus] Choix invalide : entrez un numero entre 1 et 24 ou Q.
 pause
 goto MENU
 
@@ -112,6 +114,9 @@ goto MENU
 call "%~dp010-Tout-Tester.bat" gui
 goto MENU
 
+:START_FULL
+call "%~dp013-Demarrer-Tout.bat"
+goto MENU
 :RUN_TASK
 echo.
 call "%~dp0scripts\_qa.bat" "%TASK%"
