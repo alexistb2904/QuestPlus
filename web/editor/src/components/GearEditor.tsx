@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useId,useState} from 'react';
 import {ItemIcon,TargetPicker} from './IconPicker';
 import {EnchantmentPicker} from './EnchantmentPicker';
 import {tUI} from '../ui/ui-i18n.js';
@@ -29,12 +29,13 @@ export const armorPreset=(material:string):GearItem[]=>{
 
 function EnchantmentId({id,taken,onRename,onBrowse}:{id:string;taken:Record<string,number>;onRename:(next:string)=>void;onBrowse:()=>void}){
  const [draft,setDraft]=useState(id);
+ const inputId=useId();
  useEffect(()=>setDraft(id),[id]);
  const invalid=!enchantId.test(draft.trim())||(draft.trim()!==id&&Object.hasOwn(taken,draft.trim()));
  const commit=()=>{if(!invalid&&draft.trim()!==id)onRename(draft.trim())};
- return <div className="field gear-enchantment-id"><label htmlFor={'enchantment-'+id}>{tUI('Enchantment ID')}</label>
+ return <div className="field gear-enchantment-id"><label htmlFor={inputId}>{tUI('Enchantment ID')}</label>
   <div className="gear-enchantment-id-entry">
-   <input id={'enchantment-'+id} spellCheck={false} value={draft} aria-label={tUI('Enchantment ID')} aria-invalid={invalid}
+   <input id={inputId} spellCheck={false} value={draft} aria-label={tUI('Enchantment ID')} aria-invalid={invalid}
     title={invalid?tUI('Invalid or duplicate enchantment ID'):undefined}
     onChange={e=>setDraft(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();commit();e.currentTarget.blur()}}}/>
    <button type="button" className="button secondary" onClick={onBrowse}>{tUI('Browse')}</button>
