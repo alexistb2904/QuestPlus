@@ -35,7 +35,7 @@ public final class Defaults {
     }
 
     static JsonObject readObject(Path path) throws IOException {
-        long max=path.toString().replace('\\','/').contains("categories/") ? 4_194_304 : 1_048_576;
+        long max=path.toString().replace('\\','/').contains("categories/") ? 12_582_912 : 4_194_304;
         if (Files.size(path) > max) throw new IOException("JSON exceeds " +(max/1_048_576)+" MiB: " + path);
         try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             return QuestRegistry.parseStrict(reader).getAsJsonObject();
