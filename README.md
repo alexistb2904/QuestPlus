@@ -246,7 +246,7 @@ This work remains in PR #26 until build and real Minecraft tests pass.
 
 ## Tests Windows et lanceurs .bat
 
-Le menu [0-Menu-Tests.bat](0-Menu-Tests.bat) inclut 24 actions, dont
+Le menu [0-Menu-Tests.bat](0-Menu-Tests.bat) inclut 25 actions, dont
 les tests Java/Fabric, GameTests client et serveur, React, API,
 Docker, le diagnostic JDK/Node et les suites automatisees.
 Consultez [le guide Windows](docs/windows-testing.md) pour les options,
