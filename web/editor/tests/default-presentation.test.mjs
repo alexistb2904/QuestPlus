@@ -30,6 +30,7 @@ test('default thematic islands have explicit positions with room for nodes and l
     assert.ok(Math.hypot(q.layout.x-other.layout.x,q.layout.y-other.layout.y)>=clearance,q.id+' / '+other.id);
    }
    for(const note of category.annotations||[]){
+    if(note.style==='background')continue; // Compartments intentionally enclose quests.
     const overlap=Math.abs(q.layout.x-note.x)<note.width/2+16 && Math.abs(q.layout.y-note.y)<note.height/2+16;
     assert.ok(!overlap,q.id+' / '+note.id);
    }

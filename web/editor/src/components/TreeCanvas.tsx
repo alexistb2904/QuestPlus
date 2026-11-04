@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {gameLayout} from '../core/game-layout.js';
 import {dependencyError} from '../core/quest-links.js';
-import {edgePoints,nearestSegment,backgroundRect} from '../core/diagram-geometry.js';
+import {edgePoints,nearestSegment,backgroundRect,insertWaypoint} from '../core/diagram-geometry.js';
 import {text,annotationText,annotationRich} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
 import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
@@ -219,11 +219,15 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
      <path className="edge-hit" d={path} aria-label={tUI('Drag a link to add a waypoint')} role="button" tabIndex={0}
       onPointerDown={e=>{
        if(!onRoute||tool!=='select')return;
-       const localPoint=local(e),index=nearestSegment(points,localPoint),next=points.slice(1,-1).map(pt=>world(pt.x,pt.y));
-       if(next.length>=64)return;
-       next.splice(index,0,routePosition(e));startRoute(e,edge.from,edge.to,next,index);
+       // Only authored waypoints are persistent; default orthogonal elbows are visual.
+       // Clicking a cable adds exactly ONE new anchor, rather than silently storing
+       // both synthetic corners (which previously made the route jump on first edit).
+       const localPoint=local(e),index=nearestSegment(points,localPoint);
+       const next=insertWaypoint(authored||[],index,routePosition(e));
+       if(next.length>64)return;
+       startRoute(e,edge.from,edge.to,next,Math.min(index,next.length-1));
       }} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
-      onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();onSelect({type:'quest',id:edge.to});const next=points.slice(1,-1).map(pt=>world(pt.x,pt.y));if(!next.length)next.push(world((p.x+q.x)/2,(p.y+q.y)/2));onRoute?.(edge.from,edge.to,next);}}}/>
+      onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();onSelect({type:'quest',id:edge.to});const current=authored||[];if(current.length>=64)return;const next=insertWaypoint(current,current.length,world((p.x+q.x)/2,(p.y+q.y)/2));onRoute?.(edge.from,edge.to,next);}}}/>
      {selected&&authored?.map((at,i)=>{const point=pixel(at);return <circle key={i} className="link-waypoint" data-waypoint={i} role="button" tabIndex={0} aria-label={tUI('Link waypoint')+' '+(i+1)} cx={point.x} cy={point.y} r={5}
       onPointerDown={e=>startRoute(e,edge.from,edge.to,[...authored],i)} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
       onDoubleClick={()=>onRoute?.(edge.from,edge.to,authored.filter((_,n)=>n!==i))}
