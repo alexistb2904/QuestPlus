@@ -47,9 +47,12 @@ final class QuestClientTabletFlow {
             client.options.setCameraType(CameraType.FIRST_PERSON);
         }
         if (animationAvailable()) {
+            // Claim first-person hands BEFORE starting FP PAL. PunchyApi.disable
+            // is evaluated by Punchy's renderer during the same frame and
+            // must already see this state (including the opening animation).
+            nativeHands=true;stage=Stage.OPENING;
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
-                    nativeHands=true;stage=Stage.OPENING;
                     QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.0 s)");
                     return;
                 }
@@ -58,6 +61,7 @@ final class QuestClientTabletFlow {
             } catch (LinkageError | RuntimeException error) {
                 QuestPlusMod.LOGGER.warn("Cannot start FP PAL animation; standard UI fallback",error);
             }
+            nativeHands=false;stage=Stage.CLOSED;
         }
         nativeHands=false;stage=Stage.CLOSED;
         // No PAL animation is running, so do not leave the camera overridden.
