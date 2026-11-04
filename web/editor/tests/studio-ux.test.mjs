@@ -65,19 +65,23 @@ test('compatibility export carries future item versions separately from mod JSON
  assert.equal(reimport.iconVersions['minecraft:future_item'],'26.4');
  assert.equal(reimport.targetMinecraftVersion,'26.3');
 });
-test('single in-site tree supports wheel, pinch and fallback without game-preview overlay',()=>{
- const editor=fs.readFileSync(new URL('../editor.js',import.meta.url),'utf8');
- const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
- const css=fs.readFileSync(new URL('../style.css',import.meta.url),'utf8');
- const java=fs.readFileSync(new URL('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java',import.meta.url),'utf8');
- for(const token of ['zoomAt','gestureStart','pointermove','wheel','pointercancel','pickerLimit','renderConditionSuggestions'])assert.ok(editor.includes(token),token);
- for(const token of ['icon-filter','target-version','zoom-in','zoom-out','data-lucide'])assert.ok(html.includes(token),token);
+test('React quest tree supports pointer drag, pinch, wheel and Minecraft layout parity',()=>{
+ const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
+ const root=read('../src/main.tsx');
+ const tree=read('../src/components/TreeCanvas.tsx');
+ const app=read('../src/App.tsx');
+ const rich=read('../src/components/RichEditor.tsx');
+ const html=read('../index.html');
+ const css=read('../style.css');
+ assert.match(root,/createRoot/);
+ assert.match(html,/id="root"/);
+ assert.match(tree,/gameLayout/);
+ for(const token of ['onPointerDown','onPointerMove','onPointerUp','onPointerCancel','onWheel','ResizeObserver','onPosition'])assert.ok(tree.includes(token),token);
+ assert.match(tree,/richToHtml/);
+ assert.match(rich,/toEmbeddedImage/);
+ assert.match(app,/IconPicker/);
  assert.ok(css.includes('touch-action:none'));
  assert.ok(css.includes('--pane:#30231e'));
  assert.ok(css.includes('--text:#e3cdb1'));
- assert.ok(!html.includes('id="minecraft-preview"'));
- assert.ok(!html.includes('id="preview-toggle"'));
- assert.ok(!editor.includes('previewMode'));
- assert.ok(!editor.includes('renderGamePreview'));
- assert.ok(java.includes('Items.BARRIER'));
+ assert.ok(!html.includes('editor.js'));
 });

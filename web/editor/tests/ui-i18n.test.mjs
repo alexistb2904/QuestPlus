@@ -30,14 +30,17 @@ test('explicit UI override is saved independently from quest content language',(
  assert.equal(tUI('Prérequis'),'Prerequisites');
  assert.equal(getUiLocale(),'en');
 });
-test('front-end has two distinct language controls, not an in-game preview',()=>{
+test('React app keeps interface language separate from Minecraft content locales',()=>{
  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
- const editor=fs.readFileSync(new URL('../editor.js',import.meta.url),'utf8');
- assert.match(html,/id="ui-language"/);
- assert.match(html,/id="preview-language"/);
- assert.match(editor,/setUiLocale\(storedUiLocale\(\)\)/);
- assert.match(editor,/translateUI\(document\)/);
- assert.match(editor,/\['en_us','fr_fr','es_es','zh_cn'/);
- assert.ok(!html.includes('minecraft-preview'));
- assert.ok(!editor.includes('previewMode'));
+ const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8');
+ const types=fs.readFileSync(new URL('../src/types.ts',import.meta.url),'utf8');
+ assert.match(html,/id="root"/);
+ assert.match(app,/id="ui-language"/);
+ assert.match(app,/id="preview-language"/);
+ assert.match(app,/setUiLocale/);
+ assert.match(app,/localesOf/);
+ assert.match(types,/en_us/);
+ assert.match(types,/fr_fr/);
+ assert.match(types,/ja_jp/);
+ assert.ok(!app.includes('previewMode'));
 });
