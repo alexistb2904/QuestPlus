@@ -40,7 +40,7 @@ test('Minecraft camera fit now includes authored annotation anchors',()=>{
  const camera=source('../../../src/main/java/dev/questplus/clientmodel/QuestCamera.java');
  assert.match(screen,/camera\.fitBounds\(points/);
  assert.match(screen,/points\.add\(new QuestLayout\.Point\(note\.get\("x"\)/);
- assert.match(camera,/zoom=1;/);
+ assert.match(camera,/public double zoom\(\) \{ return 1; \}/);
  assert.match(screen,/int x=\(int\)camera\.screenX\(note\.get\("x"\)/);
  assert.match(screen,/RichAnnotationRenderer\.render\(g,font,note,imagePool/);
 });
