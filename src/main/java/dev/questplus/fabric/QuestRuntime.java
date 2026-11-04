@@ -272,7 +272,9 @@ public final class QuestRuntime implements AutoCloseable {
 
     public void event(ServerPlayer player, QuestEvent event) {
         assertThread();
-        if (closing || storageFailed || player.isSpectator() || player.isCreative() || blocked.contains(player.getUUID())) return;
+        // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
+        if (closing || storageFailed || (!event.type().equals("manual") && (player.isSpectator() || player.isCreative()))
+            || blocked.contains(player.getUUID())) return;
         if (busy.contains(player.getUUID())) {
             if (deferred.size()>=4096) throw new IllegalStateException("Quest Plus deferred event capacity exceeded");
             deferred.addLast(new DeferredEvent(player,event)); return;
