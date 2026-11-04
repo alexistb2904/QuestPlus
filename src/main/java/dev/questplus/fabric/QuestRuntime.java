@@ -442,7 +442,34 @@ public final class QuestRuntime implements AutoCloseable {
         // shortcut: keep cached UUID states for this server session; add eviction when large-server profiling warrants it.
     }
 
-    public void claim(ServerPlayer player, String id) throws IOException {
+    /** One client request, sequential durable reservations. No double claims and
+     * no bypass of the existing free-inventory/storage safety checks. */
+    public void claimAll(ServerPlayer player) throws IOException {
+        assertThread();
+        UUID uuid=player.getUUID();
+        Set<String> visible=visibleQuests(uuid).stream().map(QuestDefinition::id).collect(java.util.stream.Collectors.toSet());
+        var state=player(uuid);
+        List<String> ids=state.entitlements.entrySet().stream()
+            .filter(e->visible.contains(e.getValue().questId()) && !state.claims.containsKey(e.getKey()))
+            .sorted(Map.Entry.comparingByKey()).map(e->e.getValue().questId()).toList();
+        if(ids.isEmpty()) { player.sendSystemMessage(Messages.text(player,"questplus.error","No rewards to claim")); return; }
+        claimNext(player,ids,0);
+    }
+    private void claimNext(ServerPlayer player,List<String> ids,int index) throws IOException {
+        if(index>=ids.size()){
+            player.sendSystemMessage(Messages.text(player,"questplus.claimed",ids.size()+" rewards"));
+            return;
+        }
+        claim(player,ids.get(index),() -> {
+            try { claimNext(player,ids,index+1); }
+            catch(IOException | RuntimeException error) {
+                QuestPlusMod.LOGGER.warn("Claim all stopped at reward {}: {}",index,error.getMessage());
+                player.sendSystemMessage(Messages.text(player,"questplus.error","Claim all stopped: "+error.getMessage()));
+            }
+        });
+    }
+    public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null); }
+    private void claim(ServerPlayer player, String id,Runnable onDelivered) throws IOException {
         assertThread();
         UUID uuid = player.getUUID();
         ensureFree(group(uuid)); var progress = player(uuid);
@@ -483,7 +510,8 @@ public final class QuestRuntime implements AutoCloseable {
                 progress.entitlements.remove(key);
                 QuestNetwork.invalidate(uuid);
                 dirty.add(uuid);
-                player.sendSystemMessage(Messages.text(player,"questplus.claimed",title(player,quest)));
+                if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.claimed",title(player,quest)));
+                else onDelivered.run();
             } catch (RuntimeException ex) { QuestPlusMod.LOGGER.error("Reserved reward requires manual recovery for {} {}",uuid,id,ex); }
         }));
     }
