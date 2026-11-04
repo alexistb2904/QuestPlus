@@ -12,7 +12,7 @@ const read=p=>readFileSync(path.join(root,p),'utf8');
 test('Windows dashboard exposes 25 options and real task handlers',()=>{
  const menu=read('0-Menu-Tests.bat');
  const qa=read('scripts/_qa.bat');
- for(let i=1;i<=25;i++
+ for(let i=1;i<=25;i++)
   assert.ok(menu.includes('if "%SELECTION%"=="'+i+'"'),'Missing menu option '+i);
  assert.doesNotMatch(menu,/"&goto RUN_TASK/,'no unconditional cmd goto');
  assert.match(menu,/10-Tout-Tester\.bat/);
@@ -83,4 +83,20 @@ test('one-click stack orchestrates three child consoles and checks readiness bef
  assert.match(helper,/tcpReady/);
  assert.match(helper,/Port 8787 already in use/);
  assert.match(helper,/Port 25565 already in use/);
+});
+
+test('latest Fabric jar and test addons are installed before Minecraft launches',()=>{
+ const server=read('2-Lancer-Serveur.bat');
+ const client=read('1-Lancer-Client.bat');
+ const installer=read('scripts/install-client-test-assets.mjs');
+ assert.match(server,/--rerun-tasks jar/);
+ assert.ok(server.indexOf('--rerun-tasks jar')<server.indexOf('runServer'));
+ assert.match(server,/run\\server\\mods/);
+ assert.match(client,/install-client-test-assets\.mjs/);
+ assert.ok(client.indexOf('install-client-test-assets.mjs')<client.indexOf('runClient'));
+ assert.match(client,/QUESTPLUS_SKIP_TEST_ASSETS/);
+ for(const name of ['iris','sodium','punchy-fpa','punchymoves','fluid-foolish',
+    'makeup-ultra-fast-shaders','complementary-reimagined','bliss-shader'])
+  assert.ok(installer.includes("id:'"+name+"'"),'Missing asset '+name);
+ assert.match(installer,/sha512/);
 });
