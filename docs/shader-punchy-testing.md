@@ -1,53 +1,76 @@
-## Test tablette avec Iris + Punchy! (Minecraft 26.3)
+# QuestPlus: shaders, Self Illumination et fermeture de la tablette
 
-**Objectif :** les mains et le modèle 3D de QuestPlus restent gérés par FP PAL
-pendant l'animation d'ouverture, même si Punchy! est installé. Punchy! reprend
-son fonctionnement normal dès que la tablette est rangée.
+## Comportement voulu
 
-- Punchy! **3.1+** est nécessaire pour que QuestPlus utilise l'API publique
-  `PunchyApi.disable("questplus", condition)` : elle désactive temporairement
-  Punchy! pendant que QuestPlus contrôle les mains, sans modifier la configuration
-  de Punchy! et sans dépendance obligatoire dans le JAR QuestPlus.
-- Le téléchargeur de test ignore les versions antérieures et rafraîchit
-  automatiquement l'ancien cache si celui-ci contient Punchy! 3.0 ou moins.
-- Si l'animation ne démarre toujours pas, vérifier les logs pour
-  `Punchy compatibility` et `Playing Blockbench first-person`. Avec une
-  vieille version de Punchy!, F8 permet de désactiver Punchy temporairement.
+Le seul critère d'activation est **un shader pack réellement utilisé par
+Iris** (API `IrisApi.isShaderPackInUse`). Installer Iris sans activer de
+shader ne modifie ni le flou ni la luminosité de QuestPlus.
 
-### Shaders : rendu mat et flou
+| Shader actif ? | Self Illumination | Matériau écran | Lumière | Background Blur |
+| --- | --- | --- | --- | --- |
+| Non | Désactivé | Translucide classique | Lumière du monde | Choix utilisateur |
+| Non | Activé | Émissif classique | Luminosité d'origine | Choix utilisateur |
+| Oui | Désactivé | Mat / opaque | Lumière du monde | **OFF automatiquement** |
+| Oui | Activé | Mat / opaque | Lumière maximale, plafond 78 % | **OFF automatiquement** |
 
-Lorsqu'Iris déclare qu'un shader pack est actif, QuestPlus active par défaut
-**Écran compatible shaders (Iris)** dans les paramètres de sa tablette.
+L'ancien paramètre « Écran compatible shaders (Iris) » a été **supprimé**.
+Le réglage Self Illumination déclenche son ancien comportement lumineux mat
+uniquement lorsque le shader est actif. En désactivant Self Illumination,
+l'écran ne reçoit plus de lumière artificielle et n'utilise pas de matériau
+émissif ; il reste néanmoins **mat** pour éviter d'être interprété comme
+du verre par Bliss.
 
-1. L'ancienne passe `processBlurEffect` n'est plus empilée par-dessus le
-   post-traitement du shader (cause du flou global avec Complementary).
-2. L'écran 3D passe de `entityTranslucentEmissive` à une surface opaque
-   `entityCutout`, pour limiter les effets de miroir/SSR de Bliss et le bloom
-   ou l'exposition excessive de MakeUp.
-3. La lumière de l'écran seule utilise le lightmap maximal, plutôt que le
-   matériau HDR émissif. Le contenu UI est modéré à 78 % de sa luminosité
-   maximale pour les shader packs (les réglages Vanilla restent inchangés).
-4. Le cadre 3D et le monde gardent leur éclairage naturel. Le flou 2D standard
-   n'est pas modifié quand aucun shader n'est actif.
-5. Le mode est désactivable dans la tablette pour comparer les rendus.
+Le choix Background Blur est conservé sur disque, mais son état effectif est
+OFF (bouton désactivé et mention explicative) tant qu'un shader tourne.
+Dès que le shader est désactivé, l'ancien choix du joueur redevient effectif.
 
-**Limite importante :** les shaders contrôlent eux-mêmes la profondeur de
-champ (DOF), les réflexions et la post-exposition. QuestPlus ne peut pas
-garantir qu'un écran 3D soit exclu d'un DOF intégré au shader sans une
-intégration spécifique au shader / une passe de composition après son rendu.
-Si Complementary continue à flouter la tablette, désactive son option DOF
-dans le menu shader pour vérifier la différence. Le correctif supprime le
-flou Minecraft ajouté en doublon, pas les effets volontaires du shader.
+## Bliss : cadre / écran physique
 
-### Scénarios à exécuter sur Windows
+Le cadre 3D utilise la **texture originale statique du modèle**, et ne lit
+plus le framebuffer de Quest Studio lors du rendu d'un shader. Seule la face
+écran utilise l'atlas GUI dynamique. Les UV du cadre reviennent donc à
+l'échelle d'origine du modèle (256×256), distincte de l'atlas 2048×1024.
 
-| Configuration | Contrôle |
-| --- | --- |
-| Aucun shader + Punchy 3.1 | Animations d'ouverture/fermeture QuestPlus et bras visibles |
-| Complementary | Scène non globalement floutée par la passe Minecraft |
-| Bliss | Écran mat, sans miroir exagéré ; lisibilité en extérieur et intérieur |
-| MakeUp Ultra Fast | Interface non surexposée et icônes lisibles |
-| Tous les shaders | Taille tablette, hover, clics, zoom et animations stables |
-| Shader ON/OFF dans Iris | Bascule du rendu sans redémarrage ni crash |
-| Mode shader-safe OFF | Comparaison avec l'ancien rendu |
-| Punchy absent | Comportement original QuestPlus inchangé |
+La face écran utilise un matériau `entityCutout` **même quand Self Illumination
+est désactivé**, car les matériaux `entityTranslucent` sont souvent traités
+comme du verre / SSR dans les shaders. L'intensité maximale dépend uniquement
+de l'état de Self Illumination.
+
+Cette séparation limite les reflets, mais les réflexions et le DOF propres à
+Bliss ou à un autre shader peuvent encore affecter les modèles 3D.
+
+## Fermeture : restauration impérative de l'interface Minecraft
+
+L'ancien code cachait le HUD pendant tout l'état `CLOSING`. Si FP PAL
+n'achevait pas son animation (après un changement de shader, par exemple),
+la hotbar et d'autres éléments restaient absents jusqu'à la reconnexion.
+
+Désormais :
+- Le HUD n'est masqué que pendant l'affichage réel du `QuestScreen`.
+  Dès que Échap ferme la fenêtre, Minecraft reprend sa hotbar et son HUD.
+- Le système laisse terminer les animations normales.
+- Un délai de sécurité de **2,5 secondes** force l'arrêt de l'animation de
+  fermeture si elle n'a pas rendu de dernier état.
+- Un délai de **3,5 secondes** récupère également une ouverture bloquée,
+  en proposant alors la GUI standard.
+- Une exception FP PAL, l'apparition d'une autre fenêtre ou une déconnexion
+  libèrent le contrôleur et rétablissent l'état de caméra.
+
+## Validation manuelle (client Fabric 26.3 + Iris + Punchy)
+
+1. Avec **Iris installé mais shaders désactivés**, vérifier les réglages
+   classiques Self Illumination et Background Blur.
+2. Avec **Complementary**, vérifier Blur OFF automatique pour les deux états
+   Self Illumination et essayer une dizaine d'ouvertures/fermetures avec Échap.
+3. Avec **Bliss**, vérifier l'écran et le cadre sans reflets en jour/nuit,
+   et comparer Self Illumination ON/OFF.
+4. Avec **MakeUp**, vérifier la lisibilité et que l'écran éclairé ne brûle pas
+   les couleurs de ses icônes.
+5. À chaque fermeture, tester immédiatement hotbar, inventaire, souris,
+   affichage HUD, touche J et réouverture de la tablette.
+6. Essayer la bascule de shader lorsque la tablette est ouverte, puis fermée.
+7. Vérifier que l'inventaire et le HUD réapparaissent même si FP PAL échoue.
+
+Les tests statiques prouvent les branchements ; **ils ne remplacent pas un
+test rendu GPU dans Minecraft**. Les shaders peuvent avoir un DOF indépendant
+sur lequel QuestPlus n'a pas de contrôle universel.
