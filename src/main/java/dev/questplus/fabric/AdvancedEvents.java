@@ -133,6 +133,11 @@ public final class AdvancedEvents {
         if (count <= 0 || stack.isEmpty()) return;
         emit(player, type, BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
             stack.getItem().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), count);
+        // Aggregate all four vanilla catches without accidentally counting treasure or junk.
+        if (type.equals("fish_item") && Set.of(
+                "minecraft:cod","minecraft:salmon","minecraft:pufferfish","minecraft:tropical_fish")
+                .contains(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()))
+            emit(player,"questplus:fish_any","questplus:fish",Set.of(),count);
     }
 
     public static void block(ServerPlayer player, String type, BlockState state) {
