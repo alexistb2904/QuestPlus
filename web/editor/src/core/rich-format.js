@@ -1,9 +1,9 @@
 // A deliberately small, portable format shared by Quest Studio and the Minecraft client.
 // Images are embedded data URIs (never remote URLs). Everything is serialized as JSON.
 export const RICH_FONTS=['default','uniform','alt','illageralt'];
-export const RICH_MAX_MEDIA=96*1024;
+export const RICH_MAX_MEDIA=384*1024;
 export const RICH_MAX_PARTS=96;
-export const RICH_MAX_CATEGORY=900*1024;
+export const RICH_MAX_CATEGORY=4*1024*1024;
 const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,x=>ESC[x]);
 export const mediaPattern=/^data:image\/(png|jpeg|gif);base64,([a-zA-Z0-9+/]+={0,2})$/;
@@ -14,7 +14,7 @@ export function validRich(parts){
   if(!v||typeof v!=='object')return false;
   if(v.type==='image'){
    if(!mediaPattern.test(v.data||'')||imageBytes(v.data)>RICH_MAX_MEDIA)return false;
-   if(!Number.isInteger(v.width)||!Number.isInteger(v.height)||v.width<8||v.height<8||v.width>170||v.height>150)return false;
+   if(!Number.isInteger(v.width)||!Number.isInteger(v.height)||v.width<8||v.height<8||v.width>400||v.height>300)return false;
   }else if(v.type==='text'){
    if(typeof v.text!=='string'||v.text.length>2048)return false;
    if(v.font!=null&&!RICH_FONTS.includes(v.font))return false;
