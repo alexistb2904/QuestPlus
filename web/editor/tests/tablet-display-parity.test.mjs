@@ -17,6 +17,10 @@ test('2D fallback reuses exact native 500x300 3D layout and transforms mouse inp
  assert.doesNotMatch(screen,/TabletRenderer\.draw\(g,left,top,right,bottom\)/);
  assert.match(viewport,/screenX\(double x\)/);
  assert.match(viewport,/localDelta\(double pixels\)/);
+ assert.match(screen,/private Double pendingInterfaceScale/);
+ assert.match(screen,/if \(pendingInterfaceScale!=null\)/);
+ assert.match(screen,/pendingInterfaceScale=settings\.scale>=1\.25/);
+ assert.doesNotMatch(screen,/settings\.scale=settings\.scale>=1\.25 \? 0\.75 : settings\.scale\+0\.25;\s*settings\.save\(\); init\(\);/);
 });
 test('3D lighting is self-illuminated by default, brightness only affects 3D atlas',()=>{
  const settings=source('../../../src/main/java/dev/questplus/fabric/client/ClientSettings.java');
