@@ -141,7 +141,11 @@ function renderScene(){
   $('#empty-tree').classList.toggle('hidden',previewMode||rows.length>0||(currentCategory()?.annotations||[]).length>0);
   $('#minecraft-preview').classList.toggle('hidden',!previewMode);
   $('#preview-toggle').setAttribute('aria-pressed',String(previewMode));
-  $('#preview-toggle').textContent=previewMode?'✎ Édition':'▣ Aperçu jeu';
+  if($('#preview-toggle').dataset.mode!==String(previewMode)){
+    $('#preview-toggle').dataset.mode=String(previewMode);
+    $('#preview-toggle').innerHTML=previewMode?'<i data-lucide="pencil"></i> Édition':'<i data-lucide="eye"></i> Aperçu jeu';
+    window.lucide?.createIcons();
+  }
   $('#canvas-hint').textContent=previewMode?'Aperçu du rendu Minecraft':'Molette : zoom · Glisser : déplacer';
   if(previewMode){$('#nodes').innerHTML='';$('#edges').innerHTML='';renderGamePreview(layout);return;}
   const shapes=[];
@@ -704,4 +708,5 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Delete'&&selection?.type!=='category'){e.preventDefault();deleteSelected();}
 });
 window.addEventListener('resize',renderScene);
+window.addEventListener('load',()=>window.lucide?.createIcons());
 refresh();requestAnimationFrame(()=>{fit();renderScene();});

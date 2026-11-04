@@ -16,7 +16,7 @@ const loc=(value,name,label,language,optional=false)=>`<div class="translation-s
   ${language!=='en_us'?field(label+' · '+language,name+'.'+language,value?.[language]||'','Traduction facultative'):''}
 </div>`;
 function iconField(label,fieldName,id,project){
-  const image=iconUrl(id),version=project.iconVersions?.[id]||knownVersion(id)||'26.3';
+  const version=project.iconVersions?.[id]||knownVersion(id)||'26.3',image=iconUrl(id,version);
   const warning=versionWarning(project,id);
   return `<div class="field"><label>${esc(label)}</label>
     <div class="icon-field"><span class="item-preview">${image?`<img src="${attr(image)}" alt="" loading="lazy">`:'◇'}</span>
