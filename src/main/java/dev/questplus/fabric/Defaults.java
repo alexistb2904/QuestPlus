@@ -67,7 +67,7 @@ public final class Defaults {
         if(!target.startsWith(root.normalize()))throw new IOException("Unsafe default quest path "+target);
         if(!Files.exists(target)) {
             Files.createDirectories(target.getParent());
-            Files.writeString(target,contents.toString()+"\\n",StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);
+            Files.writeString(target,contents.toString(),StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);
         }
     }
 
