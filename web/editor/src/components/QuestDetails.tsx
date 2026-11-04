@@ -38,9 +38,9 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
   <div className="detail-heading"><div><strong>{tUI('Localization')}</strong><p>{tUI('English is the source. Add a language to translate this content.')}</p></div><button type="button" className="button primary" aria-expanded={adding} onClick={()=>setAdding(v=>!v)}><Plus size={15}/>{tUI('Add a language')}</button></div>
   {adding&&<div className="locale-picker"><div className="locale-search"><Search size={16}/><input autoFocus aria-label={tUI('Search languages')} placeholder={tUI('Search languages')} value={search} onChange={e=>setSearch(e.target.value)}/><button type="button" className="icon-button" aria-label={tUI('Close')} onClick={()=>setAdding(false)}><X size={15}/></button></div><div className="locale-picker-list">{choices.map(([id,name])=><button type="button" className="locale-picker-option" key={id} onClick={()=>add(id)}><span><strong>{name}</strong><small>{id}</small></span><Plus size={15}/></button>)}{custom&&<button type="button" className="locale-picker-option" onClick={()=>add(custom)}><span><strong>{custom}</strong><small>{tUI('Custom language code')}</small></span><Plus size={15}/></button>}{!choices.length&&!custom&&<p className="localization-empty">{tUI('No languages found')}</p>}</div></div>}
   {locales.length?<><div className="localization-languages" aria-label={tUI('Translation language')}>{locales.map(code=><button type="button" className={'locale-chip'+(locale===code?' active':'')} aria-pressed={locale===code} onClick={()=>setSelected(code)} key={code}>{locale===code&&<Check size={13}/>}<span>{supportedLocales[code]||code}</span><small>{code}</small></button>)}</div>
-   <div className="localization-columns"><span>{tUI('English source')} · en_us</span><span>{supportedLocales[locale]||locale} · {locale}</span></div>
+   <div className="localization-columns"><span>{tUI('Source')}</span><span>{supportedLocales[locale]||locale} · {locale}</span></div>
    {fields.map(field=>{
-    const source=field.value?.en_us||'',value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
+    const source=text(field.value,'en_us'),value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
     const sourceText=field.rich?descriptionParts(source).map((part:any)=>part.text).join(''):source;
     return <div className="localization-field" key={field.path}><div className="localization-source"><span>{tUI(field.label)}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder={tUI("Optional")} rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
    })}
@@ -73,7 +73,10 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
    </div>;
   if(kind==='distance')return <Field label="Distance (m)" type="number" value={Number((o.count/100).toFixed(2))} onChange={v=>onUpdate(path+'.count',Math.max(1,Math.min(1000000000,Math.round(v*100)||1)))}/>;
   if(kind==='death')return <span className="fixed-target">{tUI('Player death')}</span>;
-  if(kind==='manual')return <div className="fixed-target" title={questId}><span>{tUI('Confirm quest')}</span><code>{questId}</code></div>;
+  if(kind==='manual')return <div className="target-field">
+    <Field label="Manual event ID" value={o.target} onChange={editTarget} placeholder={questId}/>
+    <button type="button" className="button secondary" onClick={()=>editTarget(questId)}>{tUI('Quest ID')}</button>
+   </div>;
   if(kind==='dimension')return <div className="dimension-target">
     <select aria-label={tUI('Dimension')} value={DIMENSIONS.some(([id])=>id===o.target)?o.target:'custom'}
       onChange={e=>editTarget(e.target.value==='custom'?'modid:dimension':e.target.value)}>
