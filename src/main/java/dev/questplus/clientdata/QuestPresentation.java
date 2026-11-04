@@ -8,6 +8,7 @@ public final class QuestPresentation {
     private QuestPresentation() {}
 
     public static String status(QuestDefinition quest, JsonObject progress) {
+        if (flag(progress,"claimable")) return "reward_ready";
         if (flag(progress,"terminal") || quest.progression().equals("once") && flag(progress,"completed")
                 || flag(progress,"waitingRestart")) return "completed";
         if (!flag(progress,"unlocked")) return "locked";
