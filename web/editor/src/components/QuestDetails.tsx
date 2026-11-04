@@ -120,7 +120,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
         o.event==='travel_distance'?<Field label="Distance (m)" type="number" value={o.count/100} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,Math.round(v*100)))}/>:
         o.event==='player_death'?<span className="fixed-target">{ui('Player death')}</span>:
         <div className="target-field"><Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="modid:target"/>
-          {targetKind(o.event)&&<button type="button" className="button secondary" onClick={()=>setTargetBrowser({index:i,kind:targetKind(o.event)})}>{ui('Browse')}</button>}
+          {targetKind(o.event)&&<button type="button" className="button secondary" onClick={()=>setTargetBrowser({index:i,kind:targetKind(o.event) as 'block'|'item'|'entity'|'biome'|'structure'})}>{ui('Browse')}</button>}
          </div>}
        {!['location','travel_distance'].includes(o.event)&&<Field label="Count" type="number" value={o.count} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,v))}/>}
       </div>
