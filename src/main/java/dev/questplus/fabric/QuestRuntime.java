@@ -129,14 +129,15 @@ public final class QuestRuntime implements AutoCloseable {
                         String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
                         if (!Set.of("note","heading","label").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
                             throw new IllegalArgumentException("Invalid annotation style/color: "+aid);
-                        if (!note.get("text").isJsonObject() || !note.getAsJsonObject("text").has("en_us"))
-                            throw new IllegalArgumentException("Annotation requires en_us: "+aid);
+                        if (!note.get("text").isJsonObject())
+                            throw new IllegalArgumentException("Annotation text must be a locale map: "+aid);
                         Map<String,String> noteText=new HashMap<>();
                         for (var entry:note.getAsJsonObject("text").entrySet()) {
-                            if (!entry.getValue().isJsonPrimitive() || !entry.getValue().getAsJsonPrimitive().isString()
-                                    || entry.getValue().getAsString().isBlank())
-                                throw new IllegalArgumentException("Invalid annotation text: "+aid);
-                            noteText.put(entry.getKey(),entry.getValue().getAsString());
+                            if (!entry.getKey().matches("[a-z]{2,3}_[a-z]{2,4}") || !entry.getValue().isJsonPrimitive()
+                                || !entry.getValue().getAsJsonPrimitive().isString())
+                                throw new IllegalArgumentException("Invalid annotation language/text: "+aid);
+                            if (!entry.getValue().getAsString().isBlank())
+                                noteText.put(entry.getKey(),entry.getValue().getAsString());
                         }
                         Map<String,JsonArray> rich=new HashMap<>();
                         if(note.has("rich")) {
@@ -180,6 +181,16 @@ public final class QuestRuntime implements AutoCloseable {
                                 rich.put(locale.getKey(),locale.getValue().getAsJsonArray());
                             }
                         }
+                        boolean hasRich=rich.values().stream().anyMatch(parts -> {
+                            for (var part:parts) {
+                                if (!part.isJsonObject()) continue;
+                                var value=part.getAsJsonObject();
+                                if ("image".equals(value.get("type").getAsString()) ||
+                                    "text".equals(value.get("type").getAsString()) && !value.get("text").getAsString().isBlank()) return true;
+                            }
+                            return false;
+                        });
+                        if (noteText.isEmpty() && !hasRich) throw new IllegalArgumentException("Annotation has no translated content: "+aid);
                         annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich)));
                     }
                 }
