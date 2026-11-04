@@ -8,7 +8,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..')
 const file=p=>readFileSync(path.join(root,p),'utf8');
 
 test('only three runtime root components exist and Fabric entrypoints remain stable',()=>{
- for(const dir of ['web/editor','web/server','client/src/main/java','client/src/main/resources','server/src/main/java','server/src/main/resources'])
+ for(const dir of ['web/editor','web/api','client/src/main/java','client/src/main/resources','server/src/main/java','server/src/main/resources'])
   assert.ok(existsSync(path.join(root,dir)),dir+' missing');
  assert.equal(existsSync(path.join(root,'hub')),false,'old standalone Hub must be gone');
  assert.equal(existsSync(path.join(root,'src')),false,'old unpartitioned source root must be gone');

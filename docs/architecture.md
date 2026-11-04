@@ -30,7 +30,7 @@ entrypoints. Do not add a second independently versioned client mod.
 | Zone | Owns | Must not own |
 | --- | --- | --- |
 | web/editor | Quest project UI, export/import ZIP, draft editing | Operator permissions, Minecraft progress |
-| web/server | React static hosting, HTTP APIs, temporary session state, versioned pack storage | Minecraft registry validation, player records |
+| web/api | React static hosting, HTTP APIs, temporary session state, versioned pack storage | Minecraft registry validation, player records |
 | client | Game tablet rendering, input, local visual settings | Quest definitions as authority, file writes |
 | server | Quest registry, reload, permissions, player saves, rewards, owner approval | Arbitrary browser script execution |
 

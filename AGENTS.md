@@ -24,7 +24,7 @@ Minecraft entrypoints and mixin package names are unchanged.
 - Keep the React editor usable offline without an API connection.
 - Add tests for any new protocol, registry, permission, rollback or release changes.
 - Run `./gradlew build`, `cd web/editor && npm test && npm run typecheck && npm run build`,
-  and `cd web/server && npm test` on a checkout before merging.
+  and `cd web/api && npm test` on a checkout before merging.
 - Do not claim live Minecraft client/server parity until Fabric integration tests run.
 
 ## Existing work
