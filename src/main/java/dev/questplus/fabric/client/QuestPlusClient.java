@@ -16,6 +16,8 @@ import java.util.*;
 public final class QuestPlusClient implements ClientModInitializer {
     public static final QuestClientState STATE = new QuestClientState();
     public static ClientSettings settings;
+    /** Only newly-unlocked quests show a blue category marker until viewed. */
+    public static final Set<String> NEW_UNLOCKS=new HashSet<>();
     private static KeyMapping open;
     private static long transfer=-1;
     private static String[] fragments;
@@ -43,7 +45,7 @@ public final class QuestPlusClient implements ClientModInitializer {
         });
         HudElementRegistry.addLast(Identifier.parse("questplus:pinned"),(graphics,delta) -> QuestHud.draw(graphics));
     }
-    private static void clear() { STATE.clear(); fragments=null; transfer=-1; QuestToast.clear(); lastSync=0; }
+    private static void clear() { NEW_UNLOCKS.clear(); STATE.clear(); fragments=null; transfer=-1; QuestToast.clear(); lastSync=0; }
     private static void receive(QuestNetwork.State packet) {
         try {
             if (packet.total()<1 || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
@@ -60,7 +62,7 @@ public final class QuestPlusClient implements ClientModInitializer {
             // Completed quests leave the HUD immediately, even with notifications off.
             boolean pinChanged=settings.pinned.removeIf(id -> QuestClientState.flag(STATE.progress(id),"completed"));
             if(pinChanged)settings.save();
-            if (!initial && settings.notifications && message.has("progress")) {
+            if (!initial && message.has("progress")) {
                 for (var entry:message.getAsJsonObject("progress").entrySet()) {
                     var old=previous.getOrDefault(entry.getKey(),new JsonObject());
                     var next=entry.getValue().getAsJsonObject();
@@ -70,7 +72,8 @@ public final class QuestPlusClient implements ClientModInitializer {
                         : (!QuestClientState.flag(old,"unlocked") && QuestClientState.flag(next,"unlocked"))
                         ? "unlocked" : null;
                     var quest=STATE.quests.get(entry.getKey());
-                    if(event!=null && quest!=null){
+                    if("unlocked".equals(event))NEW_UNLOCKS.add(entry.getKey());
+                    if(settings.notifications && event!=null && quest!=null){
                         QuestToast.show(event,STATE.text(quest.title()),quest.icon());
                         break;
                     }
