@@ -95,6 +95,8 @@ public final class QuestPlusMod implements ModInitializer {
     public static Map<String,Object> context(ServerPlayer player) {
         var context=new HashMap<String,Object>(Map.of("dimension",player.level().dimension().identifier().toString(),"health",player.getHealth(),"time",System.currentTimeMillis(),
             "sneaking",player.isShiftKeyDown(),"tool",BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString()));
-        context.putAll(AdvancedEvents.context(player)); return context;
+        context.putAll(AdvancedEvents.context(player));
+        context.put("gear",AdvancedEvents.gearSnapshot(player));
+        return context;
     }
 }
