@@ -128,7 +128,7 @@ public final class QuestScreen extends Screen {
             search=addRenderableWidget(new QuestTextField(font,searchX,searchY,searchWidth,14,t("search")));
             search.setMaxLength(128); search.setHint(t("search")); search.setValue(query); search.setResponder(value -> query=value);
             if (!overlayDetails) {
-            var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,attachedToScreenFace || compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
+            var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,tabletLayout || compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
             button("center_tree",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
             button("zoom_out",treeRight-40,tabletLayout ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
@@ -733,6 +733,20 @@ public final class QuestScreen extends Screen {
             settings.stayOpenOnDamage=!settings.stayOpenOnDamage;
             settings.save(); init();
         }).setMessage(t("stay_open_on_damage").copy().append(": ").append(t(settings.stayOpenOnDamage ? "on" : "off")));
+        // These options affect the illuminated first-person 3D screen only.
+        // The 2D fallback does not use the 3D backlight.
+        if(settings.tablet){
+            button("screen_emissive",x,y+6*row,w,() -> {
+                settings.screenEmissive=!settings.screenEmissive;
+                settings.save(); init();
+            }).setMessage(t("screen_emissive").copy().append(": ")
+                .append(t(settings.screenEmissive ? "on" : "off")));
+            button("screen_brightness",x+w+8,y+6*row,w,() -> {
+                int steps=(int)Math.round(settings.screenBrightness*10);
+                settings.screenBrightness=(steps+1)%11/10.0;
+                settings.save(); init();
+            }).setMessage(t("screen_brightness",Math.round(settings.screenBrightness*100)));
+        }
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
         if (attachedToScreenFace) event=tabletEvent(event);
