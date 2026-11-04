@@ -87,11 +87,11 @@ export function category(id='questplus:new_category',en='New category'){
   return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
 }
 export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}){
-  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',title:{en_us:en},
+  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',size:32,title:{en_us:en},
     objectives:[{id:'step',event:'block_break',target:'minecraft:stone',count:1}],rewards:[],progression:'once',layout};
 }
 export function annotation(id='note',x=0,y=0){
-  return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986'};
+  return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986',width:170,height:100};
 }
 export function objectiveLabel(o,lang='fr_fr'){
   if(text(o.text,lang))return text(o.text,lang);
@@ -189,6 +189,8 @@ export function validate(p){
        }
       }
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
+      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<60||a.width>400))fail(label,'Largeur annotation : 60–400');
+      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<20||a.height>300))fail(label,'Hauteur annotation : 20–300');
       if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
     }
@@ -201,6 +203,7 @@ export function validate(p){
     if(!q.title?.en_us?.trim())fail(label,'Titre anglais obligatoire');
     if(q.description && !q.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(!ID.test(q.icon||''))fail(label,'Icône invalide');
+    if(q.size!==undefined&&(!Number.isSafeInteger(q.size)||q.size<24||q.size>96))fail(label,'Taille quête : 24–96');
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
