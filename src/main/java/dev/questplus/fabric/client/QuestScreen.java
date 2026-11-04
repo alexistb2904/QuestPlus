@@ -328,8 +328,8 @@ public final class QuestScreen extends Screen {
             var note=entry.getAsJsonObject();
             int x=(int)camera.screenX(note.get("x").getAsDouble());
             int y=(int)camera.screenY(note.get("y").getAsDouble());
-            int extentX=note.has("width")?Math.clamp(note.get("width").getAsInt(),60,400)/2:200;
-            int extentY=note.has("height")?Math.clamp(note.get("height").getAsInt(),20,300)/2:150;
+            int extentX=note.has("width")?Math.clamp(note.get("width").getAsInt(),60,800)/2:200;
+            int extentY=note.has("height")?Math.clamp(note.get("height").getAsInt(),20,600)/2:150;
             if (x<treeLeft-extentX || x>treeRight+extentX || y<treeTop-extentY || y>treeBottom+extentY) continue;
             if (RichAnnotationRenderer.render(g,font,note,imagePool,minecraft.options.languageCode,x,y)) continue;
             String label=annotationLabel(note.getAsJsonObject("text"));
