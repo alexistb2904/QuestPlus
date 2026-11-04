@@ -1,4 +1,4 @@
-import {BUILTIN_PROJECT} from './default-data.js';
+import {BUILTIN_PROJECT} from '../data/default-data.js';
 import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [

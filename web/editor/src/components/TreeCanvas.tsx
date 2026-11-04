@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {gameLayout} from '../../game-layout.js';
-import {text} from '../../project.js';
-import {richToHtml} from '../../rich-format.js';
+import {gameLayout} from '../core/game-layout.js';
+import {text} from '../core/project.js';
+import {richToHtml} from '../core/rich-format.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 

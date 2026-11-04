@@ -1,8 +1,8 @@
 import {useEffect,useRef,useState} from 'react';
-import {demoProject,emptyProject,category as newCategory,quest as newQuest,annotation as newAnnotation,copy,validate,fileMap,importDocuments,text} from '../../project.js';
-import {questId,categoryId} from '../../quest-ids.js';
-import {makeZip,readZip} from '../../zip.js';
-import {gameLayout,gameFit} from '../../game-layout.js';
+import {demoProject,emptyProject,category as newCategory,quest as newQuest,annotation as newAnnotation,copy,validate,fileMap,importDocuments,text} from '../core/project.js';
+import {questId,categoryId} from '../core/quest-ids.js';
+import {makeZip,readZip} from '../core/zip.js';
+import {gameLayout,gameFit} from '../core/game-layout.js';
 import type {Project,Selection,Camera,Quest,Category} from '../types';
 export type Session={project:Project;categoryId:string|null;selection:Selection|null;camera:Camera;language:string};
 const KEY='questplus.quest-studio.v1';

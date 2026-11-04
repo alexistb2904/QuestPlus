@@ -54,6 +54,15 @@ backup: browser localStorage is not guaranteed to persist forever.
 `src/hooks/useStudio.ts` manages project state and data operations.
 React components in `src/components/` render the sidebar, tree canvas,
 WYSIWYG editor, Minecraft icon picker and quest inspector.
-The framework-independent modules `project.js`, `game-layout.js`,
-`zip.js`, `conditions.js`, `rich-format.js`, `rich-dom.js` and
-`minecraft-icons.js` remain the source of truth for Minecraft compatibility.
+Framework-independent JavaScript lives under `src/` and remains the source
+of truth for Minecraft compatibility:
+
+- `src/core/` — quest model, condition trees, layouts, IDs, rich text format and ZIP handling.
+- `src/data/` — bundled quest definitions and Minecraft 26.3 registry.
+- `src/ui/` — Minecraft icon lookups, rich-text DOM conversion and interface translations.
+- `src/styles/` — shared Minecraft-inspired styling and React component styles.
+- `public/` — the favicon/logo copied unchanged into the production build.
+
+The editor root contains only application configuration, the HTML entry point,
+tests, documentation and the Windows launcher; generated `dist/` and
+`node_modules/` are ignored by Git.

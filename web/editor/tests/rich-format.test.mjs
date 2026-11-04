@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validRich,richToHtml,richText,imageBytes,RICH_MAX_CATEGORY} from '../rich-format.js';
-import {demoProject,validate,fileMap,importDocuments} from '../project.js';
+import {validRich,richToHtml,richText,imageBytes,RICH_MAX_CATEGORY} from '../src/core/rich-format.js';
+import {demoProject,validate,fileMap,importDocuments} from '../src/core/project.js';
 const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aet0AAAAASUVORK5CYII=';
 const sample=[
  {type:'text',text:'QuestPlus ',bold:true,font:'default',size:1.25,color:'#f6ce91'},

@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useState} from 'react';
-import {vanillaCatalog,iconUrl,blockIconUrl,loadVanillaIcons} from '../../minecraft-icons.js';
-import {tUI} from '../../ui-i18n.js';
+import {vanillaCatalog,iconUrl,blockIconUrl,loadVanillaIcons} from '../ui/minecraft-icons.js';
+import {tUI} from '../ui/ui-i18n.js';
 
 export function ItemIcon({id,version='26.3',size=30}:{id?:string;version?:string;size?:number}){
  const [fail,setFail]=useState(0);

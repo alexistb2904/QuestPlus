@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {demoProject,emptyProject,category,quest,annotation,objectiveLabel,visibleDescription,
-  validate,fileMap,importDocuments,references} from '../project.js';
-import {BUILTIN_PROJECT} from '../default-data.js';
-import {gameLayout,gameFit,NODE_SIZE,HORIZONTAL_GAP,VERTICAL_GAP} from '../game-layout.js';
-import {COMMON_ITEMS,isVanilla,iconUrl,blockIconUrl} from '../minecraft-icons.js';
-import {makeZip,readZip} from '../zip.js';
+  validate,fileMap,importDocuments,references} from '../src/core/project.js';
+import {BUILTIN_PROJECT} from '../src/data/default-data.js';
+import {gameLayout,gameFit,NODE_SIZE,HORIZONTAL_GAP,VERTICAL_GAP} from '../src/core/game-layout.js';
+import {COMMON_ITEMS,isVanilla,iconUrl,blockIconUrl} from '../src/ui/minecraft-icons.js';
+import {makeZip,readZip} from '../src/core/zip.js';
 
 test('new editor sessions start with EXACT quest definitions shipped by QuestPlus',()=>{
   const p=demoProject();
