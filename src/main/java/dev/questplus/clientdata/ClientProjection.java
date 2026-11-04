@@ -10,17 +10,24 @@ public final class ClientProjection {
     private ClientProjection() {}
 
     public record Annotation(String id, double x, double y, Map<String,String> text, String style, String color,
-                             Map<String,JsonArray> rich) {
+                             Map<String,JsonArray> rich, int width, int height) {
+        public Annotation(String id,double x,double y,Map<String,String> text,String style,String color,Map<String,JsonArray> rich) {
+            this(id,x,y,text,style,color,rich,170,100);
+        }
         public Annotation(String id,double x,double y,Map<String,String> text,String style,String color) {
-            this(id,x,y,text,style,color,Map.of());
+            this(id,x,y,text,style,color,Map.of(),170,100);
         }
     }
-    public record Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations, int order) {
-        public Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations) {
-            this(id,title,description,icon,annotations,Integer.MAX_VALUE);
+    public record Category(String id, Map<String,String> title, Map<String,String> description, String icon,
+                           List<Annotation> annotations, int order, List<String> images) {
+        public Category(String id,Map<String,String> title,Map<String,String> description,String icon,List<Annotation> annotations,int order) {
+            this(id,title,description,icon,annotations,order,List.of());
         }
-        public Category(String id, Map<String,String> title, Map<String,String> description, String icon) {
-            this(id,title,description,icon,List.of(),Integer.MAX_VALUE);
+        public Category(String id,Map<String,String> title,Map<String,String> description,String icon,List<Annotation> annotations) {
+            this(id,title,description,icon,annotations,Integer.MAX_VALUE,List.of());
+        }
+        public Category(String id,Map<String,String> title,Map<String,String> description,String icon) {
+            this(id,title,description,icon,List.of(),Integer.MAX_VALUE,List.of());
         }
     }
 
