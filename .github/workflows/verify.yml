@@ -1,7 +1,7 @@
 name: Java 25 / Fabric compile
 on:
   push:
-    branches: [main, 'fix/native-first-person-tablet']
+    branches: [main, 'fix/native-first-person-tablet', 'feat/**']
   pull_request:
 jobs:
   build:
