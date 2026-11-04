@@ -685,14 +685,20 @@ public final class QuestScreen extends Screen {
             });
             b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off")));
         }
-        button("hud_position",x,y+3*row,w,() -> {
+        QuestButton hudAnchor=button("hud_position",x,y+3*row,w,() -> {
             settings.hudPosition=(settings.hudPosition+1)%9;
             settings.save(); init();
-        }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
-        button("notification_position",x+w+8,y+3*row,w,() -> {
+        });
+        Component hudLabel=t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition));
+        hudAnchor.setMessage(hudLabel);
+        hudAnchor.setTooltip(Tooltip.create(hudLabel));
+        QuestButton notificationAnchor=button("notification_position",x+w+8,y+3*row,w,() -> {
             settings.notificationPosition=(settings.notificationPosition+1)%9;
             settings.save(); init();
-        }).setMessage(t("notification_position").copy().append(": ").append(t("position."+settings.notificationPosition)));
+        });
+        Component notificationLabel=t("notification_position").copy().append(": ").append(t("position."+settings.notificationPosition));
+        notificationAnchor.setMessage(notificationLabel);
+        notificationAnchor.setTooltip(Tooltip.create(notificationLabel));
         button("scale",x,y+4*row,w,() -> {
             settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25;
             settings.save(); init();
