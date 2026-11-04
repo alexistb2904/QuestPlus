@@ -4,7 +4,7 @@ import {dependencyError} from '../core/quest-links.js';
 import {text,annotationText,annotationRich} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
 import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
-import {screenPoint,worldPoint,snapEditor,SCALE_X,SCALE_Y} from '../core/editor-geometry.js';
+import {screenPoint,worldPoint,snapEditor} from '../core/editor-geometry.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
