@@ -160,5 +160,6 @@
   "questplus.client.condition.detail.slot.feet": "pieds",
   "questplus.client.repeat_count": "Terminée ×%s",
   "questplus.client.tier_count": "Palier %s",
-  "questplus.client.information_read": "Lire les informations"
+  "questplus.client.information_read": "Lire les informations",
+  "questplus.completed_no_reward": "Quête terminée : %s"
 }
