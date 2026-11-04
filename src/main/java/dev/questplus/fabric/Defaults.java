@@ -6,13 +6,17 @@ import dev.questplus.core.QuestRegistry;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.*;
 
 public final class Defaults {
     private Defaults() {}
 
     public static void install(Path directory) throws IOException {
         // Never overwrite existing worlds or intentionally deleted definitions.
-        if (Files.exists(directory.resolve("config.json"))) return;
+        if (Files.exists(directory.resolve("config.json"))) {
+            removeUnmodifiedLegacySamples(directory);
+            return;
+        }
         Files.createDirectories(directory);
         Files.createDirectories(directory.resolve("quests"));
         Files.createDirectories(directory.resolve("categories"));
@@ -37,6 +41,33 @@ public final class Defaults {
         installCatalogue(directory,"catalogue/equipment-catalogue.json");
         Path config=directory.resolve("config.json");
         if (!Files.exists(config)) try (var input=resource("config.json")) { Files.copy(input,config); }
+    }
+
+    /** Remove only exact untouched copies of the four obsolete demo chapters.
+     * Any edited quest/category remains in place to avoid destroying authored content
+     * or leaving a reference to a missing category. */
+    private static void removeUnmodifiedLegacySamples(Path root) throws IOException {
+        Map<String,List<String>> old=Map.of(
+            "survival",List.of("logs","welcome","composite_sequence"),
+            "mining",List.of("stone","stone_infinite","stone_milestones","iron_ore"),
+            "combat",List.of("skeletons","skeleton_repeat","iron_and_zombie","wither"),
+            "exploration",List.of("diamond","three_realms")
+        );
+        for(var group:old.entrySet()){
+            List<String> paths=new ArrayList<>();
+            paths.add("categories/"+group.getKey()+".json");
+            for(String id:group.getValue())paths.add("quests/"+group.getKey()+"/"+id+".json");
+            boolean safe=true;
+            for(String path:paths){
+                Path target=root.resolve(path);
+                if(!Files.exists(target))continue;
+                try(var bundled=resource(path)){
+                    if(!Arrays.equals(Files.readAllBytes(target),bundled.readAllBytes()))safe=false;
+                }
+            }
+            if(!safe)continue;
+            for(String path:paths)Files.deleteIfExists(root.resolve(path));
+        }
     }
 
     private static void installCatalogue(Path root,String bundled) throws IOException {
