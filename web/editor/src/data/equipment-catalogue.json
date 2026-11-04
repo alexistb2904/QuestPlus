@@ -15,8 +15,8 @@
       "annotations": [
         {
           "id": "section_1",
-          "x": -284,
-          "y": -93,
+          "x": -417,
+          "y": -174,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -28,8 +28,8 @@
         },
         {
           "id": "section_2",
-          "x": -280,
-          "y": 104,
+          "x": -417,
+          "y": 142,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -41,8 +41,8 @@
         },
         {
           "id": "section_3",
-          "x": 16,
-          "y": -81,
+          "x": -47,
+          "y": -174,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -54,8 +54,8 @@
         },
         {
           "id": "section_4",
-          "x": 292,
-          "y": -57,
+          "x": 323,
+          "y": -174,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -67,8 +67,8 @@
         },
         {
           "id": "section_5",
-          "x": 32,
-          "y": 116,
+          "x": -47,
+          "y": 142,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -80,8 +80,8 @@
         },
         {
           "id": "section_6",
-          "x": 296,
-          "y": 184,
+          "x": 323,
+          "y": 142,
           "style": "label",
           "color": "#b1a28e",
           "width": 200,
@@ -89,6 +89,78 @@
           "text": {
             "en_us": "Mastery",
             "fr_fr": "Maîtrise"
+          }
+        },
+        {
+          "id": "section_01",
+          "x": -370,
+          "y": -66,
+          "width": 330,
+          "height": 272,
+          "style": "background",
+          "color": "#947b63",
+          "text": {
+            "en_us": "Armor collection"
+          }
+        },
+        {
+          "id": "section_02",
+          "x": -370,
+          "y": 286,
+          "width": 330,
+          "height": 344,
+          "style": "background",
+          "color": "#74718e",
+          "text": {
+            "en_us": "Enchanted armor"
+          }
+        },
+        {
+          "id": "section_03",
+          "x": 0,
+          "y": -66,
+          "width": 330,
+          "height": 272,
+          "style": "background",
+          "color": "#947b63",
+          "text": {
+            "en_us": "Melee weapons"
+          }
+        },
+        {
+          "id": "section_04",
+          "x": 370,
+          "y": -66,
+          "width": 330,
+          "height": 272,
+          "style": "background",
+          "color": "#74718e",
+          "text": {
+            "en_us": "Ranged & mobility"
+          }
+        },
+        {
+          "id": "section_05",
+          "x": 0,
+          "y": 286,
+          "width": 330,
+          "height": 344,
+          "style": "background",
+          "color": "#947b63",
+          "text": {
+            "en_us": "Tools of the trade"
+          }
+        },
+        {
+          "id": "section_06",
+          "x": 370,
+          "y": 286,
+          "width": 330,
+          "height": 344,
+          "style": "background",
+          "color": "#74718e",
+          "text": {
+            "en_us": "Mastery"
           }
         }
       ]
@@ -150,8 +222,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -388,
-        "y": -39
+        "x": -478,
+        "y": -111
       }
     },
     {
@@ -209,8 +281,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -316,
-        "y": -51
+        "x": -406,
+        "y": -111
       }
     },
     {
@@ -268,8 +340,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -240,
-        "y": -46
+        "x": -334,
+        "y": -111
       }
     },
     {
@@ -327,8 +399,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -168,
-        "y": -34
+        "x": -262,
+        "y": -111
       }
     },
     {
@@ -386,8 +458,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -388,
-        "y": 10
+        "x": -478,
+        "y": -39
       }
     },
     {
@@ -445,8 +517,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -316,
-        "y": 24
+        "x": -406,
+        "y": -39
       }
     },
     {
@@ -504,8 +576,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -232,
-        "y": 12
+        "x": -334,
+        "y": -39
       }
     },
     {
@@ -588,8 +660,8 @@
         ]
       },
       "layout": {
-        "x": -272,
-        "y": 74
+        "x": -406,
+        "y": 33
       }
     },
     {
@@ -655,8 +727,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -388,
-        "y": 156
+        "x": -478,
+        "y": 205
       }
     },
     {
@@ -722,8 +794,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -300,
-        "y": 146
+        "x": -406,
+        "y": 205
       }
     },
     {
@@ -789,8 +861,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -208,
-        "y": 158
+        "x": -334,
+        "y": 205
       }
     },
     {
@@ -860,8 +932,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -396,
-        "y": 207
+        "x": -262,
+        "y": 205
       }
     },
     {
@@ -935,8 +1007,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -304,
-        "y": 200
+        "x": -478,
+        "y": 277
       }
     },
     {
@@ -985,8 +1057,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -200,
-        "y": 212
+        "x": -406,
+        "y": 277
       }
     },
     {
@@ -1035,8 +1107,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -384,
-        "y": 258
+        "x": -334,
+        "y": 277
       }
     },
     {
@@ -1084,8 +1156,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -296,
-        "y": 251
+        "x": -262,
+        "y": 277
       }
     },
     {
@@ -1133,8 +1205,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -196,
-        "y": 263
+        "x": -478,
+        "y": 349
       }
     },
     {
@@ -1233,8 +1305,8 @@
         ]
       },
       "layout": {
-        "x": -292,
-        "y": 314
+        "x": -406,
+        "y": 421
       }
     },
     {
@@ -1278,7 +1350,7 @@
       "progression": "once",
       "layout": {
         "x": -72,
-        "y": -24
+        "y": -111
       }
     },
     {
@@ -1323,8 +1395,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 16,
-        "y": -39
+        "x": 0,
+        "y": -111
       }
     },
     {
@@ -1373,8 +1445,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 104,
-        "y": -22
+        "x": 72,
+        "y": -111
       }
     },
     {
@@ -1422,8 +1494,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -64,
-        "y": 37
+        "x": -72,
+        "y": -39
       }
     },
     {
@@ -1471,8 +1543,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 208,
-        "y": -2
+        "x": 298,
+        "y": -111
       }
     },
     {
@@ -1519,8 +1591,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 296,
-        "y": -15
+        "x": 370,
+        "y": -111
       }
     },
     {
@@ -1569,8 +1641,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 376,
-        "y": 20
+        "x": 442,
+        "y": -111
       }
     },
     {
@@ -1618,8 +1690,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 312,
-        "y": 63
+        "x": 298,
+        "y": -39
       }
     },
     {
@@ -1667,8 +1739,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 24,
-        "y": 24
+        "x": 0,
+        "y": -39
       }
     },
     {
@@ -1715,8 +1787,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 108,
-        "y": 44
+        "x": 72,
+        "y": -39
       }
     },
     {
@@ -1764,8 +1836,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -56,
-        "y": 173
+        "x": -72,
+        "y": 205
       }
     },
     {
@@ -1813,8 +1885,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 32,
-        "y": 158
+        "x": 0,
+        "y": 205
       }
     },
     {
@@ -1861,8 +1933,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 120,
-        "y": 176
+        "x": 72,
+        "y": 205
       }
     },
     {
@@ -1909,8 +1981,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": -48,
-        "y": 234
+        "x": -72,
+        "y": 277
       }
     },
     {
@@ -1957,8 +2029,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 40,
-        "y": 222
+        "x": 0,
+        "y": 277
       }
     },
     {
@@ -2004,8 +2076,8 @@
       ],
       "progression": "once",
       "layout": {
-        "x": 216,
-        "y": 56
+        "x": 370,
+        "y": -39
       }
     },
     {
@@ -2073,8 +2145,8 @@
         ]
       },
       "layout": {
-        "x": 124,
-        "y": 242
+        "x": 0,
+        "y": 349
       }
     },
     {
@@ -2206,8 +2278,8 @@
         ]
       },
       "layout": {
-        "x": 296,
-        "y": 226
+        "x": 370,
+        "y": 205
       }
     }
   ]
