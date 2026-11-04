@@ -47,6 +47,7 @@ export default function App() {
 		setUiLocale(l);
 		return l;
 	});
+	const [translationRequest, setTranslationRequest] = useState(0);
 	const [picker, setPicker] = useState<string | null>(null),
 		[jsonOpen, setJsonOpen] = useState(false),
 		[jsonContent, setJsonContent] = useState(""),
@@ -83,7 +84,7 @@ export default function App() {
 			const key = event.key.toLowerCase();
 			if (key === "s") {
 				event.preventDefault();
-				studio.save();
+				if (!studio.saveAndExport()) setIssuesOpen(true);
 				return;
 			}
 			if (key === "k") {
@@ -134,6 +135,11 @@ export default function App() {
 		onChooseIcon: setPicker,
 		onCondition: studio.changeCondition,
 		onAddLocale: studio.addLocale,
+		onOpenTranslations: () => {
+			setTranslationRequest((value) => value + 1);
+			setMobilePanel('canvas');
+		},
+		translationRequest,
 	};
 	return (
 		<div className="app">
@@ -173,7 +179,7 @@ export default function App() {
 				</div>
 			</header>
 			<div className="command-bar stone" role="toolbar" aria-label={tUI("Editor actions")}>
-				<button className="button primary" onClick={studio.save} title="Ctrl+S">
+				<button className="button primary" onClick={() => { if (!studio.saveAndExport()) setIssuesOpen(true); }} title={tUI("Save and download a ZIP (Ctrl+S)")}>
 					<Save size={18} />
 					{tUI("Save")}
 				</button>
@@ -387,7 +393,7 @@ export default function App() {
 											const q = project.quests.find((q) => q.id === x.where);
 											if (q) goQuest(q.id);
 										}}>
-										<strong>{x.where}</strong> — {x.message}
+										<strong>{x.where}</strong> — {tUI(x.message)}
 									</button>
 								))
 							) : (

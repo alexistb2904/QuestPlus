@@ -1,3 +1,5 @@
+import {UI_COMPLETIONS} from './ui-i18n-completions.js';
+import {UI_ADDITIONAL, UI_PREFIXES} from './ui-i18n-additional.js';
 const ROWS = [
 	["Interface", "Interface", "Interfaz", "界面"],
 	["Preview quest language", "Langue aperçu de quêtes", "Idioma de vista previa", "预览语言"],
@@ -470,6 +472,10 @@ ROWS.push(
 		["Objective", "Objectif", "Objetivo", "目标"],
 	]
 );
+// Complete unfinished Spanish/Chinese strings while preserving approved French copy.
+const completions=new Map(UI_COMPLETIONS.map(([key,es,zh])=>[key,[es,zh]]));
+for(const row of ROWS){const replacement=completions.get(row[0]);if(replacement){row[2]=replacement[0];row[3]=replacement[1];}}
+ROWS.push(...UI_ADDITIONAL);
 const translations = new Map();
 for (const [en, fr, es, zh] of ROWS) {
 	const row = { en, fr, es, zh };
@@ -509,6 +515,9 @@ export function tUI(value, locale = current) {
 	const message = String(value ?? ""),
 		row = translations.get(message.trim());
 	if (row) return row[locale] ?? row.en;
+	for(const [en,fr,es,zh] of UI_PREFIXES){
+		if(message.startsWith(fr)) return ({en,fr,es,zh}[locale]??en)+message.slice(fr.length);
+	}
 	return message;
 }
 const originals = new WeakMap();
