@@ -109,5 +109,5 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
 export function DescriptionEditor({value,rich,locale,onChange,onRichChange}:{value?:string;rich?:RichPart[];locale:string;onChange:(value:string)=>void;onRichChange?:(parts:RichPart[])=>void}){
  return <RichEditor mode="description" locale={locale} label={tUI('Description')+' · '+locale}
    content={rich?.length?rich:descriptionParts(value||'')}
-   onChange={parts=>{onChange(descriptionText(parts));onRichChange?.(parts)}}/>;
+   onChange={parts=>{onChange(descriptionText(parts)||(parts.some(p=>p.type==='image')?'Image':''));onRichChange?.(parts)}}/>;
 }
