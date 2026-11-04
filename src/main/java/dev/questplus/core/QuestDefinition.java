@@ -1,12 +1,21 @@
 package dev.questplus.core;
 
 import java.util.*;
+import com.google.gson.JsonArray;
 
 public record QuestDefinition(String id, String category, String icon, Map<String,String> title,
     Map<String,String> description, List<Objective> objectives, Condition requires,
     List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
     String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
-    String kind, String acknowledgement, boolean hidden, int size) {
+    String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich) {
+    public QuestDefinition(String id, String category, String icon, Map<String,String> title,
+        Map<String,String> description, List<Objective> objectives, Condition requires,
+        List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
+        String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
+        String kind, String acknowledgement, boolean hidden, int size) {
+        this(id,category,icon,title,description,objectives,requires,rewards,progression,layout,narrative,fingerprint,
+            objectiveMode,tiers,afterLast,cooldownSeconds,timeLimitSeconds,noDeath,kind,acknowledgement,hidden,size,Map.of());
+    }
     public QuestDefinition(String id, String category, String icon, Map<String,String> title,
         Map<String,String> description, List<Objective> objectives, Condition requires,
         List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,

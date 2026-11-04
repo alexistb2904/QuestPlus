@@ -20,12 +20,14 @@ import {
 	ChevronRight,
 	Globe,
 	Eye,
+	EyeOff,
 	Package,
 	PanelLeftOpen,
 	SlidersHorizontal,
 	GitBranch,
 } from "lucide-react";
 import { descriptionParts, descriptionHtml } from "./core/description-format.js";
+import { richToHtml } from "./core/rich-format.js";
 import { text, validate, objectiveLabel } from "./core/project.js";
 import { storedUiLocale, setUiLocale, tUI } from "./ui/ui-i18n.js";
 import { localesOf, supportedLocales } from "./types";
@@ -54,7 +56,9 @@ export default function App() {
 		[jsonError, setJsonError] = useState(""),
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
-	const [search, setSearch] = useState(""),
+	const [showQuestTitles,setShowQuestTitles]=useState(()=>localStorage.getItem("questplus.quest-titles")==="true");
+ useEffect(()=>{localStorage.setItem("questplus.quest-titles",String(showQuestTitles))},[showQuestTitles]);
+ const [search, setSearch] = useState(""),
 		[grid, setGrid] = useState(true),
 		[snap, setSnap] = useState(false),
 		[gridSize, setGridSize] = useState(32),
@@ -329,6 +333,9 @@ export default function App() {
 									aria-label={tUI("Pan")}>
 									<Hand size={18} />
 								</button>
+                                <button type="button" className={"icon-button"+(showQuestTitles?" active":"")}
+                                  aria-pressed={showQuestTitles} aria-label={tUI('Show quest titles')} title={tUI('Show quest titles')}
+                                  onClick={()=>setShowQuestTitles(v=>!v)}>{showQuestTitles?<Eye size={18}/>:<EyeOff size={18}/>}</button>
 								<button className="icon-button" disabled={!cat} onClick={studio.autoLayout} title={tUI("Auto-layout")} aria-label={tUI("Auto-layout")}>
 									<Workflow size={18} />
 								</button>
@@ -350,6 +357,7 @@ export default function App() {
 							onPosition={studio.setPosition}
                             onResize={studio.resizeNode}
                             onCreateAt={(kind,at)=>kind==='quest'?studio.createQuest(at):studio.createAnnotation(at)}
+							showQuestTitles={showQuestTitles}
 							showGrid={grid}
 							gridSize={gridSize}
 							snap={snap}
@@ -478,7 +486,7 @@ export default function App() {
 					<div className="quest-preview">
 						<ItemIcon id={selected.icon} size={52} />
 						<h2>{text(selected.title, language)}</h2>
-						<div className="description-preview" dangerouslySetInnerHTML={{ __html: descriptionHtml(descriptionParts(text(selected.description, language))) }} />
+						<div className="description-preview" dangerouslySetInnerHTML={{ __html: selected.descriptionRich?.[language]?.length?richToHtml(selected.descriptionRich[language]):descriptionHtml(descriptionParts(text(selected.description, language))) }} />
 						{selected.kind === "information" ? (
 							<p>{text(selected.narrative, language)}</p>
 						) : (

@@ -42,7 +42,10 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
    {fields.map(field=>{
     const source=text(field.value,'en_us'),value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
     const sourceText=field.rich?descriptionParts(source).map((part:any)=>part.text).join(''):source;
-    return <div className="localization-field" key={field.path}><div className="localization-source"><span>{tUI(field.label)}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder={tUI("Optional")} rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
+    return <div className="localization-field" key={field.path}><div className="localization-source"><span>{tUI(field.label)}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value}
+       rich={quest?.descriptionRich?.[locale]}
+       onRichChange={parts=>onUpdate('descriptionRich.'+locale,parts)}
+       onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder={tUI("Optional")} rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
    })}
   </>:<div className="localization-empty"><Globe size={22}/><strong>{tUI('No translations yet')}</strong><p>{tUI('Choose a language to start translating.')}</p></div>}
  </div>;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {category,quest,emptyProject,annotation,seedProjectLocale,annotationRich,annotationText,compactCategoryImages,expandCategoryImages,fileMap,importDocuments,validate} from '../src/core/project.js';
-import {validRich,RICH_MAX_MEDIA,imageBytes} from '../src/core/rich-format.js';
+import {validRich,imageBytes} from '../src/core/rich-format.js';
 const tiny='data:image/png;base64,YWJj';
 const make=()=>{const p=emptyProject();p.categories=[category('questplus:test','Test')];p.quests=[quest(p.categories[0],'questplus:test/one','One')];return p;};
 const img=()=>({type:'image',data:tiny,width:90,height:60});
@@ -66,14 +66,14 @@ test('custom quest and annotation dimensions survive export/import and invalid s
  const read=importDocuments([...files].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content})));
  assert.equal(read.quests[0].size,96);
  assert.deepEqual([read.categories[0].annotations[0].width,read.categories[0].annotations[0].height],[400,300]);
- read.quests[0].size=100;
- assert.ok(validate(read).some(x=>x.message.includes('Taille quête')));
- read.quests[0].size=32;read.categories[0].annotations[0].width=500;
- assert.ok(validate(read).some(x=>x.message.includes('Largeur annotation')));
+ read.quests[0].size=0;
+ assert.ok(validate(read).some(x=>x.message.includes('taille doit être positive')));
+ read.quests[0].size=32;read.categories[0].annotations[0].width=0;
+ assert.ok(validate(read).some(x=>x.message.includes('largeur doit être positive')));
 });
 test('larger image bounds are accepted and excessive data rejected',()=>{
- assert.ok(RICH_MAX_MEDIA>=384*1024);
+ assert.ok(validRich([{type:'image',data:'data:image/png;base64,'+'A'.repeat(3*1024*1024),width:12000,height:8000}]));
  assert.ok(validRich([{type:'image',data:tiny,width:400,height:300}]));
  assert.equal(imageBytes(tiny),3);
- assert.equal(validRich([{type:'image',data:tiny,width:401,height:300}]),false);
+ assert.equal(validRich([{type:'image',data:tiny,width:2049,height:300}]),true);
 });

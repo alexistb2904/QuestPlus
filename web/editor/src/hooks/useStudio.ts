@@ -362,10 +362,10 @@ export function useStudio() {
 		mutate(s=>{
 			const o=owner(s.project,{type,id});
 			if(!o)return;
-			if(type==='quest'&&size.size!==undefined)o.size=Math.max(24,Math.min(96,Math.round(size.size)));
+			if(type==='quest'&&size.size!==undefined)o.size=Math.max(1,Math.round(size.size));
 			if(type==='annotation'){
-				if(size.width!==undefined)o.width=Math.max(60,Math.min(400,Math.round(size.width)));
-				if(size.height!==undefined)o.height=Math.max(20,Math.min(300,Math.round(size.height)));
+				if(size.width!==undefined)o.width=Math.max(1,Math.round(size.width));
+				if(size.height!==undefined)o.height=Math.max(1,Math.round(size.height));
 			}
 		},'resize:'+id);
 	}

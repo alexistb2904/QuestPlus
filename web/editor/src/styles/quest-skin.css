@@ -125,3 +125,26 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 /* WYSIWYG mirrors the larger image constraints used by Minecraft and the editor. */
 .rich-edit img{max-height:300px;max-width:100%;object-fit:contain}
 .annotation-node img{max-width:100%;max-height:280px;object-fit:contain}
+
+
+/* A quest is an icon, exactly like Minecraft: wheel zoom only moves its position. */
+.graph-node{display:block!important;padding:0!important;border-width:2px!important;border-radius:4px!important;
+  background:linear-gradient(150deg,#4b4056,#29232f)!important;min-width:0!important;min-height:0!important;box-sizing:border-box!important}
+.graph-node .node-select{padding:0!important;margin:0!important;display:grid!important;place-items:center!important;width:100%;height:100%;gap:0}
+.graph-node .node-icon{display:grid;place-items:center;min-width:0;min-height:0}
+.graph-node .node-npc{position:absolute;right:-4px;top:-5px}
+.graph-node .node-connector{bottom:-17px}
+.node-title-below{position:absolute;left:50%;top:calc(100% + 22px);transform:translateX(-50%);
+  min-width:max-content;max-width:180px;text-align:center;padding:3px 6px;border-radius:3px;
+  background:#1e1925e8;border:1px solid #584368;color:#e9e2ed;pointer-events:none;
+  font-size:12px;font-weight:600;line-height:1.2;text-shadow:0 1px 1px #000}
+.rich-studio{position:relative}
+.rich-pixel-size{display:inline-flex;align-items:center;gap:3px;border-left:1px solid #68556d;padding-left:7px}
+.rich-pixel-size>span{font-size:11px;color:#ccbcd8}
+.rich-pixel-size input{width:51px;min-width:0;padding:3px 4px;background:#201925;border:1px solid #73607e;border-radius:3px;color:#eee}
+.rich-pixel-size button{font-size:11px;min-width:35px;padding:3px 5px}
+.rich-image-grip{position:absolute;z-index:15;width:16px;height:16px;border:1px solid #fff;border-radius:3px;
+  background:#7b4baa;box-shadow:0 2px 7px #0009;cursor:nwse-resize;touch-action:none}
+.rich-image-grip::after{content:'';display:block;width:7px;height:7px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:translate(3px,2px)}
+.rich-edit img{cursor:pointer;max-width:100%;max-height:none}
+.rich-edit img:focus-visible{outline:2px solid #c18af6}

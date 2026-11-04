@@ -41,7 +41,6 @@ public final class QuestRegistry {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
         if (Files.exists(dir)) try (var paths = Files.walk(dir)) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
-                if (Files.size(path) > 1_048_576) throw new IllegalArgumentException("Quest file exceeds 1 MiB: " + path);
                 try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
                     reader.setStrictness(Strictness.STRICT);
                     var root = readJson(reader, 0);
@@ -98,7 +97,7 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size");
+            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
@@ -160,7 +159,43 @@ public final class QuestRegistry {
             +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
-            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",24,96) : 32);
+            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
+            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of());
+    }
+    private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
+        Map<String,JsonArray> parsed=new HashMap<>();
+        for (var entry:locales.entrySet()) {
+            if(!entry.getKey().matches("[a-z]{2,3}_[a-z]{2,4}") || !entry.getValue().isJsonArray())
+                throw new IllegalArgumentException("Invalid rich description locale: "+entry.getKey());
+            JsonArray parts=entry.getValue().getAsJsonArray();
+            
+            for(var el:parts){
+                if(!el.isJsonObject())throw new IllegalArgumentException("Invalid rich description part");
+                JsonObject part=el.getAsJsonObject();
+                if(!part.has("type"))throw new IllegalArgumentException("Missing rich description type");
+                String type=part.get("type").getAsString();
+                if(type.equals("text")){
+                    if(!Set.of("type","text","font","size","sizePx","color","highlight","bold","italic","underline","strike").containsAll(part.keySet())
+                        || !part.has("text"))
+                        throw new IllegalArgumentException("Invalid rich description text");
+                    if(part.has("sizePx") && (part.get("sizePx").getAsInt()<=0))
+                        throw new IllegalArgumentException("Rich description pixel size out of range");
+                    if(part.has("size") && (part.get("size").getAsDouble()<.75||part.get("size").getAsDouble()>2))
+                        throw new IllegalArgumentException("Invalid legacy description size");
+                } else if(type.equals("image")){
+                    if(!part.keySet().containsAll(Set.of("data","width","height")) ||
+                        !Set.of("type","data","width","height").containsAll(part.keySet()))
+                        throw new IllegalArgumentException("Invalid rich description image");
+                    String data=part.get("data").getAsString();
+                    if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}") ||
+                        part.get("width").getAsInt()<=0||
+                        part.get("height").getAsInt()<=0)
+                        throw new IllegalArgumentException("Invalid rich description image size");
+                }else throw new IllegalArgumentException("Unknown rich description part: "+type);
+            }
+            parsed.put(entry.getKey(),parts);
+        }
+        return Map.copyOf(parsed);
     }
     private static List<QuestDefinition.Reward> rewards(JsonArray array,ValidationHook hook) {
         if (array.size()>64) throw new IllegalArgumentException("Too many rewards");
