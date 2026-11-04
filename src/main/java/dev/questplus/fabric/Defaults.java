@@ -73,8 +73,14 @@ public final class Defaults {
                 try(var files=Files.walk(quests)) {
                     for(Path other:files.filter(Files::isRegularFile).filter(p->p.toString().endsWith(".json")).toList()){
                         String relative=quests.relativize(other).toString().replace('\\','/');
-                        if(relative.startsWith(group.getKey()+"/"))continue;
-                        if(Files.readString(other).contains("questplus:"+group.getKey()+"/")){safe=false;break;}
+                        if(relative.startsWith(group.getKey()+"/") && !paths.contains("quests/"+relative)){
+                            // A custom quest in this legacy category must keep its parent.
+                            safe=false;break;
+                        }
+                        if(!relative.startsWith(group.getKey()+"/") &&
+                            Files.readString(other).contains("questplus:"+group.getKey()+"/")){
+                            safe=false;break;
+                        }
                     }
                 }
             }
