@@ -77,6 +77,15 @@ final class QuestConditionText {
         } catch (RuntimeException invalid) { return tr("other","equipment",value); }
     }
 
+    private static String armorMaterial(String raw) {
+        if(raw.startsWith("minecraft:")) {
+            String material=raw.substring("minecraft:".length());
+            if(Set.of("leather","copper","chainmail","iron","golden","diamond","netherite").contains(material))
+                return tr("gear.material."+material);
+        }
+        return name(raw);
+    }
+
     /** Display authored armor/tool predicates instead of dumping serialized JSON. */
     private static String gear(String value) {
         try {
@@ -116,7 +125,7 @@ final class QuestConditionText {
                     else if(!material.equals(base)){matching=false;break;}
                 }
                 if(matching){
-                    String summary=tr("gear.full",name(material));
+                    String summary=tr("gear.full",armorMaterial(material));
                     var common=worn.get("head").getAsJsonObject("enchantments");
                     boolean same=List.of("chest","legs","feet").stream().allMatch(slot ->
                         Objects.equals(common,worn.get(slot).getAsJsonObject("enchantments")));
