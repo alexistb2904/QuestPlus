@@ -61,11 +61,19 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const pixel=(p:Position)=>screenPoint(p,camera,size);
  const world=(x:number,y:number)=>worldPoint({x,y},camera,size);
  const local=(e:React.PointerEvent)=>{const rect=ref.current!.getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top};};
- const zoomAt=(next:number,x:number,y:number)=>{
-  const zoom=Math.max(.25,Math.min(2.5,next)),p=world(x,y);
-  onCamera({zoom,x:p.x-(x-size.width/2)/(SCALE_X*zoom),y:p.y-(y-size.height/2)/(SCALE_Y*zoom)});
- };
- useEffect(()=>{const el=ref.current;if(!el)return;const onWheel=(e:WheelEvent)=>{e.preventDefault();const box=el.getBoundingClientRect();zoomAt(camera.zoom*(e.deltaY>0?.9:1.1),e.clientX-box.left,e.clientY-box.top)};el.addEventListener('wheel',onWheel,{passive:false});return()=>el.removeEventListener('wheel',onWheel)},[camera,size]);
+ // Navigation mode: scroll or pinch-pan without ever scaling the diagram.
+ useEffect(()=>{
+   const el=ref.current;if(!el)return;
+   const onWheel=(e:WheelEvent)=>{
+     e.preventDefault();
+     const factor=e.deltaMode===1?22:e.deltaMode===2?size.height*.85:1;
+     const dx=(e.shiftKey&&!e.deltaX?e.deltaY:e.deltaX)*factor;
+     const dy=(e.shiftKey&&!e.deltaX?0:e.deltaY)*factor;
+     onCamera({x:camera.x+dx,y:camera.y+dy,zoom:1});
+   };
+   el.addEventListener('wheel',onWheel,{passive:false});
+   return ()=>el.removeEventListener('wheel',onWheel);
+ },[camera.x,camera.y,size.height,onCamera]);
  const onDown=(e:React.PointerEvent)=>{
   if(contextMenu)setContextMenu(null);
   if(e.button!==0&&e.pointerType!=='touch')return;
@@ -73,7 +81,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   const p=local(e);pointers.current.set(e.pointerId,p);
   ref.current?.setPointerCapture(e.pointerId);
   if(pointers.current.size===2){
-   const pair=[...pointers.current.values()];gesture.current={d:Math.hypot(pair[1].x-pair[0].x,pair[1].y-pair[0].y)||1,zoom:camera.zoom,center:{x:(pair[0].x+pair[1].x)/2,y:(pair[0].y+pair[1].y)/2},base:camera};dragging.current=null;showCable(null);return;
+   const pair=[...pointers.current.values()];gesture.current={d:Math.hypot(pair[1].x-pair[0].x,pair[1].y-pair[0].y)||1,zoom:1,center:{x:(pair[0].x+pair[1].x)/2,y:(pair[0].y+pair[1].y)/2},base:{...camera,zoom:1}};dragging.current=null;showCable(null);return;
   }
   const port=(e.target as Element).closest<HTMLElement>('[data-link-port]');
   if(port&&target?.dataset.nodeId){
@@ -91,11 +99,8 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   const p=local(e);if(!pointers.current.has(e.pointerId))return;pointers.current.set(e.pointerId,p);
   if(pointers.current.size===2&&gesture.current){
    const pair=[...pointers.current.values()],g=gesture.current;
-   const distance=Math.hypot(pair[1].x-pair[0].x,pair[1].y-pair[0].y)||1;
    const midpoint={x:(pair[0].x+pair[1].x)/2,y:(pair[0].y+pair[1].y)/2};
-   const zoom=Math.max(.25,Math.min(2.5,g.zoom*distance/g.d));
-   const anchor={x:(g.center.x-size.width/2)/(g.zoom*SCALE_X)+g.base.x,y:(g.center.y-size.height/2)/(g.zoom*SCALE_Y)+g.base.y};
-   onCamera({zoom,x:anchor.x-(midpoint.x-size.width/2)/(zoom*SCALE_X),y:anchor.y-(midpoint.y-size.height/2)/(zoom*SCALE_Y)});return;
+   onCamera({zoom:1,x:g.base.x+g.center.x-midpoint.x,y:g.base.y+g.center.y-midpoint.y});return;
   }
   if(cable.current?.pointerId===e.pointerId){
    const current=cable.current,to=targetAt(e.clientX,e.clientY);
@@ -105,8 +110,8 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   const dx=p.x-drag.origin.x,dy=p.y-drag.origin.y;
   if(Math.hypot(dx,dy)>3)drag.moved=true;
   if(!drag.moved)return;
-  if(drag.type==='pan')onCamera({x:drag.initial.x-dx/(camera.zoom*SCALE_X),y:drag.initial.y-dy/(camera.zoom*SCALE_Y),zoom:camera.zoom});
-  else {drag.pending={x:Math.round(drag.initial.x+dx/(camera.zoom*SCALE_X)),y:Math.round(drag.initial.y+dy/(camera.zoom*SCALE_Y))};
+  if(drag.type==='pan')onCamera({x:drag.initial.x-dx,y:drag.initial.y-dy,zoom:1});
+  else {drag.pending={x:Math.round(drag.initial.x+dx),y:Math.round(drag.initial.y+dy)};
    if(snap)drag.pending=snapEditor(drag.pending,gridSize);
    setGhost({id:drag.id,...drag.pending});}
  };
@@ -132,8 +137,8 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
      const x=e.clientX-rect.left,y=e.clientY-rect.top;
      setContextMenu({x:Math.min(x,Math.max(0,rect.width-185)),y:Math.min(y,Math.max(0,rect.height-115)),at:world(x,y)});
    }}
-   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;return;}if((e.target as HTMLElement).closest('[data-node-id]'))return;const delta=24/camera.zoom;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
-   style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*camera.zoom)+'px '+(gridSize*camera.zoom)+'px',backgroundPosition:(-camera.x*SCALE_X*camera.zoom+size.width/2)+'px '+(-camera.y*SCALE_Y*camera.zoom+size.height/2)+'px'}}>
+   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;return;}if((e.target as HTMLElement).closest('[data-node-id]'))return;const delta=24;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
+   style={{backgroundImage:showGrid?undefined:'none',backgroundSize:gridSize+'px '+gridSize+'px',backgroundPosition:(-camera.x+size.width/2)+'px '+(-camera.y+size.height/2)+'px'}}>
   {contextMenu&&<div className="graph-context-menu" role="menu" style={{left:contextMenu.x,top:contextMenu.y}} onPointerDown={e=>e.stopPropagation()}>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('quest',contextMenu.at);setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Create quest')}</button>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('annotation',contextMenu.at);setContextMenu(null)}}><StickyNote size={15}/>{tUI('Create annotation')}</button>
