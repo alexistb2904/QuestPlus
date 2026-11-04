@@ -385,7 +385,8 @@ public final class QuestScreen extends Screen {
             String label=objectiveLabelForDisplay(o);
             appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p));
         }
-        } else if (!QuestClientState.flag(p,"completed")) append(lines,t("information_review").getString(),w);
+        } else if (!QuestClientState.flag(p,"completed"))
+            append(lines,t(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),w);
         if (q.requires()!=null) { append(lines,t("requires").getString(),w); append(lines,condition(q.requires()),w); }
         if (q.progression().equals("tiered")) append(lines,t("tier_count",QuestClientState.count(p,"tier")).getString(),w);
         else if (!q.progression().equals("once") && QuestClientState.count(p,"cycles")>0)
