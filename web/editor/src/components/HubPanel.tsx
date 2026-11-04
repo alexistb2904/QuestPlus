@@ -41,7 +41,7 @@ export function HubPanel({project,onLoad}:{project:Project;onLoad:(p:Project)=>v
   const issues=validate(next);
   if(issues.length)throw Error(issues[0].where+': '+issues[0].message);
   if(!window.confirm('Replace the current editor project with the selected pack? Export your existing work first.'))return false;
-  onLoad(next as Project);setHubRegistry(data.registry||{});return true;
+  onLoad(next as Project);if(data.registry)setHubRegistry(data.registry);return true;
  };
  const start=()=>run(async()=>{
   if(!session)throw Error('Enter a server session ID');
