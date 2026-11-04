@@ -140,7 +140,9 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
       <Select label="Category" value={quest.category} options={project.categories.map(c=>[c.id,text(c.title,language)])} onChange={v=>onUpdate('category',v)}/>
       <IconField id={quest.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
       <Field label="Quest size" type="number" value={quest.size??32} onChange={v=>onUpdate('size',Math.max(24,Math.min(96,Math.round(v)||24)))}/>
-      <div className="description-field"><div className="translation-label"><span>{tUI('Description (English)')}</span><TranslationHelp onOpen={onOpenTranslations}/></div><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us} onChange={v=>onUpdate('description.en_us',v)}/></div>
+      <div className="description-field"><div className="translation-label"><span>{tUI('Description (English)')}</span><TranslationHelp onOpen={onOpenTranslations}/></div><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us}
+         rich={quest.descriptionRich?.en_us} onRichChange={parts=>onUpdate('descriptionRich.en_us',parts)}
+         onChange={v=>onUpdate('description.en_us',v)}/></div>
      </Section>
      <Section title="Position"><div className="field-row">
       <Field label="X" type="number" value={position?.x??0} onChange={v=>onUpdate('layout.x',v)}/>
