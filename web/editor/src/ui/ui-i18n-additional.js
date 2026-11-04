@@ -1,5 +1,6 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Confirmations","Confirmations","Confirmaciones","确认次数"],
   ["Break blocks","Casser des blocs","Romper bloques","破坏方块"],
   ["Place blocks","Placer des blocs","Colocar bloques","放置方块"],
   ["Interact with block","Interagir avec un bloc","Interactuar con bloque","与方块交互"],
