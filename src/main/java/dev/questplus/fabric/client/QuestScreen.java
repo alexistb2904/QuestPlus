@@ -645,6 +645,13 @@ public final class QuestScreen extends Screen {
         return id!=null && BuiltInRegistries.ITEM.containsKey(id) ? icon(o.target()) : icon(q.icon());
     }
     private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
+        // The equipment marker describes itself via the condition. Old worlds
+        // may still contain generated four-slot text: prefer the short, current
+        // requirement instead of stacking it with a second gear description.
+        if ("equipment_check".equals(o.event()) && o.conditions()!=null) {
+            String gear=QuestConditionText.describe(o.conditions(),this::questName);
+            if(!gear.isBlank())return gear;
+        }
         String custom=state.text(o.text());
         return QuestConditionText.withConditions(custom.isBlank()?objectiveLabel(o):custom,o.conditions(),this::questName);
     }
