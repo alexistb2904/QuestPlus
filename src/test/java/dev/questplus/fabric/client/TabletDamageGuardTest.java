@@ -9,7 +9,7 @@ final class TabletDamageGuardTest {
         assertFalse(guard.observe(true,false,20,0));
         assertTrue(guard.observe(true,false,18,0));
         assertFalse(guard.observe(true,false,18,0));
-        assertTrue(guard.observe(true,false,18,2));
+        assertFalse(guard.observe(true,false,18,2));
         assertTrue(guard.observe(true,false,18,1));
     }
     @Test void absorptionDamageIsDetectedEvenWhenHealthDoesNotChange(){
