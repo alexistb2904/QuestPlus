@@ -1,15 +1,13 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
-echo ===================================================
-echo  Quest Plus - Fabric client GameTests
-echo ===================================================
+echo ==============================================================
+echo   QuestPlus - GameTests du client Minecraft
+echo ==============================================================
 echo.
-call "%~dp0scripts\_gradle.bat" runClientGameTest
+call "%~dp0scripts\_qa.bat" client-test
 set "STATUS=%ERRORLEVEL%"
 echo.
-if not "%STATUS%"=="0" echo [Quest Plus] Operation failed. Check the logs above.
-if "%STATUS%"=="0" echo [Quest Plus] Operation completed.
-echo.
-pause
+if "%STATUS%"=="0" (echo [QuestPlus] Termine avec succes.) else (echo [QuestPlus] Echec - code %STATUS%.)
+if /I not "%~1"=="--nopause" pause
 exit /b %STATUS%
