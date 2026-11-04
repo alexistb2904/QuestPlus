@@ -387,7 +387,7 @@ public final class QuestRuntime implements AutoCloseable {
             Set<UUID> members=group(id); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
             for (UUID recipient:members) {
                 var p=player(recipient);
-                if (!p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
+                if (!award.rewards().isEmpty() && !p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
                 snapshots.put(recipient,p);
             }
             var team=player(id).teamId;
