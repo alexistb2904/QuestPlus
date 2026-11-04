@@ -75,7 +75,7 @@ export async function toEmbeddedImage(file){
   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
   canvas.getContext('2d').drawImage(img,0,0);
   data=canvas.toDataURL('image/png');
-  if(data.length>RICH_MAX_MEDIA*4/3)throw Error('The PNG conversion exceeds 2 MiB. Optimize the image.');
+  // Larger WebP conversions fall through to the optional client-side compression below.
  }
  if(file.type!=='image/gif'&&data.length>RICH_MAX_MEDIA*4/3){
    const max=Math.min(1,2048/Math.max(img.naturalWidth,img.naturalHeight));
