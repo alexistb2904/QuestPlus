@@ -167,6 +167,7 @@
   "questplus.client.navigate_down": "Desplazar hacia abajo",
   "questplus.client.center_tree": "Centrar el árbol",
   "questplus.client.notification_position": "Posición de notificaciones",
+  "questplus.client.shader_safe_mode": "Pantalla compatible con shaders (Iris)",
   "questplus.client.screen_emissive": "Pantalla autoluminosa",
   "questplus.client.screen_brightness": "Brillo de pantalla: %s %%",
   "questplus.client.condition.detail.gear.full": "Lleva armadura completa de %s",

@@ -167,6 +167,7 @@
   "questplus.client.navigate_down": "Move down",
   "questplus.client.center_tree": "Center tree",
   "questplus.client.notification_position": "Notification position",
+  "questplus.client.shader_safe_mode": "Shader-safe screen (Iris)",
   "questplus.client.screen_emissive": "Self-illuminated screen",
   "questplus.client.screen_brightness": "Screen brightness: %s%%",
   "questplus.client.condition.detail.gear.full": "Wear a full %s armor set",

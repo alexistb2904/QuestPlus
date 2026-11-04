@@ -22,7 +22,7 @@ export const MC_VERSION='26.3';
 export const ASSETS=Object.freeze([
  {id:'sodium',type:'mod',loader:'fabric',ext:'.jar'},
  {id:'iris',type:'mod',loader:'fabric',ext:'.jar'},
- {id:'punchy-fpa',type:'mod',loader:'fabric',ext:'.jar'},
+ {id:'punchy-fpa',type:'mod',loader:'fabric',ext:'.jar',minVersion:'3.1'},
  {id:'punchymoves',type:'mod',loader:'fabric',ext:'.jar'},
  {id:'fluid-foolish',type:'resourcepack',ext:'.zip'},
  {id:'makeup-ultra-fast-shaders',type:'shader',ext:'.zip'},
@@ -33,16 +33,29 @@ const MAX_SIZE=100*1024*1024,API='https://api.modrinth.com/v2';
 const timeout=()=>AbortSignal.timeout(35000);
 const safeName=id=>id.replace(/[^a-z0-9_-]/g,'-');
 const userAgent='QuestPlus-Development/0.2 (+https://github.com/alexistb2904/QuestPlus)';
+// Punchy 3.1+ provides the official PunchyApi.disable hook QuestPlus uses
+// to keep FP PAL tablet poses independent from Punchy's first-person hands.
+function meetsMinimum(version,required) {
+ if(!required)return true;
+ const parse=s=>{const match=String(s||'').match(/\\b(\\d+)\\.(\\d+)(?:\\.(\\d+))?/);
+  return match?[Number(match[1]),Number(match[2]),Number(match[3]||0)]:null;};
+ const a=parse(version),b=parse(required);
+ if(!a||!b)return false;
+ for(let i=0;i<3;i++){if(a[i]>b[i])return true;if(a[i]<b[i])return false}
+ return true;
+}
 export function selectVersion(versions,asset){
  if(!Array.isArray(versions))throw Error('Invalid Modrinth version list for '+asset.id);
  const available=versions.filter(v=>v&&v.game_versions?.includes(MC_VERSION)&&
-  (!asset.loader||v.loaders?.includes(asset.loader))&&v.files?.some(f=>f.filename?.toLowerCase().endsWith(asset.ext)));
+  (!asset.loader||v.loaders?.includes(asset.loader))&&meetsMinimum(v.version_number,asset.minVersion)
+  &&v.files?.some(f=>f.filename?.toLowerCase().endsWith(asset.ext)));
  const ranked=available.sort((a,b)=>{
   const priority=x=>x.version_type==='release'?2:x.version_type==='beta'?1:0;
   return priority(b)-priority(a)||String(b.date_published||'').localeCompare(String(a.date_published||''));
  });
  const found=ranked.find(v=>v.version_type!=='alpha');
- if(!found)throw Error('No stable or beta '+MC_VERSION+' '+(asset.loader||asset.type)+' version for '+asset.id);
+ if(!found)throw Error('No stable or beta '+MC_VERSION+' '+(asset.loader||asset.type)+' version for '+asset.id+
+   (asset.minVersion?' (minimum '+asset.minVersion+' for QuestPlus compatibility)':''));
  return found;
 }
 export function selectFile(version,asset){
@@ -76,7 +89,7 @@ export async function installAsset(asset,root,record=null,{update=false}={}){
  const folder=asset.type==='mod'?'mods':asset.type==='shader'?'shaderpacks':'resourcepacks';
  const destDir=path.join(root,'run','client',folder);
  await mkdir(destDir,{recursive:true});
- if(!update&&record?.file&&record?.sha512){
+ if(!update&&record?.file&&record?.sha512&&meetsMinimum(record.version,asset.minVersion)){
   const existing=path.join(destDir,path.basename(record.file));
   if(record.folder===folder&&record.project===asset.id&&
      path.basename(record.file)===record.file&&await present(existing)){

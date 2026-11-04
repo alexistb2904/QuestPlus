@@ -13,6 +13,7 @@ test('all requested client mods, animation resource pack and 3 shaders are confi
   ['makeup-ultra-fast-shaders','complementary-reimagined','bliss-shader']);
  assert.deepEqual(ASSETS.filter(x=>x.type==='mod').map(x=>x.id),
   ['sodium','iris','punchy-fpa','punchymoves']);
+ assert.equal(ASSETS.find(x=>x.id==='punchy-fpa').minVersion,'3.1');
  assert.deepEqual(ASSETS.filter(x=>x.type==='resourcepack').map(x=>x.id),['fluid-foolish']);
  assert.ok(ASSETS.every(x=>x.ext===(x.type==='mod'?'.jar':'.zip')));
 });
@@ -27,7 +28,12 @@ test('version selection rejects other Minecraft versions and loaders; prefers st
   make('beta','26.3',['fabric'],'beta'),
   make('release','26.3',['fabric'],'release')
  ];
+ // Use the version_number published by Modrinth; Punchy before 3.1 cannot
+ // hand off the first-person arm renderer to FP PAL.
+ versions[2].version_number='3.1';
+ versions[3].version_number='3.2';
  assert.equal(selectVersion(versions,mod).id,'release');
+ assert.throws(()=>selectVersion([{...versions[3],version_number:'3.0.9'}],mod),/minimum 3.1/);
  assert.throws(()=>selectVersion([versions[0],versions[1]],mod),/No stable or beta/);
 });
 test('download metadata is restricted to Modrinth CDN and verified SHA512',()=>{
@@ -49,7 +55,7 @@ test('client asset installation caches verified downloads and never fetches agai
   calls++;
   const target=String(url);
   if(target.startsWith('https://api.modrinth.com/v2/project/')){
-   return new Response(JSON.stringify([{id:'unit-test-version',version_number:'1.2.3',version_type:'release',
+   return new Response(JSON.stringify([{id:'unit-test-version',version_number:'3.1.2',version_type:'release',
     date_published:'2026-10-01T00:00:00Z',game_versions:['26.3'],loaders:['fabric'],
     files:[{primary:true,filename:'punchy.jar',url:'https://cdn.modrinth.com/data/example/versions/demo/punchy.jar',
       size:content.length,hashes:{sha512:expected}}]}]),{status:200});

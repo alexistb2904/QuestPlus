@@ -10,25 +10,25 @@ import java.lang.reflect.Method;
  * first-person geometry as bloom, glass or mirror materials.
  */
 public final class TabletShaderCompat {
-    private static final Method IN_USE=findIris();
+    private record IrisAccess(Object instance,Method method){}
+    private static final IrisAccess IRIS=findIris();
     private static boolean warned;
     private TabletShaderCompat(){}
-    private static Method findIris() {
+    private static IrisAccess findIris() {
         if(!FabricLoader.getInstance().isModLoaded("iris"))return null;
         try{
             Class<?> api=Class.forName("net.irisshaders.iris.api.v0.IrisApi",false,TabletShaderCompat.class.getClassLoader());
-            return api.getMethod("isShaderPackInUse");
+            Object instance=api.getMethod("getInstance").invoke(null);
+            return new IrisAccess(instance,api.getMethod("isShaderPackInUse"));
         }catch(ReflectiveOperationException|LinkageError ex){
             QuestPlusMod.LOGGER.warn("Iris loaded but shader API is not available, using vanilla tablet rendering",ex);
             return null;
         }
     }
     public static boolean shaderPackActive() {
-        if(IN_USE==null)return false;
+        if(IRIS==null)return false;
         try{
-            var api=Class.forName("net.irisshaders.iris.api.v0.IrisApi",false,TabletShaderCompat.class.getClassLoader());
-            Object instance=api.getMethod("getInstance").invoke(null);
-            return Boolean.TRUE.equals(IN_USE.invoke(instance));
+            return Boolean.TRUE.equals(IRIS.method().invoke(IRIS.instance()));
         }catch(ReflectiveOperationException|LinkageError ex){
             if(!warned){warned=true;QuestPlusMod.LOGGER.warn("Iris shader probe failed; keeping normal tablet rendering",ex);}
             return false;

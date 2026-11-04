@@ -167,6 +167,7 @@
   "questplus.client.navigate_down": "Parcourir vers le bas",
   "questplus.client.center_tree": "Recentrer l’arbre",
   "questplus.client.notification_position": "Position des notifications",
+  "questplus.client.shader_safe_mode": "Écran compatible shaders (Iris)",
   "questplus.client.screen_emissive": "Écran auto-lumineux",
   "questplus.client.screen_brightness": "Luminosité : %s %%",
   "questplus.client.condition.detail.gear.full": "Porter une armure complète en %s",

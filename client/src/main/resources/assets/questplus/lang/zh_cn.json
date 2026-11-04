@@ -167,6 +167,7 @@
   "questplus.client.navigate_down": "向下浏览",
   "questplus.client.center_tree": "居中任务树",
   "questplus.client.notification_position": "通知位置",
+  "questplus.client.shader_safe_mode": "着色器兼容屏幕 (Iris)",
   "questplus.client.screen_emissive": "屏幕自发光",
   "questplus.client.screen_brightness": "屏幕亮度：%s%%",
   "questplus.client.condition.detail.gear.full": "穿戴全套%s护甲",
