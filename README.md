@@ -8,7 +8,7 @@ voir [roadmap](docs/roadmap.md).
 
 ## Fonctionnement disponible
 
-- Un fichier JSON par quête, treize exemples anglais/français générés au premier lancement sans écraser les fichiers présents.
+- Un fichier JSON par quête : **209 nouveaux défis Vanilla+** (dont 36 défis d'équipement) et 13 exemples historiques conservés pour compatibilité, installés au premier lancement sans écraser les fichiers existants.
 - Casse réelle de blocs, kills crédités au joueur (dont dégâts de projectiles), ramassage exact d'objets, tags vanilla/moddés.
 - Objectifs multiples, compteurs saturés, prérequis en graphe sans cycle et expressions `and` / `or` / `not`.
 - Conditions au moment de l'événement : dimension, outil, accroupissement, santé (`2` = un cœur).
@@ -88,6 +88,8 @@ a aligner sur la surface visible de la tablette ; le rendu GPU de l'ecran sur
 la surface 3D et la validation visuelle FOV/GUI Scale ne sont **pas encore termines**.
 
 ## Quest Studio — éditeur web visuel des quêtes
+
+Quest Studio embarque le **même catalogue par défaut** que le serveur (209 défis Vanilla+ et 13 quêtes historiques). Les données d'origine viennent de `web/editor/src/data/challenge-catalogue.json` et `equipment-catalogue.json`, embarquées dans le JAR via Gradle. Un monde déjà initialisé n'est jamais écrasé : importer volontairement les nouvelles définitions avec le ZIP exporté par Quest Studio. Les projets locaux déjà édités restent préservés ; choisir **Réinitialiser > Défauts** pour charger les nouvelles quêtes dans Studio.
 
 Quest Studio est disponible sous [`web/editor/`](web/editor/README.md). Sous Windows, choisir
 **7. Ouvrir Quest Studio** dans `0-Menu-Tests.bat` ou double-cliquer sur `web/editor/start.bat`.
