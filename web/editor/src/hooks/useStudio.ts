@@ -12,6 +12,7 @@ import {
 	text,
 	references,
 	PROGRESSIONS,
+    orderedCategories,
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
 import { makeZip, readZip } from "../core/zip.js";
@@ -27,8 +28,8 @@ const initial = (): Session => {
 	const p = demoProject() as Project;
 	const fallback = {
 		project: p,
-		categoryId: p.categories[0]?.id || null,
-		selection: { type: "quest", id: p.quests.find((q) => q.category === p.categories[0]?.id)?.id || "" } as Selection,
+		categoryId: orderedCategories(p.categories)[0]?.id || null,
+		selection: { type: "quest", id: p.quests.find((q) => q.category === orderedCategories(p.categories)[0]?.id)?.id || "" } as Selection,
 		camera: { x: 0, y: 30, zoom: 1 },
 		language: "en_us",
 	};
@@ -184,7 +185,8 @@ export function useStudio() {
 		mutate((s) => {
 			const id = categoryId(name, new Set(s.project.categories.map((c) => c.id)));
 			s.project.categories.forEach((c,i)=>{ if(c.order===undefined)c.order=i; });
-            s.project.categories.push({...newCategory(id, name),order:s.project.categories.length});
+            s.project.categories.push({...newCategory(id, name),
+                order:Math.min(1_000_000,Math.max(-1,...s.project.categories.map(c=>c.order??-1))+1)});
 			s.categoryId = id;
 			s.selection = { type: "category", id };
 			s.camera = { x: 0, y: 0, zoom: 1 };
@@ -293,7 +295,7 @@ export function useStudio() {
 			if (kind === "delete-category") {
 				s.project.categories = s.project.categories.filter((c) => c.id !== o.id);
 				s.project.quests = s.project.quests.filter((q) => q.category !== o.id);
-				s.categoryId = s.project.categories[0]?.id || null;
+				s.categoryId = orderedCategories(s.project.categories)[0]?.id || null;
 				s.selection = s.categoryId ? { type: "category", id: s.categoryId } : null;
 				return;
 			}
@@ -365,7 +367,7 @@ export function useStudio() {
 		if (!confirm(tUI("Replace current project? Export first if needed."))) return;
 		mutate((s) => {
 			s.project = (defaults ? demoProject() : emptyProject()) as Project;
-			s.categoryId = s.project.categories[0]?.id || null;
+			s.categoryId = orderedCategories(s.project.categories)[0]?.id || null;
 			s.selection = s.categoryId ? { type: "category", id: s.categoryId } : null;
 			s.camera = { x: 0, y: 0, zoom: 1 };
 			s.language = "en_us";
@@ -408,7 +410,7 @@ export function useStudio() {
 			if (errors.length) throw Error(errors[0].where + ": " + errors[0].message);
 			mutate((s) => {
 				s.project = p;
-				s.categoryId = p.categories[0]?.id || null;
+				s.categoryId = orderedCategories(p.categories)[0]?.id || null;
 				s.selection = s.categoryId ? { type: "category", id: s.categoryId } : null;
 				s.camera = { x: 0, y: 0, zoom: 1 };
 				s.language = "en_us";
