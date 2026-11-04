@@ -676,9 +676,13 @@
       "objectives": [
         {
           "id": "step1",
-          "event": "block_place",
-          "target": "minecraft:pumpkin_stem",
-          "count": 1
+          "event": "inventory_count",
+          "target": "minecraft:pumpkin_seeds",
+          "count": 1,
+          "text": {
+            "en_us": "Have pumpkin seeds ready for the growing stem",
+            "fr_fr": "Posséder des graines de citrouille pour la pousse"
+          }
         },
         {
           "id": "step2",
@@ -862,9 +866,13 @@
         },
         {
           "id": "step3",
-          "event": "block_place",
-          "target": "minecraft:water",
-          "count": 2
+          "event": "item_use",
+          "target": "minecraft:water_bucket",
+          "count": 2,
+          "text": {
+            "en_us": "Empty a water bucket twice to form bubble columns",
+            "fr_fr": "Utiliser deux fois un seau d'eau pour former les colonnes de bulles"
+          }
         }
       ],
       "rewards": [
