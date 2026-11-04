@@ -15,9 +15,12 @@ public final class ClientProjection {
             this(id,x,y,text,style,color,Map.of());
         }
     }
-    public record Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations) {
+    public record Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations, int order) {
+        public Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations) {
+            this(id,title,description,icon,annotations,Integer.MAX_VALUE);
+        }
         public Category(String id, Map<String,String> title, Map<String,String> description, String icon) {
-            this(id,title,description,icon,List.of());
+            this(id,title,description,icon,List.of(),Integer.MAX_VALUE);
         }
     }
 
