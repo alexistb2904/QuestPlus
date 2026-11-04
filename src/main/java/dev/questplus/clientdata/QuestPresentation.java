@@ -23,35 +23,36 @@ public final class QuestPresentation {
         return objective.count()*quest.tiers().get((int)tier).threshold();
     }
 
-    /** Text is generated at render time in the player's language, never persisted. */
+    /** Fallback objective text for quests without a localized custom label. */
     public static String objectiveText(QuestDefinition.Objective objective,String locale,String targetName) {
-        boolean fr=locale!=null && locale.toLowerCase(java.util.Locale.ROOT).startsWith("fr");
-        String verb=switch(objective.event()) {
-            case "block_break" -> fr?"Casser":"Break";
-            case "block_place" -> fr?"Placer":"Place";
-            case "block_interact" -> fr?"Interagir avec":"Interact with";
-            case "item_obtained" -> fr?"Obtenir":"Obtain";
-            case "item_craft" -> fr?"Fabriquer":"Craft";
-            case "item_smelt" -> fr?"Cuire":"Smelt";
-            case "item_use" -> fr?"Utiliser":"Use";
-            case "item_consume" -> fr?"Consommer":"Consume";
-            case "fish_item","fish_entity" -> fr?"Pêcher":"Fish";
-            case "trade" -> fr?"Échanger":"Trade";
-            case "entity_kill" -> fr?"Vaincre":"Defeat";
-            case "tame_animal" -> fr?"Apprivoiser":"Tame";
-            case "breed_animal" -> fr?"Faire reproduire":"Breed";
-            case "npc_interact" -> fr?"Parler à":"Talk to";
-            case "biome_visit","structure_visit" -> fr?"Visiter":"Visit";
-            case "dimension_enter" -> fr?"Entrer dans":"Enter";
-            case "inventory_count" -> fr?"Posséder":"Hold";
-            case "travel_distance" -> fr?"Parcourir":"Travel";
-            case "location" -> fr?"Atteindre":"Reach";
-            case "player_death" -> fr?"Mourir":"Die";
-            case "manual" -> fr?"Valider":"Acknowledge";
-            default -> fr?"Accomplir":"Complete";
+        String lang=locale==null?"en":locale.toLowerCase(java.util.Locale.ROOT);
+        int column=lang.startsWith("fr")?1:lang.startsWith("es")?2:lang.startsWith("zh")?3:0;
+        String[] verbs=switch(objective.event()) {
+            case "block_break" -> new String[]{"Break","Casser","Romper","破坏"};
+            case "block_place" -> new String[]{"Place","Placer","Colocar","放置"};
+            case "block_interact" -> new String[]{"Interact with","Interagir avec","Interactuar con","交互"};
+            case "item_obtained" -> new String[]{"Obtain","Obtenir","Conseguir","获取"};
+            case "item_craft" -> new String[]{"Craft","Fabriquer","Fabricar","合成"};
+            case "item_smelt" -> new String[]{"Smelt","Cuire","Fundir","熔炼"};
+            case "item_use" -> new String[]{"Use","Utiliser","Usar","使用"};
+            case "item_consume" -> new String[]{"Consume","Consommer","Consumir","食用"};
+            case "fish_item","fish_entity" -> new String[]{"Fish","Pêcher","Pescar","钓起"};
+            case "trade" -> new String[]{"Trade","Échanger","Comerciar","交易"};
+            case "entity_kill" -> new String[]{"Defeat","Vaincre","Derrotar","击败"};
+            case "tame_animal" -> new String[]{"Tame","Apprivoiser","Domesticar","驯服"};
+            case "breed_animal" -> new String[]{"Breed","Faire reproduire","Criar","繁殖"};
+            case "npc_interact" -> new String[]{"Talk to","Parler à","Hablar con","交谈"};
+            case "biome_visit","structure_visit" -> new String[]{"Visit","Visiter","Visitar","探索"};
+            case "dimension_enter" -> new String[]{"Enter","Entrer dans","Entrar en","进入"};
+            case "inventory_count" -> new String[]{"Hold","Posséder","Tener","持有"};
+            case "travel_distance" -> new String[]{"Travel","Parcourir","Recorrer","行进"};
+            case "location" -> new String[]{"Reach","Atteindre","Llegar a","抵达"};
+            case "player_death" -> new String[]{"Die","Mourir","Morir","死亡"};
+            case "manual" -> new String[]{"Acknowledge","Valider","Confirmar","确认"};
+            default -> new String[]{"Complete","Accomplir","Completar","完成"};
         };
-        String target=targetName==null || targetName.isBlank()?objective.target():targetName;
-        return verb+" "+objective.count()+" "+target;
+        String target=targetName==null||targetName.isBlank()?objective.target():targetName;
+        return verbs[column]+" "+objective.count()+" "+target;
     }
 
     /** Do not display the same sentence twice for a single-objective quest. */
