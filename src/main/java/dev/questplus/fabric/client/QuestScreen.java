@@ -664,15 +664,44 @@ public final class QuestScreen extends Screen {
     }
     private void settingsWidgets() {
         int x=left+14,y=top+(attachedToScreenFace ? 28 : 39),w=(right-left-36)/2;
-        int row=attachedToScreenFace ? 20 : 25,extra=attachedToScreenFace ? 65 : 80,
-            finalRow=attachedToScreenFace ? 85 : 105;
+        // Six compact rows remain usable on the 500x300 in-world tablet as
+        // well as smaller Minecraft GUI scales.
+        int available=bottom-y-32;
+        int row=Math.max(16,Math.min(attachedToScreenFace ? 20 : 25,(available-15)/5));
         String[] names={"tablet","blur","animations","reduced_motion","notifications","hud"};
         boolean[] values={settings.tablet,settings.blur,settings.animations,settings.reducedMotion,settings.notifications,settings.hud};
-        for (int i=0;i<names.length;i++) { final int n=i; QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*row,w,() -> { switch(n) { case 0 -> settings.tablet=!settings.tablet; case 1 -> settings.blur=!settings.blur; case 2 -> settings.animations=!settings.animations; case 3 -> settings.reducedMotion=!settings.reducedMotion; case 4 -> settings.notifications=!settings.notifications; case 5 -> settings.hud=!settings.hud; } settings.save(); init(); }); b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off"))); }
-        button("hud_position",x,y+extra,w,() -> { settings.hudPosition=(settings.hudPosition+1)%9; settings.save(); init(); }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
-        button("scale",x+w+8,y+extra,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
-        button("blur_intensity",x,y+finalRow,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
-        button("stay_open_on_damage",x+w+8,y+finalRow,w,() -> {
+        for (int i=0;i<names.length;i++) {
+            final int n=i;
+            QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*row,w,() -> {
+                switch(n) {
+                    case 0 -> settings.tablet=!settings.tablet;
+                    case 1 -> settings.blur=!settings.blur;
+                    case 2 -> settings.animations=!settings.animations;
+                    case 3 -> settings.reducedMotion=!settings.reducedMotion;
+                    case 4 -> settings.notifications=!settings.notifications;
+                    case 5 -> settings.hud=!settings.hud;
+                }
+                settings.save(); init();
+            });
+            b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off")));
+        }
+        button("hud_position",x,y+3*row,w,() -> {
+            settings.hudPosition=(settings.hudPosition+1)%9;
+            settings.save(); init();
+        }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
+        button("notification_position",x+w+8,y+3*row,w,() -> {
+            settings.notificationPosition=(settings.notificationPosition+1)%9;
+            settings.save(); init();
+        }).setMessage(t("notification_position").copy().append(": ").append(t("position."+settings.notificationPosition)));
+        button("scale",x,y+4*row,w,() -> {
+            settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25;
+            settings.save(); init();
+        }).setMessage(t("scale",Math.round(settings.scale*100)));
+        button("blur_intensity",x+w+8,y+4*row,w,() -> {
+            settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2);
+            settings.save(); init();
+        }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
+        button("stay_open_on_damage",x,y+5*row,w,() -> {
             settings.stayOpenOnDamage=!settings.stayOpenOnDamage;
             settings.save(); init();
         }).setMessage(t("stay_open_on_damage").copy().append(": ").append(t(settings.stayOpenOnDamage ? "on" : "off")));
