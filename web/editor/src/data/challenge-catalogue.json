@@ -15,7 +15,7 @@
       "annotations": []
     },
     {
-      "id": "questplus:exploration",
+      "id": "questplus:expeditions",
       "order": 1,
       "icon": "minecraft:compass",
       "title": {
@@ -43,7 +43,7 @@
       "annotations": []
     },
     {
-      "id": "questplus:mining",
+      "id": "questplus:quarries",
       "order": 3,
       "icon": "minecraft:netherite_pickaxe",
       "title": {
@@ -199,7 +199,7 @@
     {
       "id": "questplus:milestones",
       "order": 14,
-      "icon": "minecraft:nether_portal",
+      "icon": "minecraft:compass",
       "title": {
         "en_us": "World Milestones",
         "fr_fr": "Jalons du monde"
@@ -796,8 +796,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/arid_lands",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/arid_lands",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Arid Lands",
@@ -848,8 +848,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/high_peaks",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/high_peaks",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "On Top of the World",
@@ -900,8 +900,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/under_canopy",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/under_canopy",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Under the Canopy",
@@ -952,8 +952,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/frozen_realm",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/frozen_realm",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Frozen Realm",
@@ -998,8 +998,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/flower_road",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/flower_road",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Flower Road",
@@ -1050,8 +1050,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/lost_islands",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/lost_islands",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Lost Islands",
@@ -1090,8 +1090,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/world_below",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/world_below",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The World Beneath",
@@ -1136,8 +1136,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/villages_of_world",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/villages_of_world",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Villages of the World",
@@ -1194,8 +1194,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/sea_route",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/sea_route",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Sea Route",
@@ -1246,8 +1246,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/wild_lands",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/wild_lands",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Wild Lands",
@@ -1298,8 +1298,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/underground_expedition",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/underground_expedition",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Underground Expedition",
@@ -1344,8 +1344,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/between_worlds",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/between_worlds",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Across Three Realms",
@@ -1399,8 +1399,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/twelve_horizons",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/twelve_horizons",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Twelve Horizons",
@@ -1499,8 +1499,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/legendary_cartographer",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/legendary_cartographer",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Legendary Cartographer",
@@ -1593,8 +1593,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/grand_traveler",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/grand_traveler",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Great Traveler",
@@ -1664,8 +1664,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/hidden_corners",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/hidden_corners",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Hidden Corners",
@@ -1716,8 +1716,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/end_archipelago",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/end_archipelago",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The End Archipelago",
@@ -1768,8 +1768,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:exploration/deep_seas",
-      "category": "questplus:exploration",
+      "id": "questplus:expeditions/deep_seas",
+      "category": "questplus:expeditions",
       "icon": "minecraft:compass",
       "title": {
         "en_us": "The Deep Blue",
@@ -1822,7 +1822,7 @@
       "schemaVersion": 2,
       "id": "questplus:milestones/overworld_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:nether_portal",
+      "icon": "minecraft:compass",
       "title": {
         "en_us": "The Surface",
         "fr_fr": "La Surface"
@@ -1856,7 +1856,7 @@
       "schemaVersion": 2,
       "id": "questplus:milestones/nether_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:nether_portal",
+      "icon": "minecraft:compass",
       "title": {
         "en_us": "Through the Flames",
         "fr_fr": "À travers les flammes"
@@ -1890,7 +1890,7 @@
       "schemaVersion": 2,
       "id": "questplus:milestones/end_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:nether_portal",
+      "icon": "minecraft:compass",
       "title": {
         "en_us": "Beyond the Void",
         "fr_fr": "Au-delà du vide"
@@ -2682,8 +2682,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/stone_mountain",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/stone_mountain",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "The Vanishing Mountain",
@@ -2763,8 +2763,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/deepslate_mountain",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/deepslate_mountain",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Endless Depths",
@@ -2834,8 +2834,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/endless_lumber",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/endless_lumber",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Endless Lumber",
@@ -2905,8 +2905,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/coal_empire",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/coal_empire",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Coal Empire",
@@ -2976,8 +2976,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/iron_king",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/iron_king",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "King of Iron",
@@ -3047,8 +3047,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/copper_rush",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/copper_rush",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Copper Rush",
@@ -3118,8 +3118,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/redstone_engineer",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/redstone_engineer",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Redstone Prospector",
@@ -3189,8 +3189,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/ancient_debris",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/ancient_debris",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Ancient Debris Collector",
@@ -3260,8 +3260,8 @@
     },
     {
       "schemaVersion": 2,
-      "id": "questplus:mining/netherite_ingots",
-      "category": "questplus:mining",
+      "id": "questplus:quarries/netherite_ingots",
+      "category": "questplus:quarries",
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Master of Netherite",
@@ -8456,7 +8456,7 @@
             "quest": "questplus:trials/three_giants"
           },
           {
-            "quest": "questplus:exploration/legendary_cartographer"
+            "quest": "questplus:expeditions/legendary_cartographer"
           }
         ]
       }
