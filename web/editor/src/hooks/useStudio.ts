@@ -220,7 +220,7 @@ export function useStudio() {
 			if (dependents.length)
 				return toast(tUI("Remove this quest from its dependents first:") + " " + dependents.map((q) => text(q.title, state.language) || q.id).join(", "));
 		}
-		if (kind.startsWith("delete-") && !confirm(tUI("Delete selected") + " " + tUI(kind.slice(7)) + "?")) return;
+		if (kind.startsWith("delete-") && !confirm(tUI("Delete selected item?"))) return;
 		mutate((s) => {
 			const selected = s.selection,
 				o = owner(s.project, selected);

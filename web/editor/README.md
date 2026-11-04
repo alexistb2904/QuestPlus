@@ -75,12 +75,17 @@ labelled graph cards, violet selection, details tabs below the graph and persist
 properties on the right. At narrow widths these panels stack; tabs remain horizontally
 scrollable. The design contract is in `../../DESIGN.md`.
 
-- Save / Ctrl+S stores the browser draft; the footer reports success or storage failure.
-  Export ZIP creates the server pack. These operations are separate.
+- Save / Ctrl+S preserves the browser draft **and downloads `QuestPlus-quests.zip`**,
+  ready to import into the Minecraft mod. Automatic autosave remains local-only;
+  the footer also provides a dedicated Export ZIP action. Invalid quest packs
+  cannot be exported until validation issues are fixed.
 - Grid visibility/spacing, snapping, selection/pan tools, fitting, wheel zoom and
   pointer/touch movement operate without changing Minecraft's layout coordinate system.
 - Details expose objectives, rewards, prerequisites, progression/tiers/timers/no-death,
   information quests, translations and advanced JSON. Rich annotations remain editable.
+  English is the required source for titles and descriptions; information buttons
+  in Properties open the translations tab directly. The editor UI supports English,
+  French, Spanish, and simplified Chinese independently from quest content locales.
 - PNJ/NPC uses `npc_interact` with an entity-type target. To unlock a follow-up quest,
   make the interaction quest its prerequisite. Unique NPC definitions, direct NPC unlocks
   and branching dialogues are outside the current server schema.
