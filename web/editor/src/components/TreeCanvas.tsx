@@ -9,8 +9,8 @@ import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 
-type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
-export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,showGrid,gridSize,snap,tool}:Props){
+type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';showQuestTitles?:boolean;onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
+export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,showGrid,gridSize,snap,tool,showQuestTitles=false}:Props){
  const ref=useRef<HTMLDivElement>(null);
  const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
  const resize=useRef<{type:'quest'|'annotation';id:string;startX:number;startY:number;width:number;height:number;size:number;pointer:number}|null>(null);
@@ -144,10 +144,10 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const a=graph.points.get(edge.from),b=graph.points.get(edge.to);if(!a||!b)return null;
     const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);
     const source=allQuests.find(z=>z.id===edge.from),target=allQuests.find(z=>z.id===edge.to);
-    p.y+=33*(source?.size||32)/32;q.y-=33*(target?.size||32)/32;const mid=(p.y+q.y)/2;
+    p.y+=(source?.size||32)/2;q.y-=(target?.size||32)/2;const mid=(p.y+q.y)/2;
     return <path markerEnd="url(#quest-arrow)" key={edge.from+'-'+edge.to} className={selection?.type==='quest'&&[edge.from,edge.to].includes(selection.id)?'selected-edge':''} d={'M'+p.x+' '+p.y+'V'+mid+'H'+q.x+'V'+q.y}/>;
    })}
-   {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=33*camera.zoom;const end=connection.point,bend=Math.max(45,Math.abs(end.y-start.y)*.55);return <path className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
+   {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=(allQuests.find(q=>q.id===connection.from)?.size||32)/2;const end=connection.point,bend=Math.max(45,Math.abs(end.y-start.y)*.55);return <path className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
   </svg>
   {connection&&<div className={'connection-hint'+(connection.error?' invalid':'')} role="status"><GitBranch size={14}/><span>{tUI(connection.error||'Drop on a quest to make it depend on this quest. Esc to cancel.')}</span><button aria-label={tUI('Cancel connection')} onPointerDown={e=>e.stopPropagation()} onClick={()=>showCable(null)}><X size={14}/></button></div>}
   <div className="nodes">
@@ -157,14 +157,15 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const unavailable=q.kind==='information'&&q.acknowledgement==='read_only';
     const nodeSize=resizeGhost?.id===q.id?resizeGhost.size??q.size??32:q.size??32;
     return <div key={q.id} className={'graph-node'+(selection?.type==='quest'&&selection.id===q.id?' selected':'')+(connection?.from===q.id?' connecting':'')+(connection?.to===q.id?(connection.error?' link-invalid':' link-target'):'')}
-      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:Math.round(162*nodeSize/32),height:Math.round(66*nodeSize/32),transform:'translate(-50%,-50%)'}}>
+      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:nodeSize,height:nodeSize,transform:'translate(-50%,-50%)'}}>
       <button className="node-select" type="button" aria-pressed={selection?.type==='quest'&&selection.id===q.id} onClick={()=>selectNode(q.id)}>
-       <span className="node-icon"><ItemIcon id={q.icon} size={Math.round(28*nodeSize/32)}/></span><span className="node-title" title={q.id}>{text(q.title,language)}</span>
+       <span className="node-icon"><ItemIcon id={q.icon} size={Math.max(16,nodeSize-6)}/></span><span className="sr-only">{text(q.title,language)}</span>
       </button>
       <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':1} as React.CSSProperties}
-       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+33*nodeSize/32},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
+       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+nodeSize/2},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
       {q.objectives?.some(o=>o.event==='npc_interact')&&<MessageCircle className="node-npc" size={13}/>}
-      {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,162,66,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
+      {showQuestTitles&&<span className="node-title-below" title={q.id}>{text(q.title,language)}</span>}
+       {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,nodeSize,nodeSize,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
      </div>;
    })}
    {(category?.annotations||[]).map(a=>{
