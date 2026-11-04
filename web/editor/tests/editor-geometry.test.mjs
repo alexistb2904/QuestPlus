@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {screenPoint,worldPoint,fitEditor,snapEditor,SCALE_X,SCALE_Y} from '../src/core/editor-geometry.js';
 
-test('labelled editor cards preserve Minecraft coordinates through pan and zoom',()=>{
+test('labelled editor cards preserve coordinates regardless of stale zoom values',()=>{
  const size={width:920,height:480};
  for(const camera of [{x:0,y:0,zoom:1},{x:-34,y:150,zoom:.25},{x:300,y:-60,zoom:2.5}]){
   for(const point of [{x:0,y:0},{x:-100,y:37},{x:9000,y:-1700}]){
@@ -22,4 +22,6 @@ test('fit includes complete quest cards and grid snapping keeps exported integer
   for(const [key,scale] of [['x',SCALE_X],['y',SCALE_Y]])assert.ok(Math.abs(snapped[key]*scale-Math.round(point[key]*scale/32)*32)<=scale/2);
  }
  assert.deepEqual(fitEditor([],800,450),{x:0,y:0,zoom:1});
+ assert.equal(fitEditor(points,200,100).zoom,1);
+ assert.equal(fitEditor(points,2000,1000).zoom,1);
 });

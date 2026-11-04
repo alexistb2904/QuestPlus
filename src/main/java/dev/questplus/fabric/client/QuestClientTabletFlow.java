@@ -14,6 +14,7 @@ final class QuestClientTabletFlow {
     private static boolean nativeHands;
     private static boolean closeRequested;
     private static CameraType previousCamera;
+    private static final TabletDamageGuard DAMAGE=new TabletDamageGuard();
     private QuestClientTabletFlow() {}
 
     static void register() {
@@ -88,6 +89,21 @@ final class QuestClientTabletFlow {
         stage=Stage.CLOSING;
     }
     private static void tick(Minecraft client) {
+        if(client.player==null) DAMAGE.reset();
+        else {
+            boolean tabletActive=stage==Stage.OPENING || stage==Stage.HELD
+                || client.gui.screen() instanceof QuestScreen;
+            boolean allow=QuestPlusClient.settings!=null && QuestPlusClient.settings.stayOpenOnDamage;
+            if(DAMAGE.observe(tabletActive,allow,
+                client.player.getHealth(),client.player.getAbsorptionAmount())) {
+                // A screen that is already visible owns its own closure.
+                // A hit during the opening animation interrupts that pose
+                // and immediately plays the closing animation instead.
+                if(client.gui.screen() instanceof QuestScreen quest) quest.onClose();
+                else if(stage==Stage.OPENING) {stage=Stage.HELD;close();}
+                else if(stage==Stage.HELD) close();
+            }
+        }
         if (stage==Stage.CLOSED) return;
         if (client.player==null || !client.player.isAlive() || client.player.isSpectator()) {
             stop();reset();return;
@@ -121,7 +137,7 @@ final class QuestClientTabletFlow {
         }
     }
     private static void reset() {
-        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset();
+        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset();DAMAGE.reset();
         if (previousCamera!=null) {
             Minecraft.getInstance().options.setCameraType(previousCamera);
             previousCamera=null;

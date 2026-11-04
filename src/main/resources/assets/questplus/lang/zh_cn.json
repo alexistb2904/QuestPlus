@@ -161,5 +161,9 @@
   "questplus.client.repeat_count": "已完成 ×%s",
   "questplus.client.tier_count": "阶段 %s",
   "questplus.client.information_read": "阅读说明",
-  "questplus.completed_no_reward": "任务已完成：%s"
+  "questplus.completed_no_reward": "任务已完成：%s",
+  "questplus.client.stay_open_on_damage": "受伤时保持平板打开",
+  "questplus.client.navigate_up": "向上浏览",
+  "questplus.client.navigate_down": "向下浏览",
+  "questplus.client.center_tree": "居中任务树"
 }

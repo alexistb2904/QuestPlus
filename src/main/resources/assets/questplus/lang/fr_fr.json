@@ -161,5 +161,9 @@
   "questplus.client.repeat_count": "Terminée ×%s",
   "questplus.client.tier_count": "Palier %s",
   "questplus.client.information_read": "Lire les informations",
-  "questplus.completed_no_reward": "Quête terminée : %s"
+  "questplus.completed_no_reward": "Quête terminée : %s",
+  "questplus.client.stay_open_on_damage": "Rester ouvert si blessé",
+  "questplus.client.navigate_up": "Parcourir vers le haut",
+  "questplus.client.navigate_down": "Parcourir vers le bas",
+  "questplus.client.center_tree": "Recentrer l’arbre"
 }

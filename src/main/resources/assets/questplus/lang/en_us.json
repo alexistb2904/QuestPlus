@@ -161,5 +161,9 @@
   "questplus.client.repeat_count": "Completed ×%s",
   "questplus.client.tier_count": "Milestone %s",
   "questplus.client.information_read": "Read the information",
-  "questplus.completed_no_reward": "Quest completed: %s"
+  "questplus.completed_no_reward": "Quest completed: %s",
+  "questplus.client.stay_open_on_damage": "Keep open when hurt",
+  "questplus.client.navigate_up": "Move up",
+  "questplus.client.navigate_down": "Move down",
+  "questplus.client.center_tree": "Center tree"
 }
