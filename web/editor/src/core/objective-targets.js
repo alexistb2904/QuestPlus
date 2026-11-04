@@ -109,7 +109,11 @@ export const removePositionCondition=root=>{
 };
 export const changeObjectiveEvent=(objective,event,questId)=>{
   if(objective.event===event)return objective;
-  const next={...objective,event,target:event==='manual'?(questId||'questplus:manual'):initialTarget(event),count:event==='travel_distance'?100:1};
+  const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
+  // Switching between related events must not erase an already chosen modded ID.
+  const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','custom'].includes(newKind);
+  const target=sameRegistry?objective.target:event==='manual'?(questId||'questplus:manual'):initialTarget(event);
+  const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
   const cleaned=removePositionCondition(objective.conditions);
   if(cleaned)next.conditions=cleaned;
   else delete next.conditions;
