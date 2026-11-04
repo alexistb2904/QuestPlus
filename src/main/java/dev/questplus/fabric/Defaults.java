@@ -66,6 +66,19 @@ public final class Defaults {
                 }
             }
             if(!safe)continue;
+            // A custom quest may still depend on a sample quest. Keep the
+            // complete chapter rather than invalidate user-authored links.
+            Path quests=root.resolve("quests");
+            if(Files.isDirectory(quests)) {
+                try(var files=Files.walk(quests)) {
+                    for(Path other:files.filter(Files::isRegularFile).filter(p->p.toString().endsWith(".json")).toList()){
+                        String relative=quests.relativize(other).toString().replace('\\','/');
+                        if(relative.startsWith(group.getKey()+"/"))continue;
+                        if(Files.readString(other).contains("questplus:"+group.getKey()+"/")){safe=false;break;}
+                    }
+                }
+            }
+            if(!safe)continue;
             for(String path:paths)Files.deleteIfExists(root.resolve(path));
         }
     }
