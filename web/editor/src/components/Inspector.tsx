@@ -3,6 +3,7 @@ import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target,Info} from 
 import {annotationText,annotationRich,text} from '../core/project.js';
 import {gameLayout} from '../core/game-layout.js';
 import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
+import {GearEditor,armorPreset} from './GearEditor';
 import {versionWarning} from '../ui/minecraft-icons.js';
 import {ItemIcon} from './IconPicker';
 import {RichEditor,DescriptionEditor} from './RichEditor';
@@ -61,7 +62,7 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
   }
  const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
  const choices=[...OBJECTIVE_KINDS,['equipment','Equipment'],['position','Position'],['context','Context']];
- const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},position:{xMin:0},context:{key:'',equals:true}};
+ const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},'questplus:gear':{items:armorPreset('iron')},position:{xMin:0},context:{key:'',equals:true}};
  const setKind=(next:string)=>mutate(root=>setAt(root,path,{[next]:defaults[next]??(next.startsWith('health')?2:'minecraft:overworld')}));
  const setMember=(member:string,next:any)=>mutate(root=>setAt(root,path,{[kind]:{...val,[member]:next}}));
   return <div className="cond-leaf" key={path}>
@@ -70,6 +71,7 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
     {!choices.some(([key])=>key===kind)&&<option value={kind}>{kind}</option>}
    </select>
    {kind==='sneaking'?<select aria-label={tUI('Condition value')} value={String(val)} onChange={e=>mutate(root=>setAt(root,path,{sneaking:e.target.value==='true'}))}><option value="true">{tUI('Yes')}</option><option value="false">{tUI('No')}</option></select>:
+    kind==='questplus:gear'?<GearEditor conditions={node} onChange={next=>mutate(root=>setAt(root,path,next))}/>:
     kind==='equipment'?<><select aria-label={tUI("Equipment slot")} value={val?.slot||'mainhand'} onChange={e=>setMember('slot',e.target.value)}>{['mainhand','offhand','head','chest','legs','feet'].map(s=><option key={s} value={s}>{s}</option>)}</select><input aria-label={tUI("Equipment item")} value={val?.item||''} onChange={e=>setMember('item',e.target.value)}/></>:
     kind==='position'?<div className="field-row">{['xMin','xMax','yMin','yMax','zMin','zMax'].map(axis=><label className="field" key={axis}><span>{axis}</span><input type="number" value={val?.[axis]??''} onChange={e=>{const next={...val};if(e.target.value==='')delete next[axis];else next[axis]=Number(e.target.value);mutate(root=>setAt(root,path,{position:next}));}}/></label>)}</div>:
     kind==='context'?<><input aria-label={tUI("Context key")} value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label={tUI("Context value (JSON)")} defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:

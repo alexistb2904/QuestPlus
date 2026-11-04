@@ -2,7 +2,7 @@
   "categories": [
     {
       "id": "questplus:equipment",
-      "order": 15,
+      "order": 12,
       "icon": "minecraft:netherite_chestplate",
       "title": {
         "en_us": "Master of Equipment",
@@ -60,10 +60,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: leather helmet • chest: leather chestplate • legs: leather leggings • feet: leather boots",
-            "fr_fr": "Tête : leather helmet • Torse : leather chestplate • Jambes : leather leggings • Pieds : leather boots"
           }
         }
       ],
@@ -119,10 +115,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: copper helmet • chest: copper chestplate • legs: copper leggings • feet: copper boots",
-            "fr_fr": "Tête : copper helmet • Torse : copper chestplate • Jambes : copper leggings • Pieds : copper boots"
           }
         }
       ],
@@ -178,10 +170,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: iron helmet • chest: iron chestplate • legs: iron leggings • feet: iron boots",
-            "fr_fr": "Tête : iron helmet • Torse : iron chestplate • Jambes : iron leggings • Pieds : iron boots"
           }
         }
       ],
@@ -237,10 +225,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: golden helmet • chest: golden chestplate • legs: golden leggings • feet: golden boots",
-            "fr_fr": "Tête : golden helmet • Torse : golden chestplate • Jambes : golden leggings • Pieds : golden boots"
           }
         }
       ],
@@ -296,10 +280,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: chainmail helmet • chest: chainmail chestplate • legs: chainmail leggings • feet: chainmail boots",
-            "fr_fr": "Tête : chainmail helmet • Torse : chainmail chestplate • Jambes : chainmail leggings • Pieds : chainmail boots"
           }
         }
       ],
@@ -355,10 +335,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: diamond helmet • chest: diamond chestplate • legs: diamond leggings • feet: diamond boots",
-            "fr_fr": "Tête : diamond helmet • Torse : diamond chestplate • Jambes : diamond leggings • Pieds : diamond boots"
           }
         }
       ],
@@ -414,10 +390,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet • chest: netherite chestplate • legs: netherite leggings • feet: netherite boots",
-            "fr_fr": "Tête : netherite helmet • Torse : netherite chestplate • Jambes : netherite leggings • Pieds : netherite boots"
           }
         }
       ],
@@ -473,10 +445,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet • chest: netherite chestplate • legs: netherite leggings • feet: netherite boots",
-            "fr_fr": "Tête : netherite helmet • Torse : netherite chestplate • Jambes : netherite leggings • Pieds : netherite boots"
           }
         }
       ],
@@ -565,10 +533,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: diamond helmet [protection IV] • chest: diamond chestplate [protection IV] • legs: diamond leggings [protection IV] • feet: diamond boots [protection IV]",
-            "fr_fr": "Tête : diamond helmet [Protection IV] • Torse : diamond chestplate [Protection IV] • Jambes : diamond leggings [Protection IV] • Pieds : diamond boots [Protection IV]"
           }
         }
       ],
@@ -632,10 +596,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV] • chest: netherite chestplate [protection IV] • legs: netherite leggings [protection IV] • feet: netherite boots [protection IV]",
-            "fr_fr": "Tête : netherite helmet [Protection IV] • Torse : netherite chestplate [Protection IV] • Jambes : netherite leggings [Protection IV] • Pieds : netherite boots [Protection IV]"
           }
         }
       ],
@@ -699,10 +659,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [unbreaking III] • chest: netherite chestplate [unbreaking III] • legs: netherite leggings [unbreaking III] • feet: netherite boots [unbreaking III]",
-            "fr_fr": "Tête : netherite helmet [Solidité III] • Torse : netherite chestplate [Solidité III] • Jambes : netherite leggings [Solidité III] • Pieds : netherite boots [Solidité III]"
           }
         }
       ],
@@ -770,10 +726,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV, unbreaking III] • chest: netherite chestplate [protection IV, unbreaking III] • legs: netherite leggings [protection IV, unbreaking III] • feet: netherite boots [protection IV, unbreaking III]",
-            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III] • Torse : netherite chestplate [Protection IV, Solidité III] • Jambes : netherite leggings [Protection IV, Solidité III] • Pieds : netherite boots [Protection IV, Solidité III]"
           }
         }
       ],
@@ -845,10 +797,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I] • chest: netherite chestplate [protection IV, unbreaking III, mending I] • legs: netherite leggings [protection IV, unbreaking III, mending I] • feet: netherite boots [protection IV, unbreaking III, mending I]",
-            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -895,10 +843,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I, respiration III, aqua affinity I]",
-            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I, Respiration III, Affinité aquatique I]"
           }
         }
       ],
@@ -945,10 +889,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "feet: netherite boots [protection IV, unbreaking III, mending I, feather falling IV, depth strider III]",
-            "fr_fr": "Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I, Chute amortie IV, Agilité aquatique III]"
           }
         }
       ],
@@ -994,10 +934,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "legs: netherite leggings [protection IV, unbreaking III, mending I, swift sneak III]",
-            "fr_fr": "Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I, Furtivité rapide III]"
           }
         }
       ],
@@ -1043,10 +979,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "chest: netherite chestplate [protection IV, unbreaking III, mending I, thorns III]",
-            "fr_fr": "Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I, Épines III]"
           }
         }
       ],
@@ -1124,10 +1056,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I, respiration III, aqua affinity I] • chest: netherite chestplate [protection IV, unbreaking III, mending I, thorns III] • legs: netherite leggings [protection IV, unbreaking III, mending I, swift sneak III] • feet: netherite boots [protection IV, unbreaking III, mending I, feather falling IV, depth strider III]",
-            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I, Respiration III, Affinité aquatique I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I, Épines III] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I, Furtivité rapide III] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I, Chute amortie IV, Agilité aquatique III]"
           }
         }
       ],
@@ -1187,10 +1115,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite sword",
-            "fr_fr": "Inventaire : netherite sword"
           }
         }
       ],
@@ -1233,10 +1157,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite sword [sharpness V]",
-            "fr_fr": "Inventaire : netherite sword [Tranchant V]"
           }
         }
       ],
@@ -1283,10 +1203,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite sword [sharpness V, looting III, unbreaking III, mending I, sweeping edge III]",
-            "fr_fr": "Inventaire : netherite sword [Tranchant V, Butin III, Solidité III, Raccommodage I, Affilage III]"
           }
         }
       ],
@@ -1332,10 +1248,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite axe [sharpness V, efficiency V, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite axe [Tranchant V, Efficacité V, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1381,10 +1293,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: bow [power V, unbreaking III, flame I, infinity I]",
-            "fr_fr": "Inventaire : bow [Puissance V, Solidité III, Flamme I, Infinité I]"
           }
         }
       ],
@@ -1429,10 +1337,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: crossbow [quick charge III, unbreaking III, multishot I]",
-            "fr_fr": "Inventaire : crossbow [Charge rapide III, Solidité III, Tir multiple I]"
           }
         }
       ],
@@ -1479,10 +1383,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: trident [impaling V, loyalty III, channeling I, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : trident [Empalement V, Loyauté III, Canalisation I, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1528,10 +1428,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: trident [riptide III, impaling V, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : trident [Impulsion III, Empalement V, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1577,10 +1473,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: mace [density V, wind burst III, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : mace [Densité V, Rafale de vent III, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1625,10 +1517,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite spear [lunge III, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite spear [Lunge III, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1674,10 +1562,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1723,10 +1607,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1771,10 +1651,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite axe [efficiency V, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite axe [Efficacité V, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1819,10 +1695,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite shovel [efficiency V, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite shovel [Efficacité V, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1867,10 +1739,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite hoe [efficiency V, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite hoe [Efficacité V, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1914,10 +1782,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: elytra [unbreaking III, mending I]",
-            "fr_fr": "Inventaire : elytra [Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -1973,10 +1837,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I] • inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I]",
-            "fr_fr": "Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I] • Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I]"
           }
         }
       ],
@@ -2097,10 +1957,6 @@
                 }
               ]
             }
-          },
-          "text": {
-            "en_us": "head: netherite helmet [protection IV, unbreaking III, mending I] • chest: netherite chestplate [protection IV, unbreaking III, mending I] • legs: netherite leggings [protection IV, unbreaking III, mending I] • feet: netherite boots [protection IV, unbreaking III, mending I] • inventory: netherite sword [sharpness V, looting III, unbreaking III, mending I, sweeping edge III] • inventory: netherite pickaxe [efficiency V, fortune III, unbreaking III, mending I] • inventory: netherite pickaxe [efficiency V, silk touch I, unbreaking III, mending I] • inventory: elytra [unbreaking III, mending I]",
-            "fr_fr": "Tête : netherite helmet [Protection IV, Solidité III, Raccommodage I] • Torse : netherite chestplate [Protection IV, Solidité III, Raccommodage I] • Jambes : netherite leggings [Protection IV, Solidité III, Raccommodage I] • Pieds : netherite boots [Protection IV, Solidité III, Raccommodage I] • Inventaire : netherite sword [Tranchant V, Butin III, Solidité III, Raccommodage I, Affilage III] • Inventaire : netherite pickaxe [Efficacité V, Fortune III, Solidité III, Raccommodage I] • Inventaire : netherite pickaxe [Efficacité V, Toucher de soie I, Solidité III, Raccommodage I] • Inventaire : elytra [Solidité III, Raccommodage I]"
           }
         }
       ],

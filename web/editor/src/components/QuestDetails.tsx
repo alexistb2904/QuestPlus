@@ -8,6 +8,7 @@ import {DescriptionEditor} from './RichEditor';
 import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
 import {Field,Select,Translated,Disclosure,ConditionEditor} from './Inspector';
+import {GearEditor,updateGear,armorPreset} from './GearEditor';
 import type {Props} from './Inspector';
 import type {Reward,Project,Quest,Category,Objective} from '../types';
 
@@ -75,6 +76,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
       onChange={e=>modifier(setPositionRadius(o.conditions,e.target.value))}/></label>
    </div>;
   if(kind==='distance')return <Field label="Distance (m)" type="number" value={Number((o.count/100).toFixed(2))} onChange={v=>onUpdate(path+'.count',Math.max(1,Math.min(1000000000,Math.round(v*100)||1)))}/>;
+  if(o.event==='equipment_check')return <GearEditor conditions={o.conditions} onChange={modifier}/>;
   if(kind==='death')return <span className="fixed-target">{tUI('Player death')}</span>;
   if(kind==='manual')return <div className="target-field">
     <Field label="Manual event ID" value={o.target} onChange={editTarget} placeholder={questId}/>
@@ -96,7 +98,12 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  return <div className={'field-row objective-inputs objective-inputs-'+kind}>
   <Select label="Action" value={o.event}
     options={[...EVENTS.map(([id])=>[id,EVENT_LABELS[id]||id] as [string,string]),...(!EVENTS.some(([id])=>id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
-    onChange={event=>onUpdate(path,changeObjectiveEvent(o,event,questId))}/>
+    onChange={event=>{
+      const next=changeObjectiveEvent(o,event,questId);
+      if(event==='equipment_check' && !next.conditions?.['questplus:gear'])
+        next.conditions=updateGear(next.conditions,armorPreset('iron'));
+      onUpdate(path,next);
+    }}/>
   {field()}
   {label&&kind!=='distance'&&<Field label={label} type="number" value={o.count} onChange={editCount}/>}
  </div>;

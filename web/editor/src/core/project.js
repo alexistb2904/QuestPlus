@@ -101,8 +101,48 @@ export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}
 export function annotation(id='note',x=0,y=0){
   return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986',width:170,height:100};
 }
+export function gearRequirementText(conditions,lang='en_us'){
+  const root=conditions?.['questplus:gear'] ? conditions : conditions?.and?.find(x=>x?.['questplus:gear']);
+  const items=root?.['questplus:gear']?.items;
+  if(!Array.isArray(items)||!items.length)return '';
+  const locale=lang.startsWith('fr')?'fr':lang.startsWith('es')?'es':lang.startsWith('zh')?'zh':'en';
+  const names=items.map(x=>String(x.item||'').split(':').pop().replace(/_/g,' '));
+  const suffixes=['helmet','chestplate','leggings','boots'];
+  const slots=['head','chest','legs','feet'];
+  const isSet=items.length===4 && slots.every((slot,i)=>items.some(x=>x.slot===slot &&
+    String(x.item||'').endsWith('_'+suffixes[i])));
+  const base=isSet?items.find(x=>x.slot==='head').item.replace(/_helmet$/,''):null;
+  const sameMaterial=isSet&&slots.every((slot,i)=>items.find(x=>x.slot===slot).item.replace(new RegExp('_'+suffixes[i]+'$'),'')===base);
+  const pretty=id=>String(id).split(':').pop().replace(/_/g,' ');
+  const levels=items.map(x=>Object.entries(x.enchantments||{}).map(([id,n])=>pretty(id)+' '+n));
+  const common=levels[0]||[];
+  const uniform=levels.every(x=>JSON.stringify(x)===JSON.stringify(common));
+  if(sameMaterial){
+    const prefix={en:'Wear full',fr:'Porter une armure complète en',es:'Llevar armadura completa de',zh:'穿戴整套'}[locale];
+    const suffix=locale==='en'?' armor':locale==='zh'?'护甲':'';
+    const extras=uniform?common.join(', '):({en:'Enchanted set',fr:'Armure enchantée',es:'Armadura encantada',zh:'附魔套装'}[locale]);
+    const material=String(base).replace(/^minecraft:/,'');
+    const materialNames={
+      leather:{en:'leather',fr:'cuir',es:'cuero',zh:'皮革'},
+      copper:{en:'copper',fr:'cuivre',es:'cobre',zh:'铜'},
+      chainmail:{en:'chainmail',fr:'mailles',es:'cota de malla',zh:'锁链'},
+      iron:{en:'iron',fr:'fer',es:'hierro',zh:'铁'},
+      golden:{en:'gold',fr:'or',es:'oro',zh:'金'},
+      diamond:{en:'diamond',fr:'diamant',es:'diamante',zh:'钻石'},
+      netherite:{en:'netherite',fr:'Netherite',es:'netherita',zh:'下界合金'}
+    };
+    const localizedMaterial=materialNames[material]?.[locale]||pretty(base);
+    return prefix+' '+localizedMaterial+suffix+(extras?' · '+extras:'');
+  }
+  const verbs={en:'Equip',fr:'Équiper',es:'Equipar',zh:'装备'};
+  const equipment=items.map((x,i)=>names[i]+(levels[i].length?' ('+levels[i].join(', ')+')':''));
+  return verbs[locale]+' '+equipment.join(' · ');
+}
+
 export function objectiveLabel(o,lang='fr_fr'){
-  if(text(o.text,lang))return text(o.text,lang);
+  const gear=gearRequirementText(o.conditions,lang);
+  if(gear && o.event==='equipment_check')return gear;
+  if(text(o.text,lang))return text(o.text,lang)+(gear?' · '+gear:'');
   const fr=lang.startsWith('fr');
   const names={
     block_break:['Casser','Break'],block_place:['Placer','Place'],block_interact:['Interagir avec','Interact with'],
@@ -160,6 +200,19 @@ export function validate(p){
       if(['dimension','tool','biome','effect'].includes(key))return typeof value==='string'&&ID.test(value);
       if(key==='sneaking')return typeof value==='boolean';
       if(['healthAtMost','healthAtLeast'].includes(key))return Number.isFinite(value)&&value>=0;
+      if(key==='questplus:gear'){
+        if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).join()!=='items'
+           ||!Array.isArray(value.items)||value.items.length<1||value.items.length>40)return false;
+        return value.items.every(item=>{
+          if(!item||typeof item!=='object'||Array.isArray(item)||
+            !['inventory','head','chest','legs','feet','mainhand','offhand'].includes(item.slot)||
+            typeof item.item!=='string'||!ID.test(item.item)||
+            Object.keys(item).some(k=>!['slot','item','enchantments'].includes(k)))return false;
+          if(item.enchantments===undefined)return true;
+          return item.enchantments&&typeof item.enchantments==='object'&&!Array.isArray(item.enchantments)&&
+            Object.entries(item.enchantments).every(([id,level])=>ID.test(id)&&Number.isInteger(level)&&level>=1&&level<=10);
+        });
+      }
       if(key==='equipment')return value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&['head','chest','legs','feet','mainhand','offhand'].includes(value.slot)&&typeof value.item==='string'&&ID.test(value.item);
       if(key==='position'){
         if(!value||typeof value!=='object'||Array.isArray(value)||!Object.keys(value).length)return false;

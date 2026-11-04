@@ -107,7 +107,7 @@ public final class QuestScreen extends Screen {
         left=0;top=0;right=width;bottom=height;
         int fw=width,fh=height;
         overlayDetails=selected!=null && fw<480;
-        treeLeft=left+30;
+        treeLeft=left+38; // padding between category icons and the diagram
         treeTop=top+52;
         treeRight=selected==null || overlayDetails ? right-7 : right-Math.min(170,fw*2/5);
         treeBottom=bottom-19;
@@ -134,6 +134,13 @@ public final class QuestScreen extends Screen {
             button("zoom_out",treeRight-40,treeTop+20,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
             button("zoom_in",treeRight-21,treeTop+20,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
             }
+            if (!overlayDetails) {
+                QuestButton claimAll=button("claim_all",treeRight-19,treeBottom-19,16,() -> action("claim_all",""));
+                claimAll.icon(icon("minecraft:chest"));
+                claimAll.setMessage(Component.literal(""));
+                claimAll.setTooltip(Tooltip.create(t("claim_all")));
+                claimAll.active=state.progress.values().stream().anyMatch(p -> QuestClientState.flag(p,"claimable"));
+            }
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
         else settingsWidgets();
@@ -148,6 +155,7 @@ public final class QuestScreen extends Screen {
     }
     private void chooseCategory(String id) {
         category=id;
+        QuestPlusClient.NEW_UNLOCKS.removeIf(qid -> state.quests.containsKey(qid) && Objects.equals(state.quests.get(qid).category(),id));
         filteredCatalogue=-2;
         layout=layouts.computeIfAbsent(Objects.toString(id,""),ignored -> QuestLayout.compute(state.quests.values().stream().filter(q -> Objects.equals(q.category(),id)).toList()));
         boolean fresh=!cameras.containsKey(id);
@@ -274,11 +282,21 @@ public final class QuestScreen extends Screen {
         int count=Math.max(1,(treeBottom-treeTop)/26);
         categoryScroll=Math.clamp(categoryScroll,0,Math.max(0,categories.size()-count));
         for (int i=categoryScroll;i<Math.min(categories.size(),categoryScroll+count);i++) {
-            var c=categories.get(i); int x=left+7,y=treeTop+(i-categoryScroll)*26;
+            var c=categories.get(i); int x=left+9,y=treeTop+(i-categoryScroll)*26;
             boolean active=c.get("id").getAsString().equals(category);
             QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
             g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
-            if (mx>=x && mx<x+22 && my>=y && my<y+22) g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))),mx,my);
+            String catId=c.get("id").getAsString();
+            boolean claimable=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestClientState.flag(state.progress(q.id()),"claimable"));
+            boolean fresh=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestPlusClient.NEW_UNLOCKS.contains(q.id()));
+            if(claimable || fresh){
+                int marker=claimable ? 0xfff3c46d : 0xff8ad6f2;
+                g.fill(x+15,y+15,x+21,y+21,0xff211914);
+                g.fill(x+16,y+16,x+20,y+20,marker);
+            }
+            if(mx>=x && mx<x+22 && my>=y && my<y+22)
+                g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))+
+                    (claimable?" · "+t("claim").getString():fresh?" · "+t("toast.unlocked").getString():"")),mx,my);
         }
         if (categories.size()>count) {
             if (categoryScroll>0) g.fill(left+14,treeTop-3,left+23,treeTop-2,QuestSkin.HIGHLIGHT);
@@ -439,11 +457,13 @@ public final class QuestScreen extends Screen {
         int x=detailLeft,w=right-x-8;
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
         var pinButton=button(settings.pinned.contains(selected) ? "unpin" : "pin",x,treeTop+18,w,() -> {
-            if(!settings.pinned.remove(selected) && settings.pinned.size()<ClientSettings.MAX_PINNED)
+            if(!settings.pinned.remove(selected) && !QuestClientState.flag(state.progress(selected),"completed")
+                && settings.pinned.size()<ClientSettings.MAX_PINNED)
                 settings.pinned.add(selected);
             settings.save(); init();
         });
-        pinButton.active=settings.pinned.contains(selected) || settings.pinned.size()<ClientSettings.MAX_PINNED;
+        pinButton.active=settings.pinned.contains(selected) ||
+            (!QuestClientState.flag(state.progress(selected),"completed") && settings.pinned.size()<ClientSettings.MAX_PINNED);
         questAction=button("claim",x,treeTop+36,w,() -> {
             if (currentAction==null) return;
             if (currentAction.equals("trigger")) {
@@ -625,6 +645,13 @@ public final class QuestScreen extends Screen {
         return id!=null && BuiltInRegistries.ITEM.containsKey(id) ? icon(o.target()) : icon(q.icon());
     }
     private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
+        // The equipment marker describes itself via the condition. Old worlds
+        // may still contain generated four-slot text: prefer the short, current
+        // requirement instead of stacking it with a second gear description.
+        if ("equipment_check".equals(o.event()) && o.conditions()!=null) {
+            String gear=QuestConditionText.describe(o.conditions(),this::questName);
+            if(!gear.isBlank())return gear;
+        }
         String custom=state.text(o.text());
         return QuestConditionText.withConditions(custom.isBlank()?objectiveLabel(o):custom,o.conditions(),this::questName);
     }
@@ -770,7 +797,7 @@ public final class QuestScreen extends Screen {
         if (super.mouseClicked(event,doubleClick)) return true;
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
-        if (x>=left+7 && x<left+32 && y>=treeTop && y<treeBottom) {
+        if (x>=left+8 && x<treeLeft-5 && y>=treeTop && y<treeBottom) {
             int index=categoryScroll+(int)((y-treeTop)/26); var ids=new ArrayList<>(state.categories.keySet());
             if (index<ids.size()) { selected=null; chooseCategory(ids.get(index)); init(); } return true;
         }

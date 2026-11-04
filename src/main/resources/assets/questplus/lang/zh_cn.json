@@ -168,5 +168,21 @@
   "questplus.client.center_tree": "居中任务树",
   "questplus.client.notification_position": "通知位置",
   "questplus.client.screen_emissive": "屏幕自发光",
-  "questplus.client.screen_brightness": "屏幕亮度：%s%%"
+  "questplus.client.screen_brightness": "屏幕亮度：%s%%",
+  "questplus.client.condition.detail.gear.full": "穿戴全套%s护甲",
+  "questplus.client.condition.detail.gear.entry": "%s：%s",
+  "questplus.client.condition.detail.gear.empty": "需要装备",
+  "questplus.client.condition.detail.gear.invalid": "装备条件不可用",
+  "questplus.client.condition.detail.gear.enchanted": "附魔套装",
+  "questplus.client.condition.detail.slot.inventory": "背包",
+  "questplus.client.claim_all": "领取全部奖励",
+  "questplus.client.claim_all_empty": "没有可领取的奖励",
+  "questplus.client.toast.unlocked": "任务已解锁",
+  "questplus.client.condition.detail.gear.material.leather": "皮革",
+  "questplus.client.condition.detail.gear.material.copper": "铜",
+  "questplus.client.condition.detail.gear.material.chainmail": "锁链",
+  "questplus.client.condition.detail.gear.material.iron": "铁",
+  "questplus.client.condition.detail.gear.material.golden": "金",
+  "questplus.client.condition.detail.gear.material.diamond": "钻石",
+  "questplus.client.condition.detail.gear.material.netherite": "下界合金"
 }
