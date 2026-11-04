@@ -1,8 +1,13 @@
-// QuestPlus world-space camera: the wheel scales distances BETWEEN anchors.
-// Each quest icon, annotation, and embedded image is drawn at its authored size
-// in screen pixels, independently of camera.zoom.
+// World coordinates are shared with Minecraft. Zoom scales the ENTIRE diagram:
+// nodes, typography, media, background rectangles, and cables.
 export const SCALE_X=1, SCALE_Y=1;
-export const MIN_ZOOM=0.35, MAX_ZOOM=2.5;
+export const MIN_ZOOM=0.2, MAX_ZOOM=5, ZOOM_STEP=1.15;
+/** One normal mouse-wheel notch equals one Minecraft mouseScrolled step.
+ * Smaller pixel deltas from trackpads remain continuous. */
+export function wheelZoomFactor(delta,mode=0){
+ const steps=mode===1?-delta/3:mode===2?-delta*5:-delta/100;
+ return Math.pow(ZOOM_STEP,Math.max(-20,Math.min(20,steps)));
+}
 export function clampZoom(value){
  return Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,Number.isFinite(value)?value:1));
 }

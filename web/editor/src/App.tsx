@@ -27,7 +27,7 @@ import {
 	GitBranch,
 	Square,
 } from "lucide-react";
-import { clampZoom } from "./core/editor-geometry.js";
+import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
 import { PaneSeparator } from "./components/PaneSeparator";
 import { descriptionParts, descriptionHtml } from "./core/description-format.js";
@@ -231,13 +231,13 @@ export default function App() {
 					className="icon-button"
 					aria-label={tUI("Zoom out")}
 					title={tUI("Zoom out")}
-					onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom / 1.2) })}>
+					onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom / ZOOM_STEP) })}>
 					<Minus size={17} />
 				</button>
 				<button className="zoom-reset" onClick={() => changeCamera({ ...camera, zoom: 1 })} title={tUI("Reset zoom")}>
 					{Math.round(camera.zoom * 100)}%
 				</button>
-				<button className="icon-button" aria-label={tUI("Zoom in")} title={tUI("Zoom in")} onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom * 1.2) })}>
+				<button className="icon-button" aria-label={tUI("Zoom in")} title={tUI("Zoom in")} onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom * ZOOM_STEP) })}>
 					<Plus size={17} />
 				</button>
 				<button className={"icon-button toggle" + (grid ? " active" : "")} aria-label={tUI("Show grid")} aria-pressed={grid} onClick={() => setGrid((v) => !v)}>
