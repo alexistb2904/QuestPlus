@@ -31,7 +31,7 @@ same build works at `/QuestPlus/` or on a custom domain.
 
 ## Features and storage
 
-- Reuse the **4 categories and 13 quests** bundled by the Minecraft mod.
+- Reuse the **20 categories and 222 quests** bundled by Minecraft Quest Plus (209 new Vanilla+ challenges plus 13 historical examples).
 - Drag quests and annotations in an interactive tree that uses the same
   layout algorithm and world coordinates as the mod.
 - Edit objective conditions, nested prerequisites, reward types, translations
@@ -108,3 +108,12 @@ in sessionStorage key `__studioWorkflowResult` because native confirmation dialo
 make the CLI return before the whole async workflow has finished.
 
 Asset provenance and font license: `public/ASSETS.md`, `public/fonts/OFL.txt`.
+
+## Shared Vanilla+ catalogue
+
+The default Studio project uses the same 209 new challenge definitions shipped in the Fabric JAR:
+`src/data/challenge-catalogue.json` and `src/data/equipment-catalogue.json`.
+The build embeds them via Gradle `processResources`, and the server installs individual JSONs on *first world initialization only*. Already initialized worlds are intentionally not modified.
+To see the updated defaults in a previously customized Studio project, export your work, then select **Reset / Defaults**. Saved projects are never replaced silently.
+
+The equipment quests use the server extension event `equipment_check` and condition `questplus:gear` to validate exact equipped armor and enchanted inventory items. For automation quests, the current objectives validate minimum components, not that redstone mechanisms operate correctly; functional machine detection remains future work.
