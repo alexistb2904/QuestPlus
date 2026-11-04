@@ -263,3 +263,8 @@ Iris, Sodium, Punchy!, Punchy! Moves, Fluid & Foolish et trois shaders dans
 `run/client/`. Le menu propose desormais **25 options**, dont l'option 25
 pour actualiser ces composants. `2-Lancer-Serveur.bat` reconstruit le JAR
 avant chaque demarrage. Voir [tests Windows](docs/windows-testing.md).
+
+**Compatibilité shaders / Punchy! :** le client peut détecter Iris, appliquer
+un rendu de tablette mat anti-bloom et éviter le flou global supplémentaire.
+L'API de Punchy! 3.1+ rend les mains temporairement à FP PAL quand la
+tablette est active. Voir [les tests dédiés](docs/shader-punchy-testing.md).

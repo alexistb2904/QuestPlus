@@ -150,3 +150,20 @@ Un ancien lanceur passait la racine `%~dp0` avec un antislash final entre
  Le lanceur n'envoie plus ce chemin : le téléchargeur retrouve la racine du
  dépôt depuis l'emplacement du script. La même correction est appliquée à
  l'option 25 du menu. Les téléchargements utilisent ensuite `run/client/`.
+
+### Régression et diagnostic Iris / Punchy
+
+Pour les captures montrant un flou global (Complementary), une tablette
+réfléchissante (Bliss) ou un écran surexposé (MakeUp) : QuestPlus possède
+maintenant une option **Écran compatible shaders (Iris)** dans les paramètres
+(en quatre langues). Le mode évite le blur Minecraft supplémentaire et
+utilise un matériau mat lumineux contrôlé sous Iris. Les shaders restent
+libres de leur post-traitement DOF/SSR propre : en cas de flou persistant,
+tester en désactivant DOF dans le menu du shader.
+
+La prise en charge de **Punchy! 3.1+** exploite l'API publique pour
+laisser FP PAL gérer la tablette lorsque J est pressé. L'option 25 de ce
+menu actualise les composants du client : un ancien Punchy 3.0 téléchargé
+par le script est remplacé par une version suffisamment récente.
+
+Lire [les scénarios détaillés](shader-punchy-testing.md).

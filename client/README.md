@@ -35,3 +35,22 @@ Les animations Punchy! sont a tester en combinaison avec la tablette
 Option 25 du menu : actualisation manuelle des archives.
 Pour sauter la preparation des packs, definir
 `QUESTPLUS_SKIP_TEST_ASSETS=1` avant de lancer le client.
+
+### Compatibilite avec Iris / Complementary / Bliss / MakeUp
+
+QuestPlus detecte facultativement Iris via son API publique : lorsque les
+shaders sont activés, le mode **Écran compatible shaders (Iris)** rend l'écran
+en matériau mat avec lumière contrôlée et évite d'appliquer une seconde passe
+de flou globale. Le réglage est activé par défaut et désactivable dans
+l'onglet Paramètres de la tablette. L'affichage Vanilla reste inchangé.
+
+**Punchy! 3.1+** expose `PunchyApi.disable`, que QuestPlus utilise pendant
+son animation FP PAL uniquement. Punchy reste actif en dehors de la tablette.
+Le profil de test exige au minimum cette version afin d'éviter le conflit
+des bras/animations avec des versions plus anciennes.
+
+Ce mode ne supprime **pas** le DOF/les réflexions générés volontairement
+par un shader pack après sa composition : pour tester l'effet réel avec
+Complementary, désactiver temporairement le DOF dans les options du shader.
+Le [guide de test shaders/Punchy](../docs/shader-punchy-testing.md) détaille
+les trois packs et la matrice de validation.
