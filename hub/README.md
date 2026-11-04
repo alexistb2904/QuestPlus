@@ -137,3 +137,7 @@ GET /v1/editor/sessions/:id/data (editor token required),
 POST /v1/editor/sessions/:id/publish (editor token required),
 GET /v1/editor/sessions/:id/jobs/:job (editor token required),
 POST /v1/packs (rate limited), GET /v1/packs/:id (unguessable pack ID).
+
+For direct Node development, the listener defaults to 127.0.0.1. Docker
+explicitly binds 0.0.0.0 *inside the container*, with host exposure limited
+to 127.0.0.1 and the TLS reverse proxy.

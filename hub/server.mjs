@@ -4,6 +4,7 @@ import {mkdir,readFile,writeFile,readdir,unlink} from 'node:fs/promises';
 import path from 'node:path';
 
 const PORT=Number(process.env.PORT||8787);
+const BIND=process.env.HUB_BIND||'127.0.0.1';
 const PUBLIC_URL=(process.env.HUB_PUBLIC_URL||'http://localhost:'+PORT).replace(/\/$/,'');
 const ALLOWED_ORIGIN=process.env.STUDIO_ORIGIN||'http://localhost:5173';
 const STUDIO_URL=(process.env.STUDIO_URL||ALLOWED_ORIGIN+'/').replace(/\/$/,'/');
@@ -162,4 +163,4 @@ async function handler(req,res){
 }
 await mkdir(DATA_DIR,{recursive:true});
 setInterval(()=>{clean().catch(console.error)},10*60_000).unref();
-http.createServer(handler).listen(PORT,'0.0.0.0',()=>console.log('QuestPlus Hub listening on port '+PORT));
+http.createServer(handler).listen(PORT,BIND,()=>console.log('QuestPlus Hub listening on port '+PORT));
