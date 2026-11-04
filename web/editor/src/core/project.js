@@ -1,5 +1,6 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
 import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
+import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
@@ -162,6 +163,9 @@ export function validate(p){
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
+      if(o.event==='biome_visit'&&o.target?.startsWith('minecraft:')&&!BIOMES.includes(o.target))fail(label,'Biome vanilla inconnu : '+o.target);
+      if(o.event==='structure_visit'&&o.target?.startsWith('minecraft:')&&!STRUCTURES.includes(o.target))fail(label,'Structure vanilla inconnue : '+o.target);
+      if(o.event==='dimension_enter'&&o.target?.startsWith('minecraft:')&&!DIMENSIONS.some(([id])=>id===o.target))fail(label,'Dimension vanilla inconnue : '+o.target);
       if(Object.hasOwn(o,'conditions'))validateCondition(o.conditions,label);
     }
     if(Object.hasOwn(q,'requires'))validateCondition(q.requires,label,true);
