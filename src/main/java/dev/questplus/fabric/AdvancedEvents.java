@@ -1,6 +1,8 @@
 package dev.questplus.fabric;
 
 import dev.questplus.core.QuestEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -87,7 +89,44 @@ public final class AdvancedEvents {
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
                     target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
         }
+        // A single authoritative snapshot per sampled player. Gear is never supplied by clients.
+        if (registry.hasEvent("equipment_check")) {
+            var ctx = QuestPlusMod.context(player);
+            ctx.put("gear", gearSnapshot(player));
+            QuestPlusMod.runtime().event(player, new QuestEvent(
+                "equipment_check", "questplus:gear", Set.of(), 1, ctx));
+        }
         state.dimension = dimension; state.biome = biome; state.distances = distances;
+    }
+
+    private static Map<String,Object> gearSnapshot(ServerPlayer player) {
+        Map<String,Object> gear=new HashMap<>();
+        List<Map<String,Object>> inventory=new ArrayList<>();
+        for(int i=0;i<36;i++) {
+            var stack=player.getInventory().getItem(i);
+            if(!stack.isEmpty())inventory.add(gearItem(stack));
+        }
+        if(!player.getOffhandItem().isEmpty())inventory.add(gearItem(player.getOffhandItem()));
+        gear.put("inventory",inventory);
+        for(var entry:Map.of(
+            "head",EquipmentSlot.HEAD,"chest",EquipmentSlot.CHEST,
+            "legs",EquipmentSlot.LEGS,"feet",EquipmentSlot.FEET,
+            "mainhand",EquipmentSlot.MAINHAND,"offhand",EquipmentSlot.OFFHAND).entrySet()) {
+            var stack=player.getItemBySlot(entry.getValue());
+            gear.put(entry.getKey(),stack.isEmpty()?List.of():List.of(gearItem(stack)));
+        }
+        return gear;
+    }
+
+    private static Map<String,Object> gearItem(ItemStack stack) {
+        Map<String,Integer> enchantments=new HashMap<>();
+        var enchanted=stack.getOrDefault(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);
+        for(var entry:enchanted.entrySet()) {
+            entry.getKey().unwrapKey().ifPresent(key->
+                enchantments.put(key.identifier().toString(),entry.getIntValue()));
+        }
+        return Map.of("item",BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
+            "enchantments",enchantments);
     }
 
     public static void item(ServerPlayer player, String type, ItemStack stack, int count) {
