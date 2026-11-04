@@ -121,6 +121,25 @@ class DefaultsTest {
         Defaults.install(root);
         assertTrue(Files.exists(changed),"Never delete user-edited category");
         assertTrue(Files.exists(quest),"Never orphan its quests");
+
+        // An extra author-defined quest in an otherwise untouched legacy group
+        // must prevent deleting the category on the next startup.
+        Path combat=root.resolve("categories/combat.json");
+        Path oldQuest=root.resolve("quests/combat/skeletons.json");
+        Path custom=root.resolve("quests/combat/my_adventure.json");
+        Files.createDirectories(combat.getParent());
+        Files.createDirectories(custom.getParent());
+        try(var source=resource(getClass().getClassLoader(),"defaults/categories/combat.json")){
+            Files.copy(source,combat);
+        }
+        try(var source=resource(getClass().getClassLoader(),"defaults/quests/combat/skeletons.json")){
+            Files.copy(source,oldQuest);
+        }
+        Files.writeString(custom,"{\"id\":\"questplus:combat/my_adventure\"}");
+        Defaults.install(root);
+        assertTrue(Files.exists(combat),"Custom quest requires preserving category");
+        assertTrue(Files.exists(oldQuest),"Preserve entire legacy group if edited");
+        assertTrue(Files.exists(custom));
     }
 
     private static InputStream resource(ClassLoader loader, String path) {
