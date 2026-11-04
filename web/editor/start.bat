@@ -1,20 +1,25 @@
 @echo off
 setlocal
-cd /d "%~dp0..\.."
-echo ===================================================
-echo Quest Studio - Local Web Editor
-echo ===================================================
-echo Open http://localhost:5173/web/editor/ in a browser.
-echo The editor stays on your computer. No account is needed.
-echo.
-start "" "http://localhost:5173/web/editor/"
-where py.exe >nul 2>&1
-if not errorlevel 1 (
-  py -3 -m http.server 5173 --bind 127.0.0.1
-) else (
-  python -m http.server 5173 --bind 127.0.0.1
-)
+cd /d "%~dp0"
+echo ===========================================
+echo Quest Studio - React / TypeScript / Vite
+echo ===========================================
+where node >nul 2>&1
 if errorlevel 1 (
-  echo [Quest Studio] Python 3 is required to start the local server.
-  pause
+ echo Node.js 22 LTS required: https://nodejs.org/
+ pause
+ exit /b 1
 )
+if not exist node_modules (
+ echo Installing project dependencies...
+ call npm install
+ if errorlevel 1 goto :error
+)
+start "" "http://localhost:5173/"
+call npm run dev
+if errorlevel 1 goto :error
+exit /b 0
+:error
+echo Quest Studio failed. Check the error above.
+pause
+exit /b 1
