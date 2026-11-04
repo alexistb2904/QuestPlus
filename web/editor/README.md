@@ -117,3 +117,14 @@ The build embeds them via Gradle `processResources`, and the server installs ind
 To see the updated defaults in a previously customized Studio project, export your work, then select **Reset / Defaults**. Saved projects are never replaced silently.
 
 The equipment quests use the server extension event `equipment_check` and condition `questplus:gear` to validate exact equipped armor and enchanted inventory items. For automation quests, the current objectives validate minimum components, not that redstone mechanisms operate correctly; functional machine detection remains future work.
+
+### Diagram zoom parity
+
+Quest Studio and the in-game tablet scale the **complete world-space diagram**,
+including quest nodes, sprites, titles, rich annotations, image/GIF content,
+compartment backgrounds, arrows and line thickness. Zoom is anchored to the
+mouse pointer, not the viewport center. A typical mouse-wheel notch multiplies
+zoom by 1.15 in either client; trackpads interpolate continuous fractional
+steps. Both clamp at 20%–500%. Drag-pan remains in screen pixels, while saved
+quest positions, route bends and annotation dimensions remain world coordinates.
+The Studio's Center tree button keeps the current zoom, as in the tablet.

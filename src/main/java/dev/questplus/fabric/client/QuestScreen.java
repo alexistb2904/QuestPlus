@@ -27,7 +27,7 @@ public final class QuestScreen extends Screen {
     private final Map<String,ItemStack> icons=new HashMap<>();
     private QuestLayout layout=QuestLayout.compute(List.of());
     private Map<QuestLayout.Edge,List<QuestLayout.Point>> routes=Map.of();
-    private QuestCamera camera=new QuestCamera(0.25,2.5);
+    private QuestCamera camera=new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM);
     private String category,selected,tab="quests",filter="all",confirmation;
     private EditBox search,input;
     private String query="";
@@ -132,8 +132,8 @@ public final class QuestScreen extends Screen {
             var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,treeTop+2,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
             button("center_tree",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
-            button("zoom_out",treeRight-40,treeTop+20,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
-            button("zoom_in",treeRight-21,treeTop+20,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            button("zoom_out",treeRight-40,treeTop+20,15,() -> camera.zoomAt(1/QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
+            button("zoom_in",treeRight-21,treeTop+20,15,() -> camera.zoomAt(QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
             }
             if (!overlayDetails) {
                 QuestButton claimAll=button("claim_all",treeRight-19,treeBottom-19,16,() -> action("claim_all",""));
@@ -170,7 +170,7 @@ public final class QuestScreen extends Screen {
         }
         routes=Map.copyOf(selectedRoutes);
         boolean fresh=!cameras.containsKey(id);
-        camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(0.25,2.5));
+        camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM));
         if (fresh) fit();
     }
     private void fit() {
@@ -366,30 +366,36 @@ public final class QuestScreen extends Screen {
         drawAnnotations(g);
         for (var edge:visibleEdges) {
             var a=layout.points().get(edge.from()); var b=layout.points().get(edge.to());
-            int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y())+nodeRadius(state.quests.get(edge.from()));
-            int x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y())-nodeRadius(state.quests.get(edge.to()));
+            int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y())+(int)Math.round(nodeRadius(state.quests.get(edge.from()))*camera.zoom());
+            int x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y())-(int)Math.round(nodeRadius(state.quests.get(edge.to()))*camera.zoom());
             int c=QuestClientState.flag(state.progress(edge.from()),"completed") ? 0xffd9c4a4 : 0xff827366;
             if (routes.containsKey(edge) && !routes.get(edge).isEmpty()) {
                 int previousX=x1,previousY=y1;
                 for (var point:routes.get(edge)) {
                     int x=(int)camera.screenX(point.x()),y=(int)camera.screenY(point.y());
-                    drawSegment(g,previousX,previousY,x,y,c); previousX=x; previousY=y;
+                    drawSegment(g,previousX,previousY,x,y,c,camera.zoom()); previousX=x; previousY=y;
                 }
-                drawSegment(g,previousX,previousY,x2,y2,c);
+                drawSegment(g,previousX,previousY,x2,y2,c,camera.zoom());
                 g.pose().pushMatrix(); g.pose().translate(x2,y2);
                 g.pose().rotate((float)Math.atan2(y2-previousY,x2-previousX));
+                g.pose().scale((float)camera.zoom());
                 g.fill(-4,-2,-3,3,c); g.fill(-3,-1,-2,2,c); g.fill(-2,0,0,1,c); g.pose().popMatrix();
                 continue;
             }
             if (Math.max(x1,x2)<treeLeft || Math.min(x1,x2)>treeRight || Math.max(y1,y2)<treeTop || Math.min(y1,y2)>treeBottom) continue;
             int middle=(y1+y2)/2;
-            g.fill(x1,Math.min(y1,middle),x1+1,Math.max(y1,middle)+1,c); g.fill(Math.min(x1,x2),middle,Math.max(x1,x2)+1,middle+1,c); g.fill(x2,Math.min(middle,y2),x2+1,Math.max(middle,y2)+1,c);
-            g.fill(x2-2,y2-3,x2+3,y2-2,c); g.fill(x2-1,y2-2,x2+2,y2-1,c);
+            drawSegment(g,x1,y1,x1,middle,c,camera.zoom());
+            drawSegment(g,x1,middle,x2,middle,c,camera.zoom());
+            drawSegment(g,x2,middle,x2,y2,c,camera.zoom());
+            g.pose().pushMatrix(); g.pose().translate(x2,y2); g.pose().scale((float)camera.zoom());
+            g.fill(-2,-3,3,-2,c); g.fill(-1,-2,2,-1,c); g.pose().popMatrix();
         }
         boolean any=false;
         for (String id:visibleNodes) {
             any=true;
             var p=layout.points().get(id); int x=(int)camera.screenX(p.x()),y=(int)camera.screenY(p.y()),r=nodeRadius(state.quests.get(id));
+            // Scale the complete node, not just the distance to neighbouring nodes.
+            g.pose().pushMatrix(); g.pose().translate(x,y); g.pose().scale((float)camera.zoom()); g.pose().translate(-x,-y);
             QuestSkin.panel(g,x-r,y-r,2*r,2*r,0xff433a32,color(id));
             if (r>7) g.outline(x-r+2,y-r+2,2*r-4,2*r-4,0xff625344);
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
@@ -406,18 +412,23 @@ public final class QuestScreen extends Screen {
             }
             else if (statuses.get(id).equals("completed")) { g.fill(x+r-5,y+r-6,x+r+2,y+r+1,0xff34492e); g.fill(x+r-4,y+r-3,x+r-2,y+r-1,0xffd6e4b2); g.fill(x+r-2,y+r-4,x+r,y+r-2,0xffd6e4b2); g.fill(x+r,y+r-6,x+r+2,y+r-3,0xffd6e4b2); }
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
-            if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+            g.pose().popMatrix();
+            double hitRadius=r*camera.zoom();
+            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
                 +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString())),mx,my);
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
     }
-    private static void drawSegment(GuiGraphicsExtractor g,int x1,int y1,int x2,int y2,int color) {
-        int length=(int)Math.ceil(Math.hypot((double)x2-x1,(double)y2-y1));
+    private static void drawSegment(GuiGraphicsExtractor g,int x1,int y1,int x2,int y2,int color,double zoom) {
+        double length=Math.hypot((double)x2-x1,(double)y2-y1);
         if (length==0) return;
         g.pose().pushMatrix(); g.pose().translate(x1,y1);
         g.pose().rotate((float)Math.atan2((double)y2-y1,(double)x2-x1));
-        g.fill(0,0,length,1,color); g.pose().popMatrix();
+        g.pose().scale((float)zoom);
+        // The coordinates were already camera-transformed; scale line thickness
+        // while keeping the two endpoints at their exact screen positions.
+        g.fill(0,0,Math.max(1,(int)Math.ceil(length/zoom)),1,color); g.pose().popMatrix();
     }
 
     private void drawBackgrounds(GuiGraphicsExtractor g) {
@@ -428,12 +439,15 @@ public final class QuestScreen extends Screen {
             if (!note.has("style") || !note.get("style").getAsString().equals("background")) continue;
             int x=(int)Math.round(camera.screenX(note.get("x").getAsDouble()));
             int y=(int)Math.round(camera.screenY(note.get("y").getAsDouble()));
-            int w=Math.max(1,(int)Math.round(note.get("width").getAsDouble()*camera.zoom()));
-            int h=Math.max(1,(int)Math.round(note.get("height").getAsDouble()*camera.zoom()));
-            int l=x-w/2,t=y-h/2;
-            if (l+w<treeLeft || l>treeRight || t+h<treeTop || t>treeBottom) continue;
+            int w=Math.max(1,note.get("width").getAsInt());
+            int h=Math.max(1,note.get("height").getAsInt());
+            double halfW=w*camera.zoom()/2,halfH=h*camera.zoom()/2;
+            if (x+halfW<treeLeft || x-halfW>treeRight || y+halfH<treeTop || y-halfH>treeBottom) continue;
             int rgb=Integer.parseInt(note.get("color").getAsString().substring(1),16);
+            g.pose().pushMatrix(); g.pose().translate(x,y); g.pose().scale((float)camera.zoom()); g.pose().translate(-x,-y);
+            int l=x-w/2,t=y-h/2;
             g.fill(l,t,l+w,t+h,0x24000000|rgb); g.outline(l,t,w,h,0x55000000|rgb);
+            g.pose().popMatrix();
         }
     }
     /** Annotation coordinates use the same world-space camera as quest nodes. */
@@ -448,7 +462,9 @@ public final class QuestScreen extends Screen {
             int y=(int)camera.screenY(note.get("y").getAsDouble());
             int extentX=note.has("width")?Math.max(1,note.get("width").getAsInt())/2:200;
             int extentY=note.has("height")?Math.max(1,note.get("height").getAsInt())/2:150;
-            if (x<treeLeft-extentX || x>treeRight+extentX || y<treeTop-extentY || y>treeBottom+extentY) continue;
+            if (x<treeLeft-extentX*camera.zoom() || x>treeRight+extentX*camera.zoom() || y<treeTop-extentY*camera.zoom() || y>treeBottom+extentY*camera.zoom()) continue;
+            g.pose().pushMatrix(); g.pose().translate(x,y); g.pose().scale((float)camera.zoom()); g.pose().translate(-x,-y);
+            try {
             if (RichAnnotationRenderer.render(g,font,note,imagePool,minecraft.options.languageCode,x,y)) continue;
             String label=annotationLabel(note.getAsJsonObject("text"));
             String style=note.has("style")?note.get("style").getAsString():"note";
@@ -462,6 +478,7 @@ public final class QuestScreen extends Screen {
                 if (!style.equals("label")) QuestSkin.panel(g,x-w/2,y-h/2,w,h,0xdd33271f,color);
                 QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-10),x-w/2+5,y-4,color,false);
             }
+            } finally { g.pose().popMatrix(); }
         }
     }
     private int nodeRadius(QuestDefinition quest){
@@ -471,7 +488,7 @@ public final class QuestScreen extends Screen {
     private Optional<String> hitQuestAtScreen(double x,double y){
         return visibleNodes.stream().filter(id->{
             var p=layout.points().get(id);
-            int r=nodeRadius(state.quests.get(id));
+            double r=nodeRadius(state.quests.get(id))*camera.zoom();
             return Math.abs(camera.screenX(p.x())-x)<=r && Math.abs(camera.screenY(p.y())-y)<=r;
         }).findFirst();
     }
@@ -495,7 +512,7 @@ public final class QuestScreen extends Screen {
         visibleNodes=layout.points().entrySet().stream().filter(e->{
             if(!filtered.contains(e.getKey()))return false;
             double sx=camera.screenX(e.getValue().x()),sy=camera.screenY(e.getValue().y());
-            int nr=nodeRadius(state.quests.get(e.getKey()));
+            double nr=nodeRadius(state.quests.get(e.getKey()))*camera.zoom();
             return sx+nr>=treeLeft&&sx-nr<=treeRight&&sy+nr>=treeTop&&sy-nr<=treeBottom;
         }).map(Map.Entry::getKey).toList();
         visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())).filter(e -> {
@@ -909,7 +926,7 @@ public final class QuestScreen extends Screen {
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
             if (inTree(x,y)) {
                 if (horizontal!=0) camera.pan(-horizontal*36,0);
-                if (vertical!=0) camera.zoomAt(Math.pow(1.15,vertical),x,y);
+                if (vertical!=0) camera.zoomAt(Math.pow(QuestCamera.ZOOM_STEP,vertical),x,y);
                 return true;
             }
         }
@@ -927,7 +944,7 @@ public final class QuestScreen extends Screen {
         if (event.key()!=InputConstants.KEY_ESCAPE && getFocused() instanceof EditBox box && box.isFocused()) return super.keyPressed(event);
         switch(event.key()) {
             case InputConstants.KEY_LEFT -> camera.pan(24,0); case InputConstants.KEY_RIGHT -> camera.pan(-24,0); case InputConstants.KEY_UP -> camera.pan(0,24); case InputConstants.KEY_DOWN -> camera.pan(0,-24);
-            case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.zoomAt(1.15,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0); case InputConstants.KEY_MINUS -> camera.zoomAt(1/1.15,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0);
+            case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.zoomAt(QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0); case InputConstants.KEY_MINUS -> camera.zoomAt(1/QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0);
             case InputConstants.KEY_J -> onClose();
             case InputConstants.KEY_ESCAPE -> { if (selected!=null) { selected=null; init(); } else onClose(); }
             default -> { return super.keyPressed(event); }

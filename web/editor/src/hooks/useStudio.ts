@@ -168,7 +168,9 @@ export function useStudio() {
 		return fitEditor(
 			[...gameLayout(rows).points.values(), ...(group?.annotations || []).map((n) => ({ x: n.x, y: n.y }))],
 			el?.clientWidth || 720,
-			el?.clientHeight || 450
+			el?.clientHeight || 450,
+			undefined,
+			state.camera.zoom
 		) as Camera;
 	}
 	function selectCategory(id: string) {

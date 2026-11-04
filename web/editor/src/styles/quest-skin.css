@@ -149,8 +149,8 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .rich-edit img{cursor:pointer;max-width:100%;max-height:none}
 .rich-edit img:focus-visible{outline:2px solid #c18af6}
 
-/* WYSIWYG diagram nodes use the same fixed screen-pixel measurements as Minecraft.
- * Do not resize pictures as the wheel zoom changes the relative world positions. */
+/* Diagram nodes retain authored world dimensions; their whole visual subtree is
+ * scaled by camera.zoom (including icons, text, images, selection handles). */
 .annotation-node{box-sizing:border-box!important;max-width:none!important;max-height:none!important;
   min-width:0!important;min-height:0!important;padding:5px 6px!important;
   display:flex;align-items:center;justify-content:center;flex-direction:column}
@@ -219,3 +219,6 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 /* Section headings align with the Minecraft tablet's left-aligned label text. */
 .annotation-node.label{align-items:flex-start;text-align:left}
 .annotation-node.label>span{text-align:left}
+
+/* Thin strokes remain interactive at any scale; visible cables follow world zoom. */
+.edges .edge-hit{stroke-width:max(14px,calc(14px * var(--diagram-zoom,1)))}

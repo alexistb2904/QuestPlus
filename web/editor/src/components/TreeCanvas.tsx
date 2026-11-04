@@ -5,7 +5,7 @@ import {edgePoints,nearestSegment,backgroundRect,insertWaypoint} from '../core/d
 import {text,annotationText,annotationRich} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
 import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
-import {screenPoint,worldPoint,snapEditor,zoomEditorAt,clampZoom} from '../core/editor-geometry.js';
+import {screenPoint,worldPoint,snapEditor,zoomEditorAt,clampZoom,wheelZoomFactor} from '../core/editor-geometry.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
@@ -25,7 +25,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const moveResize=(e:React.PointerEvent)=>{
    const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
    e.stopPropagation();
-   const scale=v.type==='annotation'&&category?.annotations?.find(a=>a.id===v.id)?.style==='background'?clampZoom(camera.zoom):1;
+   const scale=clampZoom(camera.zoom);
    const dx=(e.clientX-v.startX)/scale,dy=(e.clientY-v.startY)/scale;
    let next:{id:string;width?:number;height?:number;size?:number};
    if(v.type==='quest'){
@@ -67,7 +67,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const pixel=(p:Position)=>screenPoint(p,camera,size);
  const world=(x:number,y:number)=>worldPoint({x,y},camera,size);
  const local=(e:React.PointerEvent)=>{const rect=ref.current!.getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top};};
- // Pointer-centered zoom changes the distance between anchors, never icon/image dimensions.
+ // Pointer-centered zoom uniformly scales all diagram content in both clients.
  // Shift+wheel or a horizontal trackpad scroll pans the viewport without zooming.
  useEffect(()=>{
    const el=ref.current;if(!el)return;
@@ -81,8 +81,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
        return;
      }
      const box=el.getBoundingClientRect();
-     const delta=e.deltaY*(e.deltaMode===1?25:e.deltaMode===2?300:1);
-     const factor=Math.exp(-Math.max(-500,Math.min(500,delta))*.0015);
+     const factor=wheelZoomFactor(e.deltaY,e.deltaMode);
      onCamera(zoomEditorAt(camera,clampZoom(camera.zoom)*factor,{x:e.clientX-box.left,y:e.clientY-box.top},size));
    };
    el.addEventListener('wheel',onWheel,{passive:false});
@@ -184,7 +183,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
      setContextMenu({x:Math.min(x,Math.max(0,rect.width-185)),y:Math.min(y,Math.max(0,rect.height-115)),at:world(x,y)});
    }}
    onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;drawing.current=null;setDraft(null);routeDrag.current=null;setRouteGhost(null);return;}if((e.target as HTMLElement).closest('[data-node-id],[data-waypoint]'))return;const delta=24/clampZoom(camera.zoom);if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
-   style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*clampZoom(camera.zoom))+'px '+(gridSize*clampZoom(camera.zoom))+'px',backgroundPosition:(-camera.x*clampZoom(camera.zoom)+size.width/2)+'px '+(-camera.y*clampZoom(camera.zoom)+size.height/2)+'px'}}>
+   style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*clampZoom(camera.zoom))+'px '+(gridSize*clampZoom(camera.zoom))+'px',backgroundPosition:(-camera.x*clampZoom(camera.zoom)+size.width/2)+'px '+(-camera.y*clampZoom(camera.zoom)+size.height/2)+'px','--diagram-zoom':clampZoom(camera.zoom)} as React.CSSProperties}>
   {contextMenu&&<div className="graph-context-menu" role="menu" style={{left:contextMenu.x,top:contextMenu.y}} onPointerDown={e=>e.stopPropagation()}>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('quest',contextMenu.at);setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Create quest')}</button>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('annotation',contextMenu.at);setContextMenu(null)}}><StickyNote size={15}/>{tUI('Create annotation')}</button>
@@ -198,24 +197,24 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     return <div key={a.id} role="button" tabIndex={0} aria-label={tUI('Background')+' '+annotationText(a,language)}
      data-node-id={a.id} data-node-type="annotation" className={'graph-background'+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
      onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}}
-     style={{left:p.x,top:p.y,width:width*z,height:height*z,transform:'translate(-50%,-50%)',backgroundColor:(a.color||'#6b727e')+'24',borderColor:(a.color||'#6b727e')+'70'}}>
+     style={{left:p.x,top:p.y,width,height,transform:'translate(-50%,-50%) scale('+z+')',backgroundColor:(a.color||'#6b727e')+'24',borderColor:(a.color||'#6b727e')+'70'}}>
      {selection?.type==='annotation'&&selection.id===a.id&&handle('annotation',a.id,width,height,32)}
     </div>;
    })}
   </div>
-  {draft&&(()=>{const p=pixel(draft),z=clampZoom(camera.zoom);return <div className="background-draft" style={{left:p.x,top:p.y,width:draft.width*z,height:draft.height*z,transform:'translate(-50%,-50%)'}}/>})()}
+  {draft&&(()=>{const p=pixel(draft),z=clampZoom(camera.zoom);return <div className="background-draft" style={{left:p.x,top:p.y,width:draft.width,height:draft.height,transform:'translate(-50%,-50%) scale('+z+')'}}/>})()}
   <svg className="edges" viewBox={'0 0 '+size.width+' '+size.height} role="group" aria-label={tUI('Drag a link to add a waypoint')}>
    <defs><marker id="quest-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" className="arrow-head"/></marker></defs>
    {graph.edges.map((edge:any)=>{
     const a=graph.points.get(edge.from),b=graph.points.get(edge.to);if(!a||!b)return null;
     const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);
     const source=allQuests.find(z=>z.id===edge.from),target=allQuests.find(z=>z.id===edge.to);
-    p.y+=(source?.size||32)/2;q.y-=(target?.size||32)/2;
+    p.y+=(source?.size||32)*clampZoom(camera.zoom)/2;q.y-=(target?.size||32)*clampZoom(camera.zoom)/2;
     const authored=routeGhost?.from===edge.from&&routeGhost.to===edge.to?routeGhost.points:category?.linkRoutes?.find(r=>r.from===edge.from&&r.to===edge.to)?.points;
     const points=edgePoints(p,q,authored?.map(pixel)),path=points.map((pt,i)=>(i?'L':'M')+pt.x+' '+pt.y).join(' ');
     const selected=selection?.type==='quest'&&[edge.from,edge.to].includes(selection.id);
     return <g key={edge.from+'>'+edge.to} data-edge-from={edge.from} data-edge-to={edge.to}>
-     <path markerEnd="url(#quest-arrow)" className={selected?'selected-edge':''} d={path}/>
+     <path markerEnd="url(#quest-arrow)" className={selected?'selected-edge':''} style={{strokeWidth:Math.max(.2,1.5*clampZoom(camera.zoom))}} d={path}/>
      <path className="edge-hit" d={path} aria-label={tUI('Drag a link to add a waypoint')} role="button" tabIndex={0}
       onPointerDown={e=>{
        if(!onRoute||tool!=='select')return;
@@ -228,7 +227,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
        startRoute(e,edge.from,edge.to,next,Math.min(index,next.length-1));
       }} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
       onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();onSelect({type:'quest',id:edge.to});const current=authored||[];if(current.length>=64)return;const next=insertWaypoint(current,current.length,world((p.x+q.x)/2,(p.y+q.y)/2));onRoute?.(edge.from,edge.to,next);}}}/>
-     {selected&&authored?.map((at,i)=>{const point=pixel(at);return <circle key={i} className="link-waypoint" data-waypoint={i} role="button" tabIndex={0} aria-label={tUI('Link waypoint')+' '+(i+1)} cx={point.x} cy={point.y} r={5}
+     {selected&&authored?.map((at,i)=>{const point=pixel(at);return <circle key={i} className="link-waypoint" data-waypoint={i} role="button" tabIndex={0} aria-label={tUI('Link waypoint')+' '+(i+1)} cx={point.x} cy={point.y} r={5*clampZoom(camera.zoom)} style={{strokeWidth:Math.max(.3,2*clampZoom(camera.zoom))}}
       onPointerDown={e=>startRoute(e,edge.from,edge.to,[...authored],i)} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
       onDoubleClick={()=>onRoute?.(edge.from,edge.to,authored.filter((_,n)=>n!==i))}
       onKeyDown={e=>{e.stopPropagation();const dx=e.key==='ArrowLeft'?-8:e.key==='ArrowRight'?8:0,dy=e.key==='ArrowUp'?-8:e.key==='ArrowDown'?8:0;
@@ -237,7 +236,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
       }}><title>{tUI('Remove waypoint')+' · Delete / '+tUI('Link waypoint')}</title></circle>})}
     </g>;
    })}
-   {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=(allQuests.find(q=>q.id===connection.from)?.size||32)/2;const end=connection.point,bend=Math.max(45,Math.abs(end.y-start.y)*.55);return <path className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
+   {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=(allQuests.find(q=>q.id===connection.from)?.size||32)*clampZoom(camera.zoom)/2;const end=connection.point,bend=Math.max(45*clampZoom(camera.zoom),Math.abs(end.y-start.y)*.55);return <path style={{strokeWidth:2.5*clampZoom(camera.zoom)}} className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
   </svg>
   {connection&&<div className={'connection-hint'+(connection.error?' invalid':'')} role="status"><GitBranch size={14}/><span>{tUI(connection.error||'Drop on a quest to make it depend on this quest. Esc to cancel.')}</span><button aria-label={tUI('Cancel connection')} onPointerDown={e=>e.stopPropagation()} onClick={()=>showCable(null)}><X size={14}/></button></div>}
   <div className="nodes">
@@ -247,7 +246,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const unavailable=q.kind==='information'&&q.acknowledgement==='read_only';
     const nodeSize=resizeGhost?.id===q.id?resizeGhost.size??q.size??32:q.size??32;
     return <div key={q.id} className={'graph-node'+(selection?.type==='quest'&&selection.id===q.id?' selected':'')+(connection?.from===q.id?' connecting':'')+(connection?.to===q.id?(connection.error?' link-invalid':' link-target'):'')}
-      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:nodeSize,height:nodeSize,transform:'translate(-50%,-50%)'}}>
+      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:nodeSize,height:nodeSize,transform:'translate(-50%,-50%) scale('+clampZoom(camera.zoom)+')'}}>
       <button className="node-select" type="button" aria-pressed={selection?.type==='quest'&&selection.id===q.id} onClick={()=>selectNode(q.id)}>
        <span className="node-icon"><ItemIcon id={q.icon} size={Math.max(16,nodeSize-6)}/></span><span className="sr-only">{text(q.title,language)}</span>
       </button>
@@ -265,7 +264,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const nodeWidth=resizeGhost?.id===a.id?resizeGhost.width??a.width??170:a.width??170;
     const nodeHeight=resizeGhost?.id===a.id?resizeGhost.height??a.height??100:a.height??100;
     return <div role="button" tabIndex={0} aria-label={annotationText(a,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
-       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,width:nodeWidth,height:nodeHeight,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%)'}}>
+       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,width:nodeWidth,height:nodeHeight,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+clampZoom(camera.zoom)+')'}}>
        {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:annotationText(a,language)}
        {selection?.type==='annotation'&&selection.id===a.id&&handle('annotation',a.id,a.width??170,a.height??100,32)}
       </div>;

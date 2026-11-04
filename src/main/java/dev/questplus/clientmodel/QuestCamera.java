@@ -1,8 +1,10 @@
 package dev.questplus.clientmodel;
 
-/** World anchors zoom, but quest icons and annotations keep their authored pixel sizes.
- * Zoom is relative to the pointer and never scales textures or text. */
+/** Shared world-space viewport for Quest Studio and the Minecraft tablet.
+ * The renderer uniformly scales every diagram element at the camera zoom.
+ * Wheel zoom preserves the world coordinate below the pointer. */
 public final class QuestCamera {
+    public static final double MIN_ZOOM=0.2, MAX_ZOOM=5, ZOOM_STEP=1.15;
     private final double minZoom,maxZoom;
     private double zoom=1,x,y;
     public QuestCamera(double minZoom,double maxZoom) {

@@ -22,7 +22,7 @@ test('Quest Studio matches Minecraft world axes one-to-one',()=>{
    assert.deepEqual(worldPoint(px,camera,view),q.layout);
  }
 });
-test('zoom changes anchor spacing, but never icon or annotation pixel dimensions',()=>{
+test('zoom scales all quest artwork, text and annotations together with their anchors',()=>{
  const screen={width:900,height:450},points=[{x:0,y:0},{x:210,y:175}];
  const left=points.map(p=>screenPoint(p,{x:0,y:0,zoom:.5},screen));
  const right=points.map(p=>screenPoint(p,{x:0,y:0,zoom:2.5},screen));
@@ -31,9 +31,11 @@ test('zoom changes anchor spacing, but never icon or annotation pixel dimensions
  const canvas=source('../src/components/TreeCanvas.tsx');
  assert.match(canvas,/width:nodeSize,height:nodeSize/);
  assert.match(canvas,/width:nodeWidth,height:nodeHeight/);
- assert.doesNotMatch(canvas,/width:nodeWidth\*camera\.zoom|height:nodeHeight\*camera\.zoom/);
+ assert.match(canvas,/transform:'translate\(-50%,-50%\) scale\('\+clampZoom\(camera\.zoom\)\+'\)'/);
+ assert.match(canvas,/const scale=clampZoom\(camera\.zoom\)/);
+ assert.match(canvas,/source\?\.size\|\|32\)\*clampZoom\(camera\.zoom\)\/2/);
  const css=source('../src/styles/quest-skin.css');
- assert.match(css,/WYSIWYG diagram nodes use the same fixed screen-pixel measurements/);
+ assert.match(css,/their whole visual subtree is/);
 });
 test('Minecraft camera fit now includes authored annotation anchors',()=>{
  const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
@@ -56,7 +58,7 @@ test('compact HUD, adaptable notice and three-pin cap are enforced',()=>{
  assert.doesNotMatch(toast,/g\.fill\(x,y,x\+3,y\+43,accent\)/);
  assert.match(toast,/g\.pose\(\)\.scale\(scale\)/);
 });
-test('camera fit includes constant-size note padding',()=>{
+test('camera fit preserves authored world centers',()=>{
  const s=source('../src/core/editor-geometry.js');
  assert.match(s,/const SCALE_X=1, SCALE_Y=1/);
  const fit=fitEditor([{x:0,y:0},{x:180,y:40}],800,420,{x:180,y:90});
@@ -73,7 +75,7 @@ test('wheel and pinch zoom are restored and Shift-wheel pans',()=>{
  assert.match(app,/Zoom in|Zoom out/);
  const game=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(game,/camera\.pan\(-horizontal\*36,0\)/);
- assert.match(game,/camera\.zoomAt\(Math\.pow\(1\.15,vertical\),x,y\)/);
+ assert.match(game,/camera\.zoomAt\(Math\.pow\(QuestCamera\.ZOOM_STEP,vertical\),x,y\)/);
 });
 test('default damage behavior closes tablet with animation, and setting is opt-in',()=>{
  const flow=source('../../../src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
@@ -94,8 +96,8 @@ test('pointer-centered zoom keeps target under the cursor and clamps zoom',()=>{
  const after=screenPoint(target,next,view);
  assert.ok(Math.abs(after.x-pointer.x)<1e-9);
  assert.ok(Math.abs(after.y-pointer.y)<1e-9);
- assert.equal(clampZoom(0),.35);
- assert.equal(clampZoom(999),2.5);
+ assert.equal(clampZoom(0),.2);
+ assert.equal(clampZoom(999),5);
  const shifted={...next,x:next.x+40,y:next.y-20};
  assert.equal(screenPoint({x:30,y:100},shifted,view).x-screenPoint({x:30,y:100},next,view).x,-80);
 });
