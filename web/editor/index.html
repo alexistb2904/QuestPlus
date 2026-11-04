@@ -39,7 +39,7 @@
         <div class="sidebar-header"><div class="overline">QUEST PACK</div><h2>Library</h2></div>
         <div class="sidebar-actions"><button id="new-category" class="button primary block"><i data-lucide="folder-plus"></i> Category</button></div>
         <div class="sidebar-section-head"><span>CATEGORIES</span><span id="category-count" class="count">0</span></div>
-        <div id="categories" class="category-list" role="navigation" aria-label="Catégories de quêtes"></div>
+        <div id="categories" class="category-list" role="navigation" aria-label="Quest categories"></div>
         <div class="sidebar-section-head quests-head"><span>QUESTS</span><span id="quest-count" class="count">0</span></div>
         <div class="search-box"><i data-lucide="search"></i><input id="quest-search" type="search" placeholder="Search quests…" aria-label="Search quests"></div>
         <div id="quest-list" class="quest-list"></div>
@@ -73,7 +73,7 @@
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="icon-picker" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="icon-title">
-    <div class="modal-card icon-modal"><div class="modal-head"><div><div class="overline">MINECRAFT 26.3</div><h2 id="icon-title">Choose an icon</h2></div><button id="icon-close" class="icon-button" aria-label="Fermer">×</button></div>
+    <div class="modal-card icon-modal"><div class="modal-head"><div><div class="overline">MINECRAFT 26.3</div><h2 id="icon-title">Choose an icon</h2></div><button id="icon-close" class="icon-button" aria-label="Close">×</button></div>
       <div class="icon-filter-row"><input id="icon-search" type="search" class="icon-search" placeholder="Search every item and block…" aria-label="Search Minecraft items">
         <select id="icon-filter" aria-label="Filter icons">
           <option value="all">All</option><option value="item">Items</option><option value="block">Blocks</option>
@@ -84,16 +84,16 @@
     </div>
   </div>
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card">
-    <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Éditeur avancé</h2></div><button id="modal-close" class="icon-button" aria-label="Fermer">×</button></div>
+    <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Advanced editor</h2></div><button id="modal-close" class="icon-button" aria-label="Close">×</button></div>
     <p id="modal-description" class="modal-description"></p>
-    <textarea id="json-input" spellcheck="false" aria-label="JSON avancé"></textarea>
+    <textarea id="json-input" spellcheck="false" aria-label="Advanced JSON"></textarea>
     <div id="json-error" class="error-line" role="alert"></div>
-    <div class="modal-actions"><button id="modal-cancel" class="button secondary">Annuler</button><button id="modal-apply" class="button primary">Appliquer</button></div>
+    <div class="modal-actions"><button id="modal-cancel" class="button secondary">Cancel</button><button id="modal-apply" class="button primary">Apply</button></div>
   </div></div>
   <div id="import-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="import-title"><div class="modal-card small">
-    <div class="modal-head"><div><div class="overline">IMPORT</div><h2 id="import-title">Ouvrir un pack QuestPlus</h2></div><button id="import-close" class="icon-button" aria-label="Fermer">×</button></div>
-    <p class="modal-description">Importe un ZIP exporté par Quest Studio ou les fichiers JSON de ton dossier serveur. L'import remplace le projet courant après confirmation.</p>
-    <div class="import-choices"><button id="choose-zip" class="import-choice"><strong>▣ Archive ZIP</strong><small>Un pack complet .zip</small></button><button id="choose-folder" class="import-choice"><strong>▤ Dossier QuestPlus</strong><small>Catégories, quêtes et config</small></button><button id="choose-files" class="import-choice"><strong>⧉ Fichiers JSON</strong><small>Sélection multiple</small></button></div>
+    <div class="modal-head"><div><div class="overline">IMPORT</div><h2 id="import-title">Open a QuestPlus pack</h2></div><button id="import-close" class="icon-button" aria-label="Close">×</button></div>
+    <p class="modal-description">Import a ZIP pack or JSON files. Your current project will be replaced after confirmation.</p>
+    <div class="import-choices"><button id="choose-zip" class="import-choice"><strong>▣ Archive ZIP</strong><small>A complete .zip pack</small></button><button id="choose-folder" class="import-choice"><strong>▤ Dossier QuestPlus</strong><small>Categories, quests and config</small></button><button id="choose-files" class="import-choice"><strong>⧉ Fichiers JSON</strong><small>Select multiple files</small></button></div>
     <input id="file-zip" type="file" accept=".zip,application/zip" hidden><input id="file-folder" type="file" webkitdirectory directory multiple hidden><input id="file-json" type="file" accept=".json,application/json" multiple hidden>
   </div></div>
 </body>
