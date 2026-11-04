@@ -546,8 +546,8 @@
         },
         {
           "id": "step3",
-          "event": "block_place",
-          "target": "minecraft:lava",
+          "event": "inventory_count",
+          "target": "minecraft:lava_bucket",
           "count": 1
         }
       ],
@@ -1352,8 +1352,8 @@
         "fr_fr": "La traversée des dimensions"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Travel in all three dimensions, in any order.",
+        "fr_fr": "Parcourez les trois dimensions, dans l'ordre de votre choix."
       },
       "objectives": [
         {
@@ -1609,7 +1609,7 @@
           "id": "step1",
           "event": "travel_distance",
           "target": "questplus:travel",
-          "count": 1
+          "count": 100
         }
       ],
       "rewards": [],
@@ -2087,7 +2087,7 @@
         {
           "id": "step3",
           "event": "inventory_count",
-          "target": "minecraft:pottery_sherd",
+          "target": "minecraft:angler_pottery_sherd",
           "count": 3
         }
       ],
@@ -5631,13 +5631,13 @@
       "objectives": [
         {
           "id": "step1",
-          "event": "block_place",
+          "event": "item_craft",
           "target": "minecraft:item_frame",
           "count": 12
         },
         {
           "id": "step2",
-          "event": "block_place",
+          "event": "item_craft",
           "target": "minecraft:armor_stand",
           "count": 4
         },
@@ -5683,7 +5683,7 @@
         },
         {
           "id": "step2",
-          "event": "block_place",
+          "event": "item_craft",
           "target": "minecraft:item_frame",
           "count": 4
         },
@@ -7130,8 +7130,8 @@
         "fr_fr": "Le pêcheur du jour"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Catch twelve fish of any single species: cod, salmon, pufferfish or tropical fish.",
+        "fr_fr": "Pêchez 12 poissons d'une même espèce parmi morue, saumon, poisson-globe et poisson tropical."
       },
       "objectives": [
         {
@@ -8208,7 +8208,11 @@
         "x": 250,
         "y": 450
       },
-      "noDeath": true
+      "noDeath": true,
+      "hidden": true,
+      "requires": {
+        "quest": "questplus:archaeology/silent_city"
+      }
     },
     {
       "schemaVersion": 2,
