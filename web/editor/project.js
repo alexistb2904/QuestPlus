@@ -17,7 +17,7 @@ const LOCAL=/^[a-z0-9_.-]+$/;
 export const text=(value,lang='en_us')=>value?.[lang] || value?.en_us || '';
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
-export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5}});
+export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
 /** The editor starts from the exact 4 categories and 13 quests shipped by QuestPlus. */
 export function demoProject(){return copy(BUILTIN_PROJECT);}
 export function category(id='questplus:new_category',en='New category'){
@@ -140,6 +140,12 @@ export function fileMap(p){
   function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,JSON.stringify(obj,null,2)+'\n');}
   const fileName=id=>{const [ns,...rest]=id.split(':');const path=rest.join(':');if(!ID.test(id))throw new Error('ID invalide: '+id);return ns==='questplus'?path:ns+'/'+path;};
   put('config.json',p.config||{schemaVersion:1,autosaveSeconds:5});
+  // Studio-only metadata is separate: QuestRegistry must never see unknown fields
+  // on quest/category/config JSON objects.
+  put('queststudio-compatibility.json',{
+    format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
+    iconVersions:p.iconVersions||{}
+  });
   for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',c);
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
@@ -151,6 +157,10 @@ export function importDocuments(documents){
     const path=String(name).replace(/\\/g,'/').replace(/^.*?(?=(?:quests|categories)\/)/,'');
     if(!/\.json$/i.test(path))continue;
     let obj;try{obj=JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON invalide dans '+name+' : '+e.message);}
+    if(/(?:^|\/)queststudio-compatibility\.json$/i.test(path)){
+      p.targetMinecraftVersion=obj.targetMinecraftVersion||'26.3';
+      p.iconVersions=obj.iconVersions||{};continue;
+    }
     if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(obj);
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);
     else if(/(?:^|\/)config\.json$/i.test(path))p.config=obj;

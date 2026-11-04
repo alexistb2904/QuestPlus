@@ -156,7 +156,10 @@ public final class QuestScreen extends Screen {
     }
     private int color(String id) { return switch(statuses.get(id)) { case "completed" -> 0xffdbb67c; case "active" -> 0xffb58a56; case "available" -> 0xffb09aba; default -> 0xff716a65; }; }
     private ItemStack icon(String id) {
-        return icons.computeIfAbsent(id,key -> { var resource=Identifier.tryParse(key); return resource!=null && BuiltInRegistries.ITEM.containsKey(resource) ? new ItemStack(BuiltInRegistries.ITEM.getValue(resource)) : new ItemStack(Items.BOOK); });
+        return icons.computeIfAbsent(id,key -> { var resource=Identifier.tryParse(key); // A visible barrier item is the fallback for unknown IDs (e.g. a 26.4 item on 26.3).
+            // Never resolve an unknown ID to AIR or paint a blank item slot.
+            return resource!=null && BuiltInRegistries.ITEM.containsKey(resource)
+                ? new ItemStack(BuiltInRegistries.ITEM.getValue(resource)) : new ItemStack(Items.BARRIER); });
     }
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta) {
         // Preserve the real first-person tablet frame; an opaque GUI backdrop would hide it.
