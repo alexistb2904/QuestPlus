@@ -20,6 +20,7 @@ import {
 	ChevronRight,
 	Globe,
 	Eye,
+	EyeOff,
 	Package,
 	PanelLeftOpen,
 	SlidersHorizontal,
@@ -54,7 +55,9 @@ export default function App() {
 		[jsonError, setJsonError] = useState(""),
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
-	const [search, setSearch] = useState(""),
+	const [showQuestTitles,setShowQuestTitles]=useState(()=>localStorage.getItem("questplus.quest-titles")==="true");
+ useEffect(()=>{localStorage.setItem("questplus.quest-titles",String(showQuestTitles))},[showQuestTitles]);
+ const [search, setSearch] = useState(""),
 		[grid, setGrid] = useState(true),
 		[snap, setSnap] = useState(false),
 		[gridSize, setGridSize] = useState(32),
@@ -329,6 +332,9 @@ export default function App() {
 									aria-label={tUI("Pan")}>
 									<Hand size={18} />
 								</button>
+                                <button type="button" className={"icon-button"+(showQuestTitles?" active":"")}
+                                  aria-pressed={showQuestTitles} aria-label={tUI('Show quest titles')} title={tUI('Show quest titles')}
+                                  onClick={()=>setShowQuestTitles(v=>!v)}>{showQuestTitles?<Eye size={18}/>:<EyeOff size={18}/>}</button>
 								<button className="icon-button" disabled={!cat} onClick={studio.autoLayout} title={tUI("Auto-layout")} aria-label={tUI("Auto-layout")}>
 									<Workflow size={18} />
 								</button>
@@ -350,6 +356,7 @@ export default function App() {
 							onPosition={studio.setPosition}
                             onResize={studio.resizeNode}
                             onCreateAt={(kind,at)=>kind==='quest'?studio.createQuest(at):studio.createAnnotation(at)}
+							showQuestTitles={showQuestTitles}
 							showGrid={grid}
 							gridSize={gridSize}
 							snap={snap}
