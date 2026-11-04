@@ -257,3 +257,9 @@ Pour lancer l'environnement local complet **en un clic**, executer
 lance React et l'API web, attend le serveur Minecraft puis demarre le
 client. Il n'ouvre pas de services sur Internet ; les ports 8787 et
 25565 sont limites au developpement localhost.
+
+**Test client shaders / Punchy! :** `1-Lancer-Client.bat` prepare automatiquement
+Iris, Sodium, Punchy!, Punchy! Moves, Fluid & Foolish et trois shaders dans
+`run/client/`. Le menu propose desormais **25 options**, dont l'option 25
+pour actualiser ces composants. `2-Lancer-Serveur.bat` reconstruit le JAR
+avant chaque demarrage. Voir [tests Windows](docs/windows-testing.md).

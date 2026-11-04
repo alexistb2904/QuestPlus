@@ -1,6 +1,6 @@
 # Windows - tester QuestPlus
 
-Ouvrez **0-Menu-Tests.bat** a la racine du depot : 24 options sont disponibles.
+Ouvrez **0-Menu-Tests.bat** a la racine du depot : 25 options sont disponibles.
 Chaque lanceur peut aussi etre demarre independamment depuis l'Explorateur.
 
 ## Tests automatiques
@@ -92,3 +92,52 @@ Les ports 8787 et 25565 doivent etre libres. Les fenetres restent
 ouvertes pour afficher les logs. Pour arreter proprement, quitter le
 client, taper `stop` dans la console du serveur, puis Ctrl+C dans
 celle du web. Aucun serveur de production n'est modifie.
+
+## Mod toujours a jour sur le serveur de test
+
+Le lanceur `2-Lancer-Serveur.bat` **reconstruit obligatoirement le JAR depuis
+les sources Git locales** via `--rerun-tasks jar` avant de demarrer `runServer`.
+Gradle Loom charge ensuite les classes actuelles dans l'environnement de
+developpement ; il ne copie pas un JAR externe dans `run/server/mods`.
+Un ancien JAR `*questplus*.jar` dans `run/server/mods` est detecte et
+bloque pour eviter le double chargement. Retirez-le manuellement.
+
+IMPORTANT : la mise a jour du **code du mod** est distincte de la mise a jour
+des **definitions de quetes d'un monde deja cree**. QuestPlus preserve
+volontairement `world/questplus/` et la progression des joueurs.
+Pour actualiser les quetes, publiez depuis Quest Studio ou importez un pack,
+puis utilisez `/questplus reload` si necessaire.
+
+## Shaders et animations du client de test
+
+Le lanceur `1-Lancer-Client.bat` telecharge les composants de test dans
+`run/client/` au premier lancement ; ils sont ensuite verifies et reutilises
+depuis le cache local. **Ils ne sont pas ajoutes au JAR distribue et ne sont
+pas installes sur le serveur dedie.**
+
+- Mods client : Iris, Sodium, Punchy! (1ere personne), Punchy! Moves (3e personne).
+- Ressource d'animations : Fluid & Foolish (pour Punchy! Moves).
+- Shaders : MakeUp Ultra Fast (leger), Complementary Reimagined (polyvalent),
+  Bliss (ambiance cinematique).
+
+Dans Minecraft, choisissez un shader dans le menu Iris, et activez
+**Fluid & Foolish** depuis les resource packs. Les shaders sont installes
+mais **aucun n'est force par defaut**. Cela permet de comparer le rendu
+avec/sans shaders. Punchy! peut interagir avec les animations de tablette
+QuestPlus et FP PAL : cette configuration sert justement a tester ces conflits.
+
+L'option **25** actualise volontairement les versions compatibles Fabric 26.3
+a partir de Modrinth. Les archives telechargees sont verifiees SHA-512,
+les versions existantes sont conservees jusqu'a verification du remplacement
+et les fichiers manuels ne sont pas touches. Aucun binaire de mod ou shader
+n'est redistribue dans Git.
+
+Pour lancer uniquement QuestPlus sans ces mods de test, avant le .bat :
+
+```bat
+set QUESTPLUS_SKIP_TEST_ASSETS=1
+1-Lancer-Client.bat
+```
+
+Une connexion Internet est requise lors du premier telechargement des assets.
+Si Modrinth est indisponible, le script indique quels elements manquent.

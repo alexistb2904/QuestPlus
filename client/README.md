@@ -19,3 +19,19 @@ the original client entrypoint retained in `server/src/main/resources/fabric.mod
 
 Do not add persistent player data, remote admin credentials or a dedicated
 HTTP listener to the client.
+
+## Profil de test shaders + animations (Fabric 26.3)
+
+`1-Lancer-Client.bat` installe dans **run/client uniquement** les mods
+Iris + Sodium, Punchy! + Punchy! Moves, le pack Fluid & Foolish et trois
+shaders (MakeUp Ultra Fast / Complementary Reimagined / Bliss). Les versions
+proviennent de Modrinth et sont verifiees SHA-512. Ce n'est pas une
+nouvelle dependance du JAR QuestPlus ; le serveur dedie reste vanilla
+pour ces packs graphiques.
+
+Activez un shader dans Iris et Fluid & Foolish dans les resource packs.
+Les animations Punchy! sont a tester en combinaison avec la tablette
+1ere personne existante : des interactions avec FP PAL sont possibles.
+Option 25 du menu : actualisation manuelle des archives.
+Pour sauter la preparation des packs, definir
+`QUESTPLUS_SKIP_TEST_ASSETS=1` avant de lancer le client.
