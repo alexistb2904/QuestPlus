@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {SCALE_X,SCALE_Y,screenPoint,worldPoint,fitEditor} from '../src/core/editor-geometry.js';
+import {SCALE_X,SCALE_Y,screenPoint,worldPoint,fitEditor,zoomEditorAt,clampZoom} from '../src/core/editor-geometry.js';
 import {gameLayout} from '../src/core/game-layout.js';
 
 const source=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
@@ -22,12 +22,12 @@ test('Quest Studio matches Minecraft world axes one-to-one',()=>{
    assert.deepEqual(worldPoint(px,camera,view),q.layout);
  }
 });
-test('wheel navigation never changes sizes or the distance between anchors',()=>{
+test('zoom changes anchor spacing, but never icon or annotation pixel dimensions',()=>{
  const screen={width:900,height:450},points=[{x:0,y:0},{x:210,y:175}];
- const left=points.map(p=>screenPoint(p,{x:0,y:0,zoom:.25},screen));
+ const left=points.map(p=>screenPoint(p,{x:0,y:0,zoom:.5},screen));
  const right=points.map(p=>screenPoint(p,{x:0,y:0,zoom:2.5},screen));
- assert.equal(right[1].x-right[0].x,left[1].x-left[0].x);
- assert.equal(right[1].y-right[0].y,left[1].y-left[0].y);
+ assert.equal(right[1].x-right[0].x,5*(left[1].x-left[0].x));
+ assert.equal(right[1].y-right[0].y,5*(left[1].y-left[0].y));
  const canvas=source('../src/components/TreeCanvas.tsx');
  assert.match(canvas,/width:nodeSize,height:nodeSize/);
  assert.match(canvas,/width:nodeWidth,height:nodeHeight/);
@@ -40,7 +40,7 @@ test('Minecraft camera fit now includes authored annotation anchors',()=>{
  const camera=source('../../../src/main/java/dev/questplus/clientmodel/QuestCamera.java');
  assert.match(screen,/camera\.fitBounds\(points/);
  assert.match(screen,/points\.add\(new QuestLayout\.Point\(note\.get\("x"\)/);
- assert.match(camera,/public double zoom\(\) \{ return 1; \}/);
+ assert.match(camera,/public double zoom\(\)\{return zoom;\}/);
  assert.match(screen,/int x=\(int\)camera\.screenX\(note\.get\("x"\)/);
  assert.match(screen,/RichAnnotationRenderer\.render\(g,font,note,imagePool/);
 });
@@ -63,17 +63,17 @@ test('camera fit includes constant-size note padding',()=>{
  assert.equal(fit.zoom,1);
 });
 
-test('wheel and touch gestures only pan both axes, and no zoom controls remain',()=>{
+test('wheel and pinch zoom are restored and Shift-wheel pans',()=>{
  const canvas=source('../src/components/TreeCanvas.tsx');
- assert.match(canvas,/onCamera\(\{x:camera\.x\+dx,y:camera\.y\+dy,zoom:1\}\)/);
- assert.match(canvas,/onCamera\(\{zoom:1,x:g\.base\.x\+g\.center\.x-midpoint\.x/);
- assert.doesNotMatch(canvas,/zoomAt\(/);
+ assert.match(canvas,/onCamera\(zoomEditorAt\(camera,/);
+ assert.match(canvas,/const next=clampZoom\(g\.zoom\*/);
+ assert.match(canvas,/e\.shiftKey/);
  const app=source('../src/App.tsx');
- assert.match(app,/Fixed-size canvas/);
- assert.doesNotMatch(app,/Zoom in|Zoom out|Reset zoom/);
+ assert.match(app,/Reset zoom/);
+ assert.match(app,/Zoom in|Zoom out/);
  const game=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
- assert.match(game,/camera\.pan\(-horizontal\*36,vertical\*36\)/);
- assert.doesNotMatch(game,/camera\.zoomAt\(/);
+ assert.match(game,/camera\.pan\(-horizontal\*36,0\)/);
+ assert.match(game,/camera\.zoomAt\(Math\.pow\(1\.15,vertical\),x,y\)/);
 });
 test('default damage behavior closes tablet with animation, and setting is opt-in',()=>{
  const flow=source('../../../src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
@@ -84,4 +84,18 @@ test('default damage behavior closes tablet with animation, and setting is opt-i
  assert.match(flow,/quest\.onClose\(\)/);
  assert.match(flow,/stage=Stage\.HELD;close\(\)/);
  assert.match(screen,/settings\.stayOpenOnDamage=!settings\.stayOpenOnDamage/);
+});
+
+test('pointer-centered zoom keeps target under the cursor and clamps zoom',()=>{
+ const view={width:960,height:640},camera={x:110,y:45,zoom:1};
+ const pointer={x:320,y:210};
+ const target=worldPoint(pointer,camera,view);
+ const next=zoomEditorAt(camera,2,pointer,view);
+ const after=screenPoint(target,next,view);
+ assert.ok(Math.abs(after.x-pointer.x)<1e-9);
+ assert.ok(Math.abs(after.y-pointer.y)<1e-9);
+ assert.equal(clampZoom(0),.35);
+ assert.equal(clampZoom(999),2.5);
+ const shifted={...next,x:next.x+40,y:next.y-20};
+ assert.equal(screenPoint({x:30,y:100},shifted,view).x-screenPoint({x:30,y:100},next,view).x,-80);
 });

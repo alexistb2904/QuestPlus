@@ -1,5 +1,6 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Drag to move · Wheel to zoom · Shift+wheel to pan","Glisser pour déplacer · Molette pour zoomer · Maj+molette pour parcourir","Arrastrar para mover · Rueda para ampliar · Mayús+rueda para desplazarse","拖动移动 · 滚轮缩放 · Shift+滚轮平移"],
   ["Center tree","Recentrer l’arbre","Centrar el árbol","居中任务树"],
   ["Fixed-size canvas","Éléments à taille fixe","Elementos de tamaño fijo","固定尺寸画布"],
   ["Drag to move · Scroll to navigate · Shift+wheel sideways","Glisser pour déplacer · Molette pour parcourir · Maj+molette horizontalement","Arrastra para mover · Rueda para desplazarte · Mayús+rueda lateralmente","拖动移动 · 滚轮浏览 · Shift+滚轮横向移动"],

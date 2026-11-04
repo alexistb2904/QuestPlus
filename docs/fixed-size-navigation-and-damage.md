@@ -1,22 +1,23 @@
-# Fixed-size QuestPlus tree navigation
+# QuestPlus tree camera: fixed-size artwork, pointer-centered zoom
 
-Quest Studio and the Minecraft tablet deliberately use a **1:1 world-coordinate to
-logical GUI-pixel scale**. Neither drawing size nor distance between authored
-coordinates can be changed by mouse-wheel or pinch gestures.
+Quest Studio and the Minecraft tablet use **the same authored world coordinates**.
+The wheel zooms the *distance between anchor points*, never the size of quest icons,
+annotations, or embedded images. For example, a quest icon authored at 32 × 32 GUI
+pixels remains exactly 32 × 32 GUI pixels at 50%, 100%, or 250% tree zoom.
 
-- **Wheel / trackpad:** pan vertically.
-- **Shift + wheel / horizontal trackpad:** pan horizontally in Quest Studio.
-- **Two-finger gesture:** move viewport midpoint; pinch does not scale content.
-- **Drag the empty canvas:** pan in any direction.
-- **Center tree / Home:** recenter the authored layout without fitting it to the
-  viewport or changing its scale.
-- **Arrows:** pan the Minecraft viewport; +/− no longer zoom.
+- **Wheel:** zoom the tree around the cursor (35–250% in Quest Studio; 25–250% in Minecraft).
+- **Shift + wheel / horizontal trackpad (Studio):** pan horizontally, retaining zoom.
+- **Pinch gesture (Studio):** zoom around the gesture midpoint.
+- **Drag the empty canvas:** pan in any direction, at every zoom.
+- **Center tree / Home:** recenter the layout without changing the current zoom.
+- **Reset zoom / 100% (Studio):** restore default zoom without moving the view center.
+- **+ / − (Minecraft):** zoom around the tree viewport center.
 
-A large diagram extends beyond the viewport. Different window or GUI scales may
-change the physical size of Minecraft GUI pixels, but the **logical GUI-pixel dimensions
-and the distances among anchors stay constant**. Device DPI and GUI scale apply to
-the whole Minecraft UI; QuestPlus does not apply any additional scale from the
-tree camera.
+The unavoidable geometry: actual zoom changes **distances between anchors**. A 200-pixel
+world-space separation appears 100 pixels apart at 50% and 400 pixels apart at
+200%. This cannot remain visually fixed *and* provide a genuine zoom, so the editor
+and game keep pixel dimensions fixed while scaling only node/annotation positions.
+The exported x/y, width/height, and image references never change.
 
 ## Closing the tablet on damage
 
