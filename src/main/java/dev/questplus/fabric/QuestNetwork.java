@@ -151,6 +151,7 @@ public final class QuestNetwork {
             switch(request.action()) {
                 case "sync" -> sync(player,true);
                 case "claim" -> { runtime.visibleQuest(actor,value); runtime.claim(player,value); }
+                case "claim_all" -> runtime.claimAll(player);
                 case "restart" -> { runtime.visibleQuest(actor,value); runtime.mutate(actor,value,"restart"); }
                 case "trigger" -> { runtime.visibleQuest(actor,value); runtime.event(player,new QuestEvent("manual",value,Set.of(),1,QuestPlusMod.context(player))); }
                 case "create","invite","join","decline","leave","kick","transfer","disband" -> {
