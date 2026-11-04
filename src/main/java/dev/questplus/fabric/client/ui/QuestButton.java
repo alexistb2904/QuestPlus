@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -16,14 +15,20 @@ public final class QuestButton extends AbstractWidget {
     private final Runnable action;
     private boolean selected, pressed;
     private ItemStack icon=ItemStack.EMPTY;
+    private final Component defaultHoverText;
+    private Component hoverText;
 
     public QuestButton(Component label,int x,int y,int width,int height,Runnable action) {
         super(x,y,width,height,label);
         this.action=action;
-        setTooltip(Tooltip.create(label));
+        this.defaultHoverText=label;
+        // Native tooltips can escape the 500x300 tablet surface.
+        // The screen instead renders a bounded hover box.
     }
     public QuestButton selected(boolean value) { selected=value; return this; }
     public QuestButton icon(ItemStack value) { icon=value==null ? ItemStack.EMPTY : value; return this; }
+    public QuestButton hoverText(Component value) { hoverText=value; return this; }
+    public Component hoverText() { return hoverText==null ? defaultHoverText : hoverText; }
 
     @Override protected void extractWidgetRenderState(GuiGraphicsExtractor g,int mouseX,int mouseY,float delta) {
         int x=getX(),y=getY();

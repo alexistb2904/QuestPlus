@@ -39,6 +39,8 @@ public final class QuestScreen extends Screen {
     private JsonArray lastInvitations;
     private final long opened=System.nanoTime();
     private QuestButton questAction;
+    private final List<QuestButton> hoverButtons=new ArrayList<>();
+    private String hoverTitle;
     private String pendingManualQuest;
     private long pendingManualAt;
     private String currentAction;
@@ -85,7 +87,9 @@ public final class QuestScreen extends Screen {
     public QuestScreen() { super(Component.literal("Quest Plus")); }
     private Component t(String key,Object... args) { return tr(key,args); }
     private QuestButton button(String key,int x,int y,int w,Runnable action) {
-        return addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
+        QuestButton result=addRenderableWidget(new QuestButton(t(key),x,y,w,15,action));
+        hoverButtons.add(result);
+        return result;
     }
     @Override protected void init() {
         attachedToScreenFace=TabletSurfaceRenderer.active();
@@ -114,6 +118,7 @@ public final class QuestScreen extends Screen {
         treeBottom=bottom-19;
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
         cachedLeft=Double.NaN; questAction=null;
+        hoverButtons.clear();
         clearWidgets();
         int tabWidth=Math.min(78,(fw-35)/3);
         button("quests",left+5,top+6,tabWidth,() -> switchTab("quests")).selected(tab.equals("quests")).icon(tabWidth>=80 ? icon("minecraft:book") : ItemStack.EMPTY);
@@ -139,7 +144,7 @@ public final class QuestScreen extends Screen {
                 QuestButton claimAll=button("claim_all",treeRight-19,treeBottom-19,16,() -> action("claim_all",""));
                 claimAll.icon(icon("minecraft:chest"));
                 claimAll.setMessage(Component.literal(""));
-                claimAll.setTooltip(Tooltip.create(t("claim_all")));
+                claimAll.hoverText(t("claim_all"));
                 claimAll.active=state.progress.values().stream().anyMatch(p -> QuestClientState.flag(p,"claimable"));
             }
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
@@ -247,6 +252,7 @@ public final class QuestScreen extends Screen {
         QuestToast.draw(g);
     }
     void extractTablet(GuiGraphicsExtractor g,int mx,int my,float delta) {
+        hoverTitle=null;
         visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
         g.pose().pushMatrix(); g.pose().translate(0,visualOffset); my-=(int)visualOffset;
         if (settings.tablet) {
@@ -285,8 +291,37 @@ public final class QuestScreen extends Screen {
             QuestSkin.text(g,font,font.plainSubstrByWidth(message,Math.max(1,right-left-30)),left+12,bottom-11,0xffe3a692,false);
         }
         super.extractRenderState(g,mx,my,delta);
+        drawBoundedHover(g,mx,my);
         if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
+    }
+    /** Draw the hover in the tablet's logical pixels, after all widgets. */
+    private void drawBoundedHover(GuiGraphicsExtractor g,int mx,int my) {
+        if(mx<left || mx>=right || my<top || my>=bottom)return;
+        String label=hoverTitle;
+        for (QuestButton button:hoverButtons) {
+            if(button.visible&&button.active && mx>=button.getX() && mx<button.getX()+button.getWidth()
+                && my>=button.getY() && my<button.getY()+button.getHeight()){
+                label=button.hoverText().getString();
+            }
+        }
+        if(label==null || label.isBlank())return;
+        int contentWidth=Math.min(214,Math.max(20,right-left-20));
+        List<String> rows=wrap(label,contentWidth);
+        if(rows.isEmpty())return;
+        int maxRows=Math.max(1,Math.min(14,(bottom-top-12)/11));
+        if(rows.size()>maxRows){
+            rows=new ArrayList<>(rows.subList(0,maxRows));
+            String last=rows.get(maxRows-1);
+            rows.set(maxRows-1,font.plainSubstrByWidth(last,Math.max(1,contentWidth-font.width("…")))+"…");
+        }
+        int textWidth=rows.stream().mapToInt(font::width).max().orElse(0);
+        int boxW=Math.min(right-left-8,textWidth+12),boxH=rows.size()*11+8;
+        var place=QuestTooltipLayout.place(mx,my,boxW,boxH,left+4,top+4,right-4,bottom-4);
+        g.nextStratum();
+        QuestSkin.panel(g,place.x(),place.y(),boxW,boxH,0xf41c1720,0xffb79a75);
+        for(int i=0;i<rows.size();i++)
+            QuestSkin.text(g,font,rows.get(i),place.x()+6,place.y()+4+i*11,0xfff4e3c5,false);
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
         var categories=new ArrayList<>(state.categories.values());
@@ -306,8 +341,8 @@ public final class QuestScreen extends Screen {
                 g.fill(x+16,y+16,x+20,y+20,marker);
             }
             if(mx>=x && mx<x+22 && my>=y && my<y+22)
-                g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))+
-                    (claimable?" · "+t("claim").getString():fresh?" · "+t("toast.unlocked").getString():"")),mx,my);
+                hoverTitle=localized(c.getAsJsonObject("title"))+
+                    (claimable?" · "+t("claim").getString():fresh?" · "+t("toast.unlocked").getString():"");
         }
         if (categories.size()>count) {
             if (categoryScroll>0) g.fill(left+14,treeTop-3,left+23,treeTop-2,QuestSkin.HIGHLIGHT);
@@ -345,7 +380,7 @@ public final class QuestScreen extends Screen {
             if (!layout.points().isEmpty()) g.fill(bx+2,top+(41),bx+2+(int)((bar-4)*done/layout.points().size()),top+(42),0xffa37bab);
         }
         if (mx>=x && mx<x+w && my>=top+26 && my<treeTop)
-            g.setTooltipForNextFrame(Component.literal(localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"))),mx,my);
+            hoverTitle=localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"));
     }
     private void drawPaper(GuiGraphicsExtractor g) {
         QuestSkin.panel(g,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,0xff38291f,0xff805d42);
@@ -414,8 +449,8 @@ public final class QuestScreen extends Screen {
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
             g.pose().popMatrix();
             double hitRadius=r*camera.zoom();
-            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
-                +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString())),mx,my);
+            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) hoverTitle=titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+                +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString());
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
@@ -816,14 +851,14 @@ public final class QuestScreen extends Screen {
         });
         Component hudLabel=t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition));
         hudAnchor.setMessage(hudLabel);
-        hudAnchor.setTooltip(Tooltip.create(hudLabel));
+        hudAnchor.hoverText(hudLabel);
         QuestButton notificationAnchor=button("notification_position",x+w+8,y+3*row,w,() -> {
             settings.notificationPosition=(settings.notificationPosition+1)%9;
             settings.save(); init();
         });
         Component notificationLabel=t("notification_position").copy().append(": ").append(t("position."+settings.notificationPosition));
         notificationAnchor.setMessage(notificationLabel);
-        notificationAnchor.setTooltip(Tooltip.create(notificationLabel));
+        notificationAnchor.hoverText(notificationLabel);
         button("scale",x,y+4*row,w,() -> {
             pendingInterfaceScale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25;
         }).setMessage(t("scale",Math.round(settings.scale*100)));
@@ -845,7 +880,7 @@ public final class QuestScreen extends Screen {
             Component emissiveLabel=t("screen_emissive").copy().append(": ")
                 .append(t(settings.screenEmissive ? "on" : "off"));
             emissive.setMessage(emissiveLabel);
-            emissive.setTooltip(Tooltip.create(emissiveLabel));
+            emissive.hoverText(emissiveLabel);
 
             QuestButton brightness=button("screen_brightness",x+w+8,y+6*row,w,() -> {
                 int steps=(int)Math.round(settings.screenBrightness*10);
@@ -854,7 +889,7 @@ public final class QuestScreen extends Screen {
             });
             Component brightnessLabel=t("screen_brightness",Math.round(settings.screenBrightness*100));
             brightness.setMessage(brightnessLabel);
-            brightness.setTooltip(Tooltip.create(brightnessLabel));
+            brightness.hoverText(brightnessLabel);
         }
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
