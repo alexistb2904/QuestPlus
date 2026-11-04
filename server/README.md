@@ -23,7 +23,7 @@ approval and a valid browser token; publication is revalidated server-side.
 
 The server stages definitions and keeps backups before reloading. It will
 reject unsafe imports and restore the previous definitions on failure. For
-deployment see [web/server/README.md](../web/server/README.md).
+deployment see [web/api/README.md](../web/api/README.md).
 
 This folder and `../client/` compile to the **same single Fabric JAR** via
 `../build.gradle`. No second mod, network protocol rewrite or save migration

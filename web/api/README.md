@@ -2,7 +2,7 @@
 
 There are **exactly three runtime responsibilities**: `web/`, `client/`,
 and `server/`. No standalone Hub application or second Minecraft mod is
-required. `web/editor` holds React; `web/server` serves the *built React
+required. `web/editor` holds React; `web/api` serves the *built React
 application and versioned REST API from the same origin*. The web backend
 also handles temporary editor sessions, sharing and a queued publication.
 The game server always validates a publication and remains authoritative.
@@ -15,7 +15,7 @@ Requires Node 22 and Java 25 + Fabric 26.3.
 2. Create one strong shared secret with `openssl rand -hex 32`.
 3. Run the integrated web service:
 
-       cd web/server
+       cd web/api
        HUB_SERVER_KEY=<64-hex-secret> HUB_PUBLIC_URL=http://localhost:8787 \
          node server.mjs
 
@@ -49,10 +49,10 @@ does not grant rights by itself. The web API key is never sent to React.
 
 ## Production deployment
 
-The Dockerfile at `web/server/Dockerfile` builds the React app before
+The Dockerfile at `web/api/Dockerfile` builds the React app before
 assembling the server container, creating **one web service**.
 
-From `web/server/`:
+From `web/api/`:
 
     HUB_PUBLIC_URL=https://questplus.example.com \
     HUB_SERVER_KEY=<64-hex-secret> docker compose up -d --build
@@ -72,7 +72,7 @@ No extra inbound port is needed on the Minecraft server.
     Browser (web/editor)
         | HTTPS, one-time approval + temporary editor bearer
         v
-    Web service (web/server)
+    Web service (web/api)
         | outbound HTTPS polling FROM Minecraft, server API key
         v
     Authoritative Minecraft server (server/)
@@ -101,7 +101,7 @@ publication can be applied.
 ## Tests
 
     cd web/editor && npm test && npm run typecheck && npm run build
-    cd ../server && npm test
+    cd ../api && npm test
     cd ../.. && ./gradlew build
 
 The Node suite launches a real web server to exercise temporary approvals,

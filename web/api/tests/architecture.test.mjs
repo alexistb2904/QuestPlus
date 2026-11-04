@@ -32,9 +32,9 @@ test('one universal Java artifact compiles both source sets including tests and 
 });
 
 test('web service hosts Studio and the API as one deployment with restricted assets',()=>{
- const server=file('web/server/server.mjs');
- const docker=file('web/server/Dockerfile');
- const compose=file('web/server/compose.yml');
+ const server=file('web/api/server.mjs');
+ const docker=file('web/api/Dockerfile');
+ const compose=file('web/api/compose.yml');
  assert.match(server,/async function serveStudio/);
  assert.match(server,/if\(req.method==='GET'&&!p.startsWith\('\/v1\/'\)\)/);
  assert.match(server,/const ALLOWED_ORIGIN=process.env.STUDIO_ORIGIN\|\|new URL\(PUBLIC_URL\)\.origin/);

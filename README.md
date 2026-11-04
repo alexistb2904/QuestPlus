@@ -231,7 +231,7 @@ et le [dépôt Maven Fabric](https://maven.fabricmc.net/net/fabricmc/fabric-api/
 This branch is now organized into **web**, **client** and **server**:
 
 - `web/editor/`: React Quest Studio, browser draft and ZIP tools.
-- `web/server/`: integrated same-origin web hosting, HTTP API, sharing
+- `web/api/`: integrated same-origin web hosting, HTTP API, sharing
   and operator-approved publishing; **not a fourth standalone Hub**.
 - `client/`: Minecraft client rendering, tablet UX and client resources.
 - `server/`: Java/Fabric quest engine, commands, validation and persistence.
@@ -240,5 +240,5 @@ Gradle produces **one universal Fabric JAR** from the client/server trees.
 The React UI and web API run as **one web service** in production. Player
 progress remains on the Minecraft server and never enters the web service.
 See [architecture](docs/architecture.md) and
-[web/server/README.md](web/server/README.md) for setup and security.
+[web/api/README.md](web/api/README.md) for setup and security.
 This work remains in PR #26 until build and real Minecraft tests pass.

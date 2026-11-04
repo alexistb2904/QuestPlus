@@ -4,7 +4,7 @@ This is one deployable web component consisting of:
 
 - **editor/** — React 19, Vite, TypeScript, quest diagram, objective and
   reward editors, translations, ZIP import/export, local drafts.
-- **server/** — Node 22, HTTP API and built React hosting, short-lived
+- **api/** — Node 22, HTTP API and built React hosting, short-lived
   Minecraft editor sessions, in-game authorization, immutable shared packs,
   publication acknowledgments and rate limits.
 
@@ -15,11 +15,11 @@ the term Hub remains a feature name for the browser session protocol.
 To run from a checkout:
 
 1. `cd web/editor && npm ci && npm test && npm run build`
-2. `cd ../server && npm test`
+2. `cd ../api && npm test`
 3. `HUB_SERVER_KEY=<secret> HUB_PUBLIC_URL=http://localhost:8787 node server.mjs`
 4. Open `http://localhost:8787/`
 
-Refer to [server/README.md](server/README.md) for the Minecraft config,
+Refer to [api/README.md](api/README.md) for the Minecraft config,
 operator approval commands, Docker Compose and production requirements.
 
 Offline editing remains available with `cd web/editor && npm run dev`

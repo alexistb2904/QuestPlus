@@ -8,7 +8,7 @@ RUN npm run build
 
 FROM node:22-alpine
 WORKDIR /app
-COPY server/package.json server/server.mjs ./
+COPY api/package.json api/server.mjs ./
 COPY --from=frontend /build/editor/dist /app/public
 ENV PORT=8787 HUB_BIND=0.0.0.0 WEB_STATIC_DIR=/app/public
 RUN mkdir -p /app/data/packs && chown -R node:node /app
