@@ -45,7 +45,7 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
   document.execCommand(name,false,value||null);read();captureSelection();
  };
  const applyPixelSize=()=>{
-  const px=Math.max(6,Math.min(128,Math.round(pixelSize)||16));
+  const px=Math.max(1,Math.round(pixelSize)||16);
   ref.current?.focus();restore();
   const selection=window.getSelection();
   if(!selection?.rangeCount||!ref.current?.contains(selection.anchorNode))return;
@@ -75,7 +75,7 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
  const imageSize=(prop:'width'|'height',value:number)=>{
   const img=selectedImage.current;
   if(!img||!ref.current?.contains(img))return;
-  const v=Math.max(8,Math.min(2048,value||8));
+  const v=Math.max(1,Math.round(value)||1);
   img.setAttribute(prop,String(v));setImage({width:img.width,height:img.height});updateImageBounds(img);read();
  };
  const formatButtons=[['bold','Bold',Bold],['italic','Italic',Italic],['underline','Underline',Underline],['strikeThrough','Strikethrough',Strikethrough]] as const;
@@ -87,16 +87,16 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
     <select aria-label={tUI('Font')} defaultValue="default" onChange={e=>command('fontName',e.target.value)}><option value="default">Minecraft</option><option value="uniform">Uniform</option><option value="alt">Alt</option><option value="illageralt">Illager</option></select>
 
    </>}
-   <label className="rich-pixel-size" title={tUI('Text size in pixels')}><span>px</span><input aria-label={tUI('Text size in pixels')} type="number" min="6" max="128" step="1" value={pixelSize} onChange={e=>setPixelSize(Number(e.target.value))} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();applyPixelSize()}}}/><button type="button" onClick={applyPixelSize} aria-label={tUI('Apply text size')}>{tUI('Apply')}</button></label>
+   <label className="rich-pixel-size" title={tUI('Text size in pixels')}><span>px</span><input aria-label={tUI('Text size in pixels')} type="number" min="1" step="1" value={pixelSize} onChange={e=>setPixelSize(Number(e.target.value))} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();applyPixelSize()}}}/><button type="button" onClick={applyPixelSize} aria-label={tUI('Apply text size')}>{tUI('Apply')}</button></label>
    <label className="rich-upload"><ImagePlus size={15}/>{tUI('Image')}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void insert(file)}}/></label>
   </div>
   {isDescription&&colorOpen&&<div className="rich-palette" role="group" aria-label={tUI('Description colors')} onPointerDown={e=>e.preventDefault()} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();setColorOpen(false)}}}>{Object.entries(DESCRIPTION_COLORS).map(([code,color],index)=><button key={code} type="button" style={{backgroundColor:color}} title={tUI(colorNames[index])} aria-label={tUI(colorNames[index])} onClick={()=>{command('foreColor',color);setColorOpen(false)}}/>)}</div>}
-  {image&&<div className="rich-image-tools"><strong>{tUI("Image")}</strong><label>W <input aria-label={tUI('Image width')} type="number" min="8" max="2048" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="2048" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);setImageBounds(null);read()}}><Trash2 size={15}/></button></div>}
+  {image&&<div className="rich-image-tools"><strong>{tUI("Image")}</strong><label>W <input aria-label={tUI('Image width')} type="number" min="1" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="2048" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);setImageBounds(null);read()}}><Trash2 size={15}/></button></div>}
   {image&&imageBounds&&<button type="button" className="rich-image-grip" aria-label={tUI('Drag to resize image')} title={tUI('Drag to resize image')} style={{left:imageBounds.left,top:imageBounds.top}}
     onPointerDown={e=>{if(!selectedImage.current)return;e.preventDefault();e.stopPropagation();const img=selectedImage.current;dragImage.current={pointer:e.pointerId,x:e.clientX,y:e.clientY,width:img.width,height:img.height};e.currentTarget.setPointerCapture(e.pointerId)}}
     onPointerMove={e=>{const start=dragImage.current,el=selectedImage.current;if(!start||!el||start.pointer!==e.pointerId)return;
-      const width=Math.max(8,Math.min(2048,Math.round(start.width+(e.clientX-start.x))));
-      const height=e.altKey?Math.max(8,Math.min(2048,Math.round(start.height+e.clientY-start.y))):Math.max(8,Math.min(2048,Math.round(start.height*width/start.width)));
+      const width=Math.max(1,Math.round(start.width+(e.clientX-start.x)));
+      const height=e.altKey?Math.max(1,Math.round(start.height+e.clientY-start.y)):Math.max(1,Math.round(start.height*width/start.width));
       el.width=width;el.height=height;setImage({width,height});updateImageBounds(el);
     }}
     onPointerUp={e=>{if(dragImage.current?.pointer===e.pointerId){dragImage.current=null;read();try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{}}}}
