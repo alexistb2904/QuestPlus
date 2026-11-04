@@ -3,7 +3,7 @@ import {Target,Gift,GitBranch,Repeat2,MessageCircle,Globe,Trash2,Plus,Search,Che
 import {EVENTS,objectiveLabel,text} from '../core/project.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon,TargetPicker} from './IconPicker';
-import {DIMENSIONS,objectiveUi,changeObjectiveEvent,positionCoordinate,positionRadius,setPositionCoordinate,setPositionRadius} from '../core/objective-targets.js';
+import {DIMENSIONS,EVENT_LABELS,objectiveUi,changeObjectiveEvent,positionCoordinate,positionRadius,setPositionCoordinate,setPositionRadius} from '../core/objective-targets.js';
 import {DescriptionEditor} from './RichEditor';
 import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
@@ -89,7 +89,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  };
  return <div className={'field-row objective-inputs objective-inputs-'+kind}>
   <Select label="Action" value={o.event}
-    options={[...(EVENTS as [string,string][]),...(!EVENTS.some(([id])=>id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
+    options={[...EVENTS.map(([id])=>[id,EVENT_LABELS[id]||id] as [string,string]),...(!EVENTS.some(([id])=>id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
     onChange={event=>onUpdate(path,changeObjectiveEvent(o,event,questId))}/>
   {field()}
   {label&&kind!=='distance'&&<Field label={label} type="number" value={o.count} onChange={editCount}/>}
