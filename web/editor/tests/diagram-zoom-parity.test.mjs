@@ -38,8 +38,8 @@ test('cursor anchoring works after repeated zoom-in/out and pan across the whole
 });
 
 test('Minecraft and Studio use the same numeric zoom bounds and wheel step',()=>{
- const tablet=code('../../../src/main/java/dev/questplus/clientmodel/QuestCamera.java');
- const screen=code('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const tablet=code('../../../client/src/main/java/dev/questplus/clientmodel/QuestCamera.java');
+ const screen=code('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  const canvas=code('../src/components/TreeCanvas.tsx');
  assert.match(tablet,/MIN_ZOOM=0\.2, MAX_ZOOM=5, ZOOM_STEP=1\.15/);
  assert.match(screen,/Math\.pow\(QuestCamera\.ZOOM_STEP,vertical\)/);

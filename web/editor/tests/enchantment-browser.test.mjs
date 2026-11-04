@@ -29,7 +29,7 @@ test('picker does not offer duplicate enchantments but lets edit current value',
 test('modded enchantment ID remains editable and dialog/browser is localized',()=>{
  const gear=read('../src/components/GearEditor.tsx');
  const picker=read('../src/components/EnchantmentPicker.tsx');
- const tablet=read('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const tablet=read('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(gear,/const enchantId=\/\^\[a-z0-9_\.\-\]\+:/);
  assert.match(gear,/onBrowse=\{\(\)=>setPickEnchant\(\{item:i,previous:id\}\)\}/);
  assert.match(gear,/preserved\|\|1/);
