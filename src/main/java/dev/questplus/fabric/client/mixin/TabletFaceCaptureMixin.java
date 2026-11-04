@@ -37,7 +37,12 @@ abstract class TabletFaceCaptureMixin {
             questplus$pass=1;
             try { geometry.render(p,c); } finally { questplus$pass=0; }
         });
-        buffer.drawGeometry(pose,RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE),(p,c) -> {
+        // Bright by default. When disabled, the screen receives the same world
+        // light as any other translucent entity surface.
+        var screenType=dev.questplus.fabric.client.QuestPlusClient.settings.screenEmissive
+            ? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
+            : RenderTypes.entityTranslucent(TabletSurfaceRenderer.TEXTURE);
+        buffer.drawGeometry(pose,screenType,(p,c) -> {
             questplus$pass=2;
             try { geometry.render(p,c); } finally { questplus$pass=0; }
         });
