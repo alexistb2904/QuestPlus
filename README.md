@@ -246,8 +246,14 @@ This work remains in PR #26 until build and real Minecraft tests pass.
 
 ## Tests Windows et lanceurs .bat
 
-Le menu [0-Menu-Tests.bat](0-Menu-Tests.bat) inclut 23 actions, dont
+Le menu [0-Menu-Tests.bat](0-Menu-Tests.bat) inclut 24 actions, dont
 les tests Java/Fabric, GameTests client et serveur, React, API,
 Docker, le diagnostic JDK/Node et les suites automatisees.
 Consultez [le guide Windows](docs/windows-testing.md) pour les options,
 le test connecte Minecraft/web et les rapports d'erreur.
+
+Pour lancer l'environnement local complet **en un clic**, executer
+[13-Demarrer-Tout.bat](13-Demarrer-Tout.bat) (option 24). Ce script
+lance React et l'API web, attend le serveur Minecraft puis demarre le
+client. Il n'ouvre pas de services sur Internet ; les ports 8787 et
+25565 sont limites au developpement localhost.

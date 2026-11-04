@@ -1,6 +1,6 @@
 # Windows - tester QuestPlus
 
-Ouvrez **0-Menu-Tests.bat** a la racine du depot : 23 options sont disponibles.
+Ouvrez **0-Menu-Tests.bat** a la racine du depot : 24 options sont disponibles.
 Chaque lanceur peut aussi etre demarre independamment depuis l'Explorateur.
 
 ## Tests automatiques
