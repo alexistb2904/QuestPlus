@@ -42,6 +42,38 @@ export const annotationRich=(annotation,lang='en_us')=>{
   const key=Object.keys(rich).sort().find(k=>usable(rich[k]));
   return key?rich[key]:null;
 };
+/** Seed a new preview/translation language from an authored source once.
+ * Copies rich objects so edits never mutate the original translation. */
+export function seedProjectLocale(project,locale){
+  if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(locale)||locale==='en_us')return project;
+  const seed=map=>{
+    if(!map||typeof map!=='object'||Array.isArray(map))return;
+    if(typeof map[locale]==='string'&&map[locale].trim())return;
+    const source=text(map,'en_us');
+    if(source)map[locale]=source;
+  };
+  for(const category of project.categories||[]){
+    seed(category.title);seed(category.description);
+    for(const note of category.annotations||[]){
+      note.text ||= {};
+      const src=annotationText(note,'en_us');
+      if((!note.text[locale]||note.text[locale]==='Note')&&src)note.text[locale]=src;
+      const parts=annotationRich(note,'en_us');
+      if(parts?.length&&!annotationRich({...note,rich:{[locale]:note.rich?.[locale]}},locale)){
+        note.rich ||= {};
+        note.rich[locale]=structuredClone(parts);
+      }
+    }
+  }
+  for(const quest of project.quests||[]){
+    seed(quest.title);seed(quest.description);seed(quest.narrative);
+    for(const o of quest.objectives||[])seed(o.text);
+    for(const reward of quest.rewards||[])seed(reward.text);
+    for(const tier of quest.tiers||[])for(const reward of tier.rewards||[])seed(reward.text);
+  }
+  project.editorLocales=[...new Set([...(project.editorLocales||[]),locale])];
+  return project;
+}
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
