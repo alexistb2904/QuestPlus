@@ -122,8 +122,8 @@ public final class QuestScreen extends Screen {
             var f=button("filter."+filter,compact ? treeRight-42 : treeRight-110,attachedToScreenFace || compact ? treeTop+2 : bottom-18,compact ? 15 : 73,() -> { filter=List.of("all","available","active","completed").get((List.of("all","available","active","completed").indexOf(filter)+1)%4); init(); });
             if (compact) f.setMessage(Component.literal("≡"));
             button("fit",treeRight-19,treeTop+2,15,this::fit).setMessage(Component.literal("o"));
-            button("zoom_out",treeRight-40,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1/1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("−"));
-            button("zoom_in",treeRight-21,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.zoomAt(1.2,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0)).setMessage(Component.literal("+"));
+            button("navigate_up",treeRight-40,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.pan(0,48)).setMessage(Component.literal("↑"));
+            button("navigate_down",treeRight-21,attachedToScreenFace ? treeTop+20 : bottom-17,15,() -> camera.pan(0,-48)).setMessage(Component.literal("↓"));
             }
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
@@ -732,7 +732,7 @@ public final class QuestScreen extends Screen {
                 categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,state.categories.size()-count)); return true;
             }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
-            if (inTree(x,y)) { camera.zoomAt(Math.pow(1.15,vertical),x,y); return true; }
+            if (inTree(x,y)) { camera.pan(-horizontal*36,vertical*36); return true; }
         }
         return super.mouseScrolled(x,y,horizontal,vertical);
     }
@@ -748,7 +748,7 @@ public final class QuestScreen extends Screen {
         if (event.key()!=InputConstants.KEY_ESCAPE && getFocused() instanceof EditBox box && box.isFocused()) return super.keyPressed(event);
         switch(event.key()) {
             case InputConstants.KEY_LEFT -> camera.pan(24,0); case InputConstants.KEY_RIGHT -> camera.pan(-24,0); case InputConstants.KEY_UP -> camera.pan(0,24); case InputConstants.KEY_DOWN -> camera.pan(0,-24);
-            case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.zoomAt(1.15,width/2.0,height/2.0); case InputConstants.KEY_MINUS -> camera.zoomAt(1/1.15,width/2.0,height/2.0);
+            case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.pan(0,48); case InputConstants.KEY_MINUS -> camera.pan(0,-48);
             case InputConstants.KEY_J -> onClose();
             case InputConstants.KEY_ESCAPE -> { if (selected!=null) { selected=null; init(); } else onClose(); }
             default -> { return super.keyPressed(event); }
