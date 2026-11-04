@@ -78,7 +78,7 @@ class DefaultsTest {
             for(String reference:references)assertTrue(registry.find(reference).isPresent(),
                 "Unresolved prerequisite "+reference+" from "+quest.id());
         }
-        assertEquals("tiered",registry.get("questplus:mining/stone_mountain").progression());
+        assertEquals("tiered",registry.get("questplus:quarries/stone_mountain").progression());
         assertEquals("repeatable",registry.get("questplus:contracts/skeleton_bounty").progression());
         assertEquals("infinite",registry.get("questplus:contracts/eternal_quarry").progression());
         assertTrue(registry.get("questplus:trials/three_giants").noDeath());
