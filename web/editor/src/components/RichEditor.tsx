@@ -17,14 +17,16 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
  const colorNames=['Black','Dark blue','Dark green','Dark aqua','Dark red','Dark purple','Gold','Gray','Dark gray','Blue','Green','Aqua','Red','Light purple','Yellow','White'];
  const [active,setActive]=useState<Record<string,boolean>>({});
  const isDescription=mode==='description';
- const html=isDescription?descriptionHtml(content):richToHtml(content);
+ const renderHtml=(parts:RichPart[])=>(isDescription&&!parts.some(p=>p.type==='image'||p.type==='text'&&p.sizePx!==undefined))
+     ?descriptionHtml(parts):richToHtml(parts);
+ const html=renderHtml(content);
  useEffect(()=>{if(ref.current&&html!==lastEmitted.current){ref.current.innerHTML=html;lastEmitted.current=html;savedRange.current=null;selectedImage.current=null;setImage(null)}},[html,locale]);
  const read=useCallback(()=>{
   if(!ref.current)return;
   const clone=ref.current.cloneNode(true) as HTMLElement;
   clone.querySelectorAll('font[color]').forEach(el=>{const font=el as HTMLElement;font.style.color=font.getAttribute('color')||''});
   const parts=richFromDom(clone);
-  if(parts){lastEmitted.current=isDescription?descriptionHtml(parts):richToHtml(parts);onChange(parts,plainFallback(parts));}
+  if(parts){lastEmitted.current=renderHtml(parts);onChange(parts,plainFallback(parts));}
  },[onChange,isDescription]);
  const captureSelection=()=>{
   const s=window.getSelection();
