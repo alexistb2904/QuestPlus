@@ -1,6 +1,7 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
 import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
+import {isCategoryLink} from './diagram-geometry.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
@@ -240,7 +241,8 @@ for(const a of c.annotations||[]){
       ids.add(a.id);
       const hasTranslatedText=Object.values(a.text||{}).some(v=>typeof v==='string'&&v.trim());
       const hasRichContent=Object.values(a.rich||{}).some(parts=>Array.isArray(parts)&&parts.some(part=>part?.type==='image'&&part.data||part?.type==='text'&&part.text?.trim()));
-      if(!hasTranslatedText&&!hasRichContent)fail(label,'Annotation : contenu requis dans au moins une langue');
+      if(a.style!=='background'&&!hasTranslatedText&&!hasRichContent)fail(label,'Annotation : contenu requis dans au moins une langue');
+      if(a.style==='background'&&(a.rich||!Number.isSafeInteger(a.width)||!Number.isSafeInteger(a.height)||a.width>100000||a.height>100000))fail(label,'Background requires dimensions up to 100000 and no rich content');
       if(a.rich){
        if(typeof a.rich!=='object'||Array.isArray(a.rich)||!Object.keys(a.rich).length)fail(label,'Invalid rich annotation');
        else for(const [locale,parts] of Object.entries(a.rich)){
@@ -250,8 +252,26 @@ for(const a of c.annotations||[]){
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
       if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<=0))fail(label,'La largeur doit être positive');
       if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<=0))fail(label,'La hauteur doit être positive');
-      if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
+      if(!['note','heading','label','background'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
+    }
+    if(c.linkRoutes!==undefined){
+     if(!Array.isArray(c.linkRoutes)||c.linkRoutes.length>128)fail(label,'128 link routes maximum');
+     else {
+      const pairs=new Set();
+      for(const route of c.linkRoutes){
+       if(!route||typeof route!=='object'||Array.isArray(route)||Object.keys(route).some(k=>!['from','to','points'].includes(k))||!ID.test(route.from||'')||!ID.test(route.to||'')||!isCategoryLink(c,p.quests,route)){
+        fail(label,'Link route must reference a prerequisite in the same category');continue;
+       }
+       const pair=route.from+'>'+route.to;
+       if(pairs.has(pair))fail(label,'Duplicate link route');
+       pairs.add(pair);
+       if(!Array.isArray(route.points)||route.points.length>64)fail(label,'64 waypoints maximum per link');
+       else for(const point of route.points){
+        if(!point||typeof point!=='object'||Object.keys(point).some(k=>!['x','y'].includes(k))||!Number.isFinite(point.x)||!Number.isFinite(point.y)||Math.abs(point.x)>100000||Math.abs(point.y)>100000)fail(label,'Invalid link waypoint');
+       }
+      }
+     }
     }
   }
   for(const q of p.quests){

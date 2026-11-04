@@ -53,22 +53,27 @@ Chaque face de la tablette dispose de sa propre île UV. La densité cible est d
 
 ## Animations
 
+Le livre du médaillon est droit : pages et couverture sans rotation. L'ouverture
+et la fermeture durent désormais 1 seconde au lieu de 1,2 seconde ; les poses
+et l'idle restent identiques. Les aperçus animés historiques ci-dessous
+précèdent cette accélération.
+
 | Première personne | Troisième personne | Durée | Boucle |
 |---|---|---|---|
-| `questplus.open` | `questplus.third_person_open` | 1,20 s | Non |
+| `questplus.open` | `questplus.third_person_open` | 1,00 s | Non |
 | `questplus.idle` | `questplus.third_person_idle` | 4 s | Oui |
-| `questplus.close` | `questplus.third_person_close` | 1,20 s | Non |
+| `questplus.close` | `questplus.third_person_close` | 1,00 s | Non |
 
 L'ouverture est un **geste asymétrique de sortie de poche**, échantillonné à 50 images/s sur des courbes Hermite continues :
 
-1. 0 à 0,24 s : la droite va vers la hanche/poche droite, la gauche reste au repos.
-2. À partir de 0,24 s : la tablette apparaît au point de saisie, tenue d'une main et encore inclinée près du côté droit.
-3. 0,24 à 0,8 s : la droite la remonte et la tourne vers le joueur ; la gauche commence son approche après 0,48 s.
-4. 0,8 à 1,2 s : la gauche se place sous le bord opposé, le mouvement se stabilise et le joueur baisse le regard.
+1. 0 à 0,20 s : la droite va vers la hanche/poche droite, la gauche reste au repos.
+2. À partir de 0,20 s : la tablette apparaît au point de saisie, tenue d'une main et encore inclinée près du côté droit.
+3. 0,20 à 0,67 s : la droite la remonte et la tourne vers le joueur ; la gauche commence son approche après 0,40 s.
+4. 0,67 à 1,0 s : la gauche se place sous le bord opposé, le mouvement se stabilise et le joueur baisse le regard.
 
 La vue subjective ajoute des déplacements verticaux propres aux bras pour les faire entrer depuis le bas du champ, avec la tablette provenant de la droite. Ces déplacements FP ne sont pas appliqués au personnage extérieur. La fermeture reprend exactement le trajet en sens inverse : la gauche relâche, la droite redescend vers la poche, puis les bras reviennent au repos.
 
-La tablette est masquée par une piste d'échelle nulle pendant le geste initial vers la poche, puis devient visible à 0,24 s. Elle est à nouveau masquée en fin de rangement. C'est une transition de visibilité, pas un effet de croissance. Le personnage vanilla n'ayant pas de poche articulée, aucun tissu ne s'ouvre et la tablette entière n'est pas simulée à l'intérieur du pantalon. Le point de saisie et les corrections de contact sont calculés à partir de la main droite ; une enveloppe lissée empêche les intersections des mains avec le cadre.
+La tablette est masquée par une piste d'échelle nulle pendant le geste initial vers la poche, puis devient visible à 0,20 s. Elle est à nouveau masquée en fin de rangement. C'est une transition de visibilité, pas un effet de croissance. Le personnage vanilla n'ayant pas de poche articulée, aucun tissu ne s'ouvre et la tablette entière n'est pas simulée à l'intérieur du pantalon. Le point de saisie et les corrections de contact sont calculés à partir de la main droite ; une enveloppe lissée empêche les intersections des mains avec le cadre.
 
 L'idle déplace l'ensemble bras/tablette de seulement **0,045 unité** en hauteur, sans rotation de l'écran. Les valeurs au raccord ouverture → idle → fermeture coïncident. Pour un raccord en cours d'idle, finir le cycle ou fondre brièvement vers la première pose de fermeture. Conserver les pistes `scale` lors de l'export pour respecter la visibilité.
 

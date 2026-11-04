@@ -73,9 +73,9 @@ test('claim-all remains a single server-authorized action with durable sequentia
  assert.match(runtime,/visibleQuests\(uuid\)/);
 });
 
-test('brightness maximum has ~35 percent highlight boost only on 3D atlas',()=>{
+test('brightness maximum keeps the original colors without a white boost',()=>{
  const screen=read('../../../src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
- assert.match(screen,/brightness-\.65/);
- assert.match(screen,/\/\.35\*90/);
- assert.match(screen,/\(glow<<24\)\|0x00ffffff/);
+ assert.match(screen,/if\(brightness<\.999\)/);
+ assert.match(screen,/\(1-brightness\)\*255/);
+ assert.doesNotMatch(screen,/glow|0x00ffffff/);
 });

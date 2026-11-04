@@ -22,10 +22,46 @@ import java.util.*;
 public final class QuestIntegrationTest {
     @FunctionalInterface private interface Step { void run() throws Exception; }
     private static Runnable step(Step action) { return () -> { try { action.run(); } catch (RuntimeException e) { throw e; } catch (Exception e) { throw new RuntimeException(e); } }; }
+    private static void diagramReload(GameTestHelper helper) throws Exception {
+        var server=helper.getLevel().getServer(); var runtime=QuestPlusMod.runtime();
+        Path root=server.getWorldPath(LevelResource.ROOT).resolve("questplus");
+        Path category=root.resolve("categories/diagram_fixture.json"),a=root.resolve("quests/diagram_a.json"),b=root.resolve("quests/diagram_b.json");
+        String quest="""
+            {"schemaVersion":1,"id":"questplus:diagram_%s","category":"questplus:diagram_fixture","icon":"minecraft:stone",
+             "title":{"en_us":"Diagram"},"objectives":[{"id":"mine","event":"block_break","target":"minecraft:stone","count":1}],
+             "rewards":[],"progression":"once"%s}
+            """;
+        String valid="""
+            {"id":"questplus:diagram_fixture","title":{"en_us":"Diagram"},"description":{"en_us":"Fixture"},
+             "annotations":[{"id":"area","x":0,"y":0,"width":300,"height":180,"text":{},"style":"background","color":"#896f55"}],
+             "linkRoutes":[{"from":"questplus:diagram_a","to":"questplus:diagram_b","points":[{"x":20,"y":30}]}]}
+            """;
+        boolean createdA=false,createdB=false,createdCategory=false;
+        try {
+            Files.writeString(a,quest.formatted("a",""),StandardOpenOption.CREATE_NEW); createdA=true;
+            Files.writeString(b,quest.formatted("b",",\"requires\":{\"quest\":\"questplus:diagram_a\"}"),StandardOpenOption.CREATE_NEW); createdB=true;
+            Files.writeString(category,valid,StandardOpenOption.CREATE_NEW); createdCategory=true;
+            runtime.reload();
+            var loaded=runtime.categories().stream().filter(c -> c.id().equals("questplus:diagram_fixture")).findFirst().orElseThrow();
+            helper.assertTrue(loaded.annotations().getFirst().style().equals("background") && loaded.linkRoutes().getFirst().points().size()==1,
+                "Background and route survive actual registry reload");
+            long generation=runtime.catalogGeneration();
+            Files.writeString(category,valid.replace("\"x\":20", "\"x\":100001"));
+            boolean rejected=false; try { runtime.reload(); } catch (IllegalArgumentException expected) { rejected=true; }
+            helper.assertTrue(rejected && runtime.catalogGeneration()==generation && runtime.categories().contains(loaded),
+                "Invalid route rejects the entire reload without replacing the previous registry");
+        } finally {
+            if (createdCategory) Files.deleteIfExists(category);
+            if (createdA) Files.deleteIfExists(a);
+            if (createdB) Files.deleteIfExists(b);
+            runtime.reload();
+        }
+    }
     @GameTest(maxTicks=4000)
     public void verticalSlice(GameTestHelper helper) throws Exception {
         var level=helper.getLevel(); var server=level.getServer(); var runtime=QuestPlusMod.runtime();
         LegacyGameTestFixtures.install(server); runtime.reload();
+        diagramReload(helper);
         var player=(ServerPlayer)helper.makeMockServerPlayer(GameType.SURVIVAL);
         var connection=new Connection(PacketFlow.SERVERBOUND); new EmbeddedChannel(connection);
         server.getPlayerList().placeNewPlayer(connection,player,CommonListenerCookie.createInitial(player.getGameProfile(),false));

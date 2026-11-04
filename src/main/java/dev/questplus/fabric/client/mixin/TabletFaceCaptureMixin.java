@@ -5,6 +5,7 @@ import com.github.razorplay01.fp_pal.firstperson.FpRenderBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.questplus.fabric.client.TabletFaceAnchor;
+import dev.questplus.fabric.client.TabletIdleEffects;
 import dev.questplus.fabric.client.TabletSurfaceRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -25,6 +26,7 @@ abstract class TabletFaceCaptureMixin {
     @Shadow private static Identifier modelId;
     @Unique private static final Identifier QUESTPLUS_MODEL=Identifier.fromNamespaceAndPath("questplus","questplus_first_person");
     private static int questplus$pass;
+    @Unique private static TabletIdleEffects.Frame questplus$effects;
 
     @Unique private static boolean questplus$usesAtlas() {
         return TabletSurfaceRenderer.active() && QUESTPLUS_MODEL.equals(modelId);
@@ -46,17 +48,30 @@ abstract class TabletFaceCaptureMixin {
             questplus$pass=2;
             try { geometry.render(p,c); } finally { questplus$pass=0; }
         });
+        var effects=TabletIdleEffects.frame();
+        buffer.drawGeometry(pose,TabletIdleEffects.renderType(),(p,c) -> {
+            questplus$pass=3;
+            questplus$effects=effects;
+            try { geometry.render(p,c); } finally { questplus$pass=0; questplus$effects=null; }
+        });
     }
 
     @Inject(method="renderCube",at=@At("HEAD"),cancellable=true,remap=false)
     private static void questplus$onlyOriginalSurface(PoseStack pose,VertexConsumer consumer,FpGeoModel model,FpGeoModel.Cube cube,int light,CallbackInfo ci) {
         var screen=model.bone("screen");
         boolean surface=screen!=null && screen.cubes().contains(cube);
-        if (questplus$pass==1 && surface || questplus$pass==2 && !surface) ci.cancel();
+        if (questplus$pass==3 || questplus$pass==1 && surface || questplus$pass==2 && !surface) ci.cancel();
     }
     @Inject(method="renderBone",at=@At(value="INVOKE",target="Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"),remap=false)
     private static void questplus$capture(PoseStack pose,VertexConsumer consumer,FpGeoModel model,FpGeoModel.Bone bone,int light,boolean root,CallbackInfo ci) {
         if (questplus$usesAtlas()) TabletFaceAnchor.capture(pose,bone);
+        if (questplus$pass==3 && bone.name().equals("tablet_root")) {
+            pose.pushPose();
+            pose.translate(bone.pivotX()/16f,bone.pivotY()/16f,bone.pivotZ()/16f);
+            pose.scale(.65f,.65f,.65f);
+            TabletIdleEffects.draw(pose.last(),consumer,questplus$effects);
+            pose.popPose();
+        }
     }
 
     @Redirect(method="render",at=@At(value="INVOKE",target="Lnet/minecraft/client/renderer/rendertype/RenderTypes;entityCutout(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/rendertype/RenderType;"),remap=false)

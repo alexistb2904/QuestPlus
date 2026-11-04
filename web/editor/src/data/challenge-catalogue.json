@@ -15,15 +15,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Build small. Think big.",
             "fr_fr": "Construisez petit. Pensez grand."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Heat & transport",
+            "fr_fr": "Chaleur et transport"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Growing systems",
+            "fr_fr": "Cultures automatisées"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Living machines",
+            "fr_fr": "Machines du vivant"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Redstone workshop",
+            "fr_fr": "Atelier de redstone"
           }
         }
       ]
@@ -43,15 +95,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -133,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "The world is bigger than your base.",
             "fr_fr": "Le monde est plus grand que votre base."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Landscapes",
+            "fr_fr": "Paysages"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Hidden worlds",
+            "fr_fr": "Mondes cachés"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Sea & sky",
+            "fr_fr": "Mers et ciel"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Long journeys",
+            "fr_fr": "Grands voyages"
           }
         }
       ]
@@ -71,15 +175,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Forgotten places, unfinished stories.",
             "fr_fr": "Des lieux oubliés, des histoires inachevées."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Traces of the past",
+            "fr_fr": "Traces du passé"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Beneath the waves",
+            "fr_fr": "Sous les vagues"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Dangerous discoveries",
+            "fr_fr": "Découvertes périlleuses"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Beyond the ruins",
+            "fr_fr": "Au-delà des ruines"
           }
         }
       ]
@@ -99,15 +255,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -133,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Every block counts.",
             "fr_fr": "Chaque bloc compte."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Stone & timber",
+            "fr_fr": "Pierre et bois"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Ore veins",
+            "fr_fr": "Filons de minerais"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Ancient riches",
+            "fr_fr": "Richesses anciennes"
           }
         }
       ]
@@ -127,15 +322,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "The hunter's work is never over.",
             "fr_fr": "La chasse ne s'arrête jamais."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Night creatures",
+            "fr_fr": "Créatures de la nuit"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Across the wild",
+            "fr_fr": "À travers les terres"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Beyond the portal",
+            "fr_fr": "Au-delà du portail"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Legendary hunts",
+            "fr_fr": "Chasses légendaires"
           }
         }
       ]
@@ -155,15 +402,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "A world worth caring for.",
             "fr_fr": "Un monde dont il faut prendre soin."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Farm & companions",
+            "fr_fr": "Ferme et compagnons"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Water sanctuaries",
+            "fr_fr": "Refuges aquatiques"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Rare encounters",
+            "fr_fr": "Rencontres rares"
           }
         }
       ]
@@ -183,15 +469,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Make the world thrive.",
             "fr_fr": "Faites prospérer votre monde."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "From field to table",
+            "fr_fr": "Du champ à la table"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "The village market",
+            "fr_fr": "Le marché du village"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Knowledge & journeys",
+            "fr_fr": "Savoirs et voyages"
           }
         }
       ]
@@ -211,15 +536,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -133,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Beyond the shoreline.",
             "fr_fr": "Au-delà du rivage."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Cast your line",
+            "fr_fr": "À la ligne"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Living waters",
+            "fr_fr": "Eaux vivantes"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Ocean treasures",
+            "fr_fr": "Trésors de l’océan"
           }
         }
       ]
@@ -239,15 +603,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -133,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Give your world a story.",
             "fr_fr": "Donnez une histoire à votre monde."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "A place to live",
+            "fr_fr": "Un lieu de vie"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Spaces to discover",
+            "fr_fr": "Lieux de découverte"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Working rooms",
+            "fr_fr": "Ateliers"
           }
         }
       ]
@@ -267,15 +670,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "The Nether does not forgive.",
             "fr_fr": "Le Nether ne pardonne pas."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Roads through fire",
+            "fr_fr": "Routes dans les flammes"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Fortresses & battles",
+            "fr_fr": "Forteresses et combats"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Build & gather",
+            "fr_fr": "Bâtir et récolter"
           }
         }
       ]
@@ -295,15 +737,54 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -133,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "The end is only the beginning.",
             "fr_fr": "La fin n'est que le début."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -190,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Explore the void",
+            "fr_fr": "Explorer le vide"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 190,
+          "y": -39,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Make it your home",
+            "fr_fr": "S’y installer"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 0,
+          "y": 130,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Face the legends",
+            "fr_fr": "Affronter les légendes"
           }
         }
       ]
@@ -323,15 +804,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Something to do today.",
             "fr_fr": "Un défi pour aujourd'hui."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Hunting bounties",
+            "fr_fr": "Primes de chasse"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Village orders",
+            "fr_fr": "Commandes du village"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Sea contracts",
+            "fr_fr": "Contrats de la mer"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Long-term work",
+            "fr_fr": "Travaux de longue haleine"
           }
         }
       ]
@@ -351,15 +884,67 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -136,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "No rewards without risk.",
             "fr_fr": "Sans risque, pas de légende."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -200,
+          "y": -72,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Combat disciplines",
+            "fr_fr": "Disciplines de combat"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 175,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Dangerous conditions",
+            "fr_fr": "Conditions extrêmes"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": -170,
+          "y": 136,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Ancient threats",
+            "fr_fr": "Menaces anciennes"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 215,
+          "y": 162,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "The final ascent",
+            "fr_fr": "L’ascension finale"
           }
         }
       ]
@@ -379,15 +964,41 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -120,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Find joy in the unusual.",
             "fr_fr": "Découvrez le plaisir de l'insolite."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": -170,
+          "y": -55,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Sound & color",
+            "fr_fr": "Sons et couleurs"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": 170,
+          "y": 16,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Collections",
+            "fr_fr": "Collections"
           }
         }
       ]
@@ -407,15 +1018,28 @@
       "annotations": [
         {
           "id": "chapter_heading",
-          "x": 300,
-          "y": -125,
+          "x": 0,
+          "y": -104,
           "style": "heading",
           "color": "#c6a986",
-          "width": 330,
-          "height": 54,
+          "width": 400,
+          "height": 40,
           "text": {
             "en_us": "Mark the moments.",
             "fr_fr": "Marquez les grandes étapes."
+          }
+        },
+        {
+          "id": "section_1",
+          "x": 0,
+          "y": -42,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 260,
+          "height": 24,
+          "text": {
+            "en_us": "Across the realms",
+            "fr_fr": "À travers les mondes"
           }
         }
       ]
@@ -426,7 +1050,7 @@
       "schemaVersion": 2,
       "id": "questplus:engineering/automatic_furnace",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:furnace",
       "title": {
         "en_us": "The First Automatism",
         "fr_fr": "Le premier automatisme"
@@ -460,8 +1084,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -285,
+        "y": -20
       }
     },
     {
@@ -518,15 +1142,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": 130,
+        "y": 218
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/hidden_door",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:sticky_piston",
       "title": {
         "en_us": "A Hidden Entrance",
         "fr_fr": "Une entrée secrète"
@@ -560,15 +1184,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": 235,
+        "y": 202
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/sugar_cane_farm",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:sugar_cane",
       "title": {
         "en_us": "Harvest Without Effort",
         "fr_fr": "La récolte sans effort"
@@ -612,15 +1236,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 90,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/wool_automation",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:shears",
       "title": {
         "en_us": "The Sheep Works Alone",
         "fr_fr": "La laine travaille toute seule"
@@ -660,15 +1284,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -235,
+        "y": 192
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/pumpkin_machine",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:carved_pumpkin",
       "title": {
         "en_us": "The Mechanical Garden",
         "fr_fr": "Le potager mécanique"
@@ -712,15 +1336,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 195,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/lava_generator",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:lava_bucket",
       "title": {
         "en_us": "Liquid Gold",
         "fr_fr": "L'or liquide"
@@ -754,15 +1378,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -235,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/honey_collector",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:honeycomb",
       "title": {
         "en_us": "Honey Without Stings",
         "fr_fr": "Le miel sans piqûres"
@@ -796,15 +1420,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": -105,
+        "y": 228
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/kelp_garden",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:kelp",
       "title": {
         "en_us": "Underwater Engineering",
         "fr_fr": "Le jardin sous-marin"
@@ -838,15 +1462,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 260,
+        "y": 65
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/bubble_elevator",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:soul_sand",
       "title": {
         "en_us": "Going Up",
         "fr_fr": "Un petit ascenseur"
@@ -884,15 +1508,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -105,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/piston_laboratory",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:piston",
       "title": {
         "en_us": "Piston Laboratory",
         "fr_fr": "Le laboratoire à pistons"
@@ -926,15 +1550,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 300,
+        "y": 270
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:engineering/furnace_district",
       "category": "questplus:engineering",
-      "icon": "minecraft:comparator",
+      "icon": "minecraft:hopper",
       "title": {
         "en_us": "The Neighborhood Furnace",
         "fr_fr": "Le four du quartier"
@@ -968,15 +1592,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": -170,
+        "y": -36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/arid_lands",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:cactus",
       "title": {
         "en_us": "Arid Lands",
         "fr_fr": "Les terres arides"
@@ -1016,15 +1640,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -305,
+        "y": -16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/high_peaks",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:powder_snow_bucket",
       "title": {
         "en_us": "On Top of the World",
         "fr_fr": "Au sommet du monde"
@@ -1064,15 +1688,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -195,
+        "y": -32
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/under_canopy",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:jungle_sapling",
       "title": {
         "en_us": "Under the Canopy",
         "fr_fr": "Sous la canopée"
@@ -1112,15 +1736,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": 70,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/frozen_realm",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:packed_ice",
       "title": {
         "en_us": "The Frozen Realm",
         "fr_fr": "Le royaume des glaces"
@@ -1154,15 +1778,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -95,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/flower_road",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:cherry_sapling",
       "title": {
         "en_us": "The Flower Road",
         "fr_fr": "La route des fleurs"
@@ -1202,15 +1826,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -175,
+        "y": 72
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/lost_islands",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:red_mushroom_block",
       "title": {
         "en_us": "Lost Islands",
         "fr_fr": "Les îles perdues"
@@ -1238,15 +1862,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 180,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/world_below",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:glow_berries",
       "title": {
         "en_us": "The World Beneath",
         "fr_fr": "Les entrailles du monde"
@@ -1280,15 +1904,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": 280,
+        "y": 42
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/villages_of_world",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:bell",
       "title": {
         "en_us": "Villages of the World",
         "fr_fr": "Les villages du monde"
@@ -1334,15 +1958,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 130,
+        "y": 214
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/sea_route",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:oak_boat",
       "title": {
         "en_us": "The Sea Route",
         "fr_fr": "La route maritime"
@@ -1382,15 +2006,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": -255,
+        "y": 188
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/wild_lands",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:dark_oak_sapling",
       "title": {
         "en_us": "Wild Lands",
         "fr_fr": "Les terres sauvages"
@@ -1430,15 +2054,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -295,
+        "y": 62
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/underground_expedition",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:explorer_pottery_sherd",
       "title": {
         "en_us": "Underground Expedition",
         "fr_fr": "L'expédition souterraine"
@@ -1472,15 +2096,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 200,
+        "y": 101
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/between_worlds",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:ender_pearl",
       "title": {
         "en_us": "Across Three Realms",
         "fr_fr": "La traversée des dimensions"
@@ -1527,8 +2151,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": -75,
+        "y": 244
       }
     },
     {
@@ -1623,15 +2247,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 450
+        "x": 245,
+        "y": 198
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/legendary_cartographer",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:cartography_table",
       "title": {
         "en_us": "Legendary Cartographer",
         "fr_fr": "Le cartographe légendaire"
@@ -1717,15 +2341,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 450
+        "x": 180,
+        "y": 286
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/grand_traveler",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:leather_boots",
       "title": {
         "en_us": "The Great Traveler",
         "fr_fr": "Le grand voyageur"
@@ -1746,8 +2370,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 450
+        "x": 310,
+        "y": 270
       },
       "tiers": [
         {
@@ -1796,7 +2420,7 @@
       "schemaVersion": 2,
       "id": "questplus:expeditions/hidden_corners",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:blue_ice",
       "title": {
         "en_us": "The Hidden Corners",
         "fr_fr": "Les recoins du monde"
@@ -1836,15 +2460,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 450
+        "x": 80,
+        "y": 91
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/end_archipelago",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:chorus_fruit",
       "title": {
         "en_us": "The End Archipelago",
         "fr_fr": "L'archipel de l'End"
@@ -1884,15 +2508,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 600
+        "x": -205,
+        "y": 260
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:expeditions/deep_seas",
       "category": "questplus:expeditions",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:nautilus_shell",
       "title": {
         "en_us": "The Deep Blue",
         "fr_fr": "Les profondeurs bleues"
@@ -1932,15 +2556,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 600
+        "x": -140,
+        "y": 172
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:milestones/overworld_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:grass_block",
       "title": {
         "en_us": "The Surface",
         "fr_fr": "La Surface"
@@ -1962,15 +2586,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -85,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:milestones/nether_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:obsidian",
       "title": {
         "en_us": "Through the Flames",
         "fr_fr": "À travers les flammes"
@@ -1992,15 +2616,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 20,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:milestones/end_entry",
       "category": "questplus:milestones",
-      "icon": "minecraft:compass",
+      "icon": "minecraft:ender_eye",
       "title": {
         "en_us": "Beyond the Void",
         "fr_fr": "Au-delà du vide"
@@ -2022,15 +2646,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 85,
+        "y": 65
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/beneath_civilizations",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:iron_pickaxe",
       "title": {
         "en_us": "Beneath Civilizations",
         "fr_fr": "Sous les civilisations"
@@ -2064,15 +2688,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -235,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/ancient_temples",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:sandstone",
       "title": {
         "en_us": "Forgotten Temples",
         "fr_fr": "Les temples anciens"
@@ -2106,15 +2730,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -170,
+        "y": -36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/ocean_expedition",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:prismarine_shard",
       "title": {
         "en_us": "The Ocean Expedition",
         "fr_fr": "L'expédition océanique"
@@ -2148,15 +2772,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 90,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/trails_of_past",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:angler_pottery_sherd",
       "title": {
         "en_us": "Trails of the Past",
         "fr_fr": "Les ruines du passé"
@@ -2190,15 +2814,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -285,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/sunken_wealth",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:heart_of_the_sea",
       "title": {
         "en_us": "Sunken Riches",
         "fr_fr": "Les trésors engloutis"
@@ -2232,15 +2856,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 195,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/silent_city",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:echo_shard",
       "title": {
         "en_us": "The Silent City",
         "fr_fr": "La cité silencieuse"
@@ -2278,15 +2902,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -65,
+        "y": 221
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/guardian_monument",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:prismarine",
       "title": {
         "en_us": "Guardians of the Monument",
         "fr_fr": "Le gardien du monument"
@@ -2320,15 +2944,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 260,
+        "y": 65
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/trial_chambers",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:trial_key",
       "title": {
         "en_us": "Trial by Chamber",
         "fr_fr": "Les chambres des épreuves"
@@ -2362,15 +2986,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -145,
+        "y": 280
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/ominous_trials",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:ominous_trial_key",
       "title": {
         "en_us": "Ominous Trials",
         "fr_fr": "Les épreuves inquiétantes"
@@ -2398,15 +3022,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -265,
+        "y": 270
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/abandoned_estates",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:cauldron",
       "title": {
         "en_us": "Abandoned Estates",
         "fr_fr": "Les demeures abandonnées"
@@ -2440,15 +3064,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": -275,
+        "y": 192
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/raider_territory",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:crossbow",
       "title": {
         "en_us": "Raider Territory",
         "fr_fr": "Les pillards du royaume"
@@ -2482,15 +3106,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": -165,
+        "y": 176
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/portal_trails",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:crying_obsidian",
       "title": {
         "en_us": "Portal Trails",
         "fr_fr": "Sur la trace des portails"
@@ -2536,15 +3160,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 130,
+        "y": 214
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/piglin_history",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:gilded_blackstone",
       "title": {
         "en_us": "Piglin History",
         "fr_fr": "L'histoire des Piglins"
@@ -2578,8 +3202,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 450
+        "x": 245,
+        "y": 198
       }
     },
     {
@@ -2626,15 +3250,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 450
+        "x": -105,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/end_ruins",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:shulker_shell",
       "title": {
         "en_us": "Cities Beyond",
         "fr_fr": "Les cités de l'au-delà"
@@ -2668,15 +3292,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 450
+        "x": 180,
+        "y": 286
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:archaeology/legendary_archaeologist",
       "category": "questplus:archaeology",
-      "icon": "minecraft:brush",
+      "icon": "minecraft:decorated_pot",
       "title": {
         "en_us": "Legendary Archaeologist",
         "fr_fr": "L'archéologue légendaire"
@@ -2726,15 +3350,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 450
+        "x": 310,
+        "y": 270
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:quarries/stone_mountain",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:stone",
       "title": {
         "en_us": "The Vanishing Mountain",
         "fr_fr": "La montagne disparaît"
@@ -2755,8 +3379,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -275,
+        "y": -16
       },
       "tiers": [
         {
@@ -2815,7 +3439,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/deepslate_mountain",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:deepslate",
       "title": {
         "en_us": "Endless Depths",
         "fr_fr": "Profondeurs sans fin"
@@ -2832,8 +3456,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -170,
+        "y": -32
       },
       "tiers": [
         {
@@ -2882,7 +3506,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/endless_lumber",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:oak_log",
       "title": {
         "en_us": "Endless Lumber",
         "fr_fr": "Le bûcheron infatigable"
@@ -2899,8 +3523,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -105,
+        "y": 36
       },
       "tiers": [
         {
@@ -2949,7 +3573,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/coal_empire",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:coal_ore",
       "title": {
         "en_us": "Coal Empire",
         "fr_fr": "L'empire du charbon"
@@ -2966,8 +3590,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 105,
+        "y": 13
       },
       "tiers": [
         {
@@ -3016,7 +3640,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/iron_king",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:iron_ore",
       "title": {
         "en_us": "King of Iron",
         "fr_fr": "Le roi du fer"
@@ -3033,8 +3657,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 220,
+        "y": -3
       },
       "tiers": [
         {
@@ -3083,7 +3707,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/copper_rush",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:copper_ore",
       "title": {
         "en_us": "Copper Rush",
         "fr_fr": "La ruée vers le cuivre"
@@ -3100,8 +3724,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": 155,
+        "y": 84
       },
       "tiers": [
         {
@@ -3150,7 +3774,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/redstone_engineer",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:redstone_ore",
       "title": {
         "en_us": "Redstone Prospector",
         "fr_fr": "L'ingénieur des profondeurs"
@@ -3167,8 +3791,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 285,
+        "y": 68
       },
       "tiers": [
         {
@@ -3217,7 +3841,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/ancient_debris",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:ancient_debris",
       "title": {
         "en_us": "Ancient Debris Collector",
         "fr_fr": "Le collectionneur de débris"
@@ -3234,8 +3858,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -65,
+        "y": 185
       },
       "tiers": [
         {
@@ -3284,7 +3908,7 @@
       "schemaVersion": 2,
       "id": "questplus:quarries/netherite_ingots",
       "category": "questplus:quarries",
-      "icon": "minecraft:netherite_pickaxe",
+      "icon": "minecraft:netherite_ingot",
       "title": {
         "en_us": "Master of Netherite",
         "fr_fr": "Le maître de la Netherite"
@@ -3305,8 +3929,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": 65,
+        "y": 221
       },
       "tiers": [
         {
@@ -3345,7 +3969,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/skeleton_master",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:bone",
       "title": {
         "en_us": "Skeleton Scourge",
         "fr_fr": "Le fléau des squelettes"
@@ -3362,8 +3986,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -170,
+        "y": -36
       },
       "tiers": [
         {
@@ -3422,7 +4046,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/zombie_master",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:rotten_flesh",
       "title": {
         "en_us": "The Zombie Apocalypse",
         "fr_fr": "L'apocalypse des zombies"
@@ -3439,8 +4063,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -285,
+        "y": -20
       },
       "tiers": [
         {
@@ -3489,7 +4113,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/creeper_master",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:gunpowder",
       "title": {
         "en_us": "Creeper Demolition",
         "fr_fr": "Le démineur"
@@ -3506,8 +4130,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -235,
+        "y": 52
       },
       "tiers": [
         {
@@ -3556,7 +4180,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/enderman_master",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:ender_pearl",
       "title": {
         "en_us": "Enderman Hunter",
         "fr_fr": "La guerre contre l'End"
@@ -3573,8 +4197,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -150,
+        "y": 176
       },
       "tiers": [
         {
@@ -3623,7 +4247,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/blaze_master",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:blaze_rod",
       "title": {
         "en_us": "Blaze Exterminator",
         "fr_fr": "L'exterminateur de Blazes"
@@ -3640,8 +4264,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -255,
+        "y": 192
       },
       "tiers": [
         {
@@ -3680,7 +4304,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/four_undead",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:skeleton_skull",
       "title": {
         "en_us": "Four Undead",
         "fr_fr": "Les quatre morts"
@@ -3720,15 +4344,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 110,
+        "y": 218
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/pillager_terror",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:crossbow",
       "title": {
         "en_us": "Terror of the Raiders",
         "fr_fr": "La terreur des pillards"
@@ -3768,15 +4392,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": 320,
+        "y": 247
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/shulker_exterminator",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:shulker_shell",
       "title": {
         "en_us": "Shulker Exterminator",
         "fr_fr": "L'exterminateur de Shulkers"
@@ -3793,8 +4417,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": -85,
+        "y": 244
       },
       "tiers": [
         {
@@ -3833,7 +4457,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/silence_broken",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:sculk_catalyst",
       "title": {
         "en_us": "Silence Broken",
         "fr_fr": "Le silence est brisé"
@@ -3859,15 +4483,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 240,
+        "y": 306
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/wither_destroyer",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:nether_star",
       "title": {
         "en_us": "Wither Destroyer",
         "fr_fr": "Le destructeur de Withers"
@@ -3893,15 +4517,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 120,
+        "y": 296
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/biome_hunter",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:tipped_arrow",
       "title": {
         "en_us": "Biome Hunter",
         "fr_fr": "Le chasseur des biomes"
@@ -3941,15 +4565,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 205,
+        "y": -6
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/predator_hunter",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:rabbit_foot",
       "title": {
         "en_us": "Great Predator",
         "fr_fr": "Le grand prédateur"
@@ -3989,15 +4613,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": 140,
+        "y": 81
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/plains_hunter",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:cooked_beef",
       "title": {
         "en_us": "Hunt of the Plains",
         "fr_fr": "La chasse des plaines"
@@ -4037,15 +4661,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 450
+        "x": 90,
+        "y": 10
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/rare_creatures",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:rabbit_hide",
       "title": {
         "en_us": "Rare Creatures",
         "fr_fr": "Les créatures rares"
@@ -4091,15 +4715,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 450
+        "x": 270,
+        "y": 65
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:hunts/night_hunt",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:spider_eye",
       "title": {
         "en_us": "Night Stalker",
         "fr_fr": "La traque nocturne"
@@ -4133,8 +4757,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 450
+        "x": -105,
+        "y": 36
       },
       "noDeath": true
     },
@@ -4142,7 +4766,7 @@
       "schemaVersion": 2,
       "id": "questplus:hunts/undead_legion",
       "category": "questplus:hunts",
-      "icon": "minecraft:bow",
+      "icon": "minecraft:wither_skeleton_skull",
       "title": {
         "en_us": "The Undead Legion",
         "fr_fr": "La légion des morts"
@@ -4176,15 +4800,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 450
+        "x": 220,
+        "y": 202
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/great_breeder",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:wheat",
       "title": {
         "en_us": "The Great Breeder",
         "fr_fr": "Le grand éleveur"
@@ -4224,15 +4848,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -275,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/honey_empire",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:beehive",
       "title": {
         "en_us": "Honey Empire",
         "fr_fr": "L'empire du miel"
@@ -4266,15 +4890,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -95,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/companions",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:bone",
       "title": {
         "en_us": "The Companions Ark",
         "fr_fr": "L'arche des compagnons"
@@ -4308,15 +4932,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -225,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/horse_breeder",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:saddle",
       "title": {
         "en_us": "The Stable Master",
         "fr_fr": "Le maître des écuries"
@@ -4350,15 +4974,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -160,
+        "y": -36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/wetlands",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:frogspawn",
       "title": {
         "en_us": "Wetlands Guardians",
         "fr_fr": "Les gardiens des zones humides"
@@ -4392,15 +5016,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": 105,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/forgotten_fauna",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:sweet_berries",
       "title": {
         "en_us": "Forgotten Fauna",
         "fr_fr": "La faune oubliée"
@@ -4434,15 +5058,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": -85,
+        "y": 185
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/sniffer_sanctuary",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:torchflower_seeds",
       "title": {
         "en_us": "Sniffer Sanctuary",
         "fr_fr": "Le sanctuaire des Sniffers"
@@ -4476,15 +5100,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": 20,
+        "y": 169
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/axolotl_collector",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:axolotl_bucket",
       "title": {
         "en_us": "Axolotl Collector",
         "fr_fr": "Le collectionneur d'axolotls"
@@ -4506,15 +5130,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 220,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/tropical_aquarium",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:tropical_fish_bucket",
       "title": {
         "en_us": "Tropical Aquarium",
         "fr_fr": "L'aquarium tropical"
@@ -4542,15 +5166,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 155,
+        "y": 84
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/turtle_refuge",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:turtle_egg",
       "title": {
         "en_us": "Turtle Refuge",
         "fr_fr": "Le refuge des tortues"
@@ -4578,15 +5202,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 285,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:wildlife/parrot_sanctuary",
       "category": "questplus:wildlife",
-      "icon": "minecraft:lead",
+      "icon": "minecraft:feather",
       "title": {
         "en_us": "Parrot Sanctuary",
         "fr_fr": "Le sanctuaire des perroquets"
@@ -4614,15 +5238,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 85,
+        "y": 237
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/royal_feast",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:golden_carrot",
       "title": {
         "en_us": "Royal Feast",
         "fr_fr": "Le banquet royal"
@@ -4686,15 +5310,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -225,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/industrial_farmer",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:wheat",
       "title": {
         "en_us": "Industrial Farmer",
         "fr_fr": "L'agriculteur industriel"
@@ -4728,15 +5352,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -275,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/master_cook",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:cake",
       "title": {
         "en_us": "Master Chef",
         "fr_fr": "Le maître cuisinier"
@@ -4770,15 +5394,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -160,
+        "y": -36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/professional_fisher",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:fishing_rod",
       "title": {
         "en_us": "Professional Fisher",
         "fr_fr": "Le pêcheur professionnel"
@@ -4818,8 +5442,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 85,
+        "y": 237
       }
     },
     {
@@ -4860,15 +5484,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 210,
+        "y": 0
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/renowned_librarian",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:enchanted_book",
       "title": {
         "en_us": "Renowned Librarian",
         "fr_fr": "Le bibliothécaire renommé"
@@ -4902,15 +5526,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -85,
+        "y": 185
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/village_supplier",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:cooked_beef",
       "title": {
         "en_us": "Village Supplier",
         "fr_fr": "Le fournisseur du village"
@@ -4938,15 +5562,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 105,
+        "y": 16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/village_tour",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:bell",
       "title": {
         "en_us": "Tour of the Towns",
         "fr_fr": "La tournée des bourgs"
@@ -4992,15 +5616,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": 20,
+        "y": 169
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/great_beekeeper",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:honey_bottle",
       "title": {
         "en_us": "Great Beekeeper",
         "fr_fr": "Le grand apiculteur"
@@ -5034,15 +5658,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -95,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:professions/profitable_trades",
       "category": "questplus:professions",
-      "icon": "minecraft:emerald",
+      "icon": "minecraft:ender_pearl",
       "title": {
         "en_us": "Trade Without Borders",
         "fr_fr": "Le commerce sans frontières"
@@ -5070,15 +5694,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 275,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/four_catches",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:pufferfish",
       "title": {
         "en_us": "The Four Catches",
         "fr_fr": "Les quatre prises"
@@ -5118,15 +5742,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -170,
+        "y": -32
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/great_fisher",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:fishing_rod",
       "title": {
         "en_us": "The Great Fisher",
         "fr_fr": "Le grand pêcheur"
@@ -5147,8 +5771,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -275,
+        "y": -16
       },
       "tiers": [
         {
@@ -5191,7 +5815,7 @@
       "schemaVersion": 2,
       "id": "questplus:ocean/tropical_collection",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:tropical_fish_bucket",
       "title": {
         "en_us": "Tropical Collection",
         "fr_fr": "Le collectionneur tropical"
@@ -5213,15 +5837,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": 105,
+        "y": 16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/axolotl_sanctuary",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:axolotl_bucket",
       "title": {
         "en_us": "Axolotl Sanctuary",
         "fr_fr": "Le sanctuaire des axolotls"
@@ -5255,7 +5879,7 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
+        "x": 210,
         "y": 0
       }
     },
@@ -5263,7 +5887,7 @@
       "schemaVersion": 2,
       "id": "questplus:ocean/deep_hunter",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:trident",
       "title": {
         "en_us": "Deep Sea Hunter",
         "fr_fr": "Le chasseur des profondeurs"
@@ -5297,15 +5921,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 275,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/angler_treasure",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:enchanted_book",
       "title": {
         "en_us": "Angler Treasure",
         "fr_fr": "Le trésor du pêcheur"
@@ -5339,8 +5963,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -105,
+        "y": 36
       }
     },
     {
@@ -5381,15 +6005,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": -85,
+        "y": 185
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/underwater_architect",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:sea_lantern",
       "title": {
         "en_us": "Underwater Architect",
         "fr_fr": "L'architecte sous-marin"
@@ -5423,15 +6047,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": 20,
+        "y": 169
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:ocean/oceanic_legacy",
       "category": "questplus:ocean",
-      "icon": "minecraft:heart_of_the_sea",
+      "icon": "minecraft:conduit",
       "title": {
         "en_us": "Oceanic Legacy",
         "fr_fr": "L'héritage des océans"
@@ -5465,15 +6089,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 85,
+        "y": 237
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/museum",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:item_frame",
       "title": {
         "en_us": "Museum of Discoveries",
         "fr_fr": "Le musée des découvertes"
@@ -5507,15 +6131,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 105,
+        "y": 16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/map_room",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:map",
       "title": {
         "en_us": "The Map Room",
         "fr_fr": "La salle des cartes"
@@ -5549,7 +6173,7 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
+        "x": 210,
         "y": 0
       }
     },
@@ -5557,7 +6181,7 @@
       "schemaVersion": 2,
       "id": "questplus:homestead/greenhouse",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:moss_block",
       "title": {
         "en_us": "The Greenhouse",
         "fr_fr": "La serre botanique"
@@ -5591,15 +6215,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -275,
+        "y": -16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/alchemy_room",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:brewing_stand",
       "title": {
         "en_us": "Alchemist's Laboratory",
         "fr_fr": "Le laboratoire d'alchimie"
@@ -5639,15 +6263,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -65,
+        "y": 185
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/village_forge",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:anvil",
       "title": {
         "en_us": "The Village Forge",
         "fr_fr": "La forge du village"
@@ -5693,8 +6317,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": 65,
+        "y": 221
       }
     },
     {
@@ -5741,15 +6365,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": -170,
+        "y": -32
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/observatory",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:spyglass",
       "title": {
         "en_us": "The Observatory",
         "fr_fr": "L'observatoire"
@@ -5789,15 +6413,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": 275,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:homestead/traveler_lodge",
       "category": "questplus:homestead",
-      "icon": "minecraft:flower_pot",
+      "icon": "minecraft:campfire",
       "title": {
         "en_us": "Traveler's Lodge",
         "fr_fr": "Le pavillon du voyageur"
@@ -5837,15 +6461,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": -105,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/five_hells",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:warped_nylium",
       "title": {
         "en_us": "Five Nether Biomes",
         "fr_fr": "Les cinq enfers"
@@ -5891,15 +6515,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -275,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/piglin_war",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:golden_sword",
       "title": {
         "en_us": "The Piglin War",
         "fr_fr": "La guerre des Piglins"
@@ -5933,15 +6557,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": 105,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/nether_creatures",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:ghast_tear",
       "title": {
         "en_us": "Creatures of the Depths",
         "fr_fr": "Les créatures des profondeurs"
@@ -5975,15 +6599,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": 220,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/fortress_conquered",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:blaze_rod",
       "title": {
         "en_us": "Fortress Conquered",
         "fr_fr": "La forteresse conquise"
@@ -6017,15 +6641,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 155,
+        "y": 84
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/bastion_treasure",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:gilded_blackstone",
       "title": {
         "en_us": "Treasure of the Bastion",
         "fr_fr": "Le trésor du bastion"
@@ -6059,15 +6683,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -85,
+        "y": 185
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/infernal_architect",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:polished_blackstone_bricks",
       "title": {
         "en_us": "Infernal Architect",
         "fr_fr": "L'architecte infernal"
@@ -6101,8 +6725,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 20,
+        "y": 169
       }
     },
     {
@@ -6146,15 +6770,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -160,
+        "y": -36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/wither_ritual",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:wither_skeleton_skull",
       "title": {
         "en_us": "Wither Ritual",
         "fr_fr": "Le rituel du Wither"
@@ -6192,15 +6816,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 285,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/infernal_crossing",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:crimson_fungus",
       "title": {
         "en_us": "Infernal Crossing",
         "fr_fr": "La traversée infernale"
@@ -6234,8 +6858,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": -225,
+        "y": 52
       },
       "noDeath": true
     },
@@ -6243,7 +6867,7 @@
       "schemaVersion": 2,
       "id": "questplus:nether/strider_voyage",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:warped_fungus_on_a_stick",
       "title": {
         "en_us": "Lava Sea Voyager",
         "fr_fr": "Le voyageur des mers de lave"
@@ -6280,15 +6904,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -95,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:nether/netherite_harvest",
       "category": "questplus:nether",
-      "icon": "minecraft:nether_bricks",
+      "icon": "minecraft:netherite_upgrade_smithing_template",
       "title": {
         "en_us": "Netherite Harvest",
         "fr_fr": "La récolte de Netherite"
@@ -6316,15 +6940,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 85,
+        "y": 237
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/end_recon",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:ender_eye",
       "title": {
         "en_us": "The Grand Reconnaissance",
         "fr_fr": "La grande reconnaissance"
@@ -6364,15 +6988,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": -275,
+        "y": -16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/city_hunter",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:elytra",
       "title": {
         "en_us": "City Hunter",
         "fr_fr": "Le chasseur de cités"
@@ -6406,15 +7030,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -170,
+        "y": -32
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/enderman_slayer",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:ender_pearl",
       "title": {
         "en_us": "Enderman Scourge",
         "fr_fr": "Le fléau des Endermen"
@@ -6434,8 +7058,8 @@
       "progression": "tiered",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -85,
+        "y": 182
       },
       "tiers": [
         {
@@ -6474,7 +7098,7 @@
       "schemaVersion": 2,
       "id": "questplus:endgame/void_architect",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:purpur_block",
       "title": {
         "en_us": "Void Architect",
         "fr_fr": "L'architecte du vide"
@@ -6508,15 +7132,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": 105,
+        "y": 16
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/chorus_garden",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:chorus_flower",
       "title": {
         "en_us": "Void Garden",
         "fr_fr": "Le jardin du vide"
@@ -6544,15 +7168,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 210,
+        "y": 0
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/dragon_twice",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:dragon_head",
       "title": {
         "en_us": "One Dragon Is Not Enough",
         "fr_fr": "Un dragon ne suffit pas"
@@ -6574,15 +7198,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -35,
+        "y": 254
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/double_boss",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:nether_star",
       "title": {
         "en_us": "Double Confrontation",
         "fr_fr": "Le double affrontement"
@@ -6620,8 +7244,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 95,
+        "y": 237
       },
       "noDeath": true
     },
@@ -6629,7 +7253,7 @@
       "schemaVersion": 2,
       "id": "questplus:endgame/sky_master",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:firework_rocket",
       "title": {
         "en_us": "Master of the Skies",
         "fr_fr": "Le maître des airs"
@@ -6657,15 +7281,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -105,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/dragon_sanctuary",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:end_crystal",
       "title": {
         "en_us": "Dragon Sanctuary",
         "fr_fr": "Le sanctuaire du Dragon"
@@ -6699,15 +7323,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 275,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:endgame/guardians_of_void",
       "category": "questplus:endgame",
-      "icon": "minecraft:end_stone",
+      "icon": "minecraft:shulker_shell",
       "title": {
         "en_us": "Guardians of the Void",
         "fr_fr": "Les gardiens du vide"
@@ -6750,8 +7374,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 30,
+        "y": 166
       },
       "noDeath": true
     },
@@ -6759,7 +7383,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/skeleton_bounty",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:bone",
       "title": {
         "en_us": "Skeleton Bounty",
         "fr_fr": "Prime aux squelettes"
@@ -6781,8 +7405,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -285,
+        "y": -20
       },
       "cooldownSeconds": 86400
     },
@@ -6790,7 +7414,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/undead_cleanup",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:rotten_flesh",
       "title": {
         "en_us": "Undead Cleanup",
         "fr_fr": "Nettoyage des morts-vivants"
@@ -6812,8 +7436,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -170,
+        "y": -36
       },
       "cooldownSeconds": 86400
     },
@@ -6821,7 +7445,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/quarry_order",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:cobblestone",
       "title": {
         "en_us": "Quarry Order",
         "fr_fr": "Commande de la carrière"
@@ -6849,8 +7473,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 90,
+        "y": 13
       },
       "cooldownSeconds": 86400
     },
@@ -6858,7 +7482,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/daily_fishing",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:fishing_rod",
       "title": {
         "en_us": "The Daily Catch",
         "fr_fr": "Le pêcheur du jour"
@@ -6888,8 +7512,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": -235,
+        "y": 192
       },
       "cooldownSeconds": 86400
     },
@@ -6897,7 +7521,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/trade_continues",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:emerald",
       "title": {
         "en_us": "The Trade Continues",
         "fr_fr": "Le commerce continue"
@@ -6919,8 +7543,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": 260,
+        "y": 65
       },
       "cooldownSeconds": 86400
     },
@@ -6928,7 +7552,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/infernal_bounty",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:blaze_rod",
       "title": {
         "en_us": "Infernal Bounty",
         "fr_fr": "La prime infernale"
@@ -6956,8 +7580,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -235,
+        "y": 52
       },
       "cooldownSeconds": 86400
     },
@@ -6965,7 +7589,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/village_meal",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:cooked_porkchop",
       "title": {
         "en_us": "Dinner for the Village",
         "fr_fr": "Le repas du village"
@@ -6993,8 +7617,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 195,
+        "y": -3
       },
       "cooldownSeconds": 86400
     },
@@ -7002,7 +7626,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/extermination",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:gunpowder",
       "title": {
         "en_us": "Extermination",
         "fr_fr": "L'extermination"
@@ -7036,8 +7660,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -105,
+        "y": 36
       },
       "cooldownSeconds": 604800
     },
@@ -7045,7 +7669,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/great_cleanup",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:crossbow",
       "title": {
         "en_us": "Great Cleanup",
         "fr_fr": "Le grand nettoyage"
@@ -7079,8 +7703,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": 110,
+        "y": 218
       },
       "cooldownSeconds": 604800
     },
@@ -7088,7 +7712,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/treasure_fishing",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:name_tag",
       "title": {
         "en_us": "Treasure Fishing",
         "fr_fr": "La chasse aux trésors"
@@ -7116,8 +7740,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": -105,
+        "y": 228
       },
       "cooldownSeconds": 604800
     },
@@ -7125,7 +7749,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/fortress_challenge",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:wither_skeleton_skull",
       "title": {
         "en_us": "Fortress Challenge",
         "fr_fr": "Le défi de la forteresse"
@@ -7153,8 +7777,8 @@
       "progression": "repeatable",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 220,
+        "y": 202
       },
       "cooldownSeconds": 604800,
       "noDeath": true
@@ -7163,7 +7787,7 @@
       "schemaVersion": 2,
       "id": "questplus:contracts/eternal_quarry",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:stone_pickaxe",
       "title": {
         "en_us": "Eternal Quarry",
         "fr_fr": "La carrière éternelle"
@@ -7185,15 +7809,15 @@
       "progression": "infinite",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 320,
+        "y": 247
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:contracts/endless_hunt",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:bow",
       "title": {
         "en_us": "Endless Hunt",
         "fr_fr": "La chasse sans fin"
@@ -7215,15 +7839,15 @@
       "progression": "infinite",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 450
+        "x": 240,
+        "y": 306
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:contracts/endless_travel",
       "category": "questplus:contracts",
-      "icon": "minecraft:paper",
+      "icon": "minecraft:compass",
       "title": {
         "en_us": "The Endless Road",
         "fr_fr": "Le voyage sans retour"
@@ -7245,15 +7869,15 @@
       "progression": "infinite",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 450
+        "x": 120,
+        "y": 296
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/invisible_creepers",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:gunpowder",
       "title": {
         "en_us": "They Never Saw Me",
         "fr_fr": "Personne ne m'a vu"
@@ -7278,15 +7902,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 70,
+        "y": 13
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/underwater_hunter",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:trident",
       "title": {
         "en_us": "Hunter of the Abyss",
         "fr_fr": "Le chasseur des abysses"
@@ -7311,15 +7935,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 180,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/bare_hands",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:rotten_flesh",
       "title": {
         "en_us": "Bare Fists",
         "fr_fr": "Les poings de la colère"
@@ -7344,15 +7968,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -285,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/last_heart",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:golden_apple",
       "title": {
         "en_us": "On the Brink",
         "fr_fr": "À un souffle de la mort"
@@ -7377,15 +8001,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": 280,
+        "y": 42
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/obsessive_archer",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:bow",
       "title": {
         "en_us": "Obsessive Archer",
         "fr_fr": "L'archer obsessionnel"
@@ -7410,15 +8034,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": -235,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/silent_predator",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:spider_eye",
       "title": {
         "en_us": "Silent Predator",
         "fr_fr": "Le prédateur silencieux"
@@ -7443,15 +8067,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": -105,
+        "y": 36
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/unarmored_gladiator",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:iron_sword",
       "title": {
         "en_us": "Unarmored Gladiator",
         "fr_fr": "Le gladiateur sans armure"
@@ -7485,8 +8109,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": -170,
+        "y": -36
       },
       "noDeath": true
     },
@@ -7494,7 +8118,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/warden_shadow",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:echo_shard",
       "title": {
         "en_us": "The Warden's Shadow",
         "fr_fr": "L'ombre du Warden"
@@ -7519,15 +8143,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -255,
+        "y": 188
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/hunter_marathon",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:arrow",
       "title": {
         "en_us": "Hunter Marathon",
         "fr_fr": "Le marathon du chasseur"
@@ -7561,8 +8185,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 300
+        "x": 80,
+        "y": 91
       },
       "noDeath": true,
       "timeLimitSeconds": 2700
@@ -7571,7 +8195,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/nether_descent",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:crimson_fungus",
       "title": {
         "en_us": "Descent into the Nether",
         "fr_fr": "La descente aux enfers"
@@ -7605,8 +8229,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 300
+        "x": 200,
+        "y": 101
       },
       "noDeath": true
     },
@@ -7614,7 +8238,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/deep_guardian",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:sculk_sensor",
       "title": {
         "en_us": "Guardian of the Depths",
         "fr_fr": "Le gardien des profondeurs"
@@ -7642,8 +8266,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 300
+        "x": -140,
+        "y": 172
       },
       "noDeath": true
     },
@@ -7651,7 +8275,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/three_world_conqueror",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:shulker_shell",
       "title": {
         "en_us": "Conqueror of Three Worlds",
         "fr_fr": "Le conquérant des trois mondes"
@@ -7694,8 +8318,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 300
+        "x": 110,
+        "y": 218
       },
       "noDeath": true
     },
@@ -7703,7 +8327,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/ancient_trial",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:prismarine_shard",
       "title": {
         "en_us": "Trial of the Ancients",
         "fr_fr": "L'épreuve des anciens"
@@ -7737,8 +8361,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 450
+        "x": -205,
+        "y": 260
       },
       "noDeath": true
     },
@@ -7746,7 +8370,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/warrior_ascension",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:blaze_powder",
       "title": {
         "en_us": "The Warrior's Ascent",
         "fr_fr": "L'ascension du guerrier"
@@ -7782,8 +8406,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 450
+        "x": 220,
+        "y": 202
       },
       "noDeath": true
     },
@@ -7791,7 +8415,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/three_giants",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:dragon_head",
       "title": {
         "en_us": "Three Giants, One Life",
         "fr_fr": "Trois géants, une vie"
@@ -7829,8 +8453,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 450
+        "x": 320,
+        "y": 247
       },
       "noDeath": true,
       "hidden": true,
@@ -7842,7 +8466,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/collector_hunt",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:skeleton_skull",
       "title": {
         "en_us": "Collector Hunt",
         "fr_fr": "La chasse du collectionneur"
@@ -7978,15 +8602,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 450
+        "x": -75,
+        "y": 244
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:trials/last_survivor",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:shield",
       "title": {
         "en_us": "The Last Survivor",
         "fr_fr": "Le dernier survivant"
@@ -8026,8 +8650,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 600
+        "x": 240,
+        "y": 306
       },
       "noDeath": true,
       "timeLimitSeconds": 3600
@@ -8036,7 +8660,7 @@
       "schemaVersion": 2,
       "id": "questplus:trials/final_page",
       "category": "questplus:trials",
-      "icon": "minecraft:totem_of_undying",
+      "icon": "minecraft:written_book",
       "title": {
         "en_us": "The Final Page",
         "fr_fr": "La dernière page"
@@ -8062,8 +8686,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 600
+        "x": 120,
+        "y": 296
       },
       "hidden": true,
       "requires": {
@@ -8081,7 +8705,7 @@
       "schemaVersion": 2,
       "id": "questplus:curiosities/disc_collector",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:music_disc_cat",
       "title": {
         "en_us": "The Record Collector",
         "fr_fr": "Le collectionneur de disques"
@@ -8127,15 +8751,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 0
+        "x": -255,
+        "y": -3
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/note_orchestra",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:note_block",
       "title": {
         "en_us": "The Note Orchestra",
         "fr_fr": "L'orchestre du village"
@@ -8163,15 +8787,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 0
+        "x": -140,
+        "y": -20
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/heads_museum",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:zombie_head",
       "title": {
         "en_us": "Museum of Heads",
         "fr_fr": "La galerie des horreurs"
@@ -8209,15 +8833,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 0
+        "x": 200,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/pottery_museum",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:decorated_pot",
       "title": {
         "en_us": "The Pottery Museum",
         "fr_fr": "Le musée des poteries"
@@ -8239,15 +8863,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 0
+        "x": 85,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/frog_lights",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:ochre_froglight",
       "title": {
         "en_us": "Froglight Rainbow",
         "fr_fr": "Le royaume des grenouilles"
@@ -8281,15 +8905,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 250,
-        "y": 150
+        "x": -205,
+        "y": 68
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/wool_rainbow",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:magenta_wool",
       "title": {
         "en_us": "The Colors of the World",
         "fr_fr": "Les couleurs du monde"
@@ -8401,15 +9025,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 500,
-        "y": 150
+        "x": -75,
+        "y": 52
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/small_treasures",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:sniffer_egg",
       "title": {
         "en_us": "The Little Treasures",
         "fr_fr": "Les petits trésors"
@@ -8449,15 +9073,15 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 750,
-        "y": 150
+        "x": 135,
+        "y": 140
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:curiosities/strange_collection",
       "category": "questplus:curiosities",
-      "icon": "minecraft:music_disc_13",
+      "icon": "minecraft:pufferfish_bucket",
       "title": {
         "en_us": "The Strange Collector",
         "fr_fr": "L'étrange collectionneur"
@@ -8503,8 +9127,8 @@
       "progression": "once",
       "objectiveMode": "all",
       "layout": {
-        "x": 0,
-        "y": 150
+        "x": 265,
+        "y": 124
       }
     }
   ]

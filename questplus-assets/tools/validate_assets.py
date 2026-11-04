@@ -247,6 +247,17 @@ def static_checks():
     result["passed"].extend(["256x256 texture", "atlas bounds and non-overlap", "Blockbench UUID/outliner/UV/embedded-texture structure"])
     require("questplus_tablet" in models, "missing tablet .bbmodel")
     tablet = models["questplus_tablet"]
+    runtime = ROOT.parent / "src/main/resources/assets/questplus/tablet/geometry.json"
+    require(json.loads(runtime.read_text(encoding="utf-8")) == tablet["elements"], "runtime tablet geometry differs from editable source")
+    book = {e["name"]: e for e in tablet["elements"] if e["name"].startswith("book_")}
+    require(all(e.get("rotation", [0, 0, 0]) == [0, 0, 0] for e in book.values()), "book must remain straight without tilted pages or covers")
+    for model in models.values():
+        for clip in model["animations"]:
+            if clip["name"].endswith(("open", "close")):
+                require(clip["length"] == 1.0, "tablet opening and closing must last one second")
+    for side in (-1, 1):
+        page = book[f"book_open_page_{side}"]
+        require(min(abs(page["from"][0]), abs(page["to"][0])) <= .055, "book pages leave a gap at the binding")
     require(len(tablet["elements"]) == 79, "tablet geometry should contain 79 authored cubes")
     require(not any("cluster" in e["name"] or "shard" in e["name"] for e in tablet["elements"]), "outer crystal clusters should be absent")
     require(len([e for e in tablet["elements"] if "copper" in e["name"]]) >= 3, "copper frame detailing missing")
@@ -256,6 +267,13 @@ def static_checks():
     require(np.allclose(np.subtract(screen["to"],screen["from"])[:2],[20,12]),"blank display must remain 20x12 model units")
     for name in ("questplus_first_person", "questplus_first_person_slim", "questplus_third_person", "questplus_third_person_slim"):
         model=models[name]
+        for element in model["elements"]:
+            if element["name"] not in book:
+                continue
+            reference = book[element["name"]]
+            for field in ("from", "to", "origin"):
+                require(np.allclose(element[field], np.array(reference[field]) * .65 + [0, 18.8, -10.5], atol=EPS), f"{name}: book {field} differs from tablet source")
+            require(element.get("rotation", [0, 0, 0]) == reference.get("rotation", [0, 0, 0]), f"{name}: book rotation differs from tablet source")
         idle=next(a for a in model["animations"] if a["name"].endswith("idle"))
         root=next(a for a in idle["animators"].values() if a["name"]=="tablet_root")
         rotations=sorted((k for k in root["keyframes"] if k["channel"]=="rotation"),key=lambda k:k["time"])

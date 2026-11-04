@@ -12,7 +12,86 @@
         "en_us": "Collect, equip and optimize legendary armors, weapons and tools.",
         "fr_fr": "Collectionnez et perfectionnez vos armures, armes et outils légendaires."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "section_1",
+          "x": -284,
+          "y": -93,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Armor collection",
+            "fr_fr": "Collection d’armures"
+          }
+        },
+        {
+          "id": "section_2",
+          "x": -280,
+          "y": 104,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Enchanted armor",
+            "fr_fr": "Armures enchantées"
+          }
+        },
+        {
+          "id": "section_3",
+          "x": 16,
+          "y": -81,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Melee weapons",
+            "fr_fr": "Armes de mêlée"
+          }
+        },
+        {
+          "id": "section_4",
+          "x": 292,
+          "y": -57,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Ranged & mobility",
+            "fr_fr": "Distance et mobilité"
+          }
+        },
+        {
+          "id": "section_5",
+          "x": 32,
+          "y": 116,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Tools of the trade",
+            "fr_fr": "Outils de métier"
+          }
+        },
+        {
+          "id": "section_6",
+          "x": 296,
+          "y": 184,
+          "style": "label",
+          "color": "#b1a28e",
+          "width": 200,
+          "height": 24,
+          "text": {
+            "en_us": "Mastery",
+            "fr_fr": "Maîtrise"
+          }
+        }
+      ]
     }
   ],
   "quests": [
@@ -69,7 +148,11 @@
           "amount": 60
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -388,
+        "y": -39
+      }
     },
     {
       "schemaVersion": 2,
@@ -124,7 +207,11 @@
           "amount": 80
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -316,
+        "y": -51
+      }
     },
     {
       "schemaVersion": 2,
@@ -179,7 +266,11 @@
           "amount": 100
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -240,
+        "y": -46
+      }
     },
     {
       "schemaVersion": 2,
@@ -234,7 +325,11 @@
           "amount": 120
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -168,
+        "y": -34
+      }
     },
     {
       "schemaVersion": 2,
@@ -289,7 +384,11 @@
           "amount": 250
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -388,
+        "y": 10
+      }
     },
     {
       "schemaVersion": 2,
@@ -344,7 +443,11 @@
           "amount": 350
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -316,
+        "y": 24
+      }
     },
     {
       "schemaVersion": 2,
@@ -399,7 +502,11 @@
           "amount": 750
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -232,
+        "y": 12
+      }
     },
     {
       "schemaVersion": 2,
@@ -479,13 +586,17 @@
             "quest": "questplus:equipment/set_netherite"
           }
         ]
+      },
+      "layout": {
+        "x": -272,
+        "y": 74
       }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:equipment/diamond_p4",
       "category": "questplus:equipment",
-      "icon": "minecraft:netherite_chestplate",
+      "icon": "minecraft:diamond_chestplate",
       "title": {
         "en_us": "Diamond Bulwark",
         "fr_fr": "Le rempart de diamant"
@@ -542,7 +653,11 @@
           "amount": 550
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -388,
+        "y": 156
+      }
     },
     {
       "schemaVersion": 2,
@@ -605,7 +720,11 @@
           "amount": 800
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -300,
+        "y": 146
+      }
     },
     {
       "schemaVersion": 2,
@@ -668,7 +787,11 @@
           "amount": 700
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -208,
+        "y": 158
+      }
     },
     {
       "schemaVersion": 2,
@@ -735,7 +858,11 @@
           "amount": 1200
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -396,
+        "y": 207
+      }
     },
     {
       "schemaVersion": 2,
@@ -806,13 +933,17 @@
           "amount": 1800
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -304,
+        "y": 200
+      }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:equipment/deep_helmet",
       "category": "questplus:equipment",
-      "icon": "minecraft:netherite_chestplate",
+      "icon": "minecraft:netherite_helmet",
       "title": {
         "en_us": "Helm of the Depths",
         "fr_fr": "Le casque des profondeurs"
@@ -852,13 +983,17 @@
           "amount": 450
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -200,
+        "y": 212
+      }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:equipment/explorer_boots",
       "category": "questplus:equipment",
-      "icon": "minecraft:netherite_chestplate",
+      "icon": "minecraft:netherite_boots",
       "title": {
         "en_us": "Explorer's Boots",
         "fr_fr": "Les bottes de l'explorateur"
@@ -898,13 +1033,17 @@
           "amount": 550
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -384,
+        "y": 258
+      }
     },
     {
       "schemaVersion": 2,
       "id": "questplus:equipment/shadow_leggings",
       "category": "questplus:equipment",
-      "icon": "minecraft:netherite_chestplate",
+      "icon": "minecraft:netherite_leggings",
       "title": {
         "en_us": "Shadow Leggings",
         "fr_fr": "Les jambières de l'ombre"
@@ -943,7 +1082,11 @@
           "amount": 600
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -296,
+        "y": 251
+      }
     },
     {
       "schemaVersion": 2,
@@ -988,7 +1131,11 @@
           "amount": 400
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -196,
+        "y": 263
+      }
     },
     {
       "schemaVersion": 2,
@@ -1084,6 +1231,10 @@
             "quest": "questplus:equipment/titan_chest"
           }
         ]
+      },
+      "layout": {
+        "x": -292,
+        "y": 314
       }
     },
     {
@@ -1124,7 +1275,11 @@
           "amount": 180
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -72,
+        "y": -24
+      }
     },
     {
       "schemaVersion": 2,
@@ -1166,7 +1321,11 @@
           "amount": 350
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 16,
+        "y": -39
+      }
     },
     {
       "schemaVersion": 2,
@@ -1212,7 +1371,11 @@
           "amount": 1000
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 104,
+        "y": -22
+      }
     },
     {
       "schemaVersion": 2,
@@ -1257,7 +1420,11 @@
           "amount": 650
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -64,
+        "y": 37
+      }
     },
     {
       "schemaVersion": 2,
@@ -1302,7 +1469,11 @@
           "amount": 500
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 208,
+        "y": -2
+      }
     },
     {
       "schemaVersion": 2,
@@ -1346,7 +1517,11 @@
           "amount": 450
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 296,
+        "y": -15
+      }
     },
     {
       "schemaVersion": 2,
@@ -1392,7 +1567,11 @@
           "amount": 650
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 376,
+        "y": 20
+      }
     },
     {
       "schemaVersion": 2,
@@ -1437,7 +1616,11 @@
           "amount": 600
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 312,
+        "y": 63
+      }
     },
     {
       "schemaVersion": 2,
@@ -1482,7 +1665,11 @@
           "amount": 900
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 24,
+        "y": 24
+      }
     },
     {
       "schemaVersion": 2,
@@ -1526,7 +1713,11 @@
           "amount": 600
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 108,
+        "y": 44
+      }
     },
     {
       "schemaVersion": 2,
@@ -1571,7 +1762,11 @@
           "amount": 700
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -56,
+        "y": 173
+      }
     },
     {
       "schemaVersion": 2,
@@ -1616,7 +1811,11 @@
           "amount": 650
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 32,
+        "y": 158
+      }
     },
     {
       "schemaVersion": 2,
@@ -1660,7 +1859,11 @@
           "amount": 350
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 120,
+        "y": 176
+      }
     },
     {
       "schemaVersion": 2,
@@ -1704,7 +1907,11 @@
           "amount": 350
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": -48,
+        "y": 234
+      }
     },
     {
       "schemaVersion": 2,
@@ -1748,7 +1955,11 @@
           "amount": 350
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 40,
+        "y": 222
+      }
     },
     {
       "schemaVersion": 2,
@@ -1791,7 +2002,11 @@
           "amount": 400
         }
       ],
-      "progression": "once"
+      "progression": "once",
+      "layout": {
+        "x": 216,
+        "y": 56
+      }
     },
     {
       "schemaVersion": 2,
@@ -1856,6 +2071,10 @@
             "quest": "questplus:equipment/silk_pick"
           }
         ]
+      },
+      "layout": {
+        "x": 124,
+        "y": 242
       }
     },
     {
@@ -1985,6 +2204,10 @@
             "quest": "questplus:equipment/eternal_wings"
           }
         ]
+      },
+      "layout": {
+        "x": 296,
+        "y": 226
       }
     }
   ]

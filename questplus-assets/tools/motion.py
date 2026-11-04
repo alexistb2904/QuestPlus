@@ -2,7 +2,8 @@
 import math
 import numpy as np
 
-DURATION=1.2
+DURATION=1.2  # Authored curve timing; exports retime open/close together.
+TRANSITION_SECONDS=1.0
 FIRST_PERSON_ARM_SCALE=.45
 TIMES=[round(i/100,2) for i in range(121)]
 HELD=np.array([0,18.8,-10.5])

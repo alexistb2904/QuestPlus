@@ -1,8 +1,9 @@
 export type LocaleMap=Record<string,string>;
 export type Position={x:number;y:number};
 export type RichPart={type:'text';text:string;bold?:boolean;italic?:boolean;underline?:boolean;strike?:boolean;font?:string;size?:number;sizePx?:number;color?:string;highlight?:string}|{type:'image';data:string;width:number;height:number};
-export type Annotation={id:string;x:number;y:number;text:LocaleMap;style?:'note'|'heading'|'label';color?:string;width?:number;height?:number;rich?:Record<string,RichPart[]>};
-export type Category={id:string;order?:number;icon:string;title:LocaleMap;description?:LocaleMap;annotations?:Annotation[]};
+export type Annotation={id:string;x:number;y:number;text:LocaleMap;style?:'note'|'heading'|'label'|'background';color?:string;width?:number;height?:number;rich?:Record<string,RichPart[]>};
+export type LinkRoute={from:string;to:string;points:Position[]};
+export type Category={id:string;order?:number;icon:string;title:LocaleMap;description?:LocaleMap;annotations?:Annotation[];linkRoutes?:LinkRoute[]};
 export type Objective={id:string;event:string;target:string;count:number;text?:LocaleMap;conditions?:any};
 export type Reward={type:string;item?:string;count?:number;amount?:number;[key:string]:any};
 export type Quest={id:string;schemaVersion:number;category:string;icon:string;size?:number;title:LocaleMap;description?:LocaleMap;descriptionRich?:Record<string,RichPart[]>;objectives:Objective[];requires?:any;rewards:Reward[];progression:string;layout?:Position;kind?:string;acknowledgement?:string;narrative?:LocaleMap;hidden?:boolean;objectiveMode?:string;[key:string]:any};

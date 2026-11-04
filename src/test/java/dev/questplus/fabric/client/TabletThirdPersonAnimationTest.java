@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TabletThirdPersonAnimationTest {
     @Test void samplesTheBlockbenchPoseAndReversesWithoutJumping() {
+        assertEquals(1.0,TabletThirdPersonAnimation.OPEN_SECONDS);
         var initial=TabletThirdPersonAnimation.sample(false,0);
         var finish=TabletThirdPersonAnimation.sample(false,TabletThirdPersonAnimation.OPEN_SECONDS);
         var idle=TabletThirdPersonAnimation.sample(true,0);
@@ -46,8 +47,9 @@ class TabletThirdPersonAnimationTest {
         assertEquals(before.pose().rightPosition().y(),after.pose().rightPosition().y());
         assertEquals(before.pose().right().x(),after.pose().right().x());
         assertEquals(before.weight(),after.weight());
-        assertTrue(clock.sample(closeAt+1_100_000_000L,true).weight()<1);
-        assertNull(clock.sample(closeAt+1_200_000_000L,true));
+        long duration=(long)(TabletThirdPersonAnimation.OPEN_SECONDS*1_000_000_000L);
+        assertTrue(clock.sample(closeAt+duration-50_000_000L,true).weight()<1);
+        assertNull(clock.sample(closeAt+duration,true));
     }
 
     @Test void closeIsExactlyTheReverseOfOpenInTheExport() throws Exception {

@@ -21,6 +21,7 @@ import { withPrerequisite } from "../core/quest-links.js";
 import { fitEditor } from "../core/editor-geometry.js";
 import { tUI, storedUiLocale } from "../ui/ui-i18n.js";
 import { gameLayout } from "../core/game-layout.js";
+import {pruneLinkRoutes,isCategoryLink} from '../core/diagram-geometry.js';
 import type { Dispatch, SetStateAction } from "react";
 import type { Project, Selection, Camera, Quest, Category } from "../types";
 export type Session = { project: Project; categoryId: string | null; selection: Selection | null; camera: Camera; language: string };
@@ -89,6 +90,7 @@ export function useStudio() {
 		setState((prev) => {
 			const next = { ...prev, project: copy(prev.project) };
 			change(next);
+			pruneLinkRoutes(next.project);
 			if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
 			const now = Date.now();
 			if (!field || last.current.field !== field || now - last.current.time > 600) {
@@ -119,6 +121,7 @@ export function useStudio() {
 			(s) => {
 				const o = owner(s.project, s.selection);
 				if (!o) return;
+				if(path==='style'&&value==='background')delete o.rich;
 				if (path === "category" && s.selection?.type === "quest") s.categoryId = value;
 				if (s.selection?.type === "quest" && o.schemaVersion === 1 && ["noDeath", "objectiveMode", "timeLimitSeconds", "cooldownSeconds"].includes(path))
 					o.schemaVersion = 2;
@@ -162,15 +165,10 @@ export function useStudio() {
 	const quests = state.project.quests.filter((q) => q.category === state.categoryId);
 	function fit(group = currentCategory, rows = quests) {
 		const el = document.getElementById("viewport");
-		const padding={
-			x:Math.max(81,...rows.map(q=>81*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.width??170)/2)),
-			y:Math.max(33,...rows.map(q=>33*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.height??100)/2))
-		};
 		return fitEditor(
 			[...gameLayout(rows).points.values(), ...(group?.annotations || []).map((n) => ({ x: n.x, y: n.y }))],
 			el?.clientWidth || 720,
-			el?.clientHeight || 450,
-			padding
+			el?.clientHeight || 450
 		) as Camera;
 	}
 	function selectCategory(id: string) {
@@ -220,9 +218,30 @@ export function useStudio() {
 			s.selection = { type: "annotation", id };
 		});
 	}
+	function createBackground(rect:{x:number;y:number;width:number;height:number}) {
+		if(!currentCategory)return;
+		mutate(s=>{
+			const cat=s.project.categories.find(c=>c.id===s.categoryId)!;
+			cat.annotations ||= [];
+			let id='background',i=1;
+			while(cat.annotations.some(a=>a.id===id))id='background'+ ++i;
+			cat.annotations.push({id,...rect,style:'background',color:'#6b727e',text:{en_us:'Background'}});
+			s.selection={type:'annotation',id};
+		});
+	}
+	function setLinkRoute(from:string,to:string,points:{x:number;y:number}[]) {
+		if(points.length>64)return toast(tUI('64 waypoints maximum per link'));
+		mutate(s=>{
+			const category=s.project.categories.find(c=>c.id===s.categoryId);
+			if(!category||!isCategoryLink(category,s.project.quests,{from,to}))return;
+			category.linkRoutes=(category.linkRoutes||[]).filter(r=>r.from!==from||r.to!==to);
+			if(points.length)category.linkRoutes.push({from,to,points});
+		},'route:'+from+'>'+to);
+	}
 	function action(kind: string, index = 0) {
 		if (kind === "create-quest") return createQuest();
 		if (kind === "create-annotation") return createAnnotation();
+		if (kind === "create-background") return createBackground({x:state.camera.x,y:state.camera.y,width:280,height:180});
 		if (kind === "delete-category" && state.project.quests.some((q) => q.category === state.selection?.id)) return toast(tUI("Cannot delete a category with quests."));
 		if (kind === "delete-quest" && state.selection?.type === "quest") {
 			const dependents = state.project.quests.filter((q) => references(q.requires).includes(state.selection!.id));
@@ -525,6 +544,8 @@ export function useStudio() {
 		createCategory,
 		createQuest,
 		createAnnotation,
+		createBackground,
+		setLinkRoute,
 		action,
 		changeCondition,
 		setPosition,

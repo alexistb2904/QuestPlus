@@ -12,7 +12,8 @@ for mode in ['first_person','third_person']:
     call('set_camera_angle',camera)
     call('execute_script',{'code':'Preview.selected.camera.zoom=1; Preview.selected.camera.fov=65; Preview.selected.camera.updateProjectionMatrix(); return true;'})
     frames=[]
-    for index,duration in [(0,1.2),(1,.6),(2,1.2)]:
+    durations=call('execute_script',{'code':'return Animation.all.map(a=>a.length);'})
+    for index,duration in [(0,durations[0]),(1,.6),(2,durations[2])]:
         call('execute_script',{'code':'Animation.all[params.index].select(); return true;','params':{'index':index}})
         for step in range(round(duration*25)+1):
             t=step/25

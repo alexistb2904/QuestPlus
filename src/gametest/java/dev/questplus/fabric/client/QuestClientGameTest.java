@@ -19,6 +19,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             context.setScreen(QuestScreen::new);
             context.waitTicks(30);
             context.takeScreenshot("questplus-tablet-initial");
+            diagramFixture(context);
             context.runOnClient(client -> {
                 client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6,0,0));
                 client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN,0,0));
@@ -83,6 +84,17 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                     context.waitFor(client -> client.gui.screen() instanceof QuestScreen && TabletSurfaceRenderer.active(),120);
                     context.waitTicks(3);
                     context.takeScreenshot("questplus-native-"+cycle+"-idle");
+                    if (cycle==1) {
+                        context.waitTicks(18);
+                        context.takeScreenshot("questplus-native-idle-effects-later");
+                        context.runOnClient(client -> {
+                            boolean previous=QuestPlusClient.settings.reducedMotion;
+                            try {
+                                QuestPlusClient.settings.reducedMotion=true;
+                                if (TabletIdleEffects.frame().animated()) throw new AssertionError("Reduced motion left tablet effects animated");
+                            } finally { QuestPlusClient.settings.reducedMotion=previous; }
+                        });
+                    }
                     context.runOnClient(client -> {
                         if (!TabletSurfaceRenderer.active()) throw new AssertionError("Native tablet UI did not attach at cycle "+currentCycle);
                         if (!(client.gui.screen() instanceof QuestScreen screen)
@@ -136,7 +148,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                         context.runOnClient(client -> QuestPlusClient.settings.blur=true);
                         context.waitTicks(3); context.takeScreenshot("questplus-native-blur-on");
                     }
-                    clickFace(context,370,100);
+                    clickButton(context,"scale",100);
                     context.runOnClient(client -> {
                         if (QuestPlusClient.settings.scale!=1.25 || client.gui.screen().width!=TabletSurfaceRenderer.logicalWidth())
                             throw new AssertionError("Interface scale did not resize the logical canvas");
@@ -193,6 +205,49 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             if (FabricLoader.getInstance().isModLoaded("fp_pal") && TabletFrameInterpolation.settled(net.minecraft.resources.Identifier.parse("questplus:questplus.idle"),0))
                 throw new AssertionError("Disconnected interpolation snapshots retained");
         });
+    }
+
+    private static void diagramFixture(ClientGameTestContext context) {
+        var originalCategories=new java.util.LinkedHashMap<String,com.google.gson.JsonObject>();
+        var originalQuests=new java.util.LinkedHashMap<String,dev.questplus.core.QuestDefinition>();
+        context.runOnClient(client -> {
+            var state=QuestPlusClient.STATE;
+            originalCategories.putAll(state.categories); originalQuests.putAll(state.quests);
+            dev.questplus.clientmodel.QuestLayout.Edge edge=null;
+            String group=null;
+            for (String id:state.categories.keySet()) {
+                var layout=dev.questplus.clientmodel.QuestLayout.compute(state.quests.values().stream().filter(q -> id.equals(q.category())).toList());
+                if (!layout.edges().isEmpty()) { edge=layout.edges().getFirst(); group=id; break; }
+            }
+            if (edge==null) throw new AssertionError("Missing quest dependency for diagram rendering test");
+            var source=state.quests.get(edge.from()); var target=state.quests.get(edge.to());
+            var points=dev.questplus.clientmodel.QuestLayout.compute(java.util.List.of(source,target)).points();
+            var from=points.get(source.id()); var to=points.get(target.id());
+            var category=state.categories.get(group).deepCopy();
+            var background=new com.google.gson.JsonObject();
+            background.addProperty("id","test_background"); background.addProperty("style","background");
+            background.addProperty("x",(from.x()+to.x())/2); background.addProperty("y",(from.y()+to.y())/2);
+            background.addProperty("width",(int)Math.ceil(Math.abs(from.x()-to.x())+120));
+            background.addProperty("height",(int)Math.ceil(Math.abs(from.y()-to.y())+120));
+            background.addProperty("color","#aa8060"); background.add("text",new com.google.gson.JsonObject());
+            var annotations=new com.google.gson.JsonArray(); annotations.add(background); category.add("annotations",annotations);
+            var waypoint=new com.google.gson.JsonObject(); waypoint.addProperty("x",(from.x()+to.x())/2+30); waypoint.addProperty("y",(from.y()+to.y())/2);
+            var route=new com.google.gson.JsonObject(); route.addProperty("from",source.id()); route.addProperty("to",target.id());
+            var waypoints=new com.google.gson.JsonArray(); waypoints.add(waypoint); route.add("points",waypoints);
+            var routes=new com.google.gson.JsonArray(); routes.add(route); category.add("linkRoutes",routes);
+            state.categories.clear(); state.categories.put(group,category);
+            state.quests.clear(); state.quests.put(source.id(),source); state.quests.put(target.id(),target); state.catalogueRevision++;
+        });
+        try {
+            context.setScreen(QuestScreen::new); context.waitTicks(5);
+            context.takeScreenshot("questplus-diagram-background-and-route");
+        } finally {
+            context.runOnClient(client -> {
+                var state=QuestPlusClient.STATE; state.categories.clear(); state.categories.putAll(originalCategories);
+                state.quests.clear(); state.quests.putAll(originalQuests); state.catalogueRevision++;
+            });
+            context.setScreen(QuestScreen::new); context.waitTicks(3);
+        }
     }
 
     private static void categoryScrollTrial(ClientGameTestContext context) {
@@ -286,11 +341,14 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,new dev.questplus.fabric.TabletPoseNetwork.State(id,open))));
     }
 
-    private static void clickButton(ClientGameTestContext context,String key) {
+    private static void clickButton(ClientGameTestContext context,String key,Object... args) {
         var point=context.computeOnClient(client -> {
             var screen=(QuestScreen)client.gui.screen();
             var button=screen.children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
-                .filter(b -> b.getMessage().getString().equals(QuestPlusClient.tr(key).getString())).findFirst().orElseThrow();
+                .filter(b -> b.getMessage().getString().equals(QuestPlusClient.tr(key,args).getString())).findFirst().orElseThrow();
+            if (TabletSurfaceRenderer.active()) return TabletFaceAnchor.windowPoint(
+                (button.getX()+button.getWidth()/2.0)*TabletSurfaceRenderer.uiScale(),
+                (button.getY()+button.getHeight()/2.0)*TabletSurfaceRenderer.uiScale());
             return new TabletFaceAnchor.Point((button.getX()+button.getWidth()/2.0)*client.getWindow().getWidth()/client.getWindow().getGuiScaledWidth(),
                 (button.getY()+button.getHeight()/2.0)*client.getWindow().getHeight()/client.getWindow().getGuiScaledHeight());
         });

@@ -25,8 +25,11 @@ import {
 	PanelLeftOpen,
 	SlidersHorizontal,
 	GitBranch,
+	Square,
 } from "lucide-react";
 import { clampZoom } from "./core/editor-geometry.js";
+import { clampPaneSize } from "./core/pane-resize.js";
+import { PaneSeparator } from "./components/PaneSeparator";
 import { descriptionParts, descriptionHtml } from "./core/description-format.js";
 import { richToHtml } from "./core/rich-format.js";
 import { text, validate, objectiveLabel } from "./core/project.js";
@@ -57,15 +60,37 @@ export default function App() {
 		[jsonError, setJsonError] = useState(""),
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
-	const [showQuestTitles,setShowQuestTitles]=useState(()=>localStorage.getItem("questplus.quest-titles")==="true");
- useEffect(()=>{localStorage.setItem("questplus.quest-titles",String(showQuestTitles))},[showQuestTitles]);
- const [search, setSearch] = useState(""),
+	const [showQuestTitles, setShowQuestTitles] = useState(() => localStorage.getItem("questplus.quest-titles") === "true");
+	useEffect(() => {
+		localStorage.setItem("questplus.quest-titles", String(showQuestTitles));
+	}, [showQuestTitles]);
+	const [search, setSearch] = useState(""),
 		[grid, setGrid] = useState(true),
 		[snap, setSnap] = useState(false),
 		[gridSize, setGridSize] = useState(32),
-		[tool, setTool] = useState<"select" | "pan">("select"),
+		[tool, setTool] = useState<"select" | "pan" | "background">("select"),
 		[libraryOpen, setLibraryOpen] = useState(() => window.matchMedia("(min-width:1200px)").matches),
 		[mobilePanel, setMobilePanel] = useState<"canvas" | "properties">("canvas");
+	const workspaceRef = useRef<HTMLDivElement>(null);
+	const [paneSizes, setPaneSizes] = useState<{library?:number;properties?:number;details?:number}>(() => {
+		try { const saved=JSON.parse(localStorage.getItem("questplus.pane-sizes")||"{}");
+			return Object.fromEntries(Object.entries(saved).filter(([key,value]) => ["library","properties","details"].includes(key) && typeof value==="number" && Number.isFinite(value))); }
+		catch { return {}; }
+	});
+	useEffect(() => { try { localStorage.setItem("questplus.pane-sizes",JSON.stringify(paneSizes)); } catch {} },[paneSizes]);
+	const paneValue = (kind:"library"|"properties"|"details") => {
+		const selector=kind==="library"?".sidebar":kind==="properties"?".properties-pane":".quest-details";
+		const rect=workspaceRef.current?.querySelector(selector)?.getBoundingClientRect();
+		return (kind==="details"?rect?.height:rect?.width)||paneSizes[kind]||(kind==="library"?270:kind==="properties"?355:250);
+	};
+	const resizePane = (kind:"library"|"properties"|"details",value:number) => {
+		const workspace=workspaceRef.current;if(!workspace)return;
+		const other=kind==="library"?paneValue("properties"):libraryOpen?paneValue("library"):0;
+		const height=workspace.querySelector(".main")?.clientHeight||workspace.clientHeight;
+		setPaneSizes(old=>({...old,[kind]:clampPaneSize(kind,value,workspace.clientWidth,other,height)}));
+	};
+	const separator = (kind:"library"|"properties"|"details") => <PaneSeparator kind={kind} value={()=>paneValue(kind)} onResize={value=>resizePane(kind,value)}/>;
+	const paneStyle = {"--library-width":paneSizes.library===undefined?undefined:paneSizes.library+"px", "--properties-width":paneSizes.properties===undefined?undefined:paneSizes.properties+"px", "--details-height":paneSizes.details===undefined?undefined:paneSizes.details+"px"} as React.CSSProperties;
 	const files = useRef<HTMLInputElement>(null),
 		folder = useRef<HTMLInputElement>(null),
 		searchRef = useRef<HTMLInputElement>(null);
@@ -142,25 +167,20 @@ export default function App() {
 		onAddLocale: studio.addLocale,
 		onOpenTranslations: () => {
 			setTranslationRequest((value) => value + 1);
-			setMobilePanel('canvas');
+			setMobilePanel("canvas");
 		},
 		translationRequest,
 	};
 	return (
 		<div className="app">
 			<header className="topbar stone">
-				<div className="brand">
-					<img src={logo} alt="" width="44" height="44" />
-					<div>
+				<div className="editor-plaque">
+					<Workflow size={26} />
+					<span>
 						<div className="brand-name">
 							QuestPlus <span>Studio</span>
 						</div>
-						<div className="brand-caption">{tUI("Quest Editor for Minecraft Mods")}</div>
-					</div>
-				</div>
-				<div className="editor-plaque">
-					<Workflow size={26} />
-					<span>{tUI("Quest Editor")}</span>
+					</span>
 				</div>
 				<div className="landscape-banner" role="img" aria-label={tUI("Minecraft landscape")} />
 				<div className="top-actions">
@@ -184,7 +204,12 @@ export default function App() {
 				</div>
 			</header>
 			<div className="command-bar stone" role="toolbar" aria-label={tUI("Editor actions")}>
-				<button className="button primary" onClick={() => { if (!studio.saveAndExport()) setIssuesOpen(true); }} title={tUI("Save and download a ZIP (Ctrl+S)")}>
+				<button
+					className="button primary"
+					onClick={() => {
+						if (!studio.saveAndExport()) setIssuesOpen(true);
+					}}
+					title={tUI("Save and download a ZIP (Ctrl+S)")}>
 					<Save size={18} />
 					{tUI("Save")}
 				</button>
@@ -202,11 +227,19 @@ export default function App() {
 					<span>{tUI("Redo")}</span>
 				</button>
 				<span className="divider" />
-				<button className="icon-button" aria-label={tUI("Zoom out")} title={tUI("Zoom out")}
-                    onClick={() => changeCamera({...camera,zoom:clampZoom(camera.zoom/1.2)})}><Minus size={17}/></button>
-                <button className="zoom-reset" onClick={() => changeCamera({...camera,zoom:1})} title={tUI("Reset zoom")}>{Math.round(camera.zoom*100)}%</button>
-                <button className="icon-button" aria-label={tUI("Zoom in")} title={tUI("Zoom in")}
-                    onClick={() => changeCamera({...camera,zoom:clampZoom(camera.zoom*1.2)})}><Plus size={17}/></button>
+				<button
+					className="icon-button"
+					aria-label={tUI("Zoom out")}
+					title={tUI("Zoom out")}
+					onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom / 1.2) })}>
+					<Minus size={17} />
+				</button>
+				<button className="zoom-reset" onClick={() => changeCamera({ ...camera, zoom: 1 })} title={tUI("Reset zoom")}>
+					{Math.round(camera.zoom * 100)}%
+				</button>
+				<button className="icon-button" aria-label={tUI("Zoom in")} title={tUI("Zoom in")} onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom * 1.2) })}>
+					<Plus size={17} />
+				</button>
 				<button className={"icon-button toggle" + (grid ? " active" : "")} aria-label={tUI("Show grid")} aria-pressed={grid} onClick={() => setGrid((v) => !v)}>
 					<Grid2X2 size={18} />
 				</button>
@@ -230,7 +263,7 @@ export default function App() {
 					<FolderOpen size={17} />
 					<span>{tUI("Add Category")}</span>
 				</button>
-				<button className="button primary" disabled={!cat} onClick={studio.createQuest}>
+				<button className="button primary" disabled={!cat} onClick={() => studio.createQuest()}>
 					<Plus size={19} />
 					<span>{tUI("Add Quest")}</span>
 				</button>
@@ -274,7 +307,7 @@ export default function App() {
 				</button>
 			</nav>
 			{libraryOpen && <button className="library-backdrop" aria-label={tUI("Close library")} onClick={() => setLibraryOpen(false)} />}
-			<div data-panel={mobilePanel} className={"workspace" + (!libraryOpen ? " library-collapsed" : "")}>
+			<div ref={workspaceRef} style={paneStyle} data-panel={mobilePanel} className={"workspace" + (!libraryOpen ? " library-collapsed" : "") + (paneSizes.details===undefined ? "" : " panes-custom-height")}>
 				{libraryOpen && (
 					<Sidebar
 						project={project}
@@ -293,6 +326,7 @@ export default function App() {
 						onImportFolder={() => folder.current?.click()}
 					/>
 				)}
+				{libraryOpen && separator("library")}
 				<main className="main" id="graph-panel">
 					<div className="canvas-shell">
 						<div className="canvas-toolbar stone">
@@ -330,9 +364,17 @@ export default function App() {
 									aria-label={tUI("Pan")}>
 									<Hand size={18} />
 								</button>
-                                <button type="button" className={"icon-button"+(showQuestTitles?" active":"")}
-                                  aria-pressed={showQuestTitles} aria-label={tUI('Show quest titles')} title={tUI('Show quest titles')}
-                                  onClick={()=>setShowQuestTitles(v=>!v)}>{showQuestTitles?<Eye size={18}/>:<EyeOff size={18}/>}</button>
+								<button className={"icon-button"+(tool==='background'?' active':'')} disabled={!cat} aria-pressed={tool==='background'}
+								 aria-label={tUI('Draw background')} title={tUI('Draw background')} onClick={()=>setTool('background')}><Square size={18}/></button>
+								<button
+									type="button"
+									className={"icon-button" + (showQuestTitles ? " active" : "")}
+									aria-pressed={showQuestTitles}
+									aria-label={tUI("Show quest titles")}
+									title={tUI("Show quest titles")}
+									onClick={() => setShowQuestTitles((v) => !v)}>
+									{showQuestTitles ? <Eye size={18} /> : <EyeOff size={18} />}
+								</button>
 								<button className="icon-button" disabled={!cat} onClick={studio.autoLayout} title={tUI("Auto-layout")} aria-label={tUI("Auto-layout")}>
 									<Workflow size={18} />
 								</button>
@@ -352,8 +394,10 @@ export default function App() {
 							onCamera={changeCamera}
 							onSelect={(s) => setState((old) => ({ ...old, selection: s }))}
 							onPosition={studio.setPosition}
-                            onResize={studio.resizeNode}
-                            onCreateAt={(kind,at)=>kind==='quest'?studio.createQuest(at):studio.createAnnotation(at)}
+							onResize={studio.resizeNode}
+							onRoute={studio.setLinkRoute}
+							onBackgroundCreate={rect=>{studio.createBackground(rect);setTool('select')}}
+							onCreateAt={(kind, at) => (kind === "quest" ? studio.createQuest(at) : studio.createAnnotation(at))}
 							showQuestTitles={showQuestTitles}
 							showGrid={grid}
 							gridSize={gridSize}
@@ -365,7 +409,7 @@ export default function App() {
 								<MousePointer2 size={12} />
 								{tUI("Drag to move · Wheel to zoom · Shift+wheel to pan")}
 							</span>
-							<button className="subtle" disabled={!cat} onClick={studio.createAnnotation}>
+							<button className="subtle" disabled={!cat} onClick={() => studio.createAnnotation()}>
 								<StickyNote size={13} />
 								{tUI("Add annotation")}
 							</button>
@@ -374,6 +418,7 @@ export default function App() {
 							</span>
 						</div>
 					</div>
+					{separator("details")}
 					<QuestDetails {...inspectorProps} />
 					<div className={"issues-bar stone" + (issues.length ? " error" : "")} role="status">
 						<span className="issues-icon">{issues.length ? <TriangleAlert size={16} /> : <Check size={16} />}</span>
@@ -409,6 +454,7 @@ export default function App() {
 						</div>
 					)}
 				</main>
+				{separator("properties")}
 				<div className="properties-pane" id="properties-panel">
 					<Inspector {...inspectorProps} />
 				</div>
@@ -483,7 +529,14 @@ export default function App() {
 					<div className="quest-preview">
 						<ItemIcon id={selected.icon} size={52} />
 						<h2>{text(selected.title, language)}</h2>
-						<div className="description-preview" dangerouslySetInnerHTML={{ __html: selected.descriptionRich?.[language]?.length?richToHtml(selected.descriptionRich[language]):descriptionHtml(descriptionParts(text(selected.description, language))) }} />
+						<div
+							className="description-preview"
+							dangerouslySetInnerHTML={{
+								__html: selected.descriptionRich?.[language]?.length
+									? richToHtml(selected.descriptionRich[language])
+									: descriptionHtml(descriptionParts(text(selected.description, language))),
+							}}
+						/>
 						{selected.kind === "information" ? (
 							<p>{text(selected.narrative, language)}</p>
 						) : (

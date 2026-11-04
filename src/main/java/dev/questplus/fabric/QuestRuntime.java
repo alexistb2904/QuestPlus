@@ -78,7 +78,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon","annotations","order","images").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations","order","images","linkRoutes").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -144,8 +144,9 @@ public final class QuestRuntime implements AutoCloseable {
                             throw new IllegalArgumentException("Annotation dimensions must be positive: "+aid);
                         String style=note.has("style") ? note.get("style").getAsString() : "note";
                         String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
-                        if (!Set.of("note","heading","label").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
+                        if (!Set.of("note","heading","label","background").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
                             throw new IllegalArgumentException("Invalid annotation style/color: "+aid);
+                        if (style.equals("background")) ClientProjection.validateBackground(note,aid);
                         if (!note.get("text").isJsonObject())
                             throw new IllegalArgumentException("Annotation text must be a locale map: "+aid);
                         Map<String,String> noteText=new HashMap<>();
@@ -217,11 +218,12 @@ public final class QuestRuntime implements AutoCloseable {
                             }
                             return false;
                         });
-                        if (noteText.isEmpty() && !hasRich) throw new IllegalArgumentException("Annotation has no translated content: "+aid);
+                        if (!style.equals("background") && noteText.isEmpty() && !hasRich) throw new IllegalArgumentException("Annotation has no translated content: "+aid);
                         annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich),width,height));
                     }
                 }
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order,List.copyOf(images)));
+                List<ClientProjection.LinkRoute> routes=ClientProjection.routes(category.get("linkRoutes"),id,candidate);
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order,List.copyOf(images),routes));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());

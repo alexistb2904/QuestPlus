@@ -90,7 +90,7 @@ public final class QuestNetwork {
         JsonObject packet=new JsonObject();
         if (full) {
             packet.addProperty("type","snapshot");
-            packet.add("categories",JSON.toJsonTree(runtime.categories()));
+            packet.add("categories",ClientProjection.categories(runtime.categories(),visible));
             packet.add("quests",ClientProjection.quests(visible));
             packet.add("progress",progress); packet.add("team",team); packet.add("invitations",invitations);
         } else {

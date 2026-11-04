@@ -26,6 +26,7 @@ public final class QuestScreen extends Screen {
     private final Map<String,QuestLayout> layouts=new HashMap<>();
     private final Map<String,ItemStack> icons=new HashMap<>();
     private QuestLayout layout=QuestLayout.compute(List.of());
+    private Map<QuestLayout.Edge,List<QuestLayout.Point>> routes=Map.of();
     private QuestCamera camera=new QuestCamera(0.25,2.5);
     private String category,selected,tab="quests",filter="all",confirmation;
     private EditBox search,input;
@@ -158,6 +159,16 @@ public final class QuestScreen extends Screen {
         QuestPlusClient.NEW_UNLOCKS.removeIf(qid -> state.quests.containsKey(qid) && Objects.equals(state.quests.get(qid).category(),id));
         filteredCatalogue=-2;
         layout=layouts.computeIfAbsent(Objects.toString(id,""),ignored -> QuestLayout.compute(state.quests.values().stream().filter(q -> Objects.equals(q.category(),id)).toList()));
+        Map<QuestLayout.Edge,List<QuestLayout.Point>> selectedRoutes=new HashMap<>();
+        var data=state.categories.get(id);
+        if (data!=null && data.has("linkRoutes")) for (var entry:data.getAsJsonArray("linkRoutes")) {
+            var route=entry.getAsJsonObject(); List<QuestLayout.Point> points=new ArrayList<>();
+            for (var point:route.getAsJsonArray("points")) {
+                var value=point.getAsJsonObject(); points.add(new QuestLayout.Point(value.get("x").getAsDouble(),value.get("y").getAsDouble()));
+            }
+            selectedRoutes.put(new QuestLayout.Edge(route.get("from").getAsString(),route.get("to").getAsString()),List.copyOf(points));
+        }
+        routes=Map.copyOf(selectedRoutes);
         boolean fresh=!cameras.containsKey(id);
         camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(0.25,2.5));
         if (fresh) fit();
@@ -351,13 +362,27 @@ public final class QuestScreen extends Screen {
         updateRenderCache();
         g.enableScissor(treeLeft,treeTop,treeRight,treeBottom);
         drawPaper(g);
+        g.nextStratum(); drawBackgrounds(g); g.nextStratum();
         drawAnnotations(g);
         for (var edge:visibleEdges) {
             var a=layout.points().get(edge.from()); var b=layout.points().get(edge.to());
             int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y())+nodeRadius(state.quests.get(edge.from()));
             int x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y())-nodeRadius(state.quests.get(edge.to()));
+            int c=QuestClientState.flag(state.progress(edge.from()),"completed") ? 0xffd9c4a4 : 0xff827366;
+            if (routes.containsKey(edge) && !routes.get(edge).isEmpty()) {
+                int previousX=x1,previousY=y1;
+                for (var point:routes.get(edge)) {
+                    int x=(int)camera.screenX(point.x()),y=(int)camera.screenY(point.y());
+                    drawSegment(g,previousX,previousY,x,y,c); previousX=x; previousY=y;
+                }
+                drawSegment(g,previousX,previousY,x2,y2,c);
+                g.pose().pushMatrix(); g.pose().translate(x2,y2);
+                g.pose().rotate((float)Math.atan2(y2-previousY,x2-previousX));
+                g.fill(-4,-2,-3,3,c); g.fill(-3,-1,-2,2,c); g.fill(-2,0,0,1,c); g.pose().popMatrix();
+                continue;
+            }
             if (Math.max(x1,x2)<treeLeft || Math.min(x1,x2)>treeRight || Math.max(y1,y2)<treeTop || Math.min(y1,y2)>treeBottom) continue;
-            int middle=(y1+y2)/2,c=QuestClientState.flag(state.progress(edge.from()),"completed") ? 0xffd9c4a4 : 0xff827366;
+            int middle=(y1+y2)/2;
             g.fill(x1,Math.min(y1,middle),x1+1,Math.max(y1,middle)+1,c); g.fill(Math.min(x1,x2),middle,Math.max(x1,x2)+1,middle+1,c); g.fill(x2,Math.min(middle,y2),x2+1,Math.max(middle,y2)+1,c);
             g.fill(x2-2,y2-3,x2+3,y2-2,c); g.fill(x2-1,y2-2,x2+2,y2-1,c);
         }
@@ -387,6 +412,30 @@ public final class QuestScreen extends Screen {
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
     }
+    private static void drawSegment(GuiGraphicsExtractor g,int x1,int y1,int x2,int y2,int color) {
+        int length=(int)Math.ceil(Math.hypot((double)x2-x1,(double)y2-y1));
+        if (length==0) return;
+        g.pose().pushMatrix(); g.pose().translate(x1,y1);
+        g.pose().rotate((float)Math.atan2((double)y2-y1,(double)x2-x1));
+        g.fill(0,0,length,1,color); g.pose().popMatrix();
+    }
+
+    private void drawBackgrounds(GuiGraphicsExtractor g) {
+        var data=state.categories.get(category);
+        if (data==null || !data.has("annotations")) return;
+        for (var entry:data.getAsJsonArray("annotations")) {
+            var note=entry.getAsJsonObject();
+            if (!note.has("style") || !note.get("style").getAsString().equals("background")) continue;
+            int x=(int)Math.round(camera.screenX(note.get("x").getAsDouble()));
+            int y=(int)Math.round(camera.screenY(note.get("y").getAsDouble()));
+            int w=Math.max(1,(int)Math.round(note.get("width").getAsDouble()*camera.zoom()));
+            int h=Math.max(1,(int)Math.round(note.get("height").getAsDouble()*camera.zoom()));
+            int l=x-w/2,t=y-h/2;
+            if (l+w<treeLeft || l>treeRight || t+h<treeTop || t>treeBottom) continue;
+            int rgb=Integer.parseInt(note.get("color").getAsString().substring(1),16);
+            g.fill(l,t,l+w,t+h,0x24000000|rgb); g.outline(l,t,w,h,0x55000000|rgb);
+        }
+    }
     /** Annotation coordinates use the same world-space camera as quest nodes. */
     private void drawAnnotations(GuiGraphicsExtractor g) {
         var data=state.categories.get(category);
@@ -394,6 +443,7 @@ public final class QuestScreen extends Screen {
         JsonArray imagePool=data.has("images")?data.getAsJsonArray("images"):new JsonArray();
         for (var entry:data.getAsJsonArray("annotations")) {
             var note=entry.getAsJsonObject();
+            if (note.has("style") && note.get("style").getAsString().equals("background")) continue;
             int x=(int)camera.screenX(note.get("x").getAsDouble());
             int y=(int)camera.screenY(note.get("y").getAsDouble());
             int extentX=note.has("width")?Math.max(1,note.get("width").getAsInt())/2:200;
@@ -450,7 +500,7 @@ public final class QuestScreen extends Screen {
         }).map(Map.Entry::getKey).toList();
         visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())).filter(e -> {
             var a=layout.points().get(e.from()); var z=layout.points().get(e.to());
-            return Math.max(a.x(),z.x())>=l && Math.min(a.x(),z.x())<=r && Math.max(a.y(),z.y())>=t && Math.min(a.y(),z.y())<=b;
+            return routes.containsKey(e) || Math.max(a.x(),z.x())>=l && Math.min(a.x(),z.x())<=r && Math.max(a.y(),z.y())>=t && Math.min(a.y(),z.y())<=b;
         }).toList();
     }
     private void detailsButtons() {

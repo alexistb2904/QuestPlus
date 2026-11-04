@@ -1,5 +1,19 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Verified Equipment","Vérifier l’équipement","Verificar equipamiento","验证装备"],
+  ["Resize library","Redimensionner la bibliothèque","Redimensionar biblioteca","调整资料库大小"],
+  ["Resize properties","Redimensionner les propriétés","Redimensionar propiedades","调整属性面板大小"],
+  ["Resize diagram and objectives","Redimensionner le diagramme et les objectifs","Redimensionar diagrama y objetivos","调整图表和目标大小"],
+  ["Draw background","Dessiner un fond","Dibujar fondo","绘制背景"],
+  ["Background","Fond","Fondo","背景"],
+  ["Add background","Ajouter un fond","Añadir fondo","添加背景"],
+  ["Link waypoint","Point de passage du lien","Punto de paso del enlace","连线路径点"],
+  ["Remove waypoint","Supprimer le point de passage","Eliminar punto de paso","删除路径点"],
+  ["Drag a link to add a waypoint","Glisser un lien pour ajouter un point de passage","Arrastra un enlace para añadir un punto de paso","拖动连线以添加路径点"],
+  ["Background color","Couleur du fond","Color del fondo","背景颜色"],
+  ["Edit enchantment","Modifier l’enchantement","Editar encantamiento","编辑附魔"],
+  ["Invalid or duplicate enchantment ID","Identifiant d’enchantement invalide ou déjà utilisé","ID de encantamiento inválido o duplicado","附魔 ID 无效或重复"],
+
   ["Armor / enchanted tools","Armure / outils enchantés","Armadura / herramientas encantadas","护甲 / 附魔工具"],
   ["Armor preset","Armure complète","Conjunto de armadura","护甲套装"],
   ["Select set…","Choisir une armure…","Elegir conjunto…","选择套装…"],

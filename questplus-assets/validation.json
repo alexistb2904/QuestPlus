@@ -61,48 +61,48 @@
   "arm_tablet_collisions": {
     "questplus_first_person": {
       "questplus.open": {
-        "sampled_times": 255,
+        "sampled_times": 241,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.close": {
-        "sampled_times": 255,
+        "sampled_times": 241,
         "first_intersections": [],
         "intersection_samples": 0
       }
     },
     "questplus_first_person_slim": {
       "questplus.open": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.close": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       }
     },
     "questplus_third_person": {
       "questplus.third_person_open": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.third_person_close": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       }
     },
     "questplus_third_person_slim": {
       "questplus.third_person_open": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.third_person_close": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       }
@@ -117,24 +117,24 @@
   "body_tablet_collisions": {
     "questplus_third_person": {
       "questplus.third_person_open": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.third_person_close": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       }
     },
     "questplus_third_person_slim": {
       "questplus.third_person_open": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       },
       "questplus.third_person_close": {
-        "sampled_times": 133,
+        "sampled_times": 123,
         "first_intersections": [],
         "intersection_samples": 0
       }

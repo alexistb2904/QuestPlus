@@ -132,6 +132,9 @@ public final class TabletPoseClient {
             pose.rotateDegrees(Axis.XP,-rotation.x());
             pose.scale(-.5f*scale.x(),.5f*scale.y(),.5f*scale.z());
             nodes.submitModel(model,Unit.INSTANCE,pose,TabletRenderer.texture(),light,OverlayTexture.NO_OVERLAY,0);
+            var effects=TabletIdleEffects.frame();
+            pose.scale(1,-1,1);
+            nodes.submitCustomGeometry(pose,TabletIdleEffects.renderType(),(p,c) -> TabletIdleEffects.draw(p,c,effects));
             pose.popPose();
         }
     }

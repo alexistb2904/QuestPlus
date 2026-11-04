@@ -119,15 +119,16 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
      <Section title="Add"><div className="toolbar-row">
       <button className="button secondary" onClick={()=>onAction('create-quest')}>+ {tUI('Quest')}</button>
       <button className="button secondary" onClick={()=>onAction('create-annotation')}>+ {tUI('Annotation')}</button>
+      <button className="button secondary" onClick={()=>onAction('create-background')}>+ {tUI('Background')}</button>
      </div></Section>
      <Disclosure title="Category ID"><Field label="ID" value={category.id} onChange={v=>onUpdate('id',v)}/><button className="button danger" onClick={()=>onAction('delete-category')}>{tUI('Delete category')}</button></Disclosure>
     </>}
     {note&&<>
      <Section title="Annotation">
-      <RichEditor key={note.id+'-'+language} locale={language}
+      {note.style!=='background'&&<RichEditor key={note.id+'-'+language} locale={language}
        content={annotationRich(note,language)||[{type:'text',text:annotationText(note,language),font:'default'}]}
-       onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>
-      <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>onUpdate('style',v)}/>
+       onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>}
+      <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label'],['background','Background']]} onChange={v=>onUpdate('style',v)}/>
       <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
       <div className="field-row"><Field label="Width" type="number" value={note.width??170} onChange={v=>onUpdate('width',Math.max(1,Math.round(v)||1))}/>
       <Field label="Height" type="number" value={note.height??100} onChange={v=>onUpdate('height',Math.max(1,Math.round(v)||1))}/></div>

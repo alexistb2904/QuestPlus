@@ -3,7 +3,7 @@ import base64, copy, hashlib, io, json, math, random, uuid
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from motion import tracks_for, clear_palm_contacts, TIMES, DURATION, HELD
+from motion import tracks_for, clear_palm_contacts, TIMES, DURATION, TRANSITION_SECONDS, HELD
 
 ROOT = Path(__file__).resolve().parents[1]
 for folder in ('blockbench','textures','models','animations/tablet','animations/player','previews'):
@@ -90,15 +90,16 @@ tablet.cube('crown_iron_base',[-2,6.5,-1.42],[2,8.65,.83],'metal',corners)
 tablet.cube('crown_stone_bevel',[-1.73,6.6,-1.6],[1.73,8.5,-1.43],'stone',stones)
 tablet.cube('crown_dark_inset',[-1.18,6.85,-1.72],[1.18,8.25,-1.61],'screen',stones)
 for s in [-1,1]:
-    center=[s*.53,7.53,-1.8]
-    tablet.cube('book_cover_'+str(s),[s*.53-.5,6.96,-1.88],[s*.53+.5,8.14,-1.73],'crystal',crystals,[0,0,s*10],center)
-    tablet.cube('book_page_stack_'+str(s),[s*.53-.42,7.03,-1.97],[s*.53+.42,8.07,-1.89],'edge',crystals,[0,0,s*10],center)
-    tablet.cube('book_open_page_'+str(s),[s*.53-.37,7.1,-2.03],[s*.53+.37,8.02,-1.98],'facet',crystals,[0,0,s*10],center)
+    # Keep both halves flat and aligned with the shared binding.
+    center=[0,7.53,-1.86]
+    tablet.cube('book_cover_'+str(s),[s*.51-.535,6.96,-1.88],[s*.51+.535,8.14,-1.73],'crystal',crystals,[0,0,0],center)
+    tablet.cube('book_page_stack_'+str(s),[s*.50-.47,7.03,-1.97],[s*.50+.47,8.07,-1.89],'edge',crystals,[0,0,0],center)
+    tablet.cube('book_open_page_'+str(s),[s*.49-.44,7.08,-2.03],[s*.49+.44,8.02,-1.98],'facet',crystals,[0,0,0],center)
     for k in range(4):
         width=.46 if k<3 else .29
-        tablet.cube(f'book_engraving_{s}_{k}',[s*.53-width/2,7.25+k*.17,-2.07],[s*.53+width/2,7.30+k*.17,-2.04],'crystal',crystals,[0,0,s*10],center)
-tablet.cube('book_spine',[-.075,6.92,-2.1],[.075,8.04,-1.74],'crystal',crystals)
-tablet.cube('book_bookmark',[-.04,6.76,-2.12],[.13,7.13,-2.08],'gold',crystals)
+        tablet.cube(f'book_engraving_{s}_{k}',[s*.49-width/2,7.25+k*.17,-2.07],[s*.49+width/2,7.30+k*.17,-2.04],'crystal',crystals,[0,0,0],center)
+tablet.cube('book_spine',[-.055,6.94,-2.045],[.055,8.12,-1.74],'crystal',crystals)
+tablet.cube('book_bookmark',[-.045,6.76,-2.08],[.045,7.15,-2.05],'gold',crystals)
 tablet.cube('lower_lock_iron',[-1.8,-8.2,-1.3],[1.8,-6.7,.9],'metal',corners)
 tablet.cube('lower_lock_copper',[-.85,-8.3,-1.5],[.85,-6.6,1.05],'copper',corners)
 for x in [-7.1,6.5]:
@@ -110,10 +111,12 @@ tablet.cube('rear_compass_gem',[-.55,-.55,1.09],[.55,.55,1.35],'crystal',back,[0
 
 def keys(times,values,channel):return [{'channel':channel,'data_points':[dict(zip(('x','y','z'),v))],'uuid':uid(f'{channel}{t}{v}'),'time':t,'color':-1,'interpolation':'linear'} for t,v in zip(times,values)]
 def animation(model,name,length,tracks,loop='once'):
-    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':length,'snapping':100,'animators':{}}
+    transition=name.endswith(('open','close'))
+    factor=TRANSITION_SECONDS/length if transition else 1
+    anim={'uuid':uid(name+model.name),'name':name,'loop':loop,'override':False,'length':TRANSITION_SECONDS if transition else length,'snapping':120 if transition else 100,'animators':{}}
     for bone,channels in tracks.items():
         group=next(g for g in model.groups if g['name']==bone)
-        anim['animators'][group['uuid']]={'name':bone,'type':'bone','keyframes':sum([keys(t,v,c) for c,(t,v) in channels.items()],[])}
+        anim['animators'][group['uuid']]={'name':bone,'type':'bone','keyframes':sum([keys([round(time*factor,4) for time in t],v,c) for c,(t,v) in channels.items()],[])}
         for key in anim['animators'][group['uuid']]['keyframes']:key['uuid']=uid(f"{model.name}/{name}/{bone}/{key['channel']}/{key['time']}")
     model.animations.append(anim)
 
@@ -265,13 +268,13 @@ for i,name in [(1,'first_person'),(3,'third_person'),(2,'first_person_slim'),(4,
     eye=[0,25.6,1] if fp else [33,29,-43];target=[0,17,-9] if fp else [0,17,-3]
     render(m,name+'.png',eye,target,25 if fp else 39,m.animations[1],0,label=name+' / consultation pose')
     stages=[]
-    for ai,time,label in [(0,0,'pocket / 0.00s'),(0,.24,'grasp / 0.24s'),(0,.60,'draw / 0.60s'),(0,.94,'left joins / 0.94s'),(1,0,'held / 1.20s'),(2,1.2,'stowed / close 1.20s')]:stages.append(render(m,None,eye,target,29 if fp else 43,m.animations[ai],time,(500,400),label))
+    for ai,time,label in [(0,0,'pocket / 0.00s'),(0,.20,'grasp / 0.20s'),(0,.50,'draw / 0.50s'),(0,.7833,'left joins / 0.78s'),(1,0,'held / 1.00s'),(2,TRANSITION_SECONDS,'stowed / close 1.00s')]:stages.append(render(m,None,eye,target,29 if fp else 43,m.animations[ai],time,(500,400),label))
     sheet=Image.new('RGB',(1500,800))
     for j,img in enumerate(stages):sheet.paste(img,((j%3)*500,(j//3)*400))
     sheet.save(ROOT/'previews'/f'{name}_stages.png')
     if not name.endswith('slim'):
         frames=[]
-        for ai,duration in [(0,DURATION),(1,4),(2,DURATION)]:
+        for ai,duration in [(i,a['length']) for i,a in enumerate(m.animations)]:
             for time in np.linspace(0,duration,max(2,round(duration*12))):frames.append(render(m,None,eye,target,29 if fp else 43,m.animations[ai],float(time),(500,400),name))
         frames[0].save(ROOT/'previews'/f'{name}.gif',save_all=True,append_images=frames[1:],duration=83,loop=0)
 save('models/attachment.json',{'units':'model pixels; 16 pixels = 1 Minecraft block','tablet_bounds':{'min':[-12.1,-8.3,-2.12],'max':[12.1,8.65,1.35]},'front_normal':[0,0,-1],'screen':{'min':[-10,-6,-.82],'max':[10,6,-.82],'render_plane_z':-.835,'aspect_ratio':'5:3','origin_uv_top_left':[-10,6,-.835],'u_direction':[1,0,0],'v_direction':[0,-1,0]},'hand_anchors':{'left_hand_anchor':[-11.2,-2,1.1],'right_hand_anchor':[11.2,-2,1.1]},'held_transform':{'scale':[.65,.65,.65],'translation':[0,18.8,-10.5],'rotation':[0,180,0]},'preview_camera':{'eye':[0,17.6,.5],'target':[0,18.8,-10.5],'projection':'perspective','vertical_span':25},'note':'Camera is an authoring preview, calibrated for the first-person export. Tablet front faces +Z toward player in held pose. Anchors are prop-local placement guides, not tracked finger joints.'})

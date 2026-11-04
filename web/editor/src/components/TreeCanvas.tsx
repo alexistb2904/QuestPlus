@@ -1,6 +1,7 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {gameLayout} from '../core/game-layout.js';
 import {dependencyError} from '../core/quest-links.js';
+import {edgePoints,nearestSegment,backgroundRect} from '../core/diagram-geometry.js';
 import {text,annotationText,annotationRich} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
 import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
@@ -9,8 +10,8 @@ import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 
-type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';showQuestTitles?:boolean;onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
-export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,showGrid,gridSize,snap,tool,showQuestTitles=false}:Props){
+type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan'|'background';showQuestTitles?:boolean;onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onBackgroundCreate?:(rect:{x:number;y:number;width:number;height:number})=>void;onRoute?:(from:string,to:string,points:Position[])=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
+export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,onBackgroundCreate,onRoute,showGrid,gridSize,snap,tool,showQuestTitles=false}:Props){
  const ref=useRef<HTMLDivElement>(null);
  const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
  const resize=useRef<{type:'quest'|'annotation';id:string;startX:number;startY:number;width:number;height:number;size:number;pointer:number}|null>(null);
@@ -24,7 +25,8 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const moveResize=(e:React.PointerEvent)=>{
    const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
    e.stopPropagation();
-   const dx=e.clientX-v.startX,dy=e.clientY-v.startY;
+   const scale=v.type==='annotation'&&category?.annotations?.find(a=>a.id===v.id)?.style==='background'?clampZoom(camera.zoom):1;
+   const dx=(e.clientX-v.startX)/scale,dy=(e.clientY-v.startY)/scale;
    let next:{id:string;width?:number;height?:number;size?:number};
    if(v.type==='quest'){
      const sz=Math.max(1,Math.round(v.size+dx/5));
@@ -46,6 +48,10 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  const pointers=useRef(new Map<number,{x:number;y:number}>());
  const gesture=useRef<any>(null);
  const dragging=useRef<any>(null);
+ const drawing=useRef<{start:Position;end:Position}|null>(null);
+ const [draft,setDraft]=useState<{x:number;y:number;width:number;height:number}|null>(null);
+ const routeDrag=useRef<{from:string;to:string;points:Position[];index:number;pointer:number}|null>(null);
+ const [routeGhost,setRouteGhost]=useState<{from:string;to:string;points:Position[]}|null>(null);
  type Cable={from:string;point:{x:number;y:number};to:string|null;error:string;moved:boolean;pointerId?:number};
  const cable=useRef<Cable|null>(null),[connection,setConnection]=useState<Cable|null>(null);
  const showCable=(next:Cable|null)=>{cable.current=next;setConnection(next)};
@@ -88,6 +94,9 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   const target=tool==='pan'?null:(e.target as Element).closest<HTMLElement>('[data-node-id]');
   const p=local(e);pointers.current.set(e.pointerId,p);
   ref.current?.setPointerCapture(e.pointerId);
+  if(tool==='background'){
+   e.preventDefault();const start=world(p.x,p.y);drawing.current={start,end:start};setDraft(backgroundRect(start,start));return;
+  }
   if(pointers.current.size===2){
    const pair=[...pointers.current.values()];gesture.current={d:Math.hypot(pair[1].x-pair[0].x,pair[1].y-pair[0].y)||1,zoom:clampZoom(camera.zoom),center:{x:(pair[0].x+pair[1].x)/2,y:(pair[0].y+pair[1].y)/2},base:camera};dragging.current=null;showCable(null);return;
   }
@@ -105,6 +114,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  };
  const onMove=(e:React.PointerEvent)=>{
   const p=local(e);if(!pointers.current.has(e.pointerId))return;pointers.current.set(e.pointerId,p);
+  if(drawing.current){drawing.current.end=world(p.x,p.y);setDraft(backgroundRect(drawing.current.start,drawing.current.end));return;}
   if(pointers.current.size===2&&gesture.current){
    const pair=[...pointers.current.values()],g=gesture.current;
    const midpoint={x:(pair[0].x+pair[1].x)/2,y:(pair[0].y+pair[1].y)/2};
@@ -130,6 +140,11 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   pointers.current.delete(e.pointerId);
   try{ref.current?.releasePointerCapture(e.pointerId)}catch{}
   if(pointers.current.size<2)gesture.current=null;
+  if(drawing.current){
+   const rect=backgroundRect(drawing.current.start,drawing.current.end);
+   if(e.type!=='pointercancel'&&rect.width>=16&&rect.height>=16)onBackgroundCreate?.(rect);
+   drawing.current=null;setDraft(null);return;
+  }
   const active=cable.current;
   if(active?.pointerId===e.pointerId){
    const to=targetAt(e.clientX,e.clientY);
@@ -141,26 +156,82 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
   const drag=dragging.current;if(e.type!=='pointercancel'&&drag?.pending)onPosition(drag.type,drag.id,drag.pending);
   dragging.current=null;setGhost(null);
  };
- const icon=(q:Quest)=> <ItemIcon id={q.icon} size={28}/>;
+ const routePosition=(e:React.PointerEvent)=>{
+  const p=local(e);let at=world(p.x,p.y);
+  if(snap)at=snapEditor(at,gridSize);
+  return {x:Math.round(Math.max(-100000,Math.min(100000,at.x))),y:Math.round(Math.max(-100000,Math.min(100000,at.y)))};
+ };
+ const startRoute=(e:React.PointerEvent,from:string,to:string,points:Position[],index:number)=>{
+  if(tool!=='select'||e.button!==0)return;
+  e.preventDefault();e.stopPropagation();onSelect({type:'quest',id:to});
+  routeDrag.current={from,to,points,index,pointer:e.pointerId};setRouteGhost({from,to,points});
+  e.currentTarget.setPointerCapture(e.pointerId);
+ };
+ const moveRoute=(e:React.PointerEvent)=>{
+  const drag=routeDrag.current;if(!drag||drag.pointer!==e.pointerId)return;
+  e.stopPropagation();drag.points=drag.points.map((p,i)=>i===drag.index?routePosition(e):p);
+  setRouteGhost({from:drag.from,to:drag.to,points:drag.points});
+ };
+ const endRoute=(e:React.PointerEvent)=>{
+  const drag=routeDrag.current;if(!drag||drag.pointer!==e.pointerId)return;
+  e.stopPropagation();if(e.type!=='pointercancel')onRoute?.(drag.from,drag.to,drag.points);
+  routeDrag.current=null;setRouteGhost(null);
+  try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{}
+ };
  return <div className="viewport" id="viewport" ref={ref} aria-label={tUI('Interactive quest tree')} role="region" tabIndex={0} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
    onContextMenu={e=>{e.preventDefault();const rect=ref.current!.getBoundingClientRect();
      const x=e.clientX-rect.left,y=e.clientY-rect.top;
      setContextMenu({x:Math.min(x,Math.max(0,rect.width-185)),y:Math.min(y,Math.max(0,rect.height-115)),at:world(x,y)});
    }}
-   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;return;}if((e.target as HTMLElement).closest('[data-node-id]'))return;const delta=24/clampZoom(camera.zoom);if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
+   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;drawing.current=null;setDraft(null);routeDrag.current=null;setRouteGhost(null);return;}if((e.target as HTMLElement).closest('[data-node-id],[data-waypoint]'))return;const delta=24/clampZoom(camera.zoom);if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
    style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*clampZoom(camera.zoom))+'px '+(gridSize*clampZoom(camera.zoom))+'px',backgroundPosition:(-camera.x*clampZoom(camera.zoom)+size.width/2)+'px '+(-camera.y*clampZoom(camera.zoom)+size.height/2)+'px'}}>
   {contextMenu&&<div className="graph-context-menu" role="menu" style={{left:contextMenu.x,top:contextMenu.y}} onPointerDown={e=>e.stopPropagation()}>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('quest',contextMenu.at);setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Create quest')}</button>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('annotation',contextMenu.at);setContextMenu(null)}}><StickyNote size={15}/>{tUI('Create annotation')}</button>
+   <button role="menuitem" type="button" onClick={()=>{onBackgroundCreate?.({...contextMenu.at,width:280,height:180});setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Add background')}</button>
    </div>}
-  <svg className="edges" viewBox={'0 0 '+size.width+' '+size.height} aria-hidden="true">
+  <div className="graph-backgrounds">
+   {(category?.annotations||[]).filter(a=>a.style==='background').map(a=>{
+    const at=ghost?.id===a.id?ghost:a,p=pixel(at),z=clampZoom(camera.zoom);
+    const width=resizeGhost?.id===a.id?resizeGhost.width??a.width??280:a.width??280;
+    const height=resizeGhost?.id===a.id?resizeGhost.height??a.height??180:a.height??180;
+    return <div key={a.id} role="button" tabIndex={0} aria-label={tUI('Background')+' '+annotationText(a,language)}
+     data-node-id={a.id} data-node-type="annotation" className={'graph-background'+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
+     onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}}
+     style={{left:p.x,top:p.y,width:width*z,height:height*z,transform:'translate(-50%,-50%)',backgroundColor:(a.color||'#6b727e')+'24',borderColor:(a.color||'#6b727e')+'70'}}>
+     {selection?.type==='annotation'&&selection.id===a.id&&handle('annotation',a.id,width,height,32)}
+    </div>;
+   })}
+  </div>
+  {draft&&(()=>{const p=pixel(draft),z=clampZoom(camera.zoom);return <div className="background-draft" style={{left:p.x,top:p.y,width:draft.width*z,height:draft.height*z,transform:'translate(-50%,-50%)'}}/>})()}
+  <svg className="edges" viewBox={'0 0 '+size.width+' '+size.height} role="group" aria-label={tUI('Drag a link to add a waypoint')}>
    <defs><marker id="quest-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" className="arrow-head"/></marker></defs>
    {graph.edges.map((edge:any)=>{
     const a=graph.points.get(edge.from),b=graph.points.get(edge.to);if(!a||!b)return null;
     const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);
     const source=allQuests.find(z=>z.id===edge.from),target=allQuests.find(z=>z.id===edge.to);
-    p.y+=(source?.size||32)/2;q.y-=(target?.size||32)/2;const mid=(p.y+q.y)/2;
-    return <path markerEnd="url(#quest-arrow)" key={edge.from+'-'+edge.to} className={selection?.type==='quest'&&[edge.from,edge.to].includes(selection.id)?'selected-edge':''} d={'M'+p.x+' '+p.y+'V'+mid+'H'+q.x+'V'+q.y}/>;
+    p.y+=(source?.size||32)/2;q.y-=(target?.size||32)/2;
+    const authored=routeGhost?.from===edge.from&&routeGhost.to===edge.to?routeGhost.points:category?.linkRoutes?.find(r=>r.from===edge.from&&r.to===edge.to)?.points;
+    const points=edgePoints(p,q,authored?.map(pixel)),path=points.map((pt,i)=>(i?'L':'M')+pt.x+' '+pt.y).join(' ');
+    const selected=selection?.type==='quest'&&[edge.from,edge.to].includes(selection.id);
+    return <g key={edge.from+'>'+edge.to} data-edge-from={edge.from} data-edge-to={edge.to}>
+     <path markerEnd="url(#quest-arrow)" className={selected?'selected-edge':''} d={path}/>
+     <path className="edge-hit" d={path} aria-label={tUI('Drag a link to add a waypoint')} role="button" tabIndex={0}
+      onPointerDown={e=>{
+       if(!onRoute||tool!=='select')return;
+       const localPoint=local(e),index=nearestSegment(points,localPoint),next=points.slice(1,-1).map(pt=>world(pt.x,pt.y));
+       if(next.length>=64)return;
+       next.splice(index,0,routePosition(e));startRoute(e,edge.from,edge.to,next,index);
+      }} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
+      onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();onSelect({type:'quest',id:edge.to});const next=points.slice(1,-1).map(pt=>world(pt.x,pt.y));if(!next.length)next.push(world((p.x+q.x)/2,(p.y+q.y)/2));onRoute?.(edge.from,edge.to,next);}}}/>
+     {selected&&authored?.map((at,i)=>{const point=pixel(at);return <circle key={i} className="link-waypoint" data-waypoint={i} role="button" tabIndex={0} aria-label={tUI('Link waypoint')+' '+(i+1)} cx={point.x} cy={point.y} r={5}
+      onPointerDown={e=>startRoute(e,edge.from,edge.to,[...authored],i)} onPointerMove={moveRoute} onPointerUp={endRoute} onPointerCancel={endRoute}
+      onDoubleClick={()=>onRoute?.(edge.from,edge.to,authored.filter((_,n)=>n!==i))}
+      onKeyDown={e=>{e.stopPropagation();const dx=e.key==='ArrowLeft'?-8:e.key==='ArrowRight'?8:0,dy=e.key==='ArrowUp'?-8:e.key==='ArrowDown'?8:0;
+       if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();onRoute?.(edge.from,edge.to,authored.filter((_,n)=>n!==i));}
+       else if(dx||dy){e.preventDefault();onRoute?.(edge.from,edge.to,authored.map((p,n)=>n===i?{x:p.x+dx,y:p.y+dy}:p));}
+      }}><title>{tUI('Remove waypoint')+' · Delete / '+tUI('Link waypoint')}</title></circle>})}
+    </g>;
    })}
    {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=(allQuests.find(q=>q.id===connection.from)?.size||32)/2;const end=connection.point,bend=Math.max(45,Math.abs(end.y-start.y)*.55);return <path className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
   </svg>
@@ -183,7 +254,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
        {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,nodeSize,nodeSize,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
      </div>;
    })}
-   {(category?.annotations||[]).map(a=>{
+   {(category?.annotations||[]).filter(a=>a.style!=='background').map(a=>{
     const pt=ghost?.id===a.id?ghost:a,p=pixel(pt);
     if(Math.abs(p.x)>size.width+240||Math.abs(p.y)>size.height+240)return null;
     const rich=annotationRich(a,language);

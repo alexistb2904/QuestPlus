@@ -182,6 +182,6 @@ export const EVENT_LABELS={
   "travel_distance": "Travel distance",
   "location": "Reach position",
   "player_death": "Die",
-  "equipment_check": "Verify enchanted equipment",
+  "equipment_check": "Verified Equipment",
   "manual": "Manual confirmation"
 };

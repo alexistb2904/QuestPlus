@@ -159,3 +159,53 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
   object-fit:contain;vertical-align:middle}
 .annotation-node:not(.selected){overflow:hidden}
 .annotation-node .node-resize-handle{flex-shrink:0}
+/* Adjustable workspace: visual separators are keyboard and pointer operable. */
+@media (min-width:901px){
+ .workspace{grid-template-columns:minmax(180px,min(var(--library-width,270px),25vw)) 8px minmax(220px,1fr) 8px minmax(240px,min(var(--properties-width,355px),35vw));gap:0}
+ .workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px minmax(240px,min(var(--properties-width,355px),35vw))}
+}
+.pane-separator{position:relative;z-index:10;flex:none;touch-action:none;outline-offset:-2px}
+.pane-separator:before{content:'';position:absolute;border-radius:4px;background:#77657e;opacity:.65}
+.pane-separator:hover:before,.pane-separator:focus-visible:before{background:#d3a4f0;opacity:1}
+.pane-separator:focus-visible{outline:2px solid #dec2ff}
+.pane-separator-vertical{width:8px;cursor:col-resize}
+.pane-separator-vertical:before{inset:35% 3px}
+.pane-separator-horizontal{height:8px;margin:-8px 0;cursor:row-resize}
+.pane-separator-horizontal:before{inset:3px 43%}
+.workspace.panes-custom-height .quest-details{flex-basis:clamp(155px,var(--details-height),calc(100% - 240px));min-height:0;max-height:none}
+@media (max-width:900px){.pane-separator-vertical{display:none}}
+
+/* Equipment rows stay compact and keep the item identifier editable. */
+.objective-inputs-custom:has(.gear-editor){grid-template-columns:minmax(0,1fr)}
+.gear-editor{min-width:0;display:grid;gap:10px}
+.gear-toolbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+.gear-toolbar .field{flex:1;min-width:150px;max-width:280px;margin:0}
+.gear-toolbar .button{min-height:33px}
+.gear-list{container-type:inline-size;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,305px),1fr));gap:8px}
+.gear-item-editor{min-width:0;padding:9px;border:1px solid #625668;border-radius:4px;background:#28232e}
+.gear-item-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.gear-item-heading .tiny{margin-left:auto}
+.gear-item-name{display:flex;flex-direction:column;min-width:0;gap:2px;line-height:1.25}
+.gear-item-name strong{font-size:12px;color:#f1e6f4}.gear-item-name span{font-size:11px;color:#d1c1d7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:capitalize}
+.gear-fields{display:grid;grid-template-columns:minmax(105px,.75fr) minmax(0,1.6fr);gap:8px;align-items:end}
+.gear-fields .field,.gear-enchantment .field{margin:0;min-width:0}
+.gear-item-entry{display:flex!important;gap:5px;margin:0!important;align-items:center}
+.gear-item-entry input{flex:1;min-width:0}.gear-item-entry .button{min-height:33px;padding:0 7px}
+.gear-enchantment{display:grid;grid-template-columns:minmax(0,1fr) 76px auto;gap:7px;align-items:end;margin-top:8px}
+.gear-enchantment input[aria-invalid=true]{border-color:#f19f94;outline:1px solid #f19f94}
+.gear-enchantment .tiny{min-height:33px}
+.gear-add-enchantment{margin-top:8px;border:0;background:none;color:#d8b7eb;font-size:11px;font-weight:600;padding:3px 0;cursor:pointer}
+.gear-add-enchantment:hover{text-decoration:underline}
+@container (max-width:420px){.gear-fields{grid-template-columns:1fr}.gear-enchantment{grid-template-columns:minmax(0,1fr) 60px auto}}
+@media (max-width:600px){.gear-fields{grid-template-columns:1fr}.gear-enchantment{grid-template-columns:minmax(0,1fr) 60px auto}}
+
+/* Diagram underlays and route handles. */
+.graph-backgrounds{position:absolute;inset:0;pointer-events:none;z-index:0}
+.graph-background{position:absolute;pointer-events:auto;border:1px solid;box-sizing:border-box}
+.graph-background.selected{outline:2px solid #ae73e8}
+.graph-background .node-resize-handle{pointer-events:auto}
+.edges{z-index:1}.nodes{z-index:2}
+.edges .edge-hit{stroke:transparent;stroke-width:14;fill:none;pointer-events:stroke;cursor:crosshair}
+.link-waypoint{fill:#191a1f;stroke:#dec2ff;stroke-width:2;pointer-events:all;cursor:move}
+.link-waypoint:focus{outline:none;stroke:#fff}
+.background-draft{position:absolute;border:1px dashed #dec2ff;background:#ae73e822;pointer-events:none;z-index:3}

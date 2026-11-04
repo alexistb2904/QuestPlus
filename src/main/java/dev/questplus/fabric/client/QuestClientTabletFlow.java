@@ -50,7 +50,7 @@ final class QuestClientTabletFlow {
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
                     nativeHands=true;stage=Stage.OPENING;
-                    QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.2 s)");
+                    QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.0 s)");
                     return;
                 }
                 QuestPlusMod.LOGGER.warn("FP PAL could not play questplus:questplus.open. Loaded asset: {}",

@@ -19,7 +19,8 @@ class FirstPersonAssetTest {
         try (var stream=asset("/assets/questplus/fp_animations/questplus_first_person.animation.json")) {
             var animations=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8))
                 .getAsJsonObject().getAsJsonObject("animations");
-            assertEquals(1.2,animations.getAsJsonObject("questplus.open").get("animation_length").getAsDouble(),.00001);
+            assertEquals(1.0,animations.getAsJsonObject("questplus.open").get("animation_length").getAsDouble(),.00001);
+            assertEquals(1.0,animations.getAsJsonObject("questplus.close").get("animation_length").getAsDouble(),.00001);
             // Prevent a one-frame reset before FP PAL switches to the matching idle clip.
             assertEquals("hold_on_last_frame",
                 animations.getAsJsonObject("questplus.open").get("loop").getAsString());
@@ -62,6 +63,7 @@ class FirstPersonAssetTest {
                         var key=frame.getAsJsonObject();
                         var channel=key.get("channel").getAsString();
                         double time=Math.round(key.get("time").getAsDouble()*snapping)/(double)snapping;
+                        time=Math.round(time*10_000)/10_000.0; // Blockbench serializes timecodes to four decimals.
                         var output=exported.getAsJsonObject(bone).getAsJsonObject(channel).getAsJsonArray(Double.toString(time));
                         assertNotNull(output,name+" "+bone+" "+channel+" at "+time);
                         var value=key.getAsJsonArray("data_points").get(0).getAsJsonObject();

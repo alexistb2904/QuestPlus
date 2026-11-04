@@ -73,4 +73,14 @@ Chaque catégorie accepte désormais `annotations` (au plus 128 objets), par exe
 {"annotations":[{"id":"depart","x":0,"y":-70,"text":{"en_us":"Start here","fr_fr":"Commencez ici"},"style":"heading","color":"#c6a986"}]}
 ```
 
-Les styles admis sont `note`, `heading` et `label`. Les annotations utilisent le même repère `layout.x/y` et la même caméra zoom/pan que les quêtes ; elles sont uniquement visuelles. `x` et `y` doivent être finis et entre ±100000, et l'ID unique par catégorie.
+Les styles admis sont `note`, `heading`, `label` et `background`. Les annotations utilisent le même repère `layout.x/y` et la même caméra zoom/pan que les quêtes ; elles sont uniquement visuelles. `x` et `y` doivent être finis et entre ±100000, et l'ID unique par catégorie.
+
+Une annotation `background` dessine un rectangle derrière les quêtes et leurs liens. Ses `width` et `height` sont des entiers de 1 à 100000, exprimés en unités du diagramme et mis à l'échelle avec le zoom ; `text` reste un objet obligatoire mais peut être vide. Le contenu `rich` n'est pas accepté. Les autres styles conservent leurs dimensions en pixels à l'écran.
+
+Une catégorie peut aussi définir des points de passage pour ses liens :
+
+```json
+{"linkRoutes":[{"from":"questplus:chapter/start","to":"questplus:chapter/end","points":[{"x":120,"y":80},{"x":160,"y":110}]}]}
+```
+
+Chaque paire `from`/`to` est unique et doit correspondre à une dépendance réelle entre deux quêtes de cette catégorie. Au plus 128 liens et 64 points par lien sont acceptés ; les coordonnées sont finies entre −100000 et 100000. Les liens sans points utilisent le tracé automatique. Les routes dont une extrémité est masquée ne sont pas transmises au joueur. Ces données sont uniquement visuelles et ne modifient pas la progression.

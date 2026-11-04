@@ -35,6 +35,19 @@ Old config files missing these fields are upgraded to **emissive=true** and
 
 Localized in English, French, Spanish and Simplified Chinese.
 
+## Ambient 3D details
+
+The book medallion's engravings breathe with a six-second violet light cycle;
+the corner rivets have a softer amber pulse. Four small pixel motes drift above
+the medallion, fading in and out over 3.6 seconds. These are emissive quads
+attached to the tablet, shared by first-person and third-person rendering;
+they do not spawn world particles, illuminate blocks, or cover the quest display.
+
+Disabling animations or enabling reduced motion keeps the engravings and rivets
+at a constant low glow and hides the motes. The 2D fallback is unchanged.
+Geometry offsets follow the current standalone Blockbench model; update
+`TabletIdleEffects` if the medallion or rivets move in a future asset revision.
+
 ## Verification scope
 
 Node source-contract tests check layout equivalence, inverse mouse handling,

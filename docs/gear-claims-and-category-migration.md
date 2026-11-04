@@ -46,7 +46,6 @@ unavailable; this avoids flooding the API and double reward delivery.
 
 ## 3D screen brightness
 
-At 100% brightness, an extra white highlight overlay blends at approximately
-35% opacity, improving the apparent tablet brightness by roughly 30–50%
-versus the prior 100% output. This is applied only to the 3D screen atlas,
-not the 2D GUI or world. Lower brightness levels still dim toward black.
+At 100% brightness, the tablet preserves the original screen colors without
+a white highlight overlay. Lower brightness levels dim toward black. This
+applies only to the 3D screen atlas, not the 2D GUI or world.
