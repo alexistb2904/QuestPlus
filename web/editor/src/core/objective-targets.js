@@ -48,7 +48,8 @@ export const initialTarget=event=>(
  targetKind(event)==='structure'?'minecraft:village_plains':'questplus:manual')
 );
 export const coordinateBounds=(raw,axis,value)=>{
- const bounds=raw?.position?{...raw.position}:{};
+ const previous=raw?.position||(Array.isArray(raw?.and)?raw.and.find(n=>n?.position)?.position:null);
+ const bounds={...(previous||{})};
  if(value==='') {delete bounds[axis+'Min'];delete bounds[axis+'Max'];}
  else{bounds[axis+'Min']=Number(value);bounds[axis+'Max']=Number(value);}
  const leaf={position:bounds};
