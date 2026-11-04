@@ -21,7 +21,6 @@ public final class QuestPlusClient implements ClientModInitializer {
     private static String[] fragments;
     private static int bytes, received;
     private static long started, lastSync;
-    private static long progressNoticeAfter;
     public static Component tr(String key,Object... arguments) { return Component.translatable("questplus.client."+key,arguments); }
     public static void action(String action,String argument) {
         if (ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE)) ClientPlayNetworking.send(new QuestNetwork.Action(action,argument));
@@ -58,25 +57,22 @@ public final class QuestPlusClient implements ClientModInitializer {
             boolean initial=!STATE.ready;
             Map<String,JsonObject> previous=Map.copyOf(STATE.progress);
             if (!STATE.apply(message)) { sync(); return; }
+            // Completed quests leave the HUD immediately, even with notifications off.
+            boolean pinChanged=settings.pinned.removeIf(id -> QuestClientState.flag(STATE.progress(id),"completed"));
+            if(pinChanged)settings.save();
             if (!initial && settings.notifications && message.has("progress")) {
                 for (var entry:message.getAsJsonObject("progress").entrySet()) {
-                    var old=previous.getOrDefault(entry.getKey(),new JsonObject()); var next=entry.getValue().getAsJsonObject();
-                    String key=(!QuestClientState.flag(old,"completed") && QuestClientState.flag(next,"completed")) || QuestClientState.count(next,"cycles")>QuestClientState.count(old,"cycles") ? "completed"
-                        : !QuestClientState.flag(old,"claimable") && QuestClientState.flag(next,"claimable") ? "reward_ready"
-                        : QuestClientState.count(next,"tier")>QuestClientState.count(old,"tier") ? "tier_reached" : null;
+                    var old=previous.getOrDefault(entry.getKey(),new JsonObject());
+                    var next=entry.getValue().getAsJsonObject();
+                    String event=(!QuestClientState.flag(old,"completed") && QuestClientState.flag(next,"completed"))
+                        || QuestClientState.count(next,"cycles")>QuestClientState.count(old,"cycles")
+                        ? "completed"
+                        : (!QuestClientState.flag(old,"unlocked") && QuestClientState.flag(next,"unlocked"))
+                        ? "unlocked" : null;
                     var quest=STATE.quests.get(entry.getKey());
-                    if (key!=null && quest!=null) { QuestToast.show(key,STATE.text(quest.title()),quest.icon()); break; }
-                    if (quest!=null && settings.pinned.contains(quest.id()) && System.currentTimeMillis()>progressNoticeAfter) {
-                        var before=old.getAsJsonObject("counters"); var after=next.getAsJsonObject("counters");
-                        if (after!=null) for (var objective:quest.objectives()) {
-                            long a=before!=null && before.has(objective.id()) ? before.get(objective.id()).getAsLong() : 0;
-                            long b=after.has(objective.id()) ? after.get(objective.id()).getAsLong() : 0;
-                            long target=dev.questplus.clientdata.QuestPresentation.target(quest,objective,next);
-                            if (b>a && (b>=target && a<target || b*4/target>a*4/target)) {
-                                QuestToast.show(b>=target ? "objective_completed" : "progress_notice",STATE.text(quest.title()),quest.icon());
-                                progressNoticeAfter=System.currentTimeMillis()+8000; break;
-                            }
-                        }
+                    if(event!=null && quest!=null){
+                        QuestToast.show(event,STATE.text(quest.title()),quest.icon());
+                        break;
                     }
                 }
             }
