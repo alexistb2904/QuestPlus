@@ -1,5 +1,7 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Manual event ID","ID d’événement manuel","ID de evento manual","手动事件 ID"],
+  ["Source","Source","Origen","来源"],
   ["Confirmations","Confirmations","Confirmaciones","确认次数"],
   ["Break blocks","Casser des blocs","Romper bloques","破坏方块"],
   ["Place blocks","Placer des blocs","Colocar bloques","放置方块"],
