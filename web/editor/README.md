@@ -141,3 +141,9 @@ affiché avant l'export. Le ZIP ajoute
 catégories, quêtes et `config.json` demeurent strictement compatibles avec
 le mod. En jeu, si l'ID d'item n'existe pas dans le registre chargé, QuestPlus
 utilise l'icône vanilla `minecraft:barrier` comme fallback visible.
+
+## Rich annotations (Quest Studio)
+
+Annotations support bold, italic, underline, strikethrough, highlighting, size 75–200%, Minecraft vanilla fonts (default/uniform/alt/illageralt), and inline embedded PNG/JPEG/WebP/GIF. Rich content is stored in category `annotations[].rich[locale]` as a strict array of text/image runs, never HTML, remote links, scripts, or videos. `annotations[].text` stays as the plain-language fallback for old clients. Images are base64 data URIs; each image is limited to 96 KiB compressed and 170×150 in the tree, and the category stays under 900 KiB to respect the mod's 1 MiB JSON loader cap. Rich-format validation applies on export and import.
+
+Use the normal language dropdown to edit one localized annotation at a time. The English `en_us` field remains the source of truth. This is an *authoring format*, not an HTML feature in Minecraft; the client renderer explicitly parses only the supported rich runs.

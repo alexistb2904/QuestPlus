@@ -7,6 +7,8 @@ import {demoProject,emptyProject,category as newCategory,quest as newQuest,annot
  copy,text,slug,validate,fileMap,importDocuments,references} from './project.js';
 import {makeZip,readZip} from './zip.js';
 import {inspectorData} from './inspector.js';
+import {richToHtml} from './rich-format.js';
+import {richFromDom,toEmbeddedImage,plainFallback} from './rich-dom.js';
 
 const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -166,7 +168,7 @@ function renderScene(){
     const selected=selection?.type==='annotation'&&selection.id===a.id;
     shapes.push(`<div class="annotation-node ${escape(a.style||'note')} ${selected?'selected':''}"
       style="left:${pt.x}px;top:${pt.y}px;border-color:${escape(a.color||'#c6a986')};color:${escape(a.color||'#c6a986')};transform:translate(-50%,-50%) scale(${camera.zoom})"
-      data-node-type="annotation" data-node-id="${escape(a.id)}">${escape(text(a.text,language))}</div>`);
+      data-node-type="annotation" data-node-id="${escape(a.id)}">${a.rich?.[language]||a.rich?.en_us ? richToHtml(a.rich?.[language]||a.rich.en_us) : escape(text(a.text,language))}</div>`);
   }
   $('#nodes').innerHTML=shapes.join('');
   const lines=[];
@@ -484,6 +486,66 @@ inspector.addEventListener('change',e=>{
   }else if(el.matches('[data-field]')){if(!focusRecorded){remember(snapshot());setField(el.dataset.field,el.type==='checkbox'?el.checked:el.value);}refresh();persist();}
 });
 inspector.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(btn)inspectorAction(btn.dataset.action,Number(btn.dataset.index));});
+
+// Rich annotation editing persists an explicit whitelist of runs, never arbitrary HTML.
+// The plain text remains a readable fallback for older QuestPlus clients.
+let richRange=null,richActive=false;
+function selectedNote(){return selection?.type==='annotation'?getSelected():null;}
+function saveRichEditor(editor){
+ const note=selectedNote(),parts=richFromDom(editor);
+ if(!note||!parts){notify('Rich annotation is too long or contains an invalid image.');return false;}
+ note.rich||={};note.rich[editor.dataset.richLocale]=parts;
+ note.text||={};note.text[editor.dataset.richLocale]=plainFallback(parts);
+ renderScene();renderIssues();persist();return true;
+}
+inspector.addEventListener('focusin',e=>{
+ if(e.target.matches('[data-rich-editor]')){
+  if(!richActive){remember(snapshot());richActive=true;}
+ }
+});
+inspector.addEventListener('input',e=>{
+ if(e.target.matches('[data-rich-editor]'))saveRichEditor(e.target);
+});
+inspector.addEventListener('focusout',e=>{
+ if(e.target.matches('[data-rich-editor]')){richActive=false;saveRichEditor(e.target);}
+});
+inspector.addEventListener('pointerdown',e=>{
+ if(e.target.closest('[data-rich-cmd]'))e.preventDefault();
+});
+inspector.addEventListener('click',e=>{
+ const btn=e.target.closest('[data-rich-cmd]');if(!btn)return;
+ const editor=inspector.querySelector('[data-rich-editor]');if(!editor)return;
+ editor.focus();
+ document.execCommand(btn.dataset.richCmd,false,btn.dataset.value||null);
+ if(!richActive){remember(snapshot());richActive=true;}
+ saveRichEditor(editor);
+});
+inspector.addEventListener('change',async e=>{
+ const editor=inspector.querySelector('[data-rich-editor]');if(!editor)return;
+ if(e.target.matches('[data-rich-font]')){
+  editor.focus();document.execCommand('fontName',false,e.target.value);
+  if(!richActive)remember(snapshot());
+  saveRichEditor(editor);
+ }else if(e.target.matches('[data-rich-size]')){
+  editor.focus();document.execCommand('fontSize',false,e.target.value);
+  if(!richActive)remember(snapshot());
+  saveRichEditor(editor);
+ }else if(e.target.matches('[data-rich-file]')){
+  const file=e.target.files?.[0];e.target.value='';
+  if(!file)return;
+  try{
+   const obj=await toEmbeddedImage(file);
+   const tag=document.createElement('img');tag.src=obj.data;tag.width=obj.width;tag.height=obj.height;tag.alt='Embedded image';
+   editor.focus();
+   const selection=window.getSelection();
+   if(selection&&selection.rangeCount){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(tag);range.setStartAfter(tag);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
+   else editor.append(tag);
+   if(!richActive)remember(snapshot());
+   saveRichEditor(editor);
+  }catch(error){notify(error.message||'Invalid image');}
+ }
+});
+
 $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data-cat]');if(node)selectCategory(node.dataset.cat);});
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
