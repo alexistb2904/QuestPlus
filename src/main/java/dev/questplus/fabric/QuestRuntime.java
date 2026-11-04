@@ -298,7 +298,9 @@ public final class QuestRuntime implements AutoCloseable {
                 persistCurrent(snapshots,team==null ? Map.of() : Map.of(team,teams.get(team)),members);
                 for (var award:completed) for (UUID member:members) {
                     var online=server.getPlayerList().getPlayer(member);
-                    if (online!=null) online.sendSystemMessage(Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
+                    if (online!=null) online.sendSystemMessage(award.rewards().isEmpty()
+                        ? Messages.text(online,"questplus.completed_no_reward",title(online,registry.get(award.questId())))
+                        : Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
                 }
             }
         } catch (IOException | RuntimeException e) {
