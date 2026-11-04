@@ -22,6 +22,29 @@ final class QuestCameraParityTest {
         assertEquals(beforeY+45,camera.screenY(100),.00001);
         assertEquals(1.5,camera.zoom());
     }
+    @Test void cameraClampsZoomAndKeepsAnchorUnderCursor() {
+        QuestCamera camera=new QuestCamera(.25,2.5);
+        camera.pan(125,83);
+        double cursorX=260,cursorY=145;
+        double worldX=camera.worldX(cursorX),worldY=camera.worldY(cursorY);
+        camera.zoomAt(500,cursorX,cursorY);
+        assertEquals(2.5,camera.zoom(),.00001);
+        assertEquals(cursorX,camera.screenX(worldX),.00001);
+        assertEquals(cursorY,camera.screenY(worldY),.00001);
+        camera.zoomAt(.001,cursorX,cursorY);
+        assertEquals(.25,camera.zoom(),.00001);
+        assertEquals(cursorX,camera.screenX(worldX),.00001);
+        assertEquals(cursorY,camera.screenY(worldY),.00001);
+    }
+    @Test void recenterNeverChangesActiveZoom() {
+        QuestCamera camera=new QuestCamera(.25,2.5);
+        camera.zoomAt(2,0,0);
+        camera.fitBounds(List.of(new QuestLayout.Point(0,0),new QuestLayout.Point(200,60)),
+            20,30,420,260,24,24);
+        assertEquals(2,camera.zoom(),.00001);
+        assertEquals(230,(camera.screenX(0)+camera.screenX(200))/2,.00001);
+        assertEquals(160,(camera.screenY(0)+camera.screenY(60))/2,.00001);
+    }
     @Test void fittingAnnotationsUsesTheirWorldCentersAndFixedScreenPadding() {
         QuestCamera camera=new QuestCamera(.25,2.5);
         var quest=new QuestLayout.Point(0,0);
