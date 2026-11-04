@@ -121,7 +121,18 @@ export function gearRequirementText(conditions,lang='en_us'){
     const prefix={en:'Wear full',fr:'Porter une armure complète en',es:'Llevar armadura completa de',zh:'穿戴整套'}[locale];
     const suffix=locale==='en'?' armor':locale==='zh'?'护甲':'';
     const extras=uniform?common.join(', '):({en:'Enchanted set',fr:'Armure enchantée',es:'Armadura encantada',zh:'附魔套装'}[locale]);
-    return prefix+' '+pretty(base)+suffix+(extras?' · '+extras:'');
+    const material=String(base).replace(/^minecraft:/,'');
+    const materialNames={
+      leather:{en:'leather',fr:'cuir',es:'cuero',zh:'皮革'},
+      copper:{en:'copper',fr:'cuivre',es:'cobre',zh:'铜'},
+      chainmail:{en:'chainmail',fr:'mailles',es:'cota de malla',zh:'锁链'},
+      iron:{en:'iron',fr:'fer',es:'hierro',zh:'铁'},
+      golden:{en:'gold',fr:'or',es:'oro',zh:'金'},
+      diamond:{en:'diamond',fr:'diamant',es:'diamante',zh:'钻石'},
+      netherite:{en:'netherite',fr:'Netherite',es:'netherita',zh:'下界合金'}
+    };
+    const localizedMaterial=materialNames[material]?.[locale]||pretty(base);
+    return prefix+' '+localizedMaterial+suffix+(extras?' · '+extras:'');
   }
   const verbs={en:'Equip',fr:'Équiper',es:'Equipar',zh:'装备'};
   const equipment=items.map((x,i)=>names[i]+(levels[i].length?' ('+levels[i].join(', ')+')':''));
