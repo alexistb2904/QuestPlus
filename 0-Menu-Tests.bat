@@ -54,19 +54,19 @@ if "%SELECTION%"=="7" goto STUDIO
 if "%SELECTION%"=="8" goto WEB_TEST
 if "%SELECTION%"=="9" goto API_RUN
 if "%SELECTION%"=="10" goto ALL
-if "%SELECTION%"=="11" set "TASK=doctor"&goto RUN_TASK
+if "%SELECTION%"=="11" (set "TASK=doctor" & goto RUN_TASK)
 if "%SELECTION%"=="12" goto SETUP_LOCAL
-if "%SELECTION%"=="13" set "TASK=studio-build"&goto RUN_TASK
-if "%SELECTION%"=="14" set "TASK=studio-test"&goto RUN_TASK
-if "%SELECTION%"=="15" set "TASK=api-test"&goto RUN_TASK
-if "%SELECTION%"=="16" set "TASK=api-health"&goto RUN_TASK
-if "%SELECTION%"=="17" set "TASK=java-test"&goto RUN_TASK
-if "%SELECTION%"=="18" set "TASK=java-compile"&goto RUN_TASK
-if "%SELECTION%"=="19" set "TASK=studio-preview"&goto RUN_TASK
-if "%SELECTION%"=="20" set "TASK=docker-build"&goto RUN_TASK
-if "%SELECTION%"=="21" set "TASK=reports"&goto RUN_TASK
+if "%SELECTION%"=="13" (set "TASK=studio-build" & goto RUN_TASK)
+if "%SELECTION%"=="14" (set "TASK=studio-test" & goto RUN_TASK)
+if "%SELECTION%"=="15" (set "TASK=api-test" & goto RUN_TASK)
+if "%SELECTION%"=="16" (set "TASK=api-health" & goto RUN_TASK)
+if "%SELECTION%"=="17" (set "TASK=java-test" & goto RUN_TASK)
+if "%SELECTION%"=="18" (set "TASK=java-compile" & goto RUN_TASK)
+if "%SELECTION%"=="19" (set "TASK=studio-preview" & goto RUN_TASK)
+if "%SELECTION%"=="20" (set "TASK=docker-build" & goto RUN_TASK)
+if "%SELECTION%"=="21" (set "TASK=reports" & goto RUN_TASK)
 if "%SELECTION%"=="22" goto ALL_GUI
-if "%SELECTION%"=="23" set "TASK=studio-ci"&goto RUN_TASK
+if "%SELECTION%"=="23" (set "TASK=studio-ci" & goto RUN_TASK)
 echo.
 echo [QuestPlus] Choix invalide : entrez un numero entre 1 et 23 ou Q.
 pause
