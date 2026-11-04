@@ -279,6 +279,7 @@ public final class QuestScreen extends Screen {
             int x=(int)camera.screenX(note.get("x").getAsDouble());
             int y=(int)camera.screenY(note.get("y").getAsDouble());
             if (x<treeLeft-180 || x>treeRight+180 || y<treeTop-24 || y>treeBottom+24) continue;
+            if (RichAnnotationRenderer.render(g,font,note,minecraft.options.languageCode,x,y)) continue;
             String label=localized(note.getAsJsonObject("text"));
             String style=note.has("style")?note.get("style").getAsString():"note";
             String hex=note.has("color")?note.get("color").getAsString():"#c6a986";

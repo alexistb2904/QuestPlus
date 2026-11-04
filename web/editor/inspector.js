@@ -1,4 +1,5 @@
 import {tUI} from './ui-i18n.js';
+import {richToHtml} from './rich-format.js';
 import {EVENTS,MODES,PROGRESSIONS,objectiveLabel,text,references} from './project.js';
 import {iconUrl,knownVersion,versionWarning} from './minecraft-icons.js';
 import {renderConditionTree} from './conditions.js';
@@ -16,6 +17,27 @@ const loc=(value,name,label,language,optional=false)=>`<div class="translation-s
   ${field(tUI(label)+' · en_us',name+'.en_us',value?.en_us||'',optional?tUI('Optional'):tUI('English source'))}
   ${language!=='en_us'?field(tUI(label)+' · '+language,name+'.'+language,value?.[language]||'',tUI('Optional translation')):''}
 </div>`;
+
+function richField(note,language){
+ const locale=language||'en_us';
+ const parts=note.rich?.[locale]||[{type:'text',text:note.text?.[locale]||note.text?.en_us||''}];
+ return '<div class="rich-studio">'+
+  '<div class="rich-toolbar" aria-label="Text formatting">'+
+   '<button type="button" data-rich-cmd="bold" title="Bold"><b>B</b></button>'+
+   '<button type="button" data-rich-cmd="italic" title="Italic"><i>I</i></button>'+
+   '<button type="button" data-rich-cmd="underline" title="Underline"><u>U</u></button>'+
+   '<button type="button" data-rich-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>'+
+   '<button type="button" data-rich-cmd="hiliteColor" data-value="#ffe178" title="Highlight">▤</button>'+
+   '<select data-rich-font aria-label="Minecraft font"><option value="default">Minecraft</option><option value="uniform">Uniform</option><option value="alt">Alt</option><option value="illageralt">Illager</option></select>'+
+   '<select data-rich-size aria-label="Font size"><option value="2">Small</option><option value="3" selected>Normal</option><option value="4">Large</option><option value="5">XL</option></select>'+
+   '<label class="rich-upload" title="Embed PNG, JPEG, WebP or GIF">＋ Image<input type="file" data-rich-file accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>'+
+  '</div>'+
+  '<div class="rich-image-tools" hidden><strong>Image</strong><label>W <input type="number" data-rich-image-width min="8" max="170" value="120" aria-label="Image width"></label><label>H <input type="number" data-rich-image-height min="8" max="150" value="64" aria-label="Image height"></label><button type="button" data-rich-remove-image aria-label="Remove image">×</button></div>'+
+  '<div class="rich-edit" contenteditable="true" data-rich-editor data-rich-locale="'+esc(locale)+'" role="textbox" aria-multiline="true" aria-label="Annotation content">'+richToHtml(parts)+'</div>'+
+  (locale!=='en_us'?'<div class="rich-locale-note">English is the source · editing '+esc(locale)+'</div>':'')+
+  '</div>';
+}
+
 function iconField(label,fieldName,id,project){
   const version=project.iconVersions?.[id]||knownVersion(id)||'26.3',image=iconUrl(id,version);
   const warning=versionWarning(project,id);
@@ -43,7 +65,7 @@ export function inspectorData(project,selection,categoryId,language='en_us'){
     const note=(category.annotations||[]).find(a=>a.id===selection.id);
     if(!note)return {title:'Annotation',subtitle:'',html:''};
     return {title:'Annotation',subtitle:note.id,html:
-      section('Texte',loc(note.text,'text','Annotation',language)+select('Style','style',note.style||'note',[['note','Encadré'],['heading','Titre'],['label','Étiquette']]))+
+      section('Contenu',richField(note,language)+select('Style','style',note.style||'note',[['note','Encadré'],['heading','Titre'],['label','Étiquette']]))+
       section('Aspect',field('Couleur','color',note.color||'#c6a986','','color')+
         `<div class="field-row">${field('X','x',note.x,'0','number')}${field('Y','y',note.y,'0','number')}</div>`)+
       disclosure('Options',field('ID','id',note.id)+action('duplicate-annotation','Dupliquer')+' '+action('delete-annotation','Supprimer'))};

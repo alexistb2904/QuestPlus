@@ -3,6 +3,7 @@
   "id": "questplus",
   "version": "${version}",
   "name": "Quest Plus",
+  "icon": "assets/questplus/icon.png",
   "description": "Server-authoritative JSON quest engine. Independent backend preview.",
   "environment": "*",
   "entrypoints": {"main": ["dev.questplus.fabric.QuestPlusMod"], "client": ["dev.questplus.fabric.client.QuestPlusClient"]},

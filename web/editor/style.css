@@ -327,3 +327,35 @@ html,body{background:#17120f;color:var(--text)}
 .icon-version-row{color:#ac927a}
 @media(max-width:1100px){.topbar{flex-wrap:wrap;height:auto;min-height:64px;padding:10px 14px}.top-actions{flex-wrap:wrap;justify-content:flex-end}}
 @media(max-width:780px){.top-actions{gap:5px}.language-control{max-width:165px}.language-control select{max-width:113px}}
+
+
+/* Rich annotation authoring and consistent pixel-sized responsive controls. */
+.brand-mark{background:linear-gradient(145deg,#4e3425,#231a17);border-color:#c49755}
+.brand-mark img{width:42px;height:42px;object-fit:contain;image-rendering:pixelated}
+.rich-studio{margin:8px 0 14px;border:2px solid #795338;background:#241b16;box-shadow:inset 1px 1px #a27e51}
+.rich-toolbar{display:flex;gap:3px;flex-wrap:wrap;padding:6px;background:#38271e;border-bottom:1px solid #704f35;align-items:center}
+.rich-toolbar button,.rich-toolbar select,.rich-upload{font-size:12px;min-width:27px;height:29px;border:1px solid #674934;color:#e2c9aa;background:#30231d;padding:3px 6px;cursor:pointer}
+.rich-toolbar button:hover,.rich-upload:hover{background:#583a26}
+.rich-toolbar select{max-width:106px;min-width:68px}
+.rich-upload{display:flex;align-items:center;white-space:nowrap}
+.rich-edit{min-height:118px;max-height:320px;overflow:auto;outline:none;padding:12px;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:#e3cdb1;background:#261d19;cursor:text}
+.rich-edit:focus{box-shadow:inset 0 0 0 2px #c79e60}
+.rich-edit img,.annotation-node img{display:inline-block;max-width:100%;max-height:150px;object-fit:contain;image-rendering:auto;vertical-align:middle}
+.rich-edit img{cursor:nwse-resize}
+.rich-edit span[data-font="uniform"],.annotation-node span[data-font="uniform"]{font-family:monospace}
+.rich-edit span[data-font="alt"],.annotation-node span[data-font="alt"]{font-family:serif}
+.rich-edit span[data-font="illageralt"],.annotation-node span[data-font="illageralt"]{font-family:fantasy}
+.rich-locale-note{padding:4px 8px;font-size:10px;color:#a99274}
+.annotation-node{min-width:38px;max-width:190px!important;max-height:170px;overflow:hidden;white-space:pre-wrap;word-break:break-word;line-height:1.25;text-align:center}
+.annotation-node img{max-height:110px}
+@media(max-width:1000px){.rich-toolbar{gap:4px}.rich-toolbar button{min-width:32px;min-height:32px}}
+@media(max-width:780px){.rich-edit{min-height:150px;max-height:55vh}.rich-toolbar button,.rich-toolbar select,.rich-upload{min-height:36px}.inspector-body{min-width:0}}
+@media(max-width:480px){.rich-toolbar select{max-width:86px}.annotation-node{max-width:160px!important}.top-actions .button{padding:0 7px}}
+
+.rich-image-tools{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#3c2c20;border-bottom:1px solid #705036;font-size:11px;color:#dbc2a0}
+.rich-image-tools[hidden]{display:none}
+.rich-image-tools label{display:flex;align-items:center;gap:3px}
+.rich-image-tools input{width:51px;height:28px;padding:3px;color:#f3debb;background:#201914;border:1px solid #70543b}
+.rich-image-tools button{margin-left:auto;height:28px;width:28px;background:#522c25;border:1px solid #8e5a43;color:#f4d5b8}
+.rich-edit img{cursor:pointer}
+.rich-edit img:focus,.rich-edit img:hover{outline:1px dashed #e2b474}

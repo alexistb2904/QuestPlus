@@ -1,4 +1,5 @@
 import {BUILTIN_PROJECT} from './default-data.js';
+import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
@@ -75,10 +76,17 @@ export function validate(p){
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
+    if(new TextEncoder().encode(JSON.stringify(c)).byteLength>RICH_MAX_CATEGORY)fail(label,'Category exceeds 900 KiB (embedded images included)');
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
       if(!a.text?.en_us?.trim())fail(label,'Annotation : texte anglais requis');
+      if(a.rich){
+       if(typeof a.rich!=='object'||Array.isArray(a.rich)||!Object.keys(a.rich).length)fail(label,'Invalid rich annotation');
+       else for(const [locale,parts] of Object.entries(a.rich)){
+        if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(locale)||!validRich(parts))fail(label,'Invalid rich annotation/media: '+locale);
+       }
+      }
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
       if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
