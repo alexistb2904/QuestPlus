@@ -146,7 +146,9 @@ export function validate(p){
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
-      if(!a.text?.en_us?.trim())fail(label,'Annotation : texte anglais requis');
+      const hasTranslatedText=Object.values(a.text||{}).some(v=>typeof v==='string'&&v.trim());
+      const hasRichContent=Object.values(a.rich||{}).some(parts=>Array.isArray(parts)&&parts.some(part=>part?.type==='image'&&part.data||part?.type==='text'&&part.text?.trim()));
+      if(!hasTranslatedText&&!hasRichContent)fail(label,'Annotation : contenu requis dans au moins une langue');
       if(a.rich){
        if(typeof a.rich!=='object'||Array.isArray(a.rich)||!Object.keys(a.rich).length)fail(label,'Invalid rich annotation');
        else for(const [locale,parts] of Object.entries(a.rich)){
