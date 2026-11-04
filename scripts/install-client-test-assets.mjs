@@ -12,6 +12,12 @@ import {pipeline} from 'node:stream/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+// Use the location of this script, not CMD arguments or the working directory.
+// Passing a quoted Windows path ending in '\\' can leak a literal '"' into argv.
+export function repositoryRoot(scriptUrl=import.meta.url){
+ return path.resolve(path.dirname(fileURLToPath(scriptUrl)),'..');
+}
+
 export const MC_VERSION='26.3';
 export const ASSETS=Object.freeze([
  {id:'sodium',type:'mod',loader:'fabric',ext:'.jar'},
@@ -136,7 +142,7 @@ export async function installAll(root,{update=false}={}){
  console.log('[INFO] Punchy! and the QuestPlus tablet first-person renderer may conflict: test both.');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const root=path.resolve(process.argv[2]||path.join(path.dirname(fileURLToPath(import.meta.url)),'..'));
+ const root=repositoryRoot();
  installAll(root,{update:process.argv.includes('--update')}).catch(error=>{
   console.error('[QuestPlus] '+error.message);
   process.exitCode=1;

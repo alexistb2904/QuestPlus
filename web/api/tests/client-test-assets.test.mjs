@@ -4,7 +4,8 @@ import {createHash} from 'node:crypto';
 import {mkdtemp,rm,readFile,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import {ASSETS,MC_VERSION,selectVersion,selectFile,installAsset} from '../../../scripts/install-client-test-assets.mjs';
+import {fileURLToPath} from 'node:url';
+import {ASSETS,MC_VERSION,selectVersion,selectFile,installAsset,repositoryRoot} from '../../../scripts/install-client-test-assets.mjs';
 
 test('all requested client mods, animation resource pack and 3 shaders are configured for 26.3',()=>{
  assert.equal(MC_VERSION,'26.3');
@@ -67,4 +68,15 @@ test('client asset installation caches verified downloads and never fetches agai
   assert.deepEqual(cached,installed);
   assert.equal(calls,2,'no re-download when already cached');
  }finally{globalThis.fetch=before;await rm(root,{recursive:true,force:true})}
+});
+
+test('installer resolves the repository independently of current directory or extra Windows argv',()=>{
+ const expected=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
+ assert.equal(repositoryRoot(),expected);
+ const previous=process.cwd();
+ try{process.chdir(os.tmpdir());assert.equal(repositoryRoot(),expected)}
+ finally{process.chdir(previous)}
+ const fakeCmdArg='C:\\Users\\alexi\\Downloads\\QuestPlus"';
+ assert.equal(repositoryRoot(),expected,'a malformed Windows trailing-quote argv is ignored');
+ assert.notEqual(repositoryRoot(),fakeCmdArg);
 });

@@ -93,6 +93,8 @@ test('latest Fabric jar and test addons are installed before Minecraft launches'
  assert.ok(server.indexOf('--rerun-tasks jar')<server.indexOf('runServer'));
  assert.match(server,/run\\server\\mods/);
  assert.match(client,/install-client-test-assets\.mjs/);
+ assert.doesNotMatch(client,/install-client-test-assets\.mjs"\s+"%~dp0"/);
+ assert.match(read('scripts/_qa.bat'),/install-client-test-assets\.mjs" --update/);
  assert.ok(client.indexOf('install-client-test-assets.mjs')<client.indexOf('runClient'));
  assert.match(client,/QUESTPLUS_SKIP_TEST_ASSETS/);
  for(const name of ['iris','sodium','punchy-fpa','punchymoves','fluid-foolish',

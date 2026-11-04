@@ -14,7 +14,9 @@ if errorlevel 1 (
  exit /b 1
 )
 echo [QuestPlus] Verification des shaders, Punchy et animations de test...
-node "%~dp0scripts\install-client-test-assets.mjs" "%~dp0"
+rem The script locates the repository from its own location.
+rem Never pass quoted %%~dp0 (trailing backslash escapes the closing quote in Node on Windows).
+node "%~dp0scripts\install-client-test-assets.mjs"
 if errorlevel 1 (
  echo [ERREUR] Certains assets de test n'ont pas pu etre installes.
  echo [INFO] Pour lancer sans ces assets : set QUESTPLUS_SKIP_TEST_ASSETS=1

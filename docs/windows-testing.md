@@ -141,3 +141,12 @@ set QUESTPLUS_SKIP_TEST_ASSETS=1
 
 Une connexion Internet est requise lors du premier telechargement des assets.
 Si Modrinth est indisponible, le script indique quels elements manquent.
+
+### Correctif Windows — ENOENT `QuestPlus"\\run\\client`
+
+Un ancien lanceur passait la racine `%~dp0` avec un antislash final entre
+ guillemets. Selon le traitement des arguments Windows par Node.js, le
+ caractère `"` pouvait rester dans le nom du dossier : `QuestPlus"`.
+ Le lanceur n'envoie plus ce chemin : le téléchargeur retrouve la racine du
+ dépôt depuis l'emplacement du script. La même correction est appliquée à
+ l'option 25 du menu. Les téléchargements utilisent ensuite `run/client/`.
