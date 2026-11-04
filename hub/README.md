@@ -74,6 +74,7 @@ public multi-tenant account system.
 - /questplus editor revoke — revoke the active editing session.
 - /questplus import <pack-id> — download and preview an immutable shared pack.
 - /questplus import confirm — apply the previewed pack within two minutes.
+- /questplus rollback — restore the most recent pre-publication backup.
 - /questplus reload — existing local file reload command.
 
 In the web editor, use the Online / Server button to connect and
@@ -86,7 +87,9 @@ later be imported using a pack ID.
 - Only the server sends the API key. Browser session IDs are NOT editor tokens.
 - Approvals are bound to the original player UUID, require OP rights and are
   sent through authenticated server-to-Hub requests.
-- Sessions expire after 30 minutes without editor activity; session state is
+- Sessions expire after 30 minutes without editor activity (the browser keeps
+  an authorized active session alive with one lightweight request per minute);
+  session state is
   memory-only and Hub restart invalidates all active sessions.
 - HTTP inputs are bounded (12 MiB), file names restricted, JSON validated,
   per-origin CORS configured, and anonymous pack creation rate limited.

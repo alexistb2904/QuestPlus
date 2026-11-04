@@ -124,6 +124,10 @@ async function handler(req,res){
    if(!s.pending||!equal(s.pending.id,requestId)||!equal(s.pending.secret,requestSecret))throw fail(403,'Invalid approval request');
    return json(res,200,s.pending.approved?{approved:true,editorToken:s.auth,revision:s.revision}:{approved:false});
   }
+  if(req.method==='GET'&&/^\/v1\/editor\/sessions\/[A-Za-z0-9_-]+\/ping$/.test(p)){
+   const s=sessions.get(p.split('/')[4]);editor(s,req);
+   return json(res,200,{expires:s.expires,revision:s.revision});
+  }
   if(req.method==='GET'&&/^\/v1\/editor\/sessions\/[A-Za-z0-9_-]+\/data$/.test(p)){
    const s=sessions.get(p.split('/')[4]);editor(s,req);
    return json(res,200,{files:s.files,registry:s.registry,revision:s.revision,serverName:s.serverName});

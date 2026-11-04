@@ -64,6 +64,15 @@ export function HubPanel({project,onLoad}:{project:Project;onLoad:(p:Project)=>v
   void check();const timer=window.setInterval(()=>{void check()},2500);
   return()=>{cancelled=true;window.clearInterval(timer)};
  },[hub,session,pending,token]);
+ useEffect(()=>{
+  if(!token)return;
+  let mounted=true;
+  const timer=window.setInterval(()=>{
+   void json(host+'/v1/editor/sessions/'+encodeURIComponent(session)+'/ping','GET',undefined,token)
+    .catch(e=>{if(mounted){setToken('');setRevision('');setStatus('Session expired or revoked: '+(e as Error).message)}});
+  },60_000);
+  return()=>{mounted=false;window.clearInterval(timer)};
+ },[hub,session,token]);
  const load=()=>run(async()=>{
   if(!tokenRef.current)throw Error('Approve the browser from Minecraft first');
   const response:HubData=await json(host+'/v1/editor/sessions/'+encodeURIComponent(session)+'/data','GET',undefined,tokenRef.current);
@@ -105,7 +114,7 @@ export function HubPanel({project,onLoad}:{project:Project;onLoad:(p:Project)=>v
     <section className="hub-section">
      <h3>{tUI('Connect Minecraft server')}</h3>
      <label className="field"><span>{tUI('Session ID')}</span>
-      <input value={session} onChange={e=>setSession(e.target.value)} spellCheck={false} placeholder="Session from /questplus editor"/></label>
+      <input value={session} onChange={e=>{setSession(e.target.value);setToken('');setPending(null);setRevision('');}} spellCheck={false} placeholder="Session from /questplus editor"/></label>
      {!token&&<button className="button primary" disabled={busy||!!pending} onClick={start}>{pending?tUI('Awaiting in-game approval'):tUI('Request authorization')}</button>}
      {pending&&<p className="hub-confirm-code">{pending.code}</p>}
      {token&&<div className="hub-actions">
