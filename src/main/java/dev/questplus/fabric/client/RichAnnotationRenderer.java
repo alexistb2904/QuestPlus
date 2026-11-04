@@ -76,7 +76,9 @@ final class RichAnnotationRenderer {
                 String uri=imageData(p,pool);
                 AnimatedImage image=uri==null?null:image(uri);
                 if(image==null)continue;
-                int w=Math.clamp(p.get("width").getAsInt(),8,contentWidth),h=Math.clamp(p.get("height").getAsInt(),8,requestedHeight-8);
+                int sourceW=p.get("width").getAsInt(),sourceH=p.get("height").getAsInt();
+                double fit=Math.min(1d,Math.min(contentWidth/(double)Math.max(1,sourceW),(requestedHeight-8d)/Math.max(1,sourceH)));
+                int w=Math.max(8,(int)Math.round(sourceW*fit)),h=Math.max(8,(int)Math.round(sourceH*fit));
                 if(!line.parts.isEmpty()){line=new Line();lines.add(line);}
                 line.add(new Part(null,image.current(),w,h,1,0,0));
                 line=new Line();lines.add(line);
