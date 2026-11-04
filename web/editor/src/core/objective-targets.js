@@ -94,7 +94,7 @@ export const OBJECTIVE_UI=Object.freeze({
   travel_distance:{kind:'distance',amount:'Distance (m)'},
   location:{kind:'position',amount:null},
   player_death:{kind:'death',amount:'Deaths'},
-  manual:{kind:'manual',amount:null}
+  manual:{kind:'manual',amount:'Confirmations'}
 });
 export const objectiveUi=event=>OBJECTIVE_UI[event]||{kind:'custom',amount:'Count'};
 export const objectiveTarget=event=>objectiveUi(event).kind;
