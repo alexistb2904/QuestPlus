@@ -16,7 +16,7 @@ export function validRich(parts){
    if(!mediaPattern.test(v.data||''))return false;
    if(!Number.isInteger(v.width)||!Number.isInteger(v.height)||v.width<=0||v.height<=0)return false;
   }else if(v.type==='text'){
-   if(typeof v.text!=='string'||v.text.length>2048)return false;
+   if(typeof v.text!=='string')return false;
    if(v.font!=null&&!RICH_FONTS.includes(v.font))return false;
    if(v.size!=null&&(!Number.isFinite(v.size)||v.size<0.75||v.size>2))return false;
    if(v.sizePx!=null&&(!Number.isInteger(v.sizePx)||v.sizePx<=0))return false;
