@@ -61,7 +61,7 @@ export function richFromDom(root){
  }
  for(const child of root.childNodes)walk(child,DEFAULT);
  const trimmed=parts.filter(p=>p.type!=='text'||p.text.length);
- return trimmed.length<=96&&validRich(trimmed)?trimmed:null;
+ return validRich(trimmed)?trimmed:null;
 }
 export function setRichEditor(editor,parts){editor.innerHTML=richToHtml(parts);}
 export async function toEmbeddedImage(file){
