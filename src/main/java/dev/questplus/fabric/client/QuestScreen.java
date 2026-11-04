@@ -272,14 +272,19 @@ public final class QuestScreen extends Screen {
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
             g.pose().pushMatrix(); g.pose().translate(x-8*(float)camera.zoom(),y-8*(float)camera.zoom()); g.pose().scale((float)camera.zoom());
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
-            if (!state.quests.get(id).progression().equals("once")) QuestSkin.text(g,font,"+",x+r-6,y+r-8,0xffe4cf96,false);
+            String progression=state.quests.get(id).progression();
+            if (!progression.equals("once")) {
+                String marker=progression.equals("repeatable") ? "R" : progression.equals("infinite") ? "∞" : "◆";
+                QuestSkin.text(g,font,marker,x+r-7,y+r-8,0xffe4cf96,false);
+            }
             if (statuses.get(id).equals("reward_ready")) {
                 g.fill(x+r-6,y+r-7,x+r+3,y+r+3,0xff604019);
                 QuestSkin.text(g,font,"!",x+r-3,y+r-6,0xffffe3a1,false);
             }
             else if (statuses.get(id).equals("completed")) { g.fill(x+r-5,y+r-6,x+r+2,y+r+1,0xff34492e); g.fill(x+r-4,y+r-3,x+r-2,y+r-1,0xffd6e4b2); g.fill(x+r-2,y+r-4,x+r,y+r-2,0xffd6e4b2); g.fill(x+r,y+r-6,x+r+2,y+r-3,0xffd6e4b2); }
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
-            if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()),mx,my);
+            if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+                +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString())),mx,my);
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
@@ -382,7 +387,9 @@ public final class QuestScreen extends Screen {
         }
         } else if (!QuestClientState.flag(p,"completed")) append(lines,t("information_review").getString(),w);
         if (q.requires()!=null) { append(lines,t("requires").getString(),w); append(lines,condition(q.requires()),w); }
-        if (!q.progression().equals("once")) append(lines,t("cycles",QuestClientState.count(p,"cycles"),QuestClientState.count(p,"tier")).getString(),w);
+        if (q.progression().equals("tiered")) append(lines,t("tier_count",QuestClientState.count(p,"tier")).getString(),w);
+        else if (!q.progression().equals("once") && QuestClientState.count(p,"cycles")>0)
+            append(lines,t("repeat_count",QuestClientState.count(p,"cycles")).getString(),w);
         append(lines,t("rewards").getString(),w);
         for (var r:q.rewards()) appendTile(lines,reward(r),w,rewardIcon(r));
         for (var tier:q.tiers()) { append(lines,t("tier",tier.threshold()).getString(),w); for (var r:tier.rewards()) appendTile(lines,reward(r),w,rewardIcon(r)); }
