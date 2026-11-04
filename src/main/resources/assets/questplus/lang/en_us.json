@@ -152,8 +152,8 @@
   "questplus.client.condition.detail.context": "when %s = %s",
   "questplus.client.condition.detail.quest": "after %s",
   "questplus.client.condition.detail.other": "%s: %s",
-  "questplus.client.condition.detail.slot.mainhand": "main hand",
-  "questplus.client.condition.detail.slot.offhand": "offhand",
+  "questplus.client.condition.detail.slot.mainhand": "Main hand",
+  "questplus.client.condition.detail.slot.offhand": "Off hand",
   "questplus.client.condition.detail.slot.head": "head",
   "questplus.client.condition.detail.slot.chest": "chest",
   "questplus.client.condition.detail.slot.legs": "legs",
@@ -168,5 +168,13 @@
   "questplus.client.center_tree": "Center tree",
   "questplus.client.notification_position": "Notification position",
   "questplus.client.screen_emissive": "Self-illuminated screen",
-  "questplus.client.screen_brightness": "Screen brightness: %s%%"
+  "questplus.client.screen_brightness": "Screen brightness: %s%%",
+  "questplus.client.condition.detail.gear.full": "Wear a full %s armor set",
+  "questplus.client.condition.detail.gear.entry": "%s: %s",
+  "questplus.client.condition.detail.gear.empty": "Equipment required",
+  "questplus.client.condition.detail.gear.invalid": "Equipment requirements unavailable",
+  "questplus.client.condition.detail.gear.enchanted": "Enchanted set",
+  "questplus.client.condition.detail.slot.inventory": "Inventory",
+  "questplus.client.claim_all": "Claim all rewards",
+  "questplus.client.claim_all_empty": "No rewards to claim"
 }
