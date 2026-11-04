@@ -12,7 +12,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Build small. Think big.",
+            "fr_fr": "Construisez petit. Pensez grand."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:expeditions",
@@ -26,7 +40,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "The world is bigger than your base.",
+            "fr_fr": "Le monde est plus grand que votre base."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:archaeology",
@@ -40,7 +68,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Forgotten places, unfinished stories.",
+            "fr_fr": "Des lieux oubliés, des histoires inachevées."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:quarries",
@@ -54,7 +96,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Every block counts.",
+            "fr_fr": "Chaque bloc compte."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:hunts",
@@ -68,7 +124,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "The hunter's work is never over.",
+            "fr_fr": "La chasse ne s'arrête jamais."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:wildlife",
@@ -82,7 +152,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "A world worth caring for.",
+            "fr_fr": "Un monde dont il faut prendre soin."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:professions",
@@ -96,7 +180,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Make the world thrive.",
+            "fr_fr": "Faites prospérer votre monde."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:ocean",
@@ -110,7 +208,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Beyond the shoreline.",
+            "fr_fr": "Au-delà du rivage."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:homestead",
@@ -124,7 +236,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Give your world a story.",
+            "fr_fr": "Donnez une histoire à votre monde."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:nether",
@@ -138,7 +264,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "The Nether does not forgive.",
+            "fr_fr": "Le Nether ne pardonne pas."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:endgame",
@@ -152,7 +292,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "The end is only the beginning.",
+            "fr_fr": "La fin n'est que le début."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:contracts",
@@ -166,7 +320,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Something to do today.",
+            "fr_fr": "Un défi pour aujourd'hui."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:trials",
@@ -180,7 +348,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "No rewards without risk.",
+            "fr_fr": "Sans risque, pas de légende."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:curiosities",
@@ -194,7 +376,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Find joy in the unusual.",
+            "fr_fr": "Découvrez le plaisir de l'insolite."
+          }
+        }
+      ]
     },
     {
       "id": "questplus:milestones",
@@ -208,7 +404,21 @@
         "en_us": "Optional challenges to enrich a long-lived survival world.",
         "fr_fr": "Des défis facultatifs pour faire vivre votre monde de survie."
       },
-      "annotations": []
+      "annotations": [
+        {
+          "id": "chapter_heading",
+          "x": 300,
+          "y": -125,
+          "style": "heading",
+          "color": "#c6a986",
+          "width": 330,
+          "height": 54,
+          "text": {
+            "en_us": "Mark the moments.",
+            "fr_fr": "Marquez les grandes étapes."
+          }
+        }
+      ]
     }
   ],
   "quests": [
@@ -220,10 +430,6 @@
       "title": {
         "en_us": "The First Automatism",
         "fr_fr": "Le premier automatisme"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -268,8 +474,8 @@
         "fr_fr": "Chaque chose à sa place"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Start with a single reliable module. Expand your warehouse only if you wish.",
+        "fr_fr": "Commencez par un module fiable. Agrandissez votre entrepôt si vous le souhaitez."
       },
       "objectives": [
         {
@@ -325,10 +531,6 @@
         "en_us": "A Hidden Entrance",
         "fr_fr": "Une entrée secrète"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -372,8 +574,8 @@
         "fr_fr": "La récolte sans effort"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "A tiny farm is enough to learn the mechanics behind larger ones.",
+        "fr_fr": "Une ferme minuscule suffit pour découvrir le principe des grandes installations."
       },
       "objectives": [
         {
@@ -423,10 +625,6 @@
         "en_us": "The Sheep Works Alone",
         "fr_fr": "La laine travaille toute seule"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -474,10 +672,6 @@
       "title": {
         "en_us": "The Mechanical Garden",
         "fr_fr": "Le potager mécanique"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -527,10 +721,6 @@
         "en_us": "Liquid Gold",
         "fr_fr": "L'or liquide"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -572,10 +762,6 @@
       "title": {
         "en_us": "Honey Without Stings",
         "fr_fr": "Le miel sans piqûres"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -619,10 +805,6 @@
         "en_us": "Underwater Engineering",
         "fr_fr": "Le jardin sous-marin"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -664,10 +846,6 @@
       "title": {
         "en_us": "Going Up",
         "fr_fr": "Un petit ascenseur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -711,10 +889,6 @@
         "en_us": "Piston Laboratory",
         "fr_fr": "Le laboratoire à pistons"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -757,10 +931,6 @@
         "en_us": "The Neighborhood Furnace",
         "fr_fr": "Le four du quartier"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -802,10 +972,6 @@
       "title": {
         "en_us": "Arid Lands",
         "fr_fr": "Les terres arides"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -855,10 +1021,6 @@
         "en_us": "On Top of the World",
         "fr_fr": "Au sommet du monde"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -906,10 +1068,6 @@
       "title": {
         "en_us": "Under the Canopy",
         "fr_fr": "Sous la canopée"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -959,10 +1117,6 @@
         "en_us": "The Frozen Realm",
         "fr_fr": "Le royaume des glaces"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1004,10 +1158,6 @@
       "title": {
         "en_us": "The Flower Road",
         "fr_fr": "La route des fleurs"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1057,10 +1207,6 @@
         "en_us": "Lost Islands",
         "fr_fr": "Les îles perdues"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1096,10 +1242,6 @@
       "title": {
         "en_us": "The World Beneath",
         "fr_fr": "Les entrailles du monde"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1142,10 +1284,6 @@
       "title": {
         "en_us": "Villages of the World",
         "fr_fr": "Les villages du monde"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1201,10 +1339,6 @@
         "en_us": "The Sea Route",
         "fr_fr": "La route maritime"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1253,10 +1387,6 @@
         "en_us": "Wild Lands",
         "fr_fr": "Les terres sauvages"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1304,10 +1434,6 @@
       "title": {
         "en_us": "Underground Expedition",
         "fr_fr": "L'expédition souterraine"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1406,10 +1532,6 @@
         "en_us": "Twelve Horizons",
         "fr_fr": "Les douze horizons"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1507,8 +1629,8 @@
         "fr_fr": "Le cartographe légendaire"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "The map still has blank spaces. Seek lands other travelers ignored.",
+        "fr_fr": "La carte comporte encore des zones inconnues. Explorez les terres négligées par les autres voyageurs."
       },
       "objectives": [
         {
@@ -1601,8 +1723,8 @@
         "fr_fr": "Le grand voyageur"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Every journey is a story written in footsteps.",
+        "fr_fr": "Chaque voyage est une histoire écrite à force de pas."
       },
       "objectives": [
         {
@@ -1671,10 +1793,6 @@
         "en_us": "The Hidden Corners",
         "fr_fr": "Les recoins du monde"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1722,10 +1840,6 @@
       "title": {
         "en_us": "The End Archipelago",
         "fr_fr": "L'archipel de l'End"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1775,10 +1889,6 @@
         "en_us": "The Deep Blue",
         "fr_fr": "Les profondeurs bleues"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1827,10 +1937,6 @@
         "en_us": "The Surface",
         "fr_fr": "La Surface"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1860,10 +1966,6 @@
       "title": {
         "en_us": "Through the Flames",
         "fr_fr": "À travers les flammes"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1895,10 +1997,6 @@
         "en_us": "Beyond the Void",
         "fr_fr": "Au-delà du vide"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -1928,10 +2026,6 @@
       "title": {
         "en_us": "Beneath Civilizations",
         "fr_fr": "Sous les civilisations"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -1975,10 +2069,6 @@
         "en_us": "Forgotten Temples",
         "fr_fr": "Les temples anciens"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2020,10 +2110,6 @@
       "title": {
         "en_us": "The Ocean Expedition",
         "fr_fr": "L'expédition océanique"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2067,10 +2153,6 @@
         "en_us": "Trails of the Past",
         "fr_fr": "Les ruines du passé"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2112,10 +2194,6 @@
       "title": {
         "en_us": "Sunken Riches",
         "fr_fr": "Les trésors engloutis"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2160,8 +2238,8 @@
         "fr_fr": "La cité silencieuse"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "The old cities remember every sound. Return with their forgotten fragments.",
+        "fr_fr": "Les cités anciennes se souviennent du moindre bruit. Rapportez leurs fragments oubliés."
       },
       "objectives": [
         {
@@ -2205,10 +2283,6 @@
         "en_us": "Guardians of the Monument",
         "fr_fr": "Le gardien du monument"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2250,10 +2324,6 @@
       "title": {
         "en_us": "Trial by Chamber",
         "fr_fr": "Les chambres des épreuves"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2297,10 +2367,6 @@
         "en_us": "Ominous Trials",
         "fr_fr": "Les épreuves inquiétantes"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2336,10 +2402,6 @@
       "title": {
         "en_us": "Abandoned Estates",
         "fr_fr": "Les demeures abandonnées"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2383,10 +2445,6 @@
         "en_us": "Raider Territory",
         "fr_fr": "Les pillards du royaume"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2428,10 +2486,6 @@
       "title": {
         "en_us": "Portal Trails",
         "fr_fr": "Sur la trace des portails"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2487,10 +2541,6 @@
         "en_us": "Piglin History",
         "fr_fr": "L'histoire des Piglins"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2532,10 +2582,6 @@
       "title": {
         "en_us": "World Remnants",
         "fr_fr": "Les vestiges du monde"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2585,10 +2631,6 @@
         "en_us": "Cities Beyond",
         "fr_fr": "Les cités de l'au-delà"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2632,8 +2674,8 @@
         "fr_fr": "L'archéologue légendaire"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Read the story of the world in the ruins it left behind.",
+        "fr_fr": "Lisez l'histoire du monde dans les ruines qu'il a laissées."
       },
       "objectives": [
         {
@@ -2690,8 +2732,8 @@
         "fr_fr": "La montagne disparaît"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Every mountain eventually yields to a patient builder.",
+        "fr_fr": "Toute montagne finit par céder à un bâtisseur patient."
       },
       "objectives": [
         {
@@ -2770,10 +2812,6 @@
         "en_us": "Endless Depths",
         "fr_fr": "Profondeurs sans fin"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2840,10 +2878,6 @@
       "title": {
         "en_us": "Endless Lumber",
         "fr_fr": "Le bûcheron infatigable"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -2912,10 +2946,6 @@
         "en_us": "Coal Empire",
         "fr_fr": "L'empire du charbon"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -2982,10 +3012,6 @@
       "title": {
         "en_us": "King of Iron",
         "fr_fr": "Le roi du fer"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3054,10 +3080,6 @@
         "en_us": "Copper Rush",
         "fr_fr": "La ruée vers le cuivre"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3125,10 +3147,6 @@
         "en_us": "Redstone Prospector",
         "fr_fr": "L'ingénieur des profondeurs"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3195,10 +3213,6 @@
       "title": {
         "en_us": "Ancient Debris Collector",
         "fr_fr": "Le collectionneur de débris"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3268,8 +3282,8 @@
         "fr_fr": "Le maître de la Netherite"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Eight ingots, countless trips below the lava seas.",
+        "fr_fr": "Huit lingots, d'innombrables voyages sous les océans de lave."
       },
       "objectives": [
         {
@@ -3327,10 +3341,6 @@
       "title": {
         "en_us": "Skeleton Scourge",
         "fr_fr": "Le fléau des squelettes"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3409,10 +3419,6 @@
         "en_us": "The Zombie Apocalypse",
         "fr_fr": "L'apocalypse des zombies"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3479,10 +3485,6 @@
       "title": {
         "en_us": "Creeper Demolition",
         "fr_fr": "Le démineur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3551,10 +3553,6 @@
         "en_us": "Enderman Hunter",
         "fr_fr": "La guerre contre l'End"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3622,10 +3620,6 @@
         "en_us": "Blaze Exterminator",
         "fr_fr": "L'exterminateur de Blazes"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3683,10 +3677,6 @@
         "en_us": "Four Undead",
         "fr_fr": "Les quatre morts"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3735,10 +3725,6 @@
         "en_us": "Terror of the Raiders",
         "fr_fr": "La terreur des pillards"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -3786,10 +3772,6 @@
       "title": {
         "en_us": "Shulker Exterminator",
         "fr_fr": "L'exterminateur de Shulkers"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3849,8 +3831,8 @@
         "fr_fr": "Le silence est brisé"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Three Wardens. Three encounters with the most unforgiving depths.",
+        "fr_fr": "Trois Wardens. Trois confrontations avec les profondeurs les plus impitoyables."
       },
       "objectives": [
         {
@@ -3883,8 +3865,8 @@
         "fr_fr": "Le destructeur de Withers"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "One Wither is a catastrophe. Five is a lifelong campaign.",
+        "fr_fr": "Un Wither est une catastrophe. Cinq, c'est une campagne de toute une vie."
       },
       "objectives": [
         {
@@ -3915,10 +3897,6 @@
       "title": {
         "en_us": "Biome Hunter",
         "fr_fr": "Le chasseur des biomes"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -3968,10 +3946,6 @@
         "en_us": "Great Predator",
         "fr_fr": "Le grand prédateur"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4020,10 +3994,6 @@
         "en_us": "Hunt of the Plains",
         "fr_fr": "La chasse des plaines"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4071,10 +4041,6 @@
       "title": {
         "en_us": "Rare Creatures",
         "fr_fr": "Les créatures rares"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4130,10 +4096,6 @@
         "en_us": "Night Stalker",
         "fr_fr": "La traque nocturne"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4177,10 +4139,6 @@
         "en_us": "The Undead Legion",
         "fr_fr": "La légion des morts"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4222,10 +4180,6 @@
       "title": {
         "en_us": "The Great Breeder",
         "fr_fr": "Le grand éleveur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4275,10 +4229,6 @@
         "en_us": "Honey Empire",
         "fr_fr": "L'empire du miel"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4320,10 +4270,6 @@
       "title": {
         "en_us": "The Companions Ark",
         "fr_fr": "L'arche des compagnons"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4367,10 +4313,6 @@
         "en_us": "The Stable Master",
         "fr_fr": "Le maître des écuries"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4412,10 +4354,6 @@
       "title": {
         "en_us": "Wetlands Guardians",
         "fr_fr": "Les gardiens des zones humides"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4459,10 +4397,6 @@
         "en_us": "Forgotten Fauna",
         "fr_fr": "La faune oubliée"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4504,10 +4438,6 @@
       "title": {
         "en_us": "Sniffer Sanctuary",
         "fr_fr": "Le sanctuaire des Sniffers"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4551,10 +4481,6 @@
         "en_us": "Axolotl Collector",
         "fr_fr": "Le collectionneur d'axolotls"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4584,10 +4510,6 @@
       "title": {
         "en_us": "Tropical Aquarium",
         "fr_fr": "L'aquarium tropical"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4625,10 +4547,6 @@
         "en_us": "Turtle Refuge",
         "fr_fr": "Le refuge des tortues"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4665,10 +4583,6 @@
         "en_us": "Parrot Sanctuary",
         "fr_fr": "Le sanctuaire des perroquets"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4704,10 +4618,6 @@
       "title": {
         "en_us": "Royal Feast",
         "fr_fr": "Le banquet royal"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4781,10 +4691,6 @@
         "en_us": "Industrial Farmer",
         "fr_fr": "L'agriculteur industriel"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4827,10 +4733,6 @@
         "en_us": "Master Chef",
         "fr_fr": "Le maître cuisinier"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4872,10 +4774,6 @@
       "title": {
         "en_us": "Professional Fisher",
         "fr_fr": "Le pêcheur professionnel"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -4925,10 +4823,6 @@
         "en_us": "Flourishing Market",
         "fr_fr": "Le marché florissant"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -4970,10 +4864,6 @@
       "title": {
         "en_us": "Renowned Librarian",
         "fr_fr": "Le bibliothécaire renommé"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5017,10 +4907,6 @@
         "en_us": "Village Supplier",
         "fr_fr": "Le fournisseur du village"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5056,10 +4942,6 @@
       "title": {
         "en_us": "Tour of the Towns",
         "fr_fr": "La tournée des bourgs"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5115,10 +4997,6 @@
         "en_us": "Great Beekeeper",
         "fr_fr": "Le grand apiculteur"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5161,10 +5039,6 @@
         "en_us": "Trade Without Borders",
         "fr_fr": "Le commerce sans frontières"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5200,10 +5074,6 @@
       "title": {
         "en_us": "The Four Catches",
         "fr_fr": "Les quatre prises"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5252,10 +5122,6 @@
       "title": {
         "en_us": "The Great Fisher",
         "fr_fr": "Le grand pêcheur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5314,10 +5180,6 @@
         "en_us": "Tropical Collection",
         "fr_fr": "Le collectionneur tropical"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5347,10 +5209,6 @@
       "title": {
         "en_us": "Axolotl Sanctuary",
         "fr_fr": "Le sanctuaire des axolotls"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5394,10 +5252,6 @@
         "en_us": "Deep Sea Hunter",
         "fr_fr": "Le chasseur des profondeurs"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5439,10 +5293,6 @@
       "title": {
         "en_us": "Angler Treasure",
         "fr_fr": "Le trésor du pêcheur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5486,10 +5336,6 @@
         "en_us": "Wealth of the Sea",
         "fr_fr": "Les richesses de la mer"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5531,10 +5377,6 @@
       "title": {
         "en_us": "Underwater Architect",
         "fr_fr": "L'architecte sous-marin"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5578,10 +5420,6 @@
         "en_us": "Oceanic Legacy",
         "fr_fr": "L'héritage des océans"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5623,10 +5461,6 @@
       "title": {
         "en_us": "Museum of Discoveries",
         "fr_fr": "Le musée des découvertes"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5670,10 +5504,6 @@
         "en_us": "The Map Room",
         "fr_fr": "La salle des cartes"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5716,10 +5546,6 @@
         "en_us": "The Greenhouse",
         "fr_fr": "La serre botanique"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5761,10 +5587,6 @@
       "title": {
         "en_us": "Alchemist's Laboratory",
         "fr_fr": "Le laboratoire d'alchimie"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5813,10 +5635,6 @@
       "title": {
         "en_us": "The Village Forge",
         "fr_fr": "La forge du village"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5872,10 +5690,6 @@
         "en_us": "The Color Garden",
         "fr_fr": "Le jardin des couleurs"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -5923,10 +5737,6 @@
       "title": {
         "en_us": "The Observatory",
         "fr_fr": "L'observatoire"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -5976,10 +5786,6 @@
         "en_us": "Traveler's Lodge",
         "fr_fr": "Le pavillon du voyageur"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6027,10 +5833,6 @@
       "title": {
         "en_us": "Five Nether Biomes",
         "fr_fr": "Les cinq enfers"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6086,10 +5888,6 @@
         "en_us": "The Piglin War",
         "fr_fr": "La guerre des Piglins"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6131,10 +5929,6 @@
       "title": {
         "en_us": "Creatures of the Depths",
         "fr_fr": "Les créatures des profondeurs"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6178,10 +5972,6 @@
         "en_us": "Fortress Conquered",
         "fr_fr": "La forteresse conquise"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6223,10 +6013,6 @@
       "title": {
         "en_us": "Treasure of the Bastion",
         "fr_fr": "Le trésor du bastion"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6270,10 +6056,6 @@
         "en_us": "Infernal Architect",
         "fr_fr": "L'architecte infernal"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6315,10 +6097,6 @@
       "title": {
         "en_us": "Nether Highway",
         "fr_fr": "L'autoroute des enfers"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6366,8 +6144,8 @@
         "fr_fr": "Le rituel du Wither"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Gather the trophies of the dead and face what they awaken.",
+        "fr_fr": "Réunissez les trophées des morts et affrontez ce qu'ils réveillent."
       },
       "objectives": [
         {
@@ -6411,10 +6189,6 @@
         "en_us": "Infernal Crossing",
         "fr_fr": "La traversée infernale"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6457,10 +6231,6 @@
       "title": {
         "en_us": "Lava Sea Voyager",
         "fr_fr": "Le voyageur des mers de lave"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6507,10 +6277,6 @@
         "en_us": "Netherite Harvest",
         "fr_fr": "La récolte de Netherite"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6546,10 +6312,6 @@
       "title": {
         "en_us": "The Grand Reconnaissance",
         "fr_fr": "La grande reconnaissance"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6599,10 +6361,6 @@
         "en_us": "City Hunter",
         "fr_fr": "Le chasseur de cités"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6644,10 +6402,6 @@
       "title": {
         "en_us": "Enderman Scourge",
         "fr_fr": "Le fléau des Endermen"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6709,10 +6463,6 @@
         "en_us": "Void Architect",
         "fr_fr": "L'architecte du vide"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6755,10 +6505,6 @@
         "en_us": "Void Garden",
         "fr_fr": "Le jardin du vide"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6795,10 +6541,6 @@
         "en_us": "One Dragon Is Not Enough",
         "fr_fr": "Un dragon ne suffit pas"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6830,8 +6572,8 @@
         "fr_fr": "Le double affrontement"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Two rulers of different worlds, one uninterrupted life.",
+        "fr_fr": "Deux souverains de mondes différents, une seule vie sans interruption."
       },
       "objectives": [
         {
@@ -6876,10 +6618,6 @@
         "en_us": "Master of the Skies",
         "fr_fr": "Le maître des airs"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -6915,10 +6653,6 @@
       "title": {
         "en_us": "Dragon Sanctuary",
         "fr_fr": "Le sanctuaire du Dragon"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -6961,10 +6695,6 @@
       "title": {
         "en_us": "Guardians of the Void",
         "fr_fr": "Les gardiens du vide"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7018,10 +6748,6 @@
         "en_us": "Skeleton Bounty",
         "fr_fr": "Prime aux squelettes"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7053,10 +6779,6 @@
         "en_us": "Undead Cleanup",
         "fr_fr": "Nettoyage des morts-vivants"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7087,10 +6809,6 @@
       "title": {
         "en_us": "Quarry Order",
         "fr_fr": "Commande de la carrière"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7182,10 +6900,6 @@
         "en_us": "The Trade Continues",
         "fr_fr": "Le commerce continue"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7216,10 +6930,6 @@
       "title": {
         "en_us": "Infernal Bounty",
         "fr_fr": "La prime infernale"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7258,10 +6968,6 @@
         "en_us": "Dinner for the Village",
         "fr_fr": "Le repas du village"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7298,10 +7004,6 @@
       "title": {
         "en_us": "Extermination",
         "fr_fr": "L'extermination"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7346,10 +7048,6 @@
         "en_us": "Great Cleanup",
         "fr_fr": "Le grand nettoyage"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7393,10 +7091,6 @@
         "en_us": "Treasure Fishing",
         "fr_fr": "La chasse aux trésors"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7433,10 +7127,6 @@
       "title": {
         "en_us": "Fortress Challenge",
         "fr_fr": "Le défi de la forteresse"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7476,10 +7166,6 @@
         "en_us": "Eternal Quarry",
         "fr_fr": "La carrière éternelle"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7509,10 +7195,6 @@
       "title": {
         "en_us": "Endless Hunt",
         "fr_fr": "La chasse sans fin"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7544,10 +7226,6 @@
         "en_us": "The Endless Road",
         "fr_fr": "Le voyage sans retour"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7577,10 +7255,6 @@
       "title": {
         "en_us": "They Never Saw Me",
         "fr_fr": "Personne ne m'a vu"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7615,10 +7289,6 @@
         "en_us": "Hunter of the Abyss",
         "fr_fr": "Le chasseur des abysses"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7651,10 +7321,6 @@
       "title": {
         "en_us": "Bare Fists",
         "fr_fr": "Les poings de la colère"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7689,10 +7355,6 @@
         "en_us": "On the Brink",
         "fr_fr": "À un souffle de la mort"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7725,10 +7387,6 @@
       "title": {
         "en_us": "Obsessive Archer",
         "fr_fr": "L'archer obsessionnel"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7763,10 +7421,6 @@
         "en_us": "Silent Predator",
         "fr_fr": "Le prédateur silencieux"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7799,10 +7453,6 @@
       "title": {
         "en_us": "Unarmored Gladiator",
         "fr_fr": "Le gladiateur sans armure"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7847,10 +7497,6 @@
         "en_us": "The Warden's Shadow",
         "fr_fr": "L'ombre du Warden"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7883,10 +7529,6 @@
       "title": {
         "en_us": "Hunter Marathon",
         "fr_fr": "Le marathon du chasseur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -7932,10 +7574,6 @@
         "en_us": "Descent into the Nether",
         "fr_fr": "La descente aux enfers"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -7979,10 +7617,6 @@
         "en_us": "Guardian of the Depths",
         "fr_fr": "Le gardien des profondeurs"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8019,10 +7653,6 @@
       "title": {
         "en_us": "Conqueror of Three Worlds",
         "fr_fr": "Le conquérant des trois mondes"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8076,10 +7706,6 @@
         "en_us": "Trial of the Ancients",
         "fr_fr": "L'épreuve des anciens"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8122,10 +7748,6 @@
       "title": {
         "en_us": "The Warrior's Ascent",
         "fr_fr": "L'ascension du guerrier"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8173,8 +7795,8 @@
         "fr_fr": "Trois géants, une vie"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Three legendary foes. No second chances in this attempt.",
+        "fr_fr": "Trois adversaires légendaires. Aucun droit à l'erreur durant cette tentative."
       },
       "objectives": [
         {
@@ -8222,10 +7844,6 @@
       "title": {
         "en_us": "Collector Hunt",
         "fr_fr": "La chasse du collectionneur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8371,10 +7989,6 @@
         "en_us": "The Last Survivor",
         "fr_fr": "Le dernier survivant"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8426,8 +8040,8 @@
         "fr_fr": "La dernière page"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "The world has no ending. Only the next challenge.",
+        "fr_fr": "Le monde n'a pas de fin. Seulement le prochain défi."
       },
       "objectives": [
         {
@@ -8469,10 +8083,6 @@
       "title": {
         "en_us": "The Record Collector",
         "fr_fr": "Le collectionneur de disques"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8528,10 +8138,6 @@
         "en_us": "The Note Orchestra",
         "fr_fr": "L'orchestre du village"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8569,8 +8175,8 @@
         "fr_fr": "La galerie des horreurs"
       },
       "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
+        "en_us": "Every trophy tells the story of an unlikely encounter.",
+        "fr_fr": "Chaque trophée raconte l'histoire d'une rencontre improbable."
       },
       "objectives": [
         {
@@ -8614,10 +8220,6 @@
         "en_us": "The Pottery Museum",
         "fr_fr": "Le musée des poteries"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8647,10 +8249,6 @@
       "title": {
         "en_us": "Froglight Rainbow",
         "fr_fr": "Le royaume des grenouilles"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8693,10 +8291,6 @@
       "title": {
         "en_us": "The Colors of the World",
         "fr_fr": "Les couleurs du monde"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
@@ -8818,10 +8412,6 @@
         "en_us": "The Little Treasures",
         "fr_fr": "Les petits trésors"
       },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
-      },
       "objectives": [
         {
           "id": "step1",
@@ -8869,10 +8459,6 @@
       "title": {
         "en_us": "The Strange Collector",
         "fr_fr": "L'étrange collectionneur"
-      },
-      "description": {
-        "en_us": "A challenge for experienced survival players. Objectives count independently unless specified otherwise.",
-        "fr_fr": "Un défi pour les joueurs expérimentés. Les objectifs progressent indépendamment, sauf indication contraire."
       },
       "objectives": [
         {
