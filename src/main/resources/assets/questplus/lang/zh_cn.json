@@ -177,5 +177,12 @@
   "questplus.client.condition.detail.slot.inventory": "背包",
   "questplus.client.claim_all": "领取全部奖励",
   "questplus.client.claim_all_empty": "没有可领取的奖励",
-  "questplus.client.toast.unlocked": "任务已解锁"
+  "questplus.client.toast.unlocked": "任务已解锁",
+  "questplus.client.condition.detail.gear.material.leather": "皮革",
+  "questplus.client.condition.detail.gear.material.copper": "铜",
+  "questplus.client.condition.detail.gear.material.chainmail": "锁链",
+  "questplus.client.condition.detail.gear.material.iron": "铁",
+  "questplus.client.condition.detail.gear.material.golden": "金",
+  "questplus.client.condition.detail.gear.material.diamond": "钻石",
+  "questplus.client.condition.detail.gear.material.netherite": "下界合金"
 }
