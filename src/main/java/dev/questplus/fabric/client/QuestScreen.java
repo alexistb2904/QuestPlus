@@ -50,8 +50,9 @@ public final class QuestScreen extends Screen {
     private long filteredSequence=-2,filteredCatalogue=-2;
     private String filteredQuery,filteredLanguage,filteredFilter;
     private double cachedLeft=Double.NaN,cachedTop,cachedRight,cachedBottom;
-    private record DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted) {
-        DetailRow(List<String> lines,ItemStack icon,String progress) { this(lines,icon,progress,null); }
+    private record DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted,JsonObject rich,int richHeight) {
+        DetailRow(List<String> lines,ItemStack icon,String progress) { this(lines,icon,progress,null,null,0); }
+        DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted) { this(lines,icon,progress,formatted,null,0); }
         int lineCount() { return formatted==null ? lines.size() : formatted.size(); }
     }
     private List<DetailRow> detailLines=List.of();
@@ -421,11 +422,28 @@ public final class QuestScreen extends Screen {
         append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
         String description=state.text(q.description());
         List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
-        var formattedDescription=QuestDescriptionText.prepare(description);
-        String plainDescription=formattedDescription.plain();
-        if (!QuestPresentation.redundantDescription(plainDescription,labels) && !plainDescription.isBlank()) {
-            var formatted=font.split(formattedDescription.component(),Math.max(1,w)).stream().map(formattedDescription::restore).toList();
-            lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,formatted));
+        var richDescription=q.descriptionRich()==null?null:selectRichDescription(q.descriptionRich(),minecraft.options.languageCode);
+        if(richDescription!=null && !richDescription.isEmpty()) {
+            for(var entry:richDescription) {
+                if(!entry.isJsonObject())continue;
+                var part=entry.getAsJsonObject();
+                if(!part.has("type"))continue;
+                int height=richDetailHeight(part,w);
+                var note=new JsonObject();
+                note.addProperty("style","label");
+                note.addProperty("width",Math.max(60,Math.min(400,w)));
+                note.addProperty("height",Math.min(300,Math.max(20,height-8)));
+                var rich=new JsonObject(),array=new JsonArray();
+                array.add(part.deepCopy());rich.add("en_us",array);note.add("rich",rich);
+                lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,null,note,height));
+            }
+        }else {
+            var formattedDescription=QuestDescriptionText.prepare(description);
+            String plainDescription=formattedDescription.plain();
+            if (!QuestPresentation.redundantDescription(plainDescription,labels) && !plainDescription.isBlank()) {
+                var formatted=font.split(formattedDescription.component(),Math.max(1,w)).stream().map(formattedDescription::restore).toList();
+                lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,formatted));
+            }
         }
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
         var p=state.progress(q.id()); var counters=p.getAsJsonObject("counters");
@@ -456,6 +474,11 @@ public final class QuestScreen extends Screen {
             int h=detailHeight(row);
             if (rowY+h>y && rowY<end) {
                 int textX=x;
+                if (row.rich()!=null) {
+                    RichAnnotationRenderer.render(g,font,row.rich(),null,"en_us",x+w/2,rowY+h/2);
+                    rowY+=h;
+                    continue;
+                }
                 if (!row.icon().isEmpty()) {
                     QuestSkin.panel(g,x,rowY,w,h-2,0xff29211c,QuestSkin.EDGE);
                     g.item(row.icon(),x+3,rowY+2);
@@ -475,7 +498,25 @@ public final class QuestScreen extends Screen {
         }
         g.disableScissor();
     }
-    private int detailHeight(DetailRow row) { return row.icon().isEmpty() ? row.lineCount()*10+4 : Math.max(22,row.lineCount()*10+6+(row.progress()!=null ? 10 : 0)); }
+    private int detailHeight(DetailRow row) { if(row.rich()!=null)return row.richHeight();return row.icon().isEmpty() ? row.lineCount()*10+4 : Math.max(22,row.lineCount()*10+6+(row.progress()!=null ? 10 : 0)); }
+    private JsonArray selectRichDescription(Map<String,JsonArray> values,String language){
+        var value=values.get(language);
+        if(value!=null&&!value.isEmpty())return value;
+        value=values.get("en_us");
+        if(value!=null&&!value.isEmpty())return value;
+        return values.entrySet().stream().filter(e->e.getValue()!=null&&!e.getValue().isEmpty())
+            .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).findFirst().orElse(null);
+    }
+    private int richDetailHeight(JsonObject part,int width){
+        if("image".equals(part.get("type").getAsString()))
+            return 12+Math.min(280,part.has("height")?part.get("height").getAsInt():80);
+        String value=part.has("text")?part.get("text").getAsString():"";
+        float scale=part.has("sizePx")?Math.clamp(part.get("sizePx").getAsFloat()/9f,6f/9f,128f/9f)
+            :part.has("size")?Math.clamp(part.get("size").getAsFloat(),.75f,2f):1f;
+        int lines=0;for(String segment:value.split("\\n",-1))
+            lines+=Math.max(1,(int)Math.ceil(font.width(segment)*scale/Math.max(1,Math.min(400,width)-15)));
+        return Math.min(3000,12+Math.max(1,lines)*(int)Math.ceil(11*scale));
+    }
     private List<String> wrap(String text,int width) {
         List<String> lines=new ArrayList<>();
         for (var line:font.split(Component.literal(text),Math.max(1,width))) {
