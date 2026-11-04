@@ -164,5 +164,6 @@
   "questplus.completed_no_reward": "Misión completada: %s",
   "questplus.client.stay_open_on_damage": "Mantener abierta al recibir daño",
   "questplus.client.navigate_up": "Desplazar hacia arriba",
-  "questplus.client.navigate_down": "Desplazar hacia abajo"
+  "questplus.client.navigate_down": "Desplazar hacia abajo",
+  "questplus.client.center_tree": "Centrar el árbol"
 }
