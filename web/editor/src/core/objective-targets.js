@@ -152,3 +152,29 @@ export const setPositionRadius=(root,value)=>{
   }
   return next;
 };
+
+export const EVENT_LABELS={
+  "block_break": "Break blocks",
+  "block_place": "Place blocks",
+  "block_interact": "Interact with block",
+  "item_obtained": "Obtain items",
+  "item_craft": "Craft items",
+  "item_smelt": "Smelt items",
+  "item_use": "Use item",
+  "item_consume": "Consume item",
+  "fish_item": "Fish item",
+  "trade": "Trade item",
+  "inventory_count": "Hold items",
+  "entity_kill": "Kill entities",
+  "fish_entity": "Fish entity",
+  "tame_animal": "Tame animal",
+  "breed_animal": "Breed animals",
+  "npc_interact": "Interact with NPC",
+  "biome_visit": "Visit biome",
+  "structure_visit": "Visit structure",
+  "dimension_enter": "Enter dimension",
+  "travel_distance": "Travel distance",
+  "location": "Reach position",
+  "player_death": "Die",
+  "manual": "Manual confirmation"
+};
