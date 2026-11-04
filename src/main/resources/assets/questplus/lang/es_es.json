@@ -157,5 +157,7 @@
   "questplus.client.condition.detail.slot.head": "cabeza",
   "questplus.client.condition.detail.slot.chest": "pecho",
   "questplus.client.condition.detail.slot.legs": "piernas",
-  "questplus.client.condition.detail.slot.feet": "pies"
+  "questplus.client.condition.detail.slot.feet": "pies",
+  "questplus.client.repeat_count": "Completada ×%s",
+  "questplus.client.tier_count": "Hito %s"
 }
