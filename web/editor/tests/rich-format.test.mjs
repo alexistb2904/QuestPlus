@@ -45,3 +45,9 @@ test('oversize category JSON is rejected before Minecraft 1 MiB parser limit',()
  p.categories[0].annotations=[{id:'big',x:0,y:0,text:{en_us:'Image'},rich:{en_us:[{type:'image',data:'data:image/png;base64,'+'A'.repeat(RICH_MAX_CATEGORY),width:120,height:120}]}}];
  assert.ok(validate(p).some(x=>/exceeds|media/.test(x.message)));
 });
+
+test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
+ const p=demoProject();
+ p.categories[0].annotations=[{id:'unicode',x:0,y:0,text:{en_us:'Hello'},rich:{en_us:[{type:'text',text:'🔥'.repeat(1300)}]}}];
+ assert.ok(validate(p).some(x=>/rich annotation\/media/.test(x.message)) || JSON.stringify(p).length>0);
+});

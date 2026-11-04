@@ -76,7 +76,7 @@ export function validate(p){
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
-    if(JSON.stringify(c).length>RICH_MAX_CATEGORY)fail(label,'Category exceeds 900 KiB (embedded images included)');
+    if(new TextEncoder().encode(JSON.stringify(c)).byteLength>RICH_MAX_CATEGORY)fail(label,'Category exceeds 900 KiB (embedded images included)');
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
