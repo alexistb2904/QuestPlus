@@ -37,7 +37,7 @@ const userAgent='QuestPlus-Development/0.2 (+https://github.com/alexistb2904/Que
 // to keep FP PAL tablet poses independent from Punchy's first-person hands.
 function meetsMinimum(version,required) {
  if(!required)return true;
- const parse=s=>{const match=String(s||'').match(/\\b(\\d+)\\.(\\d+)(?:\\.(\\d+))?/);
+ const parse=s=>{const match=String(s||'').match(/\b[vV]?(\d+)\.(\d+)(?:\.(\d+))?/);
   return match?[Number(match[1]),Number(match[2]),Number(match[3]||0)]:null;};
  const a=parse(version),b=parse(required);
  if(!a||!b)return false;
