@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#15131c">
-  <title>Quest Studio — QuestPlus</title>
+  <meta name="theme-color" content="#171d15">
+  <title>Quest Studio · Minecraft QuestPlus</title>
   <meta name="description" content="Éditeur visuel de quêtes, catégories, objectifs et annotations pour QuestPlus Minecraft.">
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./editor.js"></script>
@@ -12,10 +12,11 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">QUEST <span>STUDIO</span></div><div class="brand-caption">Visual quest designer <span class="version">v1.0</span></div></div></div>
+      <div class="brand"><div class="brand-mark">▣</div><div><div class="brand-name">QUEST <span>STUDIO</span></div><div class="brand-caption">MINECRAFT QUEST EDITOR <span class="version">26.3</span></div></div></div>
       <div class="workspace-name"><span class="active-dot"></span><span id="project-name">Nouveau projet</span><span id="changes-badge" class="changes-badge">Modifications locales</span></div>
       <div class="top-actions">
-        <label class="language-control">Prévisualisation <select id="preview-language" aria-label="Langue de prévisualisation"><option value="fr_fr">FR</option><option value="en_us">EN</option></select></label>
+        <label class="language-control">Langue <select id="preview-language" aria-label="Langue de prévisualisation"><option value="en_us">English · en_us</option></select></label>
+        <button id="add-language" class="icon-button" title="Ajouter une traduction Minecraft" aria-label="Ajouter une langue">+</button>
         <button id="undo" class="icon-button" title="Annuler (Ctrl+Z)" aria-label="Annuler">↶</button>
         <button id="redo" class="icon-button" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir">↷</button>
         <span class="divider"></span>
@@ -26,45 +27,60 @@
     </header>
     <div class="workspace">
       <aside class="sidebar">
-        <div class="sidebar-header"><div class="overline">WORKSPACE</div><h2>Bibliothèque</h2><p>Crée et organise les chapitres de ton aventure.</p></div>
-        <div class="sidebar-actions"><button id="new-category" class="button primary block">＋ Nouvelle catégorie</button></div>
+        <div class="sidebar-header"><div class="overline">QUEST PACK</div><h2>Bibliothèque</h2></div>
+        <div class="sidebar-actions"><button id="new-category" class="button primary block">＋ Catégorie</button></div>
         <div class="sidebar-section-head"><span>CATÉGORIES</span><span id="category-count" class="count">0</span></div>
         <div id="categories" class="category-list" role="navigation" aria-label="Catégories de quêtes"></div>
         <div class="sidebar-section-head quests-head"><span>QUÊTES</span><span id="quest-count" class="count">0</span></div>
         <div class="search-box"><span>⌕</span><input id="quest-search" type="search" placeholder="Rechercher une quête…" aria-label="Rechercher une quête"></div>
         <div id="quest-list" class="quest-list"></div>
-        <div class="sidebar-footer"><div class="save-dot"></div><div><strong>Sauvegarde locale</strong><small id="autosave-status">Dans ce navigateur uniquement</small></div><button id="reset-project" class="subtle" title="Nouveau projet vide">↺</button></div>
+        <div class="sidebar-footer"><div class="save-dot"></div><div><strong>Brouillon</strong><small id="autosave-status">Local</small></div><button id="load-default" class="subtle" title="Restaurer les quêtes fournies par le mod">Défaut</button><button id="reset-project" class="subtle" title="Nouveau projet vide">↺</button></div>
       </aside>
       <main class="main">
         <div class="canvas-heading">
-          <div><div class="breadcrumbs"><span>QuestPlus</span><span class="slash">/</span><span id="crumb-category">Catégorie</span></div><h1 id="canvas-title">Arbre de quêtes</h1><p id="canvas-subtitle">Glisse une quête pour choisir sa position.</p></div>
+          <div><div class="breadcrumbs"><span>QUESTPLUS</span><span class="slash">/</span><span id="crumb-category">Catégorie</span></div><h1 id="canvas-title">Arbre de quêtes</h1><p id="canvas-subtitle"></p></div>
           <div class="canvas-actions">
-            <button id="new-note" class="button secondary">✎ Annotation</button>
-            <button id="new-quest" class="button primary">＋ Nouvelle quête</button>
+            <button id="new-note" class="button secondary">＋ Annotation</button>
+            <button id="new-quest" class="button primary">＋ Quête</button>
           </div>
         </div>
         <div class="canvas-shell">
           <div class="canvas-toolbar">
-            <div class="seg"><button id="select-category" class="tool-button" title="Modifier cette catégorie">☷ Catégorie</button><span class="segline"></span><button id="auto-layout" class="tool-button" title="Positionner automatiquement les quêtes sans coordonnées">⚑ Disposer</button></div>
+            <div class="seg"><button id="select-category" class="tool-button" title="Modifier cette catégorie">▤ Catégorie</button><span class="segline"></span><button id="auto-layout" class="tool-button" title="Appliquer la disposition Minecraft aux quêtes">⚑ Disposer</button><span class="segline"></span><button id="preview-toggle" class="tool-button" aria-pressed="false">▣ Aperçu jeu</button></div>
             <div class="canvas-zoom"><button id="zoom-out" title="Dézoomer">−</button><span id="zoom-value">100%</span><button id="zoom-in" title="Zoomer">+</button><span class="segline"></span><button id="zoom-fit" title="Ajuster la vue">⤢</button></div>
           </div>
           <div id="viewport" class="viewport" tabindex="0" aria-label="Éditeur graphique de l'arbre">
             <svg id="edges" class="edges" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
             <div id="nodes" class="nodes"></div>
-            <div id="empty-tree" class="empty-state hidden"><div class="empty-symbol">◇</div><h3>Ton arbre commence ici</h3><p>Crée une quête, puis positionne-la dans l’espace. Tu peux aussi ajouter des annotations.</p><button id="empty-add" class="button primary">Créer ma première quête</button></div>
+            <div id="empty-tree" class="empty-state hidden"><div class="empty-symbol">◇</div><h3>Arbre vide</h3><button id="empty-add" class="button primary">Créer une quête</button></div>
+            <div id="minecraft-preview" class="minecraft-preview hidden" aria-label="Prévisualisation du menu de quêtes Minecraft">
+              <div class="game-tablet">
+                <div class="game-header"><span>▤ QUEST PLUS</span><div class="game-tabs"><span>Quêtes</span><span>Équipe</span><span>Paramètres</span></div><span>✕</span></div>
+                <div id="game-categories" class="game-categories"></div>
+                <div id="game-tree" class="game-tree"><svg id="game-edges" aria-hidden="true"></svg><div id="game-nodes"></div></div>
+                <div class="game-footer">⌕ Rechercher <span>◈ · − / +</span></div>
+              </div>
+            </div>
           </div>
-          <div class="canvas-bottom"><span class="legend"><i class="legend-dot purple"></i> Quête <i class="legend-dot gold"></i> Annotation <i class="legend-line"></i> Prérequis</span><span id="coordinates">x: 0 · y: 0</span><span>Molette : zoom · Glisser : déplacer</span></div>
+          <div class="canvas-bottom"><span class="legend"><i class="legend-dot purple"></i> Quête <i class="legend-dot gold"></i> Annotation <i class="legend-line"></i> Prérequis</span><span id="coordinates">x: 0 · y: 0</span><span id="canvas-hint">Molette : zoom · Glisser : déplacer</span></div>
         </div>
         <div class="issues-bar" id="issues-bar"><span class="issues-icon">✓</span><span id="issues-summary">Projet prêt à être exporté</span><button id="show-issues" class="subtle">Voir les contrôles →</button></div>
         <div id="issues-list" class="issues-list hidden"></div>
       </main>
-      <aside class="inspector"><div class="inspector-head"><div class="overline">INSPECTEUR</div><h2 id="inspector-title">Propriétés</h2><p id="inspector-subtitle">Sélectionne une quête ou une annotation</p></div><div id="inspector-body" class="inspector-body"></div><div class="inspector-footer"><button id="open-json" class="button secondary block">{ } Éditer le JSON avancé</button></div></aside>
+      <aside class="inspector"><div class="inspector-head"><div class="overline">ÉDITION</div><h2 id="inspector-title">Propriétés</h2><p id="inspector-subtitle"></p></div><div id="inspector-body" class="inspector-body"></div><div class="inspector-footer"><button id="open-json" class="button secondary block">{ } JSON</button></div></aside>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="icon-picker" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="icon-title">
+    <div class="modal-card icon-modal"><div class="modal-head"><div><div class="overline">MINECRAFT 26.3</div><h2 id="icon-title">Choisir une icône</h2></div><button id="icon-close" class="icon-button" aria-label="Fermer">×</button></div>
+      <input id="icon-search" type="search" class="icon-search" placeholder="Rechercher un bloc ou un objet…" aria-label="Rechercher un item Minecraft">
+      <div id="icon-grid" class="icon-grid"></div>
+      <div class="icon-picker-bottom">Pour un mod, entre directement son ID dans le champ.</div>
+    </div>
+  </div>
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card">
     <div class="modal-head"><div><div class="overline" id="modal-kicker">JSON</div><h2 id="modal-title">Éditeur avancé</h2></div><button id="modal-close" class="icon-button" aria-label="Fermer">×</button></div>
-    <p id="modal-description" class="modal-description">Modifier le JSON sans perdre les champs avancés du format QuestPlus.</p>
+    <p id="modal-description" class="modal-description"></p>
     <textarea id="json-input" spellcheck="false" aria-label="JSON avancé"></textarea>
     <div id="json-error" class="error-line" role="alert"></div>
     <div class="modal-actions"><button id="modal-cancel" class="button secondary">Annuler</button><button id="modal-apply" class="button primary">Appliquer</button></div>
