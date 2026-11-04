@@ -101,3 +101,14 @@ test('missing English annotation text and rich media fall back to authored Frenc
  assert.equal(annotationRich(blank,'en_us')[0].text,'Bonjour');
  assert.equal(annotationRich({rich:{en_us:[{type:'text',text:'  '}],fr_fr:[{type:'text',text:'Français'}]}},'en_us')[0].text,'Français');
 });
+
+test('category annotations may be French-only or rich-media-only without en_us',()=>{
+ const p=emptyProject(),group=category('questplus:fallback','Fallback');
+ p.categories=[group];
+ group.annotations=[{id:'fr_only',x:0,y:0,style:'heading',color:'#c6a986',text:{fr_fr:'Bonjour'}}];
+ assert.deepEqual(validate(p),[]);
+ group.annotations.push({id:'rich_only',x:12,y:15,style:'label',color:'#c6a986',text:{},rich:{fr_fr:[{type:'text',text:'Salut',font:'default',size:1}]}});
+ assert.deepEqual(validate(p),[]);
+ group.annotations.push({id:'empty',x:10,y:0,text:{},rich:{fr_fr:[]}});
+ assert.ok(validate(p).some(issue=>issue.message.includes('contenu requis')));
+});
