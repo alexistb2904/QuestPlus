@@ -176,5 +176,6 @@
   "questplus.client.condition.detail.gear.enchanted": "Enchanted set",
   "questplus.client.condition.detail.slot.inventory": "Inventory",
   "questplus.client.claim_all": "Claim all rewards",
-  "questplus.client.claim_all_empty": "No rewards to claim"
+  "questplus.client.claim_all_empty": "No rewards to claim",
+  "questplus.client.toast.unlocked": "QUEST UNLOCKED"
 }
