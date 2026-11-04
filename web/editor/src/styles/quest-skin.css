@@ -160,9 +160,15 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .annotation-node:not(.selected){overflow:hidden}
 .annotation-node .node-resize-handle{flex-shrink:0}
 /* Adjustable workspace: visual separators are keyboard and pointer operable. */
-@media (min-width:901px){
+@media (min-width:1200px){
  .workspace{grid-template-columns:clamp(180px,var(--library-width,270px),min(600px,calc(100% - var(--properties-width,355px) - 294px))) 8px minmax(220px,1fr) 8px clamp(240px,var(--properties-width,355px),min(700px,calc(100% - var(--library-width,270px) - 294px)));gap:0}
  .workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px clamp(240px,var(--properties-width,355px),min(700px,calc(100% - 294px)))}
+}
+/* At laptop widths the library is an overlay; it must not consume a grid track.
+   Keep the properties handle live for the diagram/properties split. */
+@media (min-width:901px) and (max-width:1199px){
+ .workspace,.workspace.library-collapsed{grid-template-columns:minmax(220px,1fr) 8px clamp(240px,var(--properties-width,320px),min(700px,calc(100% - 294px)));gap:0}
+ .pane-separator-vertical[aria-label="Resize library"]{display:none}
 }
 .pane-separator{position:relative;z-index:10;flex:none;touch-action:none;outline-offset:-2px}
 .pane-separator:before{content:'';position:absolute;border-radius:4px;background:#77657e;opacity:.65}
