@@ -3,7 +3,7 @@
 ## Source layout
 
 - `web/editor/`: React/TypeScript quest authoring, offline ZIP workflows and connected editing.
-- `web/server/`: same-origin HTTPS web runtime, approval sessions, immutable pack storage, upload/ack relay.
+- `web/api/`: same-origin HTTPS web runtime, approval sessions, immutable pack storage, upload/ack relay.
 - `client/`: client-only Fabric code, tablet renderer, client models, resources and client mixins.
 - `server/`: authoritative Fabric engine, data validation, persistent progress, commands, networking and server mixins.
 
@@ -30,5 +30,5 @@ Minecraft entrypoints and mixin package names are unchanged.
 ## Existing work
 
 Preserve existing quest IDs, schemaVersion, progression/rewards and game compatibility.
-Read `docs/architecture.md` and `web/server/README.md` before editing any
+Read `docs/architecture.md` and `web/api/README.md` before editing any
 cross-process protocol. Do not rewrite another subsystem as part of a cosmetic refactor.

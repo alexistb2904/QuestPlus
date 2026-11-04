@@ -15,9 +15,9 @@ output/playwright/
 .impeccable/review/
 
 # Private web API persistence and deployment secrets
-web/server/data/
-web/server/.env
-web/server/.env.*
+web/api/data/
+web/api/.env
+web/api/.env.*
 .env
 .env.*
 !*.env.example

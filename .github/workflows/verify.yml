@@ -39,7 +39,7 @@ jobs:
           test ! -d src
           test -f client/src/main/resources/questplus.client.mixins.json
           test -f server/src/main/resources/fabric.mod.json
-          test -f web/server/server.mjs
+          test -f web/api/server.mjs
       - name: Upload test reports when failed
         if: failure()
         uses: actions/upload-artifact@v4

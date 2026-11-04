@@ -26,7 +26,7 @@ npm run preview
 ```
 
 Vite outputs the React bundle in `dist/`. The integrated production runtime
-in `../server/` builds and serves this bundle **on the same origin** as the
+in `../api/` builds and serves this bundle **on the same origin** as the
 session and pack REST API. GitHub Pages still offers a static/offline demo,
 but the live server workflow requires the integrated web backend.
 
@@ -46,7 +46,7 @@ but the live server workflow requires the integrated web backend.
   `questplus.quest-studio.v1`. Existing drafts remain readable.
 
 The offline editor works without any backend. Online sessions and unlisted
-shareable packs are optional features of `web/server/`. Drafts remain in
+shareable packs are optional features of `web/api/`. Drafts remain in
 browser localStorage, not a hosted user account. Export ZIP regularly as a backup.
 
 ## React architecture

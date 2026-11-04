@@ -65,9 +65,9 @@ OP permissions and a second in-game confirmation.
 
 Only the web service needs HTTPS/public ingress. The Minecraft server opens
 outbound HTTPS requests and requires no new public port. In production,
-`web/server/Dockerfile` performs a React build and serves its output from
+`web/api/Dockerfile` performs a React build and serves its output from
 the same Node process as `/v1/*`. No cross-origin browser bridge is
-required. See `web/server/README.md` for concrete setup commands.
+required. See `web/api/README.md` for concrete setup commands.
 
 ## Build and tests
 

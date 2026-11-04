@@ -3,7 +3,7 @@ editor/dist
 editor/.vite
 editor/.env
 editor/.env.*
-server/data
-server/.env
-server/.env.*
+api/data
+api/.env
+api/.env.*
 **/*.log
