@@ -242,3 +242,12 @@ progress remains on the Minecraft server and never enters the web service.
 See [architecture](docs/architecture.md) and
 [web/api/README.md](web/api/README.md) for setup and security.
 This work remains in PR #26 until build and real Minecraft tests pass.
+
+
+## Tests Windows et lanceurs .bat
+
+Le menu [0-Menu-Tests.bat](0-Menu-Tests.bat) inclut 23 actions, dont
+les tests Java/Fabric, GameTests client et serveur, React, API,
+Docker, le diagnostic JDK/Node et les suites automatisees.
+Consultez [le guide Windows](docs/windows-testing.md) pour les options,
+le test connecte Minecraft/web et les rapports d'erreur.

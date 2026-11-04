@@ -109,3 +109,11 @@ publication acknowledgment, revision conflicts, pack sharing and static
 serving. Java and game tests validate server behavior; this does not replace
 a real two-client Minecraft integration test. Never promote the branch to
 production until CI and dedicated-client tests pass.
+
+## Windows test dashboard
+
+From the repository root run `0-Menu-Tests.bat` or the dedicated
+`8-Tests-Web.bat`, `9-Lancer-Web-API.bat`, or `10-Tout-Tester.bat`.
+`12-Configuration-Locale.bat` creates a reusable local-only secret and
+world configuration; it never overwrites existing credentials.
+See [Windows testing](../../docs/windows-testing.md).
