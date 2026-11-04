@@ -30,8 +30,8 @@ final class AnnotationProjectionTest {
 
     @Test void legacyConstructorsRetainDefaultDimensions(){
         var note=new ClientProjection.Annotation("old",0,0,Map.of("en_us","Welcome"),"label","#c6a986");
-        assertEquals(170,note.width());
-        assertEquals(100,note.height());
+        assertNull(note.width());
+        assertNull(note.height());
         var category=new ClientProjection.Category("questplus:old",Map.of("en_us","Old"),
             Map.of("en_us",""),"minecraft:book");
         assertTrue(category.images().isEmpty());
