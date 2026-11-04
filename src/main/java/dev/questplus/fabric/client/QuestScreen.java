@@ -457,11 +457,13 @@ public final class QuestScreen extends Screen {
         int x=detailLeft,w=right-x-8;
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
         var pinButton=button(settings.pinned.contains(selected) ? "unpin" : "pin",x,treeTop+18,w,() -> {
-            if(!settings.pinned.remove(selected) && settings.pinned.size()<ClientSettings.MAX_PINNED)
+            if(!settings.pinned.remove(selected) && !QuestClientState.flag(state.progress(selected),"completed")
+                && settings.pinned.size()<ClientSettings.MAX_PINNED)
                 settings.pinned.add(selected);
             settings.save(); init();
         });
-        pinButton.active=settings.pinned.contains(selected) || settings.pinned.size()<ClientSettings.MAX_PINNED;
+        pinButton.active=settings.pinned.contains(selected) ||
+            (!QuestClientState.flag(state.progress(selected),"completed") && settings.pinned.size()<ClientSettings.MAX_PINNED);
         questAction=button("claim",x,treeTop+36,w,() -> {
             if (currentAction==null) return;
             if (currentAction.equals("trigger")) {
