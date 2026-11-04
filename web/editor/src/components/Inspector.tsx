@@ -127,6 +127,8 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
        onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>
       <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>onUpdate('style',v)}/>
       <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
+      <div className="field-row"><Field label="Width" type="number" value={note.width??170} onChange={v=>onUpdate('width',Math.max(60,Math.min(400,Math.round(v)||60)))}/>
+      <Field label="Height" type="number" value={note.height??100} onChange={v=>onUpdate('height',Math.max(20,Math.min(300,Math.round(v)||20)))}/></div>
       <div className="field-row"><Field label="X" type="number" value={note.x} onChange={v=>onUpdate('x',v)}/><Field label="Y" type="number" value={note.y} onChange={v=>onUpdate('y',v)}/></div>
      </Section>
     </>}
@@ -137,6 +139,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
       <Select label="Type" value={quest.kind||'standard'} options={[['standard','Quest'],['information','Information']]} onChange={changeKind}/>
       <Select label="Category" value={quest.category} options={project.categories.map(c=>[c.id,text(c.title,language)])} onChange={v=>onUpdate('category',v)}/>
       <IconField id={quest.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
+      <Field label="Quest size" type="number" value={quest.size??32} onChange={v=>onUpdate('size',Math.max(24,Math.min(96,Math.round(v)||24)))}/>
       <div className="description-field"><div className="translation-label"><span>{tUI('Description (English)')}</span><TranslationHelp onOpen={onOpenTranslations}/></div><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us} onChange={v=>onUpdate('description.en_us',v)}/></div>
      </Section>
      <Section title="Position"><div className="field-row">
