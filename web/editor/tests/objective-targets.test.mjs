@@ -112,3 +112,10 @@ test('category annotations may be French-only or rich-media-only without en_us',
  group.annotations.push({id:'empty',x:10,y:0,text:{},rich:{fr_fr:[]}});
  assert.ok(validate(p).some(issue=>issue.message.includes('contenu requis')));
 });
+
+test('changing action within the same registry retains a selected modded item ID and quantity',()=>{
+ const item={id:'modded',event:'item_use',target:'create:brass_ingot',count:7};
+ assert.deepEqual(changeObjectiveEvent(item,'item_smelt','questplus:test'),{...item,event:'item_smelt'});
+ const block={id:'modded',event:'block_break',target:'#create:decorative_blocks',count:4};
+ assert.deepEqual(changeObjectiveEvent(block,'block_place','questplus:test'),{...block,event:'block_place'});
+});
