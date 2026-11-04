@@ -35,7 +35,7 @@ final class QuestHud {
                 List<ObjectiveLine> objectives=new ArrayList<>();
                 if (q.kind().equals("information")) {
                     if (!QuestClientState.flag(progress,"completed"))
-                        objectives.add(new ObjectiveLine(QuestPlusClient.tr("information_review").getString(),"",0,0));
+                        objectives.add(new ObjectiveLine(QuestPlusClient.tr(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),"",0,0));
                 } else {
                     for (var objective:q.objectives()) {
                         if (objectives.size()>=2) break;
