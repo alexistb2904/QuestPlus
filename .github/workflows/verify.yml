@@ -21,8 +21,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test Quest Studio offline editor
-        run: node --test web/editor/tests/*.test.mjs
+      - name: Install React and Vite
+        working-directory: web/editor
+        run: npm install --no-audit --no-fund
+      - name: Typecheck, build and test React Quest Studio
+        working-directory: web/editor
+        run: |
+          npm run typecheck
+          npm run build
+          npm test
       - name: Upload test reports when failed
         if: failure()
         uses: actions/upload-artifact@v4
