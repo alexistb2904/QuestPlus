@@ -328,6 +328,28 @@ function inspectorAction(action,index){
   }
 }
 const inspector=$('#inspector-body');
+let iconTarget='icon';
+function renderIconPicker(){
+  const query=$('#icon-search').value.trim().toLowerCase();
+  const items=vanillaCatalog().filter(v=>(v.id+' '+v.label).toLowerCase().includes(query)).slice(0,240);
+  $('#icon-grid').innerHTML=items.map(item=>`<button class="icon-choice" data-pick-icon="${escape(item.id)}" title="${escape(item.id)}">
+    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">Aucun résultat</div>';
+}
+inspector.addEventListener('click',e=>{
+  const button=e.target.closest('[data-icon-open]');if(!button)return;
+  iconTarget=button.dataset.iconOpen;$('#icon-search').value='';
+  showModal('#icon-picker');renderIconPicker();$('#icon-search').focus();
+  loadVanillaIcons().then(()=>{if(!$('#icon-picker').classList.contains('hidden'))renderIconPicker();});
+});
+$('#icon-search').addEventListener('input',renderIconPicker);
+$('#icon-close').onclick=()=>hideModal('#icon-picker');
+$('#icon-grid').addEventListener('click',e=>{
+  const button=e.target.closest('[data-pick-icon]');if(!button)return;
+  const value=button.dataset.pickIcon;
+  mutate(()=>setField(iconTarget,value));
+  hideModal('#icon-picker');
+});
+
 inspector.addEventListener('focusin',e=>{
   if(e.target.matches('[data-field]')&&!focusRecorded){history.push(snapshot());if(history.length>LIMIT)history.shift();future=[];focusRecorded=true;}
 });
@@ -353,7 +375,24 @@ $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
 $('#preview-language').addEventListener('change',e=>{language=e.target.value;refresh();persist();});
+$('#add-language').onclick=()=>{
+  const value=prompt('Minecraft locale code (e.g. de_de, es_es, ja_jp):','de_de');
+  if(value===null)return;
+  const code=value.trim().toLowerCase();
+  if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(code)){notify('Code de langue invalide (ex : de_de).');return;}
+  const before=snapshot();
+  project.editorLocales=[...new Set([...(project.editorLocales||[]),code])];
+  remember(before);language=code;refresh();persist();notify('Langue : '+code);
+};
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
+$('#preview-toggle').onclick=()=>{previewMode=!previewMode;renderScene();};
+$('#game-categories').addEventListener('click',e=>{const b=e.target.closest('[data-preview-category]');if(b)selectCategory(b.dataset.previewCategory);});
+$('#game-nodes').addEventListener('click',e=>{const b=e.target.closest('[data-preview-quest]');if(b)selectObject('quest',b.dataset.previewQuest);});
+$('#load-default').onclick=()=>{
+  if(!confirm('Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.'))return;
+  mutate(()=>{project=demoProject();categoryId=project.categories[0]?.id||null;selection={type:'category',id:categoryId};camera={x:0,y:0,zoom:1};fit();});
+  notify('Quêtes du mod restaurées');
+};
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
 $('#auto-layout').onclick=()=>{if(!confirm('Repositionner automatiquement toutes les quêtes de cette catégorie ?'))return;mutate(placeAuto);notify('Disposition recalculée');};
@@ -364,12 +403,13 @@ $('#reset-project').onclick=()=>{if(!confirm('Créer un projet vierge ? Le proje
 $('#run-validate').onclick=()=>{renderIssues();$('#issues-list').classList.remove('hidden');notify(validate(project).length?'Corrige les alertes de validation':'Structure du projet vérifiée ✓');};
 $('#show-issues').onclick=()=>$('#issues-list').classList.toggle('hidden');
 $('#viewport').addEventListener('pointerdown',e=>{
-  if(e.button!==0||e.target.closest('button'))return;
+  if(previewMode||e.button!==0||e.target.closest('button'))return;
   const el=$('#viewport'),rect=el.getBoundingClientRect(),node=e.target.closest('[data-node-type]');
   const type=node?.dataset.nodeType,id=node?.dataset.nodeId;
   if(node){
     selection={type,id};renderInspector();renderScene();
-    const obj=getSelected();drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,from:{x:type==='quest'?obj.layout?.x||0:obj.x,y:type==='quest'?obj.layout?.y||0:obj.y},before:snapshot(),moved:false};
+    const obj=getSelected(),computed=type==='quest'?gameLayout(categoryQuests()).points.get(id):null;
+    drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,from:{x:type==='quest'?computed.x:obj.x,y:type==='quest'?computed.y:obj.y},before:snapshot(),moved:false};
   }else{
     drag={mode:'pan',startX:e.clientX,startY:e.clientY,from:{x:camera.x,y:camera.y},moved:false};
   }
@@ -391,7 +431,7 @@ $('#viewport').addEventListener('pointermove',e=>{
 });
 function finishPointer(){if(!drag)return;if(drag.mode==='node'&&drag.moved){remember(drag.before);persist();renderInspector();}drag=null;}
 $('#viewport').addEventListener('pointerup',finishPointer);$('#viewport').addEventListener('pointercancel',finishPointer);
-$('#viewport').addEventListener('wheel',e=>{e.preventDefault();const rect=$('#viewport').getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);},{passive:false});
+$('#viewport').addEventListener('wheel',e=>{if(previewMode)return;e.preventDefault();const rect=$('#viewport').getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);},{passive:false});
 function showModal(m){$(m).classList.remove('hidden');}
 function hideModal(m){$(m).classList.add('hidden');}
 $('#open-json').onclick=()=>{
@@ -446,7 +486,7 @@ async function exportZip(){
 }
 $('#export-zip').onclick=exportZip;
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){hideModal('#modal');hideModal('#import-modal');return;}
+  if(e.key==='Escape'){hideModal('#modal');hideModal('#import-modal');hideModal('#icon-picker');return;}
   const typed=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||!$('#modal').classList.contains('hidden');
   if(typed)return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}
