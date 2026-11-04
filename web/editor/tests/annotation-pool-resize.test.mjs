@@ -67,9 +67,9 @@ test('custom quest and annotation dimensions survive export/import and invalid s
  assert.equal(read.quests[0].size,96);
  assert.deepEqual([read.categories[0].annotations[0].width,read.categories[0].annotations[0].height],[400,300]);
  read.quests[0].size=0;
- assert.ok(validate(read).some(x=>x.message.includes('Taille quête')));
+ assert.ok(validate(read).some(x=>x.message.includes('taille doit être positive')));
  read.quests[0].size=32;read.categories[0].annotations[0].width=0;
- assert.ok(validate(read).some(x=>x.message.includes('Largeur annotation')));
+ assert.ok(validate(read).some(x=>x.message.includes('largeur doit être positive')));
 });
 test('larger image bounds are accepted and excessive data rejected',()=>{
  assert.ok(validRich([{type:'image',data:'data:image/png;base64,'+'A'.repeat(3*1024*1024),width:12000,height:8000}]));
