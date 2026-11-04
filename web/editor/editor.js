@@ -377,6 +377,107 @@ $('#icon-grid').addEventListener('click',e=>{
   hideModal('#icon-picker');
 });
 
+// Inline nested prerequisites/conditions editor: uses QuestRegistry's and/or/not JSON.
+function conditionOwner(scope){
+ const quest=getSelected();
+ if(selection?.type!=='quest'||!quest)return null;
+ if(scope==='requires')return {get:()=>quest.requires||null,
+  set:v=>{if(v)quest.requires=v;else delete quest.requires;}};
+ const match=/^objective:(\d+)$/.exec(scope);
+ if(!match||!quest.objectives?.[Number(match[1])])return null;
+ const objective=quest.objectives[Number(match[1])];
+ return {get:()=>objective.conditions||null,
+  set:v=>{if(v)objective.conditions=v;else delete objective.conditions;}};
+}
+function applyCondition(scope,fn){
+ const owner=conditionOwner(scope);if(!owner)return;
+ mutate(()=>{owner.set(fn(owner.get()));});
+}
+function conditionSearchPanel(builder,path){
+ const panel=builder.querySelector('.cond-search-panel');
+ if(!panel)return;
+ panel.hidden=false;panel.dataset.path=path;
+ const input=panel.querySelector('.cond-search-input');input.value='';
+ renderConditionSuggestions(builder);input.focus();
+}
+function renderConditionSuggestions(builder){
+ const panel=builder.querySelector('.cond-search-panel');
+ if(!panel||panel.hidden)return;
+ const needle=panel.querySelector('.cond-search-input').value.toLowerCase().trim();
+ const selectedQuest=getSelected(),existing=new Set(references(selectedQuest?.requires));
+ const matches=project.quests.filter(q=>q.id!==selectedQuest?.id&&
+  !(q.kind==='information'&&q.acknowledgement==='read_only')&&!existing.has(q.id)&&
+  (text(q.title,language)+' '+q.id).toLowerCase().includes(needle));
+ const count=matches.length;
+ panel.querySelector('.cond-search-results').innerHTML=matches.slice(0,24).map(q=>
+  `<button class="cond-search-result" type="button" data-cond-add-quest="${escape(q.id)}">${iconFor(q.icon)}
+   <span>${escape(text(q.title,language))}<small>${escape(q.id)}</small></span></button>`).join('')||
+  '<div class="cond-empty">Aucune quête</div>';
+ if(count>24)panel.querySelector('.cond-search-results').insertAdjacentHTML('beforeend',
+  `<div class="cond-empty">${count-24} autres résultats · Affine la recherche</div>`);
+}
+inspector.addEventListener('input',e=>{
+ if(e.target.matches('.cond-search-input')){
+  const builder=e.target.closest('.condition-builder');
+  if(builder)renderConditionSuggestions(builder);
+ }
+});
+inspector.addEventListener('click',e=>{
+ const searchResult=e.target.closest('[data-cond-add-quest]');
+ if(searchResult){
+  const builder=searchResult.closest('.condition-builder'),path=builder.querySelector('.cond-search-panel')?.dataset.path||'';
+  const id=searchResult.dataset.condAddQuest;
+  applyCondition('requires',root=>addChild(root,path,{quest:id}));
+  return;
+ }
+ const button=e.target.closest('button[data-cond-action]');
+ if(!button)return;
+ const builder=button.closest('.condition-builder'),scope=builder?.dataset.conditionScope,path=button.dataset.condPath||'';
+ if(!scope)return;
+ const action=button.dataset.condAction;
+ if(action==='search')return conditionSearchPanel(builder,path);
+ const q=getSelected(),available=project.quests.filter(x=>x.id!==q?.id&&
+  !(x.kind==='information'&&x.acknowledgement==='read_only'));
+ const seed=scope==='requires'?available.length?{quest:available[0].id}:null:leaf(scope,'dimension');
+ if(!seed&&action!=='remove')return notify('Crée une autre quête pour commencer.');
+ if(path.split('.').length>15)return notify('Profondeur maximale : 16 niveaux');
+ try{
+  applyCondition(scope,root=>{
+   if(action==='remove')return setAt(root,path,null);
+   if(action==='add-leaf')return addChild(root,path,seed);
+   if(action==='add-and'||action==='add-or'||action==='add-not'){
+     const op=action.slice(4),nested=op==='not'?{not:seed}:{[op]:[seed]};
+     return addChild(root,path,nested);
+   }
+   return root;
+  });
+ }catch(error){console.error(error);notify('Condition invalide');}
+});
+inspector.addEventListener('change',e=>{
+ const el=e.target,action=el.dataset.condAction;
+ if(!['operator','kind','value'].includes(action))return;
+ const builder=el.closest('.condition-builder'),scope=builder?.dataset.conditionScope,path=el.dataset.condPath||'';
+ if(!scope)return;
+ try{
+  applyCondition(scope,root=>{
+   const current=atPath(root,path);
+   if(action==='operator')return wrap(root,path,el.value);
+   if(action==='kind')return setAt(root,path,leaf(scope,el.value));
+   const kind=Object.keys(current)[0];
+   const value=kind==='sneaking'?el.value==='true':kind.startsWith('health')?Number(el.value):el.value;
+   return setAt(root,path,{[kind]:value});
+  });
+ }catch(error){console.error(error);notify('Condition invalide');}
+});
+inspector.addEventListener('change',e=>{
+ const el=e.target;
+ if(!el.matches('[data-icon-version]'))return;
+ const version=el.value.trim(),id=el.dataset.iconVersion;
+ if(!/^\d+\.\d+$/.test(version))return notify('Version invalide, exemple : 26.4');
+ mutate(()=>{
+  project.iconVersions||={};project.iconVersions[id]=version;
+ });
+});
 inspector.addEventListener('focusin',e=>{
   if(e.target.matches('[data-field]')&&!focusRecorded){history.push(snapshot());if(history.length>LIMIT)history.shift();future=[];focusRecorded=true;}
 });
