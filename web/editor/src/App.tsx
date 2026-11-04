@@ -27,6 +27,7 @@ import {
 	GitBranch,
 } from "lucide-react";
 import { descriptionParts, descriptionHtml } from "./core/description-format.js";
+import { richToHtml } from "./core/rich-format.js";
 import { text, validate, objectiveLabel } from "./core/project.js";
 import { storedUiLocale, setUiLocale, tUI } from "./ui/ui-i18n.js";
 import { localesOf, supportedLocales } from "./types";
@@ -485,7 +486,7 @@ export default function App() {
 					<div className="quest-preview">
 						<ItemIcon id={selected.icon} size={52} />
 						<h2>{text(selected.title, language)}</h2>
-						<div className="description-preview" dangerouslySetInnerHTML={{ __html: descriptionHtml(descriptionParts(text(selected.description, language))) }} />
+						<div className="description-preview" dangerouslySetInnerHTML={{ __html: selected.descriptionRich?.[language]?.length?richToHtml(selected.descriptionRich[language]):descriptionHtml(descriptionParts(text(selected.description, language))) }} />
 						{selected.kind === "information" ? (
 							<p>{text(selected.narrative, language)}</p>
 						) : (
