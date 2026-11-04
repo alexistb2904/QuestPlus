@@ -73,7 +73,7 @@ export function useStudio(){
  }
  function createAnnotation(){
   if(!currentCategory)return;
-  mutate(s=>{const cat=s.project.categories.find(c=>c.id===s.categoryId)!;cat.annotations||=[];let i=1,id='note';while(cat.annotations.some(n=>n.id===id))id='note'+(++i);cat.annotations.push(newAnnotation(id,s.camera.x,s.camera.y));s.selection={type:'annotation',id}});
+  mutate(s=>{const cat=s.project.categories.find(c=>c.id===s.categoryId)!;cat.annotations||=[];let i=1,id='note';while(cat.annotations.some(n=>n.id===id))id='note'+(++i);cat.annotations.push(newAnnotation(id,s.camera.x,s.camera.y) as any);s.selection={type:'annotation',id}});
  }
  function action(kind:string,index=0){
   if(kind==='create-quest')return createQuest();

@@ -121,7 +121,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
      </>:<>
       {(quest.objectives||[]).map((o,i)=><div className="mini-card" key={o.id+'-'+i}>
        <div className="mini-card-head"><strong>{i+1}. {objectiveLabel(o,language)}</strong><button className="tiny danger" title="Remove objective" onClick={()=>onAction('remove-objective',i)}>×</button></div>
-       <Select label="Action" value={o.event} options={[...EVENTS,...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event]]:[])]} onChange={v=>update('objectives.'+i+'.event',v)}/>
+       <Select label="Action" value={o.event} options={[...(EVENTS as [string,string][]),...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event] as [string,string]]:[])]} onChange={v=>update('objectives.'+i+'.event',v)}/>
        <Field label="Target ID" value={o.target} onChange={v=>update('objectives.'+i+'.target',v)} placeholder="minecraft:cobblestone"/>
        <Field label="Count" type="number" value={o.count} onChange={v=>update('objectives.'+i+'.count',Math.max(1,v))}/>
        <Disclosure title="Custom label"><Translated label="Text" prefix={'objectives.'+i+'.text'} value={o.text} language={language} onUpdate={update}/></Disclosure>
