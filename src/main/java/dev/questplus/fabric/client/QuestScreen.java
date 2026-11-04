@@ -65,6 +65,7 @@ public final class QuestScreen extends Screen {
     // Both modes use the exact same 500×300 layout. The fallback GUI
     // scales the whole surface as one unit rather than stretching each widget.
     private double screenScale=1,screenOffsetX,screenOffsetY;
+    private Double pendingInterfaceScale;
     private String keyboardQuest;
     private long completedNodes;
     public double animationProgress() {
@@ -175,6 +176,15 @@ public final class QuestScreen extends Screen {
     }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
+        // Rebuild after the click event, not in the middle of widget dispatch.
+        // The setting and the viewport must change together in one tick.
+        if (pendingInterfaceScale!=null) {
+            double next=pendingInterfaceScale;
+            pendingInterfaceScale=null;
+            settings.scale=next;
+            settings.save();
+            init();
+        }
         refreshCatalogue();
         if (sequence!=state.sequence) {
             sequence=state.sequence;
@@ -721,8 +731,7 @@ public final class QuestScreen extends Screen {
         notificationAnchor.setMessage(notificationLabel);
         notificationAnchor.setTooltip(Tooltip.create(notificationLabel));
         button("scale",x,y+4*row,w,() -> {
-            settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25;
-            settings.save(); init();
+            pendingInterfaceScale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25;
         }).setMessage(t("scale",Math.round(settings.scale*100)));
         button("blur_intensity",x+w+8,y+4*row,w,() -> {
             settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2);
