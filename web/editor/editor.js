@@ -56,10 +56,19 @@ const iconFor=id=>{
   const version=project.iconVersions?.[id]||'26.3';
   const src=iconUrl(id,version),backup=blockIconUrl(id,version);
   if(!src)return '<span class="mc-icon" title="'+escape(id||'')+'">◇</span>';
-  // Retry with the matching block face when a vanilla item has no item texture.
   return '<span class="mc-icon" title="'+escape(id)+'"><img loading="lazy" alt="" src="'+escape(src)+
-    '" onerror="this.onerror=null;'+(backup?"this.src='"+escape(backup)+"';":"this.style.display='none';")+'"></span>';
+    '" data-fallback="'+escape(backup)+'"></span>';
 };
+// Asset URLs are optional (and item/model rendering differs from 2D PNG textures).
+// Missing primary/secondary images leave a visible placeholder, never a broken image.
+document.addEventListener('error',e=>{
+ const img=e.target;
+ if(!(img instanceof HTMLImageElement)||(!img.closest('.mc-icon')&&!img.closest('.item-preview')))return;
+ if(!img.dataset.fallbackUsed&&img.dataset.fallback){
+   img.dataset.fallbackUsed='1';img.src=img.dataset.fallback;return;
+ }
+ img.replaceWith(document.createTextNode('◇'));
+},true);
 const LOCALE_LABELS={
   en_us:'English',en_gb:'English (UK)',fr_fr:'Français',fr_ca:'Français (CA)',de_de:'Deutsch',
   es_es:'Español',es_mx:'Español (MX)',pt_br:'Português (BR)',pt_pt:'Português',
