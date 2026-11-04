@@ -93,7 +93,7 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 /* All objective types share the same compact rhythm, but the input meanings stay visible. */
 .objective-row>.objective-inputs{grid-template-columns:minmax(130px,1.15fr) minmax(170px,1.7fr) minmax(95px,.85fr);align-items:end;gap:8px}
 .objective-row>.objective-inputs-position{grid-template-columns:minmax(130px,1fr) minmax(220px,2.6fr)}
-.objective-row>.objective-inputs-manual{grid-template-columns:minmax(130px,1fr) minmax(150px,2fr)}
+.objective-row>.objective-inputs-manual{grid-template-columns:minmax(130px,1fr) minmax(150px,2fr) minmax(95px,.8fr)}
 .objective-row>.objective-inputs-distance{grid-template-columns:minmax(130px,1fr) minmax(120px,1fr)}
 .objective-row>.objective-inputs-death{grid-template-columns:minmax(130px,1fr) minmax(120px,1fr) minmax(80px,.7fr)}
 .objective-inputs>.field{min-width:0}
