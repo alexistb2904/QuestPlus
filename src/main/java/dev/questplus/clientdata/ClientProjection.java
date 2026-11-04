@@ -60,7 +60,7 @@ public final class ClientProjection {
         Set<String> completed=new HashSet<>();
         state.quests.forEach((id,p) -> { if (p.completed) completed.add(id); });
         Set<String> claimable=new HashSet<>();
-        personal.entitlements.forEach((key,grant) -> { if (!personal.claims.containsKey(key)) claimable.add(grant.questId()); });
+        personal.entitlements.forEach((key,grant) -> { if (!personal.claims.containsKey(key) && !grant.rewards().isEmpty()) claimable.add(grant.questId()); });
         for (QuestDefinition quest:quests) {
             PlayerProgress.QuestProgress p=state.quests.get(quest.id());
             JsonObject value=new JsonObject();
