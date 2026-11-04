@@ -1,7 +1,7 @@
 import React,{useCallback,useMemo} from 'react';
-import {EVENTS,MODES,PROGRESSIONS,objectiveLabel,text} from '../../project.js';
-import {childrenOf,atPath,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../../conditions.js';
-import {versionWarning} from '../../minecraft-icons.js';
+import {EVENTS,MODES,PROGRESSIONS,objectiveLabel,text} from '../core/project.js';
+import {childrenOf,atPath,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
+import {versionWarning} from '../ui/minecraft-icons.js';
 import {ItemIcon} from './IconPicker';
 import {RichEditor} from './RichEditor';
 import type {Project,Selection,Category,Quest,Annotation,RichPart} from '../types';

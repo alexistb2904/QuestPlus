@@ -1,4 +1,4 @@
-import {VERSION,ITEM_IDS,BLOCK_IDS} from './vanilla-registry-26.3.js';
+import {VERSION,ITEM_IDS,BLOCK_IDS} from '../data/vanilla-registry-26.3.js';
 export const MC_VERSION=VERSION;
 export const COMMON_ITEMS=ITEM_IDS;
 const itemSet=new Set(ITEM_IDS),blockSet=new Set(BLOCK_IDS);

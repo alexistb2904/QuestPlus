@@ -1,6 +1,6 @@
 import React,{useCallback,useEffect,useRef,useState} from 'react';
-import {richFromDom,toEmbeddedImage,plainFallback} from '../../rich-dom.js';
-import {richToHtml} from '../../rich-format.js';
+import {richFromDom,toEmbeddedImage,plainFallback} from '../ui/rich-dom.js';
+import {richToHtml} from '../core/rich-format.js';
 import type {RichPart} from '../types';
 
 type Props={content:RichPart[];onChange:(parts:RichPart[],plain:string)=>void;locale:string};

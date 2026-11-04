@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {ITEM_IDS,BLOCK_IDS,VERSION} from '../vanilla-registry-26.3.js';
-import {vanillaCatalog,itemExists,blockExists,iconUrl,versionWarning} from '../minecraft-icons.js';
-import {titleSlug,uniqueId,questId,categoryId} from '../quest-ids.js';
-import {addChild,setAt,atPath,wrap,leaf,renderConditionTree} from '../conditions.js';
-import {demoProject,fileMap,importDocuments,validate} from '../project.js';
-import {makeZip,readZip} from '../zip.js';
+import {ITEM_IDS,BLOCK_IDS,VERSION} from '../src/data/vanilla-registry-26.3.js';
+import {vanillaCatalog,itemExists,blockExists,iconUrl,versionWarning} from '../src/ui/minecraft-icons.js';
+import {titleSlug,uniqueId,questId,categoryId} from '../src/core/quest-ids.js';
+import {addChild,setAt,atPath,wrap,leaf,renderConditionTree} from '../src/core/conditions.js';
+import {demoProject,fileMap,importDocuments,validate} from '../src/core/project.js';
+import {makeZip,readZip} from '../src/core/zip.js';
 
 test('complete version-pinned Minecraft Java 26.3 registry',()=>{
  assert.equal(VERSION,'26.3');
@@ -72,7 +72,7 @@ test('React quest tree supports pointer drag, pinch, wheel and Minecraft layout 
  const app=read('../src/App.tsx');
  const rich=read('../src/components/RichEditor.tsx');
  const html=read('../index.html');
- const css=read('../style.css');
+ const css=read('../src/styles/quest-skin.css');
  assert.match(root,/createRoot/);
  assert.match(html,/id="root"/);
  assert.match(tree,/gameLayout/);

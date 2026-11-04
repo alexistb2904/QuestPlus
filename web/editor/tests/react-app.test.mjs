@@ -19,3 +19,16 @@ test('Vite serves production build on GitHub Pages',()=>{
  assert.match(read('../vite.config.ts'),/base:'\.\/'/);
  assert.match(read('../../../.github/workflows/pages.yml'),/web\/editor\/dist/);
 });
+
+test('JavaScript source files are organized inside src rather than the editor root',()=>{
+ const root=fs.readdirSync(new URL('../',import.meta.url));
+ assert.deepEqual(root.filter(name=>name.endsWith('.js')),[]);
+ for(const entry of ['src/core/project.js','src/core/conditions.js','src/core/game-layout.js',
+                    'src/data/default-data.js','src/data/vanilla-registry-26.3.js',
+                    'src/ui/minecraft-icons.js','src/ui/ui-i18n.js',
+                    'src/styles/quest-skin.css','src/styles/react.css','public/questplus-logo.png']){
+  assert.ok(fs.existsSync(new URL('../'+entry,import.meta.url)),entry);
+ }
+ assert.ok(!root.includes('questplus-logo.svg'));
+ assert.ok(!root.includes('questplus-logo.png'));
+});

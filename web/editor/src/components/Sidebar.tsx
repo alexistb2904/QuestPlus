@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
-import {text} from '../../project.js';
-import {tUI} from '../../ui-i18n.js';
+import {text} from '../core/project.js';
+import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Project,Category,Quest,Selection} from '../types';
 export function Sidebar({project,categoryId,quests,selection,language,onCategory,onQuest,onNewCategory,onReset}:{project:Project;categoryId:string|null;quests:Quest[];selection:Selection|null;language:string;onCategory:(id:string)=>void;onQuest:(id:string)=>void;onNewCategory:()=>void;onReset:(original:boolean)=>void}){

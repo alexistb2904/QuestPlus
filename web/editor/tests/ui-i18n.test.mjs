@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {detectUiLocale,storedUiLocale,setUiLocale,getUiLocale,tUI,UI_LANGUAGES} from '../ui-i18n.js';
+import {detectUiLocale,storedUiLocale,setUiLocale,getUiLocale,tUI,UI_LANGUAGES} from '../src/ui/ui-i18n.js';
 
 test('browser language detection supports English, French, Spanish and Chinese',()=>{
  assert.deepEqual(UI_LANGUAGES,['en','fr','es','zh']);

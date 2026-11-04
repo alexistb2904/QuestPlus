@@ -1,4 +1,4 @@
-import {richToHtml,validRich,richText,mediaPattern,RICH_MAX_MEDIA,RICH_FONTS} from './rich-format.js';
+import {richToHtml,validRich,richText,mediaPattern,RICH_MAX_MEDIA,RICH_FONTS} from '../core/rich-format.js';
 const DEFAULT={font:'default',size:1};
 function hex(v){
  if(/^#[0-9a-f]{6}$/i.test(v||''))return v.toLowerCase();

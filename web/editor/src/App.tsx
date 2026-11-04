@@ -1,13 +1,13 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {text,validate} from '../project.js';
-import {storedUiLocale,setUiLocale,tUI} from '../ui-i18n.js';
+import {text,validate} from './core/project.js';
+import {storedUiLocale,setUiLocale,tUI} from './ui/ui-i18n.js';
 import {localesOf,supportedLocales} from './types';
 import {useStudio,owner} from './hooks/useStudio';
 import {Sidebar} from './components/Sidebar';
 import {TreeCanvas} from './components/TreeCanvas';
 import {Inspector} from './components/Inspector';
 import {IconPicker} from './components/IconPicker';
-import logo from '../questplus-logo.png';
+const logo=import.meta.env.BASE_URL+'questplus-logo.png';
 
 export default function App(){
  const studio=useStudio(),{state,setState}=studio;
