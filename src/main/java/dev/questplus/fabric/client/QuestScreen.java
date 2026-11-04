@@ -179,6 +179,7 @@ public final class QuestScreen extends Screen {
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta) {
         if (attachedToScreenFace) return;
         extractTablet(g,mx,my,delta);
+        QuestToast.draw(g);
     }
     void extractTablet(GuiGraphicsExtractor g,int mx,int my,float delta) {
         visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
