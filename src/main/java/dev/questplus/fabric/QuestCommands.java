@@ -16,6 +16,7 @@ final class QuestCommands {
     private static int execute(CommandContext<CommandSourceStack> context,Action action) {
         try { action.run(context.getSource()); return 1; }
         catch (Exception e) {
+            QuestPlusMod.LOGGER.error("Quest Plus command failed: {}",Objects.toString(e.getMessage(),e.getClass().getSimpleName()),e);
             context.getSource().sendFailure(Messages.text(context.getSource().getPlayer(),"questplus.error",Objects.toString(e.getMessage(),e.getClass().getSimpleName())));
             return 0;
         }
@@ -26,6 +27,7 @@ final class QuestCommands {
             .then(literal("reload").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(c -> execute(c,s -> {
                     QuestPlusMod.runtime().reload();
+                    QuestPlusMod.LOGGER.info("Quest Plus reload succeeded: {} quests",QuestPlusMod.runtime().registry().all().size());
                     s.sendSuccess(() -> Messages.text(s.getPlayer(),"questplus.reloaded",QuestPlusMod.runtime().registry().all().size()),true);
                 })))
             .then(literal("debug").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
