@@ -95,6 +95,18 @@ final class QuestHubFiles {
             if(!moved&&Files.exists(backup)&&!Files.exists(definitions))move(backup,definitions);
         }
     }
+    static void rollback(Path world,QuestRuntime runtime) throws IOException {
+        Path root=world.resolve("questplus-hub-backups");
+        if(!Files.isDirectory(root))throw new IOException("No published snapshots to restore");
+        Path latest;
+        try(var files=Files.list(root)){
+            latest=files.filter(Files::isDirectory)
+                .filter(p->p.getFileName().toString().matches("[0-9]+-[a-f0-9-]+"))
+                .max(Comparator.comparing(p->p.getFileName().toString())).orElse(null);
+        }
+        if(latest==null)throw new IOException("No valid backup found");
+        apply(world,snapshot(latest),runtime);
+    }
     private static void move(Path from,Path to) throws IOException {
         try{Files.move(from,to,StandardCopyOption.ATOMIC_MOVE);}
         catch(AtomicMoveNotSupportedException e){Files.move(from,to);}

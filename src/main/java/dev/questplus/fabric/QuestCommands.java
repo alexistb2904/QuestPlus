@@ -35,6 +35,8 @@ final class QuestCommands {
                 .then(literal("approve").then(argument("code",StringArgumentType.word())
                     .executes(c -> execute(c,s -> QuestPlusMod.hub().approve(s,StringArgumentType.getString(c,"code"))))))
                 .then(literal("revoke").executes(c -> execute(c,s -> QuestPlusMod.hub().revoke(s)))))
+            .then(literal("rollback").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .executes(c -> execute(c,s -> QuestPlusMod.hub().rollback(s))))
             .then(literal("import").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(literal("confirm").executes(c -> execute(c,s -> QuestPlusMod.hub().confirmImport(s))))
                 .then(argument("pack",StringArgumentType.word())

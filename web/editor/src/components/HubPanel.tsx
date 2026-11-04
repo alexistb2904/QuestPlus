@@ -100,7 +100,7 @@ export function HubPanel({project,onLoad}:{project:Project;onLoad:(p:Project)=>v
   {open&&<Dialog title={tUI('QuestPlus Hub')} onClose={()=>setOpen(false)}>
    <div className="hub-panel">
     <label className="field"><span>{tUI('Hub address')}</span>
-     <input value={hub} onChange={e=>setHub(e.target.value)} spellCheck={false} placeholder="https://hub.example.com"/></label>
+     <input value={hub} onChange={e=>{setHub(e.target.value);setToken('');setPending(null);setRevision('');}} spellCheck={false} placeholder="https://hub.example.com"/></label>
     <p className="picker-help">Use a trusted HTTPS QuestPlus Hub. Only local development may use HTTP localhost.</p>
     <section className="hub-section">
      <h3>{tUI('Connect Minecraft server')}</h3>

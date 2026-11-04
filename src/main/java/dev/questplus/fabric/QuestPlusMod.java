@@ -68,6 +68,7 @@ public final class QuestPlusMod implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server) -> {
             if (runtime != null) runtime.disconnect(handler.player.getUUID());
             QuestNetwork.disconnect(handler.player.getUUID(),server);
+            if(hub!=null)hub.disconnect(handler.player.getUUID());
             TabletPoseNetwork.disconnect(handler.player);
             BREAK_TOOLS.remove(handler.player.getUUID());
         });

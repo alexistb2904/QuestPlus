@@ -155,9 +155,8 @@ final class QuestHubService implements AutoCloseable {
     }
     void revoke(CommandSourceStack source){
         if(session==null){notify(source,"No active session");return;}
-        String id=session;session=null;pendingApproval=null;lastAck=null;lastJobId=null;
-        JsonObject payload=new JsonObject();payload.addProperty("session",id);
-        request("POST","/v1/server/revoke",payload,result->notify(source,"Session revoked"),e->fail(source,e));
+        dropSession();
+        notify(source,"Session revoked locally; remote session revocation requested.");
     }
     void tick(){
         if(!configured()||session==null||inFlight||System.currentTimeMillis()-lastPoll<2500)return;
@@ -218,6 +217,24 @@ final class QuestHubService implements AutoCloseable {
             }catch(Exception e){fail(source,"Pack rejected: "+e.getMessage());}
         },e->fail(source,"Import failed: "+e));
     }
+    void rollback(CommandSourceStack source) {
+        try {
+            QuestHubFiles.rollback(world,QuestPlusMod.runtime());
+            dropSession();
+            notify(source,"Restored the latest pre-publication backup; clients resynchronized.");
+        }catch(Exception e){fail(source,"Rollback failed: "+e.getMessage());}
+    }
+    private void dropSession(){
+        String id=session;session=null;pendingApproval=null;lastAck=null;lastJobId=null;
+        if(id!=null){
+            JsonObject body=new JsonObject();body.addProperty("session",id);
+            request("POST","/v1/server/revoke",body,result->{},e->QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}",e));
+        }
+    }
+    void disconnect(UUID player) {
+        if(owner!=null&&owner.equals(player))dropSession();
+        imports.remove(player);
+    }
     void confirmImport(CommandSourceStack source){
         UUID id;
         try{id=source.getPlayerOrException().getUUID();}catch(Exception e){fail(source,"Requires an operator");return;}
@@ -225,7 +242,7 @@ final class QuestHubService implements AutoCloseable {
         if(pending==null||pending.expires()<System.currentTimeMillis()){fail(source,"No pending import or approval expired");return;}
         try{
             QuestHubFiles.apply(world,pending.files(),QuestPlusMod.runtime());
-            session=null;pendingApproval=null;lastAck=null;
+            dropSession();
             notify(source,"Pack "+pending.id()+" installed. Multiplayer clients have been resynchronized.");
         }catch(Exception e){fail(source,"Pack rejected, existing quests restored: "+e.getMessage());}
     }
