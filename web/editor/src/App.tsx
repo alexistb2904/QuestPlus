@@ -348,6 +348,7 @@ export default function App() {
 							onCamera={changeCamera}
 							onSelect={(s) => setState((old) => ({ ...old, selection: s }))}
 							onPosition={studio.setPosition}
+                            onResize={studio.resizeNode}
                             onCreateAt={(kind,at)=>kind==='quest'?studio.createQuest(at):studio.createAnnotation(at)}
 							showGrid={grid}
 							gridSize={gridSize}
