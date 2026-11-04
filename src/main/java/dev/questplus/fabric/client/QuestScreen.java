@@ -380,7 +380,9 @@ public final class QuestScreen extends Screen {
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
-        currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : q.kind().equals("information") && q.acknowledgement().equals("manual") && !QuestClientState.flag(p,"completed") ? "trigger" : null;
+        currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : (q.kind().equals("information") && q.acknowledgement().equals("manual") ||
+            q.objectives().stream().anyMatch(o -> o.event().equals("manual") && o.target().equals(q.id())))
+            && !QuestClientState.flag(p,"completed") ? "trigger" : null;
         questAction.visible=currentAction!=null;
         boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
             && System.currentTimeMillis()-pendingManualAt<2500L;
