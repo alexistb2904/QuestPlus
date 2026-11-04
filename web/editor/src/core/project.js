@@ -24,6 +24,24 @@ export const text=(value,lang='en_us')=>{
   const key=Object.keys(value).sort().find(k=>valid(value[k]));
   return key?value[key]:'';
 };
+/** Locale fallback for authored annotations; ignore the studio's untouched "Note" seed. */
+export const annotationText=(annotation,lang='en_us')=>{
+  const map=annotation?.text||{};
+  const authored=Object.entries(map).filter(([,value])=>typeof value==='string'&&value.trim()&&value.trim()!=='Note');
+  if(authored.length) {
+    const locale=authored.find(([key])=>key===lang)||authored.find(([key])=>key==='en_us')||authored.sort(([a],[b])=>a.localeCompare(b))[0];
+    return locale[1];
+  }
+  return text(map,lang);
+};
+export const annotationRich=(annotation,lang='en_us')=>{
+  const rich=annotation?.rich||{};
+  const usable=parts=>Array.isArray(parts)&&parts.some(p=>p?.type==='image'&&typeof p.data==='string'&&p.data.length>0 || p?.type==='text'&&typeof p.text==='string'&&p.text.trim().length>0);
+  if(usable(rich[lang]))return rich[lang];
+  if(usable(rich.en_us))return rich.en_us;
+  const key=Object.keys(rich).sort().find(k=>usable(rich[k]));
+  return key?rich[key]:null;
+};
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
