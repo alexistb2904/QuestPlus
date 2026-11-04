@@ -50,7 +50,7 @@ final class RichAnnotationRenderer {
 
     static boolean render(GuiGraphicsExtractor g,Font font,JsonObject note,JsonArray pool,String language,int x,int y){
         int requestedWidth=Math.clamp(note.has("width")?note.get("width").getAsInt():170,60,MAX_WIDTH);
-        int requestedHeight=Math.clamp(note.has("height")?note.get("height").getAsInt():100,20,MAX_HEIGHT);
+        int requestedHeight=Math.clamp(note.has("height")?note.get("height").getAsInt():MAX_HEIGHT,20,MAX_HEIGHT);
         int contentWidth=requestedWidth-12;
         if(!note.has("rich")||!note.get("rich").isJsonObject())return false;
         JsonObject locales=note.getAsJsonObject("rich");
