@@ -2,7 +2,7 @@
   "categories": [
     {
       "id": "questplus:equipment",
-      "order": 15,
+      "order": 12,
       "icon": "minecraft:netherite_chestplate",
       "title": {
         "en_us": "Master of Equipment",
