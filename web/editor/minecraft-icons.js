@@ -39,5 +39,8 @@ export const versionCompare=(a,b)=>{
 export const requiredMinecraftVersion=(project,id)=>project?.iconVersions?.[id]||knownVersion(id)||null;
 export const versionWarning=(project,id)=>{
  const required=requiredMinecraftVersion(project,id),target=project?.targetMinecraftVersion||VERSION;
- return required&&versionCompare(required,target)>0?`⚠ ${id} requires Minecraft ${required} (pack: ${target})`:null;
+ if(required&&versionCompare(required,target)>0)return `⚠ ${id}: Minecraft ${required} required (pack: ${target})`;
+ if(isVanilla(id)&&blockExists(id)&&!itemExists(id))return `⚠ ${id}: block without an item form — fallback icon in-game`;
+ if(isVanilla(id)&&!inVanillaRegistry(id)&&!project?.iconVersions?.[id])return `⚠ ${id}: not in Minecraft ${VERSION} registry — icon may be missing`;
+ return null;
 };
