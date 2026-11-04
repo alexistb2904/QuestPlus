@@ -106,10 +106,10 @@ public final class QuestScreen extends Screen {
         left=0;top=0;right=width;bottom=height;
         int fw=width,fh=height;
         overlayDetails=selected!=null && fw<480;
-        treeLeft=left+(30);
-        treeTop=top+(52);
+        treeLeft=left+30;
+        treeTop=top+52;
         treeRight=selected==null || overlayDetails ? right-7 : right-Math.min(170,fw*2/5);
-        treeBottom=bottom-(19);
+        treeBottom=bottom-19;
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
         cachedLeft=Double.NaN; questAction=null;
         clearWidgets();
@@ -684,7 +684,7 @@ public final class QuestScreen extends Screen {
         if (confirmation!=null) QuestSkin.text(g,font,t("confirm_hint"),x,top+92,0xffe3b991,false);
     }
     private void settingsWidgets() {
-        int x=left+14,y=top+(28),w=(right-left-36)/2;
+        int x=left+14,y=top+28,w=(right-left-36)/2;
         // Six compact rows remain usable on the 500x300 in-world tablet as
         // well as smaller Minecraft GUI scales.
         int available=bottom-y-32;
@@ -735,16 +735,23 @@ public final class QuestScreen extends Screen {
         // These options affect the illuminated first-person 3D screen only.
         // The 2D fallback does not use the 3D backlight.
         if(settings.tablet){
-            button("screen_emissive",x,y+6*row,w,() -> {
+            QuestButton emissive=button("screen_emissive",x,y+6*row,w,() -> {
                 settings.screenEmissive=!settings.screenEmissive;
                 settings.save(); init();
-            }).setMessage(t("screen_emissive").copy().append(": ")
-                .append(t(settings.screenEmissive ? "on" : "off")));
-            button("screen_brightness",x+w+8,y+6*row,w,() -> {
+            });
+            Component emissiveLabel=t("screen_emissive").copy().append(": ")
+                .append(t(settings.screenEmissive ? "on" : "off"));
+            emissive.setMessage(emissiveLabel);
+            emissive.setTooltip(Tooltip.create(emissiveLabel));
+
+            QuestButton brightness=button("screen_brightness",x+w+8,y+6*row,w,() -> {
                 int steps=(int)Math.round(settings.screenBrightness*10);
                 settings.screenBrightness=(steps+1)%11/10.0;
                 settings.save(); init();
-            }).setMessage(t("screen_brightness",Math.round(settings.screenBrightness*100)));
+            });
+            Component brightnessLabel=t("screen_brightness",Math.round(settings.screenBrightness*100));
+            brightness.setMessage(brightnessLabel);
+            brightness.setTooltip(Tooltip.create(brightnessLabel));
         }
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
