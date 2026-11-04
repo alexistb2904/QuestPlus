@@ -35,10 +35,7 @@ public final class Defaults {
     }
 
     static JsonObject readObject(Path path) throws IOException {
-        String normalized=path.toString().replace('\\','/');
-        long max=normalized.contains("categories/")||normalized.contains("quests/") ? 12_582_912 : 1_048_576;
-        if (Files.size(path) > max) throw new IOException("JSON exceeds " +(max/1_048_576)+" MiB: " + path);
-        try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             return QuestRegistry.parseStrict(reader).getAsJsonObject();
         } catch (RuntimeException ex) { throw new IOException("Invalid JSON " + path + ": " + ex.getMessage(), ex); }
     }
