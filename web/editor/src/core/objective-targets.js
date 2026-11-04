@@ -65,3 +65,90 @@ export const positionValue=(root,axis)=>{
  const b=node?.position||{};
  return b[axis+'Min']===b[axis+'Max']&&b[axis+'Min']!==undefined?b[axis+'Min']:'';
 };
+
+
+/**
+ * Every built-in event declared by QuestExtensions has a deliberate input contract.
+ * Mod-registered event IDs keep the unrestricted namespaced target editor.
+ */
+export const OBJECTIVE_UI=Object.freeze({
+  block_break:{kind:'block',amount:'Blocks'},
+  block_place:{kind:'block',amount:'Blocks'},
+  block_interact:{kind:'block',amount:'Interactions'},
+  item_obtained:{kind:'item',amount:'Items obtained'},
+  item_craft:{kind:'item',amount:'Items crafted'},
+  item_smelt:{kind:'item',amount:'Items smelted'},
+  item_use:{kind:'item',amount:'Uses'},
+  item_consume:{kind:'item',amount:'Items consumed'},
+  fish_item:{kind:'item',amount:'Items caught'},
+  trade:{kind:'item',amount:'Items traded'},
+  inventory_count:{kind:'item',amount:'Required in inventory'},
+  entity_kill:{kind:'entity',amount:'Kills'},
+  fish_entity:{kind:'entity',amount:'Entities caught'},
+  tame_animal:{kind:'entity',amount:'Animals tamed'},
+  breed_animal:{kind:'entity',amount:'Animals bred'},
+  npc_interact:{kind:'entity',amount:'Interactions'},
+  biome_visit:{kind:'biome',amount:'Visits'},
+  structure_visit:{kind:'structure',amount:'Visits'},
+  dimension_enter:{kind:'dimension',amount:'Entries'},
+  travel_distance:{kind:'distance',amount:'Distance (m)'},
+  location:{kind:'position',amount:null},
+  player_death:{kind:'death',amount:'Deaths'},
+  manual:{kind:'manual',amount:null}
+});
+export const objectiveUi=event=>OBJECTIVE_UI[event]||{kind:'custom',amount:'Count'};
+export const objectiveTarget=event=>objectiveUi(event).kind;
+export const removePositionCondition=root=>{
+  if(!root||typeof root!=='object')return root;
+  if(Object.hasOwn(root,'position'))return null;
+  if(Array.isArray(root.and)) {
+    const remaining=root.and.map(removePositionCondition).filter(Boolean);
+    return remaining.length===0?null:remaining.length===1?remaining[0]:{and:remaining};
+  }
+  return root;
+};
+export const changeObjectiveEvent=(objective,event,questId)=>{
+  if(objective.event===event)return objective;
+  const next={...objective,event,target:event==='manual'?(questId||'questplus:manual'):initialTarget(event),count:event==='travel_distance'?100:1};
+  const cleaned=removePositionCondition(objective.conditions);
+  if(cleaned)next.conditions=cleaned;
+  else delete next.conditions;
+  return next;
+};
+const positionBounds=raw=>raw?.position||(Array.isArray(raw?.and)?raw.and.find(n=>n?.position)?.position:null)||{};
+export const positionCoordinate=(raw,axis)=>{
+  const bounds=positionBounds(raw),min=bounds[axis+'Min'],max=bounds[axis+'Max'];
+  return Number.isFinite(min)&&Number.isFinite(max)?(min+max)/2:'';
+};
+export const positionRadius=raw=>{
+  const b=positionBounds(raw);
+  const radii=['x','y','z'].filter(a=>Number.isFinite(b[a+'Min'])&&Number.isFinite(b[a+'Max']))
+    .map(a=>(b[a+'Max']-b[a+'Min'])/2);
+  return radii.length?Math.max(...radii):2;
+};
+/** A small reachable box around the location (exact coordinates can be radius 0). */
+export const setPositionCoordinate=(root,axis,value,radius=positionRadius(root))=>{
+  const b={...positionBounds(root)},r=Math.max(0,Math.min(128,Number(radius)||0));
+  if(value==='') {delete b[axis+'Min'];delete b[axis+'Max'];}
+  else {
+    const center=Number(value);
+    if(!Number.isFinite(center))return root;
+    b[axis+'Min']=center-r;b[axis+'Max']=center+r;
+  }
+  const leaf=Object.keys(b).length?{position:b}:null;
+  if(root?.position || !root)return leaf;
+  if(Array.isArray(root.and)){
+    const remaining=root.and.filter(x=>!x?.position);
+    if(leaf)remaining.push(leaf);
+    return remaining.length===0?null:remaining.length===1?remaining[0]:{and:remaining};
+  }
+  return leaf?{and:[root,leaf]}:root;
+};
+export const setPositionRadius=(root,value)=>{
+  let next=root,r=Math.max(0,Math.min(128,Number(value)||0));
+  for(const axis of ['x','y','z']){
+    const center=positionCoordinate(root,axis);
+    if(center!=='')next=setPositionCoordinate(next,axis,center,r);
+  }
+  return next;
+};
