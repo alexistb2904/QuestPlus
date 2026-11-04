@@ -67,6 +67,14 @@ export function seedProjectLocale(project,locale){
   }
   for(const quest of project.quests||[]){
     seed(quest.title);seed(quest.description);seed(quest.narrative);
+    if(quest.descriptionRich){
+      const rich=quest.descriptionRich;
+      const usable=parts=>Array.isArray(parts)&&parts.some(p=>p.type==='image'||p.type==='text'&&p.text?.trim());
+      if(!usable(rich[locale])){
+        const source=usable(rich.en_us)?rich.en_us:Object.values(rich).find(usable);
+        if(source)rich[locale]=structuredClone(source);
+      }
+    }
     for(const o of quest.objectives||[])seed(o.text);
     for(const reward of quest.rewards||[])seed(reward.text);
     for(const tier of quest.tiers||[])for(const reward of tier.rewards||[])seed(reward.text);
@@ -202,6 +210,11 @@ export function validate(p){
     if(!seenC.has(q.category))fail(label,'Catégorie inexistante');
     if(!q.title?.en_us?.trim())fail(label,'Titre anglais obligatoire');
     if(q.description && !q.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
+    if(q.descriptionRich){
+      for(const [locale,parts] of Object.entries(q.descriptionRich))
+        if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(locale)||!validRich(parts))
+          fail(label,'Invalid rich description: '+locale);
+    }
     if(!ID.test(q.icon||''))fail(label,'Icône invalide');
     if(q.size!==undefined&&(!Number.isSafeInteger(q.size)||q.size<24||q.size>96))fail(label,'Taille quête : 24–96');
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
