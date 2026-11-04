@@ -166,5 +166,7 @@
   "questplus.client.navigate_up": "Desplazar hacia arriba",
   "questplus.client.navigate_down": "Desplazar hacia abajo",
   "questplus.client.center_tree": "Centrar el árbol",
-  "questplus.client.notification_position": "Posición de notificaciones"
+  "questplus.client.notification_position": "Posición de notificaciones",
+  "questplus.client.screen_emissive": "Pantalla autoluminosa",
+  "questplus.client.screen_brightness": "Brillo de pantalla: %s %%"
 }

@@ -166,5 +166,7 @@
   "questplus.client.navigate_up": "向上浏览",
   "questplus.client.navigate_down": "向下浏览",
   "questplus.client.center_tree": "居中任务树",
-  "questplus.client.notification_position": "通知位置"
+  "questplus.client.notification_position": "通知位置",
+  "questplus.client.screen_emissive": "屏幕自发光",
+  "questplus.client.screen_brightness": "屏幕亮度：%s%%"
 }

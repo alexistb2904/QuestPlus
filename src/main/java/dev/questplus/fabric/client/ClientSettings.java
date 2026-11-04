@@ -14,6 +14,9 @@ public final class ClientSettings {
     /** Off by default: damage closes the tablet and plays its close animation. */
     public boolean stayOpenOnDamage = false;
     public int hudPosition = 2, notificationPosition = 1, detail = 1;
+    /** First-person screen emits its own light by default; backlight can be dimmed. */
+    public boolean screenEmissive = true;
+    public double screenBrightness = 1.0;
     public double scale = 1, blurIntensity = 0.4;
     public Set<String> pinned = new LinkedHashSet<>();
     public static ClientSettings load() {
@@ -24,12 +27,17 @@ public final class ClientSettings {
                 // Older installations had no notification anchor: retain the previous top-centre placement.
                 if(settings!=null && (json==null || !json.has("notificationPosition")))
                     settings.notificationPosition=1;
+                // Gson does not initialize newly-added instance fields for older configs.
+                if(settings!=null && !json.has("screenEmissive")) settings.screenEmissive=true;
+                if(settings!=null && !json.has("screenBrightness")) settings.screenBrightness=1.0;
                 if (settings == null || settings.pinned == null || settings.pinned.size() > 1024
                     || settings.hudPosition < 0 || settings.hudPosition > 8
                     || settings.notificationPosition < 0 || settings.notificationPosition > 8
                     || !Double.isFinite(settings.scale)
                     || settings.scale < 0.7 || settings.scale > 1.3 || !Double.isFinite(settings.blurIntensity)
-                    || settings.blurIntensity < 0 || settings.blurIntensity > 1) throw new IllegalArgumentException("Invalid client settings");
+                    || settings.blurIntensity < 0 || settings.blurIntensity > 1
+                    || !Double.isFinite(settings.screenBrightness) || settings.screenBrightness < 0
+                    || settings.screenBrightness > 1) throw new IllegalArgumentException("Invalid client settings");
                 // Older versions allowed more than three pinned quests. Keep their first three.
                 if(settings.pinned.size()>MAX_PINNED) {
                     var trimmed=new LinkedHashSet<String>();

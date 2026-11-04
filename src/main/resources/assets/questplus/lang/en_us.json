@@ -166,5 +166,7 @@
   "questplus.client.navigate_up": "Move up",
   "questplus.client.navigate_down": "Move down",
   "questplus.client.center_tree": "Center tree",
-  "questplus.client.notification_position": "Notification position"
+  "questplus.client.notification_position": "Notification position",
+  "questplus.client.screen_emissive": "Self-illuminated screen",
+  "questplus.client.screen_brightness": "Screen brightness: %s%%"
 }
