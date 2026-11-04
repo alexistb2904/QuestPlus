@@ -117,6 +117,6 @@ export function renderConditionTree(node,scope,{quests=[],language='en_us'}={}){
    <button data-cond-action="add-not" data-cond-path="">+ NON</button>
  </div>`;
  return `<div class="condition-builder" data-condition-scope="${escape(scope)}">${root}${rootTools}
-  ${roots?`<div class="cond-search-panel" hidden><input type="search" class="cond-search-input" placeholder="Chercher une quête…" autocomplete="off"><div class="cond-search-results"></div></div>`:''}
+  ${roots?`<div class="cond-search-panel"><input type="search" class="cond-search-input" placeholder="Chercher une quête…" autocomplete="off"><div class="cond-search-results"></div></div>`:''}
  </div>`;
 }
