@@ -48,6 +48,12 @@ test('oversize category JSON is rejected before Minecraft 1 MiB parser limit',()
 
 test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
  const p=demoProject();
- p.categories[0].annotations=[{id:'unicode',x:0,y:0,text:{en_us:'Hello'},rich:{en_us:[{type:'text',text:'🔥'.repeat(1300)}]}}];
- assert.ok(validate(p).some(x=>/rich annotation\/media/.test(x.message)) || JSON.stringify(p).length>0);
+ p.categories[0].annotations=Array.from({length:128},(_,i)=>({
+  id:'note'+i,x:0,y:0,text:{en_us:'Note'},
+  rich:{en_us:[{type:'text',text:'文'.repeat(2048)},{type:'text',text:'文'.repeat(2048)}]}
+ }));
+ const json=JSON.stringify(p.categories[0]);
+ assert.ok(json.length<RICH_MAX_CATEGORY,'UTF-16 JS length alone would silently pass');
+ assert.ok(new TextEncoder().encode(json).byteLength>RICH_MAX_CATEGORY);
+ assert.ok(validate(p).some(x=>/exceeds 900 KiB/.test(x.message)));
 });
