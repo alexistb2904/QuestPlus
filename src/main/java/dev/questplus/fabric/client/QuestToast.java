@@ -27,7 +27,7 @@ final class QuestToast {
     }
     static void draw(GuiGraphicsExtractor g) {
         var mc=Minecraft.getInstance();
-        if (mc.player==null || mc.options.hideGui || !QuestPlusClient.settings.notifications) return;
+        if (mc.player==null || !QuestPlusClient.settings.notifications) return;
         long now=System.currentTimeMillis();
         if (active!=null && now-started>=DURATION) active=null;
         if (active==null) {
