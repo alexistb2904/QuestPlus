@@ -21,7 +21,7 @@ public final class QuestExtensions {
         EVENTS.put("dimension_enter",new EventType("dimension",false));
         EVENTS.put("inventory_count",new EventType("item",true));
         // Evaluated from authoritative server equipment snapshots, not player events.
-        EVENTS.put("equipment_check",new EventType("marker",true));
+        EVENTS.put("equipment_check",new EventType("marker",false));
         EVENTS.put("questplus:fish_any",new EventType("marker",false));
         for (String type : List.of("travel_distance","location","player_death","manual")) EVENTS.put(type,new EventType("marker",false));
         CONDITIONS.put("questplus:gear",new ConditionType(GearPredicate::validate,GearPredicate::test));
