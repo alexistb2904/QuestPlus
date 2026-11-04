@@ -53,7 +53,8 @@ function redo(){if(!future.length)return;history.push(snapshot());restore(future
 function ensureCategory(){if(!currentCategory()&&project.categories.length){categoryId=project.categories[0].id;selection={type:'category',id:categoryId};}}
 const categoryQuests=()=>project.quests.filter(q=>q.category===categoryId);
 const iconFor=id=>{
-  const src=iconUrl(id),backup=blockIconUrl(id);
+  const version=project.iconVersions?.[id]||'26.3';
+  const src=iconUrl(id,version),backup=blockIconUrl(id,version);
   if(!src)return '<span class="mc-icon" title="'+escape(id||'')+'">◇</span>';
   // Retry with the matching block face when a vanilla item has no item texture.
   return '<span class="mc-icon" title="'+escape(id)+'"><img loading="lazy" alt="" src="'+escape(src)+
@@ -102,6 +103,7 @@ function refresh(){
   $('#category-count').textContent=project.categories.length;
   $('#quest-count').textContent=categoryQuests().length;
   $('#undo').disabled=!history.length;$('#redo').disabled=!future.length;
+  $('#target-version').value=project.targetMinecraftVersion||'26.3';
   $('#new-quest').disabled=!currentCategory();$('#new-note').disabled=!currentCategory();
   $('#categories').innerHTML=project.categories.map(c=>`<button class="category-item ${c.id===categoryId?'active':''}" data-cat="${escape(c.id)}"><span class="cat-icon">${iconFor(c.icon)}</span><span><strong class="cat-name">${escape(text(c.title,language))}</strong><small class="cat-sub">${escape(c.id)}</small></span></button>`).join('')||'<div class="tip">Aucune catégorie</div>';
   const needle=$('#quest-search').value.trim().toLowerCase();
@@ -121,8 +123,12 @@ function renderIssues(){
   const issues=validate(project),bar=$('#issues-bar');
   bar.classList.toggle('error',issues.length>0);
   bar.querySelector('.issues-icon').textContent=issues.length?'!':'✓';
-  $('#issues-summary').textContent=issues.length?issues.length+' erreur'+(issues.length>1?'s':''):'Prêt à exporter';
-  $('#issues-list').innerHTML=issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')||'<div>Aucune erreur.</div>';
+  const allIcons=[...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)];
+  const warnings=[...new Set(allIcons)].map(id=>versionWarning(project,id)).filter(Boolean);
+  $('#issues-summary').textContent=issues.length?issues.length+' erreur'+(issues.length>1?'s':''):
+   warnings.length?warnings.length+' avertissement'+(warnings.length>1?'s':'')+' de version':'Prêt à exporter';
+  $('#issues-list').innerHTML=(issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')+
+    warnings.map(s=>`<div class="version-alert">${escape(s)}</div>`).join(''))||'<div>Aucune erreur.</div>';
 }
 function worldToPixel(x,y){const box=$('#viewport');return {x:(x-camera.x)*camera.zoom+box.clientWidth/2,y:(y-camera.y)*camera.zoom+box.clientHeight/2};}
 function pixelToWorld(x,y){const box=$('#viewport');return {x:(x-box.clientWidth/2)/camera.zoom+camera.x,y:(y-box.clientHeight/2)/camera.zoom+camera.y};}
@@ -355,20 +361,26 @@ function inspectorAction(action,index){
   }
 }
 const inspector=$('#inspector-body');
-let iconTarget='icon';
+let iconTarget='icon',pickerLimit=96,pickerKind='all';
 function renderIconPicker(){
   const query=$('#icon-search').value.trim().toLowerCase();
-  const items=vanillaCatalog().filter(v=>(v.id+' '+v.label).toLowerCase().includes(query)).slice(0,240);
+  const matches=vanillaCatalog().filter(v=>(pickerKind==='all'||v.kind===pickerKind||v.kind==='both')&&
+   (v.id+' '+v.label).toLowerCase().includes(query));
+  const items=matches.slice(0,pickerLimit);
+  $('#icon-count').textContent=matches.length+' résultats';
+  $('#icon-more').hidden=items.length>=matches.length;
   $('#icon-grid').innerHTML=items.map(item=>`<button class="icon-choice" data-pick-icon="${escape(item.id)}" title="${escape(item.id)}">
     ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">Aucun résultat</div>';
 }
 inspector.addEventListener('click',e=>{
   const button=e.target.closest('[data-icon-open]');if(!button)return;
-  iconTarget=button.dataset.iconOpen;$('#icon-search').value='';
+  iconTarget=button.dataset.iconOpen;$('#icon-search').value='';pickerLimit=96;pickerKind='all';$('#icon-filter').value='all';
   showModal('#icon-picker');renderIconPicker();$('#icon-search').focus();
   loadVanillaIcons().then(()=>{if(!$('#icon-picker').classList.contains('hidden'))renderIconPicker();});
 });
-$('#icon-search').addEventListener('input',renderIconPicker);
+$('#icon-search').addEventListener('input',()=>{pickerLimit=96;renderIconPicker();});
+$('#icon-filter').addEventListener('change',e=>{pickerKind=e.target.value;pickerLimit=96;renderIconPicker();});
+$('#icon-more').onclick=()=>{pickerLimit+=120;renderIconPicker();};
 $('#icon-close').onclick=()=>hideModal('#icon-picker');
 $('#icon-grid').addEventListener('click',e=>{
   const button=e.target.closest('[data-pick-icon]');if(!button)return;
@@ -514,6 +526,11 @@ $('#add-language').onclick=()=>{
 };
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
 $('#preview-toggle').onclick=()=>{previewMode=!previewMode;if(previewMode)previewCamera=null;renderScene();};
+$('#target-version').addEventListener('change',e=>{
+ const v=e.target.value.trim();
+ if(!/^\d+\.\d+$/.test(v)){e.target.value=project.targetMinecraftVersion||'26.3';return notify('Version invalide');}
+ mutate(()=>{project.targetMinecraftVersion=v;});renderIssues();
+});
 $('#game-categories').addEventListener('click',e=>{const b=e.target.closest('[data-preview-category]');if(b)selectCategory(b.dataset.previewCategory);});
 $('#game-nodes').addEventListener('click',e=>{const b=e.target.closest('[data-preview-quest]');if(b)selectObject('quest',b.dataset.previewQuest);});
 $('#load-default').onclick=()=>{
@@ -668,6 +685,9 @@ $('#file-json').onchange=e=>importSelection(e.target);
 async function exportZip(){
   const issues=validate(project);
   if(issues.length){renderIssues();$('#issues-list').classList.remove('hidden');return notify('Export bloqué : '+issues.length+' erreur(s) à corriger.');}
+  const warned=[...new Set([...project.categories.map(c=>c.icon),...project.quests.map(q=>q.icon)])]
+     .map(id=>versionWarning(project,id)).filter(Boolean);
+  if(warned.length&&!confirm(warned.join('\n')+'\n\nExporter malgré ces incompatibilités ?'))return;
   try{
     const blob=makeZip(fileMap(project)),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='questplus-pack.zip';document.body.append(a);a.click();a.remove();
