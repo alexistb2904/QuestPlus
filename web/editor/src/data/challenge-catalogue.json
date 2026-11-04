@@ -2,7 +2,7 @@
   "categories": [
     {
       "id": "questplus:engineering",
-      "order": 0,
+      "order": 8,
       "icon": "minecraft:comparator",
       "title": {
         "en_us": "Engineering & Automation",
@@ -30,7 +30,7 @@
     },
     {
       "id": "questplus:expeditions",
-      "order": 1,
+      "order": 5,
       "icon": "minecraft:compass",
       "title": {
         "en_us": "Beyond the Horizon",
@@ -58,7 +58,7 @@
     },
     {
       "id": "questplus:archaeology",
-      "order": 2,
+      "order": 7,
       "icon": "minecraft:brush",
       "title": {
         "en_us": "Lost Civilizations",
@@ -86,7 +86,7 @@
     },
     {
       "id": "questplus:quarries",
-      "order": 3,
+      "order": 2,
       "icon": "minecraft:netherite_pickaxe",
       "title": {
         "en_us": "Endless Quarries",
@@ -142,7 +142,7 @@
     },
     {
       "id": "questplus:wildlife",
-      "order": 5,
+      "order": 3,
       "icon": "minecraft:lead",
       "title": {
         "en_us": "Wildlife & Companions",
@@ -170,7 +170,7 @@
     },
     {
       "id": "questplus:professions",
-      "order": 6,
+      "order": 1,
       "icon": "minecraft:emerald",
       "title": {
         "en_us": "Trades and Harvests",
@@ -198,7 +198,7 @@
     },
     {
       "id": "questplus:ocean",
-      "order": 7,
+      "order": 6,
       "icon": "minecraft:heart_of_the_sea",
       "title": {
         "en_us": "Tales of the Ocean",
@@ -226,7 +226,7 @@
     },
     {
       "id": "questplus:homestead",
-      "order": 8,
+      "order": 0,
       "icon": "minecraft:flower_pot",
       "title": {
         "en_us": "A Living World",
@@ -254,7 +254,7 @@
     },
     {
       "id": "questplus:nether",
-      "order": 9,
+      "order": 10,
       "icon": "minecraft:nether_bricks",
       "title": {
         "en_us": "Conquerors of the Nether",
@@ -282,7 +282,7 @@
     },
     {
       "id": "questplus:endgame",
-      "order": 10,
+      "order": 11,
       "icon": "minecraft:end_stone",
       "title": {
         "en_us": "Beyond the End",
@@ -310,7 +310,7 @@
     },
     {
       "id": "questplus:contracts",
-      "order": 11,
+      "order": 15,
       "icon": "minecraft:paper",
       "title": {
         "en_us": "Renewable Contracts",
@@ -338,7 +338,7 @@
     },
     {
       "id": "questplus:trials",
-      "order": 12,
+      "order": 14,
       "icon": "minecraft:totem_of_undying",
       "title": {
         "en_us": "Master Challenges",
@@ -366,7 +366,7 @@
     },
     {
       "id": "questplus:curiosities",
-      "order": 13,
+      "order": 9,
       "icon": "minecraft:music_disc_13",
       "title": {
         "en_us": "World Curiosities",
@@ -394,7 +394,7 @@
     },
     {
       "id": "questplus:milestones",
-      "order": 14,
+      "order": 13,
       "icon": "minecraft:compass",
       "title": {
         "en_us": "World Milestones",
