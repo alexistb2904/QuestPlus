@@ -116,8 +116,7 @@ public final class QuestRuntime implements AutoCloseable {
                         if(!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isString())
                             throw new IllegalArgumentException("Invalid pooled image: "+path);
                         String data=item.getAsString();
-                        if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                            )
+                        if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))
                             throw new IllegalArgumentException("Invalid pooled image: "+path);
                         images.add(data);
                     }
@@ -201,8 +200,7 @@ public final class QuestRuntime implements AutoCloseable {
                                             if(ref<0||ref>=images.size())throw new IllegalArgumentException("Missing image reference "+ref+": "+aid);
                                         }else{
                                             String data=item.get("data").getAsString();
-                                            if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                                                )
+                                            if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))
                                                 throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
                                         }
                                     } else throw new IllegalArgumentException("Unknown rich part: "+aid);
