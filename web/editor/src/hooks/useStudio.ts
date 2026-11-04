@@ -9,6 +9,7 @@ import {
 	validate,
 	fileMap,
 	importDocuments,
+	seedProjectLocale,
 	text,
 	references,
 	PROGRESSIONS,
@@ -161,10 +162,15 @@ export function useStudio() {
 	const quests = state.project.quests.filter((q) => q.category === state.categoryId);
 	function fit(group = currentCategory, rows = quests) {
 		const el = document.getElementById("viewport");
+		const padding={
+			x:Math.max(81,...rows.map(q=>81*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.width??170)/2)),
+			y:Math.max(33,...rows.map(q=>33*(q.size??32)/32),...(group?.annotations||[]).map(a=>(a.height??100)/2))
+		};
 		return fitEditor(
 			[...gameLayout(rows).points.values(), ...(group?.annotations || []).map((n) => ({ x: n.x, y: n.y }))],
 			el?.clientWidth || 720,
-			el?.clientHeight || 450
+			el?.clientHeight || 450,
+			padding
 		) as Camera;
 	}
 	function selectCategory(id: string) {
@@ -352,6 +358,17 @@ export function useStudio() {
 			}
 		}, "drag:" + id);
 	}
+	function resizeNode(type:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number}){
+		mutate(s=>{
+			const o=owner(s.project,{type,id});
+			if(!o)return;
+			if(type==='quest'&&size.size!==undefined)o.size=Math.max(24,Math.min(96,Math.round(size.size)));
+			if(type==='annotation'){
+				if(size.width!==undefined)o.width=Math.max(60,Math.min(400,Math.round(size.width)));
+				if(size.height!==undefined)o.height=Math.max(20,Math.min(300,Math.round(size.height)));
+			}
+		},'resize:'+id);
+	}
 	function autoLayout() {
 		if (!currentCategory || !confirm(tUI("Auto-arrange quests in this category?"))) return;
 		mutate((s) => {
@@ -373,15 +390,19 @@ export function useStudio() {
 			s.language = "en_us";
 		});
 	}
+	function setLanguage(id: string) {
+		if (!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))return;
+		mutate(s=>{
+			if(id!=="en_us")seedProjectLocale(s.project,id);
+			s.language=id;
+		});
+	}
 	function addLocale(id: string) {
 		if (!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id) || id === "en_us") {
 			toast(tUI("Invalid language code"));
 			return;
 		}
-		mutate((s) => {
-			s.project.editorLocales = [...new Set([...(s.project.editorLocales || []), id])];
-			s.language = id;
-		});
+		setLanguage(id);
 	}
 	function connectQuests(sourceId: string, targetId: string) {
 		try {
@@ -507,8 +528,10 @@ export function useStudio() {
 		action,
 		changeCondition,
 		setPosition,
+		resizeNode,
 		autoLayout,
 		reset,
+		setLanguage,
 		addLocale,
 		connectQuests,
 		importFiles,

@@ -29,7 +29,7 @@ import java.util.*;
  * hosting. Media is bounded, decoded on the client, and cached as native GPU textures.
  */
 final class RichAnnotationRenderer {
-    private static final int MAX_WIDTH=170, MAX_HEIGHT=150, MAX_CACHE=24;
+    private static final int MAX_WIDTH=400, MAX_HEIGHT=300, MAX_CACHE=24;
     private static final LinkedHashMap<String,AnimatedImage> MEDIA=new LinkedHashMap<>(32,.75f,true);
     private record Frame(DynamicTexture texture,int delay) {}
     private record AnimatedImage(List<Frame> frames,int cycle) {
@@ -48,7 +48,10 @@ final class RichAnnotationRenderer {
     }
     private RichAnnotationRenderer(){}
 
-    static boolean render(GuiGraphicsExtractor g,Font font,JsonObject note,String language,int x,int y){
+    static boolean render(GuiGraphicsExtractor g,Font font,JsonObject note,JsonArray pool,String language,int x,int y){
+        int requestedWidth=Math.clamp(note.has("width")?note.get("width").getAsInt():170,60,MAX_WIDTH);
+        int requestedHeight=Math.clamp(note.has("height")?note.get("height").getAsInt():MAX_HEIGHT,20,MAX_HEIGHT);
+        int contentWidth=requestedWidth-12;
         if(!note.has("rich")||!note.get("rich").isJsonObject())return false;
         JsonObject locales=note.getAsJsonObject("rich");
         // Older imported annotations may contain only fr_fr rich content while en_us
@@ -70,10 +73,10 @@ final class RichAnnotationRenderer {
             JsonObject p=entry.getAsJsonObject();
             if(!p.has("type"))continue;
             if(p.get("type").getAsString().equals("image")){
-                String uri=p.get("data").getAsString();
-                AnimatedImage image=image(uri);
+                String uri=imageData(p,pool);
+                AnimatedImage image=uri==null?null:image(uri);
                 if(image==null)continue;
-                int w=Math.clamp(p.get("width").getAsInt(),8,MAX_WIDTH-12),h=Math.clamp(p.get("height").getAsInt(),8,MAX_HEIGHT);
+                int w=Math.clamp(p.get("width").getAsInt(),8,contentWidth),h=Math.clamp(p.get("height").getAsInt(),8,requestedHeight-8);
                 if(!line.parts.isEmpty()){line=new Line();lines.add(line);}
                 line.add(new Part(null,image.current(),w,h,1,0,0));
                 line=new Line();lines.add(line);
@@ -96,8 +99,8 @@ final class RichAnnotationRenderer {
                     if(token.equals("\n")){line=new Line();lines.add(line);continue;}
                     String pending=token;
                     while(!pending.isEmpty()){
-                        int available=MAX_WIDTH-12-line.width;
-                        if(available<=2){line=new Line();lines.add(line);available=MAX_WIDTH-12;}
+                        int available=contentWidth-line.width;
+                        if(available<=2){line=new Line();lines.add(line);available=contentWidth;}
                         int length=pending.length();
                         Component whole=Component.literal(pending).withStyle(st);
                         int width=(int)Math.ceil(font.width(whole)*scale);
@@ -122,15 +125,16 @@ final class RichAnnotationRenderer {
             }
         }
         if(lines.size()>1&&lines.getLast().parts.isEmpty())lines.removeLast();
-        int total=lines.stream().mapToInt(l->l.height).sum()+10;
+        int measuredHeight=lines.stream().mapToInt(l->l.height).sum()+10;
+        int total=note.has("height")?Math.max(measuredHeight,requestedHeight):measuredHeight;
         int border=hex(note.has("color")?note.get("color").getAsString():"#c6a986",0xffc6a986);
-        int w=Math.min(MAX_WIDTH,Math.max(38,lines.stream().mapToInt(l->l.width).max().orElse(28)+12));
+        int w=note.has("width")?requestedWidth:Math.min(MAX_WIDTH,Math.max(38,lines.stream().mapToInt(l->l.width).max().orElse(28)+12));
         int top=y-total/2, left=x-w/2;
         if (style.equals("heading")) {
             g.fill(left,top-3,left+w,top-2,border);
             g.fill(left,top+total+1,left+w,top+total+2,border);
         } else if (style.equals("note")) QuestSkin.panel(g,left,top,w,total,0xdd33271f,border);
-        int cy=top+5;
+        int cy=top+5+(total-measuredHeight)/2;
         for(var row:lines){
             int cx=x-row.width/2;
             for(var part:row.parts){
@@ -148,6 +152,14 @@ final class RichAnnotationRenderer {
         }
         return true;
     }
+    private static String imageData(JsonObject part,JsonArray pool){
+        if(part.has("data"))return part.get("data").getAsString();
+        if(part.has("ref") && pool!=null){
+            int ref=part.get("ref").getAsInt();
+            if(ref>=0&&ref<pool.size())return pool.get(ref).getAsString();
+        }
+        return null;
+    }
     private static JsonElement nonEmptyRich(JsonObject locales,String language) {
         if(!locales.has(language))return null;
         JsonElement value=locales.get(language);
@@ -157,7 +169,7 @@ final class RichAnnotationRenderer {
             JsonObject node=part.getAsJsonObject();
             if(!node.has("type"))continue;
             String type=node.get("type").getAsString();
-            if(type.equals("image")&&node.has("data")&&!node.get("data").getAsString().isBlank())return value;
+            if(type.equals("image")&&(node.has("ref") || node.has("data")&&!node.get("data").getAsString().isBlank()))return value;
             if(type.equals("text")&&node.has("text")&&!node.get("text").getAsString().isBlank())return value;
         }
         return null;
@@ -174,7 +186,7 @@ final class RichAnnotationRenderer {
         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))return null;
         try{
             byte[] bytes=Base64.getDecoder().decode(data.substring(data.indexOf(',')+1));
-            if(bytes.length>96*1024)return null;
+            if(bytes.length>384*1024)return null;
             List<Frame> frames=new ArrayList<>();int cycle=0;
             try(ImageInputStream input=ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))){
                 Iterator<ImageReader> readers=ImageIO.getImageReaders(input);
@@ -184,7 +196,7 @@ final class RichAnnotationRenderer {
                     reader.setInput(input,false,false);
                     int count=Math.min(32,reader.getNumImages(true));
                     int width=reader.getWidth(0),height=reader.getHeight(0);
-                    if(width<1||height<1||width>1024||height>1024)return null;
+                    if(width<1||height<1||width>1536||height>1536)return null;
                     int tw=Math.min(MAX_WIDTH,width),th=Math.min(MAX_HEIGHT,height);
                     BufferedImage composite=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
                     for(int i=0;i<count;i++){

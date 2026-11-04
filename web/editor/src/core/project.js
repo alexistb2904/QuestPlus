@@ -1,5 +1,5 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
-import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
+import {validRich,RICH_MAX_CATEGORY,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
@@ -42,6 +42,38 @@ export const annotationRich=(annotation,lang='en_us')=>{
   const key=Object.keys(rich).sort().find(k=>usable(rich[k]));
   return key?rich[key]:null;
 };
+/** Seed a new preview/translation language from an authored source once.
+ * Copies rich objects so edits never mutate the original translation. */
+export function seedProjectLocale(project,locale){
+  if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(locale)||locale==='en_us')return project;
+  const seed=map=>{
+    if(!map||typeof map!=='object'||Array.isArray(map))return;
+    if(typeof map[locale]==='string'&&map[locale].trim())return;
+    const source=text(map,'en_us');
+    if(source)map[locale]=source;
+  };
+  for(const category of project.categories||[]){
+    seed(category.title);seed(category.description);
+    for(const note of category.annotations||[]){
+      note.text ||= {};
+      const src=annotationText(note,'en_us');
+      if((!note.text[locale]||note.text[locale]==='Note')&&src)note.text[locale]=src;
+      const parts=annotationRich(note,'en_us');
+      if(parts?.length&&!annotationRich({...note,rich:{[locale]:note.rich?.[locale]}},locale)){
+        note.rich ||= {};
+        note.rich[locale]=structuredClone(parts);
+      }
+    }
+  }
+  for(const quest of project.quests||[]){
+    seed(quest.title);seed(quest.description);seed(quest.narrative);
+    for(const o of quest.objectives||[])seed(o.text);
+    for(const reward of quest.rewards||[])seed(reward.text);
+    for(const tier of quest.tiers||[])for(const reward of tier.rewards||[])seed(reward.text);
+  }
+  project.editorLocales=[...new Set([...(project.editorLocales||[]),locale])];
+  return project;
+}
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
@@ -55,11 +87,11 @@ export function category(id='questplus:new_category',en='New category'){
   return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
 }
 export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}){
-  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',title:{en_us:en},
+  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',size:32,title:{en_us:en},
     objectives:[{id:'step',event:'block_break',target:'minecraft:stone',count:1}],rewards:[],progression:'once',layout};
 }
 export function annotation(id='note',x=0,y=0){
-  return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986'};
+  return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986',width:170,height:100};
 }
 export function objectiveLabel(o,lang='fr_fr'){
   if(text(o.text,lang))return text(o.text,lang);
@@ -142,7 +174,8 @@ export function validate(p){
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
-    if(new TextEncoder().encode(JSON.stringify(c)).byteLength>RICH_MAX_CATEGORY)fail(label,'Category exceeds 900 KiB (embedded images included)');
+    if(new TextEncoder().encode(JSON.stringify(compactCategoryImages(c))).byteLength>RICH_MAX_CATEGORY)
+      fail(label,'Category exceeds 4 MiB (deduplicated images included)');
     for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
@@ -156,6 +189,8 @@ export function validate(p){
        }
       }
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
+      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<60||a.width>400))fail(label,'Largeur annotation : 60–400');
+      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<20||a.height>300))fail(label,'Hauteur annotation : 20–300');
       if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
     }
@@ -168,6 +203,7 @@ export function validate(p){
     if(!q.title?.en_us?.trim())fail(label,'Titre anglais obligatoire');
     if(q.description && !q.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(!ID.test(q.icon||''))fail(label,'Icône invalide');
+    if(q.size!==undefined&&(!Number.isSafeInteger(q.size)||q.size<24||q.size>96))fail(label,'Taille quête : 24–96');
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
@@ -242,6 +278,44 @@ export function validate(p){
   for(const q of p.quests)visit(q.id);
   return issues;
 }
+/** Export-only per-category deduplication. Studio never edits pooled references. */
+export function compactCategoryImages(category){
+  const result=structuredClone(category),pool=[],indexes=new Map();
+  for(const note of result.annotations||[]){
+    for(const parts of Object.values(note.rich||{})){
+      if(!Array.isArray(parts))continue;
+      for(const part of parts){
+        if(part?.type!=='image'||typeof part.data!=='string')continue;
+        let ref=indexes.get(part.data);
+        if(ref===undefined){ref=pool.length;pool.push(part.data);indexes.set(part.data,ref);}
+        delete part.data;
+        part.ref=ref;
+      }
+    }
+  }
+  if(pool.length)result.images=pool;
+  else delete result.images;
+  return result;
+}
+/** Accept both legacy inline data URIs and compact exports; reject broken references. */
+export function expandCategoryImages(category){
+  if(!category.images)return category;
+  const result=structuredClone(category),pool=result.images;
+  if(!Array.isArray(pool))throw Error('Invalid category image pool');
+  for(const note of result.annotations||[])for(const parts of Object.values(note.rich||{})){
+    if(!Array.isArray(parts))continue;
+    for(const part of parts){
+      if(part?.type!=='image'||part.ref===undefined)continue;
+      if(!Number.isSafeInteger(part.ref)||part.ref<0||part.ref>=pool.length||!mediaPattern.test(pool[part.ref]))
+        throw Error('Invalid image reference '+part.ref+' in '+category.id);
+      if(part.data!==undefined)throw Error('Ambiguous image data/ref in '+category.id);
+      part.data=pool[part.ref];
+      delete part.ref;
+    }
+  }
+  delete result.images;
+  return result;
+}
 export function fileMap(p){
   const map=new Map(), used=new Set();
   function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,JSON.stringify(obj,null,2)+'\n');}
@@ -253,7 +327,7 @@ export function fileMap(p){
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
     iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
-  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',c);
+  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',compactCategoryImages(c));
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
   return map;
@@ -270,7 +344,7 @@ export function importDocuments(documents){
       if(obj.editorLocales!==undefined&&(!Array.isArray(obj.editorLocales)||obj.editorLocales.length>128||obj.editorLocales.some(id=>typeof id!=='string'||!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))))throw Error('Invalid editor language list');
       p.editorLocales=obj.editorLocales||[];continue;
     }
-    if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(obj);
+    if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(expandCategoryImages(obj));
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);
     else if(/(?:^|\/)config\.json$/i.test(path))p.config=obj;
     else continue;

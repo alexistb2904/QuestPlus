@@ -78,7 +78,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon","annotations","order").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations","order","images").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -108,6 +108,20 @@ public final class QuestRuntime implements AutoCloseable {
                 Map<String,String> title=new HashMap<>(),description=new HashMap<>();
                 category.getAsJsonObject("title").entrySet().forEach(e -> title.put(e.getKey(),e.getValue().getAsString()));
                 category.getAsJsonObject("description").entrySet().forEach(e -> description.put(e.getKey(),e.getValue().getAsString()));
+                List<String> images=new ArrayList<>();
+                if(category.has("images")){
+                    if(!category.get("images").isJsonArray() || category.getAsJsonArray("images").size()>128)
+                        throw new IllegalArgumentException("Invalid category images: "+path);
+                    for(var item:category.getAsJsonArray("images")){
+                        if(!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isString())
+                            throw new IllegalArgumentException("Invalid pooled image: "+path);
+                        String data=item.getAsString();
+                        if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
+                            || data.length()>524400 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>384*1024)
+                            throw new IllegalArgumentException("Pooled image too large/invalid: "+path);
+                        images.add(data);
+                    }
+                }
                 List<ClientProjection.Annotation> annotations=new ArrayList<>();
                 if (category.has("annotations")) {
                     if (!category.get("annotations").isJsonArray() || category.getAsJsonArray("annotations").size()>128)
@@ -116,7 +130,7 @@ public final class QuestRuntime implements AutoCloseable {
                     for (var element:category.getAsJsonArray("annotations")) {
                         if (!element.isJsonObject()) throw new IllegalArgumentException("Invalid annotation in "+path);
                         var note=element.getAsJsonObject();
-                        if (!Set.of("id","x","y","text","style","color","rich").containsAll(note.keySet())
+                        if (!Set.of("id","x","y","text","style","color","rich","width","height").containsAll(note.keySet())
                                 || !note.keySet().containsAll(Set.of("id","x","y","text")))
                             throw new IllegalArgumentException("Invalid annotation fields in "+path);
                         String aid=note.get("id").getAsString();
@@ -125,6 +139,10 @@ public final class QuestRuntime implements AutoCloseable {
                         double x=note.get("x").getAsDouble(),y=note.get("y").getAsDouble();
                         if (!Double.isFinite(x) || !Double.isFinite(y) || Math.abs(x)>100000 || Math.abs(y)>100000)
                             throw new IllegalArgumentException("Invalid annotation position: "+aid);
+                        Integer width=note.has("width") ? note.get("width").getAsInt() : null;
+                        Integer height=note.has("height") ? note.get("height").getAsInt() : null;
+                        if(width!=null&&(width<60||width>400)||height!=null&&(height<20||height>300))
+                            throw new IllegalArgumentException("Annotation size outside 60..400 × 20..300: "+aid);
                         String style=note.has("style") ? note.get("style").getAsString() : "note";
                         String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
                         if (!Set.of("note","heading","label").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
@@ -167,15 +185,24 @@ public final class QuestRuntime implements AutoCloseable {
                                             if(item.has(key) && !item.get(key).getAsString().matches("#[0-9a-fA-F]{6}"))
                                                 throw new IllegalArgumentException("Invalid rich color: "+aid);
                                     } else if(type.equals("image")) {
-                                        if(!Set.of("type","data","width","height").containsAll(item.keySet()) ||
-                                                !item.keySet().containsAll(Set.of("data","width","height")))
+                                        if(!Set.of("type","data","ref","width","height").containsAll(item.keySet()) ||
+                                                !item.keySet().containsAll(Set.of("width","height")) ||
+                                                item.has("data")==item.has("ref"))
                                             throw new IllegalArgumentException("Invalid rich image: "+aid);
-                                        String data=item.get("data").getAsString();
-                                        if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                                                || data.length()>131200 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>96*1024
-                                                || item.get("width").getAsInt()<8 || item.get("width").getAsInt()>170
-                                                || item.get("height").getAsInt()<8 || item.get("height").getAsInt()>150)
-                                            throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
+                                        if(item.get("width").getAsInt()<8 || item.get("width").getAsInt()>400
+                                            || item.get("height").getAsInt()<8 || item.get("height").getAsInt()>300)
+                                            throw new IllegalArgumentException("Invalid rich image dimensions: "+aid);
+                                        if(item.has("ref")){
+                                            if(!item.get("ref").isJsonPrimitive()||!item.get("ref").getAsJsonPrimitive().isNumber())
+                                                throw new IllegalArgumentException("Invalid image index: "+aid);
+                                            int ref=item.get("ref").getAsInt();
+                                            if(ref<0||ref>=images.size())throw new IllegalArgumentException("Missing image reference "+ref+": "+aid);
+                                        }else{
+                                            String data=item.get("data").getAsString();
+                                            if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
+                                                || data.length()>524400 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>384*1024)
+                                                throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
+                                        }
                                     } else throw new IllegalArgumentException("Unknown rich part: "+aid);
                                 }
                                 rich.put(locale.getKey(),locale.getValue().getAsJsonArray());
@@ -191,10 +218,10 @@ public final class QuestRuntime implements AutoCloseable {
                             return false;
                         });
                         if (noteText.isEmpty() && !hasRich) throw new IllegalArgumentException("Annotation has no translated content: "+aid);
-                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich)));
+                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich),width,height));
                     }
                 }
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order));
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order,List.copyOf(images)));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());

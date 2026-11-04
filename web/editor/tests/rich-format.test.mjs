@@ -33,14 +33,17 @@ test('localized rich annotations survive QuestPlus export/import in original coo
  p.categories[0].annotations=[note];
  assert.deepEqual(validate(p),[]);
  const json=fileMap(p).get('categories/combat.json');
- assert.deepEqual(JSON.parse(json).annotations[0].rich.en_us,sample);
+ const exported=JSON.parse(json);
+ assert.deepEqual(exported.images,[png]);
+ assert.equal(exported.annotations[0].rich.en_us[2].ref,0);
+ assert.ok(!Object.hasOwn(exported.annotations[0].rich.en_us[2],'data'));
  const docs=[{name:'categories/combat.json',content:json},
   {name:'quests/combat/iron_and_zombie.json',content:fileMap(p).get('quests/combat/iron_and_zombie.json')}];
  const loaded=importDocuments(docs);
  assert.deepEqual(loaded.categories[0].annotations[0],note);
  assert.equal(loaded.categories[0].annotations[0].x,96);
 });
-test('oversize category JSON is rejected before Minecraft 1 MiB parser limit',()=>{
+test('oversize category JSON is rejected at the new 4 MiB pooled limit',()=>{
  const p=demoProject();
  p.categories[0].annotations=[{id:'big',x:0,y:0,text:{en_us:'Image'},rich:{en_us:[{type:'image',data:'data:image/png;base64,'+'A'.repeat(RICH_MAX_CATEGORY),width:120,height:120}]}}];
  assert.ok(validate(p).some(x=>/exceeds|media/.test(x.message)));
@@ -50,10 +53,10 @@ test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
  const p=demoProject();
  p.categories[0].annotations=Array.from({length:128},(_,i)=>({
   id:'note'+i,x:0,y:0,text:{en_us:'Note'},
-  rich:{en_us:[{type:'text',text:'文'.repeat(2048)},{type:'text',text:'文'.repeat(2048)}]}
+  rich:{en_us:Array.from({length:6},()=>({type:'text',text:'文'.repeat(2048)}))}
  }));
  const json=JSON.stringify(p.categories[0]);
  assert.ok(json.length<RICH_MAX_CATEGORY,'UTF-16 JS length alone would silently pass');
  assert.ok(new TextEncoder().encode(json).byteLength>RICH_MAX_CATEGORY);
- assert.ok(validate(p).some(x=>/exceeds 900 KiB/.test(x.message)));
+ assert.ok(validate(p).some(x=>/exceeds 4 MiB/.test(x.message)));
 });

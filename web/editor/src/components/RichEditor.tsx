@@ -54,7 +54,7 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
  const imageSize=(prop:'width'|'height',value:number)=>{
   const img=selectedImage.current;
   if(!img||!ref.current?.contains(img))return;
-  const v=Math.max(8,Math.min(prop==='width'?170:150,value||8));
+  const v=Math.max(8,Math.min(prop==='width'?400:300,value||8));
   img.setAttribute(prop,String(v));setImage({width:img.width,height:img.height});read();
  };
  const formatButtons=[['bold','Bold',Bold],['italic','Italic',Italic],['underline','Underline',Underline],['strikeThrough','Strikethrough',Strikethrough]] as const;
@@ -69,7 +69,7 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
    </>}
   </div>
   {isDescription&&colorOpen&&<div className="rich-palette" role="group" aria-label={tUI('Description colors')} onPointerDown={e=>e.preventDefault()} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();setColorOpen(false)}}}>{Object.entries(DESCRIPTION_COLORS).map(([code,color],index)=><button key={code} type="button" style={{backgroundColor:color}} title={tUI(colorNames[index])} aria-label={tUI(colorNames[index])} onClick={()=>{command('foreColor',color);setColorOpen(false)}}/>)}</div>}
-  {image&&!isDescription&&<div className="rich-image-tools"><strong>{tUI("Image")}</strong><label>W <input aria-label={tUI('Image width')} type="number" min="8" max="170" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="150" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);read()}}><Trash2 size={15}/></button></div>}
+  {image&&!isDescription&&<div className="rich-image-tools"><strong>{tUI("Image")}</strong><label>W <input aria-label={tUI('Image width')} type="number" min="8" max="400" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="300" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);read()}}><Trash2 size={15}/></button></div>}
   <div ref={ref} contentEditable role="textbox" aria-label={label||((isDescription?'Description ':'Annotation ')+locale)} aria-multiline="true" data-placeholder={isDescription?tUI('Write a description…'):undefined} className="rich-edit"
    suppressContentEditableWarning onInput={read} onKeyUp={captureSelection} onMouseUp={captureSelection}
    onClick={e=>{if(isDescription)return;const img=(e.target as HTMLElement).closest('img');if(img)chooseImage(img as HTMLImageElement);else if(image)setImage(null)}}

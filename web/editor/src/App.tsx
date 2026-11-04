@@ -348,6 +348,7 @@ export default function App() {
 							onCamera={changeCamera}
 							onSelect={(s) => setState((old) => ({ ...old, selection: s }))}
 							onPosition={studio.setPosition}
+                            onResize={studio.resizeNode}
                             onCreateAt={(kind,at)=>kind==='quest'?studio.createQuest(at):studio.createAnnotation(at)}
 							showGrid={grid}
 							gridSize={gridSize}
@@ -410,7 +411,7 @@ export default function App() {
 			<footer className="project-bar">
 				<label className="language-control">
 					{tUI("Preview language")}
-					<select id="preview-language" value={language} onChange={(e) => setState((s) => ({ ...s, language: e.target.value }))}>
+					<select id="preview-language" value={language} onChange={(e) => studio.setLanguage(e.target.value)}>
 						{locales.map((id) => (
 							<option key={id} value={id}>
 								{supportedLocales[id] || id} · {id}

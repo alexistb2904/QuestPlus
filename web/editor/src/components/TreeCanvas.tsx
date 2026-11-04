@@ -9,10 +9,40 @@ import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 
-type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void};
-export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,showGrid,gridSize,snap,tool}:Props){
+type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
+export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,showGrid,gridSize,snap,tool}:Props){
  const ref=useRef<HTMLDivElement>(null);
  const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
+ const resize=useRef<{type:'quest'|'annotation';id:string;startX:number;startY:number;width:number;height:number;size:number;pointer:number}|null>(null);
+ const [resizeGhost,setResizeGhost]=useState<{id:string;width?:number;height?:number;size?:number}|null>(null);
+ const resizePending=useRef<{id:string;width?:number;height?:number;size?:number}|null>(null);
+ const startResize=(e:React.PointerEvent,type:'quest'|'annotation',id:string,width:number,height:number,nodeSize:number)=>{
+   e.preventDefault();e.stopPropagation();onSelect({type,id});
+   resize.current={type,id,startX:e.clientX,startY:e.clientY,width,height,size:nodeSize,pointer:e.pointerId};
+   e.currentTarget.setPointerCapture(e.pointerId);
+ };
+ const moveResize=(e:React.PointerEvent)=>{
+   const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
+   e.stopPropagation();
+   const dx=e.clientX-v.startX,dy=e.clientY-v.startY;
+   let next:{id:string;width?:number;height?:number;size?:number};
+   if(v.type==='quest'){
+     const sz=Math.max(24,Math.min(96,Math.round(v.size+dx/5)));
+     next={id:v.id,size:sz};
+   }else next={id:v.id,width:Math.max(60,Math.min(400,Math.round(v.width+dx))),height:Math.max(20,Math.min(300,Math.round(v.height+dy)))};
+   resizePending.current=next;setResizeGhost(next);
+ };
+ const endResize=(e:React.PointerEvent)=>{
+   const v=resize.current;if(!v||v.pointer!==e.pointerId)return;
+   e.stopPropagation();
+   if(e.type!=='pointercancel'&&resizePending.current?.id===v.id)onResize?.(v.type,v.id,resizePending.current);
+   resize.current=null;resizePending.current=null;setResizeGhost(null);
+   try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{}
+ };
+ const handle=(type:'quest'|'annotation',id:string,width:number,height:number,sz:number)=>
+   <button type="button" className="node-resize-handle" aria-label={tUI('Resize')} title={tUI('Drag to resize')}
+     onPointerDown={e=>startResize(e,type,id,width,height,sz)} onPointerMove={moveResize} onPointerUp={endResize} onPointerCancel={endResize}/>;
+
  const pointers=useRef(new Map<number,{x:number;y:number}>());
  const gesture=useRef<any>(null);
  const dragging=useRef<any>(null);
@@ -112,7 +142,9 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
    <defs><marker id="quest-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" className="arrow-head"/></marker></defs>
    {graph.edges.map((edge:any)=>{
     const a=graph.points.get(edge.from),b=graph.points.get(edge.to);if(!a||!b)return null;
-    const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);p.y+=32*camera.zoom;q.y-=36*camera.zoom;const mid=(p.y+q.y)/2;
+    const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);
+    const source=allQuests.find(z=>z.id===edge.from),target=allQuests.find(z=>z.id===edge.to);
+    p.y+=33*(source?.size||32)/32;q.y-=33*(target?.size||32)/32;const mid=(p.y+q.y)/2;
     return <path markerEnd="url(#quest-arrow)" key={edge.from+'-'+edge.to} className={selection?.type==='quest'&&[edge.from,edge.to].includes(selection.id)?'selected-edge':''} d={'M'+p.x+' '+p.y+'V'+mid+'H'+q.x+'V'+q.y}/>;
    })}
    {connection&&graph.points.has(connection.from)&&(()=>{const start=pixel(graph.points.get(connection.from));start.y+=33*camera.zoom;const end=connection.point,bend=Math.max(45,Math.abs(end.y-start.y)*.55);return <path className={'connection-preview'+(connection.error?' invalid':'')} d={'M'+start.x+' '+start.y+' C'+start.x+' '+(start.y+bend)+','+end.x+' '+(end.y-bend)+','+end.x+' '+end.y}/>;})()}
@@ -123,24 +155,28 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const worldPosition=ghost?.id===q.id?ghost:pt,p=pixel(worldPosition);
     if(Math.abs(p.x)>size.width+250||Math.abs(p.y)>size.height+250)return null;
     const unavailable=q.kind==='information'&&q.acknowledgement==='read_only';
+    const nodeSize=resizeGhost?.id===q.id?resizeGhost.size??q.size??32:q.size??32;
     return <div key={q.id} className={'graph-node'+(selection?.type==='quest'&&selection.id===q.id?' selected':'')+(connection?.from===q.id?' connecting':'')+(connection?.to===q.id?(connection.error?' link-invalid':' link-target'):'')}
-      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,transform:'translate(-50%,-50%) scale('+camera.zoom+')'}}>
+      data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:Math.round(162*nodeSize/32),height:Math.round(66*nodeSize/32),transform:'translate(-50%,-50%)'}}>
       <button className="node-select" type="button" aria-pressed={selection?.type==='quest'&&selection.id===q.id} onClick={()=>selectNode(q.id)}>
-       <span className="node-icon">{icon(q)}</span><span className="node-title" title={q.id}>{text(q.title,language)}</span>
+       <span className="node-icon"><ItemIcon id={q.icon} size={Math.round(28*nodeSize/32)}/></span><span className="node-title" title={q.id}>{text(q.title,language)}</span>
       </button>
-      <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':Math.max(1,.85/camera.zoom)} as React.CSSProperties}
-       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+33*camera.zoom},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
+      <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':1} as React.CSSProperties}
+       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+33*nodeSize/32},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
       {q.objectives?.some(o=>o.event==='npc_interact')&&<MessageCircle className="node-npc" size={13}/>}
-      {selection?.type==='quest'&&selection.id===q.id&&<><span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
+      {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,162,66,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
      </div>;
    })}
    {(category?.annotations||[]).map(a=>{
     const pt=ghost?.id===a.id?ghost:a,p=pixel(pt);
     if(Math.abs(p.x)>size.width+240||Math.abs(p.y)>size.height+240)return null;
     const rich=annotationRich(a,language);
+    const nodeWidth=resizeGhost?.id===a.id?resizeGhost.width??a.width??170:a.width??170;
+    const nodeHeight=resizeGhost?.id===a.id?resizeGhost.height??a.height??100:a.height??100;
     return <div role="button" tabIndex={0} aria-label={annotationText(a,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
-       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+camera.zoom+')'}}>
+       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,width:nodeWidth,height:nodeHeight,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%)'}}>
        {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:annotationText(a,language)}
+       {selection?.type==='annotation'&&selection.id===a.id&&handle('annotation',a.id,a.width??170,a.height??100,32)}
       </div>;
    })}
   </div>

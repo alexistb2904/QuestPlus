@@ -30,7 +30,7 @@ export function richFromDom(root){
   const el=node,tag=el.tagName.toLowerCase();
   if(tag==='img'){
    const src=el.getAttribute('src')||'';
-   if(mediaPattern.test(src))parts.push({type:'image',data:src,width:Math.min(170,Math.max(8,Number(el.getAttribute('width'))||120)),height:Math.min(150,Math.max(8,Number(el.getAttribute('height'))||64))});
+   if(mediaPattern.test(src))parts.push({type:'image',data:src,width:Math.min(400,Math.max(8,Number(el.getAttribute('width'))||120)),height:Math.min(300,Math.max(8,Number(el.getAttribute('height'))||64))});
    return;
   }
   if(tag==='br'){pushText('\n',style);return;}
@@ -63,18 +63,18 @@ export function richFromDom(root){
 export function setRichEditor(editor,parts){editor.innerHTML=richToHtml(parts);}
 export async function toEmbeddedImage(file){
  if(!file||!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type))throw Error('Only PNG, JPEG, WebP or GIF images are supported.');
- if(file.size>RICH_MAX_MEDIA)throw Error('The image exceeds 96 KiB. Resize or optimize it first.');
+ if(file.size>RICH_MAX_MEDIA)throw Error('The image exceeds 384 KiB. Resize or optimize it first.');
  let data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('Cannot read image'));reader.onload=()=>resolve(reader.result);reader.readAsDataURL(file);});
  if(!mediaPattern.test(data)&&file.type!=='image/webp')throw Error('Invalid image data.');
  const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=data;});
- if(img.naturalWidth>1024||img.naturalHeight>1024)throw Error('Images must be at most 1024 × 1024.');
+ if(img.naturalWidth>1536||img.naturalHeight>1536)throw Error('Images must be at most 1536 × 1536.');
  if(file.type==='image/webp'){
   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
   canvas.getContext('2d').drawImage(img,0,0);
   data=canvas.toDataURL('image/png');
-  if(data.length>RICH_MAX_MEDIA*4/3)throw Error('The PNG conversion exceeds 96 KiB. Optimize the image.');
+  if(data.length>RICH_MAX_MEDIA*4/3)throw Error('The PNG conversion exceeds 384 KiB. Optimize the image.');
  }
- const scale=Math.min(170/img.naturalWidth,150/img.naturalHeight,1);
+ const scale=Math.min(400/img.naturalWidth,300/img.naturalHeight,1);
  return {data,width:Math.max(8,Math.round(img.naturalWidth*scale)),height:Math.max(8,Math.round(img.naturalHeight*scale))};
 }
 export function plainFallback(parts){return richText(parts)||((parts||[]).some(p=>p.type==='image')?'Image':'Annotation');}
