@@ -6,7 +6,7 @@ export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
   ['item_obtained','Obtenir des objets'],['item_craft','Fabriquer'],['item_smelt','Cuire'],['item_use','Utiliser un objet'],
   ['item_consume','Consommer'],['fish_item','Pêcher un objet'],['trade','Échanger'],['entity_kill','Tuer des entités'],
-  ['fish_entity','Pêcher une entité'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
+  ['fish_entity','Pêcher une entité'],['questplus:fish_any','Pêcher des poissons (toutes espèces)'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
   ['npc_interact','Parler à un PNJ'],['biome_visit','Visiter un biome'],['structure_visit','Visiter une structure'],
   ['dimension_enter','Entrer dans une dimension'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
   ['location','Atteindre une position'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
