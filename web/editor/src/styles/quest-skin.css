@@ -235,3 +235,16 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .gear-enchantment-id-entry input{flex:1;min-width:0}
 .gear-enchantment-id-entry .button{padding:0 7px;min-height:33px;font-size:11px}
 .gear-enchantment .gear-enchantment-id>label{display:block;font-size:11px;font-weight:550;margin-bottom:4px}
+
+/* QuestPlus Hub progressive enhancement. The normal offline editor stays usable. */
+.hub-panel{min-width:min(530px,82vw);max-width:min(600px,90vw);display:grid;gap:14px;padding:14px;color:#eedfeb}
+.hub-panel .field{display:grid;gap:5px;min-width:0}
+.hub-panel input{width:100%;min-width:0;min-height:34px;color:#eee1f0;background:#1c1a21;border:1px solid #6e5a78;border-radius:4px;padding:7px}
+.hub-section{display:grid;gap:11px;border:1px solid #695770;background:#231e2b;border-radius:5px;padding:13px}
+.hub-section h3{margin:0;font-size:13px}
+.hub-actions,.hub-share{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.hub-actions input,.hub-share input{flex:1}
+.hub-online{color:#a6d8bc;font-size:11px}
+.hub-confirm-code{padding:7px 15px;background:#452d56;color:#efd0ff;letter-spacing:3px;font-size:22px;font-weight:bold;width:max-content;border-radius:5px}
+.hub-status{white-space:pre-wrap;overflow-wrap:anywhere;background:#2d2535;border:1px solid #665176;border-radius:4px;padding:10px;margin:0}
+@media(max-width:680px){.hub-panel{min-width:0;max-width:90vw;padding:6px}.hub-toolbar-button{padding-inline:5px}}
