@@ -163,6 +163,11 @@ export function validate(p){
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
+      if(o.event==='location'){
+        const bounds=o.conditions?.position || (Array.isArray(o.conditions?.and)?o.conditions.and.find(node=>node?.position)?.position:null);
+        if(!bounds || !['x','y','z'].every(axis=>Number.isFinite(bounds[axis+'Min'])&&Number.isFinite(bounds[axis+'Max'])))
+          fail(label,'Position : renseigner X, Y et Z');
+      }
       if(o.event==='biome_visit'&&o.target?.startsWith('minecraft:')&&!BIOMES.includes(o.target))fail(label,'Biome vanilla inconnu : '+o.target);
       if(o.event==='structure_visit'&&o.target?.startsWith('minecraft:')&&!STRUCTURES.includes(o.target))fail(label,'Structure vanilla inconnue : '+o.target);
       if(o.event==='dimension_enter'&&o.target?.startsWith('minecraft:')&&!DIMENSIONS.some(([id])=>id===o.target))fail(label,'Dimension vanilla inconnue : '+o.target);
