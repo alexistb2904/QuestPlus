@@ -1,48 +1,95 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {demoProject,emptyProject,category,quest,annotation,objectiveLabel,visibleDescription,validate,fileMap,importDocuments,references} from '../project.js';
+import {demoProject,emptyProject,category,quest,annotation,objectiveLabel,visibleDescription,
+  validate,fileMap,importDocuments,references} from '../project.js';
+import {BUILTIN_PROJECT} from '../default-data.js';
+import {gameLayout,gameFit,NODE_SIZE,HORIZONTAL_GAP,VERTICAL_GAP} from '../game-layout.js';
+import {COMMON_ITEMS,isVanilla,iconUrl,blockIconUrl} from '../minecraft-icons.js';
 import {makeZip,readZip} from '../zip.js';
 
-test('default demonstration project validates and exports questpack paths',()=>{
-  const p=demoProject();assert.deepEqual(validate(p),[]);
+test('new editor sessions start with EXACT quest definitions shipped by QuestPlus',()=>{
+  const p=demoProject();
+  assert.deepEqual(p,BUILTIN_PROJECT);
+  assert.equal(p.categories.length,4);
+  assert.equal(p.quests.length,13);
+  assert.deepEqual(validate(p),[]);
   const files=fileMap(p);
   assert.ok(files.has('quests/mining/stone.json'));
-  assert.ok(files.has('categories/mining.json'));
-  assert.ok(files.has('config.json'));
-  assert.ok(files.has('index.txt'));
-  assert.ok(!files.get('quests/mining/stone.json').includes('"description"'));
+  assert.ok(files.has('categories/combat.json'));
+  assert.ok(files.has('quests/survival/welcome.json'));
+  assert.ok(files.has('config.json'));assert.ok(files.has('index.txt'));
+  assert.deepEqual(JSON.parse(files.get('quests/mining/stone.json')),
+    BUILTIN_PROJECT.quests.find(q=>q.id==='questplus:mining/stone'));
+  p.quests[0].title.en_us='Edited';
+  assert.notEqual(p.quests[0].title.en_us,demoProject().quests[0].title.en_us);
 });
-test('description-free quest generates locale-aware objectives without repetition',()=>{
-  const p=demoProject(),q=p.quests[0];
-  assert.equal(objectiveLabel(q.objectives[0],'fr_fr'),'Casser 32 stone');
-  assert.equal(objectiveLabel(q.objectives[0],'en_us'),'Break 32 stone');
-  assert.equal(visibleDescription(q),'');
-  q.description={en_us:'Break 32 stone',fr_fr:'Casser 32 stone'};
+test('English is the only required authoring language; translations are optional',()=>{
+  const cat=category('questplus:work','Work'),q=quest(cat,'questplus:work/stone','Stone');
+  assert.deepEqual(cat.title,{en_us:'Work'});
+  assert.deepEqual(q.title,{en_us:'Stone'});
+  const p=emptyProject();p.categories.push(cat);p.quests.push(q);
+  assert.deepEqual(validate(p),[]);
+  q.title.de_de='Stein';
+  q.title.ja_jp='石';
+  assert.deepEqual(validate(p),[]);
+  assert.equal(q.title.de_de,'Stein');
+});
+test('description-free quests show generated objectives only once',()=>{
+  const cat=category('questplus:work'),q=quest(cat,'questplus:work/cobble');
+  q.objectives=[{id:'stone',event:'block_break',target:'minecraft:cobblestone',count:32}];
+  assert.equal(objectiveLabel(q.objectives[0],'fr_fr'),'Casser 32 cobblestone');
+  assert.equal(objectiveLabel(q.objectives[0],'en_us'),'Break 32 cobblestone');
+  assert.equal(visibleDescription(q,'en_us'),'');
+  q.description={en_us:'Break 32 cobblestone',fr_fr:'Casser 32 cobblestone'};
   assert.equal(visibleDescription(q,'en_us'),'');
   assert.equal(visibleDescription(q,'fr_fr'),'');
-  q.objectives.push({id:'more',event:'item_craft',target:'minecraft:iron_pickaxe',count:1});
-  assert.equal(visibleDescription(q,'fr_fr'),'');
-  q.objectives.pop();
-  q.description={en_us:'This is a custom narrative',fr_fr:'Narration supplémentaire'};
-  assert.equal(visibleDescription(q),'Narration supplémentaire');
+  q.description={en_us:'A custom adventure',fr_fr:'Une aventure'};
+  assert.equal(visibleDescription(q,'en_us'),'A custom adventure');
 });
-test('serialization and ZIP offline roundtrip preserve coordinates and annotation metadata',async()=>{
-  const original=demoProject(),map=fileMap(original),zip=makeZip(map);
-  const docs=await readZip(zip),after=importDocuments(docs);
-  assert.equal(after.quests.length,3);assert.equal(after.categories.length,2);
-  assert.deepEqual(after.quests.map(q=>q.layout),original.quests.map(q=>q.layout));
-  assert.deepEqual(after.categories[0].annotations,original.categories[0].annotations);
+test('ZIP import/export preserves the shipped data and edited world coordinates',async()=>{
+  const p=demoProject();p.quests[0].layout={x:-128,y:96};
+  p.categories[0].annotations=[annotation('intro',20,40)];
+  p.categories[0].annotations[0].text.ja_jp='はじめ';
+  const zip=makeZip(fileMap(p)),docs=await readZip(zip),after=importDocuments(docs);
+  assert.equal(after.quests.length,13);assert.equal(after.categories.length,4);
+  assert.deepEqual(after.quests.map(q=>q.layout),p.quests.map(q=>q.layout));
+  assert.deepEqual(after.categories[0].annotations,p.categories[0].annotations);
   assert.deepEqual(validate(after),[]);
 });
-test('dependency cycle and orphan are rejected before export',()=>{
-  const p=demoProject();
-  p.quests[0].requires={quest:p.quests[2].id};
+test('Minecraft automatic layout uses 32px nodes, 64x72 spacing and correct prerequisite links',()=>{
+  assert.equal(NODE_SIZE,32);assert.equal(HORIZONTAL_GAP,64);assert.equal(VERTICAL_GAP,72);
+  const cat=category('questplus:test'),a=quest(cat,'questplus:test/a','A'),b=quest(cat,'questplus:test/b','B'),c=quest(cat,'questplus:test/c','C');
+  delete a.layout;delete b.layout;delete c.layout;c.requires={quest:a.id};
+  const layout=gameLayout([a,b,c]);
+  assert.deepEqual(layout.points.get(a.id),{x:-32,y:0});
+  assert.deepEqual(layout.points.get(b.id),{x:32,y:0});
+  assert.deepEqual(layout.points.get(c.id),{x:0,y:72});
+  assert.deepEqual(layout.edges,[{from:a.id,to:c.id}]);
+  a.layout={x:248,y:120};
+  assert.deepEqual(gameLayout([a,b,c]).points.get(a.id),a.layout);
+  const fit=gameFit(layout.points.values(),512,320);
+  assert.ok(fit.zoom>=.25&&fit.zoom<=2.5);
+});
+test('cycles, unknown dependencies and extension IDs are handled correctly',()=>{
+  const cat=category('questplus:test'),a=quest(cat,'questplus:test/a'),b=quest(cat,'questplus:test/b');
+  const p=emptyProject();p.categories=[cat];p.quests=[a,b];a.requires={quest:b.id};b.requires={quest:a.id};
   assert.ok(validate(p).some(x=>x.message.includes('Cycle')));
-  p.quests[0].requires={quest:'questplus:missing'};
+  assert.throws(()=>gameLayout(p.quests),/cycle/);
+  b.requires={quest:'questplus:missing'};
   assert.ok(validate(p).some(x=>x.message.includes('introuvable')));
   assert.deepEqual(references({and:[{quest:'q:a'},{or:[{quest:'q:b'}]}]}),['q:a','q:b']);
+  delete a.requires;delete b.requires;
+  a.icon='create:brass_ingot';assert.deepEqual(validate(p),[]);
 });
-test('allows custom objectives, attributes and information quests',()=>{
+test('mod icons preserve resource IDs and vanilla item assets use 26.3',()=>{
+  assert.ok(COMMON_ITEMS.includes('iron_pickaxe'));
+  assert.equal(isVanilla('minecraft:diamond'),true);
+  assert.equal(isVanilla('create:brass_ingot'),false);
+  assert.ok(iconUrl('minecraft:diamond').includes('26.3'));
+  assert.ok(blockIconUrl('minecraft:cobblestone').includes('/block/cobblestone.png'));
+  assert.equal(iconUrl('create:brass_ingot'),'');
+});
+test('information quests and annotation localization validate',()=>{
   const p=emptyProject(),cat=category('questplus:info');
   p.categories.push(cat);
   const q=quest(cat,'questplus:info/welcome');

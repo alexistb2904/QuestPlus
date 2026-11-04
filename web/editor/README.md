@@ -34,6 +34,44 @@ Les projets modifiés restent dans le stockage local du navigateur et ne sont **
 automatiquement publiés ou synchronisés d'un appareil à l'autre. Utiliser l'export
 ZIP pour transférer des définitions entre appareils ou vers Minecraft.
 
+## Éditeur Minecraft 26.3
+
+Le site démarre sur **les 4 catégories et 13 quêtes réellement intégrées au mod**
+(`src/main/resources/defaults`), copiées sans réécriture dans
+`web/editor/default-data.js`. Un brouillon déjà sauvegardé dans le navigateur
+reste prioritaire pour éviter d'écraser le travail ; le bouton **Défaut** restaure
+les quêtes du mod après confirmation.
+
+**English (`en_us`) est le texte source.** Le menu Langue permet de choisir les
+traductions présentes et **+** d'ajouter un code de langue Minecraft
+(`de_de`, `es_es`, `ja_jp`, etc.). Les champs ne montrent que l'anglais
+et la langue sélectionnée, sans imposer `fr_fr`. Les traductions sont conservées
+dans les objets JSON `title`, `description`, `text`, etc. Si aucune traduction
+n'est fournie, le jeu utilise `en_us`. Les codes ajoutés sans traduction sont
+un état de l'éditeur, non un élément des fichiers serveur exportés.
+
+**Icônes :** sélecteur visuel à recherche, alimenté par le catalogue
+`minecraft-textures@26.3.0` (CDN jsDelivr, chargement facultatif, fallback
+sur une liste embarquée). Pour les blocs, les faces de texture Minecraft sont
+récupérées depuis MC Assets 26.3. Les images externes demandent Internet ;
+l'éditeur local et l'export fonctionnent sans elles. Les IDs non-vanilla,
+par exemple `create:brass_ingot`, restent librement saisissables et sont
+préservés à l'export, même si leur icône n'est pas prévisualisable sans assets
+du mod correspondant. Les textures originales appartiennent à Mojang Studios.
+
+**Coordonnées :** `game-layout.js` reproduit les règles de `QuestLayout.java`
+pour les nœuds 32 × 32, l'espacement automatique 64 × 72, les dépendances,
+la priorité des positions `layout.x/y` explicites, ainsi que les bornes
+de zoom de `QuestCamera.java`. Le bouton **Aperçu jeu** affiche un cadre
+et un arbre avec les mêmes coordonnées et les connexions orthogonales du
+client Minecraft. C'est un aperçu CSS/DOM inspiré du jeu, **pas une capture
+du moteur 3D** ; FOV, textures de packs et comportement d'autres mods ne
+peuvent pas être garantis dans le navigateur.
+
+La création reste compacte : nom anglais, icône, objectifs, position ;
+les récompenses, prérequis et paramètres se trouvent dans des sections
+repliables. La description est facultative, sans répétition de l'objectif.
+
 ## Fonctionnalités
 
 - Créer, modifier et dupliquer les **catégories**, les **quêtes** et les **annotations** (heading, note, label).
