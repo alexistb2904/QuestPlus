@@ -37,12 +37,13 @@ echo  21. Afficher les rapports de tests
 echo  22. Tout tester + GameTests client avec interface graphique
 echo  23. Reinstaller les dependances React (npm ci)
 echo  24. DEMARRER TOUT : Web + API + serveur + client Minecraft
+echo  25. Actualiser les shaders, Punchy et animations de test
 echo.
 echo   Q. Quitter
 echo ====================================================================
 echo.
 set "SELECTION="
-set /p "SELECTION=Choix [1-24 / Q] : "
+set /p "SELECTION=Choix [1-25 / Q] : "
 if errorlevel 1 goto INPUT_ERROR
 if /I "%SELECTION%"=="Q" exit /b 0
 if "%SELECTION%"=="1" goto CLIENT
@@ -69,8 +70,9 @@ if "%SELECTION%"=="21" (set "TASK=reports" & goto RUN_TASK)
 if "%SELECTION%"=="22" goto ALL_GUI
 if "%SELECTION%"=="23" (set "TASK=studio-ci" & goto RUN_TASK)
 if "%SELECTION%"=="24" goto START_FULL
+if "%SELECTION%"=="25" (set "TASK=client-assets" & goto RUN_TASK)
 echo.
-echo [QuestPlus] Choix invalide : entrez un numero entre 1 et 24 ou Q.
+echo [QuestPlus] Choix invalide : entrez un numero entre 1 et 25 ou Q.
 pause
 goto MENU
 

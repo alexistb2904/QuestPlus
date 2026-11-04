@@ -38,6 +38,23 @@ if not exist "run\server\server.properties" (
 echo [Quest Plus] Connect to localhost:25565 from the development client.
 echo [Quest Plus] Never expose this offline-mode server to the Internet.
 echo.
+rem Fabric Loom dev runs use the rebuilt project classpath, not a stale JAR in mods.
+if exist "run\server\mods\*questplus*.jar" (
+ echo [ERREUR] Ancien QuestPlus JAR trouve dans run\server\mods.
+ echo [ERREUR] Retirez le JAR manuellement pour eviter le chargement en double.
+ dir /b "run\server\mods\*questplus*.jar"
+ if /I not "%~1"=="--nopause" pause
+ exit /b 1
+)
+echo [QuestPlus] Recompilation forcee du mod depuis les sources actuelles...
+call "%~dp0scripts\_gradle.bat" --rerun-tasks jar
+if errorlevel 1 (
+ echo [ERREUR] Build echoue. Le serveur ne sera pas lance avec un ancien mod.
+ if /I not "%~1"=="--nopause" pause
+ exit /b 1
+)
+echo [QuestPlus] JAR reconstruit. Lancement Gradle avec les classes actuelles.
+echo [INFO] Le monde conserve ses anciennes definitions. Publiez de nouvelles quetes si necessaire.
 call "%~dp0scripts\_gradle.bat" runServer
 set "STATUS=%ERRORLEVEL%"
 echo.

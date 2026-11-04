@@ -9,10 +9,10 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const read=p=>readFileSync(path.join(root,p),'utf8');
 
-test('Windows dashboard exposes 24 options and real task handlers',()=>{
+test('Windows dashboard exposes 25 options and real task handlers',()=>{
  const menu=read('0-Menu-Tests.bat');
  const qa=read('scripts/_qa.bat');
- for(let i=1;i<=24;i++)
+ for(let i=1;i<=25;i++
   assert.ok(menu.includes('if "%SELECTION%"=="'+i+'"'),'Missing menu option '+i);
  assert.doesNotMatch(menu,/"&goto RUN_TASK/,'no unconditional cmd goto');
  assert.match(menu,/10-Tout-Tester\.bat/);

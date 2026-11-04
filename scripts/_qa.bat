@@ -18,6 +18,7 @@ if /I "%ACTION%"=="java-test" goto JAVA_TEST
 if /I "%ACTION%"=="java-build" goto JAVA_BUILD
 if /I "%ACTION%"=="server-test" goto SERVER_TEST
 if /I "%ACTION%"=="client-test" goto CLIENT_TEST
+if /I "%ACTION%"=="client-assets" goto CLIENT_ASSETS
 if /I "%ACTION%"=="docker-build" goto DOCKER_BUILD
 if /I "%ACTION%"=="all" goto ALL
 if /I "%ACTION%"=="all-gui" goto ALL_GUI
@@ -100,6 +101,13 @@ exit /b %ERRORLEVEL%
 :CLIENT_TEST
 echo [Minecraft] GameTests CLIENT - fenetre graphique requise.
 call "%ROOT%\scripts\_gradle.bat" runClientGameTest
+exit /b %ERRORLEVEL%
+
+:CLIENT_ASSETS
+call :CHECK_NODE
+if errorlevel 1 exit /b 1
+echo [QuestPlus] Mise a jour manuelle des shaders et des mods de test (26.3)...
+node "%ROOT%\scripts\install-client-test-assets.mjs" "%ROOT%" --update
 exit /b %ERRORLEVEL%
 
 :STUDIO_DEV
