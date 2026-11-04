@@ -1,5 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import {ItemIcon,TargetPicker} from './IconPicker';
+import {EnchantmentPicker} from './EnchantmentPicker';
 import {tUI} from '../ui/ui-i18n.js';
 
 export type GearItem={slot:string;item:string;enchantments?:Record<string,number>};
@@ -26,20 +27,25 @@ export const armorPreset=(material:string):GearItem[]=>{
  return ARMOR_SLOTS.map((slot,i)=>({slot,item:'minecraft:'+base+'_'+suffixes[i],enchantments:{}}));
 };
 
-function EnchantmentId({id,taken,onRename}:{id:string;taken:Record<string,number>;onRename:(next:string)=>void}){
+function EnchantmentId({id,taken,onRename,onBrowse}:{id:string;taken:Record<string,number>;onRename:(next:string)=>void;onBrowse:()=>void}){
  const [draft,setDraft]=useState(id);
  useEffect(()=>setDraft(id),[id]);
  const invalid=!enchantId.test(draft.trim())||(draft.trim()!==id&&Object.hasOwn(taken,draft.trim()));
  const commit=()=>{if(!invalid&&draft.trim()!==id)onRename(draft.trim())};
- return <label className="field gear-enchantment-id"><span>{tUI('Enchantment ID')}</span>
-  <input spellCheck={false} value={draft} aria-invalid={invalid} title={invalid?tUI('Invalid or duplicate enchantment ID'):undefined}
-   onChange={e=>setDraft(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();commit();e.currentTarget.blur()}}}/>
- </label>;
+ return <div className="field gear-enchantment-id"><label htmlFor={'enchantment-'+id}>{tUI('Enchantment ID')}</label>
+  <div className="gear-enchantment-id-entry">
+   <input id={'enchantment-'+id} spellCheck={false} value={draft} aria-label={tUI('Enchantment ID')} aria-invalid={invalid}
+    title={invalid?tUI('Invalid or duplicate enchantment ID'):undefined}
+    onChange={e=>setDraft(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();commit();e.currentTarget.blur()}}}/>
+   <button type="button" className="button secondary" onClick={onBrowse}>{tUI('Browse')}</button>
+  </div>
+ </div>;
 }
 
 /** Dedicated, mod-friendly equipment editor: no raw JSON editing is required. */
 export function GearEditor({conditions,onChange}:{conditions:any;onChange:(next:any)=>void}){
  const [pick,setPick]=useState<number|null>(null);
+ const [pickEnchant,setPickEnchant]=useState<{item:number;previous?:string}|null>(null);
  const items=getGear(conditions);
  const change=(next:GearItem[])=>onChange(updateGear(conditions,next));
  const edit=(index:number,partial:Partial<GearItem>)=>change(items.map((item,i)=>i===index?{...item,...partial}:item));
@@ -73,7 +79,7 @@ export function GearEditor({conditions,onChange}:{conditions:any;onChange:(next:
       <button type="button" className="button secondary" onClick={()=>setPick(i)}>{tUI('Browse')}</button></span></label>
    </div>
    {Object.entries(gear.enchantments||{}).map(([id,level])=><div className="gear-enchantment" key={id}>
-    <EnchantmentId id={id} taken={gear.enchantments||{}} onRename={newId=>{
+    <EnchantmentId id={id} taken={gear.enchantments||{}} onBrowse={()=>setPickEnchant({item:i,previous:id})} onRename={newId=>{
       const next={...(gear.enchantments||{})};delete next[id];next[newId]=level;edit(i,{enchantments:next});
     }}/>
     <label className="field gear-enchantment-level"><span>{tUI('Minimum level')}</span>
@@ -85,7 +91,20 @@ export function GearEditor({conditions,onChange}:{conditions:any;onChange:(next:
     while(Object.hasOwn(existing,id))id='modid:enchantment_'+n++;
     enchant(i,id,1);
    }}>+ {tUI('Enchantment')}</button>
+   <button type="button" className="gear-add-enchantment" onClick={()=>setPickEnchant({item:i})}>{tUI('Browse enchantments')}</button>
   </section>)}</div>
+  {pickEnchant!==null&&<EnchantmentPicker
+   taken={Object.keys(items[pickEnchant.item]?.enchantments||{})}
+   replaceId={pickEnchant.previous}
+   onPick={id=>{
+    const current=items[pickEnchant.item];
+    if(!current){setPickEnchant(null);return;}
+    const next={...(current.enchantments||{})};
+    if(pickEnchant.previous&&pickEnchant.previous!==id){
+     const preserved=next[pickEnchant.previous];delete next[pickEnchant.previous];next[id]=preserved||1;
+    }else if(!pickEnchant.previous)next[id]=1;
+    edit(pickEnchant.item,{enchantments:next});setPickEnchant(null);
+   }} onClose={()=>setPickEnchant(null)}/>}
   {pick!==null&&<TargetPicker kind="item" onPick={id=>{edit(pick,{item:id});setPick(null)}} onClose={()=>setPick(null)}/>}
  </div>;
 }
