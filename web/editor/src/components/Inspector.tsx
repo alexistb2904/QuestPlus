@@ -1,6 +1,6 @@
 import React,{useId,useState} from 'react';
 import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target,Info} from 'lucide-react';
-import {text} from '../core/project.js';
+import {annotationText,annotationRich,text} from '../core/project.js';
 import {gameLayout} from '../core/game-layout.js';
 import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
 import {versionWarning} from '../ui/minecraft-icons.js';
@@ -97,7 +97,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
  let position=quest?.layout;
  if(quest&&!position){try{position=gameLayout(project.quests.filter(q=>q.category===quest.category)).points.get(quest.id)}catch{/* Invalid prerequisites remain editable while validation reports the cycle. */}}
  const changeKind=(next:string)=>{if(next===(quest?.kind||'standard'))return;if(next==='information'&&!confirm(tUI('Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?')))return;onAction('kind:'+next)};
- const name=quest?text(quest.title,'en_us'):category?text(category.title,'en_us'):note?text(note.text,language):'';
+ const name=quest?text(quest.title,'en_us'):category?text(category.title,'en_us'):note?annotationText(note,language):'';
  return <aside className="inspector">
   <div className="inspector-head"><h2>{tUI('Properties')}</h2></div>
   {!selection?<div className="inspector-body"><p>{tUI('Select an element to edit.')}</p></div>:<>
@@ -123,7 +123,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
     {note&&<>
      <Section title="Annotation">
       <RichEditor key={note.id+'-'+language} locale={language}
-       content={note.rich?.[language]||[{type:'text',text:note.text?.[language]||note.text?.en_us||'',font:'default'}]}
+       content={annotationRich(note,language)||[{type:'text',text:annotationText(note,language),font:'default'}]}
        onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>
       <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label']]} onChange={v=>onUpdate('style',v)}/>
       <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
