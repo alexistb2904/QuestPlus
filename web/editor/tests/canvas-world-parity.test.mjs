@@ -22,11 +22,12 @@ test('Quest Studio matches Minecraft world axes one-to-one',()=>{
    assert.deepEqual(worldPoint(px,camera,view),q.layout);
  }
 });
-test('wheel zoom changes anchor distances but never image or quest pixel dimensions',()=>{
+test('wheel navigation never changes sizes or the distance between anchors',()=>{
  const screen={width:900,height:450},points=[{x:0,y:0},{x:210,y:175}];
  const left=points.map(p=>screenPoint(p,{x:0,y:0,zoom:.25},screen));
  const right=points.map(p=>screenPoint(p,{x:0,y:0,zoom:2.5},screen));
- assert.equal(right[1].x-right[0].x,10*(left[1].x-left[0].x));
+ assert.equal(right[1].x-right[0].x,left[1].x-left[0].x);
+ assert.equal(right[1].y-right[0].y,left[1].y-left[0].y);
  const canvas=source('../src/components/TreeCanvas.tsx');
  assert.match(canvas,/width:nodeSize,height:nodeSize/);
  assert.match(canvas,/width:nodeWidth,height:nodeHeight/);
@@ -39,7 +40,7 @@ test('Minecraft camera fit now includes authored annotation anchors',()=>{
  const camera=source('../../../src/main/java/dev/questplus/clientmodel/QuestCamera.java');
  assert.match(screen,/camera\.fitBounds\(points/);
  assert.match(screen,/points\.add\(new QuestLayout\.Point\(note\.get\("x"\)/);
- assert.match(camera,/zoom=Math\.clamp\(Math\.min\(1,/);
+ assert.match(camera,/zoom=1;/);
  assert.match(screen,/int x=\(int\)camera\.screenX\(note\.get\("x"\)/);
  assert.match(screen,/RichAnnotationRenderer\.render\(g,font,note,imagePool/);
 });
@@ -59,5 +60,28 @@ test('camera fit includes constant-size note padding',()=>{
  const s=source('../src/core/editor-geometry.js');
  assert.match(s,/const SCALE_X=1, SCALE_Y=1/);
  const fit=fitEditor([{x:0,y:0},{x:180,y:40}],800,420,{x:180,y:90});
- assert.ok(fit.zoom>0&&fit.zoom<=1);
+ assert.equal(fit.zoom,1);
+});
+
+test('wheel and touch gestures only pan both axes, and no zoom controls remain',()=>{
+ const canvas=source('../src/components/TreeCanvas.tsx');
+ assert.match(canvas,/onCamera\(\{x:camera\.x\+dx,y:camera\.y\+dy,zoom:1\}\)/);
+ assert.match(canvas,/onCamera\(\{zoom:1,x:g\.base\.x\+g\.center\.x-midpoint\.x/);
+ assert.doesNotMatch(canvas,/zoomAt\(/);
+ const app=source('../src/App.tsx');
+ assert.match(app,/Fixed-size canvas/);
+ assert.doesNotMatch(app,/Zoom in|Zoom out|Reset zoom/);
+ const game=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ assert.match(game,/camera\.pan\(-horizontal\*36,vertical\*36\)/);
+ assert.doesNotMatch(game,/camera\.zoomAt\(/);
+});
+test('default damage behavior closes tablet with animation, and setting is opt-in',()=>{
+ const flow=source('../../../src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
+ const settings=source('../../../src/main/java/dev/questplus/fabric/client/ClientSettings.java');
+ const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ assert.match(settings,/stayOpenOnDamage = false/);
+ assert.match(flow,/DAMAGE\.observe\(tabletActive,allow,/);
+ assert.match(flow,/quest\.onClose\(\)/);
+ assert.match(flow,/stage=Stage\.HELD;close\(\)/);
+ assert.match(screen,/settings\.stayOpenOnDamage=!settings\.stayOpenOnDamage/);
 });
