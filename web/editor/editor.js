@@ -1,5 +1,7 @@
+import {questId as generatedQuestId,categoryId as generatedCategoryId} from './quest-ids.js';
+import {atPath,setAt,addChild,wrap,leaf,OBJECTIVE_KINDS} from './conditions.js';
 import {gameLayout,gameFit,NODE_SIZE} from './game-layout.js';
-import {iconUrl,blockIconUrl,vanillaCatalog,loadVanillaIcons} from './minecraft-icons.js';
+import {iconUrl,blockIconUrl,vanillaCatalog,loadVanillaIcons,versionWarning,knownVersion,inVanillaRegistry} from './minecraft-icons.js';
 import {demoProject,emptyProject,category as newCategory,quest as newQuest,annotation as newAnnotation,
  copy,text,slug,validate,fileMap,importDocuments,references} from './project.js';
 import {makeZip,readZip} from './zip.js';
@@ -9,7 +11,8 @@ const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='questplus.quest-studio.v1',LIMIT=65;
 let project=demoProject(),categoryId=project.categories[0].id,selection={type:'category',id:categoryId};
-let camera={x:0,y:30,zoom:1},language='en_us',previewMode=false,history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
+let camera={x:0,y:30,zoom:1},previewCamera=null,language='en_us',previewMode=false,history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
+const pointers=new Map();let gesture=null;
 try {
   const data=JSON.parse(localStorage.getItem(STORAGE)||'null');
   if(data?.project?.categories && data?.project?.quests){
@@ -109,8 +112,10 @@ function refresh(){
   renderInspector();renderScene();renderIssues();
 }
 function renderInspector(){
+  const old=$('#inspector-body'),opened=new Set([...old.querySelectorAll('details[open][data-panel]')].map(x=>x.dataset.panel));
   const i=inspectorData(project,selection,categoryId,language);
-  $('#inspector-title').textContent=i.title;$('#inspector-subtitle').textContent=i.subtitle;$('#inspector-body').innerHTML=i.html;
+  $('#inspector-title').textContent=i.title;$('#inspector-subtitle').textContent=i.subtitle;old.innerHTML=i.html;
+  for(const el of old.querySelectorAll('details[data-panel]'))if(opened.has(el.dataset.panel))el.open=true;
 }
 function renderIssues(){
   const issues=validate(project),bar=$('#issues-bar');
@@ -187,7 +192,7 @@ function renderGamePreview(layout){
   $('#game-edges').setAttribute('viewBox',`0 0 ${width} ${height}`);
   $('#game-edges').innerHTML=edges.join('');
 }
-function selectCategory(id){categoryId=id;selection={type:'category',id};fit();refresh();}
+function selectCategory(id){categoryId=id;selection={type:'category',id};previewCamera=null;fit();refresh();}
 function selectObject(type,id){selection={type,id};refresh();}
 function fit(){
   const graph=gameLayout(categoryQuests());
@@ -214,7 +219,7 @@ function createCategory(){
   const name=prompt('Category name (English):','New category');
   if(name===null)return;const title=name.trim()||'New category';
   mutate(()=>{
-    const id=unique('questplus:'+slug(title),new Set(project.categories.map(c=>c.id)));
+    const id=generatedCategoryId(title,new Set(project.categories.map(c=>c.id)));
     project.categories.push(newCategory(id,title));categoryId=id;selection={type:'category',id};
     camera={x:0,y:0,zoom:1};
   });
@@ -226,9 +231,9 @@ function createQuest(){
   if(name===null)return;
   mutate(()=>{
     const title=name.trim()||'New quest',base=cat.id.split(':')[1].replace(/\/$/,'');
-    const id=unique(cat.id.split(':')[0]+':'+base+'/'+slug(title),new Set(project.quests.map(q=>q.id)));
+    const id=generatedQuestId(cat.id,title,new Set(project.quests.map(q=>q.id)));
     const pos={x:Math.round(camera.x/10)*10,y:Math.round(camera.y/10)*10};
-    project.quests.push(newQuest(cat,id,title,pos));selection={type:'quest',id};
+    project.quests.push(newQuest(cat,id,title,pos));project.autoQuestIds=[...new Set([...(project.autoQuestIds||[]),id])];selection={type:'quest',id};
   });
   notify('Quête créée. Déplace-la sur l’arbre.');
 }
@@ -277,6 +282,19 @@ function setField(field,value){
   }
   if(['objectiveMode','cooldownSeconds','timeLimitSeconds','noDeath'].includes(field)&&value)o.schemaVersion=2;
   parent[key]=value;
+  if(field==='title.en_us' && selection.type==='quest' && (project.autoQuestIds||[]).includes(o.id)){
+    const next=generatedQuestId(o.category,value,new Set(project.quests.filter(q=>q!==o).map(q=>q.id)));
+    if(next!==o.id){
+      const previous=o.id;
+      for(const q of project.quests){rewriteRefs(q.requires,previous,next);for(const objective of q.objectives||[])rewriteRefs(objective.conditions,previous,next);}
+      o.id=next;selection.id=next;project.autoQuestIds=project.autoQuestIds.map(id=>id===previous?next:id);
+    }
+  }
+  if(field==='category' && selection.type==='quest' && (project.autoQuestIds||[]).includes(o.id)){
+    const next=generatedQuestId(value,o.title?.en_us||'quest',new Set(project.quests.filter(q=>q!==o).map(q=>q.id)));
+    const previous=o.id;
+    if(next!==previous){for(const q of project.quests)rewriteRefs(q.requires,previous,next);o.id=next;selection.id=next;project.autoQuestIds=project.autoQuestIds.map(id=>id===previous?next:id);}
+  }
   if(field.startsWith('description.')&&o.description&&!Object.values(o.description).some(s=>s.trim()))delete o.description;
   if(field.startsWith('objectives.')&&field.includes('.text.')){
     for(const step of o.objectives||[])if(step.text&&!Object.values(step.text).some(s=>s.trim()))delete step.text;
@@ -307,8 +325,8 @@ function inspectorAction(action,index){
     case 'create-annotation':return createAnnotation();
     case 'delete-category':case 'delete-quest':case 'delete-annotation':return deleteSelected();
     case 'duplicate-quest':return mutate(()=>{
-      const clone=copy(o);clone.id=unique(o.id+'_copy',new Set(project.quests.map(q=>q.id)));
-      clone.layout={x:(o.layout?.x||0)+70,y:(o.layout?.y||0)+70};project.quests.push(clone);selection={type:'quest',id:clone.id};
+      const clone=copy(o);clone.id=generatedQuestId(o.category,clone.title?.en_us||'quest',new Set(project.quests.map(q=>q.id)));
+      clone.layout={x:(o.layout?.x||0)+70,y:(o.layout?.y||0)+70};project.quests.push(clone);project.autoQuestIds=[...new Set([...(project.autoQuestIds||[]),clone.id])];selection={type:'quest',id:clone.id};
     });
     case 'duplicate-annotation':return mutate(()=>{
       const clone=copy(o),cat=currentCategory();clone.id=unique(o.id+'_copy',new Set(cat.annotations.map(a=>a.id)));
