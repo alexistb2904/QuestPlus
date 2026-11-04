@@ -54,7 +54,7 @@ if "%SELECTION%"=="7" goto STUDIO
 if "%SELECTION%"=="8" goto WEB_TEST
 if "%SELECTION%"=="9" goto API_RUN
 if "%SELECTION%"=="10" goto ALL
-if "%SELECTION%"=="11" (set "TASK=doctor" & goto RUN_TASK)
+if "%SELECTION%"=="11" goto DOCTOR
 if "%SELECTION%"=="12" goto SETUP_LOCAL
 if "%SELECTION%"=="13" (set "TASK=studio-build" & goto RUN_TASK)
 if "%SELECTION%"=="14" (set "TASK=studio-test" & goto RUN_TASK)
@@ -104,6 +104,9 @@ call "%~dp010-Tout-Tester.bat"
 goto MENU
 :SETUP_LOCAL
 call "%~dp012-Configuration-Locale.bat"
+goto MENU
+:DOCTOR
+call "%~dp011-Diagnostic.bat"
 goto MENU
 :ALL_GUI
 call "%~dp010-Tout-Tester.bat" gui
