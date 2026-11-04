@@ -83,7 +83,8 @@ final class RichAnnotationRenderer {
             }else if(p.get("type").getAsString().equals("text")){
                 String s=p.get("text").getAsString();
                 if(s.length()>2048)continue;
-                float scale=p.has("size")?Math.clamp(p.get("size").getAsFloat(),.75f,2f):1f;
+                float scale=p.has("sizePx")?Math.clamp(p.get("sizePx").getAsFloat()/9f,6f/9f,128f/9f)
+                    :p.has("size")?Math.clamp(p.get("size").getAsFloat(),.75f,2f):1f;
                 if (style.equals("heading")) scale=Math.min(2f,scale*1.45f);
                 else if (style.equals("label")) scale=Math.max(.75f,scale*.9f);
                 String face=p.has("font")?p.get("font").getAsString():"default";
@@ -186,7 +187,7 @@ final class RichAnnotationRenderer {
         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))return null;
         try{
             byte[] bytes=Base64.getDecoder().decode(data.substring(data.indexOf(',')+1));
-            if(bytes.length>384*1024)return null;
+            if(bytes.length>2*1024*1024)return null;
             List<Frame> frames=new ArrayList<>();int cycle=0;
             try(ImageInputStream input=ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))){
                 Iterator<ImageReader> readers=ImageIO.getImageReaders(input);
@@ -196,7 +197,7 @@ final class RichAnnotationRenderer {
                     reader.setInput(input,false,false);
                     int count=Math.min(32,reader.getNumImages(true));
                     int width=reader.getWidth(0),height=reader.getHeight(0);
-                    if(width<1||height<1||width>1536||height>1536)return null;
+                    if(width<1||height<1||width>4096||height>4096)return null;
                     int tw=Math.min(MAX_WIDTH,width),th=Math.min(MAX_HEIGHT,height);
                     BufferedImage composite=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
                     for(int i=0;i<count;i++){
