@@ -5,7 +5,7 @@ from pathlib import Path
 from blockbench_bridge import call
 
 ROOT = Path(__file__).resolve().parents[1]
-RUNTIME = ROOT.parent / 'src/main/resources/assets/questplus'
+RUNTIME = ROOT.parent / 'client/src/main/resources/assets/questplus'
 
 def export():
     call('load_project', {'path': str(ROOT/'blockbench/questplus_first_person.bbmodel')})

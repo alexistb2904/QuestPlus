@@ -1,4 +1,4 @@
-// Snapshot of QuestPlus src/main/resources/defaults/ (Minecraft 26.3).
+// Snapshot of QuestPlus server/src/main/resources/defaults/ (Minecraft 26.3).
 // Keep in sync with shipped definitions. Source: main/defaults/*.json.
 import CHALLENGES from './challenge-catalogue.json' with { type: 'json' };
 import EQUIPMENT from './equipment-catalogue.json' with { type: 'json' };

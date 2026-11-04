@@ -59,7 +59,7 @@ Le fingerprint mécanique v1 reste identique pour les définitions v1. En v2, la
 
 ## Définitions fournies
 
-[`../src/main/resources/defaults/quests/`](../src/main/resources/defaults/quests/) contient six quêtes v1 historiques, une quête informative et des exemples v2 de répétition avec délai, cycles infinis, paliers, séquence, quantité d'inventaire et exploration. [`../src/main/resources/defaults/index.txt`](../src/main/resources/defaults/index.txt) inventorie les ressources livrées. L'installation initiale préserve les fichiers utilisateur; un monde déjà initialisé ne reçoit pas automatiquement les nouvelles définitions.
+[`../server/src/main/resources/defaults/quests/`](../server/src/main/resources/defaults/quests/) contient six quêtes v1 historiques, une quête informative et des exemples v2 de répétition avec délai, cycles infinis, paliers, séquence, quantité d'inventaire et exploration. [`../server/src/main/resources/defaults/index.txt`](../server/src/main/resources/defaults/index.txt) inventorie les ressources livrées. L'installation initiale préserve les fichiers utilisateur; un monde déjà initialisé ne reçoit pas automatiquement les nouvelles définitions.
 
 Les définitions montrent les formats configurés, pas la preuve que chaque événement a un hook de jeu. La couverture effective des hooks et leur comportement serveur doivent être vérifiés dans les tests d'intégration appropriés. Les sauvegardes corrompues ou de version inconnue ne doivent jamais être remplacées par une progression vide.
 

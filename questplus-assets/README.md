@@ -140,7 +140,7 @@ python questplus-assets/tools/capture_motion.py
 
 Le deuxième script nécessite Blockbench ouvert avec le pont local actif. Il utilise le codec natif, réenregistre les sources et actualise les captures. Le premier script **reconstruit les assets et écrase les retouches manuelles** : ne le relancer que pour repartir de la recette. Pour retoucher les modèles, travailler directement dans Blockbench et conserver les `.bbmodel`.
 
-Les ressources nécessaires sont copiées sous `src/main/resources/assets/questplus/` et incluses dans le JAR. Pour exporter les sources de référence sans les reconstruire :
+Les ressources nécessaires sont copiées sous `client/src/main/resources/assets/questplus/` et incluses dans le JAR. Pour exporter les sources de référence sans les reconstruire :
 
 ```powershell
 python questplus-assets/tools/export_first_person.py

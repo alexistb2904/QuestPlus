@@ -9,7 +9,7 @@ from blockbench_bridge import call
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'blockbench/questplus_third_person.bbmodel'
-OUTPUT = ROOT.parent / 'src/main/resources/assets/questplus/animations/third_person.json'
+OUTPUT = ROOT.parent / 'client/src/main/resources/assets/questplus/animations/third_person.json'
 
 
 def export():

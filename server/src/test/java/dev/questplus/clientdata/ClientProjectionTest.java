@@ -39,7 +39,7 @@ class ClientProjectionTest {
         assertThrows(IllegalArgumentException.class,() -> QuestRegistry.load(temp,(kind,id) -> {}));
     }
     @Test void emptyRewardEntitlementsAreNotClaimable() throws Exception {
-        QuestRegistry registry=QuestRegistry.load(Path.of("src/main/resources/defaults/quests"),(kind,id) -> {});
+        QuestRegistry registry=QuestRegistry.load(Path.of("server/src/main/resources/defaults/quests"),(kind,id) -> {});
         QuestDefinition information=registry.get("questplus:survival/welcome");
         var engine=new QuestEngine(registry);
         PlayerProgress state=new PlayerProgress(),personal=new PlayerProgress();
@@ -52,7 +52,7 @@ class ClientProjectionTest {
     }
 
     @Test void collectiveProgressNeverExposesPersonalLedgerOrExtensionData() throws Exception {
-        QuestRegistry registry=QuestRegistry.load(Path.of("src/main/resources/defaults/quests"),(kind,id) -> {});
+        QuestRegistry registry=QuestRegistry.load(Path.of("server/src/main/resources/defaults/quests"),(kind,id) -> {});
         QuestDefinition q=registry.all().stream().filter(v -> v.progression().equals("once") && !v.objectives().isEmpty() && !v.rewards().isEmpty()).findFirst().orElseThrow();
         QuestEngine engine=new QuestEngine(registry);
         PlayerProgress collective=new PlayerProgress(), personal=new PlayerProgress();
