@@ -1,4 +1,4 @@
-import {richToHtml,validRich,richText,mediaPattern,RICH_MAX_MEDIA,RICH_FONTS} from '../core/rich-format.js';
+import {richToHtml,validRich,richText,mediaPattern,RICH_FONTS} from '../core/rich-format.js';
 const DEFAULT={font:'default',size:1};
 function hex(v){
  if(/^#[0-9a-f]{6}$/i.test(v||''))return v.toLowerCase();
@@ -30,7 +30,7 @@ export function richFromDom(root){
   const el=node,tag=el.tagName.toLowerCase();
   if(tag==='img'){
    const src=el.getAttribute('src')||'';
-   if(mediaPattern.test(src))parts.push({type:'image',data:src,width:Math.min(2048,Math.max(8,Number(el.getAttribute('width'))||120)),height:Math.min(2048,Math.max(8,Number(el.getAttribute('height'))||64))});
+   if(mediaPattern.test(src))parts.push({type:'image',data:src,width:Math.max(1,Number(el.getAttribute('width'))||120),height:Math.max(1,Number(el.getAttribute('height'))||64)});
    return;
   }
   if(tag==='br'){pushText('\n',style);return;}
@@ -53,7 +53,7 @@ export function richFromDom(root){
   const size=normalizedSize(el.style.fontSize)||(tag==='font'?({1:.75,2:.85,3:1,4:1.3,5:1.6,6:1.85,7:2})[Number(el.getAttribute('size'))]:null);
   if(el.style.fontSize?.endsWith('px')){
     const px=Math.round(parseFloat(el.style.fontSize));
-    if(Number.isFinite(px)) {s.sizePx=Math.max(6,Math.min(128,px));delete s.size;}
+    if(Number.isFinite(px)) {s.sizePx=Math.max(1,px);delete s.size;}
   }else if(size){s.size=size;delete s.sizePx;}
   const before=parts.length;
   for(const child of el.childNodes)walk(child,s);
@@ -66,27 +66,25 @@ export function richFromDom(root){
 export function setRichEditor(editor,parts){editor.innerHTML=richToHtml(parts);}
 export async function toEmbeddedImage(file){
  if(!file||!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type))throw Error('Only PNG, JPEG, WebP or GIF images are supported.');
- if(file.size>RICH_MAX_MEDIA&&file.type==='image/gif')throw Error('Animated GIF exceeds 2 MiB. Optimize the animation.');
  let data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('Cannot read image'));reader.onload=()=>resolve(reader.result);reader.readAsDataURL(file);});
  if(!mediaPattern.test(data)&&file.type!=='image/webp')throw Error('Invalid image data.');
  const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=data;});
- if(img.naturalWidth>4096||img.naturalHeight>4096)throw Error('Images must be at most 4096 × 4096.');
  if(file.type==='image/webp'){
   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
   canvas.getContext('2d').drawImage(img,0,0);
   data=canvas.toDataURL('image/png');
   // Larger WebP conversions fall through to the optional client-side compression below.
  }
- if(file.type!=='image/gif'&&data.length>RICH_MAX_MEDIA*4/3){
-   const max=Math.min(1,2048/Math.max(img.naturalWidth,img.naturalHeight));
+ if(file.type!=='image/gif'&&file.size>2*1024*1024){
+   const max=1; // keep the original pixel dimensions
    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*max));canvas.height=Math.max(1,Math.round(img.naturalHeight*max));
    const ctx=canvas.getContext('2d');if(!ctx)throw Error('Image compression unavailable');ctx.drawImage(img,0,0,canvas.width,canvas.height);
    // Light client-side JPEG compression for photos, keep transparent PNG images as PNG.
    const hasAlpha=(()=>{const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;for(let i=3;i<pixels.length;i+=4)if(pixels[i]!==255)return true;return false;})();
    data=canvas.toDataURL(hasAlpha?'image/png':'image/jpeg',hasAlpha?undefined:.88);
-   if(data.length>RICH_MAX_MEDIA*4/3)throw Error('Image exceeds 2 MiB after optimization.');
+   // No hard rejection if the compressed result is still large.
   }
-  const scale=Math.min(400/img.naturalWidth,300/img.naturalHeight,1);
+  const scale=1;
  return {data,width:Math.max(8,Math.round(img.naturalWidth*scale)),height:Math.max(8,Math.round(img.naturalHeight*scale))};
 }
 export function plainFallback(parts){return richText(parts)||((parts||[]).some(p=>p.type==='image')?'Image':'Annotation');}
