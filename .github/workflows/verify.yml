@@ -30,6 +30,9 @@ jobs:
           npm run typecheck
           npm run build
           npm test
+      - name: Exercise QuestPlus Hub security and publishing protocol
+        working-directory: hub
+        run: npm test
       - name: Upload test reports when failed
         if: failure()
         uses: actions/upload-artifact@v4
