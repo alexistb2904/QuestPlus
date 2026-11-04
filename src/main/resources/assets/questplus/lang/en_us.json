@@ -165,5 +165,6 @@
   "questplus.client.stay_open_on_damage": "Keep open when hurt",
   "questplus.client.navigate_up": "Move up",
   "questplus.client.navigate_down": "Move down",
-  "questplus.client.center_tree": "Center tree"
+  "questplus.client.center_tree": "Center tree",
+  "questplus.client.notification_position": "Notification position"
 }
