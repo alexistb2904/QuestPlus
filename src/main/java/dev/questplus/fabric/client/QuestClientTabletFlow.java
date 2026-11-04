@@ -5,6 +5,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.CameraType;
 
 /** Opens the surface UI only after PAL reaches the final two-handed pose. */
 final class QuestClientTabletFlow {
@@ -12,6 +13,7 @@ final class QuestClientTabletFlow {
     private static Stage stage=Stage.CLOSED;
     private static boolean nativeHands;
     private static boolean closeRequested;
+    private static CameraType previousCamera;
     private QuestClientTabletFlow() {}
 
     static void register() {
@@ -37,6 +39,12 @@ final class QuestClientTabletFlow {
             && FabricLoader.getInstance().isModLoaded("player_animation_library");
     }
     private static void open(Minecraft client) {
+        // FP PAL only renders in first person. Switch before the open animation to prevent
+        // a blurred screen without a tablet when J was pressed in third person.
+        if (client.options.getCameraType()!=CameraType.FIRST_PERSON) {
+            previousCamera=client.options.getCameraType();
+            client.options.setCameraType(CameraType.FIRST_PERSON);
+        }
         if (animationAvailable()) {
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
@@ -107,6 +115,12 @@ final class QuestClientTabletFlow {
             QuestPlusMod.LOGGER.warn("Cannot stop FP PAL animation",error);
         }
     }
-    private static void reset() { stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset(); }
+    private static void reset() {
+        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset();
+        if (previousCamera!=null) {
+            Minecraft.getInstance().options.setCameraType(previousCamera);
+            previousCamera=null;
+        }
+    }
 
 }
