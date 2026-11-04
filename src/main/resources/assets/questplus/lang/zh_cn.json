@@ -176,5 +176,6 @@
   "questplus.client.condition.detail.gear.enchanted": "附魔套装",
   "questplus.client.condition.detail.slot.inventory": "背包",
   "questplus.client.claim_all": "领取全部奖励",
-  "questplus.client.claim_all_empty": "没有可领取的奖励"
+  "questplus.client.claim_all_empty": "没有可领取的奖励",
+  "questplus.client.toast.unlocked": "任务已解锁"
 }
