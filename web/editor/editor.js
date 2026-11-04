@@ -1,3 +1,5 @@
+import {gameLayout,gameFit,NODE_SIZE} from './game-layout.js';
+import {iconUrl,blockIconUrl,vanillaCatalog,loadVanillaIcons} from './minecraft-icons.js';
 import {demoProject,emptyProject,category as newCategory,quest as newQuest,annotation as newAnnotation,
  copy,text,slug,validate,fileMap,importDocuments,references} from './project.js';
 import {makeZip,readZip} from './zip.js';
@@ -7,14 +9,14 @@ const $=s=>document.querySelector(s);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='questplus.quest-studio.v1',LIMIT=65;
 let project=demoProject(),categoryId=project.categories[0].id,selection={type:'category',id:categoryId};
-let camera={x:0,y:30,zoom:1},language='fr_fr',history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
+let camera={x:0,y:30,zoom:1},language='en_us',previewMode=false,history=[],future=[],savedTimer,drag,toastTimer,focusRecorded=false;
 try {
   const data=JSON.parse(localStorage.getItem(STORAGE)||'null');
   if(data?.project?.categories && data?.project?.quests){
     project=data.project;
     categoryId=project.categories.some(c=>c.id===data.categoryId)?data.categoryId:project.categories[0]?.id||null;
     selection=data.selection||{type:'category',id:categoryId};
-    camera=data.camera||camera;language=data.language||'fr_fr';
+    camera=data.camera||camera;language=data.language||'en_us';
   }
 } catch(e){console.warn('Quest Studio: local save could not be restored',e);}
 const currentCategory=()=>project.categories.find(c=>c.id===categoryId);
@@ -48,14 +50,47 @@ function redo(){if(!future.length)return;history.push(snapshot());restore(future
 function ensureCategory(){if(!currentCategory()&&project.categories.length){categoryId=project.categories[0].id;selection={type:'category',id:categoryId};}}
 const categoryQuests=()=>project.quests.filter(q=>q.category===categoryId);
 const iconFor=id=>{
- const tail=String(id||'').split(':').pop();
- const icons={book:'▤',stone:'▥',cobblestone:'▥',diamond:'◆',iron_ingot:'▰',iron_pickaxe:'⚒',stone_pickaxe:'⚒',netherite_sword:'⚔',zombie_head:'☠',compass:'◈',oak_log:'▤',chest:'▣',ender_eye:'◉',gold_ingot:'▰',experience_bottle:'✧',map:'▤'};
- return icons[tail]||'✦';
+  const src=iconUrl(id),backup=blockIconUrl(id);
+  if(!src)return '<span class="mc-icon" title="'+escape(id||'')+'">◇</span>';
+  // Retry with the matching block face when a vanilla item has no item texture.
+  return '<span class="mc-icon" title="'+escape(id)+'"><img loading="lazy" alt="" src="'+escape(src)+
+    '" onerror="this.onerror=null;'+(backup?"this.src='"+escape(backup)+"';":"this.style.display='none';")+'"></span>';
 };
+const LOCALE_LABELS={
+  en_us:'English',en_gb:'English (UK)',fr_fr:'Français',fr_ca:'Français (CA)',de_de:'Deutsch',
+  es_es:'Español',es_mx:'Español (MX)',pt_br:'Português (BR)',pt_pt:'Português',
+  it_it:'Italiano',ja_jp:'日本語',ko_kr:'한국어',zh_cn:'简体中文',zh_tw:'繁體中文',
+  ru_ru:'Русский',nl_nl:'Nederlands',pl_pl:'Polski',tr_tr:'Türkçe',uk_ua:'Українська',
+  cs_cz:'Čeština',da_dk:'Dansk',fi_fi:'Suomi',sv_se:'Svenska',nb_no:'Norsk',
+  hu_hu:'Magyar',ro_ro:'Română',el_gr:'Ελληνικά',id_id:'Bahasa Indonesia',
+  vi_vn:'Tiếng Việt',th_th:'ไทย',ar_sa:'العربية',hi_in:'हिन्दी',bg_bg:'Български',
+  sk_sk:'Slovenčina',sl_si:'Slovenščina',hr_hr:'Hrvatski',sr_sp:'Srpski',he_il:'עברית',
+  lt_lt:'Lietuvių',lv_lv:'Latviešu',et_ee:'Eesti',ca_es:'Català',eu_es:'Euskara',
+  gl_es:'Galego',af_za:'Afrikaans'
+};
+const userLocales=()=>{
+  const codes=new Set(['en_us',...(project.editorLocales||[]),language]);
+  const collect=o=>{
+    if(!o||typeof o!=='object')return;
+    for(const [key,v] of Object.entries(o)){
+      if(/^[a-z]{2,3}_[a-z]{2,4}$/.test(key)&&typeof v==='string')codes.add(key);
+      else if(v&&typeof v==='object')collect(v);
+    }
+  };
+  for(const c of project.categories)collect(c);
+  for(const q of project.quests)collect(q);
+  return [...codes].sort((a,b)=>a==='en_us'?-1:b==='en_us'?1:a.localeCompare(b));
+};
+function renderLanguages(){
+  const select=$('#preview-language');
+  select.innerHTML=userLocales().map(code=>'<option value="'+escape(code)+'">'+
+    escape((LOCALE_LABELS[code]||code)+' · '+code)+'</option>').join('');
+  select.value=language;
+}
 const categoryLabel=()=>text(currentCategory()?.title,language)||'Aucune catégorie';
 function refresh(){
   ensureCategory();
-  $('#preview-language').value=language;
+  renderLanguages();
   document.title='Quest Studio — '+categoryLabel();
   $('#project-name').textContent='QuestPlus · '+project.categories.length+' catégories';
   $('#crumb-category').textContent=categoryLabel();
@@ -70,7 +105,7 @@ function refresh(){
   $('#quest-list').innerHTML=categoryQuests().filter(q=>!needle||text(q.title,language).toLowerCase().includes(needle)||q.id.includes(needle)).map(q=>
     `<button class="quest-item ${selection?.type==='quest'&&selection.id===q.id?'active':''}" data-quest="${escape(q.id)}">
       <span class="quest-glyph">${iconFor(q.icon)}</span><span class="quest-label"><strong>${escape(text(q.title,language))}</strong><small>${escape(q.id.split('/').pop())}</small></span></button>`).join('')||
-    '<div class="tip">Aucune quête à afficher.</div>';
+    '<div class="tip">Aucune quête.</div>';
   renderInspector();renderScene();renderIssues();
 }
 function renderInspector(){
@@ -81,59 +116,84 @@ function renderIssues(){
   const issues=validate(project),bar=$('#issues-bar');
   bar.classList.toggle('error',issues.length>0);
   bar.querySelector('.issues-icon').textContent=issues.length?'!':'✓';
-  $('#issues-summary').textContent=issues.length?issues.length+' problème'+(issues.length>1?'s':'')+' à corriger':'Fichiers QuestPlus valides pour les contrôles de l’éditeur';
-  $('#issues-list').innerHTML=issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')||'<div>Les contrôles structurels de l’éditeur ne détectent aucune erreur. La validation finale des registres Minecraft est effectuée par le mod.</div>';
+  $('#issues-summary').textContent=issues.length?issues.length+' erreur'+(issues.length>1?'s':''):'Prêt à exporter';
+  $('#issues-list').innerHTML=issues.map(i=>`<div><strong>${escape(i.where)}</strong> — ${escape(i.message)}</div>`).join('')||'<div>Aucune erreur.</div>';
 }
 function worldToPixel(x,y){const box=$('#viewport');return {x:(x-camera.x)*camera.zoom+box.clientWidth/2,y:(y-camera.y)*camera.zoom+box.clientHeight/2};}
 function pixelToWorld(x,y){const box=$('#viewport');return {x:(x-box.clientWidth/2)/camera.zoom+camera.x,y:(y-box.clientHeight/2)/camera.zoom+camera.y};}
 function renderScene(){
   const el=$('#viewport'),width=el.clientWidth,height=el.clientHeight;if(!width||!height)return;
-  const rows=categoryQuests();
+  const rows=categoryQuests(),layout=gameLayout(rows),positions=layout.points;
   $('#zoom-value').textContent=Math.round(camera.zoom*100)+'%';
-  el.style.backgroundSize=`${22*camera.zoom}px ${22*camera.zoom}px`;
+  el.style.backgroundSize=`${32*camera.zoom}px ${32*camera.zoom}px`;
   el.style.backgroundPosition=`${-camera.x*camera.zoom+width/2}px ${-camera.y*camera.zoom+height/2}px`;
-  $('#empty-tree').classList.toggle('hidden',rows.length>0||(currentCategory()?.annotations||[]).length>0);
+  $('#empty-tree').classList.toggle('hidden',previewMode||rows.length>0||(currentCategory()?.annotations||[]).length>0);
+  $('#minecraft-preview').classList.toggle('hidden',!previewMode);
+  $('#preview-toggle').setAttribute('aria-pressed',String(previewMode));
+  $('#preview-toggle').textContent=previewMode?'✎ Édition':'▣ Aperçu jeu';
+  $('#canvas-hint').textContent=previewMode?'Aperçu du rendu Minecraft':'Molette : zoom · Glisser : déplacer';
+  if(previewMode){$('#nodes').innerHTML='';$('#edges').innerHTML='';renderGamePreview(layout);return;}
   const shapes=[];
   for(const q of rows){
-    const pos=q.layout||{x:0,y:0},pt=worldToPixel(pos.x,pos.y);
-    if(pt.x< -125||pt.x>width+125||pt.y< -90||pt.y>height+90)continue;
+    const pos=positions.get(q.id),pt=worldToPixel(pos.x,pos.y);
+    if(pt.x< -100||pt.x>width+100||pt.y< -80||pt.y>height+80)continue;
     const selected=selection?.type==='quest'&&selection.id===q.id;
     shapes.push(`<div class="graph-node ${selected?'selected':''}" data-node-type="quest" data-node-id="${escape(q.id)}"
-      style="left:${pt.x}px;top:${pt.y}px;transform:translate(-50%,-50%) scale(${Math.max(.6,Math.min(1.35,camera.zoom))})">
-      <div class="node-icon">${iconFor(q.icon)}</div><div class="node-title" title="${escape(q.id)}">${escape(text(q.title,language))}</div><div class="node-id">${escape(q.id.split('/').pop())}</div></div>`);
+      style="left:${pt.x}px;top:${pt.y}px;transform:translate(-50%,-50%) scale(${camera.zoom})">
+      <div class="node-icon">${iconFor(q.icon)}</div><div class="node-title" title="${escape(q.id)}">${escape(text(q.title,language))}</div></div>`);
   }
   for(const a of currentCategory()?.annotations||[]){
     const pt=worldToPixel(a.x,a.y);
     if(pt.x< -240||pt.x>width+240||pt.y< -60||pt.y>height+60)continue;
     const selected=selection?.type==='annotation'&&selection.id===a.id;
     shapes.push(`<div class="annotation-node ${escape(a.style||'note')} ${selected?'selected':''}"
-      style="left:${pt.x}px;top:${pt.y}px;border-color:${escape(a.color||'#c6a986')};color:${escape(a.color||'#c6a986')};transform:translate(-50%,-50%) scale(${Math.max(.65,Math.min(1.25,camera.zoom))})"
+      style="left:${pt.x}px;top:${pt.y}px;border-color:${escape(a.color||'#c6a986')};color:${escape(a.color||'#c6a986')};transform:translate(-50%,-50%) scale(${camera.zoom})"
       data-node-type="annotation" data-node-id="${escape(a.id)}">${escape(text(a.text,language))}</div>`);
   }
   $('#nodes').innerHTML=shapes.join('');
-  const map=new Map(rows.map(q=>[q.id,q]));
   const lines=[];
-  for(const q of rows){
-    for(const ref of new Set(references(q.requires))){
-      const from=map.get(ref);if(!from)continue;
-      const a=worldToPixel(from.layout?.x||0,from.layout?.y||0),b=worldToPixel(q.layout?.x||0,q.layout?.y||0);
-      if((a.x< -80&&b.x< -80)||(a.y< -80&&b.y< -80)||(a.x>width+80&&b.x>width+80)||(a.y>height+80&&b.y>height+80))continue;
-      const dy=Math.max(38,Math.abs(b.y-a.y)*.55);
-      lines.push(`<path class="${selection?.type==='quest'&&[q.id,from.id].includes(selection.id)?'selected-edge':''}" d="M ${a.x} ${a.y+25*camera.zoom} C ${a.x} ${a.y+dy}, ${b.x} ${b.y-dy}, ${b.x} ${b.y-25*camera.zoom}"/>`);
-    }
+  for(const {from,to} of layout.edges){
+    const a=positions.get(from),b=positions.get(to);
+    const p=worldToPixel(a.x,a.y+16),q=worldToPixel(b.x,b.y-16);
+    const middle=(p.y+q.y)/2;
+    lines.push(`<path class="${selection?.type==='quest'&&[from,to].includes(selection.id)?'selected-edge':''}"
+      d="M ${p.x} ${p.y} V ${middle} H ${q.x} V ${q.y}"/>`);
   }
   $('#edges').setAttribute('viewBox',`0 0 ${width} ${height}`);
   $('#edges').innerHTML=lines.join('');
 }
+function renderGamePreview(layout){
+  const target=$('#game-tree'),width=target.clientWidth,height=target.clientHeight;
+  if(!width||!height){requestAnimationFrame(()=>{if(previewMode)renderGamePreview(layout);});return;}
+  const previewCam=gameFit(layout.points.values(),width,height,24);
+  const point=(x,y)=>({x:(x-previewCam.x)*previewCam.zoom+width/2,y:(y-previewCam.y)*previewCam.zoom+height/2});
+  $('#game-categories').innerHTML=project.categories.map(c=>
+    `<button class="game-category ${c.id===categoryId?'selected':''}" data-preview-category="${escape(c.id)}" title="${escape(text(c.title,language))}">${iconFor(c.icon)}</button>`).join('');
+  const rows=categoryQuests();
+  $('#game-nodes').innerHTML=rows.map(q=>{
+    const v=layout.points.get(q.id);if(!v)return '';
+    const p=point(v.x,v.y),selected=selection?.id===q.id;
+    return `<button class="game-quest ${selected?'selected':''}" data-preview-quest="${escape(q.id)}"
+      title="${escape(text(q.title,language))}" style="left:${p.x}px;top:${p.y}px;transform:translate(-50%,-50%) scale(${previewCam.zoom})">${iconFor(q.icon)}</button>`;
+  }).join('')+(currentCategory()?.annotations||[]).map(a=>{
+    const p=point(a.x,a.y);
+    return `<div class="game-note ${escape(a.style||'note')}" style="left:${p.x}px;top:${p.y}px;transform:translate(-50%,-50%) scale(${previewCam.zoom});color:${escape(a.color||'#c6a986')}">${escape(text(a.text,language))}</div>`;
+  }).join('');
+  const edges=layout.edges.map(({from,to})=>{
+    const a=layout.points.get(from),b=layout.points.get(to);
+    const p=point(a.x,a.y+16),q=point(b.x,b.y-16);
+    return `<path d="M ${p.x} ${p.y} V ${(p.y+q.y)/2} H ${q.x} V ${q.y}"/>`;
+  });
+  $('#game-edges').setAttribute('viewBox',`0 0 ${width} ${height}`);
+  $('#game-edges').innerHTML=edges.join('');
+}
 function selectCategory(id){categoryId=id;selection={type:'category',id};fit();refresh();}
 function selectObject(type,id){selection={type,id};refresh();}
 function fit(){
-  const points=[...categoryQuests().map(q=>q.layout||{x:0,y:0}),...(currentCategory()?.annotations||[]).map(a=>({x:a.x,y:a.y}))];
-  if(!points.length){camera={x:0,y:0,zoom:1};return;}
-  const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const graph=gameLayout(categoryQuests());
+  const points=[...graph.points.values(),...(currentCategory()?.annotations||[]).map(a=>({x:a.x,y:a.y}))];
   const el=$('#viewport');
-  camera.x=(minX+maxX)/2;camera.y=(minY+maxY)/2;
-  camera.zoom=Math.max(.25,Math.min(1.5,Math.min((el.clientWidth-170)/(maxX-minX+150),(el.clientHeight-155)/(maxY-minY+150))));
+  camera=gameFit(points,Math.max(1,el.clientWidth),Math.max(1,el.clientHeight),48);
 }
 function zoomAt(factor,x,y){
   const el=$('#viewport'),before=pixelToWorld(x,y);
@@ -143,43 +203,32 @@ function zoomAt(factor,x,y){
   renderScene();
 }
 function placeAuto(){
-  const list=categoryQuests(),byId=new Map(list.map(q=>[q.id,q])),rank=new Map(),pending=new Set();
-  function level(id){
-    if(rank.has(id))return rank.get(id);
-    if(pending.has(id))return 0;
-    pending.add(id);
-    const q=byId.get(id),parents=[...new Set(references(q?.requires))].filter(ref=>byId.has(ref));
-    const depth=parents.length?1+Math.max(...parents.map(level)):0;
-    pending.delete(id);rank.set(id,depth);return depth;
-  }
-  for(const q of list)level(q.id);
-  const rows=new Map();for(const q of list){const level=rank.get(q.id);if(!rows.has(level))rows.set(level,[]);rows.get(level).push(q);}
-  for(const [depth,items] of [...rows].sort((a,b)=>a[0]-b[0])){
-    items.sort((a,b)=>a.id.localeCompare(b.id));
-    items.forEach((q,index)=>{q.layout={x:(index-(items.length-1)/2)*170,y:depth*175};});
-  }
+  const list=categoryQuests();
+  // Reset old explicit positions before applying the same algorithm as QuestLayout.java.
+  const positions=gameLayout(list.map(q=>({...q,layout:null}))).points;
+  for(const q of list)q.layout={...positions.get(q.id)};
   fit();
 }
 function unique(base,ids){let id=base,index=2;while(ids.has(id))id=base+'_'+index++;return id;}
 function createCategory(){
-  const name=prompt('Nom de la catégorie (FR) :','Nouvelle catégorie');
-  if(name===null)return;const title=name.trim()||'Nouvelle catégorie';
+  const name=prompt('Category name (English):','New category');
+  if(name===null)return;const title=name.trim()||'New category';
   mutate(()=>{
     const id=unique('questplus:'+slug(title),new Set(project.categories.map(c=>c.id)));
-    project.categories.push(newCategory(id,title,title));categoryId=id;selection={type:'category',id};
+    project.categories.push(newCategory(id,title));categoryId=id;selection={type:'category',id};
     camera={x:0,y:0,zoom:1};
   });
   notify('Catégorie créée');
 }
 function createQuest(){
   const cat=currentCategory();if(!cat)return notify('Crée d’abord une catégorie.');
-  const name=prompt('Nom de la quête (FR) :','Nouvelle quête');
+  const name=prompt('Quest name (English):','New quest');
   if(name===null)return;
   mutate(()=>{
-    const title=name.trim()||'Nouvelle quête',base=cat.id.split(':')[1].replace(/\/$/,'');
+    const title=name.trim()||'New quest',base=cat.id.split(':')[1].replace(/\/$/,'');
     const id=unique(cat.id.split(':')[0]+':'+base+'/'+slug(title),new Set(project.quests.map(q=>q.id)));
     const pos={x:Math.round(camera.x/10)*10,y:Math.round(camera.y/10)*10};
-    project.quests.push(newQuest(cat,id,title,title,pos));selection={type:'quest',id};
+    project.quests.push(newQuest(cat,id,title,pos));selection={type:'quest',id};
   });
   notify('Quête créée. Déplace-la sur l’arbre.');
 }
@@ -279,6 +328,28 @@ function inspectorAction(action,index){
   }
 }
 const inspector=$('#inspector-body');
+let iconTarget='icon';
+function renderIconPicker(){
+  const query=$('#icon-search').value.trim().toLowerCase();
+  const items=vanillaCatalog().filter(v=>(v.id+' '+v.label).toLowerCase().includes(query)).slice(0,240);
+  $('#icon-grid').innerHTML=items.map(item=>`<button class="icon-choice" data-pick-icon="${escape(item.id)}" title="${escape(item.id)}">
+    ${iconFor(item.id)}<span>${escape(item.label)}</span></button>`).join('')||'<div class="tip">Aucun résultat</div>';
+}
+inspector.addEventListener('click',e=>{
+  const button=e.target.closest('[data-icon-open]');if(!button)return;
+  iconTarget=button.dataset.iconOpen;$('#icon-search').value='';
+  showModal('#icon-picker');renderIconPicker();$('#icon-search').focus();
+  loadVanillaIcons().then(()=>{if(!$('#icon-picker').classList.contains('hidden'))renderIconPicker();});
+});
+$('#icon-search').addEventListener('input',renderIconPicker);
+$('#icon-close').onclick=()=>hideModal('#icon-picker');
+$('#icon-grid').addEventListener('click',e=>{
+  const button=e.target.closest('[data-pick-icon]');if(!button)return;
+  const value=button.dataset.pickIcon;
+  mutate(()=>setField(iconTarget,value));
+  hideModal('#icon-picker');
+});
+
 inspector.addEventListener('focusin',e=>{
   if(e.target.matches('[data-field]')&&!focusRecorded){history.push(snapshot());if(history.length>LIMIT)history.shift();future=[];focusRecorded=true;}
 });
@@ -304,7 +375,24 @@ $('#categories').addEventListener('click',e=>{const node=e.target.closest('[data
 $('#quest-list').addEventListener('click',e=>{const node=e.target.closest('[data-quest]');if(node){selectObject('quest',node.dataset.quest);const q=getSelected();if(q?.layout){camera.x=q.layout.x;camera.y=q.layout.y;renderScene();}}});
 $('#quest-search').addEventListener('input',refresh);
 $('#preview-language').addEventListener('change',e=>{language=e.target.value;refresh();persist();});
+$('#add-language').onclick=()=>{
+  const value=prompt('Minecraft locale code (e.g. de_de, es_es, ja_jp):','de_de');
+  if(value===null)return;
+  const code=value.trim().toLowerCase();
+  if(!/^[a-z]{2,3}_[a-z]{2,4}$/.test(code)){notify('Code de langue invalide (ex : de_de).');return;}
+  const before=snapshot();
+  project.editorLocales=[...new Set([...(project.editorLocales||[]),code])];
+  remember(before);language=code;refresh();persist();notify('Langue : '+code);
+};
 $('#new-category').onclick=createCategory;$('#new-quest').onclick=createQuest;
+$('#preview-toggle').onclick=()=>{previewMode=!previewMode;renderScene();};
+$('#game-categories').addEventListener('click',e=>{const b=e.target.closest('[data-preview-category]');if(b)selectCategory(b.dataset.previewCategory);});
+$('#game-nodes').addEventListener('click',e=>{const b=e.target.closest('[data-preview-quest]');if(b)selectObject('quest',b.dataset.previewQuest);});
+$('#load-default').onclick=()=>{
+  if(!confirm('Restaurer les quêtes livrées avec QuestPlus ? Le brouillon actuel sera remplacé.'))return;
+  mutate(()=>{project=demoProject();categoryId=project.categories[0]?.id||null;selection={type:'category',id:categoryId};camera={x:0,y:0,zoom:1};fit();});
+  notify('Quêtes du mod restaurées');
+};
 $('#empty-add').onclick=createQuest;$('#new-note').onclick=createAnnotation;
 $('#select-category').onclick=()=>selectObject('category',categoryId);
 $('#auto-layout').onclick=()=>{if(!confirm('Repositionner automatiquement toutes les quêtes de cette catégorie ?'))return;mutate(placeAuto);notify('Disposition recalculée');};
@@ -315,12 +403,13 @@ $('#reset-project').onclick=()=>{if(!confirm('Créer un projet vierge ? Le proje
 $('#run-validate').onclick=()=>{renderIssues();$('#issues-list').classList.remove('hidden');notify(validate(project).length?'Corrige les alertes de validation':'Structure du projet vérifiée ✓');};
 $('#show-issues').onclick=()=>$('#issues-list').classList.toggle('hidden');
 $('#viewport').addEventListener('pointerdown',e=>{
-  if(e.button!==0||e.target.closest('button'))return;
+  if(previewMode||e.button!==0||e.target.closest('button'))return;
   const el=$('#viewport'),rect=el.getBoundingClientRect(),node=e.target.closest('[data-node-type]');
   const type=node?.dataset.nodeType,id=node?.dataset.nodeId;
   if(node){
     selection={type,id};renderInspector();renderScene();
-    const obj=getSelected();drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,from:{x:type==='quest'?obj.layout?.x||0:obj.x,y:type==='quest'?obj.layout?.y||0:obj.y},before:snapshot(),moved:false};
+    const obj=getSelected(),computed=type==='quest'?gameLayout(categoryQuests()).points.get(id):null;
+    drag={mode:'node',type,id,startX:e.clientX,startY:e.clientY,from:{x:type==='quest'?computed.x:obj.x,y:type==='quest'?computed.y:obj.y},before:snapshot(),moved:false};
   }else{
     drag={mode:'pan',startX:e.clientX,startY:e.clientY,from:{x:camera.x,y:camera.y},moved:false};
   }
@@ -342,7 +431,7 @@ $('#viewport').addEventListener('pointermove',e=>{
 });
 function finishPointer(){if(!drag)return;if(drag.mode==='node'&&drag.moved){remember(drag.before);persist();renderInspector();}drag=null;}
 $('#viewport').addEventListener('pointerup',finishPointer);$('#viewport').addEventListener('pointercancel',finishPointer);
-$('#viewport').addEventListener('wheel',e=>{e.preventDefault();const rect=$('#viewport').getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);},{passive:false});
+$('#viewport').addEventListener('wheel',e=>{if(previewMode)return;e.preventDefault();const rect=$('#viewport').getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0014),e.clientX-rect.left,e.clientY-rect.top);},{passive:false});
 function showModal(m){$(m).classList.remove('hidden');}
 function hideModal(m){$(m).classList.add('hidden');}
 $('#open-json').onclick=()=>{
@@ -397,7 +486,7 @@ async function exportZip(){
 }
 $('#export-zip').onclick=exportZip;
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){hideModal('#modal');hideModal('#import-modal');return;}
+  if(e.key==='Escape'){hideModal('#modal');hideModal('#import-modal');hideModal('#icon-picker');return;}
   const typed=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||!$('#modal').classList.contains('hidden');
   if(typed)return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}

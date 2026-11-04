@@ -1,3 +1,4 @@
+import {BUILTIN_PROJECT} from './default-data.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
@@ -13,36 +14,21 @@ export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
 export const MODES=['all','any','sequence'];
 const ID=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const LOCAL=/^[a-z0-9_.-]+$/;
-export const text=(value,lang='fr_fr')=>value?.[lang] || value?.en_us || '';
+export const text=(value,lang='en_us')=>value?.[lang] || value?.en_us || '';
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5}});
-export function demoProject(){
-  const p=emptyProject();
-  p.categories.push(category('questplus:mining','Minage','Mining'));
-  p.categories.push(category('questplus:exploration','Exploration','Exploration'));
-  const a=quest(p.categories[0],'questplus:mining/stone','La pierre','The stone',{x:-120,y:0});
-  a.objectives=[{id:'stone',event:'block_break',target:'minecraft:stone',count:32}];
-  const b=quest(p.categories[0],'questplus:mining/iron','L’âge du fer','Iron age',{x:120,y:0});
-  b.icon='minecraft:iron_ingot';
-  b.objectives=[{id:'iron',event:'item_obtained',target:'minecraft:iron_ingot',count:16}];
-  b.requires={quest:a.id};
-  const c=quest(p.categories[0],'questplus:mining/diamond','Premiers diamants','First diamonds',{x:120,y:135});
-  c.objectives=[{id:'diamond',event:'item_obtained',target:'minecraft:diamond',count:3}];
-  c.icon='minecraft:diamond';c.requires={quest:b.id};
-  p.quests.push(a,b,c);
-  p.categories[0].annotations=[{id:'begin',x:-130,y:-90,text:{en_us:'BEGIN YOUR JOURNEY',fr_fr:'DÉBUT DE L’AVENTURE'},style:'heading',color:'#d7b987'}];
-  return p;
+/** The editor starts from the exact 4 categories and 13 quests shipped by QuestPlus. */
+export function demoProject(){return copy(BUILTIN_PROJECT);}
+export function category(id='questplus:new_category',en='New category'){
+  return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
 }
-export function category(id='questplus:new_category',fr='Nouvelle catégorie',en='New category'){
-  return {id,icon:'minecraft:book',title:{en_us:en,fr_fr:fr},description:{en_us:'A quest category',fr_fr:'Une catégorie de quêtes'},annotations:[]};
-}
-export function quest(group,id='questplus:quest',fr='Nouvelle quête',en='New quest',layout={x:0,y:0}){
-  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',title:{en_us:en,fr_fr:fr},
+export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}){
+  return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',title:{en_us:en},
     objectives:[{id:'step',event:'block_break',target:'minecraft:stone',count:1}],rewards:[],progression:'once',layout};
 }
 export function annotation(id='note',x=0,y=0){
-  return {id,x,y,text:{en_us:'Your note',fr_fr:'Votre annotation'},style:'note',color:'#c6a986'};
+  return {id,x,y,text:{en_us:'Note'},style:'note',color:'#c6a986'};
 }
 export function objectiveLabel(o,lang='fr_fr'){
   if(text(o.text,lang))return text(o.text,lang);
@@ -84,7 +70,8 @@ export function validate(p){
     const label=c?.id||'Catégorie';
     if(!ID.test(label)||seenC.has(label))fail(label,'ID de catégorie invalide ou dupliqué');
     seenC.add(label);
-    if(!c.title?.en_us?.trim()||!c.description?.en_us?.trim())fail(label,'Nom et description EN requis pour la catégorie');
+    if(!c.title?.en_us?.trim())fail(label,'Nom anglais requis');
+    if(c.description && !c.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();

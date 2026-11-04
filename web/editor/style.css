@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
 :root{color-scheme:dark;--bg:#100f15;--pane:#17151e;--pane2:#1c1a26;--pane3:#24212f;--line:#302c3c;--line2:#443c50;--text:#eae7f1;--muted:#92909f;--faint:#6d6a7c;--accent:#a08bea;--accent-bright:#c3b3ff;--accent-low:#2f2945;--gold:#d2a96b;--error:#e28b96;--success:#86c5a1;font-family:'DM Sans',Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text)}
 button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
@@ -59,3 +59,129 @@ a{color:var(--accent-bright)}p{margin:0}.app{display:flex;flex-direction:column;
 @media(max-width:780px){html,body{overflow:auto}.app{height:auto;min-height:100vh}.topbar{height:auto;min-height:64px;flex-wrap:wrap;padding:10px}.top-actions{flex-wrap:wrap}.workspace{display:flex;flex-direction:column;height:auto;overflow:visible}.sidebar{border-right:0;border-bottom:1px solid var(--line)}.sidebar-header{padding:14px}.sidebar-actions{padding-bottom:8px}.category-list{display:flex;max-height:none;overflow:auto}.category-item{min-width:150px}.quest-list{max-height:110px}.sidebar-footer{display:none}.main{min-height:630px}.canvas-heading{padding:16px 0}.canvas-shell{min-height:470px}.inspector{border-left:0;border-top:1px solid var(--line)}.inspector-body{max-height:none}.canvas-bottom{flex-wrap:wrap}.modal-card{height:min(700px,95vh)}}
 
 .language-control{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;white-space:nowrap}.language-control select{padding:6px 8px;border-radius:6px;background:#292332;border:1px solid #50445e;color:#e8dff6;font-weight:700;font-size:11px}
+
+/* Minecraft Quest Studio — dark carved-stone workspace / item-slot UI. */
+:root{
+  --bg:#101410;--pane:#181e18;--pane2:#202820;--pane3:#283126;
+  --line:#33402e;--line2:#54654a;--text:#e9eedc;--muted:#a4b29b;
+  --faint:#758471;--accent:#a8c36d;--accent-bright:#d3e99b;
+  --accent-low:#293923;--gold:#e2bd75;--error:#e8a18d;--success:#a6ca8f;
+  font-family:'Inter',system-ui,sans-serif;font-size:12px;
+}
+html,body{background:var(--bg);color:var(--text)}
+.brand-name,.sidebar h2,.inspector h2,.modal h2,.canvas-heading h1,.section-title,
+.brand-mark,.game-header,.game-tabs,.node-title,.minecraft-preview,.sidebar-section-head,.overline{
+  font-family:'Pixelify Sans',system-ui,sans-serif;
+}
+.topbar{background:linear-gradient(180deg,#252c21,#171e17);border-bottom:2px solid #45543a;height:64px;min-height:64px;padding:0 18px;box-shadow:0 2px 0 #0b110a}
+.brand{min-width:195px;gap:10px}.brand-mark{width:36px;height:36px;border:2px solid #a4b97c;
+  border-radius:0;background:linear-gradient(130deg,#71874b,#3b5030);box-shadow:inset 2px 2px #a0be75,inset -3px -3px #23351d;
+  color:#f2f9d3;font-size:23px}
+.brand-name{font-size:19px;letter-spacing:.035em}.brand-name span{color:#cbe797}
+.brand-caption{font-size:9px;letter-spacing:.1em}.workspace{height:calc(100vh - 64px);grid-template-columns:245px minmax(420px,1fr) 338px}
+.workspace-name{color:#b8c7a9}.changes-badge{background:#273a25;color:#b6d6a2;border-color:#405a37}
+.sidebar,.inspector{background:#182017}.sidebar{border-right:2px solid #35412f}.inspector{border-left:2px solid #35412f}
+.sidebar-header{padding:19px 17px 8px}.sidebar h2,.inspector h2{font-size:25px;letter-spacing:0}
+.overline{font-size:12px;letter-spacing:.11em;color:#c4d88b;margin-bottom:4px}.sidebar-actions{padding:8px 14px 16px}
+.sidebar-section-head{padding:0 17px 7px;font-size:13px;letter-spacing:.05em;color:#aabf98}
+.count{border:1px solid #4a5942;background:#2a3427;border-radius:0;padding:0 6px}
+.button,.tool-button,.icon-button,.canvas-zoom button{border-radius:2px;border:1px solid #67785a;
+ background:#303b2b;color:#eaf1de;box-shadow:inset 1px 1px #899a78,inset -2px -2px #192419;
+ transition:background .12s}
+.button.primary{background:#688444;color:#fff9e7;border-color:#b0c88a;
+ box-shadow:inset 1px 1px #9bb96c,inset -2px -2px #354a2a;text-shadow:0 1px #273920}
+.button.primary:hover{background:#819e53}.button.secondary:hover,.icon-button:hover,.tool-button:hover{background:#455a38}
+.button{font-weight:650;min-height:32px;padding:0 11px}.icon-button{font-size:21px}
+.sidebar-section-head.quests-head{margin-top:6px}.category-list{padding:0 8px 12px;max-height:260px}
+.category-item,.quest-item{border-radius:2px;padding:7px 9px;color:#b8c4ac;min-height:42px;gap:10px}
+.category-item.active,.quest-item.active{background:#2e4227!important;border:1px solid #68814c!important;color:#eff8dc!important}
+.category-item:hover,.quest-item:hover{background:#293524}.cat-icon,.quest-glyph{display:grid;place-items:center;
+ border:2px solid #637052!important;background:#242b22!important;border-radius:1px!important;
+ width:33px!important;height:33px!important;min-width:33px!important;font-size:18px}
+.cat-name,.quest-label strong{color:inherit;font-weight:700}.cat-sub,.quest-label small{font-size:10px;color:#869784}
+.search-box{background:#1d271a;border:1px solid #3f4d39;border-radius:2px;margin:0 14px 8px}
+.search-box input{font-size:12px}.sidebar-footer{background:#1e291b;border-top:1px solid #3e4d34}
+.sidebar-footer .subtle{padding:5px 7px;border:1px solid #45553e;border-radius:2px;color:#c1d0ad}
+.main{background:radial-gradient(ellipse at 40% 0,#253023 0,#141a14 70%);padding:18px 20px 13px}
+.canvas-heading{min-height:72px;padding-bottom:13px}.canvas-heading h1{font-size:27px;letter-spacing:0;font-weight:700;margin:0 0 2px}
+.canvas-heading p{font-size:11px;color:#9caf93}.breadcrumbs{color:#abc989;margin-bottom:1px}
+.canvas-shell{border:2px solid #5e6c50;border-radius:3px;box-shadow:inset 1px 1px #8d9d76,0 8px 30px #05070566;background:#252f21}
+.canvas-toolbar{background:#283425;border-bottom:2px solid #495742;height:42px;min-height:42px}
+.tool-button{color:#cbd7bd;border:none;box-shadow:none;background:transparent;min-height:27px}
+.tool-button[aria-pressed="true"]{color:#eaf6c8;background:#415838;border:1px solid #607b48}
+.canvas-zoom button{background:#263323;width:26px;height:26px}.canvas-bottom{background:#233020;border-top:2px solid #405039;color:#a6b89b;min-height:30px}
+.viewport{background-color:#242e23;background-image:linear-gradient(#72836618 1px,transparent 1px),linear-gradient(90deg,#72836618 1px,transparent 1px);
+ background-size:32px 32px}
+.edges path{stroke:#847760;stroke-width:1.5;shape-rendering:crispEdges}
+.edges path.selected-edge{stroke:#d4c58b;stroke-width:2}
+.graph-node{width:54px;gap:2px;filter:none;z-index:2}
+.node-icon{width:32px;height:32px;border:3px solid #6d6851;border-radius:1px;background:linear-gradient(135deg,#544e3c,#302d25);box-shadow:inset 1px 1px #999078,inset -2px -2px #201e1b,0 2px 2px #0007;font-size:18px}
+.graph-node.selected .node-icon{border:3px solid #eddd8f;box-shadow:inset 1px 1px #fff6c3,0 0 0 2px #202719,0 0 0 4px #afce6b}
+.graph-node .node-title{max-width:125px;min-width:88px;white-space:normal;text-align:center;
+ line-height:1.1;color:#e9e9da;font-size:12px;text-shadow:1px 1px #101610,-1px 1px #101610,0 2px #101610}
+.graph-node .node-id{display:none}
+.annotation-node{border-radius:1px;background:#352f22ef;box-shadow:2px 3px #0006;
+ padding:6px 9px;font-size:11px;max-width:175px}
+.annotation-node.heading{font:600 15px 'Pixelify Sans',sans-serif;letter-spacing:0}
+.issues-bar,.issues-list{background:#20291f;border:1px solid #43523a;border-radius:2px}
+.issues-bar{margin-top:9px;min-height:35px}.issues-icon{border-radius:1px}.issues-bar.error{background:#382721}
+.inspector-head{padding:17px 16px 10px;background:#1b2619;border-bottom:1px solid #44533e}
+.inspector-head h2{margin:0;font-size:25px}.inspector-head p{font-size:10px;color:#91a18b;margin:4px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inspector-body{padding:10px 15px 24px}.inspector-footer{padding:9px 13px;background:#1b2619;border-top:1px solid #3f4b3a}
+.section{margin:0 0 13px;padding-bottom:10px;border-bottom:1px solid #384735}.section-title{font-size:19px;letter-spacing:0;margin:7px 0 9px;color:#d6e5c1}
+.field{margin-bottom:10px}.field>label,.field-label{font-size:10px;color:#aabda2;letter-spacing:.07em;margin-bottom:5px}
+.field input,.field textarea,.field select,.form-control{border-radius:2px;background:#20291d;border:1px solid #53624a;color:#f2f3e9;padding:8px 9px;outline:0}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#b9d488;box-shadow:0 0 0 2px #a0cb7730}
+.field textarea{min-height:52px}.field-row{gap:9px}.mini-card{border-radius:2px;padding:9px;background:#232e20;border:1px solid #495841}
+.mini-card-head{margin-bottom:5px}.mini-card-title{font-weight:700;color:#e4ead8;font-size:11px}
+.add-line{border:1px dashed #70855c;border-radius:2px;background:#293a25;color:#cce4ab;padding:9px}
+.editor-details{margin:6px 0 10px;border:1px solid #46583e;background:#222d20;border-radius:2px}
+.editor-details>summary{list-style:none;cursor:pointer;user-select:none;padding:9px 10px;color:#c4d2bb;font-weight:650}
+.editor-details>summary::-webkit-details-marker{display:none}.editor-details>summary:before{content:'▸';margin-right:9px;color:#aaca83}
+.editor-details[open]>summary:before{content:'▾'}.details-body{padding:4px 10px 10px;border-top:1px solid #3b4c34}
+.translation-stack>.field:last-child{margin-bottom:5px}.icon-field{display:flex;gap:6px;align-items:center}
+.icon-field>input{flex:1;min-width:0}.icon-field>.button{min-width:62px;padding:0 7px}
+.item-preview{width:33px;height:33px;min-width:33px;display:grid;place-items:center;background:#303a2b;border:2px solid #617156}
+.item-preview img,.mc-icon img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated}
+.mc-icon{display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;
+ background:#323c2a;color:#b8ce99;font:700 13px 'Pixelify Sans',sans-serif}
+.mc-icon img{display:block;width:75%;height:75%}
+.field-help,.tip{font-size:10px}.tip{border:0;border-radius:0;background:#263126}
+.modal{background:#070b08cb;backdrop-filter:blur(3px)}.modal-card{background:#212d20;border:2px solid #7d906e;border-radius:2px}
+.modal textarea{background:#10190f;border:1px solid #62765b;border-radius:2px}.import-choice{border-radius:2px;background:#2a3726;border-color:#5a6c4c}
+.icon-modal{max-width:780px;height:min(660px,87vh)}.icon-search{width:100%;margin:17px 0 13px;padding:13px 14px;background:#121c12;border:2px solid #5d7250}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:7px;overflow:auto;flex:1;align-content:start}
+.icon-choice{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;
+ background:#2a3525;border:1px solid #536548;padding:11px 5px;color:#e4edd8;min-height:92px}
+.icon-choice:hover{background:#425a36;border-color:#bed68e}.icon-choice>.mc-icon{width:43px;height:43px;border:2px solid #64745b}
+.icon-choice span:last-child{font-size:10px;line-height:1.25;max-width:100%;overflow-wrap:anywhere;text-align:center}
+.icon-picker-bottom{padding-top:11px;color:#9fb297;font-size:10px;text-align:center}
+.toast{background:#3b542f;color:#effce2;border-radius:2px;border-color:#a5c67c}
+.language-control select{background:#263723;color:#f0f7e5;border:1px solid #5d7552;border-radius:2px}
+.minecraft-preview{position:absolute;inset:0;background:radial-gradient(ellipse,#1c2418bb,#090c0be8);display:flex;align-items:center;justify-content:center;padding:22px;z-index:10;pointer-events:auto}
+.game-tablet{position:relative;width:min(100%,760px);aspect-ratio:5/3;max-height:100%;background:linear-gradient(145deg,#6d5539,#483624 40%,#392c21);
+ border:12px ridge #806443;box-shadow:inset 0 0 0 3px #b3915f,0 9px 35px #000a;outline:3px solid #291d14;
+ color:#ebdfc9;overflow:hidden}
+.game-tablet:before{content:'';position:absolute;inset:3px;border:2px solid #b89b6b66;pointer-events:none}
+.game-header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#30241c;
+ border-bottom:2px solid #846344;font-size:15px}.game-tabs{display:flex;gap:4px;font-size:12px}
+.game-tabs span{background:#4b3828;padding:6px 9px;border:1px solid #8d6c49}
+.game-tabs span:first-child{background:#776044;color:#fff6d5}
+.game-categories{position:absolute;top:57px;left:7px;bottom:24px;width:28px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.game-category{width:28px;height:28px;min-height:28px;display:grid;place-items:center;border:2px solid #53422e;background:#30271e;cursor:pointer}
+.game-category.selected{border-color:#dfc587;background:#685539}
+.game-tree{position:absolute;left:38px;right:8px;top:67px;bottom:24px;
+ background:radial-gradient(circle,#76634b25 1px,transparent 1px) 0 0/16px 16px,#29251f;
+ box-shadow:inset 0 0 0 1px #826c4b;overflow:hidden}
+.game-tree svg,.game-tree #game-nodes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.game-tree svg path{fill:none;stroke:#94806b;stroke-width:1;shape-rendering:crispEdges}
+.game-quest{position:absolute;display:grid;place-items:center;width:32px;height:32px;pointer-events:auto;cursor:pointer;
+ background:#443a30;border:3px solid #8c765c;box-shadow:inset 1px 1px #c2ab8b,inset -2px -2px #221c18;image-rendering:pixelated}
+.game-quest.selected{outline:2px solid #ead8a4;outline-offset:2px}
+.game-quest .mc-icon{background:none}.game-quest .mc-icon img{width:16px;height:16px}
+.game-note{position:absolute;pointer-events:none;color:#dfbf8a;white-space:nowrap;font-size:12px;text-shadow:1px 1px #100d0a}
+.game-note.heading{font-size:15px;font-weight:700}.game-footer{position:absolute;bottom:0;left:38px;right:7px;height:24px;
+ background:#30251d;border-top:1px solid #7e6245;display:flex;justify-content:space-between;padding:3px 8px;font-size:11px}
+@media(max-width:1250px){.workspace{grid-template-columns:215px minmax(340px,1fr) 300px}.main{padding:14px 13px}}
+@media(max-width:1000px){.workspace{grid-template-columns:180px minmax(300px,1fr) 270px}.brand{min-width:150px}.workspace-name{display:none}}
+@media(max-width:780px){.topbar{height:auto;min-height:64px}.workspace{display:flex;height:auto}.main{min-height:620px}.game-tablet{border-width:7px}.game-header{height:38px;padding:3px 6px}.game-tabs{font-size:9px}.game-tabs span{padding:2px 3px}.game-tree{top:49px}.game-categories{top:41px}.minecraft-preview{padding:12px}}
