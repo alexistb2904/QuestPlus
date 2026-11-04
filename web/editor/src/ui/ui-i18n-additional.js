@@ -1,5 +1,10 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Width","Largeur","Anchura","宽度"],
+  ["Height","Hauteur","Altura","高度"],
+  ["Quest size","Taille de la quête","Tamaño de misión","任务图标尺寸"],
+  ["Resize","Redimensionner","Redimensionar","调整大小"],
+  ["Drag to resize","Glisser pour redimensionner","Arrastrar para cambiar el tamaño","拖动调整大小"],
   ["Manual event ID","ID d’événement manuel","ID de evento manual","手动事件 ID"],
   ["Source","Source","Origen","来源"],
   ["Confirmations","Confirmations","Confirmaciones","确认次数"],
