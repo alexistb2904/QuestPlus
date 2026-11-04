@@ -5125,10 +5125,14 @@
       },
       "objectives": [
         {
-          "id": "step1",
-          "event": "fish_item",
-          "target": "minecraft:cod",
-          "count": 1
+          "id": "fish",
+          "event": "questplus:fish_any",
+          "target": "questplus:fish",
+          "count": 1,
+          "text": {
+            "en_us": "Catch any 50 / 200 / 500 vanilla fish",
+            "fr_fr": "Pêcher 50 / 200 / 500 poissons vanilla"
+          }
         }
       ],
       "rewards": [],
@@ -5169,7 +5173,11 @@
             }
           ]
         }
-      ]
+      ],
+      "description": {
+        "en_us": "Cod, salmon, pufferfish and tropical fish all count toward the same total.",
+        "fr_fr": "Morues, saumons, poissons-globes et poissons tropicaux sont cumulés dans un même compteur."
+      }
     },
     {
       "schemaVersion": 2,
@@ -6848,33 +6856,19 @@
         "fr_fr": "Le pêcheur du jour"
       },
       "description": {
-        "en_us": "Catch twelve fish of any single species: cod, salmon, pufferfish or tropical fish.",
-        "fr_fr": "Pêchez 12 poissons d'une même espèce parmi morue, saumon, poisson-globe et poisson tropical."
+        "en_us": "Cod, salmon, pufferfish and tropical fish all count toward the same total.",
+        "fr_fr": "Morues, saumons, poissons-globes et poissons tropicaux sont cumulés dans un même compteur."
       },
       "objectives": [
         {
-          "id": "step1",
-          "event": "fish_item",
-          "target": "minecraft:cod",
-          "count": 12
-        },
-        {
-          "id": "step2",
-          "event": "fish_item",
-          "target": "minecraft:salmon",
-          "count": 12
-        },
-        {
-          "id": "step3",
-          "event": "fish_item",
-          "target": "minecraft:pufferfish",
-          "count": 12
-        },
-        {
-          "id": "step4",
-          "event": "fish_item",
-          "target": "minecraft:tropical_fish",
-          "count": 12
+          "id": "fish",
+          "event": "questplus:fish_any",
+          "target": "questplus:fish",
+          "count": 12,
+          "text": {
+            "en_us": "Catch 12 vanilla fish of any species",
+            "fr_fr": "Pêcher 12 poissons, toutes espèces confondues"
+          }
         }
       ],
       "rewards": [
@@ -6884,7 +6878,7 @@
         }
       ],
       "progression": "repeatable",
-      "objectiveMode": "any",
+      "objectiveMode": "all",
       "layout": {
         "x": 0,
         "y": 0
