@@ -67,10 +67,15 @@ public final class TabletSurfaceRenderer {
             // Dim only the 3D atlas, not the 2D fallback. Applied in a separate
             // stratum, after the UI, to preserve all authored colors and icons.
             double brightness=Math.clamp(QuestPlusClient.settings.screenBrightness,0,1);
-            if(brightness<.999){
-                graphics.nextStratum();
-                int darkness=(int)Math.round((1-brightness)*255);
-                graphics.fill(0,0,logicalWidth(),logicalHeight(),darkness<<24);
+            // At 100%, enhance highlights by roughly 35% rather than stopping
+            // at the old neutral atlas output. 0% remains completely black.
+            // Applies only to the 3D screen atlas, never the 2D GUI.
+            if(brightness<.65){
+                int darkness=(int)Math.round((.65-brightness)/.65*255);
+                if(darkness>0){graphics.nextStratum();graphics.fill(0,0,logicalWidth(),logicalHeight(),darkness<<24);}
+            } else {
+                int glow=(int)Math.round((brightness-.65)/.35*90);
+                if(glow>0){graphics.nextStratum();graphics.fill(0,0,logicalWidth(),logicalHeight(),(glow<<24)|0x00ffffff);}
             }
             graphics.extractDeferredElements(x,y,mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
             graphics.disableScissor();
