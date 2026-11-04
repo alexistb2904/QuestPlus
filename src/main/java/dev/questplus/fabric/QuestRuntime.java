@@ -78,7 +78,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon","annotations").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations","order").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -92,6 +92,17 @@ public final class QuestRuntime implements AutoCloseable {
                 if (category.has("icon") && (!category.get("icon").isJsonPrimitive() || !category.get("icon").getAsJsonPrimitive().isString()
                         || !category.get("icon").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+")))
                     throw new IllegalArgumentException("Invalid category icon: " + path);
+                int order=Integer.MAX_VALUE;
+                if (category.has("order")) {
+                    try {
+                        if (!category.get("order").isJsonPrimitive() || !category.get("order").getAsJsonPrimitive().isNumber())
+                            throw new IllegalArgumentException("Not a number");
+                        order=category.get("order").getAsBigDecimal().intValueExact();
+                        if (order<0 || order>1_000_000) throw new IllegalArgumentException("Outside range");
+                    } catch (RuntimeException invalid) {
+                        throw new IllegalArgumentException("Invalid category order in "+path+" (expected integer 0..1000000)",invalid);
+                    }
+                }
                 String icon=category.has("icon") ? category.get("icon").getAsString() : "minecraft:book";
                 validateRegistryReference("icon",icon);
                 Map<String,String> title=new HashMap<>(),description=new HashMap<>();
@@ -172,12 +183,12 @@ public final class QuestRuntime implements AutoCloseable {
                         annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich)));
                     }
                 }
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations)));
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
         registry = candidate;
-        categories = candidateCategories.stream().sorted(Comparator.comparing(ClientProjection.Category::id)).toList();
+        categories = candidateCategories.stream().sorted(Comparator.comparingInt(ClientProjection.Category::order).thenComparing(ClientProjection.Category::id)).toList();
         catalogGeneration++;
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
