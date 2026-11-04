@@ -55,12 +55,13 @@ abstract class TabletFaceCaptureMixin {
         // packs as glass/mirror (Bliss) or HDR bloom (MakeUp). Use a MATTE
         // cutout plane for the tablet UI instead of shader-dependent materials.
         var settings=QuestPlusClient.settings;
-        boolean matte=TabletShaderCompat.matteIllumination(shaders,settings.screenEmissive);
-        // No shader: original ON=emissive, OFF=ordinary translucent.
-        // Shader: ON=matte fullbright (old shader-safe mode), OFF=ordinary
-        // non-emissive surface. The independent shader-safe toggle is removed.
-        var screenType=matte ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
-            : settings.screenEmissive && !shaders
+        // With shaders the surface is ALWAYS matte/opaque, even with the
+        // illumination setting OFF. In particular Bliss may classify any
+        // translucent entity layer as glass and reflect the whole scene.
+        // Self illumination only controls the full lightmap/brightness guard.
+        // Without an active shader retain the original ON/OFF materials.
+        var screenType=shaders ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
+            : settings.screenEmissive
             ? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
             : RenderTypes.entityTranslucent(TabletSurfaceRenderer.TEXTURE);
         buffer.drawGeometry(pose,screenType,(p,c) -> {
