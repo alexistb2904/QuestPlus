@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.clientmodel.QuestToastPlacement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -37,10 +38,11 @@ final class QuestToast {
         if (active==null) return;
 
         float scale=(float)Math.clamp(Math.min(g.guiWidth()/700.0,g.guiHeight()/420.0),0.68,1.0);
-        int virtualWidth=(int)(g.guiWidth()/scale);
+        int virtualWidth=(int)(g.guiWidth()/scale),virtualHeight=(int)(g.guiHeight()/scale);
         int w=Math.min(188,virtualWidth-20);
         if (w<80) return;
-        int x=(virtualWidth-w)/2;
+        var position=QuestToastPlacement.at(QuestPlusClient.settings.notificationPosition,
+            virtualWidth,virtualHeight,w,38);
         long elapsed=now-started;
         double progress=1;
         if (!QuestPlusClient.settings.reducedMotion && QuestPlusClient.settings.animations) {
@@ -48,7 +50,8 @@ final class QuestToast {
             if (DURATION-elapsed<260) progress=Math.min(progress,Math.max(0,(DURATION-elapsed)/260.0));
             progress=progress*progress*(3-2*progress);
         }
-        int y=8-(int)Math.round((1-progress)*55);
+        int x=position.x()+(int)Math.round((1-progress)*position.enterX());
+        int y=position.y()+(int)Math.round((1-progress)*position.enterY());
         boolean finish=active.kind.equals("completed");
         int accent=finish?0xffd9ae73:0xffa9c08b;
         g.pose().pushMatrix(); g.pose().scale(scale);
