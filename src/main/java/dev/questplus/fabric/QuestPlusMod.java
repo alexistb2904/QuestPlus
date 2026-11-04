@@ -18,12 +18,16 @@ import java.util.stream.Collectors;
 public final class QuestPlusMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("questplus");
     private static QuestRuntime runtime;
+    private static volatile String startupError;
+    public static String unavailableReason() {
+        return startupError==null ? "Quest Plus has not loaded quest definitions" : startupError;
+    }
     private static int networkTicks;
     private record BreakTool(BlockPos position,String tool) {}
     private static final Map<UUID,BreakTool> BREAK_TOOLS = new HashMap<>();
 
     public static QuestRuntime runtime() {
-        if (runtime == null) throw new IllegalStateException("Quest Plus is unavailable; inspect the server log");
+        if (runtime == null) throw new IllegalStateException("Quest Plus unavailable: "+unavailableReason());
         return runtime;
     }
 
@@ -35,14 +39,20 @@ public final class QuestPlusMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try {
                 runtime = new QuestRuntime(server);
+                startupError=null;
                 LOGGER.info("Quest Plus ready: {} validated quests",runtime.registry().all().size());
-            } catch (Exception e) { LOGGER.error("Quest Plus disabled: definitions were not applied",e); }
+            } catch (Exception e) {
+                startupError=Objects.toString(e.getMessage(),e.getClass().getSimpleName());
+                LOGGER.error("Quest Plus disabled: {}",startupError,e);
+                server.getPlayerList().getPlayers().forEach(player -> player.sendSystemMessage(net.minecraft.network.chat.Component.literal("Quest Plus: "+startupError)));
+            }
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             if (runtime != null) {
                 try { runtime.close(); } catch (Exception e) { LOGGER.error("Quest Plus shutdown save failed",e); }
                 runtime = null;
             }
+            startupError=null;
             BREAK_TOOLS.clear();
             QuestNetwork.clear();
             TabletPoseNetwork.clear();
