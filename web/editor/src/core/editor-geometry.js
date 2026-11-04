@@ -24,11 +24,11 @@ export function zoomEditorAt(camera,nextZoom,pointer,size){
  const next=clampZoom(nextZoom),world=worldPoint(pointer,camera,size);
  return {x:world.x-(pointer.x-size.width/2)/next,y:world.y-(pointer.y-size.height/2)/next,zoom:next};
 }
-export function fitEditor(points,width,height){
+export function fitEditor(points,width,height,_padding=undefined,activeZoom=1){
  const list=[...points];
- if(!list.length)return {x:0,y:0,zoom:1};
+ if(!list.length)return {x:0,y:0,zoom:clampZoom(activeZoom)};
  const xs=list.map(p=>p.x),ys=list.map(p=>p.y);
- return {x:(Math.min(...xs)+Math.max(...xs))/2,y:(Math.min(...ys)+Math.max(...ys))/2,zoom:1};
+ return {x:(Math.min(...xs)+Math.max(...xs))/2,y:(Math.min(...ys)+Math.max(...ys))/2,zoom:clampZoom(activeZoom)};
 }
 export function snapEditor(point,gridSize){
  return {x:Math.round(point.x/gridSize)*gridSize,y:Math.round(point.y/gridSize)*gridSize};

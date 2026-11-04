@@ -31,11 +31,12 @@ test('pixel font sizes are validated and serialized for annotations and descript
  assert.equal(imported.quests[0].descriptionRich.en_us[0].sizePx,46);
 });
 
-test('zoom controls only change coordinates, never quest or annotation dimensions',()=>{
+test('zoom controls scale every node and annotation without changing saved world dimensions',()=>{
  const canvas=read('../src/components/TreeCanvas.tsx');
  assert.match(canvas,/width:nodeSize,height:nodeSize/);
  assert.match(canvas,/width:nodeWidth,height:nodeHeight/);
- assert.doesNotMatch(canvas,/translate\(-50%,-50%\) scale\('\+camera\.zoom/);
+ assert.match(canvas,/transform:'translate\(-50%,-50%\) scale\('\+clampZoom\(camera\.zoom\)\+'\)'/);
+ assert.match(canvas,/style=\{\{left:p\.x,top:p\.y,width,height,transform:'translate\(-50%,-50%\) scale\('\+z\+'\)'/);
  assert.match(canvas,/showQuestTitles=false/);
  assert.match(canvas,/node-title-below/);
  const app=read('../src/App.tsx');
