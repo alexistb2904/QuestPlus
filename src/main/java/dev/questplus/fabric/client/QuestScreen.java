@@ -672,6 +672,10 @@ public final class QuestScreen extends Screen {
         button("hud_position",x,y+extra,w,() -> { settings.hudPosition=(settings.hudPosition+1)%9; settings.save(); init(); }).setMessage(t("hud_position").copy().append(": ").append(t("position."+settings.hudPosition)));
         button("scale",x+w+8,y+extra,w,() -> { settings.scale=settings.scale>=1.25 ? 0.75 : settings.scale+0.25; settings.save(); init(); }).setMessage(t("scale",Math.round(settings.scale*100)));
         button("blur_intensity",x,y+finalRow,w,() -> { settings.blurIntensity=settings.blurIntensity>=0.99 ? 0 : Math.min(1,settings.blurIntensity+0.2); settings.save(); init(); }).setMessage(t("blur_intensity",Math.round(settings.blurIntensity*100)));
+        button("stay_open_on_damage",x+w+8,y+finalRow,w,() -> {
+            settings.stayOpenOnDamage=!settings.stayOpenOnDamage;
+            settings.save(); init();
+        }).setMessage(t("stay_open_on_damage").copy().append(": ").append(t(settings.stayOpenOnDamage ? "on" : "off")));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick) {
         if (attachedToScreenFace) event=tabletEvent(event);
