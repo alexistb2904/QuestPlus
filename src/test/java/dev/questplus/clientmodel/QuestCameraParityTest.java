@@ -36,6 +36,26 @@ final class QuestCameraParityTest {
         assertEquals(cursorX,camera.screenX(worldX),.00001);
         assertEquals(cursorY,camera.screenY(worldY),.00001);
     }
+    @Test void sharedVideoStyleZoomRangeAndWheelStepKeepFocusUnderPointer() {
+        QuestCamera camera=new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM);
+        assertEquals(.2,QuestCamera.MIN_ZOOM,.00001);
+        assertEquals(5,QuestCamera.MAX_ZOOM,.00001);
+        assertEquals(1.15,QuestCamera.ZOOM_STEP,.00001);
+        double cursorX=195,cursorY=104;
+        double anchorX=camera.worldX(cursorX),anchorY=camera.worldY(cursorY);
+        for(int i=0;i<20;i++){
+            camera.zoomAt(QuestCamera.ZOOM_STEP,cursorX,cursorY);
+            assertEquals(cursorX,camera.screenX(anchorX),.00001);
+            assertEquals(cursorY,camera.screenY(anchorY),.00001);
+        }
+        assertEquals(5,camera.zoom(),.00001);
+        for(int i=0;i<60;i++)camera.zoomAt(1/QuestCamera.ZOOM_STEP,cursorX,cursorY);
+        assertEquals(.2,camera.zoom(),.00001);
+        assertEquals(cursorX,camera.screenX(anchorX),.00001);
+        assertEquals(cursorY,camera.screenY(anchorY),.00001);
+        camera.zoomAt(1/QuestCamera.ZOOM_STEP,cursorX,cursorY);
+        assertEquals(.2,camera.zoom(),.00001);
+    }
     @Test void recenterNeverChangesActiveZoom() {
         QuestCamera camera=new QuestCamera(.25,2.5);
         camera.zoomAt(2,0,0);
