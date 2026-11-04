@@ -107,6 +107,11 @@ public final class AdvancedEvents {
             if(!stack.isEmpty())inventory.add(gearItem(stack));
         }
         if(!player.getOffhandItem().isEmpty())inventory.add(gearItem(player.getOffhandItem()));
+        // Equipped armor (notably Elytra in the chest slot) also counts as owned equipment.
+        for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET)) {
+            var worn=player.getItemBySlot(slot);
+            if(!worn.isEmpty())inventory.add(gearItem(worn));
+        }
         gear.put("inventory",inventory);
         for(var entry:Map.of(
             "head",EquipmentSlot.HEAD,"chest",EquipmentSlot.CHEST,
