@@ -1,5 +1,10 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Show quest titles","Afficher les titres des quêtes","Mostrar nombres de misiones","显示任务标题"],
+  ["Text size in pixels","Taille du texte en pixels","Tamaño del texto en píxeles","文字像素大小"],
+  ["Apply text size","Appliquer la taille du texte","Aplicar tamaño de texto","应用文字大小"],
+  ["Apply","Appliquer","Aplicar","应用"],
+  ["Drag to resize image","Glisser pour redimensionner l’image","Arrastra para cambiar el tamaño de la imagen","拖动调整图片大小"],
   ["Width","Largeur","Anchura","宽度"],
   ["Height","Hauteur","Altura","高度"],
   ["Quest size","Taille de la quête","Tamaño de misión","任务图标尺寸"],
