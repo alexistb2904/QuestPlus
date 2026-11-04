@@ -87,3 +87,38 @@ repliables. La description est facultative, sans répétition de l'objectif.
 **Déployer un pack :** extraire le ZIP exporté vers le dossier de définitions QuestPlus du serveur. **Sauvegarder ce dossier avant toute mise à jour** ; l'export ne contient pas les sauvegardes des joueurs. Ne pas supprimer par inadvertance les anciens fichiers : si un ID est renommé, supprimer ou migrer explicitement son ancienne définition pour éviter les doublons. Exécuter `/questplus reload` sur le serveur et lire les diagnostics. Le serveur valide les identifiants de registres et les extensions que le navigateur hors ligne ne peut pas connaître.
 
 **Compatibilité et limites :** données principales de QuestPlus schemaVersion 1/2, annotations des catégories dans `annotations` (nouveau), `layout.x/y` des quêtes. Le panneau graphique édite les cas fréquents ; pour `conditions`, prérequis composés, récompenses d'extensions, tiers, timers et champs avancés, utiliser l'éditeur JSON. Le projet ne contient pas encore de moteur de prévisualisation Minecraft 3D ni de collaboration temps réel. Le site n'écrit pas automatiquement sur un serveur distant.
+
+## Studio : gestes, conditions et compatibilité
+
+Le navigateur a deux caméras indépendantes (édition/aperçu) : glisser pour
+déplacer, molette pour zoomer/dézoomer et pincer avec deux doigts sur mobile.
+Les boutons +, − et ajuster fonctionnent dans les deux vues.
+
+**IDs** : à la création, le titre anglais donne `questplus:category/title-name`.
+En cas de doublon, le prochain suffixe libre est `-2`, `-3`… Si le titre
+n'a aucun caractère convertible en ID, un identifiant aléatoire est généré.
+Les quêtes déjà expédiées avec le mod conservent leurs IDs pour ne pas
+casser les progressions des joueurs. Les IDs de nouvelles quêtes restent
+suivis automatiquement quand leur titre change.
+
+**Prérequis/conditions** : le panneau de la quête contient une recherche
+de prérequis et un arbre éditable ET/OU/NON, avec groupes imbriqués.
+La section Conditions de chaque objectif propose les mêmes opérateurs et
+les prédicats autorisés par `QuestRegistry` (biome, dimension, outil, effet,
+vie et accroupissement). Le résultat est directement le JSON lu par le mod.
+
+**Icônes** : le catalogue embarqué vient des registres `item` et `block`
+de `misode/mcmeta` figés au tag `26.3-registries` (1 658 items et
+1 286 blocs). Aucun téléchargement de manifeste n'est requis pour choisir
+un ID. Les miniatures téléchargées depuis MC Assets sont des previews PNG :
+un objet 3D particulier peut être présenté par sa texture ou un losange,
+sans affecter l'ID sélectionné. Les IDs moddées restent acceptés.
+
+**Version** : une version Minecraft cible est associée au projet. Pour les
+items introduits dans une version ultérieure, l'auteur peut renseigner la
+version minimum à côté de l'icône. Un avertissement de compatibilité est
+affiché avant l'export. Le ZIP ajoute
+`queststudio-compatibility.json` (métadonnées Studio seulement) : les
+catégories, quêtes et `config.json` demeurent strictement compatibles avec
+le mod. En jeu, si l'ID d'item n'existe pas dans le registre chargé, QuestPlus
+utilise l'icône vanilla `minecraft:barrier` comme fallback visible.
