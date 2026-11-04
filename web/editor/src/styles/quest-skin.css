@@ -148,3 +148,14 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .rich-image-grip::after{content:'';display:block;width:7px;height:7px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:translate(3px,2px)}
 .rich-edit img{cursor:pointer;max-width:100%;max-height:none}
 .rich-edit img:focus-visible{outline:2px solid #c18af6}
+
+/* WYSIWYG diagram nodes use the same fixed screen-pixel measurements as Minecraft.
+ * Do not resize pictures as the wheel zoom changes the relative world positions. */
+.annotation-node{box-sizing:border-box!important;max-width:none!important;max-height:none!important;
+  min-width:0!important;min-height:0!important;padding:5px 6px!important;
+  display:flex;align-items:center;justify-content:center;flex-direction:column}
+.annotation-node>span{box-sizing:border-box;display:block;overflow:hidden;max-width:100%;max-height:100%;width:100%;min-width:0}
+.annotation-node img{display:inline-block;max-width:calc(100% - 2px)!important;max-height:calc(100% - 2px)!important;
+  width:auto;height:auto;object-fit:contain;vertical-align:middle}
+.annotation-node:not(.selected){overflow:hidden}
+.annotation-node .node-resize-handle{flex-shrink:0}
