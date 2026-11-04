@@ -192,17 +192,17 @@ export function useStudio() {
 			s.camera = { x: 0, y: 0, zoom: 1 };
 		});
 	}
-	function createQuest() {
+	function createQuest(at?:{x:number;y:number}) {
 		if (!currentCategory) return toast(tUI("Create a category first"));
 		const name = prompt(tUI("Quest (English)"), tUI("New quest"))?.trim();
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
-			s.project.quests.push(newQuest(currentCategory, id, name, { x: Math.round(s.camera.x), y: Math.round(s.camera.y) }));
+			s.project.quests.push(newQuest(currentCategory, id, name, { x: Math.round(at?.x??s.camera.x), y: Math.round(at?.y??s.camera.y) }));
 			s.selection = { type: "quest", id };
 		});
 	}
-	function createAnnotation() {
+	function createAnnotation(at?:{x:number;y:number}) {
 		if (!currentCategory) return;
 		mutate((s) => {
 			const cat = s.project.categories.find((c) => c.id === s.categoryId)!;
@@ -210,7 +210,7 @@ export function useStudio() {
 			let i = 1,
 				id = "note";
 			while (cat.annotations.some((n) => n.id === id)) id = "note" + ++i;
-			cat.annotations.push(newAnnotation(id, s.camera.x, s.camera.y) as any);
+			cat.annotations.push(newAnnotation(id, Math.round(at?.x??s.camera.x), Math.round(at?.y??s.camera.y)) as any);
 			s.selection = { type: "annotation", id };
 		});
 	}
