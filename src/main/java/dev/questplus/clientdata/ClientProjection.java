@@ -10,12 +10,12 @@ public final class ClientProjection {
     private ClientProjection() {}
 
     public record Annotation(String id, double x, double y, Map<String,String> text, String style, String color,
-                             Map<String,JsonArray> rich, int width, int height) {
+                             Map<String,JsonArray> rich, Integer width, Integer height) {
         public Annotation(String id,double x,double y,Map<String,String> text,String style,String color,Map<String,JsonArray> rich) {
-            this(id,x,y,text,style,color,rich,170,100);
+            this(id,x,y,text,style,color,rich,null,null);
         }
         public Annotation(String id,double x,double y,Map<String,String> text,String style,String color) {
-            this(id,x,y,text,style,color,Map.of(),170,100);
+            this(id,x,y,text,style,color,Map.of(),null,null);
         }
     }
     public record Category(String id, Map<String,String> title, Map<String,String> description, String icon,
