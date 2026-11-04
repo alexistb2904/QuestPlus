@@ -1,6 +1,9 @@
 // Snapshot of QuestPlus src/main/resources/defaults/ (Minecraft 26.3).
 // Keep in sync with shipped definitions. Source: main/defaults/*.json.
-export const BUILTIN_PROJECT = {
+import CHALLENGES from './challenge-catalogue.json';
+import EQUIPMENT from './equipment-catalogue.json';
+
+const LEGACY_PROJECT = {
   "categories": [
     {
       "id": "questplus:combat",
@@ -608,4 +611,13 @@ export const BUILTIN_PROJECT = {
     "schemaVersion": 1,
     "autosaveSeconds": 5
   }
+};
+
+// Same files are embedded into the mod JAR by processResources.
+export const BUILTIN_PROJECT = {
+  categories: [...LEGACY_PROJECT.categories, ...CHALLENGES.categories, ...EQUIPMENT.categories],
+  quests: [...LEGACY_PROJECT.quests, ...CHALLENGES.quests, ...EQUIPMENT.quests],
+  config: structuredClone(LEGACY_PROJECT.config),
+  targetMinecraftVersion: '26.3',
+  editorLocales: ['en_us', 'fr_fr']
 };
