@@ -1,0 +1,44 @@
+/* React components reuse QuestSkin's original pixel-art color system. */
+#root{min-width:0;min-height:100vh}
+.react-overlay{position:fixed;inset:0;background:#080604cf;z-index:100;display:grid;place-items:center;padding:18px;backdrop-filter:blur(5px)}
+.react-dialog{width:min(760px,100%);max-height:min(90vh,900px);background:#241c17;color:#e3cdb1;border:2px solid #956c43;box-shadow:0 16px 65px #090605e0;display:flex;flex-direction:column;gap:12px;padding:18px}
+.react-dialog-heading{display:flex;justify-content:space-between;align-items:center}
+.react-dialog-heading h2{margin:0;font:700 21px 'Pixelify Sans',sans-serif;color:#efd7ac}
+.dialog-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.json-textarea{flex:1;min-height:50vh;resize:vertical;background:#18120f;border:1px solid #735337;padding:15px;color:#efdec2;font:12px/1.55 ui-monospace,Consolas,monospace;tab-size:2}
+.icon-dialog{width:min(850px,96vw);min-height:350px}
+.picker-filters{display:flex;gap:9px}
+.picker-filters input{flex:1;min-width:0}
+.picker-filters input,.picker-filters select{background:#191511;border:1px solid #76513b;padding:10px;color:#f0dfc5}
+.picker-count,.picker-help{color:#b99c79;font-size:11px}
+.picker-grid{flex:1;min-height:100px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));grid-auto-rows:minmax(81px,auto);gap:6px;align-content:start}
+.picker-item{border:1px solid #705235;background:#30241c;color:#e5ca9f;display:flex;align-items:center;flex-direction:column;justify-content:center;padding:8px 4px;gap:6px;overflow-wrap:anywhere}
+.picker-item:hover{background:#503722;border-color:#d0a26d}
+.picker-item span:last-child{font-size:10px;text-align:center}
+.react-icon-field{display:flex;align-items:center;gap:8px}
+.react-icon-field input{flex:1;min-width:0}
+.react-icon-field .button{min-width:60px;padding:0 8px}
+.field>span{display:block;color:#b9a185;font-size:11px;margin-bottom:5px}
+.field>input,.field>textarea,.field>select{width:100%;min-width:0;border:1px solid #735337;background:#251b16;color:#ead3b3;min-height:34px;padding:7px 9px;outline:none}
+.field>input:focus,.field>textarea:focus,.field>select:focus{border-color:#e3bc82}
+.field textarea{resize:vertical}
+.version-selector{display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap}
+.version-selector input{width:47px;background:#241c18;border:1px solid #76513b;text-align:center;padding:6px 1px}
+.inspector-head p{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.editor-details[open]{padding-bottom:7px}
+.field input[type=color]{padding:2px;height:37px;width:100%}
+.cond-leaf select{width:100%;min-width:65px;max-width:100%;color:#e3cdb1}
+.cond-op{background:#241c18;border:1px solid #76513b;color:#e3cdb1}
+.cond-group-head{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.cond-leaf{display:flex;align-items:center}
+.cond-leaf>select,.cond-leaf>input{min-width:0;flex:1}
+.cond-leaf button{flex-shrink:0}
+.cond-group{border:1px solid #715037;background:#2a2019;padding:8px;margin:8px 0}
+.cond-children{border-left:1px solid #715037;padding-left:8px}
+.error-line{color:#ec9f89;font-size:12px}
+.graph-node,.annotation-node{will-change:transform}
+.react-overlay .icon-button{min-width:32px}
+@media(max-width:1260px){.workspace{grid-template-columns:210px minmax(290px,1fr) 300px}.topbar{height:auto;min-height:72px;flex-wrap:wrap;padding:9px 14px}.app{height:100dvh}.workspace{height:auto;flex:1;min-height:0}.top-actions{flex-wrap:wrap;justify-content:flex-end}.brand{min-width:165px}.main{padding:15px 12px}}
+@media(max-width:950px){.workspace{grid-template-columns:180px minmax(260px,1fr) 255px}.topbar .workspace-name{display:none}.canvas-heading{min-height:65px;padding-bottom:10px}.inspector-body{padding:9px}}
+@media(max-width:780px){html,body,#root{height:auto;min-height:100%;overflow:auto}.app{height:auto;min-height:100vh}.workspace{display:flex;flex-direction:column;overflow:visible}.sidebar{max-height:285px;min-height:235px;overflow:auto}.sidebar-header{padding:8px 12px}.sidebar-actions{padding:5px 12px}.category-list{max-height:76px;min-height:68px;display:flex;overflow-x:auto}.category-item{min-width:160px}.quest-list{max-height:82px;min-height:60px;display:flex;overflow-x:auto}.quest-item{min-width:175px}.main{min-height:545px;padding:12px}.canvas-shell{min-height:385px}.canvas-heading{flex-wrap:wrap}.inspector{min-height:250px;overflow:visible}.inspector-body{max-height:none}.top-actions{gap:5px;justify-content:flex-start}.topbar{justify-content:flex-start}.language-control{font-size:10px}.top-actions .button{min-height:34px}.react-dialog{max-height:96vh}.picker-grid{max-height:62vh}.rich-edit{min-height:130px}}
+@media(max-width:420px){.brand{min-width:100%;}.top-actions{width:100%}.canvas-actions{flex-wrap:wrap}.picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.react-dialog{padding:9px}.canvas-toolbar{padding:0 6px}.tool-button{padding:0 4px}}
