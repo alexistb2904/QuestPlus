@@ -16,7 +16,14 @@ export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
 export const MODES=['all','any','sequence'];
 const ID=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const LOCAL=/^[a-z0-9_.-]+$/;
-export const text=(value,lang='en_us')=>value?.[lang] || value?.en_us || '';
+export const text=(value,lang='en_us')=>{
+  if(!value||typeof value!=='object')return '';
+  const valid=s=>typeof s==='string'&&s.trim().length>0;
+  if(valid(value[lang]))return value[lang];
+  if(valid(value.en_us))return value.en_us;
+  const key=Object.keys(value).sort().find(k=>valid(value[k]));
+  return key?value[key]:'';
+};
 export const slug=(s)=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'new';
 export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
