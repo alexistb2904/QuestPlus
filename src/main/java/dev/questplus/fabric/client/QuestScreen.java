@@ -285,7 +285,8 @@ public final class QuestScreen extends Screen {
         drawAnnotations(g);
         for (var edge:visibleEdges) {
             var a=layout.points().get(edge.from()); var b=layout.points().get(edge.to());
-            int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y()+16),x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y()-16);
+            int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y())+nodeRadius(state.quests.get(edge.from()));
+            int x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y())-nodeRadius(state.quests.get(edge.to()));
             if (Math.max(x1,x2)<treeLeft || Math.min(x1,x2)>treeRight || Math.max(y1,y2)<treeTop || Math.min(y1,y2)>treeBottom) continue;
             int middle=(y1+y2)/2,c=QuestClientState.flag(state.progress(edge.from()),"completed") ? 0xffd9c4a4 : 0xff827366;
             g.fill(x1,Math.min(y1,middle),x1+1,Math.max(y1,middle)+1,c); g.fill(Math.min(x1,x2),middle,Math.max(x1,x2)+1,middle+1,c); g.fill(x2,Math.min(middle,y2),x2+1,Math.max(middle,y2)+1,c);
@@ -294,11 +295,11 @@ public final class QuestScreen extends Screen {
         boolean any=false;
         for (String id:visibleNodes) {
             any=true;
-            var p=layout.points().get(id); int x=(int)camera.screenX(p.x()),y=(int)camera.screenY(p.y()),r=(int)(16*camera.zoom());
+            var p=layout.points().get(id); int x=(int)camera.screenX(p.x()),y=(int)camera.screenY(p.y()),r=nodeRadius(state.quests.get(id));
             QuestSkin.panel(g,x-r,y-r,2*r,2*r,0xff433a32,color(id));
             if (r>7) g.outline(x-r+2,y-r+2,2*r-4,2*r-4,0xff625344);
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
-            g.pose().pushMatrix(); g.pose().translate(x-8*(float)camera.zoom(),y-8*(float)camera.zoom()); g.pose().scale((float)camera.zoom());
+            g.pose().pushMatrix(); g.pose().translate(x-r/2f,y-r/2f); g.pose().scale(r/16f);
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
             String progression=state.quests.get(id).progression();
             if (!progression.equals("once")) {
@@ -321,24 +322,37 @@ public final class QuestScreen extends Screen {
     private void drawAnnotations(GuiGraphicsExtractor g) {
         var data=state.categories.get(category);
         if (data==null || !data.has("annotations")) return;
+        JsonArray imagePool=data.has("images")?data.getAsJsonArray("images"):new JsonArray();
         for (var entry:data.getAsJsonArray("annotations")) {
             var note=entry.getAsJsonObject();
             int x=(int)camera.screenX(note.get("x").getAsDouble());
             int y=(int)camera.screenY(note.get("y").getAsDouble());
             if (x<treeLeft-180 || x>treeRight+180 || y<treeTop-24 || y>treeBottom+24) continue;
-            if (RichAnnotationRenderer.render(g,font,note,minecraft.options.languageCode,x,y)) continue;
+            if (RichAnnotationRenderer.render(g,font,note,imagePool,minecraft.options.languageCode,x,y)) continue;
             String label=annotationLabel(note.getAsJsonObject("text"));
             String style=note.has("style")?note.get("style").getAsString():"note";
             String hex=note.has("color")?note.get("color").getAsString():"#c6a986";
             int color=0xff000000|Integer.parseInt(hex.substring(1),16);
-            int w=Math.min(170,Math.max(35,font.width(label)+12));
+            int w=note.has("width")?Math.clamp(note.get("width").getAsInt(),60,400):Math.min(170,Math.max(35,font.width(label)+12));
+            int h=note.has("height")?Math.clamp(note.get("height").getAsInt(),20,300):20;
             if (style.equals("heading")) {
                 QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-4),x-w/2,y-5,color,true);
             } else {
-                if (!style.equals("label")) QuestSkin.panel(g,x-w/2,y-10,w,20,0xdd33271f,color);
+                if (!style.equals("label")) QuestSkin.panel(g,x-w/2,y-h/2,w,h,0xdd33271f,color);
                 QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-10),x-w/2+5,y-4,color,false);
             }
         }
+    }
+    private int nodeRadius(QuestDefinition quest){
+        int size=quest==null||quest.size()==0?32:Math.clamp(quest.size(),24,96);
+        return size/2;
+    }
+    private Optional<String> hitQuestAtScreen(double x,double y){
+        return visibleNodes.stream().filter(id->{
+            var p=layout.points().get(id);
+            int r=nodeRadius(state.quests.get(id));
+            return Math.abs(camera.screenX(p.x())-x)<=r && Math.abs(camera.screenY(p.y())-y)<=r;
+        }).findFirst();
     }
     private void updateRenderCache() {
         String language=minecraft.options.languageCode;
@@ -357,7 +371,12 @@ public final class QuestScreen extends Screen {
         double l=camera.worldX(treeLeft),r=camera.worldX(treeRight),t=camera.worldY(treeTop),b=camera.worldY(treeBottom);
         if (l==cachedLeft && r==cachedRight && t==cachedTop && b==cachedBottom) return;
         cachedLeft=l; cachedRight=r; cachedTop=t; cachedBottom=b;
-        visibleNodes=layout.visible(l,t,r,b).stream().filter(filtered::contains).toList();
+        visibleNodes=layout.points().entrySet().stream().filter(e->{
+            if(!filtered.contains(e.getKey()))return false;
+            double sx=camera.screenX(e.getValue().x()),sy=camera.screenY(e.getValue().y());
+            int nr=nodeRadius(state.quests.get(e.getKey()));
+            return sx+nr>=treeLeft&&sx-nr<=treeRight&&sy+nr>=treeTop&&sy-nr<=treeBottom;
+        }).map(Map.Entry::getKey).toList();
         visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())).filter(e -> {
             var a=layout.points().get(e.from()); var z=layout.points().get(e.to());
             return Math.max(a.x(),z.x())>=l && Math.min(a.x(),z.x())<=r && Math.max(a.y(),z.y())>=t && Math.min(a.y(),z.y())<=b;
@@ -605,7 +624,7 @@ public final class QuestScreen extends Screen {
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
         if (dragging && event.button()==InputConstants.MOUSE_BUTTON_LEFT) {
             dragging=false;
-            if (!dragged && inTree(event.x(),event.y())) layout.hit(camera.worldX(event.x()),camera.worldY(event.y())).filter(this::shown).ifPresent(id -> { selected=id; detailsScroll=0; init(); });
+            if (!dragged && inTree(event.x(),event.y())) hitQuestAtScreen(event.x(),event.y()).filter(this::shown).ifPresent(id -> { selected=id; detailsScroll=0; init(); });
             return true;
         }
         return super.mouseReleased(event);
