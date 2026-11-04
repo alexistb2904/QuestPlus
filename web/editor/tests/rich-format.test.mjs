@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validRich,richToHtml,richText,imageBytes,RICH_MAX_CATEGORY} from '../src/core/rich-format.js';
+import {validRich,richToHtml,richText,imageBytes,imageBytes} from '../src/core/rich-format.js';
 import {demoProject,validate,fileMap,importDocuments} from '../src/core/project.js';
 const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aet0AAAAASUVORK5CYII=';
 const sample=[
@@ -22,7 +22,8 @@ test('XSS, remote media, videos and too-large contents are rejected',()=>{
  assert.match(richToHtml([{type:'text',text:'<img src=x onerror=alert(1)>'}]),/&lt;img/);
  assert.equal(validRich([{type:'image',data:'https://example.com/evil.png',width:32,height:24}]),false);
  assert.equal(validRich([{type:'image',data:'data:video/mp4;base64,AA==',width:32,height:24}]),false);
- assert.equal(validRich([{type:'image',data:png,width:2049,height:24}]),false);
+ assert.equal(validRich([{type:'image',data:png,width:20000,height:24000}]),true);
+ assert.equal(validRich([{type:'image',data:png,width:0,height:24}]),false);
  assert.equal(validRich([{type:'text',text:'X'.repeat(2049)}]),false);
  assert.equal(validRich(Array.from({length:97},()=>({type:'text',text:'a'}))),false);
 });
@@ -43,10 +44,10 @@ test('localized rich annotations survive QuestPlus export/import in original coo
  assert.deepEqual(loaded.categories[0].annotations[0],note);
  assert.equal(loaded.categories[0].annotations[0].x,96);
 });
-test('oversize category JSON is rejected at the 12 MiB pooled limit',()=>{
+test('large category JSON is exported without an artificial file-size rejection',()=>{
  const p=demoProject();
  p.categories[0].annotations=[{id:'big',x:0,y:0,text:{en_us:'Image'},rich:{en_us:[{type:'image',data:'data:image/png;base64,'+'A'.repeat(RICH_MAX_CATEGORY),width:120,height:120}]}}];
- assert.ok(validate(p).some(x=>/exceeds|media/.test(x.message)));
+ assert.deepEqual(validate(p),[]);
 });
 
 test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
@@ -58,5 +59,5 @@ test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
  const json=JSON.stringify(p.categories[0]);
  assert.ok(json.length<RICH_MAX_CATEGORY,'UTF-16 JS length alone would silently pass');
  assert.ok(new TextEncoder().encode(json).byteLength>RICH_MAX_CATEGORY);
- assert.ok(validate(p).some(x=>/exceeds 12 MiB/.test(x.message)));
+ assert.deepEqual(validate(p),[]);
 });
