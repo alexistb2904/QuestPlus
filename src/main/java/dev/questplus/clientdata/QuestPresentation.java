@@ -51,6 +51,12 @@ public final class QuestPresentation {
             case "manual" -> new String[]{"Acknowledge","Valider","Confirmar","确认"};
             default -> new String[]{"Complete","Accomplir","Completar","完成"};
         };
+        if (objective.event().equals("travel_distance")) {
+            String meters=java.math.BigDecimal.valueOf(objective.count()/100.0).stripTrailingZeros().toPlainString();
+            return new String[]{"Travel ","Parcourir ","Recorrer ","行进 "}[column]+meters+" m";
+        }
+        if (objective.event().equals("location"))
+            return new String[]{"Reach location","Atteindre la position","Llegar a la posición","到达指定位置"}[column];
         String target=targetName==null||targetName.isBlank()?objective.target():targetName;
         return verbs[column]+" "+objective.count()+" "+target;
     }
