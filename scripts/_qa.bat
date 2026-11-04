@@ -215,8 +215,8 @@ if errorlevel 1 (
  set /a FAILURES+=1
 ) else (
  set "JDK25_HOME="
- for /f "usebackq delims=" %%J in ('powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\scripts\Find-Java25.ps1"') do if not defined JDK25_HOME set "JDK25_HOME=%%J"
- if defined JDK25_HOME (echo [OK] Java 25 trouve : %JDK25_HOME%) else (echo [ERREUR] JDK 25 introuvable&set /a FAILURES+=1)
+ for /f "usebackq delims=" %%J in (`powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\scripts\Find-Java25.ps1"`) do if not defined JDK25_HOME set "JDK25_HOME=%%J"
+ if defined JDK25_HOME (echo [OK] Java 25 detecte) else (echo [ERREUR] JDK 25 introuvable&set /a FAILURES+=1)
 )
 where docker.exe >nul 2>&1
 if errorlevel 1 (echo [INFO] Docker absent - optionnel) else (echo [OK] Docker disponible)
