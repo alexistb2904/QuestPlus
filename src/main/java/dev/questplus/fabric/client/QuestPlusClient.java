@@ -21,8 +21,6 @@ public final class QuestPlusClient implements ClientModInitializer {
     private static String[] fragments;
     private static int bytes, received;
     private static long started, lastSync;
-    public static String notice;
-    public static long noticeUntil;
     private static long progressNoticeAfter;
     public static Component tr(String key,Object... arguments) { return Component.translatable("questplus.client."+key,arguments); }
     public static void action(String action,String argument) {
@@ -46,7 +44,7 @@ public final class QuestPlusClient implements ClientModInitializer {
         });
         HudElementRegistry.addLast(Identifier.parse("questplus:pinned"),(graphics,delta) -> QuestHud.draw(graphics));
     }
-    private static void clear() { STATE.clear(); fragments=null; transfer=-1; notice=null; QuestToast.clear(); lastSync=0; }
+    private static void clear() { STATE.clear(); fragments=null; transfer=-1; QuestToast.clear(); lastSync=0; }
     private static void receive(QuestNetwork.State packet) {
         try {
             if (packet.total()<1 || packet.total()>2048 || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
