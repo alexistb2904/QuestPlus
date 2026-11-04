@@ -1,5 +1,5 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
-import {validRich,RICH_MAX_CATEGORY,mediaPattern} from './rich-format.js';
+import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
@@ -182,9 +182,7 @@ export function validate(p){
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
     if((c.annotations||[]).length>128)fail(label,'128 annotations maximum');
     const ids=new Set();
-    if(new TextEncoder().encode(JSON.stringify(compactCategoryImages(c))).byteLength>RICH_MAX_CATEGORY)
-      fail(label,'Category exceeds 12 MiB (deduplicated images included)');
-    for(const a of c.annotations||[]){
+for(const a of c.annotations||[]){
       if(!LOCAL.test(a.id)||ids.has(a.id))fail(label,'Annotation : ID invalide ou dupliqué');
       ids.add(a.id);
       const hasTranslatedText=Object.values(a.text||{}).some(v=>typeof v==='string'&&v.trim());
@@ -197,8 +195,8 @@ export function validate(p){
        }
       }
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
-      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<60||a.width>800))fail(label,'Largeur annotation : 60–800');
-      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<20||a.height>600))fail(label,'Hauteur annotation : 20–600');
+      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<=0))fail(label,'La largeur doit être positive');
+      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<=0))fail(label,'La hauteur doit être positive');
       if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
     }
@@ -216,7 +214,7 @@ export function validate(p){
           fail(label,'Invalid rich description: '+locale);
     }
     if(!ID.test(q.icon||''))fail(label,'Icône invalide');
-    if(q.size!==undefined&&(!Number.isSafeInteger(q.size)||q.size<24||q.size>96))fail(label,'Taille quête : 24–96');
+    if(q.size!==undefined&&(!Number.isSafeInteger(q.size)||q.size<=0))fail(label,'La taille doit être positive');
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
