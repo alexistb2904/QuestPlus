@@ -25,7 +25,14 @@ if(await exists(keyFile)){
 }
 await mkdir(world,{recursive:true});
 if(await exists(config)){
- console.log('[QuestPlus] Existing Minecraft world configuration kept unchanged.');
+ try {
+  const current=JSON.parse(await readFile(config,'utf8'));
+  if(current.url!=='http://localhost:8787'||current.serverKey!==secret)
+   console.warn('[QuestPlus] ATTENTION: existing Minecraft config does not match the local API key or URL. It was NOT overwritten.');
+  else console.log('[QuestPlus] Existing Minecraft world configuration matches the local web API.');
+ }catch{
+  console.warn('[QuestPlus] ATTENTION: existing Minecraft config is invalid. It was NOT overwritten.');
+ }
 }else{
  await writeFile(config,JSON.stringify({url:'http://localhost:8787',serverKey:secret},null,2)+'\n',{flag:'wx',mode:0o600});
  console.log('[QuestPlus] Created run/server/world/questplus-hub.json for LOCAL testing.');
