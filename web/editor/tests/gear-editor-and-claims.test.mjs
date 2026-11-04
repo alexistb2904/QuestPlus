@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {demoProject,validate,quest,orderedCategories} from '../src/core/project.js';
+import {demoProject,validate,quest,orderedCategories,objectiveLabel,gearRequirementText} from '../src/core/project.js';
 const read=path=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 
 test('new projects contain only maintained categories in progression order',()=>{
@@ -26,6 +26,19 @@ test('studio supports modded gear with armor slots and enchantment levels',()=>{
  assert.deepEqual(validate(project),[]);
  q.objectives[0].conditions['questplus:gear'].items[0].enchantments['minecraft:efficiency']=11;
  assert.ok(validate(project).some(x=>/condition/i.test(x.message)), 'Enchant 11 must not pass server validation');
+});
+
+test('Studio displays short localized armor objectives instead of serialized conditions',()=>{
+ const golden=demoProject().quests.find(q=>q.id==='questplus:equipment/set_golden');
+ assert.ok(golden);
+ for(const lang of ['en_us','fr_fr','es_es','zh_cn']){
+   const label=objectiveLabel(golden.objectives[0],lang);
+   assert.ok(label.length<100,lang+' '+label);
+   assert.doesNotMatch(label,/\\{.*items|\\bhead:/);
+ }
+ const levelled=demoProject().quests.find(q=>q.id==='questplus:equipment/diamond_p4');
+ const summary=gearRequirementText(levelled.objectives[0].conditions,'en_us');
+ assert.match(summary,/protection 4/);
 });
 
 test('game presentation uses a gear-specific renderer instead of JSON fallback',()=>{
