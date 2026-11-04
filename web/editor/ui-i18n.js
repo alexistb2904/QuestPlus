@@ -40,7 +40,7 @@ export function tUI(value,locale=current){
 const originals=new WeakMap();
 const attrOriginals=new WeakMap();
 const ATTRIBUTES=['title','aria-label','placeholder'];
-const EXCLUDED='.cat-name,.quest-label,.node-title,.mini-card-title,.cond-quest-label,.annotation-node,.generated-id,.cat-sub,.quest-glyph,.mc-icon,.icon-choice span:last-child,.icon-count,#coordinates,#json-input,#issues-list';
+const EXCLUDED='.cat-name,.quest-label,.node-title,.mini-card-title,.cond-quest-label,.cond-search-result span:last-child,.annotation-node,.generated-id,.cat-sub,.quest-glyph,.mc-icon,.icon-choice span:last-child,.icon-count,#canvas-title,#crumb-category,#coordinates,#json-input,#issues-list';
 /** Localize only UI text nodes; never overwrite user quest text, form values, or IDs. */
 export function translateUI(root=globalThis.document,locale=current){
  if(!root||!root.createTreeWalker)return;
