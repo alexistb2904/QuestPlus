@@ -20,7 +20,10 @@ public final class QuestExtensions {
         EVENTS.put("structure_visit",new EventType("structure",false));
         EVENTS.put("dimension_enter",new EventType("dimension",false));
         EVENTS.put("inventory_count",new EventType("item",true));
+        // Evaluated from authoritative server equipment snapshots, not player events.
+        EVENTS.put("equipment_check",new EventType("marker",true));
         for (String type : List.of("travel_distance","location","player_death","manual")) EVENTS.put(type,new EventType("marker",false));
+        CONDITIONS.put("questplus:gear",new ConditionType(GearPredicate::validate,GearPredicate::test));
         CONDITIONS.put("equipment",new ConditionType(value -> {
             JsonObject o=value.getAsJsonObject();
             if (!o.keySet().equals(Set.of("slot","item")) || !Set.of("head","chest","legs","feet","mainhand","offhand").contains(o.get("slot").getAsString())
