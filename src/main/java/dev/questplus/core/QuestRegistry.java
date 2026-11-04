@@ -187,7 +187,7 @@ public final class QuestRegistry {
                         !Set.of("type","data","width","height").containsAll(part.keySet()))
                         throw new IllegalArgumentException("Invalid rich description image");
                     String data=part.get("data").getAsString();
-                    if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}") || ||
+                    if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}") ||
                         part.get("width").getAsInt()<=0||
                         part.get("height").getAsInt()<=0)
                         throw new IllegalArgumentException("Invalid rich description image size");
