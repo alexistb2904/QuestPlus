@@ -9,7 +9,6 @@ import {
 	Search,
 	Grid2X2,
 	Magnet,
-	Minus,
 	Maximize,
 	MousePointer2,
 	Hand,
@@ -104,7 +103,7 @@ export default function App() {
 		window.addEventListener("keydown", callback);
 		return () => window.removeEventListener("keydown", callback);
 	});
-	const changeCamera = (next: any) => setState((s) => ({ ...s, camera: next }));
+	const changeCamera = (next: any) => setState((s) => ({ ...s, camera: { ...next, zoom: 1 } }));
 	const editJson = () => {
 		setJsonContent(JSON.stringify(owner(project, selection), null, 2));
 		setJsonError("");
@@ -201,15 +200,7 @@ export default function App() {
 					<span>{tUI("Redo")}</span>
 				</button>
 				<span className="divider" />
-				<button className="icon-button" aria-label={tUI("Zoom out")} onClick={() => changeCamera({ ...camera, zoom: Math.max(0.25, camera.zoom / 1.2) })}>
-					<Minus size={17} />
-				</button>
-				<button className="zoom-reset" onClick={() => changeCamera({ ...camera, zoom: 1 })} title={tUI("Reset zoom")}>
-					{Math.round(camera.zoom * 100)}%
-				</button>
-				<button className="icon-button" aria-label={tUI("Zoom in")} onClick={() => changeCamera({ ...camera, zoom: Math.min(2.5, camera.zoom * 1.2) })}>
-					<Plus size={17} />
-				</button>
+				<span className="zoom-reset" title={tUI("Fixed-size canvas")}>1:1</span>
 				<button className={"icon-button toggle" + (grid ? " active" : "")} aria-label={tUI("Show grid")} aria-pressed={grid} onClick={() => setGrid((v) => !v)}>
 					<Grid2X2 size={18} />
 				</button>
@@ -366,7 +357,7 @@ export default function App() {
 						<div className="canvas-bottom">
 							<span>
 								<MousePointer2 size={12} />
-								{tUI("Drag to move · Scroll to zoom")}
+								{tUI("Drag to move · Scroll to navigate · Shift+wheel sideways")}
 							</span>
 							<button className="subtle" disabled={!cat} onClick={studio.createAnnotation}>
 								<StickyNote size={13} />
