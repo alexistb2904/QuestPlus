@@ -22,7 +22,7 @@ test('XSS, remote media, videos and too-large contents are rejected',()=>{
  assert.match(richToHtml([{type:'text',text:'<img src=x onerror=alert(1)>'}]),/&lt;img/);
  assert.equal(validRich([{type:'image',data:'https://example.com/evil.png',width:32,height:24}]),false);
  assert.equal(validRich([{type:'image',data:'data:video/mp4;base64,AA==',width:32,height:24}]),false);
- assert.equal(validRich([{type:'image',data:png,width:800,height:24}]),false);
+ assert.equal(validRich([{type:'image',data:png,width:2049,height:24}]),false);
  assert.equal(validRich([{type:'text',text:'X'.repeat(2049)}]),false);
  assert.equal(validRich(Array.from({length:97},()=>({type:'text',text:'a'}))),false);
 });
@@ -43,7 +43,7 @@ test('localized rich annotations survive QuestPlus export/import in original coo
  assert.deepEqual(loaded.categories[0].annotations[0],note);
  assert.equal(loaded.categories[0].annotations[0].x,96);
 });
-test('oversize category JSON is rejected at the new 4 MiB pooled limit',()=>{
+test('oversize category JSON is rejected at the 12 MiB pooled limit',()=>{
  const p=demoProject();
  p.categories[0].annotations=[{id:'big',x:0,y:0,text:{en_us:'Image'},rich:{en_us:[{type:'image',data:'data:image/png;base64,'+'A'.repeat(RICH_MAX_CATEGORY),width:120,height:120}]}}];
  assert.ok(validate(p).some(x=>/exceeds|media/.test(x.message)));
@@ -53,10 +53,10 @@ test('category bytes are measured in UTF-8 as Minecraft counts them',()=>{
  const p=demoProject();
  p.categories[0].annotations=Array.from({length:128},(_,i)=>({
   id:'note'+i,x:0,y:0,text:{en_us:'Note'},
-  rich:{en_us:Array.from({length:6},()=>({type:'text',text:'文'.repeat(2048)}))}
+  rich:{en_us:Array.from({length:17},()=>({type:'text',text:'文'.repeat(2048)}))}
  }));
  const json=JSON.stringify(p.categories[0]);
  assert.ok(json.length<RICH_MAX_CATEGORY,'UTF-16 JS length alone would silently pass');
  assert.ok(new TextEncoder().encode(json).byteLength>RICH_MAX_CATEGORY);
- assert.ok(validate(p).some(x=>/exceeds 4 MiB/.test(x.message)));
+ assert.ok(validate(p).some(x=>/exceeds 12 MiB/.test(x.message)));
 });
