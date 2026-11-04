@@ -27,9 +27,9 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
    const dx=e.clientX-v.startX,dy=e.clientY-v.startY;
    let next:{id:string;width?:number;height?:number;size?:number};
    if(v.type==='quest'){
-     const sz=Math.max(24,Math.min(96,Math.round(v.size+dx/5)));
+     const sz=Math.max(1,Math.round(v.size+dx/5));
      next={id:v.id,size:sz};
-   }else next={id:v.id,width:Math.max(60,Math.min(800,Math.round(v.width+dx))),height:Math.max(20,Math.min(600,Math.round(v.height+dy)))};
+   }else next={id:v.id,width:Math.max(1,Math.round(v.width+dx)),height:Math.max(1,Math.round(v.height+dy))};
    resizePending.current=next;setResizeGhost(next);
  };
  const endResize=(e:React.PointerEvent)=>{
