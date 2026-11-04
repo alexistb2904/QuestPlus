@@ -142,7 +142,7 @@ public final class QuestRuntime implements AutoCloseable {
                         Integer width=note.has("width") ? note.get("width").getAsInt() : null;
                         Integer height=note.has("height") ? note.get("height").getAsInt() : null;
                         if(width!=null&&(width<60||width>400)||height!=null&&(height<20||height>300))
-                            throw new IllegalArgumentException("Annotation size outside 60..400 × 20..300: "+aid);
+                            throw new IllegalArgumentException("Annotation size outside 60..800 × 20..600: "+aid);
                         String style=note.has("style") ? note.get("style").getAsString() : "note";
                         String color=note.has("color") ? note.get("color").getAsString() : "#c6a986";
                         if (!Set.of("note","heading","label").contains(style) || !color.matches("#[0-9a-fA-F]{6}"))
