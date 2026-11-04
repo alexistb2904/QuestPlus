@@ -76,7 +76,7 @@ final class QuestHubFiles {
                 Path target=stage.resolve(name).normalize();
                 if(!target.startsWith(stage))throw new IOException("Invalid destination");
                 Files.createDirectories(target.getParent());
-                Files.writeString(target,f.get("content").getAsString(),StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW);
+                Files.writeString(target,f.get("content").getAsString(),StandardCharsets.UTF_8,StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
             }
             // Save a complete backup before activating the new definitions.
             move(definitions,backup);moved=true;

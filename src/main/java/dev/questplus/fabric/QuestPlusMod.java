@@ -23,6 +23,11 @@ public final class QuestPlusMod implements ModInitializer {
         return startupError==null ? "Quest Plus has not loaded quest definitions" : startupError;
     }
     private static int networkTicks;
+    private static QuestHubService hub;
+    static QuestHubService hub() {
+        if(hub==null)throw new IllegalStateException("QuestPlus Hub not initialized");
+        return hub;
+    }
     private record BreakTool(BlockPos position,String tool) {}
     private static final Map<UUID,BreakTool> BREAK_TOOLS = new HashMap<>();
 
@@ -39,6 +44,7 @@ public final class QuestPlusMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try {
                 runtime = new QuestRuntime(server);
+                hub = new QuestHubService(server);
                 startupError=null;
                 LOGGER.info("Quest Plus ready: {} validated quests",runtime.registry().all().size());
             } catch (Exception e) {
@@ -48,6 +54,7 @@ public final class QuestPlusMod implements ModInitializer {
             }
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            if(hub!=null){hub.close();hub=null;}
             if (runtime != null) {
                 try { runtime.close(); } catch (Exception e) { LOGGER.error("Quest Plus shutdown save failed",e); }
                 runtime = null;
@@ -57,7 +64,7 @@ public final class QuestPlusMod implements ModInitializer {
             QuestNetwork.clear();
             TabletPoseNetwork.clear();
         });
-        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); QuestNetwork.tick(server,++networkTicks); TabletPoseNetwork.tick(server); } });
+        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); QuestNetwork.tick(server,++networkTicks); TabletPoseNetwork.tick(server); if(hub!=null)hub.tick(); } });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server) -> {
             if (runtime != null) runtime.disconnect(handler.player.getUUID());
             QuestNetwork.disconnect(handler.player.getUUID(),server);

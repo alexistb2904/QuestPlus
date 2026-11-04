@@ -6,6 +6,7 @@ import path from 'node:path';
 const PORT=Number(process.env.PORT||8787);
 const PUBLIC_URL=(process.env.HUB_PUBLIC_URL||'http://localhost:'+PORT).replace(/\/$/,'');
 const ALLOWED_ORIGIN=process.env.STUDIO_ORIGIN||'http://localhost:5173';
+const STUDIO_URL=(process.env.STUDIO_URL||ALLOWED_ORIGIN+'/').replace(/\/$/,'/');
 const SERVER_KEY=process.env.HUB_SERVER_KEY||'';
 const DATA_DIR=path.resolve(process.env.HUB_DATA_DIR||'./data/packs');
 const MAX_BYTES=12*1024*1024, SESSION_MS=30*60*1000, PACK_MS=7*24*60*60*1000;
@@ -79,7 +80,7 @@ async function handler(req,res){
     const s={id,serverName:input.serverName,files,registry:input.registry||{},revision:digest(files),
      expires:Date.now()+SESSION_MS,pending:null,auth:null,job:null,jobStatus:null};
     sessions.set(id,s);
-    return json(res,201,{id,url:ALLOWED_ORIGIN+'/?session='+encodeURIComponent(id),expires:s.expires});
+    return json(res,201,{id,url:STUDIO_URL+'?hub='+encodeURIComponent(PUBLIC_URL)+'&session='+encodeURIComponent(id),expires:s.expires});
    }
    if(req.method==='GET'&&p==='/v1/server/poll'){
     const s=sessions.get(url.searchParams.get('session'));if(!active(s))throw fail(404,'Session expired');
@@ -90,6 +91,11 @@ async function handler(req,res){
     const {session,id,code}=await body(req),s=sessions.get(session);
     if(!active(s)||!s.pending||s.pending.id!==id||s.pending.code!==code||s.pending.approved)throw fail(409,'No pending approval');
     s.pending.approved=true;s.auth=token(32);return json(res,200,{approved:true});
+   }
+   if(req.method==='POST'&&p==='/v1/server/revoke'){
+    const input=await body(req),s=sessions.get(input.session);
+    if(s)sessions.delete(input.session);
+    return json(res,200,{revoked:true});
    }
    if(req.method==='POST'&&p==='/v1/server/ack'){
     const {session,id,success,error}=await body(req),s=sessions.get(session);

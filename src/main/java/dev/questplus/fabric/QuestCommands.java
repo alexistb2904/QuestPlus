@@ -30,6 +30,15 @@ final class QuestCommands {
                     QuestPlusMod.LOGGER.info("Quest Plus reload succeeded: {} quests",QuestPlusMod.runtime().registry().all().size());
                     s.sendSuccess(() -> Messages.text(s.getPlayer(),"questplus.reloaded",QuestPlusMod.runtime().registry().all().size()),true);
                 })))
+            .then(literal("editor").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .executes(c -> execute(c,s -> QuestPlusMod.hub().createSession(s)))
+                .then(literal("approve").then(argument("code",StringArgumentType.word())
+                    .executes(c -> execute(c,s -> QuestPlusMod.hub().approve(s,StringArgumentType.getString(c,"code"))))))
+                .then(literal("revoke").executes(c -> execute(c,s -> QuestPlusMod.hub().revoke(s)))))
+            .then(literal("import").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .then(literal("confirm").executes(c -> execute(c,s -> QuestPlusMod.hub().confirmImport(s))))
+                .then(argument("pack",StringArgumentType.word())
+                    .executes(c -> execute(c,s -> QuestPlusMod.hub().previewImport(s,StringArgumentType.getString(c,"pack"))))))
             .then(literal("debug").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(c -> execute(c,s -> s.sendSuccess(() -> Component.literal("Quest Plus 0.2.0 | quests=" + QuestPlusMod.runtime().registry().all().size() + " | teams="+QuestPlusMod.runtime().teams().allTeams().size()+" | server-authoritative"),false)))
                 .then(argument("player",UuidArgument.uuid()).executes(c -> execute(c,s -> {

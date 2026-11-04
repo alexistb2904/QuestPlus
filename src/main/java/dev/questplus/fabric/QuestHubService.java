@@ -128,7 +128,7 @@ final class QuestHubService implements AutoCloseable {
         try{
             JsonArray files=QuestHubFiles.snapshot(world.resolve("questplus"));
             JsonObject payload=new JsonObject();
-            payload.addProperty("serverName",server.getServerMotd());
+            payload.addProperty("serverName","QuestPlus Minecraft Server");
             payload.add("files",files);payload.add("registry",registry());
             String localSignature=signature(files);
             UUID actor=player.getUUID();
