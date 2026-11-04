@@ -185,3 +185,67 @@ html,body{background:var(--bg);color:var(--text)}
 @media(max-width:1250px){.workspace{grid-template-columns:215px minmax(340px,1fr) 300px}.main{padding:14px 13px}}
 @media(max-width:1000px){.workspace{grid-template-columns:180px minmax(300px,1fr) 270px}.brand{min-width:150px}.workspace-name{display:none}}
 @media(max-width:780px){.topbar{height:auto;min-height:64px}.workspace{display:flex;height:auto}.main{min-height:620px}.game-tablet{border-width:7px}.game-header{height:38px;padding:3px 6px}.game-tabs{font-size:9px}.game-tabs span{padding:2px 3px}.game-tree{top:49px}.game-categories{top:41px}.minecraft-preview{padding:12px}}
+
+/* Quest Studio UX: accessible icons, searchable logic, mobile gestures. */
+.lucide{width:16px;height:16px;stroke-width:2;vertical-align:middle;flex:0 0 auto}
+.brand-mark .lucide{width:22px;height:22px}
+.version-selector{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;white-space:nowrap}
+.version-selector input{width:55px;min-height:30px;padding:3px 6px;text-align:center;
+ color:var(--text);background:#23301e;border:1px solid #657957;border-radius:2px;font-weight:700}
+#preview-toggle{gap:6px}
+#viewport,#minecraft-preview,#game-tree,#nodes,.graph-node,.game-quest{touch-action:none}
+.minecraft-preview{user-select:none}
+#game-tree{cursor:grab;touch-action:none}
+#game-tree:active{cursor:grabbing}
+#icon-more{width:100%;margin-top:8px;flex:0 0 auto}
+.icon-modal .icon-filter-row{display:flex;align-items:center;gap:9px}
+.icon-modal .icon-filter-row input{min-width:0;flex:1;margin:13px 0 7px}
+.icon-modal .icon-filter-row select{min-height:42px;padding:0 9px;border:1px solid #647856;background:#293628}
+.icon-count{font-size:11px;color:#afc29f;padding:5px 0 8px}
+.icon-choice .mc-icon{min-width:40px}
+.icon-choice .mc-icon img{image-rendering:pixelated}
+.icon-version-row{display:flex;align-items:center;gap:7px;margin-top:7px;color:#adc09c;font-size:10px}
+.icon-version-row input{width:54px;min-width:54px;padding:5px;text-align:center}
+.version-alert{color:#f4c388;font-size:11px;font-weight:600;line-height:1.3}
+.generated-id{font-family:ui-monospace,monospace;color:#b7c5a7;user-select:all;overflow-wrap:anywhere;padding:8px 5px}
+.condition-builder{font-size:12px}
+.cond-empty{padding:10px;color:#92a38c;font-size:11px}
+.cond-group{margin:5px 0;padding:8px;background:#1b281c;border:1px solid #516547;border-radius:3px}
+.cond-group.depth-1{border-color:#697753}.cond-group.depth-2{border-color:#8b7951}
+.cond-group-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.cond-op{font-weight:700;color:#e8f4d3}
+select.cond-op{width:auto;flex:1;background:#364633;border:1px solid #758d5a;padding:6px 9px;border-radius:2px}
+.cond-children{border-left:2px solid #53634c;padding:2px 0 2px 8px;margin:5px 0 5px 5px}
+.cond-leaf{display:flex;gap:6px;align-items:center;min-width:0;
+ margin:4px 0;padding:7px;background:#2a3827;border:1px solid #506647;border-radius:2px}
+.cond-leaf select,.cond-leaf input{min-width:0;flex:1;background:#1c291b;color:#e7edd8;
+ border:1px solid #607655;padding:6px 8px;border-radius:2px}
+.cond-quest-label{min-width:0;flex:1;overflow-wrap:anywhere;color:#e2efcc}
+.cond-remove{min-width:24px;height:26px;border:1px solid #6e584f;
+ background:#3f302b;color:#ebb6a5;font-size:16px;border-radius:2px}
+.cond-tools{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.cond-tools button{background:#34472c;border:1px solid #72905a;color:#deebc9;
+ padding:7px 8px;border-radius:2px;font-size:11px;font-weight:700}
+.cond-tools button:hover{background:#49613e}.cond-tools.root-tools{margin-top:8px}
+.cond-search-panel{border:1px solid #657e54;padding:9px;background:#182516;margin-top:8px}
+.cond-search-panel[hidden]{display:none}
+.cond-search-input{display:block;width:100%;padding:10px;background:#101d11;
+ border:1px solid #6e815a;border-radius:2px;color:#e8f5d6}
+.cond-search-results{max-height:260px;overflow:auto;margin-top:8px}
+.cond-search-result{display:flex;width:100%;align-items:center;gap:9px;
+ padding:6px;border:1px solid transparent;color:#e8efd8;text-align:left;background:#263724;margin-bottom:3px}
+.cond-search-result:hover{background:#3a5132;border-color:#75905d}
+.cond-search-result>.mc-icon{width:28px;height:28px;flex:0 0 28px}
+.cond-search-result span:last-child{min-width:0;overflow-wrap:anywhere}
+.cond-search-result small{display:block;font-size:9px;color:#91a68b}
+@media(max-width:1100px){
+ .topbar{gap:8px}.version-selector{font-size:0}.version-selector input{font-size:11px}
+}
+@media(max-width:780px){
+ .canvas-zoom button{min-width:37px;min-height:37px}
+ .canvas-toolbar{min-height:47px}.main{min-height:540px}
+ .minecraft-preview{touch-action:none}
+ .icon-grid{grid-template-columns:repeat(auto-fill,minmax(83px,1fr))}
+ .icon-choice{min-height:85px}
+ .cond-group{padding:6px}
+}
