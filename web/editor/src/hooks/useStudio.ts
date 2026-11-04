@@ -353,6 +353,17 @@ export function useStudio() {
 			}
 		}, "drag:" + id);
 	}
+	function resizeNode(type:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number}){
+		mutate(s=>{
+			const o=owner(s.project,{type,id});
+			if(!o)return;
+			if(type==='quest'&&size.size!==undefined)o.size=Math.max(24,Math.min(96,Math.round(size.size)));
+			if(type==='annotation'){
+				if(size.width!==undefined)o.width=Math.max(60,Math.min(400,Math.round(size.width)));
+				if(size.height!==undefined)o.height=Math.max(20,Math.min(300,Math.round(size.height)));
+			}
+		},'resize:'+id);
+	}
 	function autoLayout() {
 		if (!currentCategory || !confirm(tUI("Auto-arrange quests in this category?"))) return;
 		mutate((s) => {
@@ -512,6 +523,7 @@ export function useStudio() {
 		action,
 		changeCondition,
 		setPosition,
+		resizeNode,
 		autoLayout,
 		reset,
 		setLanguage,
