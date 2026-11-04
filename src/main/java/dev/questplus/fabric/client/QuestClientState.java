@@ -11,7 +11,7 @@ public final class QuestClientState {
     public JsonObject team;
     public JsonArray invitations = new JsonArray();
     public long generation = -1, sequence = -1, catalogueRevision;
-    public String error;
+    public String error, errorDetail;
     public boolean ready;
     private static final Gson JSON = new Gson();
     public String text(Map<String,String> text) { return Localization.text(text, net.minecraft.client.Minecraft.getInstance().options.languageCode, Map.of()); }
@@ -19,7 +19,11 @@ public final class QuestClientState {
     public static boolean flag(JsonObject object,String name) { return object.has(name) && object.get(name).getAsBoolean(); }
     public static long count(JsonObject object,String name) { return object.has(name) ? object.get(name).getAsLong() : 0; }
     public boolean apply(JsonObject message) {
-        if (message.has("error")) { error=message.get("error").getAsString(); return true; }
+        if (message.has("error")) {
+            error=message.get("error").getAsString();
+            errorDetail=message.has("detail")?message.get("detail").getAsString():null;
+            return true;
+        }
         long nextGeneration=message.get("generation").getAsLong(), nextSequence=message.get("sequence").getAsLong();
         boolean snapshot=message.get("type").getAsString().equals("snapshot");
         if (!snapshot && (!ready || nextGeneration!=generation || nextSequence!=sequence+1)) return false;
@@ -36,7 +40,7 @@ public final class QuestClientState {
         if (message.has("progress")) for (var entry:message.getAsJsonObject("progress").entrySet()) progress.put(entry.getKey(),entry.getValue().getAsJsonObject());
         if (message.has("team")) team=message.get("team").isJsonNull() ? null : message.getAsJsonObject("team");
         if (message.has("invitations")) invitations=message.getAsJsonArray("invitations");
-        generation=nextGeneration; sequence=nextSequence; ready=true; error=null; return true;
+        generation=nextGeneration; sequence=nextSequence; ready=true; error=null; errorDetail=null; return true;
     }
-    public void clear() { quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; catalogueRevision++; }
+    public void clear() { quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; errorDetail=null; catalogueRevision++; }
 }
