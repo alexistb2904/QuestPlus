@@ -117,8 +117,8 @@ public final class QuestRuntime implements AutoCloseable {
                             throw new IllegalArgumentException("Invalid pooled image: "+path);
                         String data=item.getAsString();
                         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                            || false)
-                            throw new IllegalArgumentException("Pooled image too large/invalid: "+path);
+                            )
+                            throw new IllegalArgumentException("Invalid pooled image: "+path);
                         images.add(data);
                     }
                 }
@@ -202,7 +202,7 @@ public final class QuestRuntime implements AutoCloseable {
                                         }else{
                                             String data=item.get("data").getAsString();
                                             if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
-                                                || data.length()>2_800_000 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>2*1024*1024)
+                                                )
                                                 throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
                                         }
                                     } else throw new IllegalArgumentException("Unknown rich part: "+aid);
