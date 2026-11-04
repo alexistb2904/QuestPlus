@@ -29,7 +29,7 @@ import java.util.*;
  * hosting. Media is bounded, decoded on the client, and cached as native GPU textures.
  */
 final class RichAnnotationRenderer {
-    private static final int MAX_WIDTH=800, MAX_HEIGHT=600, MAX_CACHE=24;
+    private static final int MAX_CACHE=128;
     private static final LinkedHashMap<String,AnimatedImage> MEDIA=new LinkedHashMap<>(32,.75f,true);
     private record Frame(DynamicTexture texture,int delay) {}
     private record AnimatedImage(List<Frame> frames,int cycle) {
@@ -49,8 +49,8 @@ final class RichAnnotationRenderer {
     private RichAnnotationRenderer(){}
 
     static boolean render(GuiGraphicsExtractor g,Font font,JsonObject note,JsonArray pool,String language,int x,int y){
-        int requestedWidth=Math.clamp(note.has("width")?note.get("width").getAsInt():170,60,MAX_WIDTH);
-        int requestedHeight=Math.clamp(note.has("height")?note.get("height").getAsInt():MAX_HEIGHT,20,MAX_HEIGHT);
+        int requestedWidth=Math.max(1,note.has("width")?note.get("width").getAsInt():170);
+        int requestedHeight=Math.max(1,note.has("height")?note.get("height").getAsInt():300);
         int contentWidth=requestedWidth-12;
         if(!note.has("rich")||!note.get("rich").isJsonObject())return false;
         JsonObject locales=note.getAsJsonObject("rich");
@@ -84,8 +84,8 @@ final class RichAnnotationRenderer {
                 line=new Line();lines.add(line);
             }else if(p.get("type").getAsString().equals("text")){
                 String s=p.get("text").getAsString();
-                if(s.length()>2048)continue;
-                float scale=p.has("sizePx")?Math.clamp(p.get("sizePx").getAsFloat()/9f,6f/9f,128f/9f)
+                
+                float scale=p.has("sizePx")?Math.max(.01f,p.get("sizePx").getAsFloat()/9f)
                     :p.has("size")?Math.clamp(p.get("size").getAsFloat(),.75f,2f):1f;
                 if (style.equals("heading")) scale=Math.min(2f,scale*1.45f);
                 else if (style.equals("label")) scale=Math.max(.75f,scale*.9f);
@@ -131,7 +131,7 @@ final class RichAnnotationRenderer {
         int measuredHeight=lines.stream().mapToInt(l->l.height).sum()+10;
         int total=note.has("height")?Math.max(measuredHeight,requestedHeight):measuredHeight;
         int border=hex(note.has("color")?note.get("color").getAsString():"#c6a986",0xffc6a986);
-        int w=note.has("width")?requestedWidth:Math.min(MAX_WIDTH,Math.max(38,lines.stream().mapToInt(l->l.width).max().orElse(28)+12));
+        int w=note.has("width")?requestedWidth:Math.max(38,lines.stream().mapToInt(l->l.width).max().orElse(28)+12);
         int top=y-total/2, left=x-w/2;
         if (style.equals("heading")) {
             g.fill(left,top-3,left+w,top-2,border);
@@ -189,7 +189,7 @@ final class RichAnnotationRenderer {
         if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))return null;
         try{
             byte[] bytes=Base64.getDecoder().decode(data.substring(data.indexOf(',')+1));
-            if(bytes.length>2*1024*1024)return null;
+            
             List<Frame> frames=new ArrayList<>();int cycle=0;
             try(ImageInputStream input=ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))){
                 Iterator<ImageReader> readers=ImageIO.getImageReaders(input);
@@ -199,8 +199,8 @@ final class RichAnnotationRenderer {
                     reader.setInput(input,false,false);
                     int count=Math.min(32,reader.getNumImages(true));
                     int width=reader.getWidth(0),height=reader.getHeight(0);
-                    if(width<1||height<1||width>4096||height>4096)return null;
-                    int tw=Math.min(MAX_WIDTH,width),th=Math.min(MAX_HEIGHT,height);
+                    if(width<1||height<1)return null;
+                    int tw=width,th=height;
                     BufferedImage composite=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
                     for(int i=0;i<count;i++){
                         BufferedImage part=reader.read(i);
