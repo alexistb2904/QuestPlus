@@ -75,5 +75,5 @@ test('larger image bounds are accepted and excessive data rejected',()=>{
  assert.ok(RICH_MAX_MEDIA>=384*1024);
  assert.ok(validRich([{type:'image',data:tiny,width:400,height:300}]));
  assert.equal(imageBytes(tiny),3);
- assert.equal(validRich([{type:'image',data:tiny,width:401,height:300}]),false);
+ assert.equal(validRich([{type:'image',data:tiny,width:2049,height:300}]),false);
 });
