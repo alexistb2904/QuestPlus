@@ -145,7 +145,26 @@ public final class QuestScreen extends Screen {
         camera=cameras.computeIfAbsent(id,ignored -> new QuestCamera(0.25,2.5));
         if (fresh) fit();
     }
-    private void fit() { camera.fit(layout,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,attachedToScreenFace ? 15 : 24); }
+    private void fit() {
+        List<QuestLayout.Point> points=new ArrayList<>(layout.points().values());
+        double padX=24,padY=24;
+        for(var quest:state.quests.values())if(Objects.equals(quest.category(),category)){
+            padX=Math.max(padX,quest.size()/2.0);
+            padY=Math.max(padY,quest.size()/2.0);
+        }
+        var data=state.categories.get(category);
+        if(data!=null && data.has("annotations")){
+            for(var item:data.getAsJsonArray("annotations")){
+                if(!item.isJsonObject())continue;
+                var note=item.getAsJsonObject();
+                if(!note.has("x")||!note.has("y"))continue;
+                points.add(new QuestLayout.Point(note.get("x").getAsDouble(),note.get("y").getAsDouble()));
+                padX=Math.max(padX,(note.has("width")?note.get("width").getAsDouble():170)/2);
+                padY=Math.max(padY,(note.has("height")?note.get("height").getAsDouble():100)/2);
+            }
+        }
+        camera.fitBounds(points,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,padX,padY);
+    }
     @Override public void tick() {
         if (closingAt!=0 && animationProgress()<=0) { super.onClose(); return; }
         refreshCatalogue();
