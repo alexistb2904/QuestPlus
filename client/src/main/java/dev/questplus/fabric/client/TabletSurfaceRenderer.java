@@ -67,7 +67,7 @@ public final class TabletSurfaceRenderer {
             // Dim only the 3D atlas, not the 2D fallback. Applied in a separate
             // stratum, after the UI, to preserve all authored colors and icons.
             double brightness=TabletShaderCompat.screenBrightness(
-                QuestPlusClient.settings.screenBrightness,TabletShaderCompat.safeRendering());
+                QuestPlusClient.settings.screenBrightness,TabletShaderCompat.illuminatedScreen());
             if(brightness<.999){
                 graphics.nextStratum();
                 int darkness=(int)Math.round((1-brightness)*255);

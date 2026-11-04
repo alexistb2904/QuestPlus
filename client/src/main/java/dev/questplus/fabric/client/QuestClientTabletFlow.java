@@ -13,6 +13,8 @@ final class QuestClientTabletFlow {
     private static Stage stage=Stage.CLOSED;
     private static boolean nativeHands;
     private static boolean closeRequested;
+    private static long closingSince;
+    private static final long CLOSE_WATCHDOG_NANOS=2_500_000_000L;
     private static CameraType previousCamera;
     private static final TabletDamageGuard DAMAGE=new TabletDamageGuard();
     private QuestClientTabletFlow() {}
@@ -84,13 +86,14 @@ final class QuestClientTabletFlow {
             return;
         }
         if (stage==Stage.CLOSING) return;
+        stage=Stage.CLOSING;
+        closingSince=System.nanoTime();
         try {
             if (!FirstPersonPalBridge.play("questplus.close")) { stop();reset();return; }
         } catch (LinkageError | RuntimeException error) {
             QuestPlusMod.LOGGER.warn("Cannot play FP PAL close animation",error);
             stop();reset();return;
         }
-        stage=Stage.CLOSING;
     }
     private static void tick(Minecraft client) {
         if(client.player==null) DAMAGE.reset();
@@ -109,6 +112,13 @@ final class QuestClientTabletFlow {
             }
         }
         if (stage==Stage.CLOSED) return;
+        // Shaders can interrupt FP PAL's last frame or its callback. Never
+        // retain the CLOSING pose indefinitely: it previously hid all HUD
+        // and inventory elements until the player reconnected.
+        if (stage==Stage.CLOSING && System.nanoTime()-closingSince>CLOSE_WATCHDOG_NANOS) {
+            QuestPlusMod.LOGGER.warn("Tablet close animation timed out; restoring vanilla HUD and first-person state");
+            stop();reset();return;
+        }
         if (client.player==null || !client.player.isAlive() || client.player.isSpectator()) {
             stop();reset();return;
         }
@@ -141,7 +151,8 @@ final class QuestClientTabletFlow {
         }
     }
     private static void reset() {
-        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;TabletFaceAnchor.reset();DAMAGE.reset();
+        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;closingSince=0;
+        TabletFaceAnchor.reset();DAMAGE.reset();
         if (previousCamera!=null) {
             Minecraft.getInstance().options.setCameraType(previousCamera);
             previousCamera=null;

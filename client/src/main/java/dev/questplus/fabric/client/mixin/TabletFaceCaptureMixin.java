@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.questplus.fabric.client.TabletFaceAnchor;
 import dev.questplus.fabric.client.TabletIdleEffects;
 import dev.questplus.fabric.client.TabletSurfaceRenderer;
+import dev.questplus.fabric.client.QuestPlusClient;
 import dev.questplus.fabric.client.TabletShaderCompat;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -28,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class TabletFaceCaptureMixin {
     @Shadow private static Identifier modelId;
     @Unique private static final Identifier QUESTPLUS_MODEL=Identifier.fromNamespaceAndPath("questplus","questplus_first_person");
+    @Unique private static final Identifier TABLET_BODY=Identifier.fromNamespaceAndPath("questplus","textures/fp/questplus_first_person.png");
     private static int questplus$pass;
     @Unique private static TabletIdleEffects.Frame questplus$effects;
 
@@ -38,7 +40,12 @@ abstract class TabletFaceCaptureMixin {
     @Redirect(method="render",at=@At(value="INVOKE",target="Lcom/github/razorplay01/fp_pal/firstperson/FpRenderBuffer;drawGeometry(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;Lcom/github/razorplay01/fp_pal/firstperson/FpRenderBuffer$GeometryRenderer;)V"),remap=false)
     private static void questplus$surfacePass(FpRenderBuffer buffer,PoseStack pose,RenderType type,FpRenderBuffer.GeometryRenderer geometry) {
         if (!questplus$usesAtlas()) { buffer.drawGeometry(pose,type,geometry);return; }
-        buffer.drawGeometry(pose,type,(p,c) -> {
+        // With shaders, draw the physical frame from its ORIGINAL static opaque
+        // texture, not the live GUI framebuffer atlas. Bliss can interpret a
+        // dynamically populated entity atlas as a reflective/glass material.
+        boolean shaders=TabletShaderCompat.shadersActive();
+        var bodyType=shaders ? RenderTypes.entityCutout(TABLET_BODY) : type;
+        buffer.drawGeometry(pose,bodyType,(p,c) -> {
             questplus$pass=1;
             try { geometry.render(p,c); } finally { questplus$pass=0; }
         });
@@ -47,10 +54,13 @@ abstract class TabletFaceCaptureMixin {
         // In Iris, a translucent emissive entity is often interpreted by shader
         // packs as glass/mirror (Bliss) or HDR bloom (MakeUp). Use a MATTE
         // cutout plane for the tablet UI instead of shader-dependent materials.
-        var settings=dev.questplus.fabric.client.QuestPlusClient.settings;
-        boolean shaderSafe=TabletShaderCompat.safeRendering();
-        var screenType=shaderSafe ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
-            : settings.screenEmissive
+        var settings=QuestPlusClient.settings;
+        boolean matte=TabletShaderCompat.matteIllumination(shaders,settings.screenEmissive);
+        // No shader: original ON=emissive, OFF=ordinary translucent.
+        // Shader: ON=matte fullbright (old shader-safe mode), OFF=ordinary
+        // non-emissive surface. The independent shader-safe toggle is removed.
+        var screenType=matte ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
+            : settings.screenEmissive && !shaders
             ? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
             : RenderTypes.entityTranslucent(TabletSurfaceRenderer.TEXTURE);
         buffer.drawGeometry(pose,screenType,(p,c) -> {
@@ -70,7 +80,7 @@ abstract class TabletFaceCaptureMixin {
     // The other tablet surfaces keep their real world lighting.
     @ModifyVariable(method="renderCube",at=@At("HEAD"),argsOnly=true,ordinal=0,remap=false)
     private static int questplus$matteScreenLight(int light) {
-        return questplus$pass==2 && TabletShaderCompat.safeRendering()
+        return questplus$pass==2 && TabletShaderCompat.illuminatedScreen()
             ? LightCoordsUtil.FULL_BRIGHT : light;
     }
 
@@ -99,21 +109,23 @@ abstract class TabletFaceCaptureMixin {
 
     @Redirect(method="renderCube",at=@At(value="INVOKE",target="Lcom/github/razorplay01/fp_pal/firstperson/FpGeoModel;textureWidth()I"),remap=false)
     private static int questplus$width(FpGeoModel model) {
-        return questplus$usesAtlas() ? TabletSurfaceRenderer.ATLAS_WIDTH : model.textureWidth();
+        return questplus$usesAtlas() && !(questplus$pass==1 && TabletShaderCompat.shadersActive())
+            ? TabletSurfaceRenderer.ATLAS_WIDTH : model.textureWidth();
     }
     @Redirect(method="renderCube",at=@At(value="INVOKE",target="Lcom/github/razorplay01/fp_pal/firstperson/FpGeoModel;textureHeight()I"),remap=false)
     private static int questplus$height(FpGeoModel model) {
-        return questplus$usesAtlas() ? TabletSurfaceRenderer.ATLAS_HEIGHT : model.textureHeight();
+        return questplus$usesAtlas() && !(questplus$pass==1 && TabletShaderCompat.shadersActive())
+            ? TabletSurfaceRenderer.ATLAS_HEIGHT : model.textureHeight();
     }
     @Inject(method="uv",at=@At("HEAD"),cancellable=true,remap=false)
     private static void questplus$screenUv(FpGeoModel.Cube cube,FpGeoModel model,int face,CallbackInfoReturnable<float[]> cir) {
         var screen=model.bone("screen");
-        if (questplus$usesAtlas() && face==FpGeoModel.FACE_NORTH && screen!=null && screen.cubes().contains(cube))
+        if (questplus$usesAtlas() && questplus$pass==2 && face==FpGeoModel.FACE_NORTH && screen!=null && screen.cubes().contains(cube))
             cir.setReturnValue(new float[]{TabletSurfaceRenderer.SCREEN_X+TabletSurfaceRenderer.SCREEN_WIDTH,TabletSurfaceRenderer.ATLAS_HEIGHT-TabletSurfaceRenderer.SCREEN_HEIGHT,-TabletSurfaceRenderer.SCREEN_WIDTH,TabletSurfaceRenderer.SCREEN_HEIGHT});
     }
     @Inject(method="uv",at=@At("RETURN"),cancellable=true,remap=false)
     private static void questplus$atlasUv(FpGeoModel.Cube cube,FpGeoModel model,int face,CallbackInfoReturnable<float[]> cir) {
-        if (!questplus$usesAtlas()) return;
+        if (!questplus$usesAtlas() || questplus$pass==1 && TabletShaderCompat.shadersActive()) return;
         var screen=model.bone("screen");
         if (face==FpGeoModel.FACE_NORTH && screen!=null && screen.cubes().contains(cube)) return;
         var uv=cir.getReturnValue();

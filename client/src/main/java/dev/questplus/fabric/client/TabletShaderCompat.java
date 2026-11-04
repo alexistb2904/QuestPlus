@@ -34,11 +34,26 @@ public final class TabletShaderCompat {
             return false;
         }
     }
-    public static boolean safeRendering(){
-        return QuestPlusClient.settings!=null && QuestPlusClient.settings.shaderSafeMode && shaderPackActive();
+    /** A shader is active only when Iris says a pack is actually in use. */
+    public static boolean shadersActive(){ return shaderPackActive(); }
+    /** Self illumination uses a matte lit screen with shaders, original emissive rendering without. */
+    public static boolean matteIllumination(boolean shaderActive,boolean selfIlluminated) {
+        return shaderActive && selfIlluminated;
     }
-    /** Clamp ONLY the 3D atlas, never user configured vanilla/2D brightness. */
-    public static double screenBrightness(double requested,boolean shaderSafe){
-        return Math.clamp(requested,0,shaderSafe?0.78:1);
+    public static boolean illuminatedScreen(){
+        return QuestPlusClient.settings!=null
+            && matteIllumination(shadersActive(),QuestPlusClient.settings.screenEmissive);
+    }
+    /** Shader blur is always disabled, even if Self Illumination is off. */
+    public static boolean backgroundBlur(boolean userEnabled,boolean shaderActive) {
+        return userEnabled && !shaderActive;
+    }
+    public static boolean backgroundBlurEnabled(){
+        return QuestPlusClient.settings!=null
+            && backgroundBlur(QuestPlusClient.settings.blur,shadersActive());
+    }
+    /** Only matte illuminated 3D screens need the shader brightness guard. */
+    public static double screenBrightness(double requested,boolean matteIllumination) {
+        return Math.clamp(requested,0,matteIllumination?0.78:1);
     }
 }

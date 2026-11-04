@@ -19,7 +19,7 @@ public final class TabletIdleEffects {
     }
     private TabletIdleEffects() {}
     public static RenderType renderType() {
-        return TabletShaderCompat.safeRendering() ? RenderTypes.entityTranslucent(TEXTURE)
+        return TabletShaderCompat.shadersActive() ? RenderTypes.entityTranslucent(TEXTURE)
             : RenderTypes.entityTranslucentEmissive(TEXTURE);
     }
     public static Frame frame() {

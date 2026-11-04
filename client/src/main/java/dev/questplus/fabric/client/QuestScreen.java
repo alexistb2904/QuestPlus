@@ -235,7 +235,7 @@ public final class QuestScreen extends Screen {
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta) {
         // Preserve the real first-person tablet frame; an opaque GUI backdrop would hide it.
         if (QuestClientTabletFlow.nativeHandsActive()) return;
-        if (settings.blur && settings.blurIntensity>0) extractBlurredBackground(g);
+        if (TabletShaderCompat.backgroundBlurEnabled() && settings.blurIntensity>0) extractBlurredBackground(g);
         g.fill(0,0,minecraft.getWindow().getGuiScaledWidth(),
             minecraft.getWindow().getGuiScaledHeight(),0x660d100e);
     }
@@ -844,6 +844,10 @@ public final class QuestScreen extends Screen {
                 settings.save(); init();
             });
             b.setMessage(t(names[i]).copy().append(": ").append(t(values[i] ? "on" : "off")));
+            if(n==1 && TabletShaderCompat.shadersActive()) {
+                b.active=false;
+                b.hoverText(t("blur_shader_disabled"));
+            }
         }
         QuestButton hudAnchor=button("hud_position",x,y+3*row,w,() -> {
             settings.hudPosition=(settings.hudPosition+1)%9;
@@ -873,14 +877,6 @@ public final class QuestScreen extends Screen {
         // These options affect the illuminated first-person 3D screen only.
         // The 2D fallback does not use the 3D backlight.
         if(settings.tablet){
-            QuestButton shaderSafe=button("shader_safe_mode",x,y+7*row,w,() -> {
-                settings.shaderSafeMode=!settings.shaderSafeMode;
-                settings.save();init();
-            });
-            Component shaderLabel=t("shader_safe_mode").copy().append(": ")
-                .append(t(settings.shaderSafeMode ? "on" : "off"));
-            shaderSafe.setMessage(shaderLabel);
-            shaderSafe.hoverText(shaderLabel);
             QuestButton emissive=button("screen_emissive",x,y+6*row,w,() -> {
                 settings.screenEmissive=!settings.screenEmissive;
                 settings.save(); init();

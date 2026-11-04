@@ -15,8 +15,8 @@ abstract class TabletGameRendererMixin {
     @Inject(method="render3dHud",at=@At("HEAD"))
     private void questplus$blurWorldBeforeHands(CallbackInfo ci) {
         var settings=QuestPlusClient.settings;
-        if (TabletSurfaceRenderer.active() && settings.blur && settings.blurIntensity>0
-            && !TabletShaderCompat.safeRendering())
+        if (TabletSurfaceRenderer.active() && settings.blurIntensity>0
+            && TabletShaderCompat.backgroundBlurEnabled())
             Minecraft.getInstance().gameRenderer.processBlurEffect();
     }
     @Inject(method="render",at=@At(value="INVOKE",target="Lnet/minecraft/client/renderer/GameRenderer;renderLevel()V"))
