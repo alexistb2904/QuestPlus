@@ -160,6 +160,19 @@ export function validate(p){
       if(['dimension','tool','biome','effect'].includes(key))return typeof value==='string'&&ID.test(value);
       if(key==='sneaking')return typeof value==='boolean';
       if(['healthAtMost','healthAtLeast'].includes(key))return Number.isFinite(value)&&value>=0;
+      if(key==='questplus:gear'){
+        if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).join()!=='items'
+           ||!Array.isArray(value.items)||value.items.length<1||value.items.length>40)return false;
+        return value.items.every(item=>{
+          if(!item||typeof item!=='object'||Array.isArray(item)||
+            !['inventory','head','chest','legs','feet','mainhand','offhand'].includes(item.slot)||
+            typeof item.item!=='string'||!ID.test(item.item)||
+            Object.keys(item).some(k=>!['slot','item','enchantments'].includes(k)))return false;
+          if(item.enchantments===undefined)return true;
+          return item.enchantments&&typeof item.enchantments==='object'&&!Array.isArray(item.enchantments)&&
+            Object.entries(item.enchantments).every(([id,level])=>ID.test(id)&&Number.isInteger(level)&&level>=1&&level<=10);
+        });
+      }
       if(key==='equipment')return value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&['head','chest','legs','feet','mainhand','offhand'].includes(value.slot)&&typeof value.item==='string'&&ID.test(value.item);
       if(key==='position'){
         if(!value||typeof value!=='object'||Array.isArray(value)||!Object.keys(value).length)return false;
