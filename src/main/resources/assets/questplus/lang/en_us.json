@@ -157,5 +157,7 @@
   "questplus.client.condition.detail.slot.head": "head",
   "questplus.client.condition.detail.slot.chest": "chest",
   "questplus.client.condition.detail.slot.legs": "legs",
-  "questplus.client.condition.detail.slot.feet": "feet"
+  "questplus.client.condition.detail.slot.feet": "feet",
+  "questplus.client.repeat_count": "Completed ×%s",
+  "questplus.client.tier_count": "Milestone %s"
 }
