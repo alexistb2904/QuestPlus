@@ -160,7 +160,7 @@ public final class QuestRegistry {
             +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
-            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",24,96) : 32,
+            mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
             o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of());
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
@@ -169,7 +169,7 @@ public final class QuestRegistry {
             if(!entry.getKey().matches("[a-z]{2,3}_[a-z]{2,4}") || !entry.getValue().isJsonArray())
                 throw new IllegalArgumentException("Invalid rich description locale: "+entry.getKey());
             JsonArray parts=entry.getValue().getAsJsonArray();
-            if(parts.size()>96)throw new IllegalArgumentException("Too many rich description parts");
+            
             for(var el:parts){
                 if(!el.isJsonObject())throw new IllegalArgumentException("Invalid rich description part");
                 JsonObject part=el.getAsJsonObject();
@@ -177,9 +177,9 @@ public final class QuestRegistry {
                 String type=part.get("type").getAsString();
                 if(type.equals("text")){
                     if(!Set.of("type","text","font","size","sizePx","color","highlight","bold","italic","underline","strike").containsAll(part.keySet())
-                        || !part.has("text")||part.get("text").getAsString().length()>2048)
+                        || !part.has("text"))
                         throw new IllegalArgumentException("Invalid rich description text");
-                    if(part.has("sizePx") && (part.get("sizePx").getAsInt()<6||part.get("sizePx").getAsInt()>128))
+                    if(part.has("sizePx") && (part.get("sizePx").getAsInt()<=0))
                         throw new IllegalArgumentException("Rich description pixel size out of range");
                     if(part.has("size") && (part.get("size").getAsDouble()<.75||part.get("size").getAsDouble()>2))
                         throw new IllegalArgumentException("Invalid legacy description size");
@@ -188,11 +188,9 @@ public final class QuestRegistry {
                         !Set.of("type","data","width","height").containsAll(part.keySet()))
                         throw new IllegalArgumentException("Invalid rich description image");
                     String data=part.get("data").getAsString();
-                    if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}") ||
-                        data.length()>2_800_000 ||
-                        Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>2*1024*1024 ||
-                        part.get("width").getAsInt()<8||part.get("width").getAsInt()>2048||
-                        part.get("height").getAsInt()<8||part.get("height").getAsInt()>2048)
+                    if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}") || ||
+                        part.get("width").getAsInt()<=0||
+                        part.get("height").getAsInt()<=0)
                         throw new IllegalArgumentException("Invalid rich description image size");
                 }else throw new IllegalArgumentException("Unknown rich description part: "+type);
             }
