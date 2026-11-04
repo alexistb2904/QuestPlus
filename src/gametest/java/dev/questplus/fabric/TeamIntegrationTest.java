@@ -27,6 +27,7 @@ public final class TeamIntegrationTest {
     @GameTest(maxTicks=10000)
     public void retroactiveTeams(GameTestHelper helper) throws Exception {
         var runtime=QuestPlusMod.runtime(); var server=helper.getLevel().getServer(); var dispatcher=server.getCommands().getDispatcher();
+        LegacyGameTestFixtures.install(server); runtime.reload();
         var a=player(helper); var b=player(helper); UUID aid=a.getUUID(),bid=b.getUUID(); UUID[] team=new UUID[1]; int[] xp=new int[1];
         var fixture=server.getWorldPath(LevelResource.ROOT).resolve("questplus/quests/team-integration.json");
         Files.writeString(fixture,"""
