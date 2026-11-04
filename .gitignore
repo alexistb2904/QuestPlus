@@ -13,3 +13,14 @@ web/editor/.vite/
 .playwright-cli/
 output/playwright/
 .impeccable/review/
+
+# Private web API persistence and deployment secrets
+web/server/data/
+web/server/.env
+web/server/.env.*
+.env
+.env.*
+!*.env.example
+
+# World owner secrets (do not commit local server credentials)
+**/questplus-hub.json
