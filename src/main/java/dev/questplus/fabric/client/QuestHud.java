@@ -29,7 +29,8 @@ final class QuestHud {
             List<Panel> panels=new ArrayList<>();
             float scale=hudScale(g.guiWidth(),g.guiHeight());
             int virtualHeight=(int)(g.guiHeight()/scale);
-            int total=0,maxHeight=Math.max(48,virtualHeight-92);
+            // Keep the tracker below ~42% of the display height on GUI Auto.
+            int total=0,maxHeight=Math.max(48,Math.min(virtualHeight-92,(int)(virtualHeight*.42)));
             for (String id:settings.pinned) {
                 var q=state.quests.get(id);
                 if (q==null) continue;
@@ -77,7 +78,7 @@ final class QuestHud {
     }
     private static void drawPanels(GuiGraphicsExtractor g,Minecraft mc,List<Panel> panels,int height,
                                    int position,int virtualWidth,int virtualHeight) {
-        int w=Math.min(176,virtualWidth-14);
+        int w=Math.min(170,virtualWidth-14);
         int x=position%3==0?7:position%3==1?(virtualWidth-w)/2:virtualWidth-w-7;
         int y=position/3==0?28:position/3==1?(virtualHeight-height)/2:virtualHeight-height-43;
         y=Math.max(5,y);
