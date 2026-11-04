@@ -615,8 +615,8 @@ const LEGACY_PROJECT = {
 
 // Same files are embedded into the mod JAR by processResources.
 export const BUILTIN_PROJECT = {
-  categories: [...LEGACY_PROJECT.categories, ...CHALLENGES.categories, ...EQUIPMENT.categories],
-  quests: [...LEGACY_PROJECT.quests, ...CHALLENGES.quests, ...EQUIPMENT.quests],
+  categories: [...CHALLENGES.categories, ...EQUIPMENT.categories],
+  quests: [...CHALLENGES.quests, ...EQUIPMENT.quests],
   config: structuredClone(LEGACY_PROJECT.config),
   targetMinecraftVersion: '26.3',
   editorLocales: ['en_us', 'fr_fr']
