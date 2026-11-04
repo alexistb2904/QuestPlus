@@ -38,6 +38,11 @@ tasks.withType(JavaCompile).configureEach {
 processResources {
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') { expand version: project.version }
+    // Catalogue authored once for both the server JAR and Quest Studio.
+    from('web/editor/src/data') {
+        include 'challenge-catalogue.json', 'equipment-catalogue.json'
+        into 'defaults/catalogue'
+    }
 }
 
 test { useJUnitPlatform() }
