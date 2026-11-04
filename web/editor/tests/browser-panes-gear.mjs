@@ -28,6 +28,17 @@ async page => {
   const items=q?.objectives?.[0]?.conditions?.['questplus:gear']?.items;
   return items?.[0]?.item==='mymod:crystal_helmet'&&items[0].enchantments?.['mymod:strong_guard']===1&&items[1].item==='minecraft:leather_chestplate';
  });
+ // Browse the pinned 26.3 vanilla enchantment registry without altering custom IDs.
+ await gear.first().getByRole('button',{name:'Browse enchantments'}).click();
+ const chooser=page.getByRole('dialog',{name:'Choose enchantment'});
+ assert(await chooser.isVisible(),'enchantment chooser opens');
+ await chooser.getByRole('textbox',{name:'Search enchantments…'}).fill('unbreaking');
+ await chooser.getByRole('button',{name:/Unbreaking/}).click();
+ await page.waitForFunction(()=>{
+   const value=JSON.parse(localStorage.getItem('questplus.quest-studio.v1')||'{}');
+   const item=value.project?.quests?.find(q=>q.id==='questplus:equipment/set_leather')?.objectives?.[0]?.conditions?.['questplus:gear']?.items?.[0];
+   return item?.enchantments?.['minecraft:unbreaking']===1&&item?.enchantments?.['mymod:strong_guard']===1;
+ });
  await page.reload();await page.waitForSelector('#properties-panel');
  assert(Math.abs((await properties.boundingBox()).width-newWidth)<2,'panel width persists after reload');
  await page.setViewportSize({width:390,height:844});

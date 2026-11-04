@@ -222,3 +222,16 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 
 /* Thin strokes remain interactive at any scale; visible cables follow world zoom. */
 .edges .edge-hit{stroke-width:max(14px,calc(14px * var(--diagram-zoom,1)))}
+
+/* Vanilla enchantment browser; custom modded IDs stay editable in GearEditor. */
+.enchantment-picker-list{display:grid;gap:4px;overflow-y:auto;max-height:min(55vh,470px);padding:2px 3px 8px}
+.enchantment-picker-row{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;
+ min-width:0;padding:9px 12px;background:#24212a;border:1px solid #635568;border-radius:4px;color:#efdfef}
+.enchantment-picker-row:hover,.enchantment-picker-row:focus-visible{background:#46334f;border-color:#c196dd}
+.enchantment-picker-row strong{display:block;font-size:12px}
+.enchantment-picker-row small{display:block;margin-top:3px;color:#bcb0c5;font:10px Consolas,monospace;overflow-wrap:anywhere}
+.enchantment-level-hint{flex:none;color:#d6b7e8;font-size:11px;white-space:nowrap}
+.gear-enchantment-id-entry{display:flex;gap:5px;min-width:0}
+.gear-enchantment-id-entry input{flex:1;min-width:0}
+.gear-enchantment-id-entry .button{padding:0 7px;min-height:33px;font-size:11px}
+.gear-enchantment .gear-enchantment-id>label{display:block;font-size:11px;font-weight:550;margin-bottom:4px}
