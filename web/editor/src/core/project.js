@@ -197,8 +197,8 @@ export function validate(p){
        }
       }
       if(!Number.isFinite(a.x)||!Number.isFinite(a.y)||Math.abs(a.x)>100000||Math.abs(a.y)>100000)fail(label,'Position annotation invalide');
-      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<60||a.width>400))fail(label,'Largeur annotation : 60–400');
-      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<20||a.height>300))fail(label,'Hauteur annotation : 20–300');
+      if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<60||a.width>800))fail(label,'Largeur annotation : 60–800');
+      if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<20||a.height>600))fail(label,'Hauteur annotation : 20–600');
       if(!['note','heading','label'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
     }
