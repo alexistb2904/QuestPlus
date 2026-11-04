@@ -70,7 +70,7 @@ a{color:var(--accent-bright)}p{margin:0}.app{display:flex;flex-direction:column;
 }
 html,body{background:var(--bg);color:var(--text)}
 .brand-name,.sidebar h2,.inspector h2,.modal h2,.canvas-heading h1,.section-title,
-.brand-mark,.game-header,.game-tabs,.node-title,.minecraft-preview,.sidebar-section-head,.overline{
+.brand-mark,.node-title,.sidebar-section-head,.overline{
   font-family:'Pixelify Sans',system-ui,sans-serif;
 }
 .topbar{background:linear-gradient(180deg,#252c21,#171e17);border-bottom:2px solid #45543a;height:64px;min-height:64px;padding:0 18px;box-shadow:0 2px 0 #0b110a}
@@ -158,33 +158,9 @@ html,body{background:var(--bg);color:var(--text)}
 .icon-picker-bottom{padding-top:11px;color:#9fb297;font-size:10px;text-align:center}
 .toast{background:#3b542f;color:#effce2;border-radius:2px;border-color:#a5c67c}
 .language-control select{background:#263723;color:#f0f7e5;border:1px solid #5d7552;border-radius:2px}
-.minecraft-preview{position:absolute;inset:0;background:radial-gradient(ellipse,#1c2418bb,#090c0be8);display:flex;align-items:center;justify-content:center;padding:22px;z-index:10;pointer-events:auto}
-.game-tablet{position:relative;width:min(100%,760px);aspect-ratio:5/3;max-height:100%;background:linear-gradient(145deg,#6d5539,#483624 40%,#392c21);
- border:12px ridge #806443;box-shadow:inset 0 0 0 3px #b3915f,0 9px 35px #000a;outline:3px solid #291d14;
- color:#ebdfc9;overflow:hidden}
-.game-tablet:before{content:'';position:absolute;inset:3px;border:2px solid #b89b6b66;pointer-events:none}
-.game-header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#30241c;
- border-bottom:2px solid #846344;font-size:15px}.game-tabs{display:flex;gap:4px;font-size:12px}
-.game-tabs span{background:#4b3828;padding:6px 9px;border:1px solid #8d6c49}
-.game-tabs span:first-child{background:#776044;color:#fff6d5}
-.game-categories{position:absolute;top:57px;left:7px;bottom:24px;width:28px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
-.game-category{width:28px;height:28px;min-height:28px;display:grid;place-items:center;border:2px solid #53422e;background:#30271e;cursor:pointer}
-.game-category.selected{border-color:#dfc587;background:#685539}
-.game-tree{position:absolute;left:38px;right:8px;top:67px;bottom:24px;
- background:radial-gradient(circle,#76634b25 1px,transparent 1px) 0 0/16px 16px,#29251f;
- box-shadow:inset 0 0 0 1px #826c4b;overflow:hidden}
-.game-tree svg,.game-tree #game-nodes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.game-tree svg path{fill:none;stroke:#94806b;stroke-width:1;shape-rendering:crispEdges}
-.game-quest{position:absolute;display:grid;place-items:center;width:32px;height:32px;pointer-events:auto;cursor:pointer;
- background:#443a30;border:3px solid #8c765c;box-shadow:inset 1px 1px #c2ab8b,inset -2px -2px #221c18;image-rendering:pixelated}
-.game-quest.selected{outline:2px solid #ead8a4;outline-offset:2px}
-.game-quest .mc-icon{background:none}.game-quest .mc-icon img{width:16px;height:16px}
-.game-note{position:absolute;pointer-events:none;color:#dfbf8a;white-space:nowrap;font-size:12px;text-shadow:1px 1px #100d0a}
-.game-note.heading{font-size:15px;font-weight:700}.game-footer{position:absolute;bottom:0;left:38px;right:7px;height:24px;
- background:#30251d;border-top:1px solid #7e6245;display:flex;justify-content:space-between;padding:3px 8px;font-size:11px}
 @media(max-width:1250px){.workspace{grid-template-columns:215px minmax(340px,1fr) 300px}.main{padding:14px 13px}}
 @media(max-width:1000px){.workspace{grid-template-columns:180px minmax(300px,1fr) 270px}.brand{min-width:150px}.workspace-name{display:none}}
-@media(max-width:780px){.topbar{height:auto;min-height:64px}.workspace{display:flex;height:auto}.main{min-height:620px}.game-tablet{border-width:7px}.game-header{height:38px;padding:3px 6px}.game-tabs{font-size:9px}.game-tabs span{padding:2px 3px}.game-tree{top:49px}.game-categories{top:41px}.minecraft-preview{padding:12px}}
+@media(max-width:780px){.topbar{height:auto;min-height:64px}.workspace{display:flex;height:auto}.main{min-height:620px}}
 
 /* Quest Studio UX: accessible icons, searchable logic, mobile gestures. */
 .lucide{width:16px;height:16px;stroke-width:2;vertical-align:middle;flex:0 0 auto}
@@ -193,10 +169,7 @@ html,body{background:var(--bg);color:var(--text)}
 .version-selector input{width:55px;min-height:30px;padding:3px 6px;text-align:center;
  color:var(--text);background:#23301e;border:1px solid #657957;border-radius:2px;font-weight:700}
 #preview-toggle{gap:6px}
-#viewport,#minecraft-preview,#game-tree,#nodes,.graph-node,.game-quest{touch-action:none}
-.minecraft-preview{user-select:none}
-#game-tree{cursor:grab;touch-action:none}
-#game-tree:active{cursor:grabbing}
+#viewport,#nodes,.graph-node{touch-action:none}
 #icon-more{width:100%;margin-top:8px;flex:0 0 auto}
 .icon-modal .icon-filter-row{display:flex;align-items:center;gap:9px}
 .icon-modal .icon-filter-row input{min-width:0;flex:1;margin:13px 0 7px}
@@ -244,8 +217,113 @@ select.cond-op{width:auto;flex:1;background:#364633;border:1px solid #758d5a;pad
 @media(max-width:780px){
  .canvas-zoom button{min-width:37px;min-height:37px}
  .canvas-toolbar{min-height:47px}.main{min-height:540px}
- .minecraft-preview{touch-action:none}
+ 
  .icon-grid{grid-template-columns:repeat(auto-fill,minmax(83px,1fr))}
  .icon-choice{min-height:85px}
  .cond-group{padding:6px}
 }
+
+
+/* Match QuestSkin.java + QuestScreen.java (Minecraft client), not an invented green theme.
+   PAPER #35251d · INK #e3cdb1 · DIM #ac927a · EDGE #76513b
+   HIGHLIGHT #d0a26d · SELECTED #d4ad70 · PANEL #30231e · TREE #38291f */
+:root{
+  --bg:#17120f;--pane:#30231e;--pane2:#35251d;--pane3:#3b2b21;
+  --line:#76513b;--line2:#805d42;
+  --text:#e3cdb1;--muted:#ac927a;--faint:#90755f;
+  --accent:#d0a26d;--accent-bright:#e9dab1;--accent-low:#513827;
+  --gold:#d4ad70;--error:#e3a692;--success:#dbb67c;
+}
+html,body{background:#17120f;color:var(--text)}
+.topbar{background:#241c18;border-bottom:2px solid #805c40;box-shadow:0 2px 0 #0e0b09}
+.brand-mark{color:#f5dfb5;background:#4b3526;border:2px solid #d0a26d;
+ box-shadow:inset 2px 2px #8a6847,inset -2px -2px #201813}
+.brand-name,.sidebar h2,.inspector h2,.modal h2,.canvas-heading h1{color:var(--text)}
+.brand-name span{color:#e9bd81}.brand-caption,.overline{color:#c49a69}
+.workspace-name,.changes-badge{color:#d5b590}
+.changes-badge{background:#493321;border-color:#75553a}
+.active-dot,.save-dot{background:#caa36b}
+.workspace{background:#211813}
+.sidebar,.inspector{background:#30231e}
+.sidebar{border-right:2px solid #76513b}.inspector{border-left:2px solid #76513b}
+.sidebar-header,.inspector-head{background:#2d221c}
+.sidebar-footer,.inspector-footer{background:#29201b;border-color:#76513b}
+.sidebar-section-head,.quest-label small,.cat-sub{color:#aa8c73}
+.count{background:#443025;border-color:#735139;color:#dfc4a5}
+.category-item,.quest-item{color:#d5bfa4}
+.category-item:hover,.quest-item:hover{background:#433024}
+.category-item.active,.quest-item.active{background:#513827!important;border:1px solid #d0a26d!important;color:#f5ddb3!important}
+.cat-icon,.quest-glyph{background:#433025!important;border:2px solid #76513b!important}
+.category-item.active .cat-icon,.quest-item.active .quest-glyph{border-color:#d4ad70!important}
+.button,.tool-button,.icon-button,.canvas-zoom button{
+ background:#453226;color:#e7cfb2;border:1px solid #866046;border-radius:1px;
+ box-shadow:inset 1px 1px #997355,inset -2px -2px #211813;
+}
+.button.primary{background:#866046;border-color:#d0a26d;color:#f8e9ca;
+ box-shadow:inset 1px 1px #c39463,inset -2px -2px #4c3020;text-shadow:0 1px #30201a}
+.button.primary:hover{background:#9f754f}
+.button.secondary:hover,.tool-button:hover,.icon-button:hover,.canvas-zoom button:hover{background:#63452f}
+.tool-button{background:transparent;box-shadow:none;border:1px solid transparent;color:#d4b99c}
+.tool-button:hover{border-color:#866046}
+.language-control select,.version-selector input{background:#39291f!important;border:1px solid #866046!important;color:#f2dfbe!important}
+.search-box,.field input,.field select,.field textarea,.form-control{
+ background:#29211c;color:#e6d1b5;border:1px solid #805d42;border-radius:1px}
+.search-box input{background:transparent;color:#e6d1b5;border:none}
+.search-box input::placeholder{color:#a18872}
+.main{background:#201914;padding:18px 20px 13px}
+.breadcrumbs{color:#d0a26d}
+.canvas-heading h1{font-size:26px}
+.canvas-shell{border:2px solid #805d42;background:#30231e;border-radius:1px;
+ box-shadow:inset 1px 1px #9a6f4b,0 6px 22px #0d0a08aa}
+.canvas-toolbar{background:#241c18;border-bottom:2px solid #805d42}
+.canvas-bottom{background:#30231e;border-top:2px solid #76513b;color:#b59b7e}
+.canvas-zoom button{background:#3b2b21}
+.viewport{background-color:#38291f;background-image:linear-gradient(#77533842 1px,transparent 1px),
+ linear-gradient(90deg,#77533842 1px,transparent 1px);background-size:32px 32px}
+.edges path{stroke:#827366;stroke-width:1.5}
+.edges path.selected-edge{stroke:#d9c4a4;stroke-width:2}
+.graph-node{width:60px;filter:none;gap:3px}
+.node-icon{width:32px;height:32px;border:3px solid #b58a56;border-radius:1px;
+ background:#433a32;box-shadow:inset 1px 1px #80664c,inset -2px -2px #2b211a,0 2px 1px #0008}
+.graph-node.selected .node-icon{border:3px solid #e9dab1;
+ box-shadow:inset 1px 1px #fff0cd,0 0 0 2px #38291f,0 0 0 4px #d4ad70}
+.graph-node .node-title{color:#e3cdb1;text-shadow:1px 1px #201610,-1px 1px #201610;font-size:12px}
+.mc-icon{background:#433a32;color:#d0a26d}
+.annotation-node{background:#33271f;color:#c6a986;box-shadow:2px 2px #120e0aaa}
+.annotation-node.heading{color:#d9c4a4}
+.annotation-node.label{background:transparent}
+.section{border-bottom:1px solid #60422f}.section-title{color:#e3cdb1}
+.inspector-head{border-bottom:1px solid #76513b}
+.field>label,.field-label{color:#ba9d80}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#d0a26d;
+ box-shadow:0 0 0 2px #d0a26d33}
+.mini-card,.editor-details{background:#35251d;border:1px solid #76513b;border-radius:1px}
+.editor-details>summary{color:#e3cdb1}
+.editor-details>summary:before{color:#d0a26d}
+.details-body{border-top:1px solid #76513b}
+.add-line,.cond-tools button{background:#493322;color:#e3cdb1;border-color:#a57950}
+.add-line:hover,.cond-tools button:hover{background:#684a34}
+.icon-field>.item-preview,.item-preview,.icon-choice>.mc-icon{background:#433a32;border-color:#76513b}
+.modal{background:#0e0b09dc}
+.modal-card{background:#30231e;border:2px solid #866046}
+.modal textarea{background:#241c18;border-color:#805d42}
+.import-choice,.icon-choice{background:#35251d;border-color:#76513b;color:#e3cdb1}
+.import-choice:hover,.icon-choice:hover{background:#513827;border-color:#d0a26d}
+.icon-modal .icon-filter-row select,.icon-search,.cond-search-input{
+ background:#241c18!important;border-color:#76513b!important;color:#e3cdb1!important}
+.icon-count,.icon-picker-bottom,.cond-search-result small{color:#b19679}
+.toast{background:#4b3527;color:#f3dfbf;border:1px solid #d0a26d}
+.issues-bar,.issues-list{background:#30231e;border-color:#76513b}
+.cond-group{background:#2b211b;border-color:#76513b}
+.cond-group.depth-1{border-color:#ac927a}.cond-group.depth-2{border-color:#d0a26d}
+.cond-leaf{background:#392a21;border-color:#76513b;color:#e3cdb1}
+.cond-leaf select,.cond-leaf input,.cond-op,
+ select.cond-op{background:#241c18;color:#e3cdb1;border-color:#76513b}
+.cond-children{border-color:#76513b}
+.cond-quest-label,.mini-card-title{color:#e3cdb1}
+.cond-search-panel{background:#2b211b;border-color:#76513b}
+.cond-search-result{background:#35251d;color:#e3cdb1}
+.cond-search-result:hover{background:#513827;border-color:#d0a26d}
+.icon-version-row{color:#ac927a}
+@media(max-width:1100px){.topbar{flex-wrap:wrap;height:auto;min-height:64px;padding:10px 14px}.top-actions{flex-wrap:wrap;justify-content:flex-end}}
+@media(max-width:780px){.top-actions{gap:5px}.language-control{max-width:165px}.language-control select{max-width:113px}}
