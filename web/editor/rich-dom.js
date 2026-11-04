@@ -65,7 +65,7 @@ export async function toEmbeddedImage(file){
  if(!file||!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type))throw Error('Only PNG, JPEG, WebP or GIF images are supported.');
  if(file.size>RICH_MAX_MEDIA)throw Error('The image exceeds 96 KiB. Resize or optimize it first.');
  let data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('Cannot read image'));reader.onload=()=>resolve(reader.result);reader.readAsDataURL(file);});
- if(!mediaPattern.test(data))throw Error('Invalid image data.');
+ if(!mediaPattern.test(data)&&file.type!=='image/webp')throw Error('Invalid image data.');
  const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=data;});
  if(img.naturalWidth>1024||img.naturalHeight>1024)throw Error('Images must be at most 1024 × 1024.');
  if(file.type==='image/webp'){

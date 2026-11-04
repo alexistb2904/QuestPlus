@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import com.google.gson.JsonArray;
+
 import dev.questplus.core.*;
 import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.persistence.JsonProgressStore;
@@ -139,7 +141,7 @@ public final class QuestRuntime implements AutoCloseable {
                                     if(type.equals("text")) {
                                         if(!Set.of("type","text","font","size","color","highlight","bold","italic","underline","strike").containsAll(item.keySet())
                                                 || !item.has("text") || !item.get("text").isJsonPrimitive()
-                                                || !item.get("text").getAsString().equals(item.get("text").getAsString().substring(0,Math.min(2048,item.get("text").getAsString().length()))))
+                                                || item.get("text").getAsString().length()>2048)
                                             throw new IllegalArgumentException("Invalid rich text: "+aid);
                                         if(item.has("font") && !Set.of("default","uniform","alt","illageralt").contains(item.get("font").getAsString()))
                                             throw new IllegalArgumentException("Invalid rich font: "+aid);

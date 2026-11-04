@@ -538,7 +538,7 @@ inspector.addEventListener('change',async e=>{
    const tag=document.createElement('img');tag.src=obj.data;tag.width=obj.width;tag.height=obj.height;tag.alt='Embedded image';
    editor.focus();
    const selection=window.getSelection();
-   if(selection&&selection.rangeCount){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(tag);range.setStartAfter(tag);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
+   if(selection&&selection.rangeCount&&editor.contains(selection.getRangeAt(0).commonAncestorContainer)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(tag);range.setStartAfter(tag);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
    else editor.append(tag);
    if(!richActive)remember(snapshot());
    saveRichEditor(editor);
