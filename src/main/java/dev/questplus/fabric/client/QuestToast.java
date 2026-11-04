@@ -36,9 +36,9 @@ final class QuestToast {
         }
         if (active==null) return;
 
-        float scale=(float)Math.clamp(Math.min(g.guiWidth()/620.0,g.guiHeight()/380.0),0.76,1.0);
+        float scale=(float)Math.clamp(Math.min(g.guiWidth()/700.0,g.guiHeight()/420.0),0.68,1.0);
         int virtualWidth=(int)(g.guiWidth()/scale);
-        int w=Math.min(206,virtualWidth-20);
+        int w=Math.min(188,virtualWidth-20);
         if (w<80) return;
         int x=(virtualWidth-w)/2;
         long elapsed=now-started;
