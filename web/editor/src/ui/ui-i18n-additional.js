@@ -1,5 +1,7 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Fixed-size canvas","Éléments à taille fixe","Elementos de tamaño fijo","固定尺寸画布"],
+  ["Drag to move · Scroll to navigate · Shift+wheel sideways","Glisser pour déplacer · Molette pour parcourir · Maj+molette horizontalement","Arrastra para mover · Rueda para desplazarte · Mayús+rueda lateralmente","拖动移动 · 滚轮浏览 · Shift+滚轮横向移动"],
   ["Show quest titles","Afficher les titres des quêtes","Mostrar nombres de misiones","显示任务标题"],
   ["Text size in pixels","Taille du texte en pixels","Tamaño del texto en píxeles","文字像素大小"],
   ["Apply text size","Appliquer la taille du texte","Aplicar tamaño de texto","应用文字大小"],
