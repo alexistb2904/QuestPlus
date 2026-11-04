@@ -9,7 +9,12 @@ public final class ClientProjection {
     private static final Gson JSON = new Gson();
     private ClientProjection() {}
 
-    public record Annotation(String id, double x, double y, Map<String,String> text, String style, String color) {}
+    public record Annotation(String id, double x, double y, Map<String,String> text, String style, String color,
+                             Map<String,JsonArray> rich) {
+        public Annotation(String id,double x,double y,Map<String,String> text,String style,String color) {
+            this(id,x,y,text,style,color,Map.of());
+        }
+    }
     public record Category(String id, Map<String,String> title, Map<String,String> description, String icon, List<Annotation> annotations) {
         public Category(String id, Map<String,String> title, Map<String,String> description, String icon) {
             this(id,title,description,icon,List.of());

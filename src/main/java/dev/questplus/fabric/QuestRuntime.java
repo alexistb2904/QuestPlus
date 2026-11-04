@@ -103,7 +103,7 @@ public final class QuestRuntime implements AutoCloseable {
                     for (var element:category.getAsJsonArray("annotations")) {
                         if (!element.isJsonObject()) throw new IllegalArgumentException("Invalid annotation in "+path);
                         var note=element.getAsJsonObject();
-                        if (!Set.of("id","x","y","text","style","color").containsAll(note.keySet())
+                        if (!Set.of("id","x","y","text","style","color","rich").containsAll(note.keySet())
                                 || !note.keySet().containsAll(Set.of("id","x","y","text")))
                             throw new IllegalArgumentException("Invalid annotation fields in "+path);
                         String aid=note.get("id").getAsString();
@@ -125,7 +125,49 @@ public final class QuestRuntime implements AutoCloseable {
                                 throw new IllegalArgumentException("Invalid annotation text: "+aid);
                             noteText.put(entry.getKey(),entry.getValue().getAsString());
                         }
-                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color));
+                        Map<String,JsonArray> rich=new HashMap<>();
+                        if(note.has("rich")) {
+                            if(!note.get("rich").isJsonObject()) throw new IllegalArgumentException("Invalid rich note: "+aid);
+                            for(var locale:note.getAsJsonObject("rich").entrySet()) {
+                                if(!locale.getKey().matches("[a-z]{2,3}_[a-z]{2,4}") || !locale.getValue().isJsonArray()
+                                    || locale.getValue().getAsJsonArray().size()>96)
+                                    throw new IllegalArgumentException("Invalid rich language/parts: "+aid);
+                                for(var part:locale.getValue().getAsJsonArray()) {
+                                    if(!part.isJsonObject()) throw new IllegalArgumentException("Invalid rich part: "+aid);
+                                    var item=part.getAsJsonObject();
+                                    String type=item.has("type") ? item.get("type").getAsString() : "";
+                                    if(type.equals("text")) {
+                                        if(!Set.of("type","text","font","size","color","highlight","bold","italic","underline","strike").containsAll(item.keySet())
+                                                || !item.has("text") || !item.get("text").isJsonPrimitive()
+                                                || !item.get("text").getAsString().equals(item.get("text").getAsString().substring(0,Math.min(2048,item.get("text").getAsString().length()))))
+                                            throw new IllegalArgumentException("Invalid rich text: "+aid);
+                                        if(item.has("font") && !Set.of("default","uniform","alt","illageralt").contains(item.get("font").getAsString()))
+                                            throw new IllegalArgumentException("Invalid rich font: "+aid);
+                                        if(item.has("size") && (item.get("size").getAsDouble()<0.75 || item.get("size").getAsDouble()>2
+                                                || !Double.isFinite(item.get("size").getAsDouble())))
+                                            throw new IllegalArgumentException("Invalid rich size: "+aid);
+                                        for(String key:List.of("bold","italic","underline","strike"))
+                                            if(item.has(key) && (!item.get(key).isJsonPrimitive() || !item.get(key).getAsJsonPrimitive().isBoolean()))
+                                                throw new IllegalArgumentException("Invalid rich formatting: "+aid);
+                                        for(String key:List.of("color","highlight"))
+                                            if(item.has(key) && !item.get(key).getAsString().matches("#[0-9a-fA-F]{6}"))
+                                                throw new IllegalArgumentException("Invalid rich color: "+aid);
+                                    } else if(type.equals("image")) {
+                                        if(!Set.of("type","data","width","height").containsAll(item.keySet()) ||
+                                                !item.keySet().containsAll(Set.of("data","width","height")))
+                                            throw new IllegalArgumentException("Invalid rich image: "+aid);
+                                        String data=item.get("data").getAsString();
+                                        if(!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}")
+                                                || data.length()>131200 || Base64.getDecoder().decode(data.substring(data.indexOf(',')+1)).length>96*1024
+                                                || item.get("width").getAsInt()<8 || item.get("width").getAsInt()>170
+                                                || item.get("height").getAsInt()<8 || item.get("height").getAsInt()>150)
+                                            throw new IllegalArgumentException("Invalid rich image size/data: "+aid);
+                                    } else throw new IllegalArgumentException("Unknown rich part: "+aid);
+                                }
+                                rich.put(locale.getKey(),locale.getValue().getAsJsonArray());
+                            }
+                        }
+                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich)));
                     }
                 }
                 candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations)));

@@ -6,7 +6,7 @@ export const RICH_MAX_PARTS=96;
 export const RICH_MAX_CATEGORY=900*1024;
 const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,x=>ESC[x]);
-export const mediaPattern=/^data:image\/(png|jpeg|webp|gif);base64,([a-zA-Z0-9+/]+={0,2})$/;
+export const mediaPattern=/^data:image\/(png|jpeg|gif);base64,([a-zA-Z0-9+/]+={0,2})$/;
 export const imageBytes=url=>{const m=String(url||'').match(mediaPattern);return m?Math.floor(m[2].length*3/4)-(m[2].endsWith('==')?2:m[2].endsWith('=')?1:0):Infinity;};
 export function validRich(parts){
  if(!Array.isArray(parts)||parts.length>RICH_MAX_PARTS)return false;
