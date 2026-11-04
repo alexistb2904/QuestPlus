@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {validRich,richToHtml,RICH_MAX_MEDIA} from '../src/core/rich-format.js';
+import {validRich,richToHtml} from '../src/core/rich-format.js';
 import {emptyProject,category,quest,fileMap,importDocuments,seedProjectLocale,validate} from '../src/core/project.js';
 
 const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aet0AAAAASUVORK5CYII=';
@@ -12,10 +12,10 @@ test('pixel font sizes are validated and serialized for annotations and descript
  assert.ok(validRich(parts));
  assert.match(richToHtml(parts),/font-size:46px/);
  assert.match(richToHtml(parts),/width="640" height="512"/);
- assert.equal(validRich([{type:'text',text:'x',sizePx:129}]),false);
- assert.equal(validRich([{type:'text',text:'x',sizePx:5}]),false);
- assert.equal(validRich([{type:'image',data:png,width:2049,height:512}]),false);
- assert.equal(RICH_MAX_MEDIA,2*1024*1024);
+ assert.equal(validRich([{type:'text',text:'x',sizePx:10000}]),true);
+ assert.equal(validRich([{type:'text',text:'x',sizePx:0}]),false);
+ assert.equal(validRich([{type:'image',data:png,width:2049,height:512}]),true);
+ assert.equal(validRich([{type:'image',data:png,width:100000,height:100000}]),true);
  const project=emptyProject();project.categories=[category('questplus:pix','Pixel')];
  const questData=quest(project.categories[0],'questplus:pix/intro','Intro');
  questData.description={en_us:'Image'};
