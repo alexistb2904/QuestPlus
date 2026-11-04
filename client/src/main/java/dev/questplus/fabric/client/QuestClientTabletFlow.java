@@ -13,7 +13,8 @@ final class QuestClientTabletFlow {
     private static Stage stage=Stage.CLOSED;
     private static boolean nativeHands;
     private static boolean closeRequested;
-    private static long closingSince;
+    private static long openingSince,closingSince;
+    private static final long OPEN_WATCHDOG_NANOS=3_500_000_000L;
     private static final long CLOSE_WATCHDOG_NANOS=2_500_000_000L;
     private static CameraType previousCamera;
     private static final TabletDamageGuard DAMAGE=new TabletDamageGuard();
@@ -52,7 +53,7 @@ final class QuestClientTabletFlow {
             // Claim first-person hands BEFORE starting FP PAL. PunchyApi.disable
             // is evaluated by Punchy's renderer during the same frame and
             // must already see this state (including the opening animation).
-            nativeHands=true;stage=Stage.OPENING;
+            nativeHands=true;stage=Stage.OPENING;openingSince=System.nanoTime();
             try {
                 if (FirstPersonPalBridge.play("questplus.open")) {
                     QuestPlusMod.LOGGER.info("Playing Blockbench first-person questplus.open (1.0 s)");
@@ -112,6 +113,19 @@ final class QuestClientTabletFlow {
             }
         }
         if (stage==Stage.CLOSED) return;
+        // Recover even if a shader/FP PAL fails to supply any final frame.
+        if (stage==Stage.OPENING && System.nanoTime()-openingSince>OPEN_WATCHDOG_NANOS) {
+            QuestPlusMod.LOGGER.warn("Tablet opening animation timed out; recovering the normal GUI");
+            stop();reset();
+            if (client.player!=null && client.gui.screen()==null)
+                client.gui.setScreen(new QuestScreen());
+            return;
+        }
+        // If a different screen (inventory, pause, etc.) appeared during
+        // closing, release the FP pose immediately instead of drawing over it.
+        if (stage==Stage.CLOSING && client.gui.screen()!=null) {
+            stop();reset();return;
+        }
         // Shaders can interrupt FP PAL's last frame or its callback. Never
         // retain the CLOSING pose indefinitely: it previously hid all HUD
         // and inventory elements until the player reconnected.
@@ -122,6 +136,7 @@ final class QuestClientTabletFlow {
         if (client.player==null || !client.player.isAlive() || client.player.isSpectator()) {
             stop();reset();return;
         }
+        try {
         if (stage==Stage.OPENING && FirstPersonPalBridge.finished("questplus.open")) {
             if (client.gui.screen()!=null) { stop();reset();return; }
             if (closeRequested) {
@@ -143,6 +158,10 @@ final class QuestClientTabletFlow {
             // Another mod/screen replaced our GUI; clear the lingering pose.
             stop();reset();
         }
+        } catch (LinkageError | RuntimeException error) {
+            QuestPlusMod.LOGGER.warn("Tablet animation was interrupted; restoring vanilla GUI state",error);
+            stop();reset();
+        }
     }
     private static void stop() {
         if (nativeHands) try { FirstPersonPalBridge.stop(); }
@@ -151,7 +170,7 @@ final class QuestClientTabletFlow {
         }
     }
     private static void reset() {
-        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;closingSince=0;
+        stage=Stage.CLOSED;nativeHands=false;closeRequested=false;openingSince=closingSince=0;
         TabletFaceAnchor.reset();DAMAGE.reset();
         if (previousCamera!=null) {
             Minecraft.getInstance().options.setCameraType(previousCamera);

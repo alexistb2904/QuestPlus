@@ -27,7 +27,14 @@ public final class TabletSurfaceRenderer {
     private static GuiRenderer renderer;
     private static boolean rendering;
     private TabletSurfaceRenderer() {}
-    public static boolean hidesHud() { return QuestClientTabletFlow.nativeHandsActive(); }
+    /** Never hide vanilla HUD when the tablet GUI has gone away.
+     * A stalled FP PAL closing animation must not hide the hotbar, crosshair
+     * or inventory until the player disconnects.
+     */
+    public static boolean hidesHud() {
+        return QuestClientTabletFlow.nativeHandsActive()
+            && Minecraft.getInstance().gui.screen() instanceof QuestScreen;
+    }
     static float uiScale() { return (float)QuestPlusClient.settings.scale; }
     static int logicalWidth() { return Math.round(WIDTH/uiScale()); }
     static int logicalHeight() { return Math.round(HEIGHT/uiScale()); }

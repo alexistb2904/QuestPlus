@@ -829,7 +829,8 @@ public final class QuestScreen extends Screen {
         int available=bottom-y-32;
         int row=Math.max(16,Math.min(20,(available-15)/5));
         String[] names={"tablet","blur","animations","reduced_motion","notifications","hud"};
-        boolean[] values={settings.tablet,settings.blur,settings.animations,settings.reducedMotion,settings.notifications,settings.hud};
+        boolean[] values={settings.tablet,TabletShaderCompat.backgroundBlurEnabled(),
+            settings.animations,settings.reducedMotion,settings.notifications,settings.hud};
         for (int i=0;i<names.length;i++) {
             final int n=i;
             QuestButton b=button(names[i],x+(i%2)*(w+8),y+(i/2)*row,w,() -> {
