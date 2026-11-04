@@ -5,7 +5,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class QuestCameraParityTest {
-    @Test void anchorCoordinatesRemainInvertibleAndNavigationNeverScalesDistance() {
+    @Test void anchorCoordinatesRemainInvertibleWithPointerAnchoredZoom() {
         QuestCamera camera=new QuestCamera(.25,2.5);
         camera.fitBounds(List.of(new QuestLayout.Point(-60,40),new QuestLayout.Point(140,100)),
             0,0,680,390,85,50);
@@ -16,11 +16,11 @@ final class QuestCameraParityTest {
         camera.zoomAt(1.5,beforeX,beforeY);
         assertEquals(beforeX,camera.screenX(140),.00001);
         assertEquals(beforeY,camera.screenY(100),.00001);
-        assertEquals(original,camera.screenX(140)-camera.screenX(-60),.00001);
+        assertEquals(original*1.5,camera.screenX(140)-camera.screenX(-60),.00001);
         camera.pan(-30,45);
         assertEquals(beforeX-30,camera.screenX(140),.00001);
         assertEquals(beforeY+45,camera.screenY(100),.00001);
-        assertEquals(1,camera.zoom());
+        assertEquals(1.5,camera.zoom());
     }
     @Test void fittingAnnotationsUsesTheirWorldCentersAndFixedScreenPadding() {
         QuestCamera camera=new QuestCamera(.25,2.5);
