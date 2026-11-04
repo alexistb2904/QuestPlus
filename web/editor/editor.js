@@ -489,7 +489,26 @@ inspector.addEventListener('click',e=>{const btn=e.target.closest('[data-action]
 
 // Rich annotation editing persists an explicit whitelist of runs, never arbitrary HTML.
 // The plain text remains a readable fallback for older QuestPlus clients.
-let richRange=null,richActive=false;
+let richRange=null,richActive=false,richSelectedImage=null;
+document.addEventListener('selectionchange',()=>{
+ const editor=inspector.querySelector('[data-rich-editor]');
+ const sel=window.getSelection();
+ if(editor&&sel&&sel.rangeCount&&editor.contains(sel.anchorNode))richRange=sel.getRangeAt(0).cloneRange();
+});
+function restoreRichRange(editor){
+ const sel=window.getSelection();
+ if(!sel||!richRange||!editor.contains(richRange.commonAncestorContainer))return;
+ try{sel.removeAllRanges();sel.addRange(richRange.cloneRange());}catch(_error){richRange=null;}
+}
+function showImageSize(img){
+ const controls=inspector.querySelector('.rich-image-tools');
+ if(!controls)return;
+ richSelectedImage=img;controls.hidden=!img;
+ if(img){
+  controls.querySelector('[data-rich-image-width]').value=img.width;
+  controls.querySelector('[data-rich-image-height]').value=img.height;
+ }
+}
 function selectedNote(){return selection?.type==='annotation'?getSelected():null;}
 function saveRichEditor(editor){
  const note=selectedNote(),parts=richFromDom(editor);
@@ -513,21 +532,40 @@ inspector.addEventListener('pointerdown',e=>{
  if(e.target.closest('[data-rich-cmd]'))e.preventDefault();
 });
 inspector.addEventListener('click',e=>{
+ const img=e.target.closest('[data-rich-editor] img');
+ if(img){showImageSize(img);return;}
+ if(e.target.closest('[data-rich-remove-image]')){
+  const editor=inspector.querySelector('[data-rich-editor]');
+  if(richSelectedImage&&editor?.contains(richSelectedImage)){
+   if(!richActive)remember(snapshot());
+   richSelectedImage.remove();showImageSize(null);saveRichEditor(editor);
+  }
+  return;
+ }
  const btn=e.target.closest('[data-rich-cmd]');if(!btn)return;
  const editor=inspector.querySelector('[data-rich-editor]');if(!editor)return;
- editor.focus();
+ editor.focus();restoreRichRange(editor);
  document.execCommand(btn.dataset.richCmd,false,btn.dataset.value||null);
  if(!richActive){remember(snapshot());richActive=true;}
+ saveRichEditor(editor);
+});
+inspector.addEventListener('input',e=>{
+ if(!e.target.matches('[data-rich-image-width],[data-rich-image-height]'))return;
+ const editor=inspector.querySelector('[data-rich-editor]');
+ if(!editor||!richSelectedImage||!editor.contains(richSelectedImage))return;
+ const name=e.target.matches('[data-rich-image-width]')?'width':'height',max=name==='width'?170:150;
+ const val=Math.max(8,Math.min(max,Number(e.target.value)||8));
+ richSelectedImage.setAttribute(name,String(val));
  saveRichEditor(editor);
 });
 inspector.addEventListener('change',async e=>{
  const editor=inspector.querySelector('[data-rich-editor]');if(!editor)return;
  if(e.target.matches('[data-rich-font]')){
-  editor.focus();document.execCommand('fontName',false,e.target.value);
+  editor.focus();restoreRichRange(editor);document.execCommand('fontName',false,e.target.value);
   if(!richActive)remember(snapshot());
   saveRichEditor(editor);
  }else if(e.target.matches('[data-rich-size]')){
-  editor.focus();document.execCommand('fontSize',false,e.target.value);
+  editor.focus();restoreRichRange(editor);document.execCommand('fontSize',false,e.target.value);
   if(!richActive)remember(snapshot());
   saveRichEditor(editor);
  }else if(e.target.matches('[data-rich-file]')){
@@ -537,7 +575,7 @@ inspector.addEventListener('change',async e=>{
    const obj=await toEmbeddedImage(file);
    const tag=document.createElement('img');tag.src=obj.data;tag.width=obj.width;tag.height=obj.height;tag.alt='Embedded image';
    editor.focus();
-   const selection=window.getSelection();
+   const selection=window.getSelection();restoreRichRange(editor);
    if(selection&&selection.rangeCount&&editor.contains(selection.getRangeAt(0).commonAncestorContainer)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(tag);range.setStartAfter(tag);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
    else editor.append(tag);
    if(!richActive)remember(snapshot());

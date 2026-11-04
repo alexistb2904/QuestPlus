@@ -32,6 +32,7 @@ function richField(note,language){
    '<select data-rich-size aria-label="Font size"><option value="2">Small</option><option value="3" selected>Normal</option><option value="4">Large</option><option value="5">XL</option></select>'+
    '<label class="rich-upload" title="Embed PNG, JPEG, WebP or GIF">＋ Image<input type="file" data-rich-file accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>'+
   '</div>'+
+  '<div class="rich-image-tools" hidden><strong>Image</strong><label>W <input type="number" data-rich-image-width min="8" max="170" value="120" aria-label="Image width"></label><label>H <input type="number" data-rich-image-height min="8" max="150" value="64" aria-label="Image height"></label><button type="button" data-rich-remove-image aria-label="Remove image">×</button></div>'+
   '<div class="rich-edit" contenteditable="true" data-rich-editor data-rich-locale="'+esc(locale)+'" role="textbox" aria-multiline="true" aria-label="Annotation content">'+richToHtml(parts)+'</div>'+
   (locale!=='en_us'?'<div class="rich-locale-note">English is the source · editing '+esc(locale)+'</div>':'')+
   '</div>';
