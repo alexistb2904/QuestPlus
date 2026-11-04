@@ -388,7 +388,12 @@ public final class QuestScreen extends Screen {
     private void detailsButtons() {
         int x=detailLeft,w=right-x-8;
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
-        button(settings.pinned.contains(selected) ? "unpin" : "pin",x,attachedToScreenFace ? treeTop+18 : bottom-44,w,() -> { if (!settings.pinned.remove(selected) && settings.pinned.size()<3) settings.pinned.add(selected); settings.save(); init(); });
+        var pinButton=button(settings.pinned.contains(selected) ? "unpin" : "pin",x,attachedToScreenFace ? treeTop+18 : bottom-44,w,() -> {
+            if(settings.pinned.remove(selected) || settings.pinned.size()<ClientSettings.MAX_PINNED)
+                settings.pinned.add(selected);
+            settings.save(); init();
+        });
+        pinButton.active=settings.pinned.contains(selected) || settings.pinned.size()<ClientSettings.MAX_PINNED;
         questAction=button("claim",x,attachedToScreenFace ? treeTop+36 : bottom-23,w,() -> {
             if (currentAction==null) return;
             if (currentAction.equals("trigger")) {
