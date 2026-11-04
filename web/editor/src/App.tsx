@@ -32,7 +32,7 @@ import { clampPaneSize } from "./core/pane-resize.js";
 import { PaneSeparator } from "./components/PaneSeparator";
 import { descriptionParts, descriptionHtml } from "./core/description-format.js";
 import { richToHtml } from "./core/rich-format.js";
-import { text, validate, objectiveLabel } from "./core/project.js";
+import { text, validate, objectiveLabel, orderedCategories } from "./core/project.js";
 import { storedUiLocale, setUiLocale, tUI } from "./ui/ui-i18n.js";
 import { localesOf, supportedLocales } from "./types";
 import { useStudio, owner } from "./hooks/useStudio";
@@ -42,6 +42,7 @@ import { Inspector } from "./components/Inspector";
 import { QuestDetails } from "./components/QuestDetails";
 import { IconPicker, ItemIcon } from "./components/IconPicker";
 import { Dialog } from "./components/Dialog";
+import { HubPanel } from "./components/HubPanel";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 
 export default function App() {
@@ -204,6 +205,10 @@ export default function App() {
 				</div>
 			</header>
 			<div className="command-bar stone" role="toolbar" aria-label={tUI("Editor actions")}>
+                <HubPanel project={project} onLoad={next=>{
+                  setState(s=>{const first=orderedCategories(next.categories)[0]?.id||null;
+                    return {...s,project:next,categoryId:first,selection:first?{type:"category",id:first}:null,camera:{x:0,y:0,zoom:1},language:"en_us"}});
+                }}/>
 				<button
 					className="button primary"
 					onClick={() => {

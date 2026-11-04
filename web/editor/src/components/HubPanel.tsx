@@ -86,7 +86,7 @@ export function HubPanel({project,onLoad}:{project:Project;onLoad:(p:Project)=>v
  const publishPack=()=>run(async()=>{
   const issues=validate(project);if(issues.length)throw Error(issues[0].where+': '+issues[0].message);
   const result=await json(host+'/v1/packs','POST',{files:documents(project)});
-  setShare(result.url+'?hub='+encodeURIComponent(host));setStatus('Pack saved for 7 days. Import in Minecraft: /questplus import '+result.id);
+  setShare(result.url+'&hub='+encodeURIComponent(host));setStatus('Pack saved for 7 days. Import in Minecraft: /questplus import '+result.id);
  });
  const loadPack=()=>run(async()=>{
   if(!pack)throw Error('Enter a pack ID');

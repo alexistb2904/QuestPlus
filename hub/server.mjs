@@ -147,7 +147,7 @@ async function handler(req,res){
    rateLimit(req,'packs',8,60*60_000);const input=await body(req),files=documents(input.files);
    const id=token(),record={files,sha256:digest(files),expires:Date.now()+PACK_MS};
    await mkdir(DATA_DIR,{recursive:true});await writeFile(path.join(DATA_DIR,id+'.json'),JSON.stringify(record),{flag:'wx',mode:0o600});
-   packs.set(id,record);return json(res,201,{id,url:ALLOWED_ORIGIN+'/?pack='+id,expires:record.expires,sha256:record.sha256});
+   packs.set(id,record);return json(res,201,{id,url:STUDIO_URL+'?pack='+id,expires:record.expires,sha256:record.sha256});
   }
   if(req.method==='GET'&&/^\/v1\/packs\/[A-Za-z0-9_-]+$/.test(p)){
    rateLimit(req,'readpacks',90,60_000);const pack=await readPack(p.split('/').pop());

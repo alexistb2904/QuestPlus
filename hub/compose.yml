@@ -6,6 +6,7 @@ services:
       PORT: '8787'
       HUB_PUBLIC_URL: ${HUB_PUBLIC_URL:?Set HTTPS public URL}
       STUDIO_ORIGIN: ${STUDIO_ORIGIN:?Set Quest Studio origin}
+      STUDIO_URL: ${STUDIO_URL:?Set full Quest Studio URL}
       HUB_SERVER_KEY: ${HUB_SERVER_KEY:?Set a 32+ character secret}
       HUB_DATA_DIR: /app/data/packs
     ports:
