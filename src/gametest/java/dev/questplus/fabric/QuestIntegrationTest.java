@@ -25,6 +25,7 @@ public final class QuestIntegrationTest {
     @GameTest(maxTicks=4000)
     public void verticalSlice(GameTestHelper helper) throws Exception {
         var level=helper.getLevel(); var server=level.getServer(); var runtime=QuestPlusMod.runtime();
+        LegacyGameTestFixtures.install(server); runtime.reload();
         var player=(ServerPlayer)helper.makeMockServerPlayer(GameType.SURVIVAL);
         var connection=new Connection(PacketFlow.SERVERBOUND); new EmbeddedChannel(connection);
         server.getPlayerList().placeNewPlayer(connection,player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
