@@ -130,6 +130,12 @@
     },
     "narrative": {
       "$ref": "#/$defs/translations"
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 24,
+      "maximum": 96,
+      "description": "Quest icon width/height in UI pixels, independent of graph zoom. Default 32."
     }
   },
   "allOf": [
