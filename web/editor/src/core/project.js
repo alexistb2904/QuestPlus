@@ -1,5 +1,6 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
 import {validRich,RICH_MAX_CATEGORY} from './rich-format.js';
+import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
   ['block_break','Casser des blocs'],['block_place','Placer des blocs'],['block_interact','Interagir avec un bloc'],
@@ -21,6 +22,10 @@ export const copy=(value)=>structuredClone(value);
 export const emptyProject=()=>({categories:[],quests:[],config:{schemaVersion:1,autosaveSeconds:5},targetMinecraftVersion:'26.3',iconVersions:{}});
 /** The editor starts from the exact 4 categories and 13 quests shipped by QuestPlus. */
 export function demoProject(){return copy(BUILTIN_PROJECT);}
+/** Missing order sorts after explicitly ordered categories; ties are deterministic. */
+export function orderedCategories(categories){
+  return [...categories].sort((a,b)=>(a.order??Number.MAX_SAFE_INTEGER)-(b.order??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
+}
 export function category(id='questplus:new_category',en='New category'){
   return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
 }
@@ -44,6 +49,8 @@ export function objectiveLabel(o,lang='fr_fr'){
     inventory_count:['Posséder','Hold'],travel_distance:['Parcourir','Travel'],location:['Atteindre','Reach'],
     player_death:['Mourir','Die'],manual:['Valider','Acknowledge']
   };
+  if(o.event==='travel_distance')return (fr?'Parcourir ':'Travel ')+Number(((o.count||0)/100).toFixed(2))+' m';
+  if(o.event==='location')return fr?'Atteindre la position':'Reach location';
   const name=String(o.target||'').replace(/^#?/,'').split(':').pop().replace(/[_/]/g,' ');
   return (names[o.event]||['Accomplir','Complete'])[fr?0:1]+' '+(o.count||1)+' '+name;
 }
@@ -104,6 +111,7 @@ export function validate(p){
     const label=c?.id||'Catégorie';
     if(!ID.test(label)||seenC.has(label))fail(label,'ID de catégorie invalide ou dupliqué');
     seenC.add(label);
+    if(Object.hasOwn(c,'order')&&(!Number.isSafeInteger(c.order)||c.order<0||c.order>1000000))fail(label,'L’ordre doit être un entier de 0 à 1 000 000');
     if(!c.title?.en_us?.trim())fail(label,'Nom anglais requis');
     if(c.description && !c.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(!ID.test(c.icon||'minecraft:book'))fail(label,'Icône invalide');
@@ -155,6 +163,14 @@ export function validate(p){
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
+      if(o.event==='location'){
+        const bounds=o.conditions?.position || (Array.isArray(o.conditions?.and)?o.conditions.and.find(node=>node?.position)?.position:null);
+        if(!bounds || !['x','y','z'].every(axis=>Number.isFinite(bounds[axis+'Min'])&&Number.isFinite(bounds[axis+'Max'])))
+          fail(label,'Position : renseigner X, Y et Z');
+      }
+      if(o.event==='biome_visit'&&o.target?.startsWith('minecraft:')&&!BIOMES.includes(o.target))fail(label,'Biome vanilla inconnu : '+o.target);
+      if(o.event==='structure_visit'&&o.target?.startsWith('minecraft:')&&!STRUCTURES.includes(o.target))fail(label,'Structure vanilla inconnue : '+o.target);
+      if(o.event==='dimension_enter'&&o.target?.startsWith('minecraft:')&&!DIMENSIONS.some(([id])=>id===o.target))fail(label,'Dimension vanilla inconnue : '+o.target);
       if(Object.hasOwn(o,'conditions'))validateCondition(o.conditions,label);
     }
     if(Object.hasOwn(q,'requires'))validateCondition(q.requires,label,true);

@@ -63,3 +63,29 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .translation-label{display:flex;align-items:center;gap:7px;justify-content:flex-start}
 .translation-help{flex:none;display:inline-flex;align-items:center;justify-content:center;border:1px solid #a1876366;border-radius:50%;background:#241c17;color:#e4c58f;width:23px;height:23px;padding:0;cursor:pointer;transition:background-color .15s,color .15s}
 .translation-help:hover,.translation-help:focus-visible{background:#594333;color:#fff1c8;outline:2px solid #caa06a;outline-offset:2px}
+
+
+/* Objective targets stay compact but respect each event's required input type. */
+.target-field{display:flex;align-items:flex-end;gap:6px;min-width:0;flex:1}
+.target-field>.field{flex:1;min-width:0}
+.target-field>.button{min-height:31px;padding:0 9px;flex:none}
+.coordinate-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0;flex:1}
+.coordinate-fields .field{min-width:0}
+.coordinate-fields .field>span{position:static;width:auto;height:auto;clip-path:none;overflow:visible}
+.coordinate-fields input{width:100%;min-width:0}
+.dimension-target{min-width:0;flex:1;display:flex;gap:6px;align-items:flex-end}
+.dimension-target select{min-width:95px;max-width:100%;flex:1;background:#211b27;border:1px solid #786382;border-radius:3px;padding:6px}
+.dimension-target>.field{min-width:100px;flex:1}
+.fixed-target{color:var(--muted);font-size:12px;align-self:center}
+.target-custom{display:flex;gap:8px;align-items:center;padding:10px 0 0;border-top:1px solid #5e5267}
+.target-custom input{min-width:0;flex:1;background:#17141b;border:1px solid #796184;border-radius:3px;padding:9px}
+.graph-context-menu{position:absolute;z-index:45;width:180px;padding:5px;border:1px solid #9774b2;border-radius:5px;background:#211b28;box-shadow:0 12px 25px #000b;display:flex;flex-direction:column;gap:3px}
+.graph-context-menu button{display:flex;align-items:center;gap:9px;padding:9px 10px;background:transparent;border:0;border-radius:3px;color:#e7d6f1;text-align:left;font-size:12px}
+.graph-context-menu button:hover,.graph-context-menu button:focus-visible{background:#56396e;color:#fff}
+/* Keep the translation information button outside the editor's formatting toolbar. */
+.inspector-body .section:first-child>.description-field{display:block;min-width:0}
+.description-field .translation-label{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px;margin-bottom:6px}
+.description-field .translation-label>span{min-width:0;overflow-wrap:anywhere}
+.description-field .translation-help{position:relative;z-index:2;flex:0 0 23px}
+.description-field>.description-editor{width:100%;min-width:0}
+@media(max-width:700px){.target-field{flex-wrap:wrap}.target-field>.button{min-width:72px}}

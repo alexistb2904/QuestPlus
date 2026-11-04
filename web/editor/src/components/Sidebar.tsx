@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
 import {Search,ChevronDown,ChevronRight,FolderOpen,FolderPlus,PanelLeftClose,Upload,FilePlus2,RotateCcw} from 'lucide-react';
-import {text} from '../core/project.js';
+import {text,orderedCategories} from '../core/project.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Project,Quest,Selection} from '../types';
@@ -11,7 +11,7 @@ export function Sidebar({project,categoryId,selection,language,onCategory,onQues
  return <aside className="sidebar wood" aria-label={tUI('Library')}>
   <div className="sidebar-header grass-trim"><FolderOpen size={22}/><h2>{tUI('Quest Library')}</h2><button className="icon-button" aria-label={tUI('Collapse library')} onClick={onCollapse}><PanelLeftClose size={18}/></button></div>
   <div className="search-box"><Search size={16}/><input type="search" value={search} aria-label={tUI('Search categories / quests…')} onChange={e=>onSearch(e.target.value)} placeholder={tUI('Search categories / quests…')}/></div>
-  <nav className="library-tree">{project.categories.map(c=>{
+  <nav className="library-tree">{orderedCategories(project.categories).map(c=>{
    const all=project.quests.filter(q=>q.category===c.id),categoryMatches=(text(c.title,language)+' '+c.id).toLocaleLowerCase().includes(query);
    const rows=query&&!categoryMatches?all.filter(q=>(text(q.title,language)+' '+q.id).toLocaleLowerCase().includes(query)):all;
    if(query&&!categoryMatches&&!rows.length)return null;

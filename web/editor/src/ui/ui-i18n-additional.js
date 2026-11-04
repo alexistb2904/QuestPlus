@@ -1,5 +1,19 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
+  ["Choose target","Choisir une cible","Elegir objetivo","选择目标"],
+  ["Search targets…","Rechercher une cible…","Buscar objetivos…","搜索目标…"],
+  ["Use ID","Utiliser cet ID","Usar ID","使用 ID"],
+  ["Modded target ID","ID personnalisé (mod)","ID personalizado (mod)","模组目标 ID"],
+  ["Dimension","Dimension","Dimensión","维度"],
+  ["Custom dimension","Dimension personnalisée","Dimensión personalizada","自定义维度"],
+  ["Distance (m)","Distance (m)","Distancia (m)","距离（米）"],
+  ["Player death","Mort du joueur","Muerte del jugador","玩家死亡"],
+  ["Browse","Parcourir","Explorar","浏览"],
+  ["Create annotation","Créer une annotation","Crear anotación","创建注释"],
+  ["Overworld","Surface","Mundo principal","主世界"],
+  ["Nether","Nether","Nether","下界"],
+  ["The End","End","End","末地"],
+  ["Display order (lowest first)", "Ordre d'affichage (plus petit en premier)", "Orden de aparición (menor primero)", "显示顺序（数字越小越靠前）"],
   [
     "Title",
     "Titre",

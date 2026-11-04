@@ -2,7 +2,8 @@ import React,{useEffect,useState} from 'react';
 import {Target,Gift,GitBranch,Repeat2,MessageCircle,Globe,Trash2,Plus,Search,Check,X} from 'lucide-react';
 import {EVENTS,objectiveLabel,text} from '../core/project.js';
 import {tUI} from '../ui/ui-i18n.js';
-import {ItemIcon} from './IconPicker';
+import {ItemIcon,TargetPicker} from './IconPicker';
+import {DIMENSIONS,initialTarget,targetKind,coordinateBounds,positionValue} from '../core/objective-targets.js';
 import {DescriptionEditor} from './RichEditor';
 import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
@@ -49,6 +50,7 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
 
 export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale,translationRequest=0}:Props){
  const [tab,setTab]=useState<Tab>('objectives');
+  const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:'block'|'item'|'entity'|'biome'|'structure'}|null>(null);
  useEffect(()=>{
   if(!translationRequest)return;
   setTab('localization');
@@ -98,14 +100,38 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <div className="objectives-list">{(quest.objectives||[]).map((o,i)=><div className="mini-card objective-row" key={o.id}>
       <div className="mini-card-head"><ItemIcon id={o.target?.replace(/^#/,'')} size={25}/><strong>{i+1}. {objectiveLabel(o,language)}</strong><small title={o.id}>{o.id}</small><button className="tiny danger" aria-label={ui('Remove objective')} title={ui('Remove objective')} onClick={()=>onAction('remove-objective',i)}><Trash2 size={14}/></button></div>
       <div className="field-row">
-       <Select label="Action" value={o.event} options={[...(EVENTS as [string,string][]),...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event] as [string,string]]:[])]} onChange={v=>onUpdate('objectives.'+i+'.event',v)}/>
-       <Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="minecraft:cobblestone"/>
-       <Field label="Count" type="number" value={o.count} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,v))}/>
+       <Select label="Action" value={o.event} options={[...(EVENTS as [string,string][]),...(!EVENTS.some((x:[string,string])=>x[0]===o.event)?[[o.event,o.event] as [string,string]]:[])]} onChange={v=>{
+         onUpdate('objectives.'+i+'.event',v);
+         onUpdate('objectives.'+i+'.target',initialTarget(v));
+         if(v==='travel_distance'||v==='location')onUpdate('objectives.'+i+'.count',v==='location'?1:100);
+        }}/>
+       {o.event==='location'?<div className="coordinate-fields">{(['x','y','z'] as const).map(axis=>
+         <Field key={axis} label={axis.toUpperCase()} type="number" value={positionValue(o.conditions,axis)} placeholder={axis.toUpperCase()} onChange={v=>{
+           const raw=String(v);
+           const position=coordinateBounds(o.conditions,axis,Number.isFinite(v)?raw:'');
+           onCondition('objective:'+i,position);
+         }}/>)}</div>:
+        o.event==='dimension_enter'?<div className="dimension-target">
+          <select aria-label={ui('Dimension')} value={DIMENSIONS.some(([id])=>id===o.target)?o.target:'custom'} onChange={e=>onUpdate('objectives.'+i+'.target',e.target.value==='custom'?'modid:dimension':e.target.value)}>
+           {DIMENSIONS.map(([id,label])=><option key={id} value={id}>{ui(label)}</option>)}<option value="custom">{ui('Custom dimension')}</option>
+          </select>
+          {!DIMENSIONS.some(([id])=>id===o.target)&&<Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="modid:dimension"/>}
+         </div>:
+        o.event==='travel_distance'?<Field label="Distance (m)" type="number" value={o.count/100} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,Math.round(v*100)))}/>:
+        o.event==='player_death'?<span className="fixed-target">{ui('Player death')}</span>:
+        <div className="target-field"><Field label="Target ID" value={o.target} onChange={v=>onUpdate('objectives.'+i+'.target',v)} placeholder="modid:target"/>
+          {targetKind(o.event)&&<button type="button" className="button secondary" onClick={()=>setTargetBrowser({index:i,kind:targetKind(o.event) as 'block'|'item'|'entity'|'biome'|'structure'})}>{ui('Browse')}</button>}
+         </div>}
+       {!['location','travel_distance'].includes(o.event)&&<Field label="Count" type="number" value={o.count} onChange={v=>onUpdate('objectives.'+i+'.count',Math.max(1,v))}/>}
       </div>
       <Disclosure title="Custom label"><Translated label="Text" prefix={'objectives.'+i+'.text'} value={o.text} language={language} onUpdate={onUpdate}/></Disclosure>
       <Disclosure title="Conditions"><ConditionEditor project={project} scope={'objective:'+i} value={o.conditions} onChange={v=>onCondition('objective:'+i,v)}/></Disclosure>
      </div>)}</div>}
    </>}
+   {targetBrowser&&<TargetPicker kind={targetBrowser.kind} onClose={()=>setTargetBrowser(null)} onPick={id=>{
+     onUpdate('objectives.'+targetBrowser.index+'.target',id);
+     setTargetBrowser(null);
+   }}/>}
    {tab==='rewards'&&<>
     <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button></div></div>
     {!quest.rewards?.length&&<p>{ui('No rewards')}</p>}

@@ -78,7 +78,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon","annotations").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations","order").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -92,6 +92,17 @@ public final class QuestRuntime implements AutoCloseable {
                 if (category.has("icon") && (!category.get("icon").isJsonPrimitive() || !category.get("icon").getAsJsonPrimitive().isString()
                         || !category.get("icon").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+")))
                     throw new IllegalArgumentException("Invalid category icon: " + path);
+                int order=Integer.MAX_VALUE;
+                if (category.has("order")) {
+                    try {
+                        if (!category.get("order").isJsonPrimitive() || !category.get("order").getAsJsonPrimitive().isNumber())
+                            throw new IllegalArgumentException("Not a number");
+                        order=category.get("order").getAsBigDecimal().intValueExact();
+                        if (order<0 || order>1_000_000) throw new IllegalArgumentException("Outside range");
+                    } catch (RuntimeException invalid) {
+                        throw new IllegalArgumentException("Invalid category order in "+path+" (expected integer 0..1000000)",invalid);
+                    }
+                }
                 String icon=category.has("icon") ? category.get("icon").getAsString() : "minecraft:book";
                 validateRegistryReference("icon",icon);
                 Map<String,String> title=new HashMap<>(),description=new HashMap<>();
@@ -172,12 +183,12 @@ public final class QuestRuntime implements AutoCloseable {
                         annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich)));
                     }
                 }
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations)));
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
         registry = candidate;
-        categories = candidateCategories.stream().sorted(Comparator.comparing(ClientProjection.Category::id)).toList();
+        categories = candidateCategories.stream().sorted(Comparator.comparingInt(ClientProjection.Category::order).thenComparing(ClientProjection.Category::id)).toList();
         catalogGeneration++;
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
@@ -192,7 +203,7 @@ public final class QuestRuntime implements AutoCloseable {
         if (registryKind.equals("marker")) {
             Identifier.parse(target.startsWith("#") ? target.substring(1) : target);
             if (kind.equals("travel_distance") && !target.equals("questplus:travel") || kind.equals("location") && !target.equals("questplus:position")
-                    || kind.equals("player_death")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
+                    || kind.equals("player_death") && !target.equals("questplus:death")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
             return;
         }
         if (registryKind.equals("dimension")) {
@@ -261,7 +272,9 @@ public final class QuestRuntime implements AutoCloseable {
 
     public void event(ServerPlayer player, QuestEvent event) {
         assertThread();
-        if (closing || storageFailed || player.isSpectator() || player.isCreative() || blocked.contains(player.getUUID())) return;
+        // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
+        if (closing || storageFailed || (!event.type().equals("manual") && (player.isSpectator() || player.isCreative()))
+            || blocked.contains(player.getUUID())) return;
         if (busy.contains(player.getUUID())) {
             if (deferred.size()>=4096) throw new IllegalStateException("Quest Plus deferred event capacity exceeded");
             deferred.addLast(new DeferredEvent(player,event)); return;
@@ -276,7 +289,7 @@ public final class QuestRuntime implements AutoCloseable {
                 Set<UUID> recipients=teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
                 for (UUID recipient:recipients) for (var award:completed) {
                     var personal=player(recipient);
-                    if (!personal.claims.containsKey(award.key())) personal.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+                    if (!award.rewards().isEmpty() && !personal.claims.containsKey(award.key())) personal.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
                     dirty.add(recipient);
                 }
                 Set<UUID> members=group(uuid); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
@@ -285,7 +298,9 @@ public final class QuestRuntime implements AutoCloseable {
                 persistCurrent(snapshots,team==null ? Map.of() : Map.of(team,teams.get(team)),members);
                 for (var award:completed) for (UUID member:members) {
                     var online=server.getPlayerList().getPlayer(member);
-                    if (online!=null) online.sendSystemMessage(Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
+                    if (online!=null) online.sendSystemMessage(award.rewards().isEmpty()
+                        ? Messages.text(online,"questplus.completed_no_reward",title(online,registry.get(award.questId())))
+                        : Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
                 }
             }
         } catch (IOException | RuntimeException e) {
@@ -374,7 +389,7 @@ public final class QuestRuntime implements AutoCloseable {
             Set<UUID> members=group(id); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
             for (UUID recipient:members) {
                 var p=player(recipient);
-                if (!p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
+                if (!award.rewards().isEmpty() && !p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
                 snapshots.put(recipient,p);
             }
             var team=player(id).teamId;

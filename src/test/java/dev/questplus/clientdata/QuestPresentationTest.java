@@ -40,5 +40,7 @@ class QuestPresentationTest {
         assertEquals("completed",QuestPresentation.status(once,json("{completed:true,unlocked:true}")));
         assertEquals("locked",QuestPresentation.status(once,json("{unlocked:false,counters:{}}")));
         assertEquals("available",QuestPresentation.status(once,json("{unlocked:true,counters:{}}")));
+        assertEquals("reward_ready",QuestPresentation.status(once,json("{completed:true,terminal:true,claimable:true,unlocked:true}")));
+        assertEquals("completed",QuestPresentation.status(once,json("{completed:true,terminal:true,claimable:false,unlocked:true}")));
     }
 }

@@ -38,9 +38,22 @@ class ClientProjectionTest {
         Files.writeString(temp.resolve("b.json"),template.formatted("secret","secret title",",\"hidden\":\"true\""));
         assertThrows(IllegalArgumentException.class,() -> QuestRegistry.load(temp,(kind,id) -> {}));
     }
+    @Test void emptyRewardEntitlementsAreNotClaimable() throws Exception {
+        QuestRegistry registry=QuestRegistry.load(Path.of("src/main/resources/defaults/quests"),(kind,id) -> {});
+        QuestDefinition information=registry.get("questplus:survival/welcome");
+        var engine=new QuestEngine(registry);
+        PlayerProgress state=new PlayerProgress(),personal=new PlayerProgress();
+        engine.grant(state,information.id());
+        personal.entitlements.put("legacy-empty",new PlayerProgress.RewardGrant(information.id(),List.of()));
+        var json=ClientProjection.progress(List.of(information),engine,state,personal).getAsJsonObject(information.id());
+        assertTrue(json.get("completed").getAsBoolean());
+        assertFalse(json.get("claimable").getAsBoolean());
+        assertEquals("completed",QuestPresentation.status(information,json));
+    }
+
     @Test void collectiveProgressNeverExposesPersonalLedgerOrExtensionData() throws Exception {
         QuestRegistry registry=QuestRegistry.load(Path.of("src/main/resources/defaults/quests"),(kind,id) -> {});
-        QuestDefinition q=registry.all().stream().filter(v -> v.progression().equals("once") && !v.objectives().isEmpty()).findFirst().orElseThrow();
+        QuestDefinition q=registry.all().stream().filter(v -> v.progression().equals("once") && !v.objectives().isEmpty() && !v.rewards().isEmpty()).findFirst().orElseThrow();
         QuestEngine engine=new QuestEngine(registry);
         PlayerProgress collective=new PlayerProgress(), personal=new PlayerProgress();
         engine.grant(collective,q.id());

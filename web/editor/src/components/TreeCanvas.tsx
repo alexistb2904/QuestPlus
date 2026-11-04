@@ -3,15 +3,16 @@ import {gameLayout} from '../core/game-layout.js';
 import {dependencyError} from '../core/quest-links.js';
 import {text} from '../core/project.js';
 import {richToHtml} from '../core/rich-format.js';
-import {MessageCircle,GitBranch,Plus,X} from 'lucide-react';
+import {MessageCircle,GitBranch,Plus,X,StickyNote,SquarePlus} from 'lucide-react';
 import {screenPoint,worldPoint,snapEditor,SCALE_X,SCALE_Y} from '../core/editor-geometry.js';
 import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 
-type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void};
-export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,showGrid,gridSize,snap,tool}:Props){
+type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan';onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void};
+export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,showGrid,gridSize,snap,tool}:Props){
  const ref=useRef<HTMLDivElement>(null);
+ const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
  const pointers=useRef(new Map<number,{x:number;y:number}>());
  const gesture=useRef<any>(null);
  const dragging=useRef<any>(null);
@@ -36,6 +37,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  };
  useEffect(()=>{const el=ref.current;if(!el)return;const onWheel=(e:WheelEvent)=>{e.preventDefault();const box=el.getBoundingClientRect();zoomAt(camera.zoom*(e.deltaY>0?.9:1.1),e.clientX-box.left,e.clientY-box.top)};el.addEventListener('wheel',onWheel,{passive:false});return()=>el.removeEventListener('wheel',onWheel)},[camera,size]);
  const onDown=(e:React.PointerEvent)=>{
+  if(contextMenu)setContextMenu(null);
   if(e.button!==0&&e.pointerType!=='touch')return;
   const target=tool==='pan'?null:(e.target as Element).closest<HTMLElement>('[data-node-id]');
   const p=local(e);pointers.current.set(e.pointerId,p);
@@ -96,8 +98,16 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  };
  const icon=(q:Quest)=> <ItemIcon id={q.icon} size={28}/>;
  return <div className="viewport" id="viewport" ref={ref} aria-label={tUI('Interactive quest tree')} role="region" tabIndex={0} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);dragging.current=null;return;}if((e.target as HTMLElement).closest('[data-node-id]'))return;const delta=24/camera.zoom;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
+   onContextMenu={e=>{e.preventDefault();const rect=ref.current!.getBoundingClientRect();
+     const x=e.clientX-rect.left,y=e.clientY-rect.top;
+     setContextMenu({x:Math.min(x,Math.max(0,rect.width-185)),y:Math.min(y,Math.max(0,rect.height-115)),at:world(x,y)});
+   }}
+   onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;return;}if((e.target as HTMLElement).closest('[data-node-id]'))return;const delta=24/camera.zoom;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
    style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*camera.zoom)+'px '+(gridSize*camera.zoom)+'px',backgroundPosition:(-camera.x*SCALE_X*camera.zoom+size.width/2)+'px '+(-camera.y*SCALE_Y*camera.zoom+size.height/2)+'px'}}>
+  {contextMenu&&<div className="graph-context-menu" role="menu" style={{left:contextMenu.x,top:contextMenu.y}} onPointerDown={e=>e.stopPropagation()}>
+   <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('quest',contextMenu.at);setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Create quest')}</button>
+   <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('annotation',contextMenu.at);setContextMenu(null)}}><StickyNote size={15}/>{tUI('Create annotation')}</button>
+   </div>}
   <svg className="edges" viewBox={'0 0 '+size.width+' '+size.height} aria-hidden="true">
    <defs><marker id="quest-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" className="arrow-head"/></marker></defs>
    {graph.edges.map((edge:any)=>{
@@ -127,7 +137,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
    {(category?.annotations||[]).map(a=>{
     const pt=ghost?.id===a.id?ghost:a,p=pixel(pt);
     if(Math.abs(p.x)>size.width+240||Math.abs(p.y)>size.height+240)return null;
-    const rich=a.rich?.[language]||a.rich?.en_us;
+    const rich=a.rich?.[language]||a.rich?.en_us||Object.values(a.rich||{})[0];
     return <div role="button" tabIndex={0} aria-label={text(a.text,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
        data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+camera.zoom+')'}}>
        {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:text(a.text,language)}

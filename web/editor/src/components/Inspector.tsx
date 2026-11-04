@@ -111,6 +111,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
      <Section title="Category">
       <div className="translated-field"><Field label="Name (English)" value={category.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/><TranslationHelp onOpen={onOpenTranslations}/></div>
       <IconField id={category.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
+      <Field label="Display order (lowest first)" type="number" value={category.order??''} placeholder="0" onChange={v=>onUpdate('order',v)}/>
       <div className="translated-field"><Field label="Description (English)" value={category.description?.en_us||''} onChange={v=>onUpdate('description.en_us',v)} rows={3}/><TranslationHelp onOpen={onOpenTranslations}/></div>
      </Section>
      <Section title="Add"><div className="toolbar-row">

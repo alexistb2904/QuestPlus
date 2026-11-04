@@ -23,6 +23,8 @@ class ObjectiveAutoTextTest {
         assertTrue(quest.objectives().getFirst().text().isEmpty());
         assertEquals("Break 32 Cobblestone",QuestPresentation.objectiveText(quest.objectives().getFirst(),"en_us","Cobblestone"));
         assertEquals("Casser 32 Pierres",QuestPresentation.objectiveText(quest.objectives().getFirst(),"fr_fr","Pierres"));
+        assertEquals("Romper 32 Piedras",QuestPresentation.objectiveText(quest.objectives().getFirst(),"es_es","Piedras"));
+        assertEquals("破坏 32 圆石",QuestPresentation.objectiveText(quest.objectives().getFirst(),"zh_cn","圆石"));
     }
     @Test void doesNotRepeatIdenticalObjectiveAndDescription() {
         assertTrue(QuestPresentation.redundantDescription("",List.of("Break 32 Cobblestone")));

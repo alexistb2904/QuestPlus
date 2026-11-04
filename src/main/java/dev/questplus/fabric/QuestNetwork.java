@@ -71,7 +71,7 @@ public final class QuestNetwork {
             ServerPlayer player=server.getPlayerList().getPlayer(id);
             if (player==null || !ServerPlayNetworking.canSend(player,State.TYPE)) continue;
             try { sync(player,false); }
-            catch (Exception e) { QuestPlusMod.LOGGER.error("Quest Plus sync failed for {}",id,e); error(player,"sync_failed"); }
+            catch (Exception e) { QuestPlusMod.LOGGER.error("Quest Plus sync failed for {}",id,e); error(player,"sync_failed",e.getMessage()); }
         }
     }
     private static void sync(ServerPlayer player,boolean force) throws Exception {
@@ -136,9 +136,12 @@ public final class QuestNetwork {
         long id=++transfer;
         for (int i=0;i<parts.size();i++) ServerPlayNetworking.send(player,new State(id,i,parts.size(),parts.get(i)));
     }
-    private static void error(ServerPlayer player,String code) {
+    private static void error(ServerPlayer player,String code) { error(player,code,null); }
+    private static void error(ServerPlayer player,String code,String detail) {
         if (!ServerPlayNetworking.canSend(player,State.TYPE)) return;
-        JsonObject response=new JsonObject(); response.addProperty("type","error"); response.addProperty("error",code); send(player,response);
+        JsonObject response=new JsonObject(); response.addProperty("type","error"); response.addProperty("error",code);
+        if (detail!=null && !detail.isBlank()) response.addProperty("detail",detail.substring(0,Math.min(1500,detail.length())));
+        send(player,response);
     }
     private static void handle(ServerPlayer player,Action request) {
         UUID actor=player.getUUID(); Session session=SESSIONS.computeIfAbsent(actor,k -> new Session()); long now=System.currentTimeMillis();
@@ -166,8 +169,8 @@ public final class QuestNetwork {
                 default -> throw new IllegalArgumentException("Unknown action");
             }
         } catch (Exception e) {
-            QuestPlusMod.LOGGER.debug("Quest Plus client action rejected: {}",e.toString());
-            error(player,"action_rejected");
+            QuestPlusMod.LOGGER.warn("Quest Plus client action rejected: {}",e.getMessage(),e);
+            error(player,QuestPlusMod.unavailableReason().equals(e.getMessage()) ? "sync_failed" : "action_rejected",e.getMessage());
         }
     }
 }

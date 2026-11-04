@@ -38,6 +38,8 @@ public final class QuestScreen extends Screen {
     private JsonArray lastInvitations;
     private final long opened=System.nanoTime();
     private QuestButton questAction;
+    private String pendingManualQuest;
+    private long pendingManualAt;
     private String currentAction;
     private boolean overlayDetails;
     private int detailLeft;
@@ -151,6 +153,9 @@ public final class QuestScreen extends Screen {
             if (tab.equals("team") && (!Objects.equals(lastTeam,state.team) || !Objects.equals(lastInvitations,state.invitations))) init();
             else if (tab.equals("quests") && selected!=null) updateQuestAction();
         }
+        if (pendingManualQuest!=null && System.currentTimeMillis()-pendingManualAt>2500L) {
+            pendingManualQuest=null; updateQuestAction();
+        }
     }
     private String status(String id) {
         return QuestPresentation.status(state.quests.get(id),state.progress(id));
@@ -158,7 +163,7 @@ public final class QuestScreen extends Screen {
     private boolean shown(String id) {
         return filtered.contains(id);
     }
-    private int color(String id) { return switch(statuses.get(id)) { case "completed" -> 0xffdbb67c; case "active" -> 0xffb58a56; case "available" -> 0xffb09aba; default -> 0xff716a65; }; }
+    private int color(String id) { return switch(statuses.get(id)) { case "completed" -> 0xff789474; case "reward_ready" -> 0xffecc875; case "active" -> 0xffb58a56; case "available" -> 0xffb09aba; default -> 0xff716a65; }; }
     private ItemStack icon(String id) {
         return icons.computeIfAbsent(id,key -> { var resource=Identifier.tryParse(key); // A visible barrier item is the fallback for unknown IDs (e.g. a 26.4 item on 26.3).
             // Never resolve an unknown ID to AIR or paint a blank item slot.
@@ -174,6 +179,7 @@ public final class QuestScreen extends Screen {
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta) {
         if (attachedToScreenFace) return;
         extractTablet(g,mx,my,delta);
+        QuestToast.draw(g);
     }
     void extractTablet(GuiGraphicsExtractor g,int mx,int my,float delta) {
         visualOffset=QuestClientTabletFlow.nativeHandsActive() ? 0 : (float)((1-animationProgress())*(height-top));
@@ -190,11 +196,24 @@ public final class QuestScreen extends Screen {
         g.fill(left+3,top+3,right-3,headerBottom,0xff241c18);
         g.fill(left+4,headerBottom,right-4,headerBottom+1,0xff815a3d);
         if (state.ready && tab.equals("quests")) { updateRenderCache(); drawCategoryHeader(g,mx,my); }
-        if (!state.ready) QuestSkin.centered(g,font,t(state.error==null ? "loading" : "network_error"),(left+right)/2,(top+bottom)/2,0xffe4dec9);
+        if (!state.ready) {
+            QuestSkin.centered(g,font,t(state.error==null ? "loading" : "error."+state.error),(left+right)/2,(top+bottom)/2-24,0xffe4dec9);
+            if (state.errorDetail!=null) {
+                int ey=(top+bottom)/2-8, available=Math.max(80,right-left-36);
+                for (String line:wrap(state.errorDetail,available)) {
+                    QuestSkin.text(g,font,line,left+18,ey,0xfff2ac9e,false);
+                    ey+=11;
+                    if (ey>bottom-16) break;
+                }
+            }
+        }
         else if (tab.equals("quests")) { drawCategories(g,mx,my); if (!overlayDetails) drawTree(g,mx,my); if (selected!=null) drawDetails(g); }
         else if (tab.equals("team")) drawTeam(g);
         else QuestSkin.text(g,font,t("settings_hint"),left+14,bottom-22,0xffaaa99a,false);
-        if (state.error!=null) QuestSkin.text(g,font,t("error."+state.error),left+12,bottom-11,0xffe3a692,false);
+        if (state.ready && state.error!=null) {
+            String message=state.errorDetail==null?t("error."+state.error).getString():state.errorDetail;
+            QuestSkin.text(g,font,font.plainSubstrByWidth(message,Math.max(1,right-left-30)),left+12,bottom-11,0xffe3a692,false);
+        }
         super.extractRenderState(g,mx,my,delta);
         if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
@@ -266,10 +285,19 @@ public final class QuestScreen extends Screen {
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
             g.pose().pushMatrix(); g.pose().translate(x-8*(float)camera.zoom(),y-8*(float)camera.zoom()); g.pose().scale((float)camera.zoom());
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
-            if (!state.quests.get(id).progression().equals("once")) QuestSkin.text(g,font,"+",x+r-6,y+r-8,0xffe4cf96,false);
-            if (statuses.get(id).equals("completed")) { g.fill(x+r-5,y+r-6,x+r+2,y+r+1,0xff34492e); g.fill(x+r-4,y+r-3,x+r-2,y+r-1,0xffd6e4b2); g.fill(x+r-2,y+r-4,x+r,y+r-2,0xffd6e4b2); g.fill(x+r,y+r-6,x+r+2,y+r-3,0xffd6e4b2); }
+            String progression=state.quests.get(id).progression();
+            if (!progression.equals("once")) {
+                String marker=progression.equals("repeatable") ? "R" : progression.equals("infinite") ? "∞" : "◆";
+                QuestSkin.text(g,font,marker,x+r-7,y+r-8,0xffe4cf96,false);
+            }
+            if (statuses.get(id).equals("reward_ready")) {
+                g.fill(x+r-6,y+r-7,x+r+3,y+r+3,0xff604019);
+                QuestSkin.text(g,font,"!",x+r-3,y+r-6,0xffffe3a1,false);
+            }
+            else if (statuses.get(id).equals("completed")) { g.fill(x+r-5,y+r-6,x+r+2,y+r+1,0xff34492e); g.fill(x+r-4,y+r-3,x+r-2,y+r-1,0xffd6e4b2); g.fill(x+r-2,y+r-4,x+r,y+r-2,0xffd6e4b2); g.fill(x+r,y+r-6,x+r+2,y+r-3,0xffd6e4b2); }
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
-            if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()),mx,my);
+            if (mx>=x-r && mx<=x+r && my>=y-r && my<=y+r) g.setTooltipForNextFrame(Component.literal(titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+                +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString())),mx,my);
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
         g.disableScissor();
@@ -306,8 +334,8 @@ public final class QuestScreen extends Screen {
             completedNodes=0;
             for (String id:layout.points().keySet()) {
                 var q=state.quests.get(id); String title=state.text(q.title()),status=status(id); titles.put(id,title); statuses.put(id,status);
-                if (status.equals("completed")) completedNodes++;
-                if ((filter.equals("all") || status.equals(filter)) && title.toLowerCase(Locale.ROOT).contains(needle)) filtered.add(id);
+                if (status.equals("completed") || status.equals("reward_ready")) completedNodes++;
+                if ((filter.equals("all") || status.equals(filter) || filter.equals("completed") && status.equals("reward_ready")) && title.toLowerCase(Locale.ROOT).contains(needle)) filtered.add(id);
             }
             cachedLeft=Double.NaN;
         }
@@ -324,15 +352,25 @@ public final class QuestScreen extends Screen {
         int x=detailLeft,w=right-x-8;
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
         button(settings.pinned.contains(selected) ? "unpin" : "pin",x,attachedToScreenFace ? treeTop+18 : bottom-44,w,() -> { if (!settings.pinned.remove(selected) && settings.pinned.size()<3) settings.pinned.add(selected); settings.save(); init(); });
-        questAction=button("claim",x,attachedToScreenFace ? treeTop+36 : bottom-23,w,() -> { if (currentAction!=null) action(currentAction,selected); }); updateQuestAction();
+        questAction=button("claim",x,attachedToScreenFace ? treeTop+36 : bottom-23,w,() -> {
+            if (currentAction==null) return;
+            if (currentAction.equals("trigger")) {
+                pendingManualQuest=selected;
+                pendingManualAt=System.currentTimeMillis();
+            }
+            action(currentAction,selected);
+            updateQuestAction();
+        }); updateQuestAction();
     }
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
         currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : q.kind().equals("information") && q.acknowledgement().equals("manual") && !QuestClientState.flag(p,"completed") ? "trigger" : null;
         questAction.visible=currentAction!=null;
-        questAction.active=currentAction!=null && (currentAction.equals("claim") || QuestClientState.flag(p,"unlocked"));
-        if (currentAction!=null) questAction.setMessage(t(currentAction));
+        boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
+            && System.currentTimeMillis()-pendingManualAt<2500L;
+        questAction.active=currentAction!=null && !pending && (currentAction.equals("claim") || QuestClientState.flag(p,"unlocked"));
+        if (currentAction!=null) questAction.setMessage(t(pending ? "processing" : currentAction));
     }
     private void drawDetails(GuiGraphicsExtractor g) {
         var q=state.quests.get(selected); if (q==null) return;
@@ -353,15 +391,19 @@ public final class QuestScreen extends Screen {
         }
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
         var p=state.progress(q.id()); var counters=p.getAsJsonObject("counters");
+        if (!q.kind().equals("information")) {
         append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString(),w);
         for (var o:q.objectives()) {
             long value=counters!=null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
             String label=objectiveLabelForDisplay(o);
             appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p));
-            if (o.conditions()!=null) append(lines,condition(o.conditions()),w);
         }
+        } else if (!QuestClientState.flag(p,"completed"))
+            append(lines,t(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),w);
         if (q.requires()!=null) { append(lines,t("requires").getString(),w); append(lines,condition(q.requires()),w); }
-        if (!q.progression().equals("once")) append(lines,t("cycles",QuestClientState.count(p,"cycles"),QuestClientState.count(p,"tier")).getString(),w);
+        if (q.progression().equals("tiered")) append(lines,t("tier_count",QuestClientState.count(p,"tier")).getString(),w);
+        else if (!q.progression().equals("once") && QuestClientState.count(p,"cycles")>0)
+            append(lines,t("repeat_count",QuestClientState.count(p,"cycles")).getString(),w);
         append(lines,t("rewards").getString(),w);
         for (var r:q.rewards()) appendTile(lines,reward(r),w,rewardIcon(r));
         for (var tier:q.tiers()) { append(lines,t("tier",tier.threshold()).getString(),w); for (var r:tier.rewards()) appendTile(lines,reward(r),w,rewardIcon(r)); }
@@ -427,7 +469,7 @@ public final class QuestScreen extends Screen {
     }
     private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
         String custom=state.text(o.text());
-        return custom.isBlank()?objectiveLabel(o):custom;
+        return QuestConditionText.withConditions(custom.isBlank()?objectiveLabel(o):custom,o.conditions(),this::questName);
     }
     private String objectiveLabel(QuestDefinition.Objective o) {
         var id=Identifier.tryParse(o.target().startsWith("#") ? o.target().substring(1) : o.target());
@@ -443,10 +485,12 @@ public final class QuestScreen extends Screen {
         return new ItemStack(r.type().equals("experience") ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
     }
     private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
+    private String questName(String id) {
+        var quest=state.quests.get(id);
+        return quest==null?t("unknown_quest").getString():state.text(quest.title());
+    }
     private String condition(QuestDefinition.Condition c) {
-        if (c.operator().equals("quest")) { var q=state.quests.get(c.value()); return q==null ? t("unknown_quest").getString() : state.text(q.title()); }
-        if (!c.children().isEmpty()) return "("+String.join(" "+t("condition."+c.operator()).getString()+" ",c.children().stream().map(this::condition).toList())+")";
-        return t("condition."+(Set.of("and","or","not","quest","healthAtMost","healthAtLeast","sneaking","effect","dimension","tool","biome","equipment","position","context").contains(c.operator()) ? c.operator() : "custom"),c.operator()).getString()+": "+Objects.toString(c.value(),"");
+        return QuestConditionText.describe(c,this::questName);
     }
     private void teamWidgets() {
         lastTeam=state.team; lastInvitations=state.invitations;

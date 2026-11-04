@@ -123,7 +123,10 @@ public final class TabletPoseClient {
             pose.pushPose();
             // Blockbench's player origin is at the feet; Minecraft's model origin is at the head.
             var position=frame.position(); var rotation=frame.rotation(); var scale=frame.scale();
-            pose.translate(-position.x()/16.0,(24-18.8-position.y())/16.0,(-10.5+position.z())/16.0);
+            // Align the tablet with the wrist during pocket retrieval/return.
+            // The exported Blockbench offset leaves the tablet slightly outside the right hand.
+            double pocket=Math.clamp((position.x()-6.0)/9.0,0.0,1.0);
+            pose.translate((-position.x()+3.0*pocket)/16.0,(24-18.8-position.y())/16.0,(-10.5+position.z())/16.0);
             pose.rotateDegrees(Axis.ZP,rotation.z());
             pose.rotateDegrees(Axis.YP,-rotation.y());
             pose.rotateDegrees(Axis.XP,-rotation.x());
