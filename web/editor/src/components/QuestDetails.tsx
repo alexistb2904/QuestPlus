@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import {Target,Gift,GitBranch,Repeat2,MessageCircle,Globe,Trash2,Plus,Search,Check,X} from 'lucide-react';
 import {EVENTS,objectiveLabel,text} from '../core/project.js';
 import {tUI} from '../ui/ui-i18n.js';
@@ -41,17 +41,25 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
    {fields.map(field=>{
     const source=field.value?.en_us||'',value=field.value?.[locale]||'',disabled=!!field.requiresSource&&!source.trim();
     const sourceText=field.rich?descriptionParts(source).map((part:any)=>part.text).join(''):source;
-    return <div className="localization-field" key={field.path}><div className="localization-source"><span>{field.label}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder="Optional" rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
+    return <div className="localization-field" key={field.path}><div className="localization-source"><span>{tUI(field.label)}</span><div>{sourceText||tUI('No source text')}</div></div><div className="localization-target"><span>{field.label}</span>{disabled?<><input aria-label={field.label+' · '+locale} disabled value=""/><small>{tUI('Add an English custom label first.')}</small></>:field.rich?<DescriptionEditor key={target.id+'-'+locale+'-'+field.path} locale={locale} value={value} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>:<Field label={field.label+' · '+locale} value={value} placeholder={tUI("Optional")} rows={field.multiline?3:undefined} onChange={v=>onUpdate(field.path+'.'+locale,v)}/>}</div></div>;
    })}
   </>:<div className="localization-empty"><Globe size={22}/><strong>{tUI('No translations yet')}</strong><p>{tUI('Choose a language to start translating.')}</p></div>}
  </div>;
 }
 
-export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale}:Props){
+export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale,translationRequest=0}:Props){
  const [tab,setTab]=useState<Tab>('objectives');
+ useEffect(()=>{
+  if(!translationRequest)return;
+  setTab('localization');
+  requestAnimationFrame(()=>{
+   const button=document.getElementById('detail-tab-localization');
+   button?.focus();button?.scrollIntoView({block:'nearest'});
+  });
+ },[translationRequest]);
  const quest=selection?.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
  const category=selection?.type==='category'?project.categories.find(c=>c.id===selection.id):undefined;
- if(category)return <section className="quest-details" aria-label={tUI('Localization')}><div className="detail-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" className="active"><Globe size={16}/>{tUI('Localization')}</button></div><div className="detail-content" role="tabpanel"><LocalizationPanel key={category.id} project={project} category={category} onUpdate={onUpdate} onAddLocale={onAddLocale}/></div></section>;
+ if(category)return <section className="quest-details" aria-label={tUI('Localization')}><div className="detail-tabs" role="tablist"><button type="button" role="tab" id="detail-tab-localization" aria-selected="true" className="active"><Globe size={16}/>{tUI('Localization')}</button></div><div className="detail-content" role="tabpanel"><LocalizationPanel key={category.id} project={project} category={category} onUpdate={onUpdate} onAddLocale={onAddLocale}/></div></section>;
  if(!quest)return <section className="quest-details"><div className="detail-heading"><strong>{tUI('Quest details')}</strong></div><div className="detail-content"><p>{tUI('Select a quest to edit its objectives and rewards.')}</p></div></section>;
  const info=quest.kind==='information';
  const changeProgression=(next:string)=>{

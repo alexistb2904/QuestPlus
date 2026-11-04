@@ -65,7 +65,7 @@ export function useStudio() {
 	};
 	function save() {
 		try {
-			localStorage.setItem(KEY, JSON.stringify(state));
+			localStorage.setItem(KEY, JSON.stringify(latest.current));
 			warned.current = false;
 			setSaveStatus("saved");
 			return true;
@@ -179,7 +179,7 @@ export function useStudio() {
 		}));
 	}
 	function createCategory() {
-		const name = prompt("Category (English)", "New category")?.trim();
+		const name = prompt(tUI("Category (English)"), tUI("New category"))?.trim();
 		if (!name) return;
 		mutate((s) => {
 			const id = categoryId(name, new Set(s.project.categories.map((c) => c.id)));
@@ -190,8 +190,8 @@ export function useStudio() {
 		});
 	}
 	function createQuest() {
-		if (!currentCategory) return toast("Create a category first");
-		const name = prompt("Quest (English)", "New quest")?.trim();
+		if (!currentCategory) return toast(tUI("Create a category first"));
+		const name = prompt(tUI("Quest (English)"), tUI("New quest"))?.trim();
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
@@ -220,7 +220,7 @@ export function useStudio() {
 			if (dependents.length)
 				return toast(tUI("Remove this quest from its dependents first:") + " " + dependents.map((q) => text(q.title, state.language) || q.id).join(", "));
 		}
-		if (kind.startsWith("delete-") && !confirm("Delete selected " + kind.slice(7) + "?")) return;
+		if (kind.startsWith("delete-") && !confirm(tUI("Delete selected item?"))) return;
 		mutate((s) => {
 			const selected = s.selection,
 				o = owner(s.project, selected);
@@ -350,7 +350,7 @@ export function useStudio() {
 		}, "drag:" + id);
 	}
 	function autoLayout() {
-		if (!currentCategory || !confirm("Auto-arrange quests in this category?")) return;
+		if (!currentCategory || !confirm(tUI("Auto-arrange quests in this category?"))) return;
 		mutate((s) => {
 			const qs = s.project.quests.filter((q) => q.category === s.categoryId),
 				computed = gameLayout(qs.map((q) => ({ ...q, layout: undefined })));
@@ -361,7 +361,7 @@ export function useStudio() {
 		});
 	}
 	function reset(defaults: boolean) {
-		if (!confirm("Replace current project? Export first if needed.")) return;
+		if (!confirm(tUI("Replace current project? Export first if needed."))) return;
 		mutate((s) => {
 			s.project = (defaults ? demoProject() : emptyProject()) as Project;
 			s.categoryId = s.project.categories[0]?.id || null;
@@ -395,7 +395,7 @@ export function useStudio() {
 		}
 	}
 	async function importFiles(files: FileList | null) {
-		if (!files?.length || !confirm("Replace the current quest pack?")) return;
+		if (!files?.length || !confirm(tUI("Replace the current quest pack?"))) return;
 		try {
 			const docs: { name: string; content: string }[] = [];
 			for (const file of Array.from(files)) {
@@ -412,19 +412,19 @@ export function useStudio() {
 				s.camera = { x: 0, y: 0, zoom: 1 };
 				s.language = "en_us";
 			});
-			toast("Pack imported");
+			toast(tUI("Pack imported"));
 		} catch (e) {
-			toast("Import error: " + (e as Error).message);
+			toast(tUI("Import error:") + " " + (e as Error).message);
 		}
 	}
 	function exportZip() {
-		const errors = validate(state.project);
+		const errors = validate(latest.current.project);
 		if (errors.length) {
-			toast("Fix validation errors");
+			toast(tUI("Fix validation errors"));
 			return false;
 		}
 		try {
-			const blob = makeZip(fileMap(state.project)),
+			const blob = makeZip(fileMap(latest.current.project)),
 				url = URL.createObjectURL(blob),
 				link = document.createElement("a");
 			link.href = url;
@@ -433,12 +433,17 @@ export function useStudio() {
 			link.click();
 			link.remove();
 			setTimeout(() => URL.revokeObjectURL(url), 1500);
-			toast("ZIP exported");
+			toast(tUI("ZIP exported"));
 			return true;
 		} catch (e) {
-			toast("Export error: " + (e as Error).message);
+			toast(tUI("Export error:") + " " + (e as Error).message);
 			return false;
 		}
+	}
+	// Manual Save creates an importable ZIP; automatic local autosave never downloads files.
+	function saveAndExport() {
+		save();
+		return exportZip();
 	}
 	function applyJson(raw: string) {
 		try {
@@ -505,6 +510,7 @@ export function useStudio() {
 		connectQuests,
 		importFiles,
 		exportZip,
+		saveAndExport,
 		applyJson,
 	};
 }

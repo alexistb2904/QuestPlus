@@ -1,5 +1,5 @@
 import React,{useId,useState} from 'react';
-import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target} from 'lucide-react';
+import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target,Info} from 'lucide-react';
 import {text} from '../core/project.js';
 import {gameLayout} from '../core/game-layout.js';
 import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
@@ -9,7 +9,7 @@ import {RichEditor,DescriptionEditor} from './RichEditor';
 import {tUI} from '../ui/ui-i18n.js';
 import type {Project,Selection} from '../types';
 
-export type Props={project:Project;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;};
+export type Props={project:Project;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;onOpenTranslations?:()=>void;translationRequest?:number;};
 type FieldProps={label:string;value:any;onChange:(value:any)=>void;type?:string;placeholder?:string;rows?:number};
 export function Field({label,value,onChange,type='text',placeholder='',rows}:FieldProps){
  return <label className="field"><span>{tUI(label)}</span>{rows?
@@ -47,7 +47,7 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
   const child=childrenOf(node);
   if(child){
    return <div key={path} className={'cond-group depth-'+Math.min(depth,4)}>
-    <div className="cond-group-head"><select className="cond-op" aria-label="Logical operator" value={child.type} onChange={e=>group(path,e.target.value as any)}>
+    <div className="cond-group-head"><select className="cond-op" aria-label={tUI("Logical operator")} value={child.type} onChange={e=>group(path,e.target.value as any)}>
      <option value="and">AND</option><option value="or">OR</option><option value="not">NOT</option>
     </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>
     <div className="cond-children">{child.children.map((c:any,i:number)=>render(c,path?path+'.'+i:String(i),depth+1))}</div>
@@ -70,9 +70,9 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
     {!choices.some(([key])=>key===kind)&&<option value={kind}>{kind}</option>}
    </select>
    {kind==='sneaking'?<select aria-label={tUI('Condition value')} value={String(val)} onChange={e=>mutate(root=>setAt(root,path,{sneaking:e.target.value==='true'}))}><option value="true">{tUI('Yes')}</option><option value="false">{tUI('No')}</option></select>:
-    kind==='equipment'?<><select aria-label="Equipment slot" value={val?.slot||'mainhand'} onChange={e=>setMember('slot',e.target.value)}>{['mainhand','offhand','head','chest','legs','feet'].map(s=><option key={s} value={s}>{s}</option>)}</select><input aria-label="Equipment item" value={val?.item||''} onChange={e=>setMember('item',e.target.value)}/></>:
+    kind==='equipment'?<><select aria-label={tUI("Equipment slot")} value={val?.slot||'mainhand'} onChange={e=>setMember('slot',e.target.value)}>{['mainhand','offhand','head','chest','legs','feet'].map(s=><option key={s} value={s}>{s}</option>)}</select><input aria-label={tUI("Equipment item")} value={val?.item||''} onChange={e=>setMember('item',e.target.value)}/></>:
     kind==='position'?<div className="field-row">{['xMin','xMax','yMin','yMax','zMin','zMax'].map(axis=><label className="field" key={axis}><span>{axis}</span><input type="number" value={val?.[axis]??''} onChange={e=>{const next={...val};if(e.target.value==='')delete next[axis];else next[axis]=Number(e.target.value);mutate(root=>setAt(root,path,{position:next}));}}/></label>)}</div>:
-    kind==='context'?<><input aria-label="Context key" value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label="Context value (JSON)" defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:
+    kind==='context'?<><input aria-label={tUI("Context key")} value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label={tUI("Context value (JSON)")} defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:
     typeof val==='object'?<small>{tUI('Edit custom conditions in Advanced JSON.')}</small>:
     <input aria-label={tUI('Condition value')} value={val??''} onChange={e=>mutate(root=>setAt(root,path,{[kind]:kind.startsWith('health')?Number(e.target.value):e.target.value}))}/>}
    <button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button>
@@ -85,7 +85,11 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
   </div>
  </div>;
 }
-export function Inspector({project,selection,language,onUpdate,onAction,onChooseIcon}:Props){
+function TranslationHelp({onOpen}:{onOpen?:()=>void}){
+ const message=tUI('Add translations in the Languages tab.');
+ return <button type="button" className="translation-help" title={message} aria-label={tUI('Open the Languages tab to translate this text')} onClick={onOpen}><Info size={15} aria-hidden="true"/></button>;
+}
+export function Inspector({project,selection,language,onUpdate,onAction,onChooseIcon,onOpenTranslations}:Props){
  const [copyStatus,setCopyStatus]=useState<'idle'|'copied'|'error'>('idle');
  const category=selection?.type==='category'?project.categories.find(c=>c.id===selection.id):undefined;
  const quest=selection?.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
@@ -105,9 +109,9 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
    <div className="inspector-body">
     {category&&<>
      <Section title="Category">
-      <Field label="Name" value={category.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/>
+      <div className="translated-field"><Field label="Name (English)" value={category.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/><TranslationHelp onOpen={onOpenTranslations}/></div>
       <IconField id={category.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
-      <Field label="Description" value={category.description?.en_us||''} onChange={v=>onUpdate('description.en_us',v)} rows={3}/>
+      <div className="translated-field"><Field label="Description (English)" value={category.description?.en_us||''} onChange={v=>onUpdate('description.en_us',v)} rows={3}/><TranslationHelp onOpen={onOpenTranslations}/></div>
      </Section>
      <Section title="Add"><div className="toolbar-row">
       <button className="button secondary" onClick={()=>onAction('create-quest')}>+ {tUI('Quest')}</button>
@@ -128,11 +132,11 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
     {quest&&<>
      <Section title="Quest">
       <label className="field"><span>{tUI('Quest ID')}</span><span className="id-field"><input aria-label={tUI('Quest ID')} readOnly value={quest.id}/><button type="button" className="icon-button" aria-label={tUI('Copy quest ID')} title={copyStatus==='copied'?tUI('Copied'):copyStatus==='error'?tUI('Copy unavailable'):tUI('Copy quest ID')} onClick={async()=>{try{await navigator.clipboard.writeText(quest.id);setCopyStatus('copied')}catch{setCopyStatus('error')}}}>{copyStatus==='copied'?<Check size={16}/>:<Copy size={16}/>}</button></span>{copyStatus==='error'&&<small role="status">{tUI('Copy unavailable')}</small>}</label>
-      <Field label="Title" value={quest.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/>
+      <div className="translated-field"><Field label="Title (English)" value={quest.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/><TranslationHelp onOpen={onOpenTranslations}/></div>
       <Select label="Type" value={quest.kind||'standard'} options={[['standard','Quest'],['information','Information']]} onChange={changeKind}/>
       <Select label="Category" value={quest.category} options={project.categories.map(c=>[c.id,text(c.title,language)])} onChange={v=>onUpdate('category',v)}/>
       <IconField id={quest.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
-      <div className="description-field"><span>{tUI('Description')}</span><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us} onChange={v=>onUpdate('description.en_us',v)}/></div>
+      <div className="description-field"><div className="translation-label"><span>{tUI('Description (English)')}</span><TranslationHelp onOpen={onOpenTranslations}/></div><DescriptionEditor key={quest.id+'-description-en'} locale="en_us" value={quest.description?.en_us} onChange={v=>onUpdate('description.en_us',v)}/></div>
      </Section>
      <Section title="Position"><div className="field-row">
       <Field label="X" type="number" value={position?.x??0} onChange={v=>onUpdate('layout.x',v)}/>

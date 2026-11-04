@@ -1,0 +1,558 @@
+/** Complete primary-language UI translations for the React editor. */
+export const UI_COMPLETIONS = [
+  [
+    "Quest Editor for Minecraft Mods",
+    "Editor de misiones para mods de Minecraft",
+    "Minecraft 模组任务编辑器"
+  ],
+  [
+    "Quest Editor",
+    "Editor de misiones",
+    "任务编辑器"
+  ],
+  [
+    "Minecraft landscape",
+    "Paisaje de Minecraft",
+    "Minecraft 风景"
+  ],
+  [
+    "Editor actions",
+    "Acciones del editor",
+    "编辑器操作"
+  ],
+  [
+    "Preview",
+    "Vista previa",
+    "预览"
+  ],
+  [
+    "Zoom out",
+    "Alejar",
+    "缩小"
+  ],
+  [
+    "Zoom in",
+    "Acercar",
+    "放大"
+  ],
+  [
+    "Reset zoom",
+    "Restablecer zoom",
+    "重置缩放"
+  ],
+  [
+    "Show grid",
+    "Mostrar cuadrícula",
+    "显示网格"
+  ],
+  [
+    "Grid size",
+    "Tamaño de cuadrícula",
+    "网格大小"
+  ],
+  [
+    "Snap",
+    "Ajustar a la cuadrícula",
+    "吸附网格"
+  ],
+  [
+    "Add Category",
+    "Añadir categoría",
+    "添加类别"
+  ],
+  [
+    "Add Quest",
+    "Añadir misión",
+    "添加任务"
+  ],
+  [
+    "Open library",
+    "Abrir biblioteca",
+    "打开资料库"
+  ],
+  [
+    "Quest Diagram",
+    "Diagrama de misiones",
+    "任务关系图"
+  ],
+  [
+    "Select",
+    "Seleccionar",
+    "选择"
+  ],
+  [
+    "Pan",
+    "Mover la vista",
+    "平移视图"
+  ],
+  [
+    "Drag to move · Scroll to zoom",
+    "Arrastra para mover · Desplaza para ampliar",
+    "拖动移动 · 滚轮缩放"
+  ],
+  [
+    "Add annotation",
+    "Añadir anotación",
+    "添加标注"
+  ],
+  [
+    "Validation: No issues found",
+    "Validación: sin problemas",
+    "验证：未发现问题"
+  ],
+  [
+    "errors",
+    "errores",
+    "个错误"
+  ],
+  [
+    "Saved locally",
+    "Guardado localmente",
+    "已保存到本地"
+  ],
+  [
+    "Local save failed",
+    "Error al guardar localmente",
+    "本地保存失败"
+  ],
+  [
+    "Saving…",
+    "Guardando…",
+    "正在保存…"
+  ],
+  [
+    "Quest pack",
+    "Paquete de misiones",
+    "任务包"
+  ],
+  [
+    "Quest text",
+    "Texto de las misiones",
+    "任务文本"
+  ],
+  [
+    "Target Minecraft version",
+    "Versión de Minecraft de destino",
+    "目标 Minecraft 版本"
+  ],
+  [
+    "Quest preview",
+    "Vista previa de la misión",
+    "任务预览"
+  ],
+  [
+    "Content preview · Player progress is not simulated",
+    "Vista previa del contenido · No se simula el progreso del jugador",
+    "内容预览 · 不模拟玩家进度"
+  ],
+  [
+    "Quest Library",
+    "Biblioteca de misiones",
+    "任务资料库"
+  ],
+  [
+    "Collapse library",
+    "Contraer biblioteca",
+    "收起资料库"
+  ],
+  [
+    "Search categories / quests…",
+    "Buscar categorías o misiones…",
+    "搜索类别或任务…"
+  ],
+  [
+    "Collapse category",
+    "Contraer categoría",
+    "收起类别"
+  ],
+  [
+    "Expand category",
+    "Expandir categoría",
+    "展开类别"
+  ],
+  [
+    "No quests yet",
+    "Todavía no hay misiones",
+    "暂无任务"
+  ],
+  [
+    "No results",
+    "Sin resultados",
+    "无搜索结果"
+  ],
+  [
+    "Folder",
+    "Carpeta",
+    "文件夹"
+  ],
+  [
+    "Project options",
+    "Opciones del proyecto",
+    "项目选项"
+  ],
+  [
+    "Load defaults",
+    "Cargar valores predeterminados",
+    "加载默认内容"
+  ],
+  [
+    "New project",
+    "Proyecto nuevo",
+    "新建项目"
+  ],
+  [
+    "New Category",
+    "Nueva categoría",
+    "新建类别"
+  ],
+  [
+    "Interactive quest tree",
+    "Árbol de misiones interactivo",
+    "交互式任务树"
+  ],
+  [
+    "Quest overview",
+    "Vista general de las misiones",
+    "任务概览"
+  ],
+  [
+    "Quest details",
+    "Detalles de la misión",
+    "任务详情"
+  ],
+  [
+    "Select a quest to edit its objectives and rewards.",
+    "Selecciona una misión para editar sus objetivos y recompensas.",
+    "选择任务以编辑目标和奖励。"
+  ],
+  [
+    "Quest objectives",
+    "Objetivos de la misión",
+    "任务目标"
+  ],
+  [
+    "No rewards",
+    "Sin recompensas",
+    "没有奖励"
+  ],
+  [
+    "Remove objective",
+    "Eliminar objetivo",
+    "移除目标"
+  ],
+  [
+    "Remove reward",
+    "Eliminar recompensa",
+    "移除奖励"
+  ],
+  [
+    "A quest becomes available when its prerequisites are complete.",
+    "La misión estará disponible al completar sus requisitos previos.",
+    "完成前置条件后即可解锁任务。"
+  ],
+  [
+    "Once",
+    "Una vez",
+    "一次"
+  ],
+  [
+    "Infinite",
+    "Infinita",
+    "无限次"
+  ],
+  [
+    "Tiered",
+    "Por niveles",
+    "分阶段"
+  ],
+  [
+    "Any",
+    "Cualquiera",
+    "任意一个"
+  ],
+  [
+    "Sequence",
+    "En orden",
+    "按顺序"
+  ],
+  [
+    "After last tier",
+    "Después del último nivel",
+    "完成最后阶段后"
+  ],
+  [
+    "Stop",
+    "Detener",
+    "停止"
+  ],
+  [
+    "Repeat last tier",
+    "Repetir el último nivel",
+    "重复最后阶段"
+  ],
+  [
+    "Tier",
+    "Nivel",
+    "阶段"
+  ],
+  [
+    "Threshold",
+    "Umbral",
+    "阈值"
+  ],
+  [
+    "Remove tier",
+    "Eliminar nivel",
+    "移除阶段"
+  ],
+  [
+    "Remove this tier and its rewards?",
+    "¿Eliminar este nivel y sus recompensas?",
+    "确定要移除此阶段及其奖励吗？"
+  ],
+  [
+    "NPC interaction",
+    "Interacción con PNJ",
+    "与 NPC 交互"
+  ],
+  [
+    "An NPC interaction is an objective. Its target is an entity type, not a unique NPC.",
+    "La interacción con un PNJ es un objetivo. Su destino es un tipo de entidad, no un PNJ específico.",
+    "与 NPC 交互属于任务目标；目标是实体类型，而不是某个特定 NPC。"
+  ],
+  [
+    "To unlock another quest after an interaction, create an NPC interaction quest and select it as a prerequisite. Dialogues and direct NPC unlocks are not available in the current engine.",
+    "Para desbloquear otra misión tras la interacción, crea una misión de interacción con un PNJ y úsala como requisito previo. El motor actual no admite diálogos ni desbloqueos directos mediante PNJ.",
+    "要在交互后解锁另一项任务，请创建 NPC 交互任务并将其设为前置条件。当前引擎不支持对话或通过 NPC 直接解锁。"
+  ],
+  [
+    "NPC interaction objective",
+    "Objetivo de interacción con PNJ",
+    "NPC 交互目标"
+  ],
+  [
+    "Localization",
+    "Traducciones",
+    "翻译"
+  ],
+  [
+    "Edit the English source and the selected quest language.",
+    "Edita el texto original en inglés y la traducción al idioma seleccionado.",
+    "编辑英文原文及所选任务语言的译文。"
+  ],
+  [
+    "Information quests are completed once.",
+    "Las misiones informativas solo se completan una vez.",
+    "信息任务只能完成一次。"
+  ],
+  [
+    "Changing progression removes the tiers and their rewards. Continue?",
+    "Cambiar la progresión eliminará los niveles y sus recompensas. ¿Continuar?",
+    "更改进度模式将删除阶段及其奖励。继续吗？"
+  ],
+  [
+    "Changing to information removes the objectives. Continue?",
+    "Cambiar a informativa eliminará los objetivos. ¿Continuar?",
+    "切换为信息任务会删除目标。继续吗？"
+  ],
+  [
+    "Equipment",
+    "Equipamiento",
+    "装备"
+  ],
+  [
+    "Context",
+    "Contexto",
+    "上下文"
+  ],
+  [
+    "Edit custom conditions in Advanced JSON.",
+    "Edita las condiciones personalizadas en el JSON avanzado.",
+    "请在高级 JSON 中编辑自定义条件。"
+  ],
+  [
+    "Edit custom rewards in Advanced JSON.",
+    "Edita las recompensas personalizadas en el JSON avanzado.",
+    "请在高级 JSON 中编辑自定义奖励。"
+  ],
+  [
+    "Without dying",
+    "Sin morir",
+    "无死亡"
+  ],
+  [
+    "Storage is full. Export your project as ZIP.",
+    "El almacenamiento está lleno. Exporta el proyecto como ZIP.",
+    "存储空间已满。请将项目导出为 ZIP。"
+  ],
+  [
+    "Add translation",
+    "Añadir traducción",
+    "添加翻译"
+  ],
+  [
+    "Empty tree",
+    "Árbol vacío",
+    "空任务树"
+  ],
+  [
+    "Add a quest to begin",
+    "Añade una misión para empezar",
+    "添加任务以开始"
+  ],
+  [
+    "Advanced JSON",
+    "JSON avanzado",
+    "高级 JSON"
+  ],
+  [
+    "Visibility",
+    "Visibilidad",
+    "可见性"
+  ],
+  [
+    "Hidden until unlocked",
+    "Oculta hasta desbloquearse",
+    "解锁前隐藏"
+  ],
+  [
+    "No conditions",
+    "Sin condiciones",
+    "无条件"
+  ],
+  [
+    "Optional",
+    "Opcional",
+    "可选"
+  ],
+  [
+    "Item ID",
+    "ID del objeto",
+    "物品 ID"
+  ],
+  [
+    "Target ID",
+    "ID del objetivo",
+    "目标 ID"
+  ],
+  [
+    "Custom label",
+    "Etiqueta personalizada",
+    "自定义标签"
+  ],
+  [
+    "Time limit (s)",
+    "Límite de tiempo (s)",
+    "时间限制（秒）"
+  ],
+  [
+    "Cooldown (s)",
+    "Tiempo de espera (s)",
+    "冷却时间（秒）"
+  ],
+  [
+    "Read only",
+    "Solo lectura",
+    "只读"
+  ],
+  [
+    "Acknowledge",
+    "Confirmar",
+    "确认"
+  ],
+  [
+    "Framed",
+    "Enmarcada",
+    "带边框"
+  ],
+  [
+    "Heading",
+    "Encabezado",
+    "标题"
+  ],
+  [
+    "Label",
+    "Etiqueta",
+    "标签"
+  ],
+  [
+    "Category ID",
+    "ID de categoría",
+    "类别 ID"
+  ],
+  [
+    "Count",
+    "Cantidad",
+    "数量"
+  ],
+  [
+    "Completion",
+    "Finalización",
+    "完成方式"
+  ],
+  [
+    "Content",
+    "Contenido",
+    "内容"
+  ],
+  [
+    "Browse",
+    "Examinar",
+    "浏览"
+  ],
+  [
+    "Save",
+    "Guardar",
+    "保存"
+  ],
+  [
+    "Fit",
+    "Ajustar vista",
+    "适应视图"
+  ],
+  [
+    "Auto-layout",
+    "Distribución automática",
+    "自动排列"
+  ],
+  [
+    "Condition type",
+    "Tipo de condición",
+    "条件类型"
+  ],
+  [
+    "Condition value",
+    "Valor de la condición",
+    "条件值"
+  ],
+  [
+    "Select quest…",
+    "Seleccionar misión…",
+    "选择任务…"
+  ],
+  [
+    "Modded items: enter a namespaced ID (e.g. create:brass_ingot) directly.",
+    "Objetos de mods: escribe directamente su ID con espacio de nombres (p. ej., create:brass_ingot).",
+    "模组物品：请直接输入带命名空间的 ID（例如 create:brass_ingot）。"
+  ],
+  [
+    "Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?",
+    "Cambiar a informativa eliminará los objetivos, los niveles y sus recompensas, además de las restricciones de juego. ¿Continuar?",
+    "切换为信息任务会删除目标、阶段与奖励，以及游戏限制。继续吗？"
+  ],
+  [
+    "Remove condition",
+    "Eliminar condición",
+    "移除条件"
+  ],
+  [
+    "Prerequisite quest",
+    "Misión previa",
+    "前置任务"
+  ],
+  [
+    "Remove this quest from its dependents first:",
+    "Primero elimina esta misión de los requisitos de:",
+    "请先从以下任务的前置条件中移除该任务："
+  ]
+];

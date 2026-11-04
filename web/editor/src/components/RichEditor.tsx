@@ -42,13 +42,13 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
  const insert=async(file:File)=>{
   try{
    const data=await toEmbeddedImage(file);
-   const tag=document.createElement('img');tag.src=data.data;tag.width=data.width;tag.height=data.height;tag.alt='Embedded image';
+   const tag=document.createElement('img');tag.src=data.data;tag.width=data.width;tag.height=data.height;tag.alt=tUI('Embedded image');
    ref.current?.focus();restore();
    const s=window.getSelection(),r=s?.rangeCount?s.getRangeAt(0):null;
    if(r&&ref.current?.contains(r.commonAncestorContainer)){r.deleteContents();r.insertNode(tag);r.setStartAfter(tag);r.collapse(true);s!.removeAllRanges();s!.addRange(r)}
    else ref.current?.append(tag);
    read();
-  }catch(e){alert((e as Error).message||'Unsupported image')}
+  }catch(e){alert((e as Error).message||tUI('Unsupported image'))}
  };
  const chooseImage=(el:HTMLImageElement)=>{selectedImage.current=el;setImage({width:el.width,height:el.height});};
  const imageSize=(prop:'width'|'height',value:number)=>{
@@ -64,12 +64,12 @@ export function RichEditor({content,onChange,locale,mode='annotation',label}:Pro
    {isDescription?<div className="rich-color"><button type="button" className="rich-color-trigger" title={tUI('Text color')} aria-label={tUI('Text color')} aria-expanded={colorOpen} onClick={()=>setColorOpen(v=>!v)}><Palette size={15}/><ChevronDown size={12}/></button></div>:<>
     <button type="button" onClick={()=>command('hiliteColor','#ffe178')} title={tUI('Highlight')} aria-label={tUI('Highlight')}><Highlighter size={15}/></button>
     <select aria-label={tUI('Font')} defaultValue="default" onChange={e=>command('fontName',e.target.value)}><option value="default">Minecraft</option><option value="uniform">Uniform</option><option value="alt">Alt</option><option value="illageralt">Illager</option></select>
-    <select aria-label={tUI('Text size')} defaultValue="3" onChange={e=>command('fontSize',e.target.value)}><option value="2">Small</option><option value="3">Normal</option><option value="4">Large</option><option value="5">XL</option></select>
+    <select aria-label={tUI('Text size')} defaultValue="3" onChange={e=>command('fontSize',e.target.value)}><option value="2">{tUI('Small')}</option><option value="3">{tUI('Normal')}</option><option value="4">{tUI('Large')}</option><option value="5">{tUI('XL')}</option></select>
     <label className="rich-upload"><ImagePlus size={15}/>{tUI('Image')}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void insert(file)}}/></label>
    </>}
   </div>
-  {isDescription&&colorOpen&&<div className="rich-palette" role="group" aria-label={tUI('Description colors')} onPointerDown={e=>e.preventDefault()} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();setColorOpen(false)}}}>{Object.entries(DESCRIPTION_COLORS).map(([code,color],index)=><button key={code} type="button" style={{backgroundColor:color}} title={colorNames[index]} aria-label={colorNames[index]} onClick={()=>{command('foreColor',color);setColorOpen(false)}}/>)}</div>}
-  {image&&!isDescription&&<div className="rich-image-tools"><strong>Image</strong><label>W <input aria-label={tUI('Image width')} type="number" min="8" max="170" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="150" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);read()}}><Trash2 size={15}/></button></div>}
+  {isDescription&&colorOpen&&<div className="rich-palette" role="group" aria-label={tUI('Description colors')} onPointerDown={e=>e.preventDefault()} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();setColorOpen(false)}}}>{Object.entries(DESCRIPTION_COLORS).map(([code,color],index)=><button key={code} type="button" style={{backgroundColor:color}} title={tUI(colorNames[index])} aria-label={tUI(colorNames[index])} onClick={()=>{command('foreColor',color);setColorOpen(false)}}/>)}</div>}
+  {image&&!isDescription&&<div className="rich-image-tools"><strong>{tUI("Image")}</strong><label>W <input aria-label={tUI('Image width')} type="number" min="8" max="170" value={image.width} onChange={e=>imageSize('width',Number(e.target.value))}/></label><label>H <input aria-label={tUI('Image height')} type="number" min="8" max="150" value={image.height} onChange={e=>imageSize('height',Number(e.target.value))}/></label><button aria-label={tUI('Remove image')} onClick={()=>{selectedImage.current?.remove();selectedImage.current=null;setImage(null);read()}}><Trash2 size={15}/></button></div>}
   <div ref={ref} contentEditable role="textbox" aria-label={label||((isDescription?'Description ':'Annotation ')+locale)} aria-multiline="true" data-placeholder={isDescription?tUI('Write a description…'):undefined} className="rich-edit"
    suppressContentEditableWarning onInput={read} onKeyUp={captureSelection} onMouseUp={captureSelection}
    onClick={e=>{if(isDescription)return;const img=(e.target as HTMLElement).closest('img');if(img)chooseImage(img as HTMLImageElement);else if(image)setImage(null)}}

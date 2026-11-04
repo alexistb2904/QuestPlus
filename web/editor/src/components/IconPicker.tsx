@@ -19,7 +19,7 @@ export function IconPicker({onPick,onClose}:{onPick:(value:string)=>void;onClose
  const matches=useMemo(()=>vanillaCatalog().filter((item:any)=>(filter==='all'||item.kind===filter||item.kind==='both')&&(item.id+' '+item.label).toLowerCase().includes(search.toLowerCase())),[search,filter]);
  return <Dialog title={tUI('Choose an icon')} onClose={onClose} className="icon-dialog">
    <div className="picker-filters"><input autoFocus aria-label={tUI('Search every item and block…')} value={search} onChange={e=>{setSearch(e.target.value);setLimit(96)}} placeholder={tUI('Search every item and block…')}/>
-    <select value={filter} onChange={e=>{setFilter(e.target.value);setLimit(96)}} aria-label="Icon type"><option value="all">{tUI('All')}</option><option value="item">{tUI('Items')}</option><option value="block">{tUI('Blocks')}</option></select>
+    <select value={filter} onChange={e=>{setFilter(e.target.value);setLimit(96)}} aria-label={tUI("Icon type")}><option value="all">{tUI('All')}</option><option value="item">{tUI('Items')}</option><option value="block">{tUI('Blocks')}</option></select>
    </div>
    <div className="picker-count">{matches.length} {tUI('results')}</div>
    <div className="picker-grid">{matches.slice(0,limit).map((item:any)=><button key={item.id} className="picker-item" title={item.id} onClick={()=>onPick(item.id)}><ItemIcon id={item.id}/><span>{item.label}</span></button>)}</div>

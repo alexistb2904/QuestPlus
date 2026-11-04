@@ -9,7 +9,7 @@ async page => {
  await choose('Armed for Trouble');await page.getByRole('button',{name:'Fit',exact:true}).click();
  const baseline=(await save()).project;
  assert(await page.locator('.minimap').count()===0,'minimap removed');
- assert(await page.locator('.inspector').getByLabel('Title',{exact:true}).count()===1,'single source title');
+ assert(await page.locator('.inspector').getByLabel('Title (English)',{exact:true}).count()===1,'single source title');
  assert(await page.locator('.inspector').getByRole('textbox',{name:'Description · fr_fr'}).count()===0,'translations absent from Properties');
  await drag(source,target);
  let state=await save();assert(state.project.quests.find(q=>q.id===target).requires.quest===source,'drag creates correct prerequisite');

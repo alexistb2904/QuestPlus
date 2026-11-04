@@ -43,7 +43,7 @@ async page => {
  await page.getByRole('button',{name:'Annuler',exact:true}).click();
  q=await quest();assert(JSON.stringify(q)===JSON.stringify(before),'one Undo removes NPC objective');
  await page.getByRole('tab',{name:/^Objectifs/}).click();
- const source=page.locator('.inspector').getByLabel('Nom · en_us',{exact:true});
+ const source=page.locator('.inspector').getByLabel('Titre (anglais)',{exact:true});
  await source.fill(before.title.en_us+' verified');
  q=await quest();assert(q.title.en_us.endsWith(' verified'),'title edit');
  await page.getByRole('button',{name:'Annuler',exact:true}).click();
@@ -63,7 +63,7 @@ async page => {
  const archive='output/playwright/QuestPlus-browser-roundtrip.zip';await download.saveAs(archive);
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('input[type=file][accept]').setInputFiles(archive);
- await page.getByRole('status').filter({hasText:'Pack imported'}).waitFor();
+ await page.getByRole('status').filter({hasText:'Pack importé'}).waitFor();
  const imported=await save();assert(imported.project.quests.length===state.project.quests.length,'ZIP import roundtrip');
  await page.locator('#preview-language').selectOption('fr_fr');
  await choose('Abri, dans l\u0027ordre');await page.getByRole('button',{name:'Recentrer',exact:true}).click();
