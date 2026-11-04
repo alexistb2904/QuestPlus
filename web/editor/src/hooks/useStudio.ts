@@ -9,6 +9,7 @@ import {
 	validate,
 	fileMap,
 	importDocuments,
+	seedProjectLocale,
 	text,
 	references,
 	PROGRESSIONS,
@@ -373,15 +374,19 @@ export function useStudio() {
 			s.language = "en_us";
 		});
 	}
+	function setLanguage(id: string) {
+		if (!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))return;
+		mutate(s=>{
+			if(id!=="en_us")seedProjectLocale(s.project,id);
+			s.language=id;
+		});
+	}
 	function addLocale(id: string) {
 		if (!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id) || id === "en_us") {
 			toast(tUI("Invalid language code"));
 			return;
 		}
-		mutate((s) => {
-			s.project.editorLocales = [...new Set([...(s.project.editorLocales || []), id])];
-			s.language = id;
-		});
+		setLanguage(id);
 	}
 	function connectQuests(sourceId: string, targetId: string) {
 		try {
@@ -509,6 +514,7 @@ export function useStudio() {
 		setPosition,
 		autoLayout,
 		reset,
+		setLanguage,
 		addLocale,
 		connectQuests,
 		importFiles,
