@@ -577,6 +577,36 @@ public final class QuestRuntime implements AutoCloseable {
             }
         });
     }
+    /**
+     * Persist one player-selected reward before any claim reservation.
+     * Choices are personal entitlements even when quest progress is shared by a team.
+     * Subsequent claims cannot reroll this choice.
+     */
+    public void chooseReward(ServerPlayer actor,String questId,int zeroBasedOption) throws IOException {
+        assertThread();
+        UUID uuid=actor.getUUID();
+        ensureFree(group(uuid));
+        visibleQuest(uuid,questId);
+        var personal=player(uuid);
+        var entry=personal.entitlements.entrySet().stream()
+            .filter(e->e.getValue().questId().equals(questId)&&!personal.claims.containsKey(e.getKey())
+                &&e.getValue().rewards().stream().anyMatch(r->r.type().equals("questplus:choice")))
+            .sorted(Map.Entry.comparingByKey()).findFirst()
+            .orElseThrow(()->new IllegalArgumentException("No unresolved choice reward for "+questId));
+        var original=entry.getValue();
+        var updated=new ArrayList<>(original.rewards());
+        int at=-1;
+        for(int i=0;i<updated.size();i++)
+            if(updated.get(i).type().equals("questplus:choice")){at=i;break;}
+        if(at<0)throw new IllegalStateException("Choice reward missing");
+        var concrete=RewardTables.choose(updated.get(at),zeroBasedOption);
+        QuestExtensions.validateSavedReward(concrete);
+        updated.set(at,concrete);
+        personal.entitlements.put(entry.getKey(),new PlayerProgress.RewardGrant(questId,List.copyOf(updated)));
+        QuestNetwork.invalidate(uuid);
+        persistCurrent(Map.of(uuid,personal),Map.of(),Set.of(uuid));
+        actor.sendSystemMessage(Component.literal("Quest Plus: choice #"+(zeroBasedOption+1)+" selected. Claim once saving finishes."));
+    }
     public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null); }
     private void claim(ServerPlayer player, String id,Runnable onDelivered) throws IOException {
         assertThread();
@@ -586,6 +616,7 @@ public final class QuestRuntime implements AutoCloseable {
         String key=progress.entitlements.entrySet().stream().filter(e -> e.getValue().questId().equals(id) && !progress.claims.containsKey(e.getKey())).map(Map.Entry::getKey).sorted().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No unclaimed reward entitlement: " + id));
         var rewards=progress.entitlements.get(key).rewards();
+        if(rewards.stream().anyMatch(r->r.type().equals("questplus:choice"))) throw new IllegalArgumentException("Choose your reward first: /questplus choose <quest> <option number>");
         if (claiming.contains(uuid)) throw new IllegalArgumentException("Reward already reserved; pending claims require administrator review");
         if (!fits(player,rewards)) throw new IllegalArgumentException("Inventory needs more free space");
         progress.claims.put(key,"reserved");
