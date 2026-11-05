@@ -328,6 +328,8 @@ for(const a of c.annotations||[]){
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
+    if(Object.hasOwn(q,'progressBeforeUnlock') && typeof q.progressBeforeUnlock!=='boolean')fail(label,'Progression flexible invalide');
+    if(q.progressBeforeUnlock && (q.schemaVersion!==2 || q.kind==='information'))fail(label,'Progression flexible uniquement sur quêtes standards v2');
     if(Object.hasOwn(q,'objectiveThreshold') && (q.objectiveMode!=='at_least'||!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1||q.objectiveThreshold>256))fail(label,'Seuil X sur N invalide');
     if(q.objectiveMode==='at_least' && (!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1))fail(label,'Définir le nombre d’objectifs nécessaires');
     if(q.kind!=='information'&&Array.isArray(q.objectives)){
