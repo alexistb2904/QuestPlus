@@ -767,9 +767,9 @@ public final class QuestScreen extends Screen {
     }
     private ItemStack rewardIcon(QuestDefinition.Reward r) {
         if (r.item()!=null) return icon(r.item());
-        return new ItemStack(r.type().equals("experience") ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
+        return new ItemStack(Set.of("experience","experience_levels").contains(r.type()) ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
     }
-    private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
+    private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("experience_levels") ? r.amount()+" XP levels" : r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
     private String questName(String id) {
         var quest=state.quests.get(id);
         return quest==null?t("unknown_quest").getString():state.text(quest.title());
