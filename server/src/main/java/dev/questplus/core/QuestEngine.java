@@ -32,7 +32,7 @@ public final class QuestEngine {
                 if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
             }
             if ((p!=null && (terminal(q,p) || p.waitingRestart)) || diagnostic(player,q.id()).isPresent()
-                || (q.requires()!=null && !q.requires().matches(event.context(),completed))) continue;
+                || (q.requires()!=null && !q.progressBeforeUnlock() && !q.requires().matches(event.context(),completed))) continue;
             if (p!=null && p.attemptId==null && p.startedAt>0 && now-p.startedAt<q.cooldownSeconds()*1000) continue;
             if (p!=null && q.timeLimitSeconds()>0 && p.attemptId!=null && now-p.startedAt>=q.timeLimitSeconds()*1000) { newAttempt(p); player.revision++; }
             if (objective.conditions()!=null && !objective.conditions().matches(event.context(),completed)) continue;
@@ -60,27 +60,51 @@ public final class QuestEngine {
             touched.add(q.id());
         }
         List<Completion> result=new ArrayList<>();
-        for (String id:touched) {
-            var q=registry.get(id); var p=player.quests.get(id);
-            refreshStates(player,q,p,event.context(),completed,sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
-            if (q.progression().equals("tiered")) {
-                while (p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())) {
-                    var tier=q.tiers().get(p.tier++); p.reachedTiers.add(tier.id()); p.completed=true;
-                    result.add(new Completion(id,id+"|"+p.attemptId+"|"+tier.id(),tier.rewards())); player.revision++;
+        Set<String> evaluated=new HashSet<>();
+        while(!touched.isEmpty()){
+            List<String> batch=List.copyOf(touched);
+            touched.clear();
+            int previousAwards=result.size();
+            for(String id:batch){
+                if(evaluated.contains(id))continue;
+                var q=registry.get(id);
+                var p=player.quests.get(id);
+                if(p==null || terminal(q,p) || p.waitingRestart)continue;
+                refreshStates(player,q,p,event.context(),completed(player),sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
+                // Flexible quests can track progress while locked but never grant rewards early.
+                if(q.requires()!=null && !q.requires().matches(event.context(),completed(player)))continue;
+                evaluated.add(id);
+                if(q.progression().equals("tiered")){
+                    while(p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())){
+                        var tier=q.tiers().get(p.tier++);p.reachedTiers.add(tier.id());p.completed=true;
+                        result.add(new Completion(id,id+"|"+p.attemptId+"|"+tier.id(),tier.rewards()));player.revision++;
+                    }
+                    if(p.tier==q.tiers().size()){
+                        if(q.afterLast().equals("repeat")){p.cycles++;newAttempt(p);p.startedAt=now;}
+                        else p.terminal=true;
+                    }
+                }else if(isSatisfied(q,p)){
+                    p.completed=true;p.cycles++;
+                    String key=q.progression().equals("once")?id:id+"|"+p.attemptId;
+                    result.add(new Completion(id,key,q.rewards()));player.revision++;
+                    switch(q.progression()){
+                        case "once" -> p.terminal=true;
+                        case "repeatable" -> {p.waitingRestart=true;p.startedAt=now;}
+                        case "infinite" -> {newAttempt(p);p.startedAt=now;}
+                        default -> throw new IllegalStateException("Invalid progression");
+                    }
                 }
-                if (p.tier==q.tiers().size()) {
-                    if (q.afterLast().equals("repeat")) { p.cycles++; newAttempt(p); p.startedAt=now; }
-                    else p.terminal=true;
-                }
-            } else if (isSatisfied(q,p)) {
-                p.completed=true; p.cycles++;
-                String key=q.progression().equals("once") ? id : id+"|"+p.attemptId;
-                result.add(new Completion(id,key,q.rewards())); player.revision++;
-                switch (q.progression()) {
-                    case "once" -> p.terminal=true;
-                    case "repeatable" -> { p.waitingRestart=true; p.startedAt=now; }
-                    case "infinite" -> { newAttempt(p); p.startedAt=now; }
-                    default -> throw new IllegalStateException("Invalid progression");
+            }
+            // Grant cascades in the same authoritative transaction: completing a prerequisite
+            // can unlock already-satisfied flexible quests without another gameplay event.
+            if(result.size()>previousAwards){
+                var unlocked=completed(player);
+                for(var q:registry.all()){
+                    if(!q.progressBeforeUnlock()||evaluated.contains(q.id()))continue;
+                    var p=player.quests.get(q.id());
+                    if(p==null||terminal(q,p)||p.waitingRestart||diagnostic(player,q.id()).isPresent())continue;
+                    if(q.requires()!=null && !q.requires().matches(event.context(),unlocked))continue;
+                    if(isSatisfied(q,p))touched.add(q.id());
                 }
             }
         }
