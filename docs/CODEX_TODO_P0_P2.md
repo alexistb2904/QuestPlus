@@ -5,11 +5,11 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 
 ## Vérifié sur le checkout
 
-- [x] Java 25 : `gradlew.bat build integrationTest` ; 175 tests unitaires, sept GameTests serveur (dont le contrôle vanilla), contrôle des sauvegardes des 140 UUID après arrêt.
+- [x] Java 25 : `gradlew.bat build integrationTest` ; 177 tests unitaires, sept GameTests serveur (dont le contrôle vanilla), contrôle des sauvegardes des 140 UUID après arrêt.
 - [x] Client réel : `gradlew.bat runClientGameTest` ; clics dans la tablette 3D, deux choix indépendants, confirmation persistée, attribution et rejet d'un rejeu. Captures initiales dans `docs/reviews/reward-integration/`, continuation dans `docs/reviews/ftb-parity/`.
 - [x] Studio : `npm ci`, `npm run typecheck`, `npm test` (138), `npm run build` ; API : `npm ci`, `npm test` (29). Lanceur Windows `scripts/_qa.bat api-test` vérifié.
 - [x] Revue indépendante : confusion de cycle dans Claim All et accumulation des reçus corrigées, avec régressions GameTest. Un seul reçu livré détaillé et un résultat vide au maximum sont conservés par quête ; les clés anti-rejeu restent conservées.
-- [ ] Observer les vérifications GitHub de la PR ; ne pas confondre les validations locales avec un résultat CI.
+- [ ] GitHub Actions est désactivé sur le dépôt (API vérifiée le 5 novembre) : aucun run/check distant pour ces commits. Les résultats ci-dessous sont locaux ; la PR reste brouillon.
 
 ## P0 — livré dans cette intégration
 
@@ -26,8 +26,9 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 ## P0 — reste bloquant avant certification multijoueur
 
 - [x] **Journal des remises et récupération de processus** : plan détaché, piles sérialisées par codec, marqueur sauvegardé avec l’inventaire vanilla, images JSON joueur/équipe et empreintes ; reprise avant/après save sans nouveau prélèvement. Régressions nouveau fichier `.tmp`, répétition infinie et dernier palier répétable.
+- [x] **Relecture vanilla complète** : marqueur seul insuffisant, décodage des 36 cases et de l’équipement de main secondaire par les codecs Minecraft, comparaison des composants persistants. Un écart conserve le journal et interdit commit/reprise ; noms et données personnalisées testés en GameTest.
 - [x] **Claims réservés** : `/questplus recovery inspect <uuid>` et `resolve <uuid> "<claim>" <delivered|discard> <reason>`, permissions OP et décision auditée atomiquement ; aucune réattribution automatique.
-- [ ] **Durabilité matérielle des remises** : tester coupure réelle à chaque frontière, disque plein, composants moddés et comparaison complète de l’inventaire relu. Le readback actuel vérifie le marqueur ; pas de garantie de coupure électrique ni de borne mesurée de latence des barrières synchrones. `TODO(Codex)` dans `InventoryMarker.save`.
+- [ ] **Durabilité matérielle des remises** : tester coupure réelle à chaque frontière, disque plein et codecs de mods tiers. La relecture compare désormais les 37 piles et leurs composants persistants avec le plan, au commit et à la reprise ; pas de garantie de coupure électrique ni de borne mesurée de latence des barrières synchrones. `TODO(Codex)` dans `InventoryMarker.save`.
 - [ ] **Deux clients réels sur serveur dédié jetable** : la couverture actuelle utilise des joueurs simulés dans le serveur Fabric et un client réel avec serveur intégré. Tester objets moddés, fluides, redémarrages, publication Hub/backup/rollback et packs malveillants/surdimensionnés.
 - [ ] **Parité complète d'authoring** : les nouvelles récompenses ont un roundtrip partagé ; étendre ce contrat à tous les événements, quantités, conditions, descripteurs et exports de migration.
 

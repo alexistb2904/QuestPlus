@@ -117,8 +117,12 @@ public final class RewardIntegrationTest {
         Runnable idle=()->helper.assertTrue(!runtime.isBusy(player.getUUID()),"Await submission save");
         helper.startSequence().thenWaitUntil(idle).thenExecute(step(()->{
             for(int slot=0;slot<36;slot++)inventory.setItem(slot,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE,64));
+            inventory.getItem(2).set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Preserve components"));
+            var custom=new net.minecraft.nbt.CompoundTag();custom.putString("fixture","durable");custom.putInt("value",7);
+            inventory.getItem(2).set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(custom));
             inventory.setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
             player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
+            player.getOffhandItem().set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Offhand components"));
             player.setGameMode(GameType.CREATIVE);
             reject(helper,()->runtime.submitItem(player,"questplus:optional_submission","bonus"),"Creative cannot submit");
             player.setGameMode(GameType.SURVIVAL);
@@ -161,6 +165,14 @@ public final class RewardIntegrationTest {
             inventory.setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
             runtime.submitItem(player,"questplus:tier_repeat_handin","deposit");runtime.submitItem(player,"questplus:tier_repeat_handin","deposit");
             helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:tier_repeat_handin").cycles==2&&inventory.getItem(0).isEmpty(),"Final repeating tier commits exactly one withdrawal per cycle");
+            helper.assertTrue(inventory.getItem(2).getHoverName().getString().equals("Preserve components"),"Unrelated stack metadata preserved in memory");
+            var evidence=new InventoryMarker(server);var ops=net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,server.registryAccess());
+            var expected=new com.google.gson.JsonArray();
+            for(int slot=0;slot<37;slot++)expected.add(net.minecraft.world.item.ItemStack.OPTIONAL_CODEC.encodeStart(ops,slot==36?player.getOffhandItem():inventory.getItem(slot)).getOrThrow());
+            evidence.verifySavedInventory(player.getUUID(),expected);
+            var altered=expected.deepCopy();altered.get(2).getAsJsonObject().remove("components");
+            boolean mismatch=false;try{evidence.verifySavedInventory(player.getUUID(),altered);}catch(java.io.IOException correct){mismatch=true;}
+            helper.assertTrue(mismatch,"Full vanilla readback rejects missing components even with the right stack and marker");
             Files.delete(repeat);Files.delete(infinite);Files.delete(optional);Files.delete(tier);runtime.reload();
         })).thenSucceed();
     }

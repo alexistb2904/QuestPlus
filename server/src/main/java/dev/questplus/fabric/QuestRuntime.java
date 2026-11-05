@@ -58,7 +58,10 @@ public final class QuestRuntime implements AutoCloseable {
         definitions = world.resolve("questplus");
         Defaults.install(definitions);
         inventoryMarker=new InventoryMarker(server);
-        store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"),inventoryMarker::saved);
+        store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"),new JsonProgressStore.SavedMarker() {
+            public String read(UUID id) throws IOException {return inventoryMarker.saved(id);}
+            public void verifyInventory(UUID id,com.google.gson.JsonArray expected) throws IOException {inventoryMarker.verifySavedInventory(id,expected);}
+        });
         try { reload(); teams=new TeamManager(store,registry,players); } catch (IOException | RuntimeException e) { store.close(); throw e; }
     }
 
@@ -442,13 +445,13 @@ public final class QuestRuntime implements AutoCloseable {
         }
         try {
             String old=inventoryMarker.live(actor); UUID baseline=UUID.randomUUID();
-            inventoryMarker.set(actor,old,baseline); inventoryMarker.save(actor,baseline.toString());
+            inventoryMarker.set(actor,old,baseline); inventoryMarker.save(actor,baseline.toString(),beforeJson);
             UUID operation=UUID.randomUUID();
             store.prepareInventory(operation,id,baseline.toString(),beforeJson,afterJson,personal,team==null?Map.of():Map.of(teamId,team)).join();
             inventoryMarker.set(actor,baseline.toString(),operation);
             for(int i=0;i<36;i++)actor.getInventory().setItem(i,after.get(i));
             actor.getInventory().setItem(40,after.get(36)); actor.getInventory().setChanged();
-            inventoryMarker.save(actor,operation.toString());
+            inventoryMarker.save(actor,operation.toString(),afterJson);
             store.commitInventory(operation).join();
             personal.forEach(players::put);
             if(team!=null)teams.get(teamId).progress=team.progress;

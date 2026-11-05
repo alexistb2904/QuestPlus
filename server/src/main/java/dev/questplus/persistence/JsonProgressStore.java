@@ -26,7 +26,10 @@ public final class JsonProgressStore implements AutoCloseable {
     private final ThreadPoolExecutor writer = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
         new ArrayBlockingQueue<>(128), new ThreadPoolExecutor.AbortPolicy());
 
-    @FunctionalInterface public interface SavedMarker { String read(UUID player) throws IOException; }
+    @FunctionalInterface public interface SavedMarker {
+        String read(UUID player) throws IOException;
+        default void verifyInventory(UUID player,JsonArray expected) throws IOException {throw new IOException("Saved inventory verification is required");}
+    }
     @FunctionalInterface interface WriteHook { void after(String point) throws IOException; }
     private record Image(String path, String before, String after, String json) {}
     private record Operation(int schemaVersion, UUID id, boolean committed, List<Image> images) {}
@@ -161,6 +164,7 @@ public final class JsonProgressStore implements AutoCloseable {
             if(!intent.id().equals(operation))throw new IOException("Inventory operation mismatch");
             if(savedMarker==null || !operation.toString().equals(savedMarker.read(intent.player())))
                 throw new IOException("Inventory consumption has not been saved");
+            savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());
             applyInventory(intent);
         });
     }
@@ -215,8 +219,9 @@ public final class JsonProgressStore implements AutoCloseable {
         }
         if(savedMarker==null)throw new IOException("Inventory recovery requires vanilla player save evidence");
         var intent=readInventory(); String marker=savedMarker.read(intent.player());
-        if(intent.id().toString().equals(marker)) { applyInventory(intent); return; }
+        if(intent.id().toString().equals(marker)) { savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());applyInventory(intent);return; }
         if(!intent.previousMarker().equals(marker))throw new IOException("Unknown inventory marker; retain files for review");
+        savedMarker.verifyInventory(intent.player(),intent.inventoryBefore());
         // The old marker proves the withdrawal was never saved. Never restore inventory or replay the event.
         checkImages(intent.images(),false);
         Files.delete(inventoryJournal); Files.deleteIfExists(temporary(inventoryJournal));

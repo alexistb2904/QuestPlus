@@ -6,7 +6,7 @@ Checkout : `QuestPlus-p0-p2`, branche `feat/p0-p2-player-integration`, base `504
 
 | Vérification | Résultat |
 | --- | --- |
-| Java 25 : `gradlew.bat build integrationTest` | 175 tests unitaires ; 7 GameTests au total (6 QuestPlus + contrôle vanilla), sauvegardes de 140 UUID après arrêt vérifiées |
+| Java 25 : `gradlew.bat build integrationTest` | 177 tests unitaires ; 7 GameTests au total (6 QuestPlus + contrôle vanilla), sauvegardes de 140 UUID après arrêt vérifiées |
 | `gradlew.bat runClientGameTest` | Client Minecraft 26.3 réel, paquets et clics dans la tablette native 3D ; choix indépendants, reçu concret, 19 XP exacts, stage attribué, toast reçu et rejeu refusé |
 | Studio : `npm ci`, `npm run typecheck`, `npm test`, `npm run build` | 138 tests, typecheck et build réussis ; audit npm : zéro vulnérabilité |
 | API : `npm ci`, `npm test` | 29 tests réussis ; audit npm : zéro vulnérabilité |
@@ -16,6 +16,7 @@ Logs de travail locaux dans `.tools/` (ignorés). Le build Vite conserve un aver
 
 ## Régressions couvertes
 
+- Relecture vanilla : les preuves contenant le seul marqueur sont refusées ; un composant manquant empêche commit/reprise et conserve le journal. GameTest avec nom, données personnalisées et pile nommée en main secondaire.
 - Journal d’inventaire : ancien/nouveau/mauvais marqueur, empreinte conflictuelle, écriture partielle joueur/équipe, fichier neuf interrompu avant rename et audit de résolution.
 - Remise réelle : tags, 36 slots + main secondaire, vérification non consommatrice, refus créatif/doublon, quête infinie et dernier palier répétable. Les barrières bloquent toute nouvelle action pendant l’écriture.
 - Observation réelle côté serveur : durée, changement de regard, complétion ; stage sondé depuis le fournisseur, sauvegarde vanilla et reconnexion. Cinq mille polls pendant une sauvegarde ne remplissent plus la file d’événements.
@@ -35,6 +36,8 @@ Revue indépendante en lecture seule : quatre défauts confirmés puis corrigés
 
 ## Limites
 
-Pas de certification deux clients réels/serveur dédié, shaders/Iris, adaptateurs fluides/énergie tiers, coupure électrique ou disque plein réels. Le journal simule les interruptions de processus ; le readback vanilla confirme le marqueur et ne compare pas encore chaque composant d’inventaire. Les barrières synchrones n’ont pas de budget de latence mesuré. Les effets partiellement livrés exigent une revue OP, sans réattribution automatique.
+Pas de certification deux clients réels/serveur dédié, shaders/Iris, adaptateurs fluides/énergie tiers, coupure électrique ou disque plein réels. Le journal simule les interruptions de processus ; la relecture vanilla compare le marqueur et les 37 piles avec leurs composants persistants, avant commit et à la reprise. Les codecs tiers ne sont pas couverts par les fixtures vanilla. Les barrières synchrones n’ont pas de budget de latence mesuré. Les effets partiellement livrés exigent une revue OP, sans réattribution automatique.
 
 Les caisses ouvrables, Data Components d’authoring complets, thèmes FTB, imports tiers et politiques FTB restantes sont ouverts dans [le comparatif](../../ftb-quests-gap-analysis.md) et [le backlog](../../CODEX_TODO_P0_P2.md). Aucun résultat ci-dessus ne signifie « zéro écart FTB ».
+
+GitHub : Actions désactivé sur le dépôt (API `/actions/permissions`, `enabled=false`), aucun run distant pour cette branche à la livraison. PR #30 laissée en brouillon ; cette configuration n’a pas été modifiée.
