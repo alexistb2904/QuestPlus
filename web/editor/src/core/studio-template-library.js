@@ -38,3 +38,36 @@ export function buildSavedQuest(template,category,id,title,position){
  delete q.requires;
  return q;
 }
+
+/** Portable, versioned export of personal authoring templates (no account data). */
+export function exportTemplateBundle(storage=globalThis.localStorage){
+ const templates=savedQuestTemplates(storage);
+ return JSON.stringify({format:'questplus-studio-templates',version:1,templates},null,2)+'\n';
+}
+/** All validation is staged before touching persistent storage. Duplicate template IDs replace old copies. */
+export function importTemplateBundle(source,storage=globalThis.localStorage){
+ if(typeof source!=='string'||source.length>750_000)throw Error('Template file exceeds 750 kB');
+ let bundle;try{bundle=JSON.parse(source)}catch{throw Error('Template file is not valid JSON')}
+ if(!bundle||bundle.format!=='questplus-studio-templates'||bundle.version!==1||
+     !Array.isArray(bundle.templates)||bundle.templates.length>32)throw Error('Unsupported template library format');
+ const result=new Map(savedQuestTemplates(storage).map(t=>[t.id,t]));
+ const imported=new Set();
+ for(const candidate of bundle.templates){
+   if(!candidate||typeof candidate!=='object'||Array.isArray(candidate)||
+      typeof candidate.label!=='string'||!candidate.label.trim()||candidate.label.length>64||
+      typeof candidate.id!=='string'||!/^custom:[a-z0-9_]{1,40}$/.test(candidate.id)||
+      !candidate.quest||typeof candidate.quest!=='object'||Array.isArray(candidate.quest)||
+      !Array.isArray(candidate.quest.objectives)||!Array.isArray(candidate.quest.rewards)||
+      candidate.quest.objectives.length>256||candidate.quest.rewards.length>64)
+     throw Error('Invalid saved quest template');
+   if(imported.has(candidate.id))throw Error('Duplicate template '+candidate.id);
+   imported.add(candidate.id);
+   const quest=Object.fromEntries(Object.entries(candidate.quest).filter(([key])=>COLUMNS.has(key)));
+   result.set(candidate.id,{id:candidate.id,label:candidate.label.trim(),quest:structuredClone(quest)});
+ }
+ if(result.size>32)throw Error('32 saved templates maximum; delete some before importing');
+ const serialized=JSON.stringify([...result.values()]);
+ if(serialized.length>500_000)throw Error('Merged template library exceeds 500 kB');
+ storage.setItem(KEY,serialized);
+ return imported.size;
+}
