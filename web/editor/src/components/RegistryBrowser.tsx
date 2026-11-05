@@ -7,7 +7,7 @@ import {hubRegistry,setHubRegistry} from '../core/hub-registry.js';
 export function RegistryBrowser({onClose,onPick}:{onClose:()=>void;onPick?:(kind:string,id:string)=>void}){
  const [version,setVersion]=useState(0),[kind,setKind]=useState('items'),[query,setQuery]=useState(''),[limit,setLimit]=useState(120),[message,setMessage]=useState('');
  const data=hubRegistry() as Record<string,any>;
- const kinds=['items','blocks','entities','effects','enchantments','biomes','structures','dimensions','statistics','advancements'];
+ const kinds=['items','blocks','fluids','entities','effects','enchantments','biomes','structures','dimensions','statistics','advancements'];
  const entries=useMemo(()=>{
    const values=Array.isArray(data[kind])?data[kind] as string[]:[];
    const tags=Array.isArray(data.tags?.[kind])?data.tags[kind] as string[]:[];
