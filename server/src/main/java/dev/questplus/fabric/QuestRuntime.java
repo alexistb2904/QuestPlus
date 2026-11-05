@@ -241,6 +241,7 @@ public final class QuestRuntime implements AutoCloseable {
         String registryKind=kind.equals("icon") || kind.equals("tool") || kind.equals("item") ? "item"
             : Set.of("dimension","biome","effect").contains(kind) ? kind : QuestExtensions.event(kind).registry();
         if (registryKind.equals("marker")) {
+            if (kind.equals("custom_stat") && !net.minecraft.stats.Stats.CUSTOM.contains(Identifier.parse(target))) throw new IllegalArgumentException("Unknown custom statistic "+target);
             Identifier.parse(target.startsWith("#") ? target.substring(1) : target);
             if (kind.equals("travel_distance") && !target.equals("questplus:travel") || kind.equals("location") && !target.equals("questplus:position")
                     || kind.equals("player_death") && !target.equals("questplus:death")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
