@@ -613,6 +613,11 @@ public final class QuestRuntime implements AutoCloseable {
                     else if (reward.type().equals("item")) for (var stack : stacks(reward)) {
                         if (!player.getInventory().add(stack) || !stack.isEmpty()) throw new IllegalStateException("Inventory changed during reward delivery");
                     }
+                    else if(reward.type().equals("questplus:message")) {
+                        String message=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                            .get("message").getAsString();
+                        player.sendSystemMessage(Component.literal(message));
+                    }
                     else if(reward.type().equals("questplus:advancement")) {
                         String key=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
                             .get("advancement").getAsString();
@@ -652,7 +657,7 @@ public final class QuestRuntime implements AutoCloseable {
                 String id=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
                     .get("advancement").getAsString();
                 if(player.getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
-            } else if(!Set.of("item","experience","experience_levels").contains(reward.type()) &&
+            } else if(!Set.of("item","experience","experience_levels","questplus:message").contains(reward.type()) &&
                     !QuestRewardExtensions.fits(player,reward))return false;
         }
         List<ItemStack> slots = player.getInventory().getNonEquipmentItems().stream().map(ItemStack::copy).toList();
