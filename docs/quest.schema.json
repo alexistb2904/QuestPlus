@@ -466,7 +466,8 @@
                 "xp_levels",
                 "item_submit",
                 "item_turn_in",
-                "custom_stat"
+                "custom_stat",
+                "advancement_complete"
               ]
             },
             {
