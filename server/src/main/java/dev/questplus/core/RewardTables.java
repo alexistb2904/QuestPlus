@@ -49,6 +49,37 @@ public final class RewardTables {
         if(!data.keySet().equals(Set.of("options")))throw new IllegalArgumentException("All-table rewards require options");
         validate(data);
     }
+    /** Player-facing choice reward: no randomness, no commands, one server-selected option. */
+    public static void validateChoice(JsonObject data){
+        if(!data.keySet().equals(Set.of("options")))throw new IllegalArgumentException("Choice reward requires options");
+        var options=data.getAsJsonArray("options");
+        if(options==null||options.size()<2||options.size()>32)
+            throw new IllegalArgumentException("Choice rewards require 2..32 options");
+        for(var value:options){
+            if(!value.isJsonObject())throw new IllegalArgumentException("Invalid choice option");
+            var option=value.getAsJsonObject();
+            String type=option.has("type")?option.get("type").getAsString():"";
+            if(type.equals("item")){
+                if(!option.keySet().equals(Set.of("type","item","count")) ||
+                    !option.get("item").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+") ||
+                    option.get("item").getAsString().equals("minecraft:air"))
+                    throw new IllegalArgumentException("Invalid item choice option");
+                integer(option,"count",1,2304);
+            }else if(Set.of("experience","experience_levels").contains(type)){
+                if(!option.keySet().equals(Set.of("type","amount")))throw new IllegalArgumentException("Invalid XP choice option");
+                integer(option,"amount",1,1_000_000);
+            }else throw new IllegalArgumentException("Choice options must be items or XP, never commands");
+        }
+    }
+    /** Choice is converted into a concrete immutable entitlement before saving. */
+    public static QuestDefinition.Reward choose(QuestDefinition.Reward authored,int index){
+        if(!authored.type().equals("questplus:choice"))throw new IllegalArgumentException("Not a choice reward");
+        var data=JsonParser.parseString(authored.data()).getAsJsonObject();
+        validateChoice(data);
+        var options=data.getAsJsonArray("options");
+        if(index<0||index>=options.size())throw new IllegalArgumentException("Choice index outside 0.."+(options.size()-1));
+        return concrete(options.get(index).getAsJsonObject(),authored.text());
+    }
     private static QuestDefinition.Reward concrete(JsonObject option,Map<String,String> text) {
         String type=option.get("type").getAsString();
         return type.equals("item")

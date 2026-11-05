@@ -89,6 +89,17 @@ public final class AdvancedEvents {
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
                     target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
         }
+        if (registry.hasEvent("advancement_complete")) {
+            for (String target:registry.objectives("advancement_complete").stream()
+                    .map(o->o.target()).distinct().toList()) {
+                var advancement=player.getServer().getAdvancements().get(Identifier.parse(target));
+                if(advancement==null)continue;
+                boolean done=player.getAdvancements().getOrStartProgress(advancement).isDone();
+                var ctx=QuestPlusMod.context(player);
+                ctx.put("stateValues",Map.of(target,done?1L:0L));
+                QuestPlusMod.runtime().event(player,new QuestEvent("advancement_complete",target,Set.of(),1,ctx));
+            }
+        }
         if (registry.hasEvent("custom_stat")) {
             // Read only authored custom-stat IDs. This avoids scanning every stat for every player.
             for (String target : registry.objectives("custom_stat").stream()

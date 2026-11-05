@@ -1,159 +1,178 @@
 import JSON5 from 'json5';
 import {emptyProject,slug} from './project.js';
 
-const IDENTIFIER=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
-const isId=value=>typeof value==='string'&&IDENTIFIER.test(value);
-const positive=(value,defaultValue=1)=>{
- const number=value===undefined?defaultValue:Number(value);
- return Number.isSafeInteger(number)&&number>=1&&number<=1_000_000_000?number:null;
-};
-const typeOf=value=>String(value?.type||'').split(':').at(-1);
-const itemId=value=>typeof value==='string'?value:typeof value?.id==='string'?value.id:null;
+/** Conservative FTB Quests 26.x JSON5 converter. Failing tasks/dependencies never disappear silently. */
+const ID=/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/;
+const validCount=value=>Number.isSafeInteger(value)&&value>=1&&value<=1_000_000_000;
+const resource=value=>typeof value==='string'?value:value&&typeof value==='object'&&!Array.isArray(value)?value.id:null;
+const kind=value=>String(value||'').split(':').at(-1);
 
-/** Only translate fields that preserve supported Quest Plus semantics. Unsupported
- * gameplay mechanics remain in the report, never silently changed or unlocked.
- */
-function convertTask(task,questId,index,warnings) {
- const type=typeOf(task), count=positive(task?.count??task?.value);
- const id='step'+(index+1);
- const invalid=reason=>{warnings.push(questId+': task '+(task?.type||'(missing type)')+' not converted ('+reason+')');return null};
- if(!task||typeof task!=='object'||!count)return invalid('invalid task/count');
- if(type==='item'){
-   const item=itemId(task.item);
-   if(!isId(item))return invalid('missing item ID');
-   if(task.item?.components || task.item?.nbt || task.nbt || task.ignore_components===false)
-     return invalid('item component/NBT matching is not yet supported');
-   if(task.consume_items===true)
-     return {id,event:'item_turn_in',target:item,count};
-   warnings.push(questId+': non-consuming FTB item task mapped to live inventory check; verify the original hand-in behavior');
-   return {id,event:'inventory_count',target:item,count};
- }
- if(type==='checkmark')return {id,event:'manual',target:questId,count:1};
- const event={
-   kill:'entity_kill',biome:'biome_visit',structure:'structure_visit',
-   dimension:'dimension_enter',stat:'custom_stat',
- }[type];
- const target={
-   kill:task.entity,biome:task.biome,structure:task.structure,
-   dimension:task.dimension,stat:task.stat,
- }[type];
- if(event && isId(target))return {id,event,target,count};
- if(type==='location' && Array.isArray(task.position)&&task.position.length===3 &&
-     task.position.every(v=>Number.isFinite(v)) && (!task.dimension||isId(task.dimension))){
-   const radius=positive(task.radius??1);
-   if(radius===null || radius>128)return invalid('location radius exceeds supported range 1–128');
-   const [x,y,z]=task.position;
-   const bounds={xMin:x-radius,xMax:x+radius,yMin:y-radius,yMax:y+radius,zMin:z-radius,zMax:z+radius};
-   return {id,event:'location',target:'questplus:position',count:1,
-     conditions:task.dimension?{and:[{position:bounds},{dimension:task.dimension}]}:{position:bounds}};
- }
- return invalid('unsupported type, missing target, or unsupported parameters');
+function ftbBool(value,inherited=false){
+  if(value===undefined||value===null||value==='default')return inherited;
+  if(value===true||value==='true')return true;
+  if(value===false||value==='false')return false;
+  throw Error('unknown FTB tristate '+String(value));
+}
+function convertTask(t,id,index,chapter){
+  if(!t||typeof t!=='object'||Array.isArray(t))throw Error('invalid task');
+  const type=kind(t.type),count=t.count??t.value??1;
+  const withTarget=(event,target,quantity=count,conditions=undefined)=>{
+    if(!ID.test(target||'')||!validCount(quantity))throw Error('invalid target or count');
+    return {id:'step'+(index+1),event,target,count:quantity,...(conditions?{conditions}:{})};
+  };
+  switch(type){
+    case 'item': {
+      if(t.item?.components && Object.keys(t.item.components).length || t.item?.tag ||
+         t.match_components && !['none','NONE'].includes(t.match_components))
+        throw Error('item component/tag matching needs manual conversion');
+      const consume=ftbBool(t.consume_items,ftbBool(chapter?.consume_items,false));
+      const craft=ftbBool(t.only_from_crafting,false);
+      const screen=ftbBool(t.task_screen_only,false);
+      if(screen)throw Error('FTB Task Screen-only automation is not equivalent to a player action');
+      if(consume&&craft)throw Error('crafted-and-consumed item semantics are not supported together');
+      return withTarget(craft?'item_craft':consume?'item_turn_in':'inventory_count',resource(t.item),t.count??t.item?.count??1);
+    }
+    case 'kill':return withTarget('entity_kill',resource(t.entity),t.value??t.count??1);
+    case 'biome':return withTarget('biome_visit',resource(t.biome),1);
+    case 'structure':return withTarget('structure_visit',resource(t.structure),1);
+    case 'dimension':return withTarget('dimension_enter',resource(t.dimension),1);
+    case 'stat':return withTarget('custom_stat',resource(t.stat),t.value??t.count??1);
+    case 'advancement':return withTarget('advancement_complete',resource(t.advancement),1);
+    case 'advancement':return withTarget('advancement_complete',resource(t.advancement),1);
+    case 'xp': {
+      if(ftbBool(t.points,false))throw Error('FTB XP points task cannot safely map to XP levels');
+      return withTarget('xp_levels','questplus:levels',t.value??1);
+    }
+    case 'checkmark':return withTarget('manual',id,1);
+    case 'location': {
+      if(!Array.isArray(t.position)||t.position.length!==3||!t.position.every(Number.isFinite))
+        throw Error('location requires three finite coordinates');
+      const radius=t.radius??0;
+      if(!Number.isFinite(radius)||radius<0||radius>128)throw Error('location radius exceeds Quest Plus maximum');
+      const [x,y,z]=t.position;
+      const position={xMin:x-radius,xMax:x+radius,yMin:y-radius,yMax:y+radius,zMin:z-radius,zMax:z+radius};
+      const conditions=resource(t.dimension)&&ID.test(resource(t.dimension))
+        ?{and:[{position},{dimension:resource(t.dimension)}]}:{position};
+      return withTarget('location','questplus:position',1,conditions);
+    }
+    default:throw Error('unsupported FTB task '+(t.type||'(missing type)'));
+  }
+}
+function convertReward(r){
+  if(!r||typeof r!=='object'||Array.isArray(r))throw Error('invalid reward');
+  const type=kind(r.type);
+  if(type==='xp'||type==='xp_levels'){
+    const amount=r[type]??r.amount;
+    if(!validCount(amount)||amount>1_000_000)throw Error('invalid XP amount');
+    return {type:type==='xp'?'experience':'experience_levels',amount};
+  }
+  if(type==='advancement') {
+    const advancement=resource(r.advancement);
+    if(!ID.test(advancement||''))throw Error('invalid advancement reward ID');
+    return {type:'questplus:advancement',data:{advancement}};
+  }
+  if(type==='item'){
+    if(r.item?.components||r.item?.tag)throw Error('custom item components require manual conversion');
+    const item=resource(r.item),count=r.count??r.item?.count??1;
+    if(!ID.test(item||'')||item==='minecraft:air'||!Number.isInteger(count)||count<1||count>2304)
+      throw Error('invalid item reward');
+    return {type:'item',item,count};
+  }
+  throw Error('unsupported FTB reward '+(r.type||'(missing type)'));
 }
 
-function convertReward(reward,questId,warnings){
- const type=typeOf(reward);
- const reject=reason=>{warnings.push(questId+': reward '+(reward?.type||'(missing type)')+' not converted ('+reason+')');return null};
- if(!reward||typeof reward!=='object')return reject('invalid reward');
- if(type==='item') {
-   const item=itemId(reward.item),count=positive(reward.count??reward.item?.count);
-   if(!isId(item)||count===null||count>2304)return reject('invalid item/count');
-   if(reward.item?.components||reward.item?.nbt||reward.nbt)return reject('components/NBT not preserved');
-   return {type:'item',item,count};
- }
- if(type==='xp'||type==='xp_levels'){
-   const amount=positive(reward.amount??reward.xp??reward.value);
-   if(amount===null||amount>1_000_000)return reject('missing or invalid XP value');
-   return {type:type==='xp_levels'||reward.is_levels===true?'experience_levels':'experience',amount};
- }
- return reject('unsupported reward mechanic');
-}
+export function inspectFtbPack(documents){
+  const project=emptyProject(),warnings=[],sources=[],ids=new Map(),seen=new Set(),candidates=[];
+  for(const {name,content} of documents){
+    const path=String(name).replace(/\\/g,'/');
+    if(!/(?:^|\/)chapters\/[^/]+\.json5?$/i.test(path))continue;
+    let root;
+    try{root=JSON5.parse(String(content).replace(/^\uFEFF/,''));}
+    catch(e){warnings.push(name+': invalid JSON5: '+e.message);continue}
+    if(!root||typeof root!=='object'||Array.isArray(root)||!Array.isArray(root.quests))continue;
+    sources.push({name,root});
+  }
+  if(!sources.length)throw Error('No FTB chapters detected. Expected chapters/*.json5 containing quests[].');
 
-function toDependencies(raw){
- if(raw===undefined)return [];
- if(!Array.isArray(raw))return null;
- const refs=raw.map(value=>typeof value==='string'?value:typeof value==='number'?String(value):null);
- return refs.every(v=>v!==null)?refs:null;
-}
+  const safeName=(prefix,raw)=>{
+    const base=prefix+'/'+slug(String(raw));let next=base,i=2;
+    while(seen.has(next))next=base+'_'+i++;
+    seen.add(next);return next;
+  };
+  // Build IDs first so dependencies can point to quests in later chapters.
+  for(const {name,root} of sources){
+    const filename=name.split(/[\\/]/).at(-1).replace(/\.json5?$/i,'');
+    const categoryId=safeName('questplus:ftb',root.id||filename);
+    project.categories.push({id:categoryId,icon:'minecraft:book',title:{en_us:String(root.title||filename)},
+      description:{en_us:'Imported from FTB Quests'},annotations:[]});
+    for(const [ix,raw] of root.quests.entries()){
+      if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
+      const foreign=raw.id===undefined?null:String(raw.id);
+      const id=safeName(categoryId,foreign??ix+1);
+      if(foreign!==null){
+        if(ids.has(foreign))warnings.push('Duplicate FTB quest ID '+foreign+'; dependencies are ambiguous');
+        else ids.set(foreign,id);
+      }
+      candidates.push({id,raw,categoryId,index:ix,foreign,chapter:root});
+    }
+  }
+  for(const {id,raw,categoryId,index,foreign,chapter} of candidates){
+    const objectives=[],rewards=[];let safe=true;
+    const tasks=Array.isArray(raw.tasks)?raw.tasks:[];
+    for(const [i,task] of tasks.entries()){
+      try{objectives.push(convertTask(task,id,i,chapter))}
+      catch(error){warnings.push(id+': task '+(task?.type||i)+' not imported: '+error.message);safe=false}
+    }
+    if(!safe||!objectives.length){warnings.push(id+': skipped to prevent an easier/incomplete quest');continue}
+    for(const [i,reward] of (Array.isArray(raw.rewards)?raw.rewards:[]).entries()){
+      try{rewards.push(convertReward(reward))}
+      catch(error){warnings.push(id+': reward '+(reward?.type||i)+' not imported: '+error.message)}
+    }
+    const deps=Array.isArray(raw.dependencies)?raw.dependencies:[];
+    const minimum=raw.min_required_dependencies??0;
+    if(!Number.isInteger(minimum)||minimum<0||minimum>deps.length ||
+       (minimum>1&&minimum<deps.length) ||
+       (raw.dependency_requirement&&!['all_completed','ALL_COMPLETED','any_completed','ANY_COMPLETED'].includes(raw.dependency_requirement))){
+      warnings.push(id+': unsupported dependency rule; quest skipped');continue;
+    }
+    const quest={schemaVersion:2,id,category:categoryId,icon:'minecraft:book',
+      title:{en_us:String(raw.title||'Imported quest '+(index+1))},objectives,rewards,progression:'once',
+      layout:{x:Number.isFinite(raw.x)?raw.x:index*60,y:Number.isFinite(raw.y)?raw.y:0}};
+    if(ftbBool(raw.require_sequential_tasks,ftbBool(chapter?.require_sequential_tasks,false)))quest.objectiveMode='sequence';
+    if(['flexible','FLEXIBLE'].includes(raw.progression_mode||chapter?.progression_mode))quest.progressBeforeUnlock=true;
+    if(ftbBool(raw.can_repeat,ftbBool(chapter?.default_repeatable_quest,false))){
+      quest.progression='repeatable';
+      if(Number.isInteger(raw.repeat_cooldown)&&raw.repeat_cooldown>=0&&raw.repeat_cooldown<=31536000)
+        quest.cooldownSeconds=raw.repeat_cooldown;
+    }
+    if(raw.hide_until_deps_complete===true)quest.hidden=true;
+    // Keep source dependencies only for a second pass; never publish unresolved references.
+    project.quests.push(quest);
+  }
 
-/** Preview-only migration for FTB Quests 26.x chapter JSON5 files.
- * sourceIdMap maps FTB quest IDs to Quest Plus namespaced quest IDs.
- * No source file is changed, and no command/script is executed.
- */
-export function inspectFtbPack(documents) {
- const project=emptyProject(),warnings=[],sources=[],seen=new Set(),ids=new Map(),drafts=[];
- for(const {name,content} of documents){
-   const path=String(name).replace(/\\/g,'/');
-   if(!/(?:^|\/)chapters\/[^\/]+\.json5?$/i.test(path))continue;
-   let root;
-   try{root=JSON5.parse(String(content).replace(/^\uFEFF/,''));}
-   catch(error){warnings.push(name+': invalid JSON5: '+error.message);continue;}
-   if(!root||typeof root!=='object'||Array.isArray(root)||!Array.isArray(root.quests)){
-     warnings.push(name+': not a recognized chapter (expected quests array)');continue;
-   }
-   sources.push({name,root});
- }
- if(!sources.length)throw Error('No FTB chapters detected. Expected chapters/*.json5 with quests[].');
- const safeName=(prefix,raw)=>{
-   const base=prefix+'/'+slug(String(raw));let next=base,i=2;
-   while(seen.has(next))next=base+'_'+i++;
-   seen.add(next);return next;
- };
- for(const {name,root} of sources){
-   const fileName=name.replace(/\\/g,'/').split('/').pop().replace(/\.json5?$/i,'');
-   const categoryId=safeName('questplus:ftb',root.id||fileName);
-   project.categories.push({
-     id:categoryId,icon:'minecraft:book',
-     title:{en_us:String(root.title||fileName)},description:{en_us:'Imported from FTB Quests'},annotations:[]
-   });
-   for(const [ix,raw] of root.quests.entries()){
-     if(!raw||typeof raw!=='object'||Array.isArray(raw)){warnings.push(categoryId+': invalid quest');continue;}
-     const oldId=String(raw.id??'');
-     if(!oldId || ids.has(oldId)){warnings.push(categoryId+': missing or duplicate FTB quest ID '+oldId);continue;}
-     const id=safeName(categoryId,oldId);
-     const tasks=Array.isArray(raw.tasks)?raw.tasks:[];
-     const converted=tasks.map((t,n)=>convertTask(t,id,n,warnings)).filter(Boolean);
-     if(!converted.length){warnings.push(id+': no supported objectives — quest skipped');continue;}
-     if(converted.length!==tasks.length){
-       warnings.push(id+': quest skipped because partially converted objectives could alter completion conditions');
-       continue;
-     }
-     const rewards=[];
-     for(const reward of Array.isArray(raw.rewards)?raw.rewards:[]){
-       const convertedReward=convertReward(reward,id,warnings);
-       if(convertedReward)rewards.push(convertedReward);
-     }
-     const deps=toDependencies(raw.dependencies);
-     if(deps===null){warnings.push(id+': unsupported dependency structure; quest skipped');continue;}
-     if(raw.tasks?.length>1 && raw.task_mode && !['all','any'].includes(raw.task_mode)){
-       warnings.push(id+': unknown task mode; quest skipped');continue;
-     }
-     const quest={schemaVersion:2,id,category:categoryId,icon:'minecraft:book',
-       title:{en_us:String(raw.title||'Imported quest '+(ix+1))},
-       description:{en_us:typeof raw.subtitle==='string'&&raw.subtitle.trim()?raw.subtitle:'Imported FTB quest'},
-       objectives:converted,rewards,progression:'once',
-       objectiveMode:raw.task_mode==='any'?'any':'all',
-       layout:{x:Number.isFinite(raw.x)?raw.x:ix*60,y:Number.isFinite(raw.y)?raw.y:0}};
-     ids.set(oldId,id);drafts.push({quest,deps,oldId});
-   }
- }
- // Dependencies must never become invisible omissions that unlock a quest early.
- const draftsByQuest=new Map(drafts.map(d=>[d.quest.id,d]));
- let allowed=new Set(draftsByQuest.keys()),changed=true;
- while(changed){
-   changed=false;
-   for(const d of drafts){
-     if(!allowed.has(d.quest.id))continue;
-     if(d.deps.some(old=>!ids.has(old)||!allowed.has(ids.get(old)))){
-       warnings.push(d.quest.id+': dependency is missing or unsupported — quest skipped');
-       allowed.delete(d.quest.id);changed=true;
-     }
-   }
- }
- for(const d of drafts.filter(d=>allowed.has(d.quest.id))){
-   const refs=d.deps.map(old=>({quest:ids.get(old)}));
-   if(refs.length)d.quest.requires=refs.length===1?refs[0]:{and:refs};
-   project.quests.push(d.quest);
- }
- if(!project.quests.length)warnings.push('No lossless supported quests converted; original files remain unchanged.');
- return {project,warnings,chapterCount:sources.length,questCount:project.quests.length,sourceIdMap:ids};
+  const existing=new Set(project.quests.map(q=>q.id));
+  const source=new Map(candidates.map(c=>[c.id,c.raw]));
+  // Prune transitively: a quest must never unlock early because its prerequisite failed import.
+  let changed=true;
+  while(changed){
+    changed=false;
+    project.quests=project.quests.filter(q=>{
+      const dependencies=source.get(q.id)?.dependencies;
+      if(!Array.isArray(dependencies)||!dependencies.length)return true;
+      const unresolved=dependencies.some(dep=>!ids.has(String(dep))||!existing.has(ids.get(String(dep))));
+      if(unresolved){warnings.push(q.id+': prerequisite not imported; quest skipped');existing.delete(q.id);changed=true;return false}
+      return true;
+    });
+  }
+  for(const q of project.quests){
+    const dependencies=source.get(q.id)?.dependencies;
+    if(!Array.isArray(dependencies)||!dependencies.length)continue;
+    const conditions=dependencies.map(dep=>({quest:ids.get(String(dep))}));
+    const raw=source.get(q.id);
+    const any=raw.min_required_dependencies===1&&conditions.length>1 ||
+        ['any_completed','ANY_COMPLETED'].includes(raw.dependency_requirement);
+    q.requires=conditions.length===1?conditions[0]:any?{or:conditions}:{and:conditions};
+  }
+  if(!project.quests.length)warnings.push('No safely convertible quests found. Original FTB files were not modified.');
+  return {project,warnings,chapterCount:sources.length,questCount:project.quests.length,sourceIdMap:ids};
 }

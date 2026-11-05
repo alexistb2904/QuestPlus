@@ -22,9 +22,13 @@ Vanilla item/XP/XP-level rewards can be translated when the source provides a va
 
 Chapter name → Quest Plus category, quest coordinates, basic English title/subtitle, ID mappings, prerequisite links when every referenced quest was converted, and basic task grouping (`all` or `any`). Dependencies are never omitted in order to make a quest easier; if a required prerequisite was not imported, dependent quests are skipped.
 
+### Additional support in parent PR #27
+
+The current #27 converter also supports a safe subset of **advancement goals/rewards, XP-level goals, crafted-only item checks and explicit item submission semantics**. These additions take precedence over the earlier PR #29 mapping; do not overwrite the newer converter with the historical PR #29 file.
+
 ### Not converted yet
 
-Advancement, fluid, energy, Game Stage, observation, nontrivial item-component rules, nested/choice/command/loot-table rewards, translations stored outside chapters, unsupported UI decorations, and older SNBT packs. Any quest with an unsupported required objective is skipped entirely. Unsupported rewards may be omitted **only with a warning**.
+Full item component matching, automatic fluid/energy integration, Game Stage, observation, nontrivial item-component rules, nested/choice/command/loot-table rewards, translations stored outside chapters, unsupported UI decorations, and older SNBT packs. Any quest with an unsupported required objective is skipped entirely. Unsupported rewards may be omitted **only with a warning**.
 
 ### Validation and security
 

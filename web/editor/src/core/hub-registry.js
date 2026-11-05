@@ -1,6 +1,6 @@
 // Session-scoped, never persistent: the connected server is the authority for
 // modded registry IDs. No resource packs, auth tokens, or player state are stored.
-const keys=['items','blocks','entities','effects','enchantments','biomes','structures','dimensions','statistics'];
+const keys=['items','blocks','fluids','entities','effects','enchantments','biomes','structures','dimensions','statistics','advancements'];
 let current={};
 const valid=id=>/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(id);
 export function setHubRegistry(value){
@@ -25,7 +25,7 @@ export function setHubRegistry(value){
 }
 export function hubRegistry(){return current}
 export function hubTargets(kind){
- const map={item:'items',block:'blocks',entity:'entities',biome:'biomes',structure:'structures',enchantment:'enchantments',effect:'effects',dimension:'dimensions',statistic:'statistics'};
+ const map={item:'items',block:'blocks',fluid:'fluids',entity:'entities',biome:'biomes',structure:'structures',enchantment:'enchantments',effect:'effects',dimension:'dimensions',statistic:'statistics',advancement:'advancements'};
  return current[map[kind]||kind]||[];
 }
 

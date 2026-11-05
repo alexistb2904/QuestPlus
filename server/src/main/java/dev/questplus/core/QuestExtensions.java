@@ -13,9 +13,25 @@ public final class QuestExtensions {
     private static final Map<String,ConditionType> CONDITIONS = new ConcurrentHashMap<>();
     private static final Map<String,Consumer<JsonObject>> REWARDS = new ConcurrentHashMap<>();
     static {
+        REWARDS.put("questplus:advancement",data -> {
+            if(!data.keySet().equals(Set.of("advancement")) ||
+                    !data.has("advancement") || !data.get("advancement").isJsonPrimitive() ||
+                    !data.get("advancement").getAsJsonPrimitive().isString() ||
+                    !data.get("advancement").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
+                throw new IllegalArgumentException("Advancement reward requires a registered advancement ID");
+        });
         REWARDS.put("questplus:random",RewardTables::validate);
         REWARDS.put("questplus:loot",RewardTables::validateLoot);
         REWARDS.put("questplus:all",RewardTables::validateAll);
+        REWARDS.put("questplus:choice",RewardTables::validateChoice);
+        REWARDS.put("questplus:message",data -> {
+            if(!data.keySet().equals(Set.of("message")) ||
+                !data.get("message").isJsonPrimitive() ||
+                !data.get("message").getAsJsonPrimitive().isString() ||
+                data.get("message").getAsString().isBlank() ||
+                data.get("message").getAsString().length()>256)
+                throw new IllegalArgumentException("Message reward requires 1..256 characters");
+        });
         for (String type : List.of("block_break","block_place","block_interact")) EVENTS.put(type,new EventType("block",false));
         for (String type : List.of("item_obtained","item_craft","item_smelt","item_use","item_consume","fish_item","trade")) EVENTS.put(type,new EventType("item",false));
         for (String type : List.of("entity_kill","fish_entity","tame_animal","breed_animal","npc_interact")) EVENTS.put(type,new EventType("entity",false));
@@ -25,8 +41,13 @@ public final class QuestExtensions {
         EVENTS.put("inventory_count",new EventType("item",true));
         EVENTS.put("item_submit",new EventType("item",false));
         EVENTS.put("item_turn_in",new EventType("item",false));
+        // These events require a trusted server-side mod integration. They do NOT imply
+        // automatic extraction from arbitrary modded tanks or power cables.
+        EVENTS.put("fluid_transfer",new EventType("fluid",false));
+        EVENTS.put("energy_transfer",new EventType("marker",false));
         EVENTS.put("xp_levels",new EventType("marker",true));
         EVENTS.put("custom_stat",new EventType("marker",true));
+        EVENTS.put("advancement_complete",new EventType("marker",true));
         // Evaluated from authoritative server equipment snapshots, not player events.
         EVENTS.put("equipment_check",new EventType("marker",false));
         EVENTS.put("questplus:fish_any",new EventType("marker",false));
@@ -67,7 +88,7 @@ public final class QuestExtensions {
     private QuestExtensions() {}
     public static void registerEvent(String id,String registry,boolean state) {
         namespaced(id);
-        if (!Set.of("block","item","entity","biome","structure","dimension","marker").contains(registry)
+        if (!Set.of("block","item","entity","biome","structure","dimension","fluid","marker").contains(registry)
                 || EVENTS.putIfAbsent(id,new EventType(registry,state))!=null) throw new IllegalArgumentException("Invalid/duplicate event " + id);
     }
     public static EventType event(String id) { var type=EVENTS.get(id); if (type==null) throw new IllegalArgumentException("Unknown event " + id); return type; }

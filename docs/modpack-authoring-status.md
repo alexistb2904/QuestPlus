@@ -1,40 +1,56 @@
-# Modpack authoring / FTB Quests parity — implementation status
+# Quest Plus — Modpack authoring parity status (WIP)
 
-This document tracks the **implemented subset** of the P0–P2 request. It is not a claim of full FTB Quests compatibility.
+Scope: `feat/modpack-authoring-ftb-parity` / draft PR #27. This branch is **not a complete FTB Quests replacement** and is not certified for production servers.
 
-## Changes on `feat/modpack-authoring-ftb-parity`
+## Implemented on the branch
 
-- **Quest templates:** right-click in the Studio tree to create an empty quest, collect/craft/boss/exploration/equipment/sequence/timed/repeating/information quest or an XP-level goal. The original create quest/annotation/background entries remain available.
-- **Registry browser:** searchable modded registry snapshot, using the existing approved Quest Hub server session; optional import of a `.json` registry snapshot for offline use. Selection inserts a matching ID into the first compatible objective or copies it to clipboard.
-- **Quest and category JSON5:** Studio exports both quest and category definitions as `.json5` using the JSON5 npm parser; the Fabric server loads strict `.json` and `.json5` for those definitions. Server config still uses strict JSON. The approved Quest Hub publication flow validates JSON5 and retains the existing backups/rollback mechanism. Player saves remain unchanged JSON.
-- **FTB Quests importer (preview/beta):** detects `chapters/*.json5`, converts only explicitly supported kill/biome/dimension objectives; all other tasks, rewards and dependencies are reported as unconverted. Import requires confirmation, and refuses projects without any convertible quests. It does **not** silently approximate item-consumption, loot tables, scripts or other unsupported mechanics. Older SNBT is not supported.
-- **Editor extension descriptors:** trusted mods can register data-only metadata through `QuestPlusApi.registerEditorDescriptor`, published via the approved Quest Hub session. Studio lists custom events and creates form fields for custom rewards; objective extra fields and condition forms remain pending. See `docs/quest-studio-extensions.md`.
-- **New gameplay mechanics:** server-authoritative XP-level objective `xp_levels` (target `questplus:levels`), and `experience_levels` reward alongside point-based experience. XP-level goal is a live state, not a cumulative level-gain counter.
+### P0 gameplay foundations
+- Built-in item objectives include inventory possession, item pickup, and server-authoritative submissions: `item_submit` (verify without withdrawal) and `item_turn_in` (consume deposited items). The interactive tablet and `/questplus submit <quest> <objective>` route through the server.
+- Additional server-backed objectives: XP levels, Minecraft custom statistics and completed advancements. Items, blocks, entities, biomes, structures, dimensions, equipment/enchantments and existing gameplay events remain supported.
+- Reward kinds: item, XP points, XP levels, weighted random, all-table, empty-weight loot, native advancement grant, and trusted operator-enabled server command (disabled by default), and safe server-side player message rewards. Weighted selections are resolved at completion and stored as concrete entitlements, avoiding rerolls on reconnect.
+- Quest progression: optional tasks, `at_least` quorum, sequential / any / all, tiers, timers, no-death and progress-before-unlock (flexible prerequisites).
+- Includes per-objective operator-only `/questplus diagnose <quest>` for debugging.
 
-## Still missing / not implemented
+### P1 authoring experience
+- Quest Studio right-click templates including items, crafting, exploration, equipment, sequence, timed, repeatable, information, stats and advancements. Authors can now save a selected quest as a **personal reusable template** and create another from the right-click menu. Custom templates live in local browser storage (not embedded in exported packs), and clones receive a new quest ID and drop source prerequisites.
+- Mod Registry Browser reads approved Quest Hub registry snapshots and accepts offline JSON snapshots, including statistics and advancements; text-based custom modded IDs remain supported.
+- Extensions can publish data-only editor descriptors through the approved Hub. Studio renders registered event labels and typed reward fields.
+- Studio exports JSON5 quests/categories; the Fabric loader still accepts existing JSON quests/categories. World config and player progress remain strict JSON.
+- FTB Quests 26.x JSON5 import preview safely converts supported item possession, crafting and hand-ins, kills, biome/structure/dimension/position goals, custom statistics, checkmarks, XP levels and advancements. Source chapter defaults for consumed items are considered. Task Screen-only and unsupported component-matching semantics are rejected rather than approximated. Simple item/XP/advancement rewards and ALL/ANY dependencies are mapped; unsupported task mechanics block that quest and its transitive dependents. Unsupported rewards are explicitly reported. Original sources are not modified.
 
-- Item submission and item consumption, cross-source acquisition tracking, advancements, fluid and energy tasks, observation and generic statistics.
-- Choice/random/command/loot-table and item-component rewards; authoring those without runtime support is **not** safe.
-- Flexible and optional task progression, visual reward-table editing and complete extension condition/objective form authoring.
-- FTB full importer, bulk editing, project migrations and end-to-end compatibility tests.
-- Complete verification of client UI, 26.3 dedicated server, modded items and two-client multiplayer.
+### Validation and safety
+- JUnit tests added for stats, advancements, reward schemas, progression and JSON5; Node tests cover built-in and saved custom templates, random/loot/all table validation, command reward opt-in, and FTB conversion.
+- CI config is in `.github/workflows/authoring-checks.yml`. Passing CI has **not been observed** and cannot be claimed from committed test files.
+- Reward claims retain their existing server-side persistence and reservation safeguards. They are not a fully atomic transaction with the vanilla inventory/advancement system.
+- Server code never evaluates scripts from imported packs. Command rewards are opt-in by the world administrator, and third-party extension Java code is trusted server code, not sandboxed data.
 
-## Development checks
+## Remaining P0–P2 work
 
-Tests added in `web/editor/tests/authoring-parity.test.mjs` and `server/src/test/java/dev/questplus/core/QuestJson5Test.java` and `server/src/test/java/dev/questplus/fabric/api/QuestStudioDescriptorsTest.java`. Run:
+- Native fluid/energy submissions, general observation (look-at) objectives, GameStages and other cross-mod task bridges.
+- Player-selected choice rewards (with explicit selection, durable delivery), reusable named reward tables and item Data Component fidelity.
+- Full extension-driven condition/objective forms, beyond current event listing and custom reward fields.
+- Bulk/multi-selection editing, import/export of personal templates across browsers, bulk editing, migration tools for updated player progress, complete in-game edit workflows.
+- Full FTB Quests import: legacy SNBT, translations, chapter groups, item component predicates, external reward tables and every third-party task/reward type.
+- Real multiplayer, dedicated server load tests, JSON5 Hub publication/rollback tests, all reward paths and compatibility across third-party mods.
+- Refactor or stress-test the hand-in transaction path for abrupt crashes and save failures before production use.
 
-```sh
+## Required verification before merging
+
+```bash
 cd web/editor
-npm ci && npm run typecheck && npm test && npm run build
+npm ci
+npm run typecheck
+npm test
+npm run build
 cd ../..
 ./gradlew build integrationTest
 ```
 
-Build and integration test execution **has not been verified in the authoring environment for this branch**. Do not merge into `main` until the build, hub publication/rollback, FTB warning flow and live XP state have been validated.
+Test on a disposable Minecraft 26.3 world with two clients, modded registries, invalid JSON5 files, Quest Hub rollback, submissions, advancement/command/random rewards and restart/reconnect flows. Keep PR #27 **draft**, and do not merge `main` until green CI and real-world smoke tests.
 
-## Safety notes
+## Additional authored safety checks (2026-11-05)
 
-- Do not parse player saves as JSON5 or accept client-provided registry snapshots as authoritative gameplay state.
-- Reject unsafe paths and maintain stable IDs when importing packs.
-- Granting XP levels after reward reservation still uses the standard Quest Plus durability/ledger behavior and its documented crash limitations.
-- FTB imports currently perform partial conversion only with explicit warnings and user confirmation. Keep original FTB exports as backups.
+- Command reward Studio validation rejects newline, carriage return and NUL; command scripts cannot be executed through a client packet. The world config must enable trusted commands explicitly.
+- FTB ItemTask `only_from_crafting` uses the crafting event, `consume_items` uses the consuming hand-in, and normal nonconsuming items use live inventory checks. Task Screen-only tasks are not automatically converted to a different semantic event.
+- Personal templates are saved to localStorage and do not join exported ZIP packs. There is a 32-template and 500k-character storage limit; they do not copy old quest dependencies.
+- More comprehensive JUnit and Node tests are committed but still require execution. A real dedicated-server run and multiplayer smoke test remain blockers.

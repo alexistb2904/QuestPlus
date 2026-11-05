@@ -54,7 +54,7 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
 }
 
 
-type PickerKind='block'|'item'|'entity'|'biome'|'structure';
+type PickerKind='block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement'|'fluid';
 function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBrowse}:{
  objective:Objective;index:number;questId:string;onUpdate:Props['onUpdate'];onCondition:Props['onCondition'];
  onBrowse:(index:number,kind:PickerKind)=>void;
@@ -64,7 +64,8 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  const path='objectives.'+i;
  const editTarget=(value:string)=>onUpdate(path+'.target',value);
  const editCount=(value:number)=>onUpdate(path+'.count',Math.max(1,Math.floor(value)||1));
- const browse=['block','item','entity','biome','structure'].includes(kind);
+ const pickerKind=o.event==='custom_stat'?'statistic':o.event==='advancement_complete'?'advancement':kind;
+ const browse=['block','item','entity','biome','structure','statistic','advancement','fluid'].includes(pickerKind);
  const modifier=(next:any)=>onCondition('objective:'+i,next);
  const field=()=>{
   if(kind==='position')return <div className="coordinate-fields objective-coordinates">
@@ -93,7 +94,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
    </div>;
   return <div className="target-field">
      <Field label={kind==='custom'?'Custom target ID':'Target ID'} value={o.target} onChange={editTarget} placeholder={kind==='custom'?'modid:target':'minecraft:stone'}/>
-     {browse&&<button type="button" className="button secondary" onClick={()=>onBrowse(i,kind as PickerKind)}>{tUI('Browse')}</button>}
+     {browse&&<button type="button" className="button secondary" onClick={()=>onBrowse(i,pickerKind as PickerKind)}>{tUI('Browse')}</button>}
    </div>;
  };
  return <div className={'field-row objective-inputs objective-inputs-'+kind}>
@@ -112,7 +113,8 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
 
 export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale,translationRequest=0}:Props){
  const [tab,setTab]=useState<Tab>('objectives');
-  const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:'block'|'item'|'entity'|'biome'|'structure'}|null>(null);
+  const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:PickerKind}|null>(null);
+  const [rewardAdvBrowser,setRewardAdvBrowser]=useState<number|null>(null);
  useEffect(()=>{
   if(!translationRequest)return;
   setTab('localization');
@@ -156,6 +158,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
   <div className="detail-content" role="tabpanel" id="detail-panel" aria-labelledby={'detail-tab-'+tab}>
    {tab==='objectives'&&<>
     <div className="detail-heading"><strong>{ui('Quest objectives')} · {text(quest.title,language)}</strong>
+     <button type="button" className="button secondary" onClick={()=>onAction('save-as-template')}>Save as template</button>
      {!info&&<button className="button primary" onClick={()=>onAction('add-objective')}><Plus size={14}/>{ui('Objective')}</button>}</div>
     {info?<div className="objective-row"><Translated label="Content" prefix="narrative" value={quest.narrative} language={language} onUpdate={onUpdate}/>
       <Select label="Completion" value={quest.acknowledgement||'manual'} options={[[ 'manual','Acknowledge'],['read_only','Read only']]} onChange={v=>onUpdate('acknowledgement',v)}/></div>:
@@ -173,7 +176,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      setTargetBrowser(null);
    }}/>}
    {tab==='rewards'&&<>
-    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button><button className="button secondary" onClick={()=>onAction('add-loot')}>+ Loot Chance</button><button className="button secondary" onClick={()=>onAction('add-all')}>+ All Table</button></div></div>
+    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" type="button" onClick={()=>onUpdate('rewards',[...(quest.rewards||[]),{type:'questplus:advancement',data:{advancement:'minecraft:story/mine_stone'}}])}>+ Advancement</button><button className="button secondary" onClick={()=>onAction('add-choice')}>+ Player Choice</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button><button className="button secondary" onClick={()=>onAction('add-loot')}>+ Loot Chance</button><button className="button secondary" onClick={()=>onAction('add-all')}>+ All Table</button><button className="button secondary" onClick={()=>onAction('add-command')}>+ Command</button><button className="button secondary" onClick={()=>onAction('add-message')}>+ Message</button></div></div>
     {!!hubEditorDescriptors('reward').length&&<div className="toolbar-row" aria-label="Mod rewards">
       {hubEditorDescriptors('reward').map(d=><button className="button secondary" type="button" key={d.id} onClick={()=>{
         const data=Object.fromEntries(d.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:'']));
@@ -185,6 +188,35 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
      {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
+      r.type==='questplus:advancement'?<div className="field-row">
+       <Field label="Advancement ID" value={r.data?.advancement||''} onChange={v=>onUpdate('rewards.'+i+'.data.advancement',v)} placeholder="minecraft:story/mine_stone"/>
+       <button className="button secondary" type="button" onClick={()=>setRewardAdvBrowser(i)}>{ui('Browse')}</button>
+      </div>:
+      r.type==='questplus:message'?<Field label="Message to player" value={r.data?.message||''}
+        onChange={v=>onUpdate('rewards.'+i+'.data.message',v)}/>:
+      r.type==='questplus:command'?<div className="mini-card">
+        <p>Only trusted server pack authors may enable command rewards. The command runs on the server as the claiming player (GAMEMASTER permission maximum).</p>
+        <Field label="Server command" value={r.data?.command||''} onChange={v=>onUpdate('rewards.'+i+'.data.command',v)} placeholder="say Quest completed"/>
+      </div>:
+      r.type==='questplus:choice'?<div className="random-reward-builder">
+        <p>Player selects one option using /questplus choose &lt;quest&gt; &lt;option number&gt; before claiming. UI selection in the tablet is a TODO.</p>
+        {(r.data?.options||[]).map((option:any,j:number)=><div className="mini-card" key={j}>
+          <div className="field-row">
+            <Select label={'Option '+(j+1)} value={option.type} options={[[ 'item','Item'],['experience','XP points'],['experience_levels','XP Levels']]}
+              onChange={type=>onUpdate('rewards.'+i+'.data.options.'+j,{type,...(type==='item'?{item:'minecraft:diamond',count:1}:{amount:10})})}/>
+            {option.type==='item'?<>
+              <Field label="Item ID" value={option.item} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.item',v)}/>
+              <Field label="Count" type="number" value={option.count} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.count',Math.max(1,Math.floor(v)))}/>
+            </>:<Field label="XP amount" type="number" value={option.amount} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.amount',Math.max(1,Math.floor(v)))}/>}
+            <button className="tiny danger" type="button" title="Remove option" disabled={(r.data?.options?.length||0)<=2}
+              onClick={()=>onUpdate('rewards.'+i+'.data.options',(r.data?.options||[]).filter((_:any,k:number)=>k!==j))}><Trash2 size={14}/></button>
+          </div>
+        </div>)}
+        <button className="button secondary" type="button" disabled={(r.data?.options?.length||0)>=32}
+          onClick={()=>onUpdate('rewards.'+i+'.data.options',[...(r.data?.options||[]),{type:'item',item:'minecraft:emerald',count:1}])}>
+          + Add choice option
+        </button>
+      </div>:
       ['questplus:random','questplus:loot','questplus:all'].includes(r.type)?<div className="random-reward-builder">
         <p>{ui('Rolls are selected when the quest completes, and stored until claimed.')}</p>
         {r.type!=='questplus:all'&&<Field label="Rolls" type="number" value={r.data?.rolls||1}
@@ -219,6 +251,8 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <Disclosure title="Custom label"><Translated label="Text" prefix={'rewards.'+i+'.text'} value={r.text} language={language} onUpdate={onUpdate}/></Disclosure>
     </div>)}
    </>}
+   {rewardAdvBrowser!==null&&<TargetPicker kind="advancement" onClose={()=>setRewardAdvBrowser(null)}
+     onPick={id=>{onUpdate('rewards.'+rewardAdvBrowser+'.data.advancement',id);setRewardAdvBrowser(null)}}/>}
    {tab==='conditions'&&<>
     <div className="detail-heading"><strong>{ui('Prerequisites')}</strong></div>
     <p>{ui('A quest becomes available when its prerequisites are complete.')}</p>
@@ -235,6 +269,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
       <Field label="Time limit (s)" type="number" value={quest.timeLimitSeconds??''} placeholder="—" onChange={v=>{onUpdate('timeLimitSeconds',v>0?v:undefined)}}/>
      </div>
      <label className="checkbox-row"><input type="checkbox" checked={!!quest.noDeath} onChange={e=>{onUpdate('noDeath',e.target.checked)}}/> {ui('Without dying')}</label>
+     <label className="checkbox-row"><input type="checkbox" checked={!!quest.progressBeforeUnlock} onChange={e=>onUpdate('progressBeforeUnlock',e.target.checked)}/>{ui('Track objectives before prerequisites are unlocked')}</label>
      {quest.progression==='tiered'&&<>
       <Select label="After last tier" value={quest.afterLast||'stop'} options={[[ 'stop','Stop'],['repeat','Repeat last tier']]} onChange={v=>onUpdate('afterLast',v)}/>
       {(quest.tiers||[]).map((tier:Tier,i:number)=><div className="mini-card" key={tier.id}>

@@ -42,6 +42,7 @@ public final class QuestRuntime implements AutoCloseable {
     private TeamManager teams;
     private boolean storageFailed;
     private String teamRewardPolicy="all_members";
+    private boolean commandRewardsEnabled;
     private QuestRegistry registry;
     private List<ClientProjection.Category> categories = List.of();
     private long catalogGeneration;
@@ -62,7 +63,7 @@ public final class QuestRuntime implements AutoCloseable {
     public void reload() throws IOException {
         assertThread();
         var config = Defaults.readObject(definitions.resolve("config.json"));
-        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
+        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy","enableCommandRewards").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
                 || !config.get("schemaVersion").isJsonPrimitive() || !config.get("schemaVersion").getAsJsonPrimitive().isNumber()
                 || config.get("schemaVersion").getAsBigDecimal().intValueExact() != 1)
             throw new IllegalArgumentException("Unsupported config.json");
@@ -72,7 +73,15 @@ public final class QuestRuntime implements AutoCloseable {
         if (seconds < 1 || seconds > 300) throw new IllegalArgumentException("autosaveSeconds must be 1..300");
         String policy=config.has("teamRewardPolicy") ? config.get("teamRewardPolicy").getAsString() : "all_members";
         if (!Set.of("all_members","contributor").contains(policy)) throw new IllegalArgumentException("Invalid teamRewardPolicy");
+        if(config.has("enableCommandRewards") && (!config.get("enableCommandRewards").isJsonPrimitive() ||
+            !config.get("enableCommandRewards").getAsJsonPrimitive().isBoolean()))
+            throw new IllegalArgumentException("enableCommandRewards must be a boolean");
+        boolean allowCommands=config.has("enableCommandRewards") && config.get("enableCommandRewards").getAsBoolean();
         QuestRegistry candidate = QuestRegistry.load(definitions.resolve("quests"), this::validateRegistryReference);
+        if(!allowCommands && candidate.all().stream().anyMatch(q->
+            q.rewards().stream().anyMatch(r->r.type().equals("questplus:command")) ||
+            q.tiers().stream().flatMap(t->t.rewards().stream()).anyMatch(r->r.type().equals("questplus:command"))))
+            throw new IllegalArgumentException("Command rewards require enableCommandRewards=true in trusted world config");
         Set<String> categoryIds = new HashSet<>();
         List<ClientProjection.Category> candidateCategories = new ArrayList<>();
         try (var paths = Files.walk(definitions.resolve("categories"))) {
@@ -233,6 +242,7 @@ public final class QuestRuntime implements AutoCloseable {
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
         teamRewardPolicy=policy;
+        commandRewardsEnabled=allowCommands;
         autosaveTicks = seconds * 20;
         QuestNetwork.invalidateAll(server);
     }
@@ -240,6 +250,12 @@ public final class QuestRuntime implements AutoCloseable {
     private void validateRegistryReference(String kind, String target) {
         String registryKind=kind.equals("icon") || kind.equals("tool") || kind.equals("item") ? "item"
             : Set.of("dimension","biome","effect").contains(kind) ? kind : QuestExtensions.event(kind).registry();
+        if (kind.equals("advancement_complete")) {
+            Identifier advancement=Identifier.parse(target);
+            if(server.getAdvancements().get(advancement)==null)
+                throw new IllegalArgumentException("Unknown advancement "+target);
+            return;
+        }
         if (kind.equals("custom_stat")) {
             Identifier stat=Identifier.parse(target);
             if (!BuiltInRegistries.CUSTOM_STAT.containsKey(stat))
@@ -249,7 +265,7 @@ public final class QuestRuntime implements AutoCloseable {
         if (registryKind.equals("marker")) {
             Identifier.parse(target.startsWith("#") ? target.substring(1) : target);
             if (kind.equals("travel_distance") && !target.equals("questplus:travel") || kind.equals("location") && !target.equals("questplus:position")
-                    || kind.equals("player_death") && !target.equals("questplus:death")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
+                    || kind.equals("player_death") && !target.equals("questplus:death") || kind.equals("energy_transfer") && !target.equals("questplus:fe")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
             return;
         }
         if (registryKind.equals("dimension")) {
@@ -259,6 +275,7 @@ public final class QuestRuntime implements AutoCloseable {
         }
         Registry<?> values = switch (registryKind) {
             case "block" -> BuiltInRegistries.BLOCK;
+            case "fluid" -> BuiltInRegistries.FLUID;
             case "entity" -> BuiltInRegistries.ENTITY_TYPE;
             case "effect" -> BuiltInRegistries.MOB_EFFECT;
             case "biome" -> server.registryAccess().lookupOrThrow(Registries.BIOME);
@@ -275,6 +292,7 @@ public final class QuestRuntime implements AutoCloseable {
         if ((kind.equals("item") || kind.equals("inventory_count")) && id.equals(Identifier.parse("minecraft:air"))) throw new IllegalArgumentException("AIR cannot be an item reward/inventory objective");
     }
 
+    public boolean commandRewardsEnabled(){return commandRewardsEnabled;}
     public QuestRegistry registry() { return registry; }
     public List<ClientProjection.Category> categories() { return categories; }
     public long catalogGeneration() { return catalogGeneration; }
@@ -339,7 +357,7 @@ public final class QuestRuntime implements AutoCloseable {
         Map<String,Object> ctx=QuestPlusMod.context(actor);
         Set<String> completed=new HashSet<>();
         state.quests.forEach((id,p)->{if(p.completed)completed.add(id);});
-        if(quest.requires()!=null && !quest.requires().matches(ctx,completed))
+        if(quest.requires()!=null && !quest.progressBeforeUnlock() && !quest.requires().matches(ctx,completed))
             throw new IllegalArgumentException("Quest prerequisites are not satisfied");
         if(objective.conditions()!=null && !objective.conditions().matches(ctx,completed))
             throw new IllegalArgumentException("Objective conditions are not satisfied");
@@ -559,6 +577,36 @@ public final class QuestRuntime implements AutoCloseable {
             }
         });
     }
+    /**
+     * Persist one player-selected reward before any claim reservation.
+     * Choices are personal entitlements even when quest progress is shared by a team.
+     * Subsequent claims cannot reroll this choice.
+     */
+    public void chooseReward(ServerPlayer actor,String questId,int zeroBasedOption) throws IOException {
+        assertThread();
+        UUID uuid=actor.getUUID();
+        ensureFree(group(uuid));
+        visibleQuest(uuid,questId);
+        var personal=player(uuid);
+        var entry=personal.entitlements.entrySet().stream()
+            .filter(e->e.getValue().questId().equals(questId)&&!personal.claims.containsKey(e.getKey())
+                &&e.getValue().rewards().stream().anyMatch(r->r.type().equals("questplus:choice")))
+            .sorted(Map.Entry.comparingByKey()).findFirst()
+            .orElseThrow(()->new IllegalArgumentException("No unresolved choice reward for "+questId));
+        var original=entry.getValue();
+        var updated=new ArrayList<>(original.rewards());
+        int at=-1;
+        for(int i=0;i<updated.size();i++)
+            if(updated.get(i).type().equals("questplus:choice")){at=i;break;}
+        if(at<0)throw new IllegalStateException("Choice reward missing");
+        var concrete=RewardTables.choose(updated.get(at),zeroBasedOption);
+        QuestExtensions.validateSavedReward(concrete);
+        updated.set(at,concrete);
+        personal.entitlements.put(entry.getKey(),new PlayerProgress.RewardGrant(questId,List.copyOf(updated)));
+        QuestNetwork.invalidate(uuid);
+        persistCurrent(Map.of(uuid,personal),Map.of(),Set.of(uuid));
+        actor.sendSystemMessage(Component.literal("Quest Plus: choice #"+(zeroBasedOption+1)+" selected. Claim once saving finishes."));
+    }
     public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null); }
     private void claim(ServerPlayer player, String id,Runnable onDelivered) throws IOException {
         assertThread();
@@ -568,6 +616,7 @@ public final class QuestRuntime implements AutoCloseable {
         String key=progress.entitlements.entrySet().stream().filter(e -> e.getValue().questId().equals(id) && !progress.claims.containsKey(e.getKey())).map(Map.Entry::getKey).sorted().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No unclaimed reward entitlement: " + id));
         var rewards=progress.entitlements.get(key).rewards();
+        if(rewards.stream().anyMatch(r->r.type().equals("questplus:choice"))) throw new IllegalArgumentException("Choose your reward first: /questplus choose <quest> <option number>");
         if (claiming.contains(uuid)) throw new IllegalArgumentException("Reward already reserved; pending claims require administrator review");
         if (!fits(player,rewards)) throw new IllegalArgumentException("Inventory needs more free space");
         progress.claims.put(key,"reserved");
@@ -596,6 +645,21 @@ public final class QuestRuntime implements AutoCloseable {
                     else if (reward.type().equals("item")) for (var stack : stacks(reward)) {
                         if (!player.getInventory().add(stack) || !stack.isEmpty()) throw new IllegalStateException("Inventory changed during reward delivery");
                     }
+                    else if(reward.type().equals("questplus:message")) {
+                        String message=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                            .get("message").getAsString();
+                        player.sendSystemMessage(Component.literal(message));
+                    }
+                    else if(reward.type().equals("questplus:advancement")) {
+                        String key=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                            .get("advancement").getAsString();
+                        var holder=server.getAdvancements().get(Identifier.parse(key));
+                        if(holder==null)throw new IllegalStateException("Missing advancement for reserved reward "+key);
+                        var progressEntry=player.getAdvancements().getOrStartProgress(holder);
+                        List<String> remaining=new ArrayList<>();
+                        progressEntry.getRemainingCriteria().forEach(remaining::add);
+                        for(String criterion:remaining)player.getAdvancements().award(holder,criterion);
+                    }
                     else QuestRewardExtensions.deliver(player,reward);
                 }
                 progress.claims.put(key,"delivered");
@@ -620,7 +684,14 @@ public final class QuestRuntime implements AutoCloseable {
         return stacks;
     }
     private static boolean fits(ServerPlayer player,List<QuestDefinition.Reward> rewards) {
-        for (var reward:rewards) if (!Set.of("item","experience","experience_levels").contains(reward.type()) && !QuestRewardExtensions.fits(player,reward)) return false;
+        for(var reward:rewards) {
+            if(reward.type().equals("questplus:advancement")) {
+                String id=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                    .get("advancement").getAsString();
+                if(player.getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
+            } else if(!Set.of("item","experience","experience_levels","questplus:message").contains(reward.type()) &&
+                    !QuestRewardExtensions.fits(player,reward))return false;
+        }
         List<ItemStack> slots = player.getInventory().getNonEquipmentItems().stream().map(ItemStack::copy).toList();
         var simulated = new ArrayList<>(slots);
         for (var reward : rewards) if (reward.type().equals("item")) for (ItemStack input : stacks(reward)) {

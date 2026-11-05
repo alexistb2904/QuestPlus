@@ -18,6 +18,7 @@ import {
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
 import {buildQuestFromTemplate} from "../core/quest-templates.js";
+import {savedQuestTemplates,saveQuestTemplate,buildSavedQuest} from "../core/studio-template-library.js";
 import JSON5 from "json5";
 import {inspectFtbPack} from "../core/ftb-import.js";
 import { makeZip, readZip } from "../core/zip.js";
@@ -122,7 +123,7 @@ export function useStudio() {
 				if (!o) return;
 				if(path==='style'&&value==='background')delete o.rich;
 				if (path === "category" && s.selection?.type === "quest") s.categoryId = value;
-				if (s.selection?.type === "quest" && o.schemaVersion === 1 && ["noDeath", "objectiveMode", "timeLimitSeconds", "cooldownSeconds"].includes(path))
+				if (s.selection?.type === "quest" && o.schemaVersion === 1 && ["noDeath", "objectiveMode", "objectiveThreshold", "progressBeforeUnlock", "timeLimitSeconds", "cooldownSeconds"].includes(path))
 					o.schemaVersion = 2;
 				if (path.startsWith("layout.") && s.selection?.type === "quest" && !o.layout)
 					o.layout = { ...gameLayout(s.project.quests.filter((q) => q.category === o.category)).points.get(o.id) };
@@ -203,7 +204,12 @@ export function useStudio() {
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
-			s.project.quests.push(buildQuestFromTemplate(currentCategory,id,name,{x:Math.round(at?.x??s.camera.x),y:Math.round(at?.y??s.camera.y)},templateId));
+			const position={x:Math.round(at?.x??s.camera.x),y:Math.round(at?.y??s.camera.y)};
+            const saved=templateId.startsWith('custom:')?savedQuestTemplates().find(t=>t.id===templateId):null;
+            if(templateId.startsWith('custom:')&&!saved)throw Error('Saved template unavailable: '+templateId);
+            const quest=saved?buildSavedQuest(saved,currentCategory,id,name,position)
+                :buildQuestFromTemplate(currentCategory,id,name,position,templateId);
+            s.project.quests.push(quest);
 			s.selection = { type: "quest", id };
 		});
 	}
@@ -240,6 +246,15 @@ export function useStudio() {
 		},'route:'+from+'>'+to);
 	}
 	function action(kind: string, index = 0) {
+        if(kind==='save-as-template'){
+            const selected=state.project.quests.find(q=>state.selection?.type==='quest'&&q.id===state.selection.id);
+            if(!selected)return;
+            const name=prompt('Save quest template as',text(selected.title,'en_us'))?.trim();
+            if(!name)return;
+            try{saveQuestTemplate(selected,name);toast('Template saved. Right-click the diagram to use it.')}
+            catch(error){toast('Could not save template: '+(error as Error).message)}
+            return;
+        }
 		if (kind === "create-quest") return createQuest();
 		if (kind === "create-annotation") return createAnnotation();
 		if (kind === "create-background") return createBackground({x:state.camera.x,y:state.camera.y,width:280,height:180});
@@ -354,6 +369,24 @@ export function useStudio() {
                     {weight:3,type:"item",item:"minecraft:emerald",count:2}];
                 o.rewards.push({type:kind==="add-loot"?"questplus:loot":"questplus:all",
                     data:kind==="add-loot"?{rolls:1,emptyWeight:1,options}:{options}});
+                return;
+            }
+            if (kind === "add-message") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:message",data:{message:"Quest completed!"}});
+                return;
+            }
+            if (kind === "add-command") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:command",data:{command:"say Quest completed"}});
+                return;
+            }
+            if (kind === "add-choice") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:choice",data:{options:[
+                    {type:"item",item:"minecraft:diamond",count:1},
+                    {type:"experience_levels",amount:10}
+                ]}});
                 return;
             }
             if (kind === "add-random") {
@@ -471,14 +504,17 @@ export function useStudio() {
 			const ftb=docs.some(({name})=>/(?:^|[\\/])chapters[\\/][^\\/]+\\.json5?$/i.test(name));
 			const report=ftb?inspectFtbPack(docs):null;
             if(report){
-                const blob=new Blob([JSON.stringify({
-                    source:"FTB Quests",convertedQuests:report.questCount,chapters:report.chapterCount,
+                // TODO(Codex P2): display a reviewable, searchable migration report before replacing the project.
+                const content=JSON.stringify({
+                    format:"questplus-ftb-migration-report",version:1,
+                    convertedQuests:report.questCount,chapters:report.chapterCount,
                     warnings:report.warnings,sourceIdMap:Object.fromEntries(report.sourceIdMap)
-                },null,2)],{type:'application/json'});
+                },null,2);
+                const blob=new Blob([content],{type:'application/json'});
                 const url=URL.createObjectURL(blob),link=document.createElement('a');
                 link.href=url;link.download='QuestPlus-FTB-migration-report.json';
                 document.body.appendChild(link);link.click();link.remove();
-                window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+                setTimeout(()=>URL.revokeObjectURL(url),1500);
             }
 			if(report?.warnings.length&&!confirm("FTB Quests import is partial. "+report.questCount+" quests converted; "+report.warnings.length+" compatibility warnings. Import supported content?\n\n"+report.warnings.slice(0,8).join('\n')))return;
 			if(report&&!report.questCount)throw Error('No FTB quests could be converted without changing semantics.');

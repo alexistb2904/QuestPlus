@@ -103,6 +103,7 @@ final class QuestHubService implements AutoCloseable {
         JsonObject result=new JsonObject();
         addIds(result,"items",BuiltInRegistries.ITEM.keySet());
         addIds(result,"blocks",BuiltInRegistries.BLOCK.keySet());
+        addIds(result,"fluids",BuiltInRegistries.FLUID.keySet());
         addIds(result,"entities",BuiltInRegistries.ENTITY_TYPE.keySet());
         addIds(result,"effects",BuiltInRegistries.MOB_EFFECT.keySet());
         addIds(result,"enchantments",server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).keySet());
@@ -110,6 +111,7 @@ final class QuestHubService implements AutoCloseable {
         addIds(result,"structures",server.registryAccess().lookupOrThrow(Registries.STRUCTURE).keySet());
         addIds(result,"dimensions",server.levelKeys().stream().map(k->k.identifier()).toList());
         addIds(result,"statistics",BuiltInRegistries.CUSTOM_STAT.keySet());
+        addIds(result,"advancements",server.getAdvancements().getAllAdvancements().stream().map(a->a.id()).toList());
         JsonObject tags=new JsonObject();
         tagIds(tags,"items",BuiltInRegistries.ITEM);
         tagIds(tags,"blocks",BuiltInRegistries.BLOCK);

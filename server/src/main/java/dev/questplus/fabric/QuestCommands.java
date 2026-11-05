@@ -2,6 +2,7 @@ package dev.questplus.fabric;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.*;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -65,6 +66,30 @@ final class QuestCommands {
                         + " | cycles="+(p==null ? 0 : p.cycles)+" tier="+(p==null ? 0 : p.tier)+" restart="+(p!=null && p.waitingRestart)
                         + " | rewards="+personal.entitlements.values().stream().filter(r -> r.questId().equals(id)).count()+" | " + runtime.engine().diagnostic(progress,id).orElse("compatible")),false);
                 }))))
+            .then(literal("diagnose").requires(src->src.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .then(questArgument().executes(c->execute(c,src->{
+                    var actor=src.getPlayerOrException();
+                    var runtime=QuestPlusMod.runtime();
+                    String id=StringArgumentType.getString(c,"quest");
+                    var quest=runtime.visibleQuest(actor.getUUID(),id);
+                    var state=runtime.state(actor.getUUID());
+                    var progress=state.quests.get(id);
+                    Set<String> completed=new HashSet<>();
+                    state.quests.forEach((name,entry)->{if(entry.completed)completed.add(name);});
+                    var context=QuestPlusMod.context(actor);
+                    boolean unlocked=quest.requires()==null||quest.requires().matches(context,completed);
+                    src.sendSuccess(()->Component.literal("QuestPlus diagnostic "+id+
+                        " | prerequisites="+unlocked+" | state="+(progress==null?"not started":progress.completed?"completed":"in progress")+
+                        " | "+runtime.engine().diagnostic(state,id).orElse("schema compatible")),false);
+                    for(var objective:quest.objectives().stream().limit(32).toList()){
+                        long got=progress==null?0:progress.counters.getOrDefault(objective.id(),0L);
+                        boolean conditions=objective.conditions()==null||objective.conditions().matches(context,completed);
+                        src.sendSuccess(()->Component.literal(
+                            objective.id()+" ["+objective.event()+"] "+objective.target()+" "+
+                            got+"/"+objective.count()+" | conditions="+conditions+
+                            (objective.optional()?" | optional":"")),false);
+                    }
+                }))))
             .then(literal("submit")
                 .then(argument("quest",StringArgumentType.word()).suggests((c,builder)->{
                     try{
@@ -88,6 +113,13 @@ final class QuestCommands {
                     String objective=StringArgumentType.getString(c,"objective");
                     int submitted=QuestPlusMod.runtime().submitItem(player,id,objective);
                     source.sendSuccess(()->Component.literal("Submitted "+submitted+" items to "+id+" / "+objective),false);
+                })))))
+            .then(literal("choose").then(questArgument().then(argument("option",IntegerArgumentType.integer(1,32))
+                .executes(c->execute(c,source->{
+                    var actor=source.getPlayerOrException();
+                    String id=StringArgumentType.getString(c,"quest");
+                    int oneBased=IntegerArgumentType.getInteger(c,"option");
+                    QuestPlusMod.runtime().chooseReward(actor,id,oneBased-1);
                 })))))
             .then(literal("claim").then(questArgument().executes(c -> execute(c,s -> {
                 var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
