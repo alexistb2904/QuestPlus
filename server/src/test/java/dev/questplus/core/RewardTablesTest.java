@@ -39,6 +39,39 @@ class RewardTablesTest {
         loot.addProperty("emptyWeight",-1);
         assertThrows(IllegalArgumentException.class,()->RewardTables.validateLoot(loot));
     }
+    @Test void choiceRequiresTwoSafeOptionsAndResolvesExactlyOne() {
+        var data=JsonParser.parseString("""
+          {"options":[
+             {"type":"item","item":"minecraft:diamond","count":2},
+             {"type":"experience_levels","amount":10}
+          ]}
+        """).getAsJsonObject();
+        RewardTables.validateChoice(data);
+        var source=new QuestDefinition.Reward("questplus:choice",null,0,0,data.toString(),Map.of());
+        var completion=RewardTables.resolve(List.of(source));
+        assertEquals("questplus:choice",completion.getFirst().type()); // unresolved until player selection
+        var item=RewardTables.choose(source,0);
+        assertEquals("item",item.type());
+        assertEquals("minecraft:diamond",item.item());
+        assertEquals(2,item.count());
+        var levels=RewardTables.choose(source,1);
+        assertEquals("experience_levels",levels.type());
+        assertEquals(10,levels.amount());
+        QuestExtensions.validateSavedReward(item);
+        QuestExtensions.validateSavedReward(levels);
+        assertThrows(IllegalArgumentException.class,()->RewardTables.choose(source,2));
+        data.getAsJsonArray("options").remove(1);
+        assertThrows(IllegalArgumentException.class,()->RewardTables.validateChoice(data));
+    }
+    @Test void choiceCannotGrantArbitraryCommands() {
+        var data=JsonParser.parseString("""
+          {"options":[
+            {"type":"item","item":"minecraft:diamond","count":2},
+            {"type":"questplus:command","command":"op @s"}
+          ]}
+        """).getAsJsonObject();
+        assertThrows(IllegalArgumentException.class,()->RewardTables.validateChoice(data));
+    }
     @Test void rejectsScriptsInvalidWeightsAndUnknownRewardTypes() {
         for(String json:List.of(
           "{\"options\":[{\"weight\":0,\"type\":\"item\",\"item\":\"minecraft:diamond\",\"count\":1}]}",
