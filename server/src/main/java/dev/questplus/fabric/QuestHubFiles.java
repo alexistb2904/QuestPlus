@@ -16,7 +16,7 @@ final class QuestHubFiles {
     private static final int MAX_FILES=2000, MAX_TOTAL=12*1024*1024;
     private static boolean allowed(String name) {
         return name.equals("config.json") || name.equals("queststudio-compatibility.json")
-            || (name.matches("quests/[a-z0-9_./-]+\\.json5?") || name.matches("categories/[a-z0-9_./-]+\\.json"))
+            || (name.matches("quests/[a-z0-9_./-]+\\.json5?") || name.matches("categories/[a-z0-9_./-]+\\.json5?"))
                 && !Arrays.asList(name.split("/")).contains("..");
     }
     static JsonArray snapshot(Path definitions) throws IOException {
