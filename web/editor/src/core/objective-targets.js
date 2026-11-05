@@ -40,12 +40,12 @@ export const targetKind=event=>
  ['block_break','block_place','block_interact'].includes(event)?'block':
  ['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'].includes(event)?'item':
  ['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'].includes(event)?'entity':
- event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
+ event==='fluid_transfer'?'fluid':event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
 export const initialTarget=event=>(
  event==='dimension_enter'?'minecraft:overworld':MARKERS[event]||
  (targetKind(event)==='block'?'minecraft:stone':targetKind(event)==='item'?'minecraft:stick':
  targetKind(event)==='entity'?'minecraft:zombie':targetKind(event)==='biome'?'minecraft:plains':
- targetKind(event)==='structure'?'minecraft:village_plains':'questplus:manual')
+ targetKind(event)==='structure'?'minecraft:village_plains':targetKind(event)==='fluid'?'minecraft:water':'questplus:manual')
 );
 export const coordinateBounds=(raw,axis,value)=>{
  const previous=raw?.position||(Array.isArray(raw?.and)?raw.and.find(n=>n?.position)?.position:null);
@@ -85,6 +85,8 @@ export const OBJECTIVE_UI=Object.freeze({
   inventory_count:{kind:'item',amount:'Required in inventory'},
   item_submit:{kind:'item',amount:'Items to verify'},
   item_turn_in:{kind:'item',amount:'Items to consume'},
+  fluid_transfer:{kind:'fluid',amount:'Fluid (mB)'},
+  energy_transfer:{kind:'custom',amount:'Energy (FE)'},
   entity_kill:{kind:'entity',amount:'Kills'},
   fish_entity:{kind:'entity',amount:'Entities caught'},
   tame_animal:{kind:'entity',amount:'Animals tamed'},
@@ -118,7 +120,7 @@ export const changeObjectiveEvent=(objective,event,questId)=>{
   if(objective.event===event)return objective;
   const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
   // Switching between related events must not erase an already chosen modded ID.
-  const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','custom'].includes(newKind);
+  const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','fluid','custom'].includes(newKind);
   const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
   const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
   const cleaned=removePositionCondition(objective.conditions);
