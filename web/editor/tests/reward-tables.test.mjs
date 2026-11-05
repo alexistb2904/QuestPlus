@@ -10,7 +10,7 @@ const loot={type:'questplus:loot',data:{rolls:2,emptyWeight:2,options:[
  {weight:1,type:'experience',amount:10}
 ]}};
 test('the shared server fixture is an exact Studio JSON5 reward export',()=>{
- const content=readFileSync(new URL('../../../server/src/test/resources/studio-rewards.json5',import.meta.url),'utf8');
+ const content=readFileSync(new URL('../../../server/src/test/resources/studio-rewards.json5',import.meta.url),'utf8').replace(/\r\n/g,'\n');
  const q=JSON5.parse(content),project=emptyProject();
  project.categories.push(category(q.category,'Studio'));project.quests.push(q);
  assert.deepEqual(validate(project),[]);

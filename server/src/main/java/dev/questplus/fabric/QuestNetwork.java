@@ -183,8 +183,14 @@ public final class QuestNetwork {
                     runtime.submitItem(player,parts[0],parts[1]);
                 }
                 case "claim_all" -> runtime.claimAll(player);
+                case "interact" -> {
+                    String[] parts=value.split("\\|",2);
+                    if(parts.length!=2 || parts[0].isBlank() || !parts[1].matches("[a-z0-9_.-]+"))
+                        throw new IllegalArgumentException("Invalid manual objective selection");
+                    runtime.interactObjective(player,parts[0],parts[1]);
+                }
                 case "restart" -> { runtime.visibleQuest(actor,value); runtime.mutate(actor,value,"restart"); }
-                case "trigger" -> { runtime.visibleQuest(actor,value); runtime.event(player,new QuestEvent("manual",value,Set.of(),1,QuestPlusMod.context(player))); }
+                case "trigger" -> runtime.interactObjective(player,value,null);
                 case "create","invite","join","decline","leave","kick","transfer","disband" -> {
                     runtime.changeTeam(m -> switch(request.action()) {
                         case "create" -> m.create(actor,value);

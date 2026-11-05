@@ -219,5 +219,6 @@
   "questplus.client.reward_type.questplus:command": "服务器奖励",
   "questplus.choice_saved": "Quest Plus：选择已保存。",
   "questplus.client.error.choice_save_failed": "选择保存失败。请管理员检查存储。",
-  "questplus.client.back": "返回"
+  "questplus.client.back": "返回",
+  "questplus.client.interact": "确认目标"
 }

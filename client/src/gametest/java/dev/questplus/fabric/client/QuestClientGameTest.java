@@ -221,18 +221,24 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                 var runtime=dev.questplus.fabric.QuestPlusMod.runtime();category[0]=runtime.categories().getFirst().id();
                 Files.writeString(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"),"""
                     {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'minecraft:chest',title:{en_us:'Reward choices'},progression:'once',
-                     objectives:[{id:'check',event:'manual',target:'questplus:client_choice_fixture',count:1}],
+                     objectives:[{id:'check',event:'manual',target:'questplus:client_choice_marker',count:1}],
                      rewards:[
                       {type:'questplus:choice',data:{options:[{type:'experience',amount:7},{type:'experience_levels',amount:2}]}},
                       {type:'questplus:choice',data:{options:[{type:'experience',amount:11},{type:'experience_levels',amount:3}]}},
                       {type:'questplus:random',data:{options:[{type:'experience',amount:1,weight:1}]}}
                      ]}
                     """.formatted(category[0]));
-                runtime.reload();runtime.mutate(instance.getPlayerList().getPlayers().getFirst().getUUID(),id,"grant");
+                runtime.reload();
             } catch(Exception e){throw new RuntimeException(e);}
         });
-        context.waitFor(client->QuestPlusClient.STATE.progress(id).has("rewardState") && !QuestClientState.flag(QuestPlusClient.STATE.progress(id),"saving"),300);
-        String token=context.computeOnClient(client->QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").get("token").getAsString());
+        context.waitFor(client->QuestPlusClient.STATE.quests.containsKey(id),300);
+        boolean nativeTablet=FabricLoader.getInstance().isModLoaded("fp_pal")&&FabricLoader.getInstance().isModLoaded("player_animation_library");
+        if(nativeTablet) {
+            context.setScreen(()->null);
+            context.getInput().pressKey(InputConstants.KEY_J);
+            context.waitFor(client->TabletSurfaceRenderer.active(),120);
+            context.waitTicks(5);
+        }
         context.setScreen(()->{
             var screen=new QuestScreen();
             try {
@@ -241,7 +247,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             } catch(Exception e){throw new RuntimeException(e);}
             return screen;
         });
-        context.waitTicks(5);clickButton(context,"choose");context.waitTicks(2);
+        context.waitTicks(5);clickButton(context,"interact");
+        context.waitFor(client->QuestPlusClient.STATE.progress(id).has("rewardState")&&!QuestClientState.flag(QuestPlusClient.STATE.progress(id),"saving"),300);
+        String token=context.computeOnClient(client->QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").get("token").getAsString());
+        clickButton(context,"choose");context.waitTicks(2);
         context.takeScreenshot("questplus-reward-choice-options");
         clickButton(context,"xp",7);clickButton(context,"confirm_choice");
         context.waitFor(client->QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").getAsJsonArray("rewards").get(0).getAsJsonObject().get("type").getAsString().equals("experience")&&!QuestClientState.flag(QuestPlusClient.STATE.progress(id),"saving"),300);
@@ -261,6 +270,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                 dev.questplus.fabric.QuestPlusMod.runtime().reload();
             }catch(Exception e){throw new RuntimeException(e);}
         });
+        if(nativeTablet) {
+            context.runOnClient(client->client.gui.screen().onClose());
+            context.waitFor(client->client.gui.screen()==null&&!QuestClientTabletFlow.nativeHandsActive(),180);
+        }
         context.setScreen(QuestScreen::new);
         context.runOnClient(client->QuestPlusClient.sync());
         context.waitFor(client->!QuestPlusClient.STATE.quests.containsKey(id),300);

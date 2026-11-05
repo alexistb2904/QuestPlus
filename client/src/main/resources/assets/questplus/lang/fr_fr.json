@@ -219,5 +219,6 @@
   "questplus.client.reward_type.questplus:command": "Récompense serveur",
   "questplus.choice_saved": "Quest Plus : choix enregistré.",
   "questplus.client.error.choice_save_failed": "Le choix n’a pas pu être enregistré. Un administrateur doit vérifier le stockage.",
-  "questplus.client.back": "Retour"
+  "questplus.client.back": "Retour",
+  "questplus.client.interact": "Valider l’objectif"
 }

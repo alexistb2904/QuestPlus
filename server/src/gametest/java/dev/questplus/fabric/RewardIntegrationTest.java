@@ -35,6 +35,59 @@ public final class RewardIntegrationTest {
         helper.assertTrue(rejected,message);
     }
     @GameTest(maxTicks=2000)
+    public void submissionsRespectOptionalStepsTagsAndTierRequirements(GameTestHelper helper) throws Exception {
+        var runtime=QuestPlusMod.runtime();var server=helper.getLevel().getServer();
+        var directory=server.getWorldPath(LevelResource.ROOT).resolve("questplus/quests");
+        Path optional=directory.resolve("optional-submission.json5"),tier=directory.resolve("tier-submission.json5");
+        String category=runtime.categories().getFirst().id();
+        Files.writeString(optional,"""
+            {schemaVersion:2,id:'questplus:optional_submission',category:'%s',icon:'minecraft:dirt',title:{en_us:'Optional submissions'},progression:'once',objectiveMode:'sequence',
+             objectives:[{id:'required',event:'manual',target:'questplus:custom_manual_marker',count:1},
+              {id:'bonus',event:'item_turn_in',target:'minecraft:dirt',count:4,optional:true},
+              {id:'check',event:'item_submit',target:'#minecraft:logs',count:4,optional:true}],rewards:[]}
+            """.formatted(category));
+        Files.writeString(tier,"""
+            {schemaVersion:2,id:'questplus:tier_submission',category:'%s',icon:'minecraft:oak_log',title:{en_us:'Tier submissions'},progression:'tiered',
+             objectives:[{id:'check',event:'item_submit',target:'#minecraft:logs',count:4}],rewards:[],tiers:[{id:'first',threshold:1,rewards:[]},{id:'second',threshold:2,rewards:[]}]}
+            """.formatted(category));
+        runtime.reload();var player=connect(helper,new GameProfile(UUID.randomUUID(),"submission-test"));
+        var inventory=player.getInventory();
+        Runnable idle=()->helper.assertTrue(!runtime.isBusy(player.getUUID()),"Await submission save");
+        helper.startSequence().thenWaitUntil(idle).thenExecute(step(()->{
+            for(int slot=0;slot<36;slot++)inventory.setItem(slot,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE,64));
+            inventory.setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
+            player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
+            player.setGameMode(GameType.CREATIVE);
+            reject(helper,()->runtime.submitItem(player,"questplus:optional_submission","bonus"),"Creative cannot submit");
+            player.setGameMode(GameType.SURVIVAL);
+            helper.assertTrue(runtime.submitItem(player,"questplus:optional_submission","bonus")==4,"Optional sequence submission consumes exactly four items");
+            helper.assertTrue(inventory.getItem(0).isEmpty()&&player.getOffhandItem().isEmpty(),"Main and offhand consumed exactly once");
+            reject(helper,()->runtime.submitItem(player,"questplus:optional_submission","bonus"),"Duplicate hand-in rejected");
+            var progress=runtime.state(player.getUUID()).quests.get("questplus:optional_submission");
+            helper.assertTrue(progress.counters.get("bonus")==4&&!progress.completed,"Optional hand-in advances itself without skipping required task");
+            inventory.setItem(1,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.OAK_LOG,2));
+            player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.OAK_LOG,1));
+            reject(helper,()->runtime.submitItem(player,"questplus:optional_submission","check"),"Incomplete non-consuming submission cannot accumulate reuse");
+            player.getOffhandItem().setCount(2);
+            helper.assertTrue(runtime.submitItem(player,"questplus:optional_submission","check")==4,"Tagged non-consuming full amount accepted");
+            helper.assertTrue(inventory.getItem(1).getCount()==2&&player.getOffhandItem().getCount()==2,"Verification preserves all item stacks");
+            runtime.submitItem(player,"questplus:tier_submission","check");
+        })).thenWaitUntil(idle).thenExecute(step(()->{
+            helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:tier_submission").tier==1,"First tier reached");
+            reject(helper,()->runtime.submitItem(player,"questplus:tier_submission","check"),"Higher tier verifies the full inventory target, not only its delta");
+            inventory.getItem(1).setCount(6);
+            helper.assertTrue(runtime.submitItem(player,"questplus:tier_submission","check")==4,"Only the remaining tier delta is credited");
+        })).thenWaitUntil(idle).thenExecute(step(()->{
+            helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:tier_submission").terminal,"Second tier completed");
+            helper.assertTrue(inventory.getItem(1).getCount()+player.getOffhandItem().getCount()==8,"No verified inventory was consumed");
+            reject(helper,()->runtime.interactObjective(player,"questplus:optional_submission","bonus"),"Manual packet cannot invoke a consuming objective");
+            helper.assertTrue(server.getCommands().getDispatcher().execute("questplus trigger questplus:optional_submission",player.createCommandSourceStack())==1,"Legacy command reuses scoped custom-marker interaction");
+        })).thenWaitUntil(idle).thenExecute(step(()->{
+            helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:optional_submission").completed,"Authorized manual interaction uses its declared custom marker");
+            Files.delete(optional);Files.delete(tier);runtime.reload();
+        })).thenSucceed();
+    }
+    @GameTest(maxTicks=2000)
     public void durablePersonalChoices(GameTestHelper helper) throws Exception {
         var runtime=QuestPlusMod.runtime();var server=helper.getLevel().getServer();
         var root=server.getWorldPath(LevelResource.ROOT);

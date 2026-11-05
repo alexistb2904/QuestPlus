@@ -219,5 +219,6 @@
   "questplus.client.reward_type.questplus:command": "Server reward",
   "questplus.choice_saved": "Quest Plus: choice saved.",
   "questplus.client.error.choice_save_failed": "Choice could not be saved. Ask an administrator to inspect storage.",
-  "questplus.client.back": "Back"
+  "questplus.client.back": "Back",
+  "questplus.client.interact": "Confirm objective"
 }

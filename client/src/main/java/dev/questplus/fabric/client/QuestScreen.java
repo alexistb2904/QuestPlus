@@ -29,12 +29,13 @@ public final class QuestScreen extends Screen {
     private Map<QuestLayout.Edge,List<QuestLayout.Point>> routes=Map.of();
     private QuestCamera camera=new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM);
     private String category,selected,tab="quests",filter="all",confirmation;
-    private String submitObjective;
+    private String submitObjective,manualObjective;
     private boolean rewardView,potentialRewards;
     private int rewardPage,selectedOption=-1,choiceSlot=-1;
     private String choiceToken;
     private long pendingChoiceAt,rewardRevealAt;
     private String rewardRevealKey;
+    private String rewardTitle="",rewardDescription="";
     private record RewardCard(JsonObject reward,String label) {}
     private List<RewardCard> rewardCards=List.of();
     private EditBox search,input;
@@ -586,18 +587,18 @@ public final class QuestScreen extends Screen {
         questAction=button("claim",x,treeTop+36,w,() -> {
             if (currentAction==null) return;
             if(currentAction.equals("choose")){rewardView=true;potentialRewards=false;rewardPage=0;init();return;}
-            if (currentAction.equals("trigger")) {
+            if (Set.of("trigger","interact").contains(currentAction)) {
                 pendingManualQuest=selected;
                 pendingManualAt=System.currentTimeMillis();
             }
-            action(currentAction,currentAction.equals("submit") ? selected+"|"+submitObjective : selected);
+            action(currentAction,currentAction.equals("submit") ? selected+"|"+submitObjective : currentAction.equals("interact")?selected+"|"+manualObjective:selected);
             updateQuestAction();
         }); updateQuestAction();
     }
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
-        submitObjective=null;
+        submitObjective=null;manualObjective=null;
         if (!QuestClientState.flag(p,"terminal") && !QuestClientState.flag(p,"waitingRestart") && QuestClientState.flag(p,"unlocked")) {
             JsonObject counters=p==null?null:p.getAsJsonObject("counters");
             int tierIndex=(int)QuestClientState.count(p,"tier");
@@ -607,14 +608,15 @@ public final class QuestScreen extends Screen {
                 long progress=counters!=null && counters.has(objective.id()) ? counters.get(objective.id()).getAsLong() : 0;
                 if(progress>=objective.count()*factor)continue;
                 if(Set.of("item_submit","item_turn_in").contains(objective.event()))submitObjective=objective.id();
-                if(q.objectiveMode().equals("sequence") && !objective.optional() || submitObjective!=null)break;
+                if(objective.event().equals("manual"))manualObjective=objective.id();
+                if(q.objectiveMode().equals("sequence") && !objective.optional() || submitObjective!=null || manualObjective!=null)break;
             }
         }
-        currentAction=p.has("rewardState") && p.getAsJsonObject("rewardState").get("status").getAsString().equals("choice") ? "choose" : QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : (q.kind().equals("information") && q.acknowledgement().equals("manual") ||
+        currentAction=p.has("rewardState") && p.getAsJsonObject("rewardState").get("status").getAsString().equals("choice") ? "choose" : QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : manualObjective!=null?"interact":(q.kind().equals("information") && q.acknowledgement().equals("manual") ||
             q.objectives().stream().anyMatch(o -> o.event().equals("manual") && o.target().equals(q.id())))
-            && !QuestClientState.flag(p,"completed") ? "trigger" : submitObjective!=null ? "submit" : null;
+            && !QuestClientState.flag(p,"terminal") && !QuestClientState.flag(p,"waitingRestart") ? "trigger" : submitObjective!=null ? "submit" : null;
         questAction.visible=currentAction!=null;
-        boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
+        boolean pending=currentAction!=null && Set.of("trigger","interact").contains(currentAction) && Objects.equals(pendingManualQuest,selected)
             && System.currentTimeMillis()-pendingManualAt<2500L;
         questAction.active=currentAction!=null && !pending && !QuestClientState.flag(p,"saving") && (Set.of("claim","choose").contains(currentAction) || QuestClientState.flag(p,"unlocked"));
         if (currentAction!=null) questAction.setMessage(t(pending || QuestClientState.flag(p,"saving") ? "processing" : currentAction));
@@ -813,11 +815,15 @@ public final class QuestScreen extends Screen {
             Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all","questplus:advancement","questplus:message","questplus:command").contains(type)?t("reward_type."+type).getString():type;
         if(reward.has("advancement"))label+=" · "+reward.get("advancement").getAsString();
         if(reward.has("message"))label+=" · "+reward.get("message").getAsString();
-        if(reward.has("text") && reward.get("text").isJsonObject() && !reward.getAsJsonObject("text").isEmpty()) {
-            Map<String,String> text=new HashMap<>();reward.getAsJsonObject("text").entrySet().forEach(e->text.put(e.getKey(),e.getValue().getAsString()));
-            return state.text(text)+" · "+label;
-        }
+        String title=rewardText(reward,"text");
+        if(!title.isBlank())return title+" · "+label;
         return label;
+    }
+    private String rewardText(JsonObject reward,String field) {
+        if(!reward.has(field) || !reward.get(field).isJsonObject())return "";
+        Map<String,String> translations=new HashMap<>();
+        reward.getAsJsonObject(field).entrySet().forEach(e->translations.put(e.getKey(),e.getValue().getAsString()));
+        return state.text(translations);
     }
     private void rewardButtons() {
         int x=detailLeft,w=right-x-8;
@@ -830,6 +836,9 @@ public final class QuestScreen extends Screen {
         if(receipt!=null && !potentialRewards && receipt.get("status").getAsString().equals("choice"))
             for(int i=0;i<rewards.size();i++)if(rewards.get(i).getAsJsonObject().get("type").getAsString().equals("questplus:choice")){slot=i;break;}
         String token=receipt==null?null:receipt.get("token").getAsString();
+        JsonObject table=slot>=0?rewards.get(slot).getAsJsonObject():null;
+        rewardTitle=table==null?"":rewardText(table,"text");
+        rewardDescription=table==null?"":rewardText(table,"description");
         if(slot!=choiceSlot || !Objects.equals(token,choiceToken)) { choiceSlot=slot;choiceToken=token;selectedOption=-1;pendingChoiceAt=0;rewardPage=0; }
         String revealKey=token+":"+(receipt==null?"preview":receipt.get("status").getAsString());
         if(!Objects.equals(rewardRevealKey,revealKey)){rewardRevealKey=revealKey;rewardRevealAt=System.currentTimeMillis();}
@@ -845,7 +854,7 @@ public final class QuestScreen extends Screen {
         for(int i=rewardPage*4;i<Math.min(cards.size(),rewardPage*4+4);i++) {
             int option=i;var card=cards.get(i);
             var widget=addRenderableWidget(new QuestButton(Component.literal(card.label()),x,treeTop+70+(i%4)*25,w,23,()->{selectedOption=option;init();}));
-            widget.icon(previewIcon(card.reward())).hoverText(Component.literal(card.label())).selected(slot>=0 && selectedOption==i);
+            widget.icon(previewIcon(card.reward())).hoverText(Component.literal(card.label()+(rewardDescription.isBlank()?"":"\n"+rewardDescription))).selected(slot>=0 && selectedOption==i);
             widget.active=slot>=0 && !saving;hoverButtons.add(widget);
         }
         button("previous",x,treeTop+172,w/3,()->{rewardPage--;init();}).active=rewardPage>0;
@@ -878,8 +887,10 @@ public final class QuestScreen extends Screen {
         int x=detailLeft,w=right-x-8;
         var p=state.progress(selected);var receipt=p.has("rewardState")?p.getAsJsonObject("rewardState"):null;
         String status=QuestClientState.flag(p,"saving")||pendingChoiceAt!=0?"processing":receipt==null||potentialRewards?"possible_rewards":receipt.get("status").getAsString().equals("choice")?"choose":"actual_rewards";
-        QuestSkin.text(g,font,t(status).getString(),x,treeTop+41,QuestSkin.INK,false);
+        String title=rewardTitle.isBlank()||status.equals("processing")?t(status).getString():rewardTitle;
+        QuestSkin.text(g,font,font.plainSubstrByWidth(title,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+41,QuestSkin.INK,false);
         String hint=receipt==null||potentialRewards?t("per_roll").getString():t("reward_status."+receipt.get("status").getAsString()).getString();
+        if(!rewardDescription.isBlank())hint=rewardDescription;
         QuestSkin.text(g,font,font.plainSubstrByWidth(hint,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+54,QuestSkin.DIM,false);
         QuestSkin.text(g,font,(rewardPage+1)+" / "+Math.max(1,(rewardCards.size()+3)/4),x+w/3+8,treeTop+177,QuestSkin.DIM,false);
         if(settings.animations && !settings.reducedMotion && receipt!=null && !potentialRewards) {

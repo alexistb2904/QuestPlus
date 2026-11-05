@@ -61,4 +61,12 @@ class SubmissionCoreTest {
         assertFalse(progress.quests.containsKey("questplus:verify"));
         assertEquals(List.of("questplus:verify"),engine.apply(progress,event("questplus:verify","deposit","item_submit","minecraft:diamond",3,Set.of())));
     }
+    @Test void manualClicksAreScopedEvenWhenSeveralQuestsShareTheSameMarker() throws Exception {
+        quest("a","manual","questplus:shared",1);
+        quest("b","manual","questplus:shared",1);
+        var engine=new QuestEngine(registry());var progress=new PlayerProgress();
+        var click=new QuestEvent("manual","questplus:shared",Set.of(),1,Map.of("manualQuest","questplus:a","manualObjective","deposit"));
+        assertEquals(List.of("questplus:a"),engine.apply(progress,click));
+        assertFalse(progress.quests.containsKey("questplus:b"));
+    }
 }

@@ -338,6 +338,7 @@ public final class QuestRuntime implements AutoCloseable {
      * event context: an item submitted to one quest cannot advance a different quest.
      * Inventory is modified only on the server thread, after all checks succeed.
      */
+    // TODO(Codex): journal withdrawals with vanilla player saves; inventory and progress JSON still cannot commit atomically.
     public int submitItem(ServerPlayer actor, String questId, String objectiveId) throws IOException {
         assertThread();
         if(actor.isSpectator() || actor.isCreative())throw new IllegalArgumentException("Submission requires survival/adventure mode");
@@ -417,6 +418,18 @@ public final class QuestRuntime implements AutoCloseable {
         return amount;
     }
 
+    public void interactObjective(ServerPlayer actor,String questId,String objectiveId) throws IOException {
+        assertThread();ensureFree(group(actor.getUUID()));
+        var quest=visibleQuest(actor.getUUID(),questId);
+        var progress=state(actor.getUUID()).quests.get(questId);
+        long factor=quest.progression().equals("tiered")?quest.tiers().get(Math.min(progress==null?0:progress.tier,quest.tiers().size()-1)).threshold():1L;
+        var objective=quest.objectives().stream().filter(o->o.event().equals("manual") && (objectiveId==null
+            ? progress==null || progress.counters.getOrDefault(o.id(),0L)<o.count()*factor : o.id().equals(objectiveId)))
+            .findFirst().orElseThrow(()->new IllegalArgumentException("Not an available manual objective"));
+        var context=QuestPlusMod.context(actor);
+        context.put("manualQuest",questId);context.put("manualObjective",objective.id());
+        event(actor,new QuestEvent("manual",objective.target(),Set.of(),1,context));
+    }
     public void event(ServerPlayer player, QuestEvent event) {
         assertThread();
         // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
@@ -436,7 +449,7 @@ public final class QuestRuntime implements AutoCloseable {
                 Set<UUID> recipients=teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
                 for (UUID recipient:recipients) for (var award:completed) {
                     var personal=player(recipient);
-                    if (!personal.claims.containsKey(award.key())) personal.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+                    if (!personal.claims.containsKey(award.key())) personal.entitle(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
                     dirty.add(recipient);
                 }
                 Set<UUID> members=group(uuid); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
@@ -540,7 +553,7 @@ public final class QuestRuntime implements AutoCloseable {
             Set<UUID> members=group(id); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
             for (UUID recipient:members) {
                 var p=player(recipient);
-                if (!p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
+                if (!p.claims.containsKey(award.key())) p.entitle(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
                 snapshots.put(recipient,p);
             }
             var team=player(id).teamId;
@@ -621,6 +634,7 @@ public final class QuestRuntime implements AutoCloseable {
         });
         affected.forEach(QuestNetwork::invalidate);
     }
+    // TODO(Codex): add audited operator resolution for reserved claims; never auto-redeliver after partial delivery.
     public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null,null); }
     private void claim(ServerPlayer player, String id,String requestedKey,Runnable onDelivered) throws IOException {
         assertThread();

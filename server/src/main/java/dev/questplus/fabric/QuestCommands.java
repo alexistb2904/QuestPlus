@@ -132,8 +132,7 @@ final class QuestCommands {
             }))))
             .then(literal("trigger").then(questArgument().executes(c -> execute(c,s -> {
                 var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
-                QuestPlusMod.runtime().visibleQuest(player.getUUID(),id);
-                QuestPlusMod.runtime().event(player,new dev.questplus.core.QuestEvent("manual",id,Set.of(),1,QuestPlusMod.context(player)));
+                QuestPlusMod.runtime().interactObjective(player,id,null);
             }))))
             .then(teamCommands())
             .then(literal("quest")

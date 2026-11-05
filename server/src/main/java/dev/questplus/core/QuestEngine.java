@@ -31,6 +31,8 @@ public final class QuestEngine {
             if (event.type().equals("item_submit") || event.type().equals("item_turn_in")) {
                 if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
             }
+            if(event.type().equals("manual") && event.context().containsKey("manualQuest")
+                && (!q.id().equals(event.context().get("manualQuest")) || !objective.id().equals(event.context().get("manualObjective"))))continue;
             if ((p!=null && (terminal(q,p) || p.waitingRestart)) || diagnostic(player,q.id()).isPresent()
                 || (q.requires()!=null && !q.progressBeforeUnlock() && !q.requires().matches(event.context(),completed))) continue;
             if (p!=null && p.attemptId==null && p.startedAt>0 && now-p.startedAt<q.cooldownSeconds()*1000) continue;
