@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.function.LongSupplier;
 
 public final class QuestEngine {
-    public record Completion(String questId,String key,List<QuestDefinition.Reward> rewards) {}
+    public record Completion(String questId,String key,List<QuestDefinition.Reward> rewards) {
+        public Completion { rewards=RewardTables.resolve(rewards); }
+    }
     private final QuestRegistry registry;
     private final LongSupplier clock;
     public QuestEngine(QuestRegistry registry) { this(registry,System::currentTimeMillis); }
