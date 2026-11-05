@@ -91,13 +91,13 @@ public final class AdvancedEvents {
         }
         if(registry.hasEvent("custom_stat")) {
             // The existing sample loop already limits per-tick work to eight players.
-            for (var objective:registry.objectives("custom_stat")) {
-                Identifier id=Identifier.parse(objective.target());
-                if(!Stats.CUSTOM.contains(id))continue;
+            for (String target:registry.objectives("custom_stat").stream().map(o->o.target()).distinct().toList()) {
+                Identifier id=Identifier.parse(target);
+                if(!Stats.CUSTOM.getRegistry().containsKey(id))continue;
                 long value=player.getStats().getValue(Stats.CUSTOM.get(id));
                 var ctx=QuestPlusMod.context(player);
-                ctx.put("stateValues",Map.of(objective.target(),Math.max(0L,value)));
-                QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",objective.target(),Set.of(),1,ctx));
+                ctx.put("stateValues",Map.of(target,Math.max(0L,value)));
+                QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",target,Set.of(),1,ctx));
             }
         }
         if(registry.hasEvent("xp_levels")) {
