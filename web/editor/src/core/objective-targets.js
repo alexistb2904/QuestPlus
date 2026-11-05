@@ -38,7 +38,7 @@ export const ENTITIES=[
 ].map(id=>'minecraft:'+id);
 export const targetKind=event=>
  ['block_break','block_place','block_interact'].includes(event)?'block':
- ['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count'].includes(event)?'item':
+ ['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'].includes(event)?'item':
  ['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'].includes(event)?'entity':
  event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
 export const initialTarget=event=>(
@@ -83,6 +83,8 @@ export const OBJECTIVE_UI=Object.freeze({
   fish_item:{kind:'item',amount:'Items caught'},
   trade:{kind:'item',amount:'Items traded'},
   inventory_count:{kind:'item',amount:'Required in inventory'},
+  item_submit:{kind:'item',amount:'Items to verify'},
+  item_turn_in:{kind:'item',amount:'Items to consume'},
   entity_kill:{kind:'entity',amount:'Kills'},
   fish_entity:{kind:'entity',amount:'Entities caught'},
   tame_animal:{kind:'entity',amount:'Animals tamed'},
@@ -172,6 +174,8 @@ export const EVENT_LABELS={
   "fish_item": "Fish item",
   "trade": "Trade item",
   "inventory_count": "Hold items",
+  "item_submit": "Submit without consuming",
+  "item_turn_in": "Submit and consume",
   "entity_kill": "Kill entities",
   "fish_entity": "Fish entity",
   "questplus:fish_any": "Fish (any species)",
