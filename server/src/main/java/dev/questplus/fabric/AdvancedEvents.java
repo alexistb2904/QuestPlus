@@ -89,6 +89,17 @@ public final class AdvancedEvents {
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
                     target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
         }
+        if (registry.hasEvent("custom_stat")) {
+            // Read only authored custom-stat IDs. This avoids scanning every stat for every player.
+            for (String target : registry.objectives("custom_stat").stream()
+                    .map(o -> o.target()).distinct().toList()) {
+                Identifier stat=Identifier.parse(target);
+                long value=Math.max(0,player.getStats().getValue(Stats.CUSTOM.get(stat)));
+                var ctx=QuestPlusMod.context(player);
+                ctx.put("stateValues",Map.of(target,value));
+                QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",target,Set.of(),1,ctx));
+            }
+        }
         if(registry.hasEvent("xp_levels")) {
             var ctx=QuestPlusMod.context(player);
             ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));
