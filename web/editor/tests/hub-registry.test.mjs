@@ -29,3 +29,9 @@ test('Quest Studio preserves offline mode and never stores authentication tokens
  assert.match(item,/hubTargets\(kind\)/);
  assert.match(enchant,/hubTargets\('enchantment'\)/);
 });
+
+test('extension forms retain supported registry field descriptors and reject code fields',()=>{
+ const fields=['fluid','structure','statistic','advancement','effect'].map((type,i)=>({key:'field'+i,type,label:type}));
+ const value=setHubRegistry({extensions:[{kind:'event',id:'test:data',label:'Data',fields},{kind:'reward',id:'test:code',label:'Code',fields:[{key:'run',type:'javascript',label:'Run'}]}]});
+ assert.equal(value.extensions.length,1);assert.deepEqual(value.extensions[0].fields,fields);
+});

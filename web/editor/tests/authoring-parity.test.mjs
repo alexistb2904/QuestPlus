@@ -21,10 +21,8 @@ test('FTB preview imports only supported semantics and reports unsupported ones'
    ],rewards:[{type:'ftbquests:command',command:'give @p diamond'}]}
  ]}`;
  const report=inspectFtbPack([{name:'chapters/mobs.json5',content:input}]);
- assert.equal(report.questCount,1);
- assert.equal(report.project.quests[0].objectives.length,2);
- assert.equal(report.project.quests[0].objectives[0].event,'entity_kill');
- assert.equal(report.project.quests[0].objectives[1].event,'inventory_count');
+ assert.equal(report.questCount,0);
+ assert.ok(report.warnings.some(w=>w.includes('skipped')));
  assert.ok(report.warnings.some(w=>w.includes('reward')));
 });
 test('FTB importer rejects packs with no chapters',()=>{

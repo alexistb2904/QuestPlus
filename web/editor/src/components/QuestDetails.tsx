@@ -32,6 +32,7 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
  if(!target)return null;
  const fields:LocaleField[]=[{label:'Title',path:'title',value:target.title},{label:'Description',path:'description',value:target.description,rich:!!quest,multiline:!quest}];
  if(quest){
+  if(quest.presentation?.subtitle)fields.push({label:'Subtitle',path:'presentation.subtitle',value:quest.presentation.subtitle});
   if(quest.kind==='information'||quest.narrative)fields.push({label:'Content',path:'narrative',value:quest.narrative,multiline:true});
   quest.objectives?.forEach((o,i)=>fields.push({label:tUI('Objective')+' '+(i+1),path:'objectives.'+i+'.text',value:o.text,requiresSource:true}));
   quest.rewards?.forEach((r,i)=>fields.push({label:tUI('Reward')+' '+(i+1),path:'rewards.'+i+'.text',value:r.text as Record<string,string>|undefined,requiresSource:true}));
@@ -60,6 +61,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  objective:Objective;index:number;questId:string;onUpdate:Props['onUpdate'];onCondition:Props['onCondition'];
  onBrowse:(index:number,kind:PickerKind)=>void;
 }){
+ const [fieldPicker,setFieldPicker]=useState<{kind:any;key:string}|null>(null);
  const kind=objectiveUi(o.event).kind as string;
  const label=objectiveUi(o.event).amount;
  const path='objectives.'+i;
@@ -105,10 +107,18 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
       const next=changeObjectiveEvent(o,event,questId);
       if(event==='equipment_check' && !next.conditions?.['questplus:gear'])
         next.conditions=updateGear(next.conditions,armorPreset('iron'));
+      const descriptor=hubEditorDescriptors('event').find(d=>d.id===event);
+      if(descriptor)next.data=Object.fromEntries(descriptor.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:f.type==='string'?'':'minecraft:stone']));
+      else delete next.data;
       onUpdate(path,next);
     }}/>
   {field()}
   {label&&kind!=='distance'&&<Field label={label} type="number" value={o.count} onChange={editCount}/>}
+  {hubEditorDescriptors('event').find(d=>d.id===o.event)?.fields.map(f=><div key={f.key}>
+   {f.type==='boolean'?<label className="checkbox-row"><input type="checkbox" checked={!!o.data?.[f.key]} onChange={e=>onUpdate(path+'.data.'+f.key,e.target.checked)}/>{f.label}</label>:
+    <div className="field-row"><Field label={f.label} type={f.type==='integer'?'number':'text'} value={o.data?.[f.key]??''} onChange={v=>onUpdate(path+'.data.'+f.key,v)}/>{!['string','integer'].includes(f.type)&&<button type="button" className="button secondary" onClick={()=>setFieldPicker({kind:f.type,key:f.key})}>{tUI('Browse')}</button>}</div>}
+  </div>)}
+  {fieldPicker&&<TargetPicker kind={fieldPicker.kind} onClose={()=>setFieldPicker(null)} onPick={id=>{onUpdate(path+'.data.'+fieldPicker.key,id);setFieldPicker(null)}}/>}
  </div>;
 }
 

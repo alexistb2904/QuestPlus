@@ -1,8 +1,9 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
 import JSON5 from 'json5';
-import {POOL_TYPES,poolError} from './reward-tables.js';
+import {POOL_TYPES,poolError,resolveNamedTable,rewardTranslations} from './reward-tables.js';
 import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
+import {hubEditorDescriptors} from './hub-registry.js';
 import {isCategoryLink} from './diagram-geometry.js';
 // Quest Studio project data model. Mirrors QuestPlus JSON v2, never the server's internal Gson projection.
 export const EVENTS = [
@@ -12,6 +13,7 @@ export const EVENTS = [
   ['fish_entity','Pêcher une entité'],['questplus:fish_any','Pêcher des poissons (toutes espèces)'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
   ['npc_interact','Parler à un PNJ'],['biome_visit','Visiter un biome'],['structure_visit','Visiter une structure'],
   ['dimension_enter','Entrer dans une dimension'],['item_submit','Soumettre (sans retrait)'],['item_turn_in','Remettre et consommer'],['fluid_transfer','Transférer un fluide'],['energy_transfer','Transférer de l’énergie'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
+  ['observe_block','Observer un bloc'],['observe_entity','Observer une entité'],['stage','Posséder un stage'],
   ['location','Atteindre une position'],['xp_levels','Posséder des niveaux XP'],['custom_stat','Atteindre une statistique Minecraft'],['advancement_complete','Compléter un advancement'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
 ];
 export const EVENT_KEYS = EVENTS.map(([id])=>id);
@@ -182,6 +184,8 @@ export function references(req,out=[]){
   if(Array.isArray(req.and))req.and.forEach(n=>references(n,out));
   if(Array.isArray(req.or))req.or.forEach(n=>references(n,out));
   if(req.not)references(req.not,out);
+  if(req.started)out.push(req.started);
+  if(Array.isArray(req.at_least?.of))req.at_least.of.forEach(n=>references(n,out));
   return out;
 }
 export function validate(p){
@@ -194,8 +198,9 @@ export function validate(p){
     else {
       const names=new Set();
       for(const table of tables) {
-        if(!table||typeof table.name!=='string'||!table.name.trim()||table.name.length>80||names.has(table.name)||poolError(table.reward))fail('Reward tables','Invalid reward table library');
+        if(!table||typeof table.name!=='string'||!table.name.trim()||table.name.length>80||names.has(table.name))fail('Reward tables','Invalid reward table library');
         names.add(table?.name);
+        try{const resolved=resolveNamedTable({type:'questplus:table',data:{name:table.name}},tables);if(poolError(resolved))fail('Reward tables','Invalid reward table library');}catch(error){fail('Reward tables',error.message);}
       }
     }
   }
@@ -203,8 +208,12 @@ export function validate(p){
     if(!Array.isArray(list)){fail(label,'Liste de récompenses invalide');return;}
     if(list.length>64)fail(label,'64 récompenses maximum');
     let expanded=0;
-    for(const r of list){
+    for(const authored of list){
+      let r=authored;
+      if(authored?.type==='questplus:table')try{r=resolveNamedTable(authored,p.rewardTables);}catch(error){fail(label,error.message);continue;}
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
+      if(r.type==='questplus:stage'&&(!ID.test(r.data?.stage||'')||typeof r.data?.remove!=='boolean'||Object.keys(r.data||{}).sort().join(',')!=='remove,stage'))fail(label,'Invalid stage reward');
+      if(r.type==='questplus:toast'&&(!rewardTranslations(r.data?.title,256)||!rewardTranslations(r.data?.description,256)||!ID.test(r.data?.icon||'')||Object.keys(r.data||{}).sort().join(',')!=='description,icon,title'))fail(label,'Invalid toast reward');
       if(r.type==='questplus:message'){
         if(typeof r.data?.message!=='string'||!r.data.message.trim()||r.data.message.length>256||
             Object.keys(r.data||{}).join()!=='message')fail(label,'Message de récompense invalide');
@@ -234,8 +243,10 @@ export function validate(p){
       const [key,value]=Object.entries(node)[0];
       if(key==='and'||key==='or')return Array.isArray(value)&&value.length>0&&value.every(child=>visit(child,depth+1));
       if(key==='not')return visit(value,depth+1);
-      if(prerequisite)return key==='quest'&&typeof value==='string'&&ID.test(value);
+      if(key==='at_least')return value&&Object.keys(value).sort().join(',')==='count,of'&&Array.isArray(value.of)&&Number.isInteger(value.count)&&value.count>=1&&value.count<=value.of.length&&value.of.every(child=>visit(child,depth+1));
+      if(prerequisite)return ['quest','started'].includes(key)&&typeof value==='string'&&ID.test(value);
       if(['dimension','tool','biome','effect'].includes(key))return typeof value==='string'&&ID.test(value);
+      if(key==='questplus:stage')return typeof value==='string'&&ID.test(value);
       if(key==='sneaking')return typeof value==='boolean';
       if(['healthAtMost','healthAtLeast'].includes(key))return Number.isFinite(value)&&value>=0;
       if(key==='questplus:gear'){
@@ -312,12 +323,25 @@ for(const a of c.annotations||[]){
      }
     }
   }
+  for(const c of p.categories)if(c.group!==undefined&&(typeof c.group!=='string'||c.group.length>160||/[\x00-\x1f\x7f]/.test(c.group)))fail(c.id,'Invalid chapter group');
   for(const q of p.quests){
     const label=q?.id||'Quête';
     if(!ID.test(label)||seenQ.has(label))fail(label,'ID de quête invalide ou dupliqué');
     seenQ.add(label);
     if(!seenC.has(q.category))fail(label,'Catégorie inexistante');
     if(!q.title?.en_us?.trim())fail(label,'Titre anglais obligatoire');
+    if(q.presentation!==undefined){
+      const v=q.presentation,keys=['subtitle','tags','shape','iconScale','optional','disableCompletionToast','hideDetailsUntilUnlocked','hideTextUntilCompleted','invisibleUntilCompleted','invisibleUntilTasks','hideDependencyLines','hideDependentLines'];
+      if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).some(k=>!keys.includes(k)))fail(label,'Invalid quest presentation');
+      else {
+        if(v.subtitle!==undefined&&!translations(v.subtitle))fail(label,'Invalid quest subtitle');
+        if(v.tags!==undefined&&(!Array.isArray(v.tags)||v.tags.length>64||v.tags.some(t=>typeof t!=='string'||! /^[a-zA-Z0-9_.:/-]{1,80}$/.test(t))))fail(label,'Invalid quest tags');
+        if(v.shape!==undefined&&!['square','circle','rounded_square','diamond','pentagon','hexagon','octagon','heart','gear'].includes(v.shape))fail(label,'Invalid node shape');
+        if(v.iconScale!==undefined&&(!Number.isFinite(v.iconScale)||v.iconScale<.25||v.iconScale>2))fail(label,'Invalid icon scale');
+        if(v.invisibleUntilTasks!==undefined&&(!Number.isInteger(v.invisibleUntilTasks)||v.invisibleUntilTasks<0||v.invisibleUntilTasks>256))fail(label,'Invalid visibility objective count');
+        for(const k of keys.filter(k=>!['subtitle','tags','shape','iconScale','invisibleUntilTasks'].includes(k)))if(v[k]!==undefined&&typeof v[k]!=='boolean')fail(label,'Invalid quest presentation flag');
+      }
+    }
     if(q.description && !q.description.en_us?.trim())fail(label,'Description anglaise requise si renseignée');
     if(q.descriptionRich){
       for(const [locale,parts] of Object.entries(q.descriptionRich))
@@ -355,6 +379,14 @@ for(const a of c.annotations||[]){
       if(!EVENT_KEYS.includes(o.event)&&!ID.test(o.event))fail(label,'Événement non reconnu');
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
+      if(o.data!==undefined){
+        const descriptor=hubEditorDescriptors('event').find(d=>d.id===o.event);
+        if(!o.data||typeof o.data!=='object'||Array.isArray(o.data)||JSON.stringify(o.data).length>16384)fail(label,'Invalid objective parameters');
+        else if(descriptor){
+          if(Object.keys(o.data).some(k=>!descriptor.fields.some(f=>f.key===k)))fail(label,'Unknown objective parameter');
+          for(const f of descriptor.fields){const v=o.data[f.key];if(f.type==='integer'?!Number.isSafeInteger(v):f.type==='boolean'?typeof v!=='boolean':f.type==='string'?typeof v!=='string':!ID.test(v||''))fail(label,'Invalid objective parameter: '+f.label);}
+        }
+      }
       if(Object.hasOwn(o,'optional')&&typeof o.optional!=='boolean')fail(label,'Objectif facultatif invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
       if(o.event==='location'){
@@ -452,11 +484,11 @@ export function fileMap(p){
   function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,(path.endsWith('.json5')?JSON5.stringify(obj,null,2):JSON.stringify(obj,null,2))+'\n');}
   const fileName=id=>{const [ns,...rest]=id.split(':');const path=rest.join(':');if(!ID.test(id))throw new Error('ID invalide: '+id);return ns==='questplus'?path:ns+'/'+path;};
   put('config.json',p.config||{schemaVersion:1,autosaveSeconds:5});
-  // Studio-only metadata is separate: QuestRegistry must never see unknown fields
-  // on quest/category/config JSON objects.
+  // Named tables are resolved by the server registry; editor settings stay separate
+  // from quest/category/config JSON objects.
   put('queststudio-compatibility.json',{
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
-    iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[],rewardTables:p.rewardTables||[]
+    iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[],rewardTables:p.rewardTables||[],questTemplates:p.questTemplates||[]
   });
   for(const c of p.categories)put('categories/'+fileName(c.id)+'.json5',compactCategoryImages(c));
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json5',q);
@@ -474,7 +506,7 @@ export function importDocuments(documents){
       p.iconVersions=obj.iconVersions||{};
       if(obj.editorLocales!==undefined&&(!Array.isArray(obj.editorLocales)||obj.editorLocales.length>128||obj.editorLocales.some(id=>typeof id!=='string'||!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))))throw Error('Invalid editor language list');
       p.editorLocales=obj.editorLocales||[];
-      p.rewardTables=obj.rewardTables||[];continue;
+      p.rewardTables=obj.rewardTables||[];p.questTemplates=obj.questTemplates||[];continue;
     }
     if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(expandCategoryImages(obj));
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);

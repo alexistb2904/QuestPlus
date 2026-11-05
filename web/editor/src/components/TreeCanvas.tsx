@@ -217,6 +217,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const a=graph.points.get(edge.from),b=graph.points.get(edge.to);if(!a||!b)return null;
     const p=pixel(ghost?.id===edge.from?ghost:a),q=pixel(ghost?.id===edge.to?ghost:b);
     const source=allQuests.find(z=>z.id===edge.from),target=allQuests.find(z=>z.id===edge.to);
+    if(source?.presentation?.hideDependentLines||target?.presentation?.hideDependencyLines)return null;
     p.y+=(source?.size||32)*clampZoom(camera.zoom)/2;q.y-=(target?.size||32)*clampZoom(camera.zoom)/2;
     const authored=routeGhost?.from===edge.from&&routeGhost.to===edge.to?routeGhost.points:category?.linkRoutes?.find(r=>r.from===edge.from&&r.to===edge.to)?.points;
     const points=edgePoints(p,q,authored?.map(pixel)),path=points.map((pt,i)=>(i?'L':'M')+pt.x+' '+pt.y).join(' ');
@@ -253,10 +254,10 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     if(Math.abs(p.x)>size.width+250||Math.abs(p.y)>size.height+250)return null;
     const unavailable=q.kind==='information'&&q.acknowledgement==='read_only';
     const nodeSize=resizeGhost?.id===q.id?resizeGhost.size??q.size??32:q.size??32;
-    return <div key={q.id} className={'graph-node'+(selection?.type==='quest'&&selection.id===q.id?' selected':'')+(connection?.from===q.id?' connecting':'')+(connection?.to===q.id?(connection.error?' link-invalid':' link-target'):'')}
+    return <div key={q.id} className={'graph-node shape-'+(q.presentation?.shape||'square')+(selection?.type==='quest'&&selection.id===q.id?' selected':'')+(connection?.from===q.id?' connecting':'')+(connection?.to===q.id?(connection.error?' link-invalid':' link-target'):'')}
       data-node-id={q.id} data-node-type="quest" style={{left:p.x,top:p.y,width:nodeSize,height:nodeSize,transform:'translate(-50%,-50%) scale('+clampZoom(camera.zoom)+')'}}>
       <button className="node-select" type="button" aria-pressed={selection?.type==='quest'&&selection.id===q.id} onClick={()=>selectNode(q.id)}>
-       <span className="node-icon"><ItemIcon id={q.icon} size={Math.max(16,nodeSize-6)}/></span><span className="sr-only">{text(q.title,language)}</span>
+       <span className="node-icon"><ItemIcon id={q.icon} size={Math.max(4,(nodeSize-6)*(q.presentation?.iconScale??1))}/></span><span className="sr-only">{text(q.title,language)}</span>
       </button>
       <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':1} as React.CSSProperties}
        onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+nodeSize/2},to:null,error:'',moved:false})}}}><Plus size={10}/></button>

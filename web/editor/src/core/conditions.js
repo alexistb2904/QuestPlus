@@ -2,13 +2,14 @@
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const OBJECTIVE_KINDS=[
  ['dimension','Dimension'],['tool','Outil'],['biome','Biome'],['effect','Effet'],
- ['healthAtMost','Vie ≤'],['healthAtLeast','Vie ≥'],['sneaking','Accroupi']
+ ['questplus:stage','Stage'],['healthAtMost','Vie ≤'],['healthAtLeast','Vie ≥'],['sneaking','Accroupi']
 ];
 export const rootPath='';
 export function childrenOf(node){
  if(!node)return null;
  if(Array.isArray(node.and))return {type:'and',children:node.and};
  if(Array.isArray(node.or))return {type:'or',children:node.or};
+ if(node.at_least&&Array.isArray(node.at_least.of))return {type:'at_least',children:node.at_least.of};
  if(node.not)return {type:'not',children:[node.not]};
  return null;
 }
@@ -33,7 +34,7 @@ export function setAt(root,path,replacement){
    node=branch.children[parts[i]];
  }
  const branch=childrenOf(node);if(!branch)throw Error('Invalid condition target');
- const array=branch.type==='not'?null:node[branch.type];
+ const array=branch.type==='not'?null:branch.type==='at_least'?node.at_least.of:node[branch.type];
  if(branch.type==='not'){
    if(parts.at(-1)!==0)throw Error('Invalid NOT child');
    if(replacement===null)return null;
@@ -51,7 +52,7 @@ export function tidy(node){
  if(branch.type==='not'){const child=tidy(node.not);return child?{not:child}:null;}
  const arr=branch.children.map(tidy).filter(Boolean);
  if(!arr.length)return null;
- return {[branch.type]:arr};
+ return branch.type==='at_least'?{at_least:{count:Math.min(node.at_least.count,arr.length),of:arr}}:{[branch.type]:arr};
 }
 export function addChild(root,path,child){
  if(!root)return child;
@@ -59,16 +60,17 @@ export function addChild(root,path,child){
  if(!branch){return setAt(root,path,{and:[node,child]});}
  if(branch.type==='not')return setAt(root,path,{and:[node,child]});
  const updated=structuredClone(node);
- updated[branch.type].push(child);
+ (branch.type==='at_least'?updated.at_least.of:updated[branch.type]).push(child);
  return setAt(root,path,updated);
 }
 export function wrap(root,path,operator){
- if(!['and','or','not'].includes(operator))throw Error('Invalid operator');
+ if(!['and','or','not','at_least'].includes(operator))throw Error('Invalid operator');
  const node=atPath(root,path);
  if(!node)return null;
  const existing=childrenOf(node);
  if(operator==='not')return setAt(root,path,{not:node});
  if(existing?.type===operator)return root;
+ if(operator==='at_least')return setAt(root,path,{at_least:{count:1,of:existing&&existing.type!=='not'?existing.children:[node]}});
  if(existing && existing.type!=='not')return setAt(root,path,{[operator]:existing.children});
  return setAt(root,path,{[operator]:[node]});
 }

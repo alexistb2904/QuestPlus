@@ -50,6 +50,7 @@ export { selectedOwner as owner } from "../core/project.js";
 export function useStudio() {
 	const [state, commitState] = useState<Session>(initial),
 		[notice, setNotice] = useState("");
+	const [pendingImport, setPendingImport] = useState<{report:ReturnType<typeof inspectFtbPack>;documents:{name:string;content:string}[];files:File[]}|null>(null);
 	const latest = useRef(state);
 	// Run state updaters once: history mutations must not be replayed by React StrictMode.
 	const setState: Dispatch<SetStateAction<Session>> = (update) => {
@@ -506,31 +507,18 @@ export function useStudio() {
 		}
 	}
 	async function importFiles(files: FileList | null) {
-		if (!files?.length || !confirm(tUI("Replace the current quest pack?"))) return;
+		if (!files?.length) return;
 		try {
 			const docs: { name: string; content: string }[] = [];
 			for (const file of Array.from(files)) {
 				if (file.name.endsWith(".zip")) docs.push(...(await readZip(file)));
-				else if (/\.json5?$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
+				else if (/\.(?:json5?|snbt|txt)$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
 			}
-			const ftb=docs.some(({name})=>/(?:^|[\\/])chapters[\\/][^\\/]+\\.json5?$/i.test(name));
-			const report=ftb?inspectFtbPack(docs):null;
-            if(report){
-                // TODO(Codex P2): display a reviewable, searchable migration report before replacing the project.
-                const content=JSON.stringify({
-                    format:"questplus-ftb-migration-report",version:1,
-                    convertedQuests:report.questCount,chapters:report.chapterCount,
-                    warnings:report.warnings,sourceIdMap:Object.fromEntries(report.sourceIdMap)
-                },null,2);
-                const blob=new Blob([content],{type:'application/json'});
-                const url=URL.createObjectURL(blob),link=document.createElement('a');
-                link.href=url;link.download='QuestPlus-FTB-migration-report.json';
-                document.body.appendChild(link);link.click();link.remove();
-                setTimeout(()=>URL.revokeObjectURL(url),1500);
-            }
-			if(report?.warnings.length&&!confirm("FTB Quests import is partial. "+report.questCount+" quests converted; "+report.warnings.length+" compatibility warnings. Import supported content?\n\n"+report.warnings.slice(0,8).join('\n')))return;
-			if(report&&!report.questCount)throw Error('No FTB quests could be converted without changing semantics.');
-			const p = (report?.project||importDocuments(docs)) as Project,
+			const ftb=docs.some(({name})=>/(?:^|[\\/])chapters[\\/][^\\/]+\.(?:json5?|snbt)$/i.test(name));
+            const report=ftb?inspectFtbPack(docs):null;
+            if(report){setPendingImport({report,documents:docs,files:Array.from(files)});return;}
+            if(!confirm(tUI("Replace the current quest pack?")))return;
+			const p = importDocuments(docs) as Project,
 				errors = validate(p);
 			if (errors.length) throw Error(errors[0].where + ": " + errors[0].message);
 			mutate((s) => {
@@ -545,6 +533,18 @@ export function useStudio() {
 			toast(tUI("Import error:") + " " + (e as Error).message);
 		}
 	}
+    function confirmFtbImport(){
+        if(!pendingImport)return;
+        const p=pendingImport.report.project as Project;
+        if(!p.quests.length){toast('No FTB quests could be safely converted');return;}
+        const errors=validate(p);if(errors.length){toast(errors[0].where+': '+errors[0].message);return;}
+        mutate(s=>{s.project=p;s.categoryId=orderedCategories(p.categories)[0]?.id||null;
+            s.selection=s.categoryId?{type:'category',id:s.categoryId}:null;
+            s.camera={x:0,y:0,zoom:1};s.language='en_us';});
+        setPendingImport(null);toast(tUI('Pack imported'));
+    }
+    function cancelFtbImport(){setPendingImport(null)}
+
 	function exportZip() {
 		const errors = validate(latest.current.project);
 		if (errors.length) {
@@ -635,7 +635,9 @@ export function useStudio() {
 		setLanguage,
 		addLocale,
 		connectQuests,
+        setProjectTemplates: (templates:any[])=>mutate(s=>{s.project.questTemplates=templates}),
 		importFiles,
+        pendingImport,confirmFtbImport,cancelFtbImport,
 		exportZip,
 		applyJson,
 	};

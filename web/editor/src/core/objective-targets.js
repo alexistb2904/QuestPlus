@@ -37,9 +37,9 @@ export const ENTITIES=[
  'zombie','zombie_horse','zombie_villager','zombified_piglin'
 ].map(id=>'minecraft:'+id);
 export const targetKind=event=>
- ['block_break','block_place','block_interact'].includes(event)?'block':
+ ['block_break','block_place','block_interact','observe_block'].includes(event)?'block':
  ['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'].includes(event)?'item':
- ['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'].includes(event)?'entity':
+ ['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact','observe_entity'].includes(event)?'entity':
  event==='fluid_transfer'?'fluid':event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
 export const initialTarget=event=>(
  event==='dimension_enter'?'minecraft:overworld':MARKERS[event]||
@@ -72,6 +72,9 @@ export const positionValue=(root,axis)=>{
  * Mod-registered event IDs keep the unrestricted namespaced target editor.
  */
 export const OBJECTIVE_UI=Object.freeze({
+  observe_block:{kind:'block',amount:'Observation time (ticks)'},
+  observe_entity:{kind:'entity',amount:'Observation time (ticks)'},
+  stage:{kind:'custom',amount:null},
   block_break:{kind:'block',amount:'Blocks'},
   block_place:{kind:'block',amount:'Blocks'},
   block_interact:{kind:'block',amount:'Interactions'},
@@ -167,6 +170,9 @@ export const setPositionRadius=(root,value)=>{
 };
 
 export const EVENT_LABELS={
+  "observe_block":"Observe a block",
+  "observe_entity":"Observe an entity",
+  "stage":"Have a stage",
   "block_break": "Break blocks",
   "block_place": "Place blocks",
   "block_interact": "Interact with block",

@@ -2,7 +2,7 @@ import {slug} from './project.js';
 const KEY='questplus.studio.saved-quest-templates.v1';
 const COLUMNS=new Set(['schemaVersion','icon','size','title','description','descriptionRich','objectives','rewards',
  'progression','objectiveMode','objectiveThreshold','timeLimitSeconds','cooldownSeconds','noDeath','kind',
- 'acknowledgement','narrative','tiers','afterLast','progressBeforeUnlock','hidden']);
+ 'acknowledgement','narrative','tiers','afterLast','progressBeforeUnlock','hidden','presentation']);
 export function savedQuestTemplates(storage=globalThis.localStorage){
  try{
    const values=JSON.parse(storage?.getItem(KEY)||'[]');
