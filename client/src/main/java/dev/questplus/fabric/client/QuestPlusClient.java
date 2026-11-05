@@ -30,6 +30,11 @@ public final class QuestPlusClient implements ClientModInitializer {
         if (ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE)) ClientPlayNetworking.send(new QuestNetwork.Action(action,argument));
         else STATE.error="unsupported";
     }
+    public static void chooseReward(String quest,String token,int slot,int option) {
+        if(ClientPlayNetworking.canSend(QuestNetwork.ChooseReward.TYPE))
+            ClientPlayNetworking.send(new QuestNetwork.ChooseReward(quest,UUID.fromString(token),slot,option));
+        else STATE.error="unsupported";
+    }
     public static void sync() { lastSync=System.currentTimeMillis(); action("sync",""); }
     @Override public void onInitializeClient() {
         settings=ClientSettings.load();

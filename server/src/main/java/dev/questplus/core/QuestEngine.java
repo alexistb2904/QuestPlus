@@ -43,7 +43,7 @@ public final class QuestEngine {
                 amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
             }
             if (p==null && amount==0) continue;
-            if (q.objectiveMode().equals("sequence")) {
+            if (q.objectiveMode().equals("sequence") && !objective.optional()) {
                 final var sequenceState=p;
                 int step=sequenceSteps.computeIfAbsent(q.id(),ignored -> sequenceState==null ? 0 : firstIncomplete(q,sequenceState));
                 if (step>=q.objectives().size() || q.objectives().get(step)!=objective) continue;
@@ -116,7 +116,7 @@ public final class QuestEngine {
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
             boolean isInventory=objective.event().equals("inventory_count");
-            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())) || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
+            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
             Map<?,?> values=isInventory?inventory:states;
             if(!values.containsKey(objective.target()))continue;
             Object value=values.get(objective.target());

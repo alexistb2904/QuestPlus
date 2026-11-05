@@ -92,7 +92,7 @@ public final class AdvancedEvents {
         if (registry.hasEvent("advancement_complete")) {
             for (String target:registry.objectives("advancement_complete").stream()
                     .map(o->o.target()).distinct().toList()) {
-                var advancement=player.getServer().getAdvancements().get(Identifier.parse(target));
+                var advancement=player.level().getServer().getAdvancements().get(Identifier.parse(target));
                 if(advancement==null)continue;
                 boolean done=player.getAdvancements().getOrStartProgress(advancement).isDone();
                 var ctx=QuestPlusMod.context(player);

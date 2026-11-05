@@ -369,7 +369,7 @@ public final class QuestRuntime implements AutoCloseable {
             throw new IllegalArgumentException("Quest cooldown is still active");
         long factor=quest.progression().equals("tiered")
             ? quest.tiers().get(Math.min(progress==null?0:progress.tier,quest.tiers().size()-1)).threshold() : 1L;
-        if(quest.objectiveMode().equals("sequence")) {
+        if(quest.objectiveMode().equals("sequence") && !objective.optional()) {
             for(var preceding:quest.objectives()) {
                 if(preceding==objective)break;
                 if(preceding.optional())continue;
@@ -377,7 +377,7 @@ public final class QuestRuntime implements AutoCloseable {
                     throw new IllegalArgumentException("Complete earlier steps first");
             }
         }
-        long maximum=objective.count()*(quest.progression().equals("tiered")?quest.tiers().getLast().threshold():1L);
+        long maximum=objective.count()*factor;
         long previous=progress==null?0:progress.counters.getOrDefault(objectiveId,0L);
         long remaining=maximum-previous;
         if(remaining<=0)throw new IllegalArgumentException("Objective already supplied");
@@ -390,7 +390,7 @@ public final class QuestRuntime implements AutoCloseable {
         for(int i=0;i<36;i++){ItemStack stack=actor.getInventory().getItem(i);if(matches.test(stack))available+=stack.getCount();}
         ItemStack offhand=actor.getOffhandItem();
         if(matches.test(offhand))available+=offhand.getCount();
-        if(available<=0 || !consuming && available<remaining)
+        if(available<=0 || !consuming && available<maximum)
             throw new IllegalArgumentException("Not enough required items to submit");
         int amount=(int)Math.min(remaining,Math.min(available,2304L));
         if(!consuming && amount<remaining)throw new IllegalArgumentException("Non-consuming submission requires the full objective amount");
@@ -436,7 +436,7 @@ public final class QuestRuntime implements AutoCloseable {
                 Set<UUID> recipients=teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
                 for (UUID recipient:recipients) for (var award:completed) {
                     var personal=player(recipient);
-                    if (!award.rewards().isEmpty() && !personal.claims.containsKey(award.key())) personal.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+                    if (!personal.claims.containsKey(award.key())) personal.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
                     dirty.add(recipient);
                 }
                 Set<UUID> members=group(uuid); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
@@ -493,12 +493,16 @@ public final class QuestRuntime implements AutoCloseable {
     }
     private void failStorage(Throwable error) { storageFailed=true; QuestPlusMod.LOGGER.error("Quest Plus storage transaction failed; progress is frozen until recovery",error); }
     private void release(Collection<UUID> ids) { busy.removeAll(ids); }
-    private void persistCurrent(Map<UUID,PlayerProgress> personal,Map<UUID,TeamData> collective,Set<UUID> affected) {
+    private CompletableFuture<Void> persistCurrent(Map<UUID,PlayerProgress> personal,Map<UUID,TeamData> collective,Set<UUID> affected) {
+        var result=new CompletableFuture<Void>();
         busy.addAll(affected); dirty.removeAll(personal.keySet()); dirtyTeams.removeAll(collective.keySet());
         store.transaction(personal,collective).whenComplete((ok,error) -> server.execute(() -> {
             if (error!=null) failStorage(error);
             release(affected);
+            affected.forEach(QuestNetwork::invalidate);
+            if(error==null)result.complete(null); else result.completeExceptionally(error);
         }));
+        return result;
     }
     @FunctionalInterface public interface TeamAction { TeamManager.Change prepare(TeamManager manager) throws IOException; }
     public CompletableFuture<Void> changeTeam(TeamAction action) throws IOException {
@@ -536,7 +540,7 @@ public final class QuestRuntime implements AutoCloseable {
             Set<UUID> members=group(id); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
             for (UUID recipient:members) {
                 var p=player(recipient);
-                if (!award.rewards().isEmpty() && !p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
+                if (!p.claims.containsKey(award.key())) p.entitlements.putIfAbsent(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
                 snapshots.put(recipient,p);
             }
             var team=player(id).teamId;
@@ -559,8 +563,9 @@ public final class QuestRuntime implements AutoCloseable {
         Set<String> visible=visibleQuests(uuid).stream().map(QuestDefinition::id).collect(java.util.stream.Collectors.toSet());
         var state=player(uuid);
         List<String> ids=state.entitlements.entrySet().stream()
-            .filter(e->visible.contains(e.getValue().questId()) && !state.claims.containsKey(e.getKey()))
-            .sorted(Map.Entry.comparingByKey()).map(e->e.getValue().questId()).toList();
+            .filter(e->visible.contains(e.getValue().questId()) && !state.claims.containsKey(e.getKey())
+                && !e.getValue().rewards().isEmpty() && e.getValue().rewards().stream().noneMatch(r->r.type().equals("questplus:choice")))
+            .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getKey).toList();
         if(ids.isEmpty()) { player.sendSystemMessage(Messages.text(player,"questplus.error","No rewards to claim")); return; }
         claimNext(player,ids,0);
     }
@@ -569,7 +574,10 @@ public final class QuestRuntime implements AutoCloseable {
             player.sendSystemMessage(Messages.text(player,"questplus.claimed",ids.size()+" rewards"));
             return;
         }
-        claim(player,ids.get(index),() -> {
+        String key=ids.get(index);
+        var grant=player(player.getUUID()).entitlements.get(key);
+        if(grant==null || player(player.getUUID()).claims.containsKey(key)){claimNext(player,ids,index+1);return;}
+        claim(player,grant.questId(),key,() -> {
             try { claimNext(player,ids,index+1); }
             catch(IOException | RuntimeException error) {
                 QuestPlusMod.LOGGER.warn("Claim all stopped at reward {}: {}",index,error.getMessage());
@@ -582,40 +590,44 @@ public final class QuestRuntime implements AutoCloseable {
      * Choices are personal entitlements even when quest progress is shared by a team.
      * Subsequent claims cannot reroll this choice.
      */
-    // TODO(Codex P0): add an authenticated GUI packet / explicit choice slot for multiple choice rewards,
-    // and a crash/reconnect regression covering the durable entitlement save before claim.
     public void chooseReward(ServerPlayer actor,String questId,int zeroBasedOption) throws IOException {
+        var personal=player(actor.getUUID());
+        var entry=personal.entitlements.entrySet().stream()
+            .filter(e->e.getValue().questId().equals(questId) && !personal.claims.containsKey(e.getKey())
+                && e.getValue().rewards().stream().anyMatch(r->r.type().equals("questplus:choice")))
+            .sorted(Map.Entry.comparingByKey()).findFirst()
+            .orElseThrow(()->new IllegalArgumentException("No unresolved choice reward"));
+        int slot=0;
+        while(!entry.getValue().rewards().get(slot).type().equals("questplus:choice"))slot++;
+        chooseReward(actor,questId,ClientProjection.rewardToken(entry.getKey()),slot,zeroBasedOption);
+    }
+    public void chooseReward(ServerPlayer actor,String questId,String token,int slot,int option) throws IOException {
         assertThread();
         UUID uuid=actor.getUUID();
-        ensureFree(group(uuid));
+        Set<UUID> affected=group(uuid);
+        ensureFree(affected);
         visibleQuest(uuid,questId);
         var personal=player(uuid);
         var entry=personal.entitlements.entrySet().stream()
-            .filter(e->e.getValue().questId().equals(questId)&&!personal.claims.containsKey(e.getKey())
-                &&e.getValue().rewards().stream().anyMatch(r->r.type().equals("questplus:choice")))
-            .sorted(Map.Entry.comparingByKey()).findFirst()
-            .orElseThrow(()->new IllegalArgumentException("No unresolved choice reward for "+questId));
-        var original=entry.getValue();
-        var updated=new ArrayList<>(original.rewards());
-        int at=-1;
-        for(int i=0;i<updated.size();i++)
-            if(updated.get(i).type().equals("questplus:choice")){at=i;break;}
-        if(at<0)throw new IllegalStateException("Choice reward missing");
-        var concrete=RewardTables.choose(updated.get(at),zeroBasedOption);
-        QuestExtensions.validateSavedReward(concrete);
-        updated.set(at,concrete);
-        personal.entitlements.put(entry.getKey(),new PlayerProgress.RewardGrant(questId,List.copyOf(updated)));
-        QuestNetwork.invalidate(uuid);
-        persistCurrent(Map.of(uuid,personal),Map.of(),Set.of(uuid));
-        actor.sendSystemMessage(Component.literal("Quest Plus: choice #"+(zeroBasedOption+1)+" selected. Claim once saving finishes."));
+            .filter(e->e.getValue().questId().equals(questId) && !personal.claims.containsKey(e.getKey())
+                && ClientProjection.rewardToken(e.getKey()).equals(token))
+            .findFirst().orElseThrow(()->new IllegalArgumentException("Reward selection expired"));
+        var selected=RewardTables.choose(entry.getValue(),slot,option);
+        selected.rewards().forEach(QuestExtensions::validateSavedReward);
+        personal.entitlements.put(entry.getKey(),selected);
+        persistCurrent(Map.of(uuid,personal),Map.of(),affected).whenComplete((ok,error)-> {
+            if(error==null)actor.sendSystemMessage(Messages.text(actor,"questplus.choice_saved"));
+            else QuestNetwork.error(actor,"choice_save_failed");
+        });
+        affected.forEach(QuestNetwork::invalidate);
     }
-    public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null); }
-    private void claim(ServerPlayer player, String id,Runnable onDelivered) throws IOException {
+    public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null,null); }
+    private void claim(ServerPlayer player, String id,String requestedKey,Runnable onDelivered) throws IOException {
         assertThread();
         UUID uuid = player.getUUID();
         ensureFree(group(uuid)); var progress = player(uuid);
         var quest = registry.get(id);
-        String key=progress.entitlements.entrySet().stream().filter(e -> e.getValue().questId().equals(id) && !progress.claims.containsKey(e.getKey())).map(Map.Entry::getKey).sorted().findFirst()
+        String key=progress.entitlements.entrySet().stream().filter(e -> e.getValue().questId().equals(id) && (requestedKey==null || requestedKey.equals(e.getKey())) && !e.getValue().rewards().isEmpty() && !progress.claims.containsKey(e.getKey())).map(Map.Entry::getKey).sorted().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No unclaimed reward entitlement: " + id));
         var rewards=progress.entitlements.get(key).rewards();
         if(rewards.stream().anyMatch(r->r.type().equals("questplus:choice"))) throw new IllegalArgumentException("Choose your reward first: /questplus choose <quest> <option number>");
@@ -653,10 +665,10 @@ public final class QuestRuntime implements AutoCloseable {
                         player.sendSystemMessage(Component.literal(message));
                     }
                     else if(reward.type().equals("questplus:advancement")) {
-                        String key=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                        String advancementId=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
                             .get("advancement").getAsString();
-                        var holder=server.getAdvancements().get(Identifier.parse(key));
-                        if(holder==null)throw new IllegalStateException("Missing advancement for reserved reward "+key);
+                        var holder=server.getAdvancements().get(Identifier.parse(advancementId));
+                        if(holder==null)throw new IllegalStateException("Missing advancement for reserved reward "+advancementId);
                         var progressEntry=player.getAdvancements().getOrStartProgress(holder);
                         List<String> remaining=new ArrayList<>();
                         progressEntry.getRemainingCriteria().forEach(remaining::add);
@@ -665,7 +677,9 @@ public final class QuestRuntime implements AutoCloseable {
                     else QuestRewardExtensions.deliver(player,reward);
                 }
                 progress.claims.put(key,"delivered");
-                progress.entitlements.remove(key);
+                // Keep only the latest receipt per quest; the compact claims ledger prevents replay.
+                progress.entitlements.entrySet().removeIf(e->!e.getKey().equals(key) && e.getValue().questId().equals(id)
+                    && "delivered".equals(progress.claims.get(e.getKey())));
                 QuestNetwork.invalidate(uuid);
                 dirty.add(uuid);
                 if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.claimed",title(player,quest)));
@@ -690,7 +704,7 @@ public final class QuestRuntime implements AutoCloseable {
             if(reward.type().equals("questplus:advancement")) {
                 String id=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
                     .get("advancement").getAsString();
-                if(player.getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
+                if(player.level().getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
             } else if(!Set.of("item","experience","experience_levels","questplus:message").contains(reward.type()) &&
                     !QuestRewardExtensions.fits(player,reward))return false;
         }

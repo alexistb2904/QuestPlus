@@ -8,6 +8,7 @@ import java.util.*;
 public final class QuestClientState {
     public final Map<String,QuestDefinition> quests = new LinkedHashMap<>();
     public final Map<String,JsonObject> categories = new LinkedHashMap<>(), progress = new HashMap<>();
+    public final Map<String,JsonArray> rewardPreviews=new HashMap<>(),tierRewardPreviews=new HashMap<>();
     public JsonObject team;
     public JsonArray invitations = new JsonArray();
     public long generation = -1, sequence = -1, catalogueRevision;
@@ -28,10 +29,14 @@ public final class QuestClientState {
         boolean snapshot=message.get("type").getAsString().equals("snapshot");
         if (!snapshot && (!ready || nextGeneration!=generation || nextSequence!=sequence+1)) return false;
         if (snapshot) {
+            rewardPreviews.clear(); tierRewardPreviews.clear();
             Map<String,QuestDefinition> definitions=new LinkedHashMap<>();
             for (var element:message.getAsJsonArray("quests")) {
                 var quest=JSON.fromJson(element,QuestDefinition.class);
                 definitions.put(quest.id(),quest);
+                var data=element.getAsJsonObject();
+                if(data.has("rewardPreview"))rewardPreviews.put(quest.id(),data.getAsJsonArray("rewardPreview"));
+                if(data.has("tierRewardPreviews"))tierRewardPreviews.put(quest.id(),data.getAsJsonArray("tierRewardPreviews"));
             }
             Map<String,JsonObject> groups=new LinkedHashMap<>();
             for (var element:message.getAsJsonArray("categories")) { var category=element.getAsJsonObject(); groups.put(category.get("id").getAsString(),category); }
@@ -42,5 +47,5 @@ public final class QuestClientState {
         if (message.has("invitations")) invitations=message.getAsJsonArray("invitations");
         generation=nextGeneration; sequence=nextSequence; ready=true; error=null; errorDetail=null; return true;
     }
-    public void clear() { quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; errorDetail=null; catalogueRevision++; }
+    public void clear() { rewardPreviews.clear();tierRewardPreviews.clear();quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; errorDetail=null; catalogueRevision++; }
 }

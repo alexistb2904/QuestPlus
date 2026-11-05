@@ -130,6 +130,10 @@ public final class ClientProjection {
             if (item.has("requires")) redact(item.getAsJsonObject("requires"),visibleIds);
             stripRewards(item.getAsJsonArray("rewards"));
             for (JsonElement tier:item.getAsJsonArray("tiers")) stripRewards(tier.getAsJsonObject().getAsJsonArray("rewards"));
+            item.add("rewardPreview",rewards(q.rewards()));
+            JsonArray tierPreviews=new JsonArray();
+            for(var tier:q.tiers())tierPreviews.add(rewards(tier.rewards()));
+            item.add("tierRewardPreviews",tierPreviews);
             out.add(item);
         });
         return out;
@@ -146,12 +150,61 @@ public final class ClientProjection {
         if (rewards!=null) for (JsonElement reward:rewards) reward.getAsJsonObject().remove("data");
     }
 
+    /** Allowlisted presentation only: never copy an extension payload or a command. */
+    public static JsonArray rewards(List<QuestDefinition.Reward> rewards) {
+        JsonArray out=new JsonArray();
+        for(var reward:rewards) {
+            JsonObject value=new JsonObject();
+            value.addProperty("type",reward.type());
+            value.add("text",JSON.toJsonTree(reward.text()));
+            if(reward.type().equals("item")) {
+                value.addProperty("item",reward.item()); value.addProperty("count",reward.count());
+            } else if(Set.of("experience","experience_levels").contains(reward.type()))value.addProperty("amount",reward.amount());
+            else if(Set.of("questplus:advancement","questplus:message").contains(reward.type())) {
+                String field=reward.type().equals("questplus:advancement")?"advancement":"message";
+                value.add(field,JsonParser.parseString(reward.data()).getAsJsonObject().get(field));
+            }
+            else if(Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all").contains(reward.type())) {
+                var data=JsonParser.parseString(reward.data()).getAsJsonObject();
+                var options=new JsonArray();
+                for(var entry:data.getAsJsonArray("options")) {
+                    var option=entry.getAsJsonObject();
+                    var safe=new JsonObject();
+                    for(String key:List.of("type","item","count","amount","weight","text"))
+                        if(option.has(key))safe.add(key,option.get(key));
+                    String type=option.get("type").getAsString();
+                    if(Set.of("questplus:advancement","questplus:message").contains(type)) {
+                        String field=type.equals("questplus:advancement")?"advancement":"message";
+                        safe.add(field,option.getAsJsonObject("data").get(field));
+                    }
+                    options.add(safe);
+                }
+                value.add("options",options);
+                for(String key:List.of("rolls","emptyWeight","description"))if(data.has(key))value.add(key,data.get(key));
+            }
+            out.add(value);
+        }
+        return out;
+    }
+    public static String rewardToken(String key) {
+        return UUID.nameUUIDFromBytes(key.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+    }
+
     public static JsonObject progress(Collection<QuestDefinition> quests, QuestEngine engine, PlayerProgress state, PlayerProgress personal) {
         JsonObject result=new JsonObject();
         Set<String> completed=new HashSet<>();
         state.quests.forEach((id,p) -> { if (p.completed) completed.add(id); });
-        Set<String> claimable=new HashSet<>();
-        personal.entitlements.forEach((key,grant) -> { if (!personal.claims.containsKey(key) && !grant.rewards().isEmpty()) claimable.add(grant.questId()); });
+        Set<String> claimableAny=new HashSet<>();
+        Map<String,Map.Entry<String,PlayerProgress.RewardGrant>> pending=new HashMap<>(),receipts=new HashMap<>();
+        personal.entitlements.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            String status=personal.claims.get(entry.getKey());
+            if(status==null && !entry.getValue().rewards().isEmpty() && entry.getValue().rewards().stream().noneMatch(r->r.type().equals("questplus:choice")))claimableAny.add(entry.getValue().questId());
+            if(status==null || status.equals("reserved")) {
+                var current=pending.get(entry.getValue().questId());
+                if(current==null || current.getValue().rewards().isEmpty())pending.put(entry.getValue().questId(),entry);
+            }
+            else receipts.put(entry.getValue().questId(),entry);
+        });
         for (QuestDefinition quest:quests) {
             PlayerProgress.QuestProgress p=state.quests.get(quest.id());
             JsonObject value=new JsonObject();
@@ -162,7 +215,22 @@ public final class ClientProjection {
             value.addProperty("tier",p==null ? 0 : p.tier);
             value.addProperty("waitingRestart",p!=null && p.waitingRestart);
             value.addProperty("terminal",p!=null && p.terminal);
-            value.addProperty("claimable",claimable.contains(quest.id()));
+            var rewardEntry=pending.getOrDefault(quest.id(),receipts.get(quest.id()));
+            boolean claimable=false;
+            if(rewardEntry!=null) {
+                var grant=rewardEntry.getValue();
+                boolean choice=grant.rewards().stream().anyMatch(r->r.type().equals("questplus:choice"));
+                String status=personal.claims.get(rewardEntry.getKey());
+                if(status==null)status=choice?"choice":grant.rewards().isEmpty()?"empty":"ready";
+                claimable=status.equals("ready");
+                var rewardState=new JsonObject();
+                rewardState.addProperty("token",rewardToken(rewardEntry.getKey()));
+                rewardState.addProperty("status",status);
+                rewardState.add("rewards",rewards(grant.rewards()));
+                value.add("rewardState",rewardState);
+            }
+            value.addProperty("claimable",claimable);
+            value.addProperty("claimableAny",claimableAny.contains(quest.id()));
             value.addProperty("unlocked",quest.requires()==null || quest.requires().matches(Map.of(),completed));
             engine.diagnostic(state,quest.id()).ifPresent(d -> value.addProperty("diagnostic",d));
             result.add(quest.id(),value);

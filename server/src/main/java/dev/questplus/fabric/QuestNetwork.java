@@ -36,6 +36,13 @@ public final class QuestNetwork {
             b -> new Action(b.readUtf(32),b.readUtf(256)));
         @Override public Type<Action> type() { return TYPE; }
     }
+    public record ChooseReward(String quest,UUID token,int slot,int option) implements CustomPacketPayload {
+        public static final Type<ChooseReward> TYPE=new Type<>(Identifier.parse("questplus:choose_reward"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,ChooseReward> CODEC=StreamCodec.of(
+            (b,v)->{b.writeUtf(v.quest,256);b.writeUUID(v.token);b.writeVarInt(v.slot);b.writeVarInt(v.option);},
+            b->new ChooseReward(b.readUtf(256),b.readUUID(),b.readVarInt(),b.readVarInt()));
+        @Override public Type<ChooseReward> type(){return TYPE;}
+    }
     private static final class Session {
         long generation=-1, sequence, window, expiresAt=Long.MAX_VALUE;
         int requests;
@@ -46,6 +53,13 @@ public final class QuestNetwork {
     public static void register() {
         PayloadTypeRegistry.clientboundPlay().register(State.TYPE,State.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(Action.TYPE,Action.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ChooseReward.TYPE,ChooseReward.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ChooseReward.TYPE,(payload,context)->context.server().execute(()->{
+            var player=context.player();
+            if(!allowRequest(player))return;
+            try { QuestPlusMod.runtime().chooseReward(player,payload.quest(),payload.token().toString(),payload.slot(),payload.option()); }
+            catch(Exception rejected){error(player,"action_rejected",rejected.getMessage());}
+        }));
         ServerPlayNetworking.registerGlobalReceiver(Action.TYPE,(payload,context) -> context.server().execute(() -> handle(context.player(),payload)));
         ServerPlayConnectionEvents.JOIN.register((handler,sender,server) -> {
             invalidateAll(server);
@@ -80,6 +94,12 @@ public final class QuestNetwork {
         var visible=runtime.visibleQuests(id);
         Set<String> visibleIds=new HashSet<>(); visible.forEach(q -> visibleIds.add(q.id()));
         var progress=ClientProjection.progress(visible,runtime.engine(),runtime.state(id),runtime.player(id));
+        boolean saving=runtime.isBusy(id);
+        for(var entry:progress.entrySet()) {
+            var value=entry.getValue().getAsJsonObject();
+            value.addProperty("saving",saving);
+            if(saving){value.addProperty("claimable",false);value.addProperty("claimableAny",false);}
+        }
         JsonElement team=team(player,player.level().getServer(),runtime.teams().teamOf(id).orElse(null));
         JsonArray invitations=new JsonArray();
         for (TeamData invite:runtime.teams().invitationsFor(id,System.currentTimeMillis())) {
@@ -135,17 +155,22 @@ public final class QuestNetwork {
         long id=++transfer;
         for (int i=0;i<parts.size();i++) ServerPlayNetworking.send(player,new State(id,i,parts.size(),parts.get(i)));
     }
-    private static void error(ServerPlayer player,String code) { error(player,code,null); }
+    static void error(ServerPlayer player,String code) { error(player,code,null); }
     private static void error(ServerPlayer player,String code,String detail) {
         if (!ServerPlayNetworking.canSend(player,State.TYPE)) return;
         JsonObject response=new JsonObject(); response.addProperty("type","error"); response.addProperty("error",code);
         if (detail!=null && !detail.isBlank()) response.addProperty("detail",detail.substring(0,Math.min(1500,detail.length())));
         send(player,response);
     }
-    private static void handle(ServerPlayer player,Action request) {
+    private static boolean allowRequest(ServerPlayer player) {
         UUID actor=player.getUUID(); Session session=SESSIONS.computeIfAbsent(actor,k -> new Session()); long now=System.currentTimeMillis();
         if (now-session.window>=1000) { session.window=now; session.requests=0; }
-        if (++session.requests>8) { error(player,"rate_limited"); return; }
+        if (++session.requests>8) { error(player,"rate_limited"); return false; }
+        return true;
+    }
+    private static void handle(ServerPlayer player,Action request) {
+        if(!allowRequest(player))return;
+        UUID actor=player.getUUID(); long now=System.currentTimeMillis();
         try {
             QuestRuntime runtime=QuestPlusMod.runtime(); String value=request.argument();
             switch(request.action()) {

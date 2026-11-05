@@ -11,6 +11,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClientProjectionTest {
     @TempDir Path temp;
 
+    @Test void choiceOptionsArePublicButClaimsWaitForAllPersonalChoices() throws Exception {
+        var registry=QuestRegistry.load(Path.of("server/src/main/resources/defaults/quests"),(kind,id)->{});
+        var q=registry.get("questplus:survival/logs");
+        var choice=new QuestDefinition.Reward("questplus:choice",null,0,0,
+            "{\"options\":[{\"type\":\"experience\",\"amount\":7},{\"type\":\"experience_levels\",\"amount\":2}]}",Map.of());
+        var personal=new PlayerProgress();
+        personal.entitlements.put("private-attempt",new PlayerProgress.RewardGrant(q.id(),List.of(choice,choice)));
+        var projected=ClientProjection.progress(List.of(q),new QuestEngine(registry),personal,personal).getAsJsonObject(q.id());
+        assertFalse(projected.get("claimable").getAsBoolean());
+        var rewardState=projected.getAsJsonObject("rewardState");
+        assertEquals("choice",rewardState.get("status").getAsString());
+        assertEquals(2,rewardState.getAsJsonArray("rewards").get(0).getAsJsonObject().getAsJsonArray("options").size());
+        assertFalse(projected.toString().contains("private-attempt"));
+        assertFalse(projected.toString().contains("\"data\""));
+        personal.entitlements.put("private-attempt",RewardTables.choose(personal.entitlements.get("private-attempt"),0,0));
+        assertFalse(ClientProjection.progress(List.of(q),new QuestEngine(registry),personal,personal).getAsJsonObject(q.id()).get("claimable").getAsBoolean());
+        personal.entitlements.put("private-attempt",RewardTables.choose(personal.entitlements.get("private-attempt"),1,1));
+        assertTrue(ClientProjection.progress(List.of(q),new QuestEngine(registry),personal,personal).getAsJsonObject(q.id()).get("claimable").getAsBoolean());
+    }
+
     @Test void hiddenQuestsAndTheirReferencesAppearOnlyWhenRevealed() throws Exception {
         String template="""
             {"schemaVersion":1,"id":"questplus:%s","category":"questplus:general","icon":"minecraft:stone",

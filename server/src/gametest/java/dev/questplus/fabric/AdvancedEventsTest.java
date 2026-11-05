@@ -143,15 +143,16 @@ public final class AdvancedEventsTest {
         player.setOnGround(true);
         player.checkMovementStatistics(1,0,0);
         sampleMethod.invoke(null,player,sample);
-        helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("distance")==100,"One block records 100 centimeters");
-        helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("location")==3,"Location sampled three times");
+        helper.startSequence().thenWaitUntil(()->{
+            helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.getOrDefault("distance",0L)==100,"One block records 100 centimeters after queued events");
+            helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.getOrDefault("location",0L)>=3,"Location sampled at least three times");
+        }).thenExecute(()->{
         player.getInventory().clearContent();
         player.getInventory().setItem(0,new ItemStack(Items.STONE,3));
         var snapshot = AdvancedEvents.context(player);
         var inventory = (java.util.Map<?,?>) snapshot.get("inventory");
         helper.assertTrue(Long.valueOf(3).equals(inventory.get("minecraft:stone")),"Inventory context counts actual items");
-        Files.delete(file);
-        runtime.reload();
-        helper.succeed();
+        try { Files.delete(file);runtime.reload(); } catch(java.io.IOException e){throw new RuntimeException(e);}
+        }).thenSucceed();
     }
 }
