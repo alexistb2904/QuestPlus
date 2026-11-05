@@ -25,6 +25,13 @@ export const text=(value,lang='en_us')=>{
   const key=Object.keys(value).sort().find(k=>valid(value[k]));
   return key?value[key]:'';
 };
+// Annotation IDs are unique within a category, not across the pack.
+export function selectedOwner(project,selection,categoryId){
+  if(!selection)return undefined;
+  if(selection.type==='quest')return project.quests.find(q=>q.id===selection.id);
+  if(selection.type==='category')return project.categories.find(c=>c.id===selection.id);
+  return project.categories.find(c=>c.id===categoryId)?.annotations?.find(a=>a.id===selection.id);
+}
 /** Locale fallback for authored annotations; ignore the studio's untouched "Note" seed. */
 export const annotationText=(annotation,lang='en_us')=>{
   const map=annotation?.text||{};
@@ -253,6 +260,7 @@ for(const a of c.annotations||[]){
       if(a.width!==undefined&&(!Number.isSafeInteger(a.width)||a.width<=0))fail(label,'La largeur doit être positive');
       if(a.height!==undefined&&(!Number.isSafeInteger(a.height)||a.height<=0))fail(label,'La hauteur doit être positive');
       if(!['note','heading','label','background'].includes(a.style||'note'))fail(label,'Style annotation inconnu');
+      if(a.align!==undefined&&!['left','center','right'].includes(a.align))fail(label,'Invalid annotation alignment');
       if(!/^#[0-9a-f]{6}$/i.test(a.color||'#c6a986'))fail(label,'Couleur annotation invalide');
     }
     if(c.linkRoutes!==undefined){

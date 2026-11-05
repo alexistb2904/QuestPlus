@@ -40,7 +40,7 @@ test('zoom controls scale every node and annotation without changing saved world
  assert.match(canvas,/showQuestTitles=false/);
  assert.match(canvas,/node-title-below/);
  const app=read('../src/App.tsx');
- assert.match(app,/useState\(\(\)=>localStorage\.getItem\("questplus\.quest-titles"\)==="true"\)/);
+ assert.match(app,/useState\(\(\)\s*=>\s*localStorage\.getItem\("questplus\.quest-titles"\)\s*===\s*"true"\)/);
  assert.match(app,/aria-pressed=\{showQuestTitles\}/);
 });
 
@@ -49,9 +49,9 @@ test('WYSIWYG allows direct pixel sizing and drag-resizing in both editing modes
  for(const token of ['sizePx','applyPixelSize','image-grip','onPointerMove','onPointerUp','mode="description"','onRichChange'])
   assert.ok(editor.includes(token),token);
  assert.match(editor,/image&&<div className="rich-image-tools">/);
- const renderer=read('../../../src/main/java/dev/questplus/fabric/client/RichAnnotationRenderer.java');
+ const renderer=read('../../../client/src/main/java/dev/questplus/fabric/client/RichAnnotationRenderer.java');
  assert.match(renderer,/get\("sizePx"\)/);
- const registry=read('../../../src/main/java/dev/questplus/core/QuestRegistry.java');
+ const registry=read('../../../server/src/main/java/dev/questplus/core/QuestRegistry.java');
  assert.match(registry,/descriptionRich\(/);
  assert.match(registry,/sizePx/);
 });

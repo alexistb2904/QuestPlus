@@ -133,7 +133,8 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .graph-node .node-select{padding:0!important;margin:0!important;display:grid!important;place-items:center!important;width:100%;height:100%;gap:0}
 .graph-node .node-icon{display:grid;place-items:center;min-width:0;min-height:0}
 .graph-node .node-npc{position:absolute;right:-4px;top:-5px}
-.graph-node .node-connector{bottom:-17px}
+.graph-node .node-connector{bottom:-12px;width:18px;height:18px}
+.graph-node .node-connector::before{content:'';position:absolute;inset:-4px}
 .node-title-below{position:absolute;left:50%;top:calc(100% + 22px);transform:translateX(-50%);
   min-width:max-content;max-width:180px;text-align:center;padding:3px 6px;border-radius:3px;
   background:#1e1925e8;border:1px solid #584368;color:#e9e2ed;pointer-events:none;
@@ -235,3 +236,56 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .gear-enchantment-id-entry input{flex:1;min-width:0}
 .gear-enchantment-id-entry .button{padding:0 7px;min-height:33px;font-size:11px}
 .gear-enchantment .gear-enchantment-id>label{display:block;font-size:11px;font-weight:550;margin-bottom:4px}
+
+/* QuestPlus Hub progressive enhancement. The normal offline editor stays usable. */
+/* Connected editing follows the same stone surfaces as the workspace. */
+.hub-dialog{width:min(660px,calc(100vw - 28px));max-width:calc(100vw - 28px);padding:0;border-color:var(--border-light,#6b6870)}
+.hub-dialog .react-dialog-heading{padding:17px 20px;border-bottom:1px solid #4b494f;background:#2b292e}
+.hub-dialog .react-dialog-heading h2{margin:0;font-size:25px}
+.hub-panel{display:grid;gap:18px;padding:22px;color:var(--text,#f1eee9);min-width:0}
+.hub-connection{display:grid;gap:14px;min-width:0}
+.hub-server-heading{display:flex;align-items:center;gap:12px}
+.hub-server-heading h3{margin:0;font-size:17px;overflow-wrap:anywhere}
+.hub-server-icon{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;background:#191a1f;border:1px solid #65616a;border-radius:4px;color:#c8b1de}
+.hub-state{display:flex;align-items:center;gap:5px;margin:4px 0 0;color:#c1b9b1;font-size:12px}
+.hub-state.online{color:#ade291}
+.hub-intro{margin:0;color:#d1c9c2;line-height:1.6;max-width:65ch}
+.hub-panel .field{display:grid;gap:6px;min-width:0;margin:0}
+.hub-panel input{width:100%;min-width:0;min-height:36px;padding:8px;color:#f1eee9;background:#191a1f;border:1px solid #726a79;border-radius:3px}
+.hub-panel input:disabled{opacity:.7}
+.hub-panel .picker-help{margin:0;color:#c1b9b1;line-height:1.5;font-size:12px}
+.hub-command{display:flex;align-items:center;gap:10px;padding:10px;background:#191a1f;border:1px solid #4b494f;border-radius:3px}
+.hub-command code{flex:1;min-width:0;overflow-wrap:anywhere;color:#e9bc73;font-size:13px;user-select:all}
+.hub-command .button{flex-shrink:0}
+.hub-approval{display:grid;justify-items:center;gap:10px;text-align:center;padding:12px 0}
+.hub-approval p{margin:0;color:#c1b9b1;line-height:1.5}
+.hub-confirm-code{font-size:34px;letter-spacing:6px;font-weight:700;font-variant-numeric:tabular-nums;color:#dec2ff;user-select:all}
+.hub-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hub-actions input{flex:1;min-width:120px}
+.hub-actions .button{flex-shrink:0}
+.hub-disconnect{justify-self:start;color:#c1b9b1;text-decoration:underline;text-underline-offset:3px}
+.hub-status{display:flex;align-items:flex-start;gap:9px;padding:12px;background:#1e222a;border:1px solid #636879;border-radius:3px;overflow-wrap:anywhere;line-height:1.5}
+.hub-status>svg{flex-shrink:0;margin-top:2px}
+.hub-status strong{font-size:12px;font-weight:600}
+.hub-status p{margin:5px 0 0;font-size:12px}
+.hub-status.success{color:#c6edb5;border-color:#4d7443;background:#202b20}
+.hub-status.error{color:#ffbfb5;border-color:#95635e;background:#322322}
+.hub-disclosure{border-top:1px solid #4b494f;padding-top:14px}
+.hub-disclosure summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;color:#e0d4e9;font-size:13px;font-weight:600;min-height:28px}
+.hub-disclosure summary::after{content:'+';margin-left:auto;font-size:18px;font-weight:400}
+.hub-disclosure[open] summary::after{content:'−'}
+.hub-disclosure-body{display:grid;gap:14px;padding-top:14px}
+.hub-share{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hub-share a{min-width:0;flex:1;color:#dec2ff;overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
+.hub-share p{width:100%;margin:0;font-size:12px;color:#c1b9b1;overflow-wrap:anywhere}
+.hub-share code{color:#e9bc73;user-select:all}
+.hub-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;border-top:1px solid #4b494f;background:#202024}
+.hub-footer>span{font-size:11px;line-height:1.5;color:#c1b9b1;max-width:36ch}
+.hub-footer .button{flex-shrink:0}
+.hub-toolbar-button.connected{border-color:#72975c;color:#c6edb5;max-width:230px;min-width:140px;justify-content:flex-start}
+.hub-toolbar-button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hub-status-wrap{display:flex;min-width:0;flex:0 1 150px}
+.hub-toolbar-status{min-width:0;max-width:100%;border:0;background:transparent;text-align:left;color:#c1b9b1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hub-toolbar-status.success{color:#ade291}.hub-toolbar-status.error{color:#ffb1a4}
+.annotation-node.label>span{text-align:inherit}
+@media(max-width:680px){.hub-panel{padding:16px;gap:16px}.hub-dialog .react-dialog-heading{padding:14px 16px}.hub-command{align-items:stretch;flex-direction:column}.hub-command .button{align-self:flex-start}.hub-footer{align-items:stretch;flex-direction:column;padding:14px 16px}.hub-actions>.button{flex:1}.hub-toolbar-button{padding-inline:8px}.hub-toolbar-status{max-width:150px}}

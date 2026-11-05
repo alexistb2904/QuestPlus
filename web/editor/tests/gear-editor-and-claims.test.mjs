@@ -42,31 +42,31 @@ test('Studio displays short localized armor objectives instead of serialized con
 });
 
 test('game presentation uses a gear-specific renderer instead of JSON fallback',()=>{
- const s=read('../../../src/main/java/dev/questplus/fabric/client/QuestConditionText.java');
+ const s=read('../../../client/src/main/java/dev/questplus/fabric/client/QuestConditionText.java');
  assert.match(s,/case "questplus:gear" -> gear\(value\)/);
  assert.match(s,/gear\.full/);
  assert.doesNotMatch(s,/return tr\("other","questplus:gear",value\)/);
- const advanced=read('../../../src/main/java/dev/questplus/fabric/AdvancedEvents.java');
- const context=read('../../../src/main/java/dev/questplus/fabric/QuestPlusMod.java');
+ const advanced=read('../../../server/src/main/java/dev/questplus/fabric/AdvancedEvents.java');
+ const context=read('../../../server/src/main/java/dev/questplus/fabric/QuestPlusMod.java');
  assert.match(advanced,/public static Map<String,Object> gearSnapshot/);
  assert.match(context,/context\.put\("gear",AdvancedEvents\.gearSnapshot\(player\)\)/);
 });
 
 test('completion auto-unpins, unlock and completion alone trigger toasts',()=>{
- const s=read('../../../src/main/java/dev/questplus/fabric/client/QuestPlusClient.java');
+ const s=read('../../../client/src/main/java/dev/questplus/fabric/client/QuestPlusClient.java');
  assert.match(s,/settings\.pinned\.removeIf/);
  assert.match(s,/QuestClientState\.flag\(next,"unlocked"\)/);
  assert.doesNotMatch(s,/QuestToast\.show\(b>=target/);
  assert.doesNotMatch(s,/progress_notice/);
- const screen=read('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const screen=read('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(screen,/claimAll=button\("claim_all"/);
  assert.match(screen,/NEW_UNLOCKS\.contains\(q\.id\(\)\)/);
  assert.match(screen,/treeLeft=left\+38/);
 });
 
 test('claim-all remains a single server-authorized action with durable sequential claims',()=>{
- const runtime=read('../../../src/main/java/dev/questplus/fabric/QuestRuntime.java');
- const network=read('../../../src/main/java/dev/questplus/fabric/QuestNetwork.java');
+ const runtime=read('../../../server/src/main/java/dev/questplus/fabric/QuestRuntime.java');
+ const network=read('../../../server/src/main/java/dev/questplus/fabric/QuestNetwork.java');
  assert.match(network,/case "claim_all" -> runtime\.claimAll\(player\)/);
  assert.match(runtime,/private void claimNext\(ServerPlayer player,List<String> ids,int index\)/);
  assert.match(runtime,/claim\(player,ids\.get\(index\),\(\) ->/);
@@ -74,7 +74,7 @@ test('claim-all remains a single server-authorized action with durable sequentia
 });
 
 test('brightness maximum keeps the original colors without a white boost',()=>{
- const screen=read('../../../src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
+ const screen=read('../../../client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
  assert.match(screen,/if\(brightness<\.999\)/);
  assert.match(screen,/\(1-brightness\)\*255/);
  assert.doesNotMatch(screen,/glow|0x00ffffff/);

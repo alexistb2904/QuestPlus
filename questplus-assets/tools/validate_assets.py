@@ -247,7 +247,7 @@ def static_checks():
     result["passed"].extend(["256x256 texture", "atlas bounds and non-overlap", "Blockbench UUID/outliner/UV/embedded-texture structure"])
     require("questplus_tablet" in models, "missing tablet .bbmodel")
     tablet = models["questplus_tablet"]
-    runtime = ROOT.parent / "src/main/resources/assets/questplus/tablet/geometry.json"
+    runtime = ROOT.parent / "client/src/main/resources/assets/questplus/tablet/geometry.json"
     require(json.loads(runtime.read_text(encoding="utf-8")) == tablet["elements"], "runtime tablet geometry differs from editable source")
     book = {e["name"]: e for e in tablet["elements"] if e["name"].startswith("book_")}
     require(all(e.get("rotation", [0, 0, 0]) == [0, 0, 0] for e in book.values()), "book must remain straight without tilted pages or covers")

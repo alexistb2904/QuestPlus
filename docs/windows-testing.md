@@ -1,0 +1,174 @@
+# Windows - tester QuestPlus
+
+Ouvrez **0-Menu-Tests.bat** a la racine du depot : 25 options sont disponibles.
+Chaque lanceur peut aussi etre demarre independamment depuis l'Explorateur.
+
+## Tests automatiques
+
+| Option | Controle |
+| --- | --- |
+| 3 | Build Java, ressources, JAR Fabric et tests JUnit |
+| 4 | GameTests serveur dedie et verification de la sauvegarde |
+| 5 | GameTests client avec fenetre Minecraft graphique |
+| 8 | React tests, TypeScript, build Vite et tests HTTP API |
+| 10 | Suite complete SANS GameTests client GUI |
+| 11 | Verification JDK 25, Node 22+, fichiers, Docker facultatif |
+| 13 | Typecheck TypeScript puis build React |
+| 14 | Tests React uniquement |
+| 15 | Tests API : approbation, packs, publication et securite |
+| 17 | Tests JUnit seulement |
+| 18 | Compiler uniquement Java + ressources |
+| 22 | Suite complete AVEC GameTests client GUI |
+
+L'option 10 continue apres chaque echec et ecrit un bilan dans
+`run/questplus-test-summary.txt`. La sortie reste non nulle si une
+etape a echoue. Ouvrez les rapports avec l'option 21.
+
+## Test reel web + Minecraft
+
+1. **12** : generer une cle locale persistante et le fichier
+   `run/server/world/questplus-hub.json`. Les fichiers sont ignores par Git.
+   Les fichiers existants ne sont jamais ecrases et le secret n'est pas affiche.
+2. **9** : demarrer Quest Studio + API sur http://localhost:8787/.
+   Garder cette fenetre ouverte : le processus HTTP tourne en premier plan.
+3. **16** dans une autre fenetre : GET /health pour verifier l'API.
+4. **2** : lancer le serveur Minecraft local apres lecture/acceptation
+   de la Minecraft EULA. La config de developpement utilise 127.0.0.1
+   et le mode hors ligne, a ne jamais exposer sur Internet.
+5. **1** : lancer le client Minecraft, puis rejoindre localhost:25565.
+6. En etant OP, executer `/questplus editor`, ouvrir le lien sur le site,
+   demander l'autorisation et valider le code en jeu.
+7. Charger les quetes, editer un objectif, publier et verifier la tablette.
+   Tester aussi l'import d'un pack partage et `/questplus rollback`.
+
+Pour une validation approfondie, verifier les refus d'autorisation, les
+conflits de versions, un pack JSON invalide, une coupure reseau et la
+progression joueur apres rechargement. Ces tests manuels ne sont PAS
+remplaces par les tests unitaires.
+
+## Autres options
+
+| Option | Action |
+| --- | --- |
+| 6 | Installer Java 25 via winget apres confirmation |
+| 7 | Lancer Vite + HMR |
+| 9 | Demarrer le site integre React + API |
+| 12 | Configuration de developpement local securisee |
+| 16 | Healthcheck API locale |
+| 19 | Preview Vite production |
+| 20 | Construire l'image Docker web sans deployer |
+| 21 | Consulter les rapports et le bilan |
+| 23 | Reinstaller proprement les dependances (npm ci) |
+
+Commandes disponibles directement sous Windows :
+
+```bat
+10-Tout-Tester.bat
+10-Tout-Tester.bat gui
+scripts\_qa.bat studio-test
+scripts\_qa.bat studio-build
+scripts\_qa.bat api-test
+scripts\_qa.bat java-build
+scripts\_qa.bat server-test
+scripts\_qa.bat api-health
+```
+
+Le JDK 25 et Node 22+ sont obligatoires pour toute la suite ; Docker est
+facultatif. Les nouveaux scripts ne touchent pas aux donnees d'une
+sauvegarde de production. La validation finale des .bat doit etre
+effectuee sur une machine Windows avec Fabric 26.3 et un vrai client.
+
+## Lancement complet en un clic (option 24)
+
+`13-Demarrer-Tout.bat` lance le frontend React et l'API dans une
+console, puis attend la disponibilite HTTP avant de lancer le serveur
+Fabric dans sa console, attend l'ouverture de `localhost:25565`, et
+demarre une instance client Minecraft dans une troisieme console.
+La configuration de developpement est creee/reutilisee automatiquement.
+
+En cas de premier demarrage, **lisez et acceptez manuellement l'EULA**
+dans la console serveur. Aucune acceptation n'est automatique.
+Les ports 8787 et 25565 doivent etre libres. Les fenetres restent
+ouvertes pour afficher les logs. Pour arreter proprement, quitter le
+client, taper `stop` dans la console du serveur, puis Ctrl+C dans
+celle du web. Aucun serveur de production n'est modifie.
+
+## Mod toujours a jour sur le serveur de test
+
+Le lanceur `2-Lancer-Serveur.bat` **reconstruit obligatoirement le JAR depuis
+les sources Git locales** via `--rerun-tasks jar` avant de demarrer `runServer`.
+Gradle Loom charge ensuite les classes actuelles dans l'environnement de
+developpement ; il ne copie pas un JAR externe dans `run/server/mods`.
+Un ancien JAR `*questplus*.jar` dans `run/server/mods` est detecte et
+bloque pour eviter le double chargement. Retirez-le manuellement.
+
+IMPORTANT : la mise a jour du **code du mod** est distincte de la mise a jour
+des **definitions de quetes d'un monde deja cree**. QuestPlus preserve
+volontairement `world/questplus/` et la progression des joueurs.
+Pour actualiser les quetes, publiez depuis Quest Studio ou importez un pack,
+puis utilisez `/questplus reload` si necessaire.
+
+## Shaders et animations du client de test
+
+Le lanceur `1-Lancer-Client.bat` telecharge les composants de test dans
+`run/client/` au premier lancement ; ils sont ensuite verifies et reutilises
+depuis le cache local. **Ils ne sont pas ajoutes au JAR distribue et ne sont
+pas installes sur le serveur dedie.**
+
+- Mods client : Iris, Sodium, Punchy! (1ere personne), Punchy! Moves (3e personne).
+- Ressource d'animations : Fluid & Foolish (pour Punchy! Moves).
+- Shaders : MakeUp Ultra Fast (leger), Complementary Reimagined (polyvalent),
+  Bliss (ambiance cinematique).
+
+Dans Minecraft, choisissez un shader dans le menu Iris, et activez
+**Fluid & Foolish** depuis les resource packs. Les shaders sont installes
+mais **aucun n'est force par defaut**. Cela permet de comparer le rendu
+avec/sans shaders. Punchy! peut interagir avec les animations de tablette
+QuestPlus et FP PAL : cette configuration sert justement a tester ces conflits.
+
+L'option **25** actualise volontairement les versions compatibles Fabric 26.3
+a partir de Modrinth. Les archives telechargees sont verifiees SHA-512,
+les versions existantes sont conservees jusqu'a verification du remplacement
+et les fichiers manuels ne sont pas touches. Aucun binaire de mod ou shader
+n'est redistribue dans Git.
+
+Pour lancer uniquement QuestPlus sans ces mods de test, avant le .bat :
+
+```bat
+set QUESTPLUS_SKIP_TEST_ASSETS=1
+1-Lancer-Client.bat
+```
+
+Une connexion Internet est requise lors du premier telechargement des assets.
+Si Modrinth est indisponible, le script indique quels elements manquent.
+
+### Correctif Windows — ENOENT `QuestPlus"\\run\\client`
+
+Un ancien lanceur passait la racine `%~dp0` avec un antislash final entre
+ guillemets. Selon le traitement des arguments Windows par Node.js, le
+ caractère `"` pouvait rester dans le nom du dossier : `QuestPlus"`.
+ Le lanceur n'envoie plus ce chemin : le téléchargeur retrouve la racine du
+ dépôt depuis l'emplacement du script. La même correction est appliquée à
+ l'option 25 du menu. Les téléchargements utilisent ensuite `run/client/`.
+
+### Régression et diagnostic Iris / Punchy
+
+Pour les captures montrant un flou global (Complementary), une tablette
+réfléchissante (Bliss) ou un écran surexposé (MakeUp) : quand Iris utilise
+réellement un shader, QuestPlus désactive automatiquement le Background
+Blur, indépendamment de l'état Self Illumination. Le matériau écran devient
+mat pour les deux réglages, mais sa luminosité maximale n'est activée que
+par Self Illumination. Le cadre 3D reçoit sa texture statique d'origine.
+
+L'ancienne option distincte « Écran compatible shaders (Iris) » est
+supprimée. La fermeture sécurisée restitue immédiatement le HUD et les
+contrôleurs FP PAL reçoivent un délai de sécurité pour éviter tout blocage
+de l'interface. Les shaders gardent leurs propres DOF/SSR : si le flou
+persiste, tester la désactivation de DOF dans le menu du shader.
+
+La prise en charge de **Punchy! 3.1+** exploite l'API publique pour
+laisser FP PAL gérer la tablette lorsque J est pressé. L'option 25 de ce
+menu actualise les composants du client : un ancien Punchy 3.0 téléchargé
+par le script est remplacé par une version suffisamment récente.
+
+Lire [les scénarios détaillés](shader-punchy-testing.md).

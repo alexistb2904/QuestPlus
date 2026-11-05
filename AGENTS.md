@@ -1,32 +1,34 @@
-# Quest Plus
+# QuestPlus — three runtime responsibilities: web, client, server
 
-Independent backend for Minecraft Java 26.3 / Fabric / Java 25. Never copy code from Wilderness Quest.
-Use Ponytail full. Do not use Superpowers. No client rendering, UI, Blockbench or web editor in this phase.
+## Source layout
 
-## Working contract
+- `web/editor/`: React/TypeScript quest authoring, offline ZIP workflows and connected editing.
+- `web/api/`: same-origin HTTPS web runtime, approval sessions, immutable pack storage, upload/ack relay.
+- `client/`: client-only Fabric code, tablet renderer, client models, resources and client mixins.
+- `server/`: authoritative Fabric engine, data validation, persistent progress, commands, networking and server mixins.
 
-- Inspect the affected code, callers, configuration, fixtures and tests before editing.
-- Keep Minecraft/Fabric imports in `dev.questplus.fabric`; the core and persistence stay Java-only.
-- The server thread owns mutable gameplay state. Disk workers receive detached snapshots only.
-- Never replace corrupt/unknown-version saves with empty progress. Never reset reward claim history implicitly.
-- Keep quest IDs and objective IDs stable; validate the whole registry before swapping it on reload.
-- No disk write per gameplay event, no scan of every quest each tick, no client-authoritative progress.
-- Do not implement future features as empty classes. Unsupported JSON must fail with a useful error.
-- Preserve unrelated changes. Run the main behavior tests and compile at each important milestone.
+This is still **one Fabric JAR**, not two separately installed Fabric mods. Gradle compiles
+both `client/src/main/java` and `server/src/main/java` in its main source set.
+Minecraft entrypoints and mixin package names are unchanged.
 
-## Native Codex orchestration
+## Rules
 
-Use project agents in `.codex/agents/`: architect = GPT-6.1 Sol high; developer = GPT-6.1 Terra medium;
-tester = GPT-6 Luna high; reviewer = GPT-6.1 Sol medium.
-The parent owns architecture, integration and final verification. Select roles automatically by task.
-At most TWO child agents simultaneously; no nested delegation. Avoid agents for trivial operations.
-Give exclusive file ownership, tell agents they share the workspace, and inspect their actual output.
-Do not have multiple agents modify the same files or repeat the same investigation.
-If agent definitions are not discovered in the current session, use native spawn with the exact requested
-model/effort and report this fallback. Reopen the Codex session to load the new project configuration.
+- Never trust a quest update solely because it came from a browser. The Minecraft
+  server must validate the complete pack and perform an atomic reload or rollback.
+- A Hub session URL is not an authorization token. Confirmation requires the
+  initiating operator in Minecraft; keep publish tokens in memory.
+- No player saves, reward ledgers, or server API keys may be sent to the browser.
+- Browser data/pack links must never permit remote console commands.
+- Keep all mutable game state on the Minecraft server thread.
+- Keep client rendering code out of the dedicated-server execution path.
+- Keep the React editor usable offline without an API connection.
+- Add tests for any new protocol, registry, permission, rollback or release changes.
+- Run `./gradlew build`, `cd web/editor && npm test && npm run typecheck && npm run build`,
+  and `cd web/api && npm test` on a checkout before merging.
+- Do not claim live Minecraft client/server parity until Fabric integration tests run.
 
-## Verification
+## Existing work
 
-Use Java 25, then `./gradlew build`. See README for server integration checks.
-Keep `docs/roadmap.md` honest: a build does not prove multiplayer, gameplay hooks or crash recovery.
-Never call a feature functional unless it has implementation and appropriate executed checks.
+Preserve existing quest IDs, schemaVersion, progression/rewards and game compatibility.
+Read `docs/architecture.md` and `web/api/README.md` before editing any
+cross-process protocol. Do not rewrite another subsystem as part of a cosmetic refactor.

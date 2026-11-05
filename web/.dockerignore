@@ -1,0 +1,9 @@
+editor/node_modules
+editor/dist
+editor/.vite
+editor/.env
+editor/.env.*
+api/data
+api/.env
+api/.env.*
+**/*.log

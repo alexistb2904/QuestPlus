@@ -30,6 +30,16 @@ jobs:
           npm run typecheck
           npm run build
           npm test
+      - name: Exercise QuestPlus Hub security and publishing protocol
+        working-directory: web/api
+        run: npm test
+      - name: Confirm no legacy Hub or source tree
+        run: |
+          test ! -d hub
+          test ! -d src
+          test -f client/src/main/resources/questplus.client.mixins.json
+          test -f server/src/main/resources/fabric.mod.json
+          test -f web/api/server.mjs
       - name: Upload test reports when failed
         if: failure()
         uses: actions/upload-artifact@v4

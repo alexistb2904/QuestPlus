@@ -38,8 +38,8 @@ test('zoom scales all quest artwork, text and annotations together with their an
  assert.match(css,/their whole visual subtree is/);
 });
 test('Minecraft camera fit now includes authored annotation anchors',()=>{
- const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
- const camera=source('../../../src/main/java/dev/questplus/clientmodel/QuestCamera.java');
+ const screen=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const camera=source('../../../client/src/main/java/dev/questplus/clientmodel/QuestCamera.java');
  assert.match(screen,/camera\.fitBounds\(points/);
  assert.match(screen,/points\.add\(new QuestLayout\.Point\(note\.get\("x"\)/);
  assert.match(camera,/public double zoom\(\)\{return zoom;\}/);
@@ -47,9 +47,9 @@ test('Minecraft camera fit now includes authored annotation anchors',()=>{
  assert.match(screen,/RichAnnotationRenderer\.render\(g,font,note,imagePool/);
 });
 test('compact HUD, adaptable notice and three-pin cap are enforced',()=>{
- const hud=source('../../../src/main/java/dev/questplus/fabric/client/QuestHud.java');
- const toast=source('../../../src/main/java/dev/questplus/fabric/client/QuestToast.java');
- const settings=source('../../../src/main/java/dev/questplus/fabric/client/ClientSettings.java');
+ const hud=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestHud.java');
+ const toast=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestToast.java');
+ const settings=source('../../../client/src/main/java/dev/questplus/fabric/client/ClientSettings.java');
  assert.match(hud,/hudScale\(g\.guiWidth\(\),g\.guiHeight\(\)\)/);
  assert.match(hud,/g\.pose\(\)\.scale\(scale\)/);
  assert.match(hud,/panels\.size\(\)>=ClientSettings\.MAX_PINNED/);
@@ -73,14 +73,14 @@ test('wheel and pinch zoom are restored and Shift-wheel pans',()=>{
  const app=source('../src/App.tsx');
  assert.match(app,/Reset zoom/);
  assert.match(app,/Zoom in|Zoom out/);
- const game=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const game=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(game,/camera\.pan\(-horizontal\*36,0\)/);
  assert.match(game,/camera\.zoomAt\(Math\.pow\(QuestCamera\.ZOOM_STEP,vertical\),x,y\)/);
 });
 test('default damage behavior closes tablet with animation, and setting is opt-in',()=>{
- const flow=source('../../../src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
- const settings=source('../../../src/main/java/dev/questplus/fabric/client/ClientSettings.java');
- const screen=source('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java');
+ const flow=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
+ const settings=source('../../../client/src/main/java/dev/questplus/fabric/client/ClientSettings.java');
+ const screen=source('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java');
  assert.match(settings,/stayOpenOnDamage = false/);
  assert.match(flow,/DAMAGE\.observe\(tabletActive,allow,/);
  assert.match(flow,/quest\.onClose\(\)/);

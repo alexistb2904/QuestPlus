@@ -68,7 +68,7 @@ test('routing creates one user waypoint on a cable without persisting invisible 
 });
 
 test('Minecraft tablet renders backgrounds and waypoints from the same category JSON',()=>{
- const file=fs.readFileSync(new URL('../../../src/main/java/dev/questplus/fabric/client/QuestScreen.java',import.meta.url),'utf8');
+ const file=fs.readFileSync(new URL('../../../client/src/main/java/dev/questplus/fabric/client/QuestScreen.java',import.meta.url),'utf8');
  const gradle=fs.readFileSync(new URL('../../../build.gradle',import.meta.url),'utf8');
  const canvas=fs.readFileSync(new URL('../src/components/TreeCanvas.tsx',import.meta.url),'utf8');
  assert.match(file,/drawBackgrounds\(g\)/);

@@ -20,6 +20,7 @@ dependencies {
     // Fabric 26.3: Player Animation Library and First Person PAL Expansion.
     implementation 'maven.modrinth:ha1mEyJS:xJ30QmpE'
     implementation 'curse.maven:first-person-pal-expansion-1758160:9329319'
+    compileOnly 'com.google.j2objc:j2objc-annotations:3.0.0'
     testImplementation platform('org.junit:junit-bom:5.12.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -30,14 +31,27 @@ java {
     withSourcesJar()
 }
 
+// ONE universal Fabric JAR compiled from the client and server trees.
+// Package names stay unchanged for Fabric entrypoints, mixins and saved data.
+sourceSets {
+    main {
+        java.setSrcDirs(['server/src/main/java', 'client/src/main/java'])
+        resources.setSrcDirs(['server/src/main/resources', 'client/src/main/resources'])
+    }
+    test {
+        java.setSrcDirs(['server/src/test/java', 'client/src/test/java'])
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 25
 }
 
 processResources {
-    inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') { expand version: project.version }
+    def resourceVersion = project.version
+    inputs.property 'version', resourceVersion
+    filesMatching('fabric.mod.json') { expand version: resourceVersion }
     // Catalogue authored once for both the server JAR and Quest Studio.
     from('web/editor/src/data') {
         include 'challenge-catalogue.json', 'equipment-catalogue.json'
@@ -45,7 +59,10 @@ processResources {
     }
 }
 
-test { useJUnitPlatform() }
+test {
+    useJUnitPlatform()
+    systemProperty 'joml.nounsafe', 'true'
+}
 
 fabricApi {
     configureTests {
@@ -55,6 +72,13 @@ fabricApi {
         enableClientGameTests = true
         eula = true
     }
+}
+
+// Fabric API creates the gametest source set above. Use split source folders
+// without creating a second mod or duplicating entrypoints.
+sourceSets.named('gametest') {
+    java.setSrcDirs(['server/src/gametest/java', 'client/src/gametest/java'])
+    resources.setSrcDirs(['server/src/gametest/resources', 'client/src/gametest/resources'])
 }
 
 dependencies {

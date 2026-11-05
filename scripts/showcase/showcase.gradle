@@ -1,0 +1,30 @@
+// Capture-only configuration: no changes to installed mods, player worlds or the release JAR.
+allprojects {
+    afterEvaluate {
+        sourceSets.gametest.java.srcDir file('scripts/showcase')
+        loom.runs.clientGameTest {
+            runDir file('build/showcase').absolutePath
+            vmArg '-Xmx3G'
+        }
+        tasks.named('processGametestResources') {
+            inputs.property('showcase', true)
+            doLast {
+                def metadata = new File(destinationDir, 'fabric.mod.json')
+                def json = new groovy.json.JsonSlurper().parse(metadata)
+                json.entrypoints['fabric-client-gametest'] = ['dev.questplus.fabric.client.QuestShowcaseGameTest']
+                metadata.text = groovy.json.JsonOutput.toJson(json)
+            }
+        }
+        tasks.named('deleteGameTestRunDir') {
+            doLast {
+                def cache = file('build/tablet-assets')
+                def manifest = new groovy.json.JsonSlurper().parse(new File(cache, 'manifest.json'))
+                ['sodium', 'iris', 'complementary-reimagined'].each { id ->
+                    def asset = manifest[id]
+                    if (!asset) throw new GradleException('Run node scripts/test-tablet-compatibility.mjs baseline first: missing ' + id)
+                    copy { from new File(cache, "run/client/${asset.folder}/${asset.file}"); into file("build/showcase/${asset.folder}") }
+                }
+            }
+        }
+    }
+}

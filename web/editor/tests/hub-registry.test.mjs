@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {setHubRegistry,hubTargets} from '../src/core/hub-registry.js';
+const source=file=>fs.readFileSync(new URL(file,import.meta.url),'utf8');
+test('server registries filter unsafe entries and support modded targets',()=>{
+ setHubRegistry({
+  items:['create:brass_ingot','minecraft:stone','create:brass_ingot','../../secrets'],
+  blocks:['create:mechanical_press'],
+  enchantments:['modded:supercharged','minecraft:mending'],
+  biomes:['modded:crystal_desert'],
+  tags:{items:['#c:ingots','../../bad']}
+ });
+ assert.deepEqual(hubTargets('item'),['create:brass_ingot','minecraft:stone']);
+ assert.deepEqual(hubTargets('block'),['create:mechanical_press']);
+ assert.deepEqual(hubTargets('enchantment'),['minecraft:mending','modded:supercharged']);
+ assert.deepEqual(hubTargets('biome'),['modded:crystal_desert']);
+ assert.deepEqual(hubTargets('unknown'),[]);
+});
+test('Quest Studio preserves offline mode and never stores authentication tokens in localStorage',()=>{
+ const app=source('../src/App.tsx'),hub=source('../src/components/HubPanel.tsx');
+ assert.match(app,/<HubPanel project=\{project\}/);
+ assert.match(hub,/\/v1\/editor\/sessions\//);
+ assert.match(hub,/\/publish/);
+ assert.match(hub,/\/v1\/packs/);
+ assert.doesNotMatch(hub,/localStorage\.setItem|sessionStorage\.setItem/);
+ const item=source('../src/components/IconPicker.tsx');
+ const enchant=source('../src/components/EnchantmentPicker.tsx');
+ assert.match(item,/hubTargets\(kind\)/);
+ assert.match(enchant,/hubTargets\('enchantment'\)/);
+});

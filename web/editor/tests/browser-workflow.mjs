@@ -3,7 +3,7 @@ async page => {
  await page.evaluate(()=>sessionStorage.removeItem('__studioWorkflowResult'));
  const assert=(condition,message)=>{if(!condition)throw Error(message)};
  const read=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')));
- const save=async()=>{await page.getByRole('button',{name:'Enregistrer',exact:true}).click();return read()};
+ const save=async()=>{await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();return read()};
  const quest=async()=>{const s=await save();return s.project.quests.find(q=>q.id===s.selection.id)};
  const choose=async name=>page.locator('.quest-item').filter({hasText:name}).click();
  await page.setViewportSize({width:1440,height:1000});
