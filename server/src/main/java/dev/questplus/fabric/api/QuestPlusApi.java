@@ -16,6 +16,10 @@ public final class QuestPlusApi {
     public static void submit(ServerPlayer responsible,QuestEvent event) { QuestPlusMod.runtime().event(responsible,event); }
     public static void registerEvent(String id,String registry,boolean state) { QuestExtensions.registerEvent(id,registry,state); }
     public static void registerCondition(String id,Consumer<JsonElement> validator,BiPredicate<JsonElement,Map<String,Object>> predicate) { QuestExtensions.registerCondition(id,validator,predicate); }
+    /** Add a validated no-code editor form for a previously registered custom event, condition or reward. */
+    public static void registerEditorDescriptor(String kind,String id,String label,JsonArray fields) {
+        QuestStudioDescriptors.register(kind,id,label,fields);
+    }
     public static void registerReward(String id,Consumer<JsonObject> validator,BiPredicate<ServerPlayer,QuestDefinition.Reward> fits,BiConsumer<ServerPlayer,QuestDefinition.Reward> deliver) {
         QuestRewardExtensions.register(id,validator,fits,deliver);
     }
