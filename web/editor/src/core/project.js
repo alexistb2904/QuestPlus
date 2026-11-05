@@ -1,4 +1,5 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
+import JSON5 from 'json5';
 import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 import {isCategoryLink} from './diagram-geometry.js';
@@ -410,7 +411,7 @@ export function expandCategoryImages(category){
 }
 export function fileMap(p){
   const map=new Map(), used=new Set();
-  function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,JSON.stringify(obj,null,2)+'\n');}
+  function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,(path.endsWith('.json5')?JSON5.stringify(obj,null,2):JSON.stringify(obj,null,2))+'\n');}
   const fileName=id=>{const [ns,...rest]=id.split(':');const path=rest.join(':');if(!ID.test(id))throw new Error('ID invalide: '+id);return ns==='questplus'?path:ns+'/'+path;};
   put('config.json',p.config||{schemaVersion:1,autosaveSeconds:5});
   // Studio-only metadata is separate: QuestRegistry must never see unknown fields
@@ -420,7 +421,7 @@ export function fileMap(p){
     iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
   for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',compactCategoryImages(c));
-  for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
+  for(const q of p.quests)put('quests/'+fileName(q.id)+'.json5',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
   return map;
 }
@@ -428,8 +429,8 @@ export function importDocuments(documents){
   const p=emptyProject();let valid=0;
   for(const {name,content} of documents){
     const path=String(name).replace(/\\/g,'/').replace(/^.*?(?=(?:quests|categories)\/)/,'');
-    if(!/\.json$/i.test(path))continue;
-    let obj;try{obj=JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON invalide dans '+name+' : '+e.message);}
+    if(!/\.json5?$/i.test(path))continue;
+    let obj;try{obj=path.toLowerCase().endsWith('.json5')?JSON5.parse(String(content).replace(/^\uFEFF/,'')):JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON/JSON5 invalide dans '+name+' : '+e.message);}
     if(/(?:^|\/)queststudio-compatibility\.json$/i.test(path)){
       p.targetMinecraftVersion=obj.targetMinecraftVersion||'26.3';
       p.iconVersions=obj.iconVersions||{};
