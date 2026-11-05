@@ -65,7 +65,7 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
   }
  const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
  const extensions=hubEditorDescriptors('condition');
- const choices:[string,string][]=[...OBJECTIVE_KIN,['equipment','Equipment'],['position','Position'],['context','Context'],...extensions.map(d=>[d.id,d.label] as [string,string])];
+ const choices:[string,string][]=[...OBJECTIVE_KINDS,['equipment','Equipment'],['position','Position'],['context','Context'],...extensions.map(d=>[d.id,d.label] as [string,string])];
  const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},'questplus:gear':{items:armorPreset('iron')},position:{xMin:0},context:{key:'',equals:true}};
  const setKind=(next:string)=>mutate(root=>{
   const descriptor=extensions.find(d=>d.id===next);

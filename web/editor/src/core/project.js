@@ -1,5 +1,6 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
 import JSON5 from 'json5';
+import {POOL_TYPES,poolError} from './reward-tables.js';
 import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 import {isCategoryLink} from './diagram-geometry.js';
@@ -187,6 +188,17 @@ export function validate(p){
   const issues=[], seenC=new Set(),seenQ=new Set();
   const fail=(where,message)=>issues.push({where,message});
   const translations=value=>value&&typeof value==='object'&&!Array.isArray(value)&&typeof value.en_us==='string'&&value.en_us.trim()&&Object.values(value).every(s=>typeof s==='string'&&s.trim());
+  if(p?.rewardTables!==undefined) {
+    const tables=p.rewardTables;
+    if(!Array.isArray(tables)||tables.length>128)fail('Reward tables','Invalid reward table library');
+    else {
+      const names=new Set();
+      for(const table of tables) {
+        if(!table||typeof table.name!=='string'||!table.name.trim()||table.name.length>80||names.has(table.name)||poolError(table.reward))fail('Reward tables','Invalid reward table library');
+        names.add(table?.name);
+      }
+    }
+  }
   const validateRewards=(list,label)=>{
     if(!Array.isArray(list)){fail(label,'Liste de récompenses invalide');return;}
     if(list.length>64)fail(label,'64 récompenses maximum');
@@ -203,50 +215,10 @@ export function validate(p){
           fail(label,'Commande invalide');
         if(p?.config?.enableCommandRewards!==true)fail(label,'Activer les récompenses de commandes dans les paramètres du projet (serveur approuvé)');
       }
-      if(r.type==='questplus:choice'){
-        const options=r.data?.options;
-        if(!r.data||typeof r.data!=='object'||Array.isArray(r.data)||
-           Object.keys(r.data).sort().join(',')!=='options'||
-           !Array.isArray(options)||options.length<2||options.length>32)
-           fail(label,'Choix de récompense : 2 à 32 options requises');
-        for(const option of Array.isArray(options)?options:[]){
-          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option de récompense invalide');continue;}
-          if(option.type==='item'){
-            if(Object.keys(option).sort().join(',')!=='count,item,type'||!ID.test(option.item||'')||option.item==='minecraft:air'||
-               !Number.isInteger(option.count)||option.count<1||option.count>2304)
-              fail(label,'Option objet de récompense invalide');
-          }else if(['experience','experience_levels'].includes(option.type)){
-            if(Object.keys(option).sort().join(',')!=='amount,type'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
-              fail(label,'Option XP de récompense invalide');
-          }else fail(label,'Option de récompense au choix : type interdit');
-        }
-        expanded++;
-      }
-      if(['questplus:random','questplus:loot','questplus:all'].includes(r.type)){
-        const data=r.data;
-        const options=data?.options,rolls=data?.rolls??1;
-        expanded+=r.type==='questplus:all'?(Array.isArray(options)?options.length:0):(Number.isInteger(rolls)?rolls:0);
-        if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).some(k=>r.type==='questplus:loot'?!['options','rolls','emptyWeight'].includes(k):r.type==='questplus:all'?k!=='options':!['options','rolls'].includes(k))
-            ||!Array.isArray(options)||options.length<1||options.length>32
-            ||(r.type!=='questplus:all'&&(!Number.isInteger(rolls)||rolls<1||rolls>16))
-            ||(r.type==='questplus:loot'&&(!Number.isInteger(data?.emptyWeight)||data.emptyWeight<0||data.emptyWeight>1000000))
-            ||(r.type==='questplus:all'&&Object.hasOwn(data,'rolls')))
-            fail(label,'Table de récompenses aléatoires invalide');
-        let weight=0;
-        for(const option of Array.isArray(options)?options:[]){
-          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option aléatoire invalide');continue}
-          weight+=Number.isSafeInteger(option.weight)?option.weight:0;
-          if(!Number.isInteger(option.weight)||option.weight<1||option.weight>1000000)fail(label,'Poids de récompense invalide');
-          if(option.type==='item'){
-            if(Object.keys(option).sort().join(',')!=='count,item,type,weight'||!ID.test(option.item||'')||option.item==='minecraft:air'||!Number.isInteger(option.count)||option.count<1||option.count>2304)
-              fail(label,'Option objet invalide');
-          }else if(['experience','experience_levels'].includes(option.type)){
-            if(Object.keys(option).sort().join(',')!=='amount,type,weight'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
-              fail(label,'Option XP invalide');
-          }else fail(label,'Type de récompense aléatoire non reconnu');
-        }
-        if(weight>32000000)fail(label,'Poids de récompenses trop élevé');
-      } else if(r.type!=='questplus:choice') expanded++;
+      if(POOL_TYPES.includes(r.type)){
+        const error=poolError(r);if(error)fail(label,error);
+        expanded+=r.type==='questplus:all'?(r.data?.options?.length||0):r.type==='questplus:choice'?1:(r.data?.rolls??1);
+      } else expanded++;
 
       if(['experience','experience_levels'].includes(r.type)&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
       else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
@@ -484,7 +456,7 @@ export function fileMap(p){
   // on quest/category/config JSON objects.
   put('queststudio-compatibility.json',{
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
-    iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
+    iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[],rewardTables:p.rewardTables||[]
   });
   for(const c of p.categories)put('categories/'+fileName(c.id)+'.json5',compactCategoryImages(c));
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json5',q);
@@ -501,7 +473,8 @@ export function importDocuments(documents){
       p.targetMinecraftVersion=obj.targetMinecraftVersion||'26.3';
       p.iconVersions=obj.iconVersions||{};
       if(obj.editorLocales!==undefined&&(!Array.isArray(obj.editorLocales)||obj.editorLocales.length>128||obj.editorLocales.some(id=>typeof id!=='string'||!/^[a-z]{2,3}_[a-z]{2,4}$/.test(id))))throw Error('Invalid editor language list');
-      p.editorLocales=obj.editorLocales||[];continue;
+      p.editorLocales=obj.editorLocales||[];
+      p.rewardTables=obj.rewardTables||[];continue;
     }
     if(/(?:^|\/)categories\//.test(path)||(!obj.schemaVersion&&obj.id&&obj.title&&!obj.objectives))p.categories.push(expandCategoryImages(obj));
     else if(/(?:^|\/)quests\//.test(path)||obj.objectives&&obj.id)p.quests.push(obj);

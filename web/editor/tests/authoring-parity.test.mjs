@@ -114,7 +114,7 @@ test('reward builder validates random tables, command opt-in and message',()=>{
  assert.ok(validate(project).some(issue=>issue.message.includes('Activer')));
  project.config.enableCommandRewards=true;
  assert.deepEqual(validate(project),[]);
- q.rewards[0].data.command='say hello\\nworld';
+ q.rewards[0].data.command='say hello\nworld';
  assert.ok(validate(project).some(issue=>issue.message.includes('Commande invalide')));
  q.rewards=[{type:'questplus:all',data:{options:[
   {weight:1,type:'item',item:'minecraft:diamond',count:1},

@@ -32,7 +32,9 @@ jobs:
           npm test
       - name: Exercise QuestPlus Hub security and publishing protocol
         working-directory: web/api
-        run: npm test
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
       - name: Confirm no legacy Hub or source tree
         run: |
           test ! -d hub

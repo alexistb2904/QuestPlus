@@ -180,6 +180,8 @@ export const EVENT_LABELS={
   "inventory_count": "Hold items",
   "item_submit": "Submit without consuming",
   "item_turn_in": "Submit and consume",
+  "fluid_transfer": "Transfer fluid",
+  "energy_transfer": "Transfer energy",
   "entity_kill": "Kill entities",
   "fish_entity": "Fish entity",
   "questplus:fish_any": "Fish (any species)",

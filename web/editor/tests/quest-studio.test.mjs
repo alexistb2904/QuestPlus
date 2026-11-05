@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {demoProject,emptyProject,category,quest,annotation,objectiveLabel,visibleDescription,
@@ -14,14 +15,14 @@ test('new editor sessions start with EXACT quest definitions shipped by QuestPlu
   assert.equal(p.quests.length,209);
   assert.deepEqual(validate(p),[]);
   const files=fileMap(p);
-  assert.ok(files.has('quests/quarries/stone_mountain.json'));
-  assert.ok(files.has('quests/equipment/equipment_master.json'));
-  assert.ok(files.has('quests/trials/three_giants.json'));
-  assert.ok(files.has('categories/equipment.json'));
-  assert.ok(!files.has('categories/combat.json'));
-  assert.ok(!files.has('quests/survival/welcome.json'));
+  assert.ok(files.has('quests/quarries/stone_mountain.json5'));
+  assert.ok(files.has('quests/equipment/equipment_master.json5'));
+  assert.ok(files.has('quests/trials/three_giants.json5'));
+  assert.ok(files.has('categories/equipment.json5'));
+  assert.ok(!files.has('categories/combat.json5'));
+  assert.ok(!files.has('quests/survival/welcome.json5'));
   assert.ok(files.has('config.json'));assert.ok(files.has('index.txt'));
-  assert.deepEqual(JSON.parse(files.get('quests/quarries/stone_mountain.json')),
+  assert.deepEqual(JSON5.parse(files.get('quests/quarries/stone_mountain.json5')),
     BUILTIN_PROJECT.quests.find(q=>q.id==='questplus:quarries/stone_mountain'));
   p.quests[0].title.en_us='Edited';
   assert.notEqual(p.quests[0].title.en_us,demoProject().quests[0].title.en_us);

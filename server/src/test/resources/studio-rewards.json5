@@ -1,0 +1,218 @@
+{
+  schemaVersion: 2,
+  id: 'questplus:studio_roundtrip',
+  category: 'questplus:studio',
+  icon: 'minecraft:book',
+  size: 32,
+  title: {
+    en_us: 'Studio reward export',
+  },
+  objectives: [
+    {
+      id: 'step',
+      event: 'block_break',
+      target: 'minecraft:stone',
+      count: 1,
+    },
+  ],
+  rewards: [
+    {
+      type: 'questplus:choice',
+      text: {
+        en_us: 'Pick your reward',
+        fr_fr: 'Votre récompense',
+      },
+      data: {
+        description: {
+          en_us: 'One permanent selection',
+        },
+        options: [
+          {
+            type: 'item',
+            item: 'minecraft:diamond',
+            count: 2,
+          },
+          {
+            type: 'experience_levels',
+            amount: 2,
+          },
+        ],
+      },
+    },
+    {
+      type: 'questplus:random',
+      data: {
+        rolls: 2,
+        options: [
+          {
+            type: 'item',
+            item: 'minecraft:diamond',
+            count: 2,
+            weight: 3,
+          },
+          {
+            type: 'experience_levels',
+            amount: 2,
+            weight: 1,
+          },
+        ],
+      },
+    },
+    {
+      type: 'questplus:loot',
+      data: {
+        rolls: 1,
+        emptyWeight: 2,
+        options: [
+          {
+            type: 'item',
+            item: 'minecraft:diamond',
+            count: 2,
+            weight: 3,
+          },
+          {
+            type: 'experience_levels',
+            amount: 2,
+            weight: 1,
+          },
+        ],
+      },
+    },
+    {
+      type: 'questplus:all',
+      data: {
+        options: [
+          {
+            type: 'item',
+            item: 'minecraft:diamond',
+            count: 2,
+            weight: 3,
+          },
+          {
+            type: 'experience_levels',
+            amount: 2,
+            weight: 1,
+          },
+        ],
+      },
+    },
+    {
+      type: 'questplus:advancement',
+      data: {
+        advancement: 'minecraft:story/mine_stone',
+      },
+    },
+    {
+      type: 'questplus:message',
+      data: {
+        message: 'Well done',
+      },
+    },
+  ],
+  progression: 'tiered',
+  layout: {
+    x: 0,
+    y: 0,
+  },
+  tiers: [
+    {
+      id: 'first',
+      threshold: 1,
+      rewards: [
+        {
+          type: 'questplus:choice',
+          text: {
+            en_us: 'Pick your reward',
+            fr_fr: 'Votre récompense',
+          },
+          data: {
+            description: {
+              en_us: 'One permanent selection',
+            },
+            options: [
+              {
+                type: 'item',
+                item: 'minecraft:diamond',
+                count: 2,
+              },
+              {
+                type: 'experience_levels',
+                amount: 2,
+              },
+            ],
+          },
+        },
+        {
+          type: 'questplus:random',
+          data: {
+            rolls: 2,
+            options: [
+              {
+                type: 'item',
+                item: 'minecraft:diamond',
+                count: 2,
+                weight: 3,
+              },
+              {
+                type: 'experience_levels',
+                amount: 2,
+                weight: 1,
+              },
+            ],
+          },
+        },
+        {
+          type: 'questplus:loot',
+          data: {
+            rolls: 1,
+            emptyWeight: 2,
+            options: [
+              {
+                type: 'item',
+                item: 'minecraft:diamond',
+                count: 2,
+                weight: 3,
+              },
+              {
+                type: 'experience_levels',
+                amount: 2,
+                weight: 1,
+              },
+            ],
+          },
+        },
+        {
+          type: 'questplus:all',
+          data: {
+            options: [
+              {
+                type: 'item',
+                item: 'minecraft:diamond',
+                count: 2,
+                weight: 3,
+              },
+              {
+                type: 'experience_levels',
+                amount: 2,
+                weight: 1,
+              },
+            ],
+          },
+        },
+        {
+          type: 'questplus:advancement',
+          data: {
+            advancement: 'minecraft:story/mine_stone',
+          },
+        },
+        {
+          type: 'questplus:message',
+          data: {
+            message: 'Well done',
+          },
+        },
+      ],
+    },
+  ],
+  afterLast: 'stop',
+}

@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {validRich,richToHtml,richText,imageBytes} from '../src/core/rich-format.js';
@@ -33,13 +34,13 @@ test('localized rich annotations survive QuestPlus export/import in original coo
  rich:{en_us:sample,fr_fr:[{type:'text',text:'Bienvenue',font:'alt'}]}};
  p.categories[0].annotations=[note];
  assert.deepEqual(validate(p),[]);
- const json=fileMap(p).get('categories/engineering.json');
- const exported=JSON.parse(json);
+ const json=fileMap(p).get('categories/engineering.json5');
+ const exported=JSON5.parse(json);
  assert.deepEqual(exported.images,[png]);
  assert.equal(exported.annotations[0].rich.en_us[2].ref,0);
  assert.ok(!Object.hasOwn(exported.annotations[0].rich.en_us[2],'data'));
- const docs=[{name:'categories/engineering.json',content:json},
-  {name:'quests/engineering/automatic_furnace.json',content:fileMap(p).get('quests/engineering/automatic_furnace.json')}];
+ const docs=[{name:'categories/engineering.json5',content:json},
+  {name:'quests/engineering/automatic_furnace.json5',content:fileMap(p).get('quests/engineering/automatic_furnace.json5')}];
  const loaded=importDocuments(docs);
  assert.deepEqual(loaded.categories[0].annotations[0],note);
  assert.equal(loaded.categories[0].annotations[0].x,96);

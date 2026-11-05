@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -57,10 +58,10 @@ test('compatibility export carries future item versions separately from mod JSON
  assert.deepEqual(validate(p),[]);
  const files=fileMap(p);
  assert.ok(files.has('queststudio-compatibility.json'));
- const metadata=JSON.parse(files.get('queststudio-compatibility.json'));
+ const metadata=JSON5.parse(files.get('queststudio-compatibility.json'));
  assert.equal(metadata.targetMinecraftVersion,'26.3');
  assert.equal(metadata.iconVersions['minecraft:future_item'],'26.4');
- assert.equal(JSON.parse(files.get('quests/'+p.quests[0].id.split(':')[1]+'.json')).icon,'minecraft:future_item');
+ assert.equal(JSON5.parse(files.get('quests/'+p.quests[0].id.split(':')[1]+'.json5')).icon,'minecraft:future_item');
  const pack=makeZip(files),documents=await readZip(pack),reimport=importDocuments(documents);
  assert.equal(reimport.iconVersions['minecraft:future_item'],'26.4');
  assert.equal(reimport.targetMinecraftVersion,'26.3');

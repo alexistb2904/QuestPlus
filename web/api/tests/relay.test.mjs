@@ -86,6 +86,10 @@ test('Hub enforces browser approval and immutable packs before Minecraft publish
   const complete=await api(base,'/v1/editor/sessions/'+id+'/jobs/'+job.id,{key:auth});
   assert.equal(complete.data.status,'applied');
   assert.notEqual(complete.data.revision,data.data.revision);
+  const json5Files=files.map(f=>f.name.startsWith('quests/')?{name:'quests/demo.json5',content:"// Authored by Studio\n{id:'questplus:demo',schemaVersion:2,objectives:[],}"}:f);
+  assert.equal((await api(base,'/v1/packs',{method:'POST',body:{files:json5Files}})).status,201);
+  assert.equal((await api(base,'/v1/packs',{method:'POST',body:{files:json5Files.map(f=>f.name==='config.json'?{...f,content:'{schemaVersion:1}'}:f)}})).status,400);
+  assert.equal((await api(base,'/v1/packs',{method:'POST',body:{files:json5Files.map(f=>f.name.endsWith('.json5')?{...f,content:'{broken'}:f)}})).status,400);
   const saved=await api(base,'/v1/packs',{method:'POST',body:{files}});
   assert.equal(saved.status,201);
   assert.equal((await api(base,'/v1/server/packs/'+saved.data.id,{key})).status,200);

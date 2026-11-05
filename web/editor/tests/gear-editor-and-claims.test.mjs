@@ -69,7 +69,7 @@ test('claim-all remains a single server-authorized action with durable sequentia
  const network=read('../../../server/src/main/java/dev/questplus/fabric/QuestNetwork.java');
  assert.match(network,/case "claim_all" -> runtime\.claimAll\(player\)/);
  assert.match(runtime,/private void claimNext\(ServerPlayer player,List<String> ids,int index\)/);
- assert.match(runtime,/claim\(player,ids\.get\(index\),\(\) ->/);
+ assert.match(runtime,/claim\(player,grant\.questId\(\),key,\(\) ->/);
  assert.match(runtime,/visibleQuests\(uuid\)/);
 });
 

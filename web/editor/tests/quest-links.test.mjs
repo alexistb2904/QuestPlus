@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {withPrerequisite,dependencyError} from '../src/core/quest-links.js';
@@ -29,7 +30,7 @@ test('unfinished language choices survive ZIP metadata without entering server q
  const files=fileMap(project),roundTrip=importDocuments(await readZip(makeZip(files)));
  assert.deepEqual(roundTrip.editorLocales,['de_de','ja_jp']);
  assert.deepEqual(roundTrip.quests[0].description,project.quests[0].description);
- for(const [name,json] of files)if(name.startsWith('quests/'))assert.equal(JSON.parse(json).editorLocales,undefined);
+ for(const [name,json] of files)if(name.startsWith('quests/'))assert.equal(JSON5.parse(json).editorLocales,undefined);
  const bad=[{name:'queststudio-compatibility.json',content:JSON.stringify({editorLocales:['not a language']})}];
  assert.throws(()=>importDocuments(bad),/language/);
 });

@@ -1,4 +1,5 @@
 import http from 'node:http';
+import JSON5 from 'json5';
 import {randomBytes,timingSafeEqual,createHash} from 'node:crypto';
 import {mkdir,readFile,writeFile,readdir,unlink} from 'node:fs/promises';
 import path from 'node:path';
@@ -24,7 +25,7 @@ const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('h
 const equal=(a,b)=>{const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length===y.length&&timingSafeEqual(x,y)};
 const fail=(code,message)=>Object.assign(new Error(message),{status:code});
 const json=(res,status,value)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(value));};
-const allowedFile=p=>/^(?:config\.json|queststudio-compatibility\.json|(?:quests|categories)\/[a-z0-9_./-]+\.json)$/.test(p)&&!p.split('/').includes('..')&&!p.startsWith('/');
+const allowedFile=p=>/^(?:config\.json|queststudio-compatibility\.json|(?:quests|categories)\/[a-z0-9_./-]+\.json5?)$/.test(p)&&!p.split('/').includes('..')&&!p.startsWith('/');
 function documents(value){
  if(!Array.isArray(value)||value.length>2000)throw fail(400,'Invalid documents');
  const seen=new Set();let total=0,quest=0,category=0;
@@ -33,7 +34,7 @@ function documents(value){
   seen.add(f.name);total+=Buffer.byteLength(f.content);if(total>MAX_BYTES)throw fail(413,'Pack too large');
   if(f.name.startsWith('quests/'))quest++;
   if(f.name.startsWith('categories/'))category++;
-  try {JSON.parse(f.content)}catch{throw fail(400,'Invalid JSON document: '+f.name)}
+  try {(f.name.endsWith('.json5')?JSON5:JSON).parse(f.content)}catch{throw fail(400,'Invalid JSON document: '+f.name)}
  }
  if(!seen.has('config.json')||!quest||!category)throw fail(400,'Missing quests, categories or config');
  return value;

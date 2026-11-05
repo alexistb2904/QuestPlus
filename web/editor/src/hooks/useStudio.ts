@@ -246,6 +246,18 @@ export function useStudio() {
 		},'route:'+from+'>'+to);
 	}
 	function action(kind: string, index = 0) {
+        if(kind.startsWith('save-reward-table:')){
+            const selected=state.project.quests.find(q=>state.selection?.type==='quest'&&q.id===state.selection.id);
+            const reward=kind.slice('save-reward-table:'.length).split('.').reduce((value:any,key)=>value?.[key],selected);
+            if(!reward)return;
+            const name=prompt(tUI('Save named table'),text(reward.text,'en_us')||tUI('Reward table'))?.trim();
+            if(!name||name.length>80)return;
+            const existing=state.project.rewardTables?.some(table=>table.name===name);
+            if(existing&&!confirm(tUI('Replace this saved table?')))return;
+            mutate(s=>{s.project.rewardTables=[...(s.project.rewardTables||[]).filter(table=>table.name!==name),{name,reward:copy(reward)}];});
+            return;
+        }
+
         if(kind==='save-as-template'){
             const selected=state.project.quests.find(q=>state.selection?.type==='quest'&&q.id===state.selection.id);
             if(!selected)return;
