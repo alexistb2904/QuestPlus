@@ -102,7 +102,7 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","objectiveThreshold","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
+            "objectiveMode","objectiveThreshold","progressBeforeUnlock","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
@@ -115,15 +115,16 @@ public final class QuestRegistry {
         long cooldown=o.has("cooldownSeconds") ? integer(o,"cooldownSeconds",0,31_536_000) : 0;
         long timeLimit=o.has("timeLimitSeconds") ? integer(o,"timeLimitSeconds",1,31_536_000) : 0;
         boolean noDeath=o.has("noDeath") && bool(o,"noDeath");
+        boolean progressBeforeUnlock=o.has("progressBeforeUnlock") && bool(o,"progressBeforeUnlock");
         String kind=o.has("kind") ? string(o,"kind") : "standard";
         if (!Set.of("standard","information").contains(kind)) throw new IllegalArgumentException("Invalid quest kind");
         String acknowledgement=o.has("acknowledgement") ? string(o,"acknowledgement") : "manual";
         if (!Set.of("manual","read_only").contains(acknowledgement) || (o.has("acknowledgement") && !kind.equals("information")))
             throw new IllegalArgumentException("Invalid information acknowledgement");
-        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode") || o.has("objectiveThreshold")
+        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode") || o.has("objectiveThreshold") || progressBeforeUnlock
                 || cooldown!=0 || timeLimit!=0 || noDeath))
             throw new IllegalArgumentException("Information quests require schemaVersion 2 and once progression without timers or tiers");
-        if (version==1 && (o.has("objectiveMode") || o.has("objectiveThreshold") || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
+        if (version==1 && (o.has("objectiveMode") || o.has("objectiveThreshold") || progressBeforeUnlock || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
             throw new IllegalArgumentException("Advanced progression requires schemaVersion 2");
         List<QuestDefinition.Objective> objectives = new ArrayList<>(); Set<String> ids = new HashSet<>();
         if (array(o,"objectives").size() > 256) throw new IllegalArgumentException("Too many objectives");
@@ -174,10 +175,11 @@ public final class QuestRegistry {
         if(mode.equals("at_least")||objectives.stream().anyMatch(QuestDefinition.Objective::optional))
             mechanical+="|selection-v1|"+objectiveThreshold+"|"+objectives.stream()
                 .map(x->x.id()+":"+x.optional()).collect(Collectors.joining(","));
+        if(progressBeforeUnlock)mechanical+="|flexible-v1";
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
             mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
-            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold);
+            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold,progressBeforeUnlock);
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
         Map<String,JsonArray> parsed=new HashMap<>();
