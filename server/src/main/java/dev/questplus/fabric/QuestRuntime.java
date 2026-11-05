@@ -503,6 +503,7 @@ public final class QuestRuntime implements AutoCloseable {
             try {
                 for (var reward : rewards) {
                     if (reward.type().equals("experience")) player.giveExperiencePoints(reward.amount());
+                    else if (reward.type().equals("experience_levels")) player.giveExperienceLevels(reward.amount());
                     else if (reward.type().equals("item")) for (var stack : stacks(reward)) {
                         if (!player.getInventory().add(stack) || !stack.isEmpty()) throw new IllegalStateException("Inventory changed during reward delivery");
                     }
@@ -530,7 +531,7 @@ public final class QuestRuntime implements AutoCloseable {
         return stacks;
     }
     private static boolean fits(ServerPlayer player,List<QuestDefinition.Reward> rewards) {
-        for (var reward:rewards) if (!Set.of("item","experience").contains(reward.type()) && !QuestRewardExtensions.fits(player,reward)) return false;
+        for (var reward:rewards) if (!Set.of("item","experience","experience_levels").contains(reward.type()) && !QuestRewardExtensions.fits(player,reward)) return false;
         List<ItemStack> slots = player.getInventory().getNonEquipmentItems().stream().map(ItemStack::copy).toList();
         var simulated = new ArrayList<>(slots);
         for (var reward : rewards) if (reward.type().equals("item")) for (ItemStack input : stacks(reward)) {
