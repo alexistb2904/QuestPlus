@@ -203,6 +203,25 @@ export function validate(p){
           fail(label,'Commande invalide');
         if(p?.config?.enableCommandRewards!==true)fail(label,'Activer les récompenses de commandes dans les paramètres du projet (serveur approuvé)');
       }
+      if(r.type==='questplus:choice'){
+        const options=r.data?.options;
+        if(!r.data||typeof r.data!=='object'||Array.isArray(r.data)||
+           Object.keys(r.data).sort().join(',')!=='options'||
+           !Array.isArray(options)||options.length<2||options.length>32)
+           fail(label,'Choix de récompense : 2 à 32 options requises');
+        for(const option of Array.isArray(options)?options:[]){
+          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option de récompense invalide');continue;}
+          if(option.type==='item'){
+            if(Object.keys(option).sort().join(',')!=='count,item,type'||!ID.test(option.item||'')||option.item==='minecraft:air'||
+               !Number.isInteger(option.count)||option.count<1||option.count>2304)
+              fail(label,'Option objet de récompense invalide');
+          }else if(['experience','experience_levels'].includes(option.type)){
+            if(Object.keys(option).sort().join(',')!=='amount,type'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
+              fail(label,'Option XP de récompense invalide');
+          }else fail(label,'Option de récompense au choix : type interdit');
+        }
+        expanded++;
+      }
       if(['questplus:random','questplus:loot','questplus:all'].includes(r.type)){
         const data=r.data;
         const options=data?.options,rolls=data?.rolls??1;
@@ -227,7 +246,7 @@ export function validate(p){
           }else fail(label,'Type de récompense aléatoire non reconnu');
         }
         if(weight>32000000)fail(label,'Poids de récompenses trop élevé');
-      } else expanded++;
+      } else if(r.type!=='questplus:choice') expanded++;
 
       if(['experience','experience_levels'].includes(r.type)&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
       else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
