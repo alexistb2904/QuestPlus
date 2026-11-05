@@ -451,7 +451,9 @@
                 "location",
                 "player_death",
                 "manual",
-                "xp_levels"
+                "xp_levels",
+                "item_submit",
+                "item_turn_in"
               ]
             },
             {
