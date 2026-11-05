@@ -381,6 +381,14 @@ export function useStudio() {
                 o.rewards.push({type:"questplus:command",data:{command:"say Quest completed"}});
                 return;
             }
+            if (kind === "add-choice") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:choice",data:{options:[
+                    {type:"item",item:"minecraft:diamond",count:1},
+                    {type:"experience_levels",amount:10}
+                ]}});
+                return;
+            }
             if (kind === "add-random") {
                 o.rewards ||= [];
                 o.rewards.push({type:"questplus:random",data:{rolls:1,options:[
