@@ -4,6 +4,8 @@ import {quest as newQuest} from './project.js';
 export const QUEST_TEMPLATES=Object.freeze([
   {id:'basic',label:'Empty quest',description:'One editable objective'},
   {id:'collect',label:'Resource collection',description:'Hold a quantity of an item'},
+  {id:'submit',label:'Resource submission',description:'Submit 16 iron ingots to a quest'},
+  {id:'turnin',label:'Resource hand-in',description:'Consume 16 iron ingots as partial deposits'},
   {id:'craft',label:'Crafting',description:'Craft a recipe output'},
   {id:'boss',label:'Boss challenge',description:'Kill a boss without dying'},
   {id:'explore',label:'Exploration',description:'Discover a biome and a structure'},
@@ -20,6 +22,8 @@ export function buildQuestFromTemplate(category,id,title,position,templateId='ba
   const step=(id,event,target,count=1,conditions=undefined)=>({id,event,target,count,...(conditions?{conditions}:{})});
   switch(templateId){
     case 'collect': q.icon='minecraft:iron_ingot';q.objectives=[step('collect','inventory_count','minecraft:iron_ingot',32)];break;
+    case 'submit':q.icon='minecraft:iron_ingot';q.objectives=[step('submit','item_submit','minecraft:iron_ingot',16)];break;
+    case 'turnin':q.icon='minecraft:iron_ingot';q.objectives=[step('turnin','item_turn_in','minecraft:iron_ingot',16)];break;
     case 'craft': q.icon='minecraft:crafting_table';q.objectives=[step('craft','item_craft','minecraft:crafting_table')];break;
     case 'boss': q.icon='minecraft:nether_star';q.objectives=[step('boss','entity_kill','minecraft:wither')];q.noDeath=true;q.rewards=[{type:'experience',amount:500}];break;
     case 'explore': q.icon='minecraft:compass';q.objectives=[step('biome','biome_visit','minecraft:desert'),step('structure','structure_visit','minecraft:desert_pyramid')];break;
