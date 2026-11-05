@@ -109,6 +109,7 @@ final class QuestHubService implements AutoCloseable {
         addIds(result,"biomes",server.registryAccess().lookupOrThrow(Registries.BIOME).keySet());
         addIds(result,"structures",server.registryAccess().lookupOrThrow(Registries.STRUCTURE).keySet());
         addIds(result,"dimensions",server.levelKeys().stream().map(k->k.identifier()).toList());
+        addIds(result,"statistics",BuiltInRegistries.CUSTOM_STAT.keySet());
         JsonObject tags=new JsonObject();
         tagIds(tags,"items",BuiltInRegistries.ITEM);
         tagIds(tags,"blocks",BuiltInRegistries.BLOCK);
