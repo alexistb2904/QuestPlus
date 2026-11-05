@@ -99,6 +99,7 @@ export const OBJECTIVE_UI=Object.freeze({
   equipment_check:{kind:'custom',amount:null},
   xp_levels:{kind:'custom',amount:'XP Levels'},
   custom_stat:{kind:'custom',amount:'Stat value'},
+  advancement_complete:{kind:'custom',amount:null},
   'questplus:fish_any':{kind:'custom',amount:'Fish'},
   manual:{kind:'manual',amount:'Confirmations'}
 });
@@ -118,7 +119,7 @@ export const changeObjectiveEvent=(objective,event,questId)=>{
   const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
   // Switching between related events must not erase an already chosen modded ID.
   const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','custom'].includes(newKind);
-  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='custom_stat'?'minecraft:jump':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
+  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
   const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
   const cleaned=removePositionCondition(objective.conditions);
   if(cleaned)next.conditions=cleaned;
@@ -192,5 +193,6 @@ export const EVENT_LABELS={
   "equipment_check": "Verified Equipment",
   "xp_levels": "Reach an XP level",
   "custom_stat": "Reach a Minecraft stat",
+  "advancement_complete": "Complete an advancement",
   "manual": "Manual confirmation"
 };
