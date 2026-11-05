@@ -13,6 +13,13 @@ public final class QuestExtensions {
     private static final Map<String,ConditionType> CONDITIONS = new ConcurrentHashMap<>();
     private static final Map<String,Consumer<JsonObject>> REWARDS = new ConcurrentHashMap<>();
     static {
+        REWARDS.put("questplus:advancement",data -> {
+            if(!data.keySet().equals(Set.of("advancement")) ||
+                    !data.has("advancement") || !data.get("advancement").isJsonPrimitive() ||
+                    !data.get("advancement").getAsJsonPrimitive().isString() ||
+                    !data.get("advancement").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
+                throw new IllegalArgumentException("Advancement reward requires a registered advancement ID");
+        });
         REWARDS.put("questplus:random",RewardTables::validate);
         REWARDS.put("questplus:loot",RewardTables::validateLoot);
         REWARDS.put("questplus:all",RewardTables::validateAll);
