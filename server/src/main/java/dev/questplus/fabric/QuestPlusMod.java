@@ -41,6 +41,8 @@ public final class QuestPlusMod implements ModInitializer {
         CommandRewards.install();
         TabletPoseNetwork.register();
         AdvancedEvents.register();
+        ObservationEvents.register();
+        ParityRewards.install();
         CommandRegistrationCallback.EVENT.register((dispatcher,access,environment) -> QuestCommands.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try {
@@ -65,7 +67,7 @@ public final class QuestPlusMod implements ModInitializer {
             QuestNetwork.clear();
             TabletPoseNetwork.clear();
         });
-        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); QuestNetwork.tick(server,++networkTicks); TabletPoseNetwork.tick(server); if(hub!=null)hub.tick(); } });
+        ServerTickEvents.END_SERVER_TICK.register(server -> { if (runtime != null) { runtime.tick(); AdvancedEvents.tick(server); ObservationEvents.tick(server); QuestNetwork.tick(server,++networkTicks); TabletPoseNetwork.tick(server); if(hub!=null)hub.tick(); } });
         ServerPlayConnectionEvents.DISCONNECT.register((handler,server) -> {
             if (runtime != null) runtime.disconnect(handler.player.getUUID());
             QuestNetwork.disconnect(handler.player.getUUID(),server);
@@ -106,6 +108,7 @@ public final class QuestPlusMod implements ModInitializer {
             "sneaking",player.isShiftKeyDown(),"tool",BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString()));
         context.putAll(AdvancedEvents.context(player));
         context.put("gear",AdvancedEvents.gearSnapshot(player));
+        context.put("stages",QuestStages.stages(player));
         return context;
     }
 }

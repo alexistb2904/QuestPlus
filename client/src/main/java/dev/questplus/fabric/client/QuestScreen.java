@@ -29,7 +29,30 @@ public final class QuestScreen extends Screen {
     private Map<QuestLayout.Edge,List<QuestLayout.Point>> routes=Map.of();
     private QuestCamera camera=new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM);
     private String category,selected,tab="quests",filter="all",confirmation;
-    private String submitObjective;
+    private String submitObjective,manualObjective;
+    private boolean rewardView,potentialRewards;
+    private int rewardPage,selectedOption=-1,choiceSlot=-1;
+    private String choiceToken;
+    private long pendingChoiceAt,rewardRevealAt;
+    private String rewardRevealKey;
+    private String rewardTitle="",rewardDescription="";
+    private record RewardCard(JsonObject reward,String label) {}
+    private List<RewardCard> rewardCards=List.of();
+    private record CategoryRow(String group,JsonObject category) {}
+    private final Set<String> collapsedGroups=new HashSet<>();
+    private List<CategoryRow> categoryRows=List.of();
+    private long categoryRowsRevision=-1;
+    private List<CategoryRow> categoryRows() {
+        if(categoryRowsRevision==state.catalogueRevision)return categoryRows;
+        var grouped=new LinkedHashMap<String,List<JsonObject>>();
+        for(var value:state.categories.values())grouped.computeIfAbsent(value.has("group")?value.get("group").getAsString():"",ignored->new ArrayList<>()).add(value);
+        var rows=new ArrayList<CategoryRow>();
+        grouped.forEach((name,values)->{
+            if(!name.isBlank())rows.add(new CategoryRow(name,null));
+            if(!collapsedGroups.contains(name))for(var value:values)rows.add(new CategoryRow(name,value));
+        });
+        categoryRows=List.copyOf(rows);categoryRowsRevision=state.catalogueRevision;return categoryRows;
+    }
     private EditBox search,input;
     private String query="";
     private int left,top,right,bottom,treeLeft,treeTop,treeRight,treeBottom,detailsScroll,categoryScroll,teamPage;
@@ -39,7 +62,7 @@ public final class QuestScreen extends Screen {
     private JsonObject lastTeam;
     private JsonArray lastInvitations;
     private final long opened=System.nanoTime();
-    private QuestButton questAction;
+    private QuestButton questAction,claimAllButton;
     private final List<QuestButton> hoverButtons=new ArrayList<>();
     private String hoverTitle;
     private String pendingManualQuest;
@@ -118,7 +141,7 @@ public final class QuestScreen extends Screen {
         treeRight=selected==null || overlayDetails ? right-7 : right-Math.min(170,fw*2/5);
         treeBottom=bottom-19;
         detailLeft=overlayDetails ? treeLeft : treeRight+8;
-        cachedLeft=Double.NaN; questAction=null;
+        cachedLeft=Double.NaN; questAction=null;claimAllButton=null;
         hoverButtons.clear();
         clearWidgets();
         int tabWidth=Math.min(78,(fw-35)/3);
@@ -146,7 +169,8 @@ public final class QuestScreen extends Screen {
                 claimAll.icon(icon("minecraft:chest"));
                 claimAll.setMessage(Component.literal(""));
                 claimAll.hoverText(t("claim_all"));
-                claimAll.active=state.progress.values().stream().anyMatch(p -> QuestClientState.flag(p,"claimable"));
+                claimAllButton=claimAll;
+                updateClaimAll();
             }
             if (selected!=null && state.quests.containsKey(selected)) detailsButtons();
         } else if (tab.equals("team")) teamWidgets();
@@ -213,8 +237,12 @@ public final class QuestScreen extends Screen {
         refreshCatalogue();
         if (sequence!=state.sequence) {
             sequence=state.sequence;
+            updateClaimAll();
             if (tab.equals("team") && (!Objects.equals(lastTeam,state.team) || !Objects.equals(lastInvitations,state.invitations))) init();
-            else if (tab.equals("quests") && selected!=null) updateQuestAction();
+            else if (tab.equals("quests") && selected!=null) { if(rewardView)init();else updateQuestAction(); }
+        }
+        if(pendingChoiceAt!=0 && (state.error!=null || System.currentTimeMillis()-pendingChoiceAt>5000)) {
+            pendingChoiceAt=0; if(rewardView)init(); sync();
         }
         if (pendingManualQuest!=null && System.currentTimeMillis()-pendingManualAt>2500L) {
             pendingManualQuest=null; updateQuestAction();
@@ -293,6 +321,7 @@ public final class QuestScreen extends Screen {
         }
         super.extractRenderState(g,mx,my,delta);
         drawBoundedHover(g,mx,my);
+        if(attachedToScreenFace)QuestToast.draw(g,width,height);
         if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
     }
@@ -325,11 +354,19 @@ public final class QuestScreen extends Screen {
             QuestSkin.text(g,font,rows.get(i),place.x()+6,place.y()+4+i*11,0xfff4e3c5,false);
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
-        var categories=new ArrayList<>(state.categories.values());
+        var categories=categoryRows();
         int count=Math.max(1,(treeBottom-treeTop)/26);
         categoryScroll=Math.clamp(categoryScroll,0,Math.max(0,categories.size()-count));
         for (int i=categoryScroll;i<Math.min(categories.size(),categoryScroll+count);i++) {
-            var c=categories.get(i); int x=left+9,y=treeTop+(i-categoryScroll)*26;
+            var row=categories.get(i);int x=left+9,y=treeTop+(i-categoryScroll)*26;
+            if(row.category()==null) {
+                QuestSkin.panel(g,x,y,22,22,0xff25211c,0xffa58b59);
+                g.item(icon("minecraft:bookshelf"),x+3,y+3);
+                g.text(minecraft.font,collapsedGroups.contains(row.group())?"+":"−",x+15,y+14,0xffffdf9c,false);
+                if(mx>=x&&mx<x+22&&my>=y&&my<y+22)hoverTitle=row.group();
+                continue;
+            }
+            var c=row.category();
             boolean active=c.get("id").getAsString().equals(category);
             QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
             g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
@@ -342,7 +379,7 @@ public final class QuestScreen extends Screen {
                 g.fill(x+16,y+16,x+20,y+20,marker);
             }
             if(mx>=x && mx<x+22 && my>=y && my<y+22)
-                hoverTitle=localized(c.getAsJsonObject("title"))+
+                hoverTitle=(c.has("group")&&!c.get("group").getAsString().isBlank()?c.get("group").getAsString()+" / ":"")+localized(c.getAsJsonObject("title"))+
                     (claimable?" · "+t("claim").getString():fresh?" · "+t("toast.unlocked").getString():"");
         }
         if (categories.size()>count) {
@@ -381,7 +418,7 @@ public final class QuestScreen extends Screen {
             if (!layout.points().isEmpty()) g.fill(bx+2,top+(41),bx+2+(int)((bar-4)*done/layout.points().size()),top+(42),0xffa37bab);
         }
         if (mx>=x && mx<x+w && my>=top+26 && my<treeTop)
-            hoverTitle=localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"));
+            hoverTitle=(c.has("group")&&!c.get("group").getAsString().isBlank()?c.get("group").getAsString()+" / ":"")+localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"));
     }
     private void drawPaper(GuiGraphicsExtractor g) {
         QuestSkin.panel(g,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,0xff38291f,0xff805d42);
@@ -432,10 +469,10 @@ public final class QuestScreen extends Screen {
             var p=layout.points().get(id); int x=(int)camera.screenX(p.x()),y=(int)camera.screenY(p.y()),r=nodeRadius(state.quests.get(id));
             // Scale the complete node, not just the distance to neighbouring nodes.
             g.pose().pushMatrix(); g.pose().translate(x,y); g.pose().scale((float)camera.zoom()); g.pose().translate(-x,-y);
-            QuestSkin.panel(g,x-r,y-r,2*r,2*r,0xff433a32,color(id));
-            if (r>7) g.outline(x-r+2,y-r+2,2*r-4,2*r-4,0xff625344);
+            drawQuestShape(g,state.quests.get(id).presentation().shape(),x,y,r,color(id));
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
-            g.pose().pushMatrix(); g.pose().translate(x-r/2f,y-r/2f); g.pose().scale(r/16f);
+            float iconSize=(float)(r*state.quests.get(id).presentation().iconScale());
+            g.pose().pushMatrix(); g.pose().translate(x-iconSize/2f,y-iconSize/2f); g.pose().scale(iconSize/16f);
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
             String progression=state.quests.get(id).progression();
             if (!progression.equals("once")) {
@@ -450,7 +487,7 @@ public final class QuestScreen extends Screen {
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
             g.pose().popMatrix();
             double hitRadius=r*camera.zoom();
-            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) hoverTitle=titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) hoverTitle=titles.get(id)+" · "+t("status."+statuses.get(id)).getString()+"\n"+state.text(state.quests.get(id).presentation().subtitle())
                 +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString());
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
@@ -516,6 +553,16 @@ public final class QuestScreen extends Screen {
             } finally { g.pose().popMatrix(); }
         }
     }
+    private void drawQuestShape(GuiGraphicsExtractor g,String shape,int x,int y,int radius,int edge) {
+        if(shape.equals("square")){QuestSkin.panel(g,x-radius,y-radius,radius*2,radius*2,0xff433a32,edge);return;}
+        g.pose().pushMatrix();g.pose().translate(x-radius,y-radius);g.pose().scale(radius/16f);
+        for(var span:QuestShape.spans(shape)) {
+            int start=span.start(),end=span.end(),row=span.row();
+            g.fill(start,row,end,row+1,edge);
+            if(end-start>2&&row>0&&row<31)g.fill(start+1,row,end-1,row+1,0xff433a32);
+        }
+        g.pose().popMatrix();
+    }
     private int nodeRadius(QuestDefinition quest){
         int size=quest==null||quest.size()==0?32:Math.max(1,quest.size());
         return size/2;
@@ -550,15 +597,21 @@ public final class QuestScreen extends Screen {
             double nr=nodeRadius(state.quests.get(e.getKey()))*camera.zoom();
             return sx+nr>=treeLeft&&sx-nr<=treeRight&&sy+nr>=treeTop&&sy-nr<=treeBottom;
         }).map(Map.Entry::getKey).toList();
-        visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())).filter(e -> {
+        visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())
+            && !state.quests.get(e.to()).presentation().hideDependencyLines() && !state.quests.get(e.from()).presentation().hideDependentLines()).filter(e -> {
             var a=layout.points().get(e.from()); var z=layout.points().get(e.to());
             return routes.containsKey(e) || Math.max(a.x(),z.x())>=l && Math.min(a.x(),z.x())<=r && Math.max(a.y(),z.y())>=t && Math.min(a.y(),z.y())<=b;
         }).toList();
     }
+    private void updateClaimAll() {
+        if(claimAllButton!=null)claimAllButton.active=state.progress.values().stream().anyMatch(p->QuestClientState.flag(p,"claimableAny"));
+    }
     private void detailsButtons() {
         int x=detailLeft,w=right-x-8;
+        if(rewardView){rewardButtons();return;}
         button("close_details",x,treeTop,w,() -> { selected=null; init(); });
-        var pinButton=button(settings.pinned.contains(selected) ? "unpin" : "pin",x,treeTop+18,w,() -> {
+        button("rewards",x+w/2+2,treeTop+18,w/2-2,()->{rewardView=true;potentialRewards=false;rewardPage=0;init();});
+        var pinButton=button(settings.pinned.contains(selected) ? "unpin" : "pin",x,treeTop+18,w/2-2,() -> {
             if(!settings.pinned.remove(selected) && !QuestClientState.flag(state.progress(selected),"completed")
                 && settings.pinned.size()<ClientSettings.MAX_PINNED)
                 settings.pinned.add(selected);
@@ -568,40 +621,43 @@ public final class QuestScreen extends Screen {
             (!QuestClientState.flag(state.progress(selected),"completed") && settings.pinned.size()<ClientSettings.MAX_PINNED);
         questAction=button("claim",x,treeTop+36,w,() -> {
             if (currentAction==null) return;
-            if (currentAction.equals("trigger")) {
+            if(currentAction.equals("choose")){rewardView=true;potentialRewards=false;rewardPage=0;init();return;}
+            if (Set.of("trigger","interact").contains(currentAction)) {
                 pendingManualQuest=selected;
                 pendingManualAt=System.currentTimeMillis();
             }
-            action(currentAction,currentAction.equals("submit") ? selected+"|"+submitObjective : selected);
+            action(currentAction,currentAction.equals("submit") ? selected+"|"+submitObjective : currentAction.equals("interact")?selected+"|"+manualObjective:selected);
             updateQuestAction();
         }); updateQuestAction();
     }
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
-        submitObjective=null;
-        if (!QuestClientState.flag(p,"completed") && QuestClientState.flag(p,"unlocked")) {
+        submitObjective=null;manualObjective=null;
+        if (!QuestClientState.flag(p,"terminal") && !QuestClientState.flag(p,"waitingRestart") && QuestClientState.flag(p,"unlocked")) {
             JsonObject counters=p==null?null:p.getAsJsonObject("counters");
-            int tierIndex=QuestClientState.count(p,"tier");
+            int tierIndex=(int)QuestClientState.count(p,"tier");
             long factor=q.progression().equals("tiered") && !q.tiers().isEmpty()
                 ? q.tiers().get(Math.min(tierIndex,q.tiers().size()-1)).threshold() : 1L;
             for(var objective:q.objectives()) {
                 long progress=counters!=null && counters.has(objective.id()) ? counters.get(objective.id()).getAsLong() : 0;
                 if(progress>=objective.count()*factor)continue;
                 if(Set.of("item_submit","item_turn_in").contains(objective.event()))submitObjective=objective.id();
-                if(q.objectiveMode().equals("sequence") || submitObjective!=null)break;
+                if(objective.event().equals("manual"))manualObjective=objective.id();
+                if(q.objectiveMode().equals("sequence") && !objective.optional() || submitObjective!=null || manualObjective!=null)break;
             }
         }
-        currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : (q.kind().equals("information") && q.acknowledgement().equals("manual") ||
+        currentAction=p.has("rewardState") && p.getAsJsonObject("rewardState").get("status").getAsString().equals("choice") ? "choose" : QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : manualObjective!=null?"interact":(q.kind().equals("information") && q.acknowledgement().equals("manual") ||
             q.objectives().stream().anyMatch(o -> o.event().equals("manual") && o.target().equals(q.id())))
-            && !QuestClientState.flag(p,"completed") ? "trigger" : submitObjective!=null ? "submit" : null;
+            && !QuestClientState.flag(p,"terminal") && !QuestClientState.flag(p,"waitingRestart") ? "trigger" : submitObjective!=null ? "submit" : null;
         questAction.visible=currentAction!=null;
-        boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
+        boolean pending=currentAction!=null && Set.of("trigger","interact").contains(currentAction) && Objects.equals(pendingManualQuest,selected)
             && System.currentTimeMillis()-pendingManualAt<2500L;
-        questAction.active=currentAction!=null && !pending && (currentAction.equals("claim") || QuestClientState.flag(p,"unlocked"));
-        if (currentAction!=null) questAction.setMessage(currentAction.equals("submit") ? Component.literal("Submit items") : t(pending ? "processing" : currentAction));
+        questAction.active=currentAction!=null && !pending && !QuestClientState.flag(p,"saving") && (Set.of("claim","choose").contains(currentAction) || QuestClientState.flag(p,"unlocked"));
+        if (currentAction!=null) questAction.setMessage(t(pending || QuestClientState.flag(p,"saving") ? "processing" : currentAction));
     }
     private void drawDetails(GuiGraphicsExtractor g) {
+        if(rewardView){drawRewardView(g);return;}
         var q=state.quests.get(selected); if (q==null) return;
         int x=detailLeft,w=right-x-8,y=treeTop+(55),end=bottom-(7);
         if (overlayDetails) QuestSkin.panel(g,treeLeft,treeTop,right-treeLeft-5,treeBottom-treeTop,0xff30251e,QuestSkin.EDGE);
@@ -609,7 +665,9 @@ public final class QuestScreen extends Screen {
         if (!Objects.equals(detailQuest,selected) || detailSequence!=state.sequence || detailWidth!=w || !Objects.equals(detailLanguage,minecraft.options.languageCode)) {
         detailQuest=selected; detailSequence=state.sequence; detailWidth=w; detailLanguage=minecraft.options.languageCode;
         List<DetailRow> lines=new ArrayList<>();
-        append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
+        append(lines,state.text(q.title()),w);
+        if(!q.presentation().subtitle().isEmpty())append(lines,state.text(q.presentation().subtitle()),w);
+        if(q.presentation().optional())append(lines,t("optional").getString(),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
         String description=state.text(q.description());
         List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
         var richDescription=q.descriptionRich()==null?null:selectRichDescription(q.descriptionRich(),minecraft.options.languageCode);
@@ -637,11 +695,12 @@ public final class QuestScreen extends Screen {
         if (!q.narrative().isEmpty()) append(lines,state.text(q.narrative()),w);
         var p=state.progress(q.id()); var counters=p.getAsJsonObject("counters");
         if (!q.kind().equals("information")) {
-        append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString(),w);
+        append(lines,t("objectives").getString()+" · "+t("mode."+q.objectiveMode()).getString()+(q.objectiveMode().equals("at_least")?" "+q.objectiveThreshold():""),w);
         for (var o:q.objectives()) {
             long value=counters!=null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
-            String label=objectiveLabelForDisplay(o);
-            appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p));
+            String label=objectiveLabelForDisplay(o)+(o.optional()?" · "+t("optional").getString():"");
+            if(Set.of("fluid_transfer","energy_transfer").contains(o.event()))label+=" · "+t("external_integration").getString();
+            appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p)+(o.event().equals("fluid_transfer")?" mB":o.event().equals("energy_transfer")?" FE":""));
         }
         } else if (!QuestClientState.flag(p,"completed"))
             append(lines,t(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),w);
@@ -650,8 +709,10 @@ public final class QuestScreen extends Screen {
         else if (!q.progression().equals("once") && QuestClientState.count(p,"cycles")>0)
             append(lines,t("repeat_count",QuestClientState.count(p,"cycles")).getString(),w);
         append(lines,t("rewards").getString(),w);
-        for (var r:q.rewards()) appendTile(lines,reward(r),w,rewardIcon(r));
-        for (var tier:q.tiers()) { append(lines,t("tier",tier.threshold()).getString(),w); for (var r:tier.rewards()) appendTile(lines,reward(r),w,rewardIcon(r)); }
+        var preview=state.rewardPreviews.getOrDefault(q.id(),new JsonArray());
+        for(var r:preview)appendTile(lines,rewardLabel(r.getAsJsonObject()),w,previewIcon(r.getAsJsonObject()));
+        var tierPreviews=state.tierRewardPreviews.getOrDefault(q.id(),new JsonArray());
+        for(int i=0;i<tierPreviews.size();i++) { append(lines,t("tier",q.tiers().get(i).threshold()).getString(),w);for(var r:tierPreviews.get(i).getAsJsonArray())appendTile(lines,rewardLabel(r.getAsJsonObject()),w,previewIcon(r.getAsJsonObject())); }
         if (q.timeLimitSeconds()>0) append(lines,t("time_limit",q.timeLimitSeconds()).getString(),w);
         if (q.noDeath()) append(lines,t("no_death").getString(),w);
         detailLines=List.copyOf(lines);
@@ -779,16 +840,105 @@ public final class QuestScreen extends Screen {
         } else if (id!=null && !o.target().startsWith("#") && BuiltInRegistries.ITEM.containsKey(id)) target=icon(o.target()).getHoverName().getString();
         return QuestPresentation.objectiveText(o,minecraft.options.languageCode,target);
     }
-    private ItemStack rewardIcon(QuestDefinition.Reward r) {
-        if (r.item()!=null) return icon(r.item());
-        return new ItemStack(Set.of("experience","experience_levels").contains(r.type()) ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
+    private ItemStack previewIcon(JsonObject reward) {
+        if(reward.has("icon"))return icon(reward.get("icon").getAsString());
+        if(reward.has("item"))return icon(reward.get("item").getAsString());
+        return new ItemStack(Set.of("experience","experience_levels").contains(reward.get("type").getAsString())?Items.EXPERIENCE_BOTTLE:Items.CHEST);
     }
-    // TODO(Codex P0): player-specific reward-choice picker in tablet, with disabled Claim
-    // until the server confirms /questplus choose persisted the concrete option.
-    private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("questplus:advancement") ?
-            "Advancement: "+com.google.gson.JsonParser.parseString(r.data()).getAsJsonObject()
-                .get("advancement").getAsString() :
-            r.type().equals("experience_levels") ? r.amount()+" XP levels" : r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
+    private String rewardLabel(JsonObject reward) {
+        String type=reward.get("type").getAsString();
+        String label=type.equals("item")?reward.get("count").getAsInt()+" × "+previewIcon(reward).getHoverName().getString():
+            type.equals("experience")?t("xp",reward.get("amount").getAsInt()).getString():
+            type.equals("experience_levels")?t("xp_levels",reward.get("amount").getAsInt()).getString():
+            Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all","questplus:advancement","questplus:message","questplus:command","questplus:stage","questplus:toast").contains(type)?t("reward_type."+type).getString():type;
+        if(reward.has("advancement"))label+=" · "+reward.get("advancement").getAsString();
+        if(reward.has("message"))label+=" · "+reward.get("message").getAsString();
+        if(reward.has("stage"))label+=" · "+(reward.get("remove").getAsBoolean()?"− ":"+ ")+reward.get("stage").getAsString();
+        if(type.equals("questplus:toast"))label+=" · "+rewardText(reward,"title")+" · "+rewardText(reward,"description");
+        String title=rewardText(reward,"text");
+        if(!title.isBlank())return title+" · "+label;
+        return label;
+    }
+    private String rewardText(JsonObject reward,String field) {
+        if(!reward.has(field) || !reward.get(field).isJsonObject())return "";
+        Map<String,String> translations=new HashMap<>();
+        reward.getAsJsonObject(field).entrySet().forEach(e->translations.put(e.getKey(),e.getValue().getAsString()));
+        return state.text(translations);
+    }
+    private void rewardButtons() {
+        int x=detailLeft,w=right-x-8;
+        button("back",x,treeTop,w,()->{rewardView=false;init();});
+        var p=state.progress(selected);
+        JsonObject receipt=p.has("rewardState")?p.getAsJsonObject("rewardState"):null;
+        button(potentialRewards?"actual_rewards":"possible_rewards",x,treeTop+18,w,()->{potentialRewards=!potentialRewards;rewardPage=0;init();}).active=receipt!=null;
+        JsonArray rewards=receipt!=null && !potentialRewards?receipt.getAsJsonArray("rewards"):state.rewardPreviews.getOrDefault(selected,new JsonArray());
+        int slot=-1;
+        if(receipt!=null && !potentialRewards && receipt.get("status").getAsString().equals("choice"))
+            for(int i=0;i<rewards.size();i++)if(rewards.get(i).getAsJsonObject().get("type").getAsString().equals("questplus:choice")){slot=i;break;}
+        String token=receipt==null?null:receipt.get("token").getAsString();
+        JsonObject table=slot>=0?rewards.get(slot).getAsJsonObject():null;
+        rewardTitle=table==null?"":rewardText(table,"text");
+        rewardDescription=table==null?"":rewardText(table,"description");
+        if(slot!=choiceSlot || !Objects.equals(token,choiceToken)) { choiceSlot=slot;choiceToken=token;selectedOption=-1;pendingChoiceAt=0;rewardPage=0; }
+        String revealKey=token+":"+(receipt==null?"preview":receipt.get("status").getAsString());
+        if(!Objects.equals(rewardRevealKey,revealKey)){rewardRevealKey=revealKey;rewardRevealAt=System.currentTimeMillis();}
+        List<RewardCard> cards=new ArrayList<>();
+        if(slot>=0)for(var option:rewards.get(slot).getAsJsonObject().getAsJsonArray("options"))cards.add(new RewardCard(option.getAsJsonObject(),rewardLabel(option.getAsJsonObject())));
+        else {
+            for(var value:rewards)appendRewardCards(cards,value.getAsJsonObject());
+            if(receipt==null || potentialRewards)for(var tier:state.tierRewardPreviews.getOrDefault(selected,new JsonArray()))for(var value:tier.getAsJsonArray())appendRewardCards(cards,value.getAsJsonObject());
+        }
+        rewardCards=List.copyOf(cards);
+        int pages=Math.max(1,(cards.size()+3)/4);rewardPage=Math.clamp(rewardPage,0,pages-1);
+        boolean saving=QuestClientState.flag(p,"saving") || pendingChoiceAt!=0;
+        for(int i=rewardPage*4;i<Math.min(cards.size(),rewardPage*4+4);i++) {
+            int option=i;var card=cards.get(i);
+            var widget=addRenderableWidget(new QuestButton(Component.literal(card.label()),x,treeTop+70+(i%4)*25,w,23,()->{selectedOption=option;init();}));
+            widget.icon(previewIcon(card.reward())).hoverText(Component.literal(card.label()+(rewardDescription.isBlank()?"":"\n"+rewardDescription))).selected(slot>=0 && selectedOption==i);
+            widget.active=slot>=0 && !saving;hoverButtons.add(widget);
+        }
+        button("previous",x,treeTop+172,w/3,()->{rewardPage--;init();}).active=rewardPage>0;
+        button("next",x+w*2/3,treeTop+172,w/3,()->{rewardPage++;init();}).active=rewardPage+1<pages;
+        if(slot>=0) {
+            var confirm=button(saving?"processing":"confirm_choice",x,treeTop+191,w,()->{
+                pendingChoiceAt=System.currentTimeMillis();
+                chooseReward(selected,choiceToken,choiceSlot,selectedOption);init();
+            });
+            confirm.active=!saving && selectedOption>=0;
+        } else if(!potentialRewards && QuestClientState.flag(p,"claimable"))button("claim",x,treeTop+191,w,()->action("claim",selected));
+    }
+    private void appendRewardCards(List<RewardCard> cards,JsonObject reward) {
+        if(!reward.has("options")){cards.add(new RewardCard(reward,rewardLabel(reward)));return;}
+        String type=reward.get("type").getAsString();
+        double total=reward.has("emptyWeight")?reward.get("emptyWeight").getAsDouble():0;
+        for(var option:reward.getAsJsonArray("options"))if(option.getAsJsonObject().has("weight"))total+=option.getAsJsonObject().get("weight").getAsDouble();
+        for(var value:reward.getAsJsonArray("options")) {
+            var option=value.getAsJsonObject();String chance="";
+            if(type.equals("questplus:all"))chance=" · 100%";
+            else if(option.has("weight"))chance=String.format(Locale.ROOT," · %.2f%%",option.get("weight").getAsDouble()*100/total);
+            cards.add(new RewardCard(option,rewardLabel(option)+chance));
+        }
+        if(reward.has("emptyWeight") && reward.get("emptyWeight").getAsInt()>0) {
+            var empty=new JsonObject();empty.addProperty("type","empty");
+            cards.add(new RewardCard(empty,t("no_rewards").getString()+String.format(Locale.ROOT," · %.2f%%",reward.get("emptyWeight").getAsDouble()*100/total)));
+        }
+    }
+    private void drawRewardView(GuiGraphicsExtractor g) {
+        int x=detailLeft,w=right-x-8;
+        var p=state.progress(selected);var receipt=p.has("rewardState")?p.getAsJsonObject("rewardState"):null;
+        String status=QuestClientState.flag(p,"saving")||pendingChoiceAt!=0?"processing":receipt==null||potentialRewards?"possible_rewards":receipt.get("status").getAsString().equals("choice")?"choose":"actual_rewards";
+        String title=rewardTitle.isBlank()||status.equals("processing")?t(status).getString():rewardTitle;
+        QuestSkin.text(g,font,font.plainSubstrByWidth(title,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+41,QuestSkin.INK,false);
+        String hint=receipt==null||potentialRewards?t("per_roll").getString():t("reward_status."+receipt.get("status").getAsString()).getString();
+        if(!rewardDescription.isBlank())hint=rewardDescription;
+        QuestSkin.text(g,font,font.plainSubstrByWidth(hint,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+54,QuestSkin.DIM,false);
+        QuestSkin.text(g,font,(rewardPage+1)+" / "+Math.max(1,(rewardCards.size()+3)/4),x+w/3+8,treeTop+177,QuestSkin.DIM,false);
+        if(settings.animations && !settings.reducedMotion && receipt!=null && !potentialRewards) {
+            double reveal=Math.clamp((System.currentTimeMillis()-rewardRevealAt)/400.0,0,1);
+            if(reveal<1)g.fill(x,treeTop+65,x+(int)(w*reveal),treeTop+66,QuestSkin.SELECTED);
+        }
+        if(rewardCards.isEmpty())QuestSkin.text(g,font,t("no_rewards").getString(),x,treeTop+75,QuestSkin.DIM,false);
+    }
     private String questName(String id) {
         var quest=state.quests.get(id);
         return quest==null?t("unknown_quest").getString():state.text(quest.title());
@@ -923,8 +1073,13 @@ public final class QuestScreen extends Screen {
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
         if (x>=left+8 && x<treeLeft-5 && y>=treeTop && y<treeBottom) {
-            int index=categoryScroll+(int)((y-treeTop)/26); var ids=new ArrayList<>(state.categories.keySet());
-            if (index<ids.size()) { selected=null; chooseCategory(ids.get(index)); init(); } return true;
+            int index=categoryScroll+(int)((y-treeTop)/26);var rows=categoryRows();
+            if(index<rows.size()) {
+                var row=rows.get(index);
+                if(row.category()==null){if(!collapsedGroups.add(row.group()))collapsedGroups.remove(row.group());categoryRowsRevision=-1;}
+                else {selected=null;chooseCategory(row.category().get("id").getAsString());}
+                init();
+            }return true;
         }
         if (!overlayDetails && inTree(x,y)) { dragging=true; dragged=false; downX=x; downY=y; return true; }
         return false;
@@ -963,7 +1118,7 @@ public final class QuestScreen extends Screen {
         event=new MouseButtonEvent(event.x(),event.y()-visualOffset,event.buttonInfo());
         if (dragging && event.button()==InputConstants.MOUSE_BUTTON_LEFT) {
             dragging=false;
-            if (!dragged && inTree(event.x(),event.y())) hitQuestAtScreen(event.x(),event.y()).filter(this::shown).ifPresent(id -> { selected=id; detailsScroll=0; init(); });
+            if (!dragged && inTree(event.x(),event.y())) hitQuestAtScreen(event.x(),event.y()).filter(this::shown).ifPresent(id -> { selected=id; rewardView=false;detailsScroll=0; init(); });
             return true;
         }
         return super.mouseReleased(event);
@@ -979,7 +1134,7 @@ public final class QuestScreen extends Screen {
         if (tab.equals("quests")) {
             if (x>=left+7 && x<treeLeft && y>=treeTop && y<treeBottom) {
                 int count=Math.max(1,(treeBottom-treeTop)/26);
-                categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,state.categories.size()-count)); return true;
+                categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,categoryRows().size()-count)); return true;
             }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
             if (inTree(x,y)) {
@@ -997,14 +1152,14 @@ public final class QuestScreen extends Screen {
             return true;
         }
         if (event.key()==InputConstants.KEY_RETURN && keyboardQuest!=null && !(getFocused() instanceof EditBox)) {
-            selected=keyboardQuest; detailsScroll=0; init(); return true;
+            selected=keyboardQuest;rewardView=false; detailsScroll=0; init(); return true;
         }
         if (event.key()!=InputConstants.KEY_ESCAPE && getFocused() instanceof EditBox box && box.isFocused()) return super.keyPressed(event);
         switch(event.key()) {
             case InputConstants.KEY_LEFT -> camera.pan(24,0); case InputConstants.KEY_RIGHT -> camera.pan(-24,0); case InputConstants.KEY_UP -> camera.pan(0,24); case InputConstants.KEY_DOWN -> camera.pan(0,-24);
             case InputConstants.KEY_HOME -> fit(); case InputConstants.KEY_EQUALS,InputConstants.KEY_ADD -> camera.zoomAt(QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0); case InputConstants.KEY_MINUS -> camera.zoomAt(1/QuestCamera.ZOOM_STEP,(treeLeft+treeRight)/2.0,(treeTop+treeBottom)/2.0);
             case InputConstants.KEY_J -> onClose();
-            case InputConstants.KEY_ESCAPE -> { if (selected!=null) { selected=null; init(); } else onClose(); }
+            case InputConstants.KEY_ESCAPE -> { if (selected!=null) { selected=null;rewardView=false; init(); } else onClose(); }
             default -> { return super.keyPressed(event); }
         }
         return true;

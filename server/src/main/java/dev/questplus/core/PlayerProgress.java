@@ -11,6 +11,13 @@ public final class PlayerProgress {
     public Set<String> legacyUnclaimed = new HashSet<>();
     public transient boolean migratedFromV1;
     public record RewardGrant(String questId,List<QuestDefinition.Reward> rewards) {}
+    public void entitle(String key,RewardGrant grant) {
+        if(claims.containsKey(key))return;
+        // Empty outcomes are display receipts, not a growing queue of claimable rewards.
+        entitlements.entrySet().removeIf(e->e.getValue().questId().equals(grant.questId())
+            && e.getValue().rewards().isEmpty() && !claims.containsKey(e.getKey()));
+        entitlements.putIfAbsent(key,grant);
+    }
     public static final class QuestProgress {
         public Map<String,Long> counters = new HashMap<>();
         public boolean completed;

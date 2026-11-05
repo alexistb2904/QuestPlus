@@ -32,7 +32,7 @@ public final class QuestIntegrationTest {
              "rewards":[],"progression":"once"%s}
             """;
         String valid="""
-            {"id":"questplus:diagram_fixture","title":{"en_us":"Diagram"},"description":{"en_us":"Fixture"},
+            {"id":"questplus:diagram_fixture","title":{"en_us":"Diagram"},"description":{"en_us":"Fixture"},"group":"Builders",
              "annotations":[{"id":"area","x":0,"y":0,"width":300,"height":180,"text":{},"style":"background","color":"#896f55"},
                 {"id":"caption","x":0,"y":-120,"text":{"en_us":"Aligned"},"style":"label","align":"right"}],
              "linkRoutes":[{"from":"questplus:diagram_a","to":"questplus:diagram_b","points":[{"x":20,"y":30}]}]}
@@ -48,6 +48,7 @@ public final class QuestIntegrationTest {
                 "Background and route survive actual registry reload");
             helper.assertTrue("right".equals(loaded.annotations().getLast().align()),
                 "Annotation alignment survives authoritative reload and client projection");
+            helper.assertTrue(loaded.group().equals("Builders")&&dev.questplus.clientdata.ClientProjection.categories(java.util.List.of(loaded),runtime.registry().all()).get(0).getAsJsonObject().get("group").getAsString().equals("Builders"),"Chapter group survives reload and projection");
             long generation=runtime.catalogGeneration();
             Files.writeString(category,valid.replace("\"align\":\"right\"", "\"align\":\"justify\""));
             boolean alignmentRejected=false; try { runtime.reload(); } catch (IllegalArgumentException expected) { alignmentRejected=true; }

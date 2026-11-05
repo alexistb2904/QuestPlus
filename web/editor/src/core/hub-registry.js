@@ -17,7 +17,7 @@ export function setHubRegistry(value){
  output.extensions=[];
  for(const e of Array.isArray(value?.extensions)?value.extensions.slice(0,128):[]){
   if(!e||!['event','condition','reward'].includes(e.kind)||!valid(e.id)||typeof e.label!=='string'||e.label.length>80||!Array.isArray(e.fields)||e.fields.length>20)continue;
-  const fields=e.fields.filter(f=>f&&/^[a-z][a-zA-Z0-9_]{0,39}$/.test(f.key)&&['string','integer','boolean','item','block','entity','biome','dimension','enchantment'].includes(f.type)&&typeof f.label==='string'&&f.label.length<=80).map(({key,type,label})=>({key,type,label}));
+  const fields=e.fields.filter(f=>f&&/^[a-z][a-zA-Z0-9_]{0,39}$/.test(f.key)&&['string','integer','boolean','item','block','entity','biome','dimension','enchantment','fluid','structure','statistic','advancement','effect'].includes(f.type)&&typeof f.label==='string'&&f.label.length<=80).map(({key,type,label})=>({key,type,label}));
   if(fields.length===e.fields.length)output.extensions.push({kind:e.kind,id:e.id,label:e.label,fields});
  }
  current=output;

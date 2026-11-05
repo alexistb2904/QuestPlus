@@ -32,6 +32,18 @@ class OptionalObjectiveTest {
         assertEquals(0,engine.apply(player,breakBlock("minecraft:dirt")).size());
         assertEquals(1,engine.apply(player,breakBlock("minecraft:oak_log")).size());
     }
+    @Test void sequenceAcceptsOptionalActionsWithoutAdvancingRequiredSteps() throws Exception {
+        var engine=new QuestEngine(load("sequence",1));
+        var player=new PlayerProgress();
+        assertTrue(engine.apply(player,breakBlock("minecraft:diamond_ore")).isEmpty());
+        assertEquals(1L,player.quests.get("test:options").counters.get("bonus"));
+        assertFalse(player.quests.get("test:options").counters.containsKey("b"));
+        engine.apply(player,breakBlock("minecraft:dirt"));
+        assertFalse(player.quests.get("test:options").counters.containsKey("b"));
+        engine.apply(player,breakBlock("minecraft:stone"));
+        engine.apply(player,breakBlock("minecraft:dirt"));
+        assertEquals(1,engine.apply(player,breakBlock("minecraft:oak_log")).size());
+    }
     @Test void atLeastTwoOfThreeAllowsAnyCombination() throws Exception {
         QuestEngine engine=new QuestEngine(load("at_least",2));
         var player=new PlayerProgress();

@@ -3,7 +3,8 @@ import {Package} from 'lucide-react';
 import {Dialog} from './Dialog';
 import {vanillaCatalog,iconUrl,blockIconUrl,blockExists,inVanillaRegistry,loadVanillaIcons} from '../ui/minecraft-icons.js';
 import {tUI} from '../ui/ui-i18n.js';
-import {BIOMES,STRUCTURES,ENTITIES} from '../core/objective-targets.js';
+import {BIOMES,STRUCTURES,ENTITIES,DIMENSIONS} from '../core/objective-targets.js';
+import {ENCHANTMENTS_26_3} from '../data/vanilla-enchantments-26.3.js';
 import {hubTargets} from '../core/hub-registry.js';
 
 export function ItemIcon({id,version='26.3',size=30}:{id?:string;version?:string;size?:number}){
@@ -38,13 +39,16 @@ export function IconPicker({onPick,onClose}:{onPick:(value:string)=>void;onClose
 }
 
 /** A searchable vanilla catalogue with an unrestricted namespaced-ID input for modded content. */
-export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement'|'fluid';onPick:(value:string)=>void;onClose:()=>void}){
+export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement'|'fluid'|'dimension'|'enchantment'|'effect';onPick:(value:string)=>void;onClose:()=>void}){
  const [search,setSearch]=useState(''),[limit,setLimit]=useState(96),[custom,setCustom]=useState('');
  const catalogue=useMemo(()=>{
    let defaults:string[];
    if(kind==='biome')defaults=BIOMES;
    else if(kind==='structure')defaults=STRUCTURES;
    else if(kind==='entity')defaults=ENTITIES;
+   else if(kind==='dimension')defaults=DIMENSIONS.map(([id])=>id);
+   else if(kind==='enchantment')defaults=ENCHANTMENTS_26_3.map(e=>e.id);
+   else if(kind==='effect')defaults=[];
    else if(kind==='statistic'||kind==='advancement'||kind==='fluid')defaults=kind==='fluid'?['minecraft:water','minecraft:lava']:[];
    else defaults=vanillaCatalog().filter((item:any)=>kind==='block'?item.kind==='block'||item.kind==='both':item.kind==='item'||item.kind==='both').map((item:any)=>item.id);
    return [...new Set([...defaults,...hubTargets(kind)])].sort();

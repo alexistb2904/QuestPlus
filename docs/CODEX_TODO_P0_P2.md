@@ -1,45 +1,67 @@
-# Quest Plus — TODO Codex handoff (P0 → P2)
+# Quest Plus — suivi Codex P0–P2
 
-> Scope: stacked PR #29 (FTB migration) and #27 (modpack authoring). The user requested merging both while retaining an explicit unfinished-work backlog. **Merged does not mean production-ready.**
+Mise à jour du 5 novembre 2026, après les PR #27/#29 et l'intégration des récompenses dans les interfaces.
+Une case cochée correspond aux limites de validation décrites ci-dessous. Le projet ne revendique pas encore une parité complète avec FTB Quests.
 
-## P0 — correctness / security (do before shipping to a real multiplayer world)
+## Vérifié sur le checkout
 
-- [ ] **Run and fix CI**: Java 25 / Fabric Minecraft 26.3 `./gradlew build integrationTest`, then `cd web/editor && npm ci && npm run typecheck && npm test && npm run build`. No successful run was witnessed during the connector-only implementation. Fix compile failures, failing tests and old tests affected by new enums, then rerun.
-- [ ] **Test reward choice end-to-end**, especially `/questplus choose <quest> <1-based-option>` → async entitlement save → `/questplus claim`; verify storage failure, disconnect, replay protection, multiple reward cycles, team entitlements and two choices in one reward list. The current command chooses the first unresolved choice reward in the earliest entitlement. Design an explicit choice-index protocol for multiple choices; block ambiguous cases until handled.
-- [ ] **In-tablet selection UI**: render options from the *personal entitlement* (not just quest definition), send a dedicated authenticated client-to-server choice packet or a safe server-command callback, await persisted acknowledgement, then enable Claim. No command concatenation from untrusted client strings.
-- [ ] **Item hand-in crash safety**: inventory consumption + player progress persistence are not atomic. Refactor to a persisted transaction/idempotency record, durable reservation and recovery on crash / write failure. Test full inventory, tags, duplicate packets, team play, server restart, logout during write and reentrancy. Do not claim exactly-once semantics until verified.
-- [ ] **Rewards reservation recovery**: reserved claims after a partial claim/fault need an audited admin recovery route and tests; vanilla inventory and progress JSON cannot atomically commit as currently implemented.
-- [ ] **GameTest/real-world smoke tests** on disposable world with at least 2 players, modded items and fluids; verify JSON5 Quest Hub publish, backup, rollback and malicious/oversized pack rejection.
-- [ ] **Review `QuestRuntime.chooseReward` persistence**: `persistCurrent` uses async storage, and a race may be possible between two updates of the same user; verify `busy` lifecycle, player/team snapshots and error reporting, inspect invalid choice data and `claim` blocking.
-- [ ] **Authoring/engine parity**: validate allowed event IDs, state/action quantities, conditions and rewards on both sides, unknown IDs and namespaced extension descriptors. Add tests that roundtrip Quest Studio export to actual server `QuestRegistry`.
+- [x] Java 25 : `gradlew.bat build integrationTest` ; 177 tests unitaires, sept GameTests serveur (dont le contrôle vanilla), contrôle des sauvegardes des 140 UUID après arrêt.
+- [x] Client réel : `gradlew.bat runClientGameTest` ; clics dans la tablette 3D, deux choix indépendants, confirmation persistée, attribution et rejet d'un rejeu. Captures initiales dans `docs/reviews/reward-integration/`, continuation dans `docs/reviews/ftb-parity/`.
+- [x] Studio : `npm ci`, `npm run typecheck`, `npm test` (138), `npm run build` ; API : `npm ci`, `npm test` (29). Lanceur Windows `scripts/_qa.bat api-test` vérifié.
+- [x] Revue indépendante : confusion de cycle dans Claim All et accumulation des reçus corrigées, avec régressions GameTest. Un seul reçu livré détaillé et un résultat vide au maximum sont conservés par quête ; les clés anti-rejeu restent conservées.
+- [ ] GitHub Actions est désactivé sur le dépôt (API vérifiée le 5 novembre) : aucun run/check distant pour ces commits. Les résultats ci-dessous sont locaux ; la PR reste brouillon.
 
-## P1 — modpack features
+## P0 — livré dans cette intégration
 
-- [ ] **Mod integrations**: `fluid_transfer` counts mB and `energy_transfer` counts FE only if a *trusted server mod* calls `QuestPlusApi.reportFluidTransferred` / `reportEnergyTransferred` after a real successful transfer. Write specific compatibility adapters and regression tests for each supported tech mod. Avoid spoofed or repeated transfer credit. Never silently count stored energy as transferred energy.
-- [ ] **Look-at / observation objective**: design tick-based server-authoritative raycasts, required dwell time, rate limits, dimension checks, block/entity targets and event deduplication.
-- [ ] **GameStages and other mod bridge objectives**: explicitly optional dependencies; no hard link required when integration mod absent. Version-gate adapters.
-- [ ] **Reward table sharing**: named reusable pools, reference integrity and recursion/cycle prevention, reward option limits, predictable snapshot on completion, authored Studio UI.
-- [ ] **Items with Data Components**: design safe exact/partial predicates for objectives, submissions and rewards; do not silently strip enchanted/renamed/charged metadata on migration or hand-in. Test registry reloads and persistence.
-- [ ] **Extension forms**: conditions and rewards have metadata-driven fields; add objective field forms, target picker integration, type-aware defaults, stronger client-side validation and backwards compatibility. Keep execution and validation on the trusted server.
-- [ ] **Migration of existing player progress when quest IDs/steps change**: fingerprinted migration preview, backup, explicit admin acceptance, integrity validation and rollback.
+- [x] Choix tablette depuis le droit personnel : paquet `ChooseReward(quest, token, slot, option)`, connexion du joueur comme identité, limitation de fréquence commune, validation serveur du droit/de l'option/de l'emplacement. Les anciens paquets ne peuvent ni sélectionner un nouveau cycle ni consommer un autre emplacement.
+- [x] Blocage de Claim pendant les choix et les écritures ; invalidation du snapshot après confirmation persistée. Un échec de stockage gèle la progression et n'autorise aucune attribution.
+- [x] Plusieurs choix par quête, droits individuels d'équipe, répétitions, déconnexion pendant le choix, restauration des valeurs concrètes et reprise après journal interrompu. Les commandes historiques restent disponibles ; la tablette n'exécute aucune commande textuelle.
+- [x] Aperçus filtrés des objets, XP, niveaux, advancements, messages et tables ; aucune commande ni donnée privée d'extension transmise. Possibilités et résultats serveur séparés, probabilités par tirage et révélation légère respectant le mouvement réduit.
+- [x] Collecte globale des droits concrets disponibles même si un autre cycle attend un choix. Ni tirage au moment de Claim, ni rejeu d'un reçu livré.
+- [x] Validation des identifiants d'objets/advancements dans les choix contre les registres installés, comme pour les autres tables.
+- [x] Interactions manuelles par objectif, y compris les marqueurs personnalisés : paquet joueur dédié à cette action, contexte scoped quête/objectif et commande historique réutilisant le même chemin. Un marqueur partagé ne valide pas une autre quête.
+- [x] Soumissions optionnelles dans les séquences : progression réelle sans sauter une étape obligatoire ; vérification des tags, main secondaire, mode de jeu, doublons et inventaire plein. Les soumissions non consommatrices de paliers vérifient toute l'exigence du palier ; les dépôts ne prélèvent pas silencieusement pour un palier supérieur.
+- [x] Fixture JSON5 réellement exportée par Studio, validée par les tests Node et chargée par `QuestRegistry` dans les tests Java.
 
-## P2 — polish/migration
+## P0 — reste bloquant avant certification multijoueur
 
-- [ ] **FTB legacy SNBT**, chapter groups, external translated text, decorations, item component predicates, nontrivial dependency quorums, third-party tasks/rewards, external/named loot/reward tables; import as warning+skip when semantics cannot be preserved. No drop of required conditions. Include source-ID maps and blocked quest counts in report.
-- [ ] **FTB import report UI**: report downloadable JSON is available; add an inline severity/selections list, confirm destructive replacement, preserve source backups, a comparison preview and rollback if publish fails.
-- [ ] **Bulk authoring**: current editor supports visibility, category, icon and additive XP/item rewards, with undo. Add objective transformation, per-quest preview, large-selection virtualization, multi-select on graph, copy/paste across categories, bulk tags and conflict diagnostics.
-- [ ] **Portable templates**: current personal JSON template library is browser-local. Add optional project-scoped reusable templates; version migration, localization, icon/media portability and import review.
-- [ ] **Studio internationalization**: translate all newly added action labels, dialogs and help to configured primary languages; keyboard and touch accessibility, responsive behavior.
-- [ ] **Document test matrices** for Fabric 26.3 dedicated server + Iris/shader combinations, multiplayer, registry-mod differences, server editor sessions and save reload.
+- [x] **Journal des remises et récupération de processus** : plan détaché, piles sérialisées par codec, marqueur sauvegardé avec l’inventaire vanilla, images JSON joueur/équipe et empreintes ; reprise avant/après save sans nouveau prélèvement. Régressions nouveau fichier `.tmp`, répétition infinie et dernier palier répétable.
+- [x] **Relecture vanilla complète** : marqueur seul insuffisant, décodage des 36 cases et de l’équipement de main secondaire par les codecs Minecraft, comparaison des composants persistants. Un écart conserve le journal et interdit commit/reprise ; noms et données personnalisées testés en GameTest.
+- [x] **Claims réservés** : `/questplus recovery inspect <uuid>` et `resolve <uuid> "<claim>" <delivered|discard> <reason>`, permissions OP et décision auditée atomiquement ; aucune réattribution automatique.
+- [ ] **Durabilité matérielle des remises** : tester coupure réelle à chaque frontière, disque plein et codecs de mods tiers. La relecture compare désormais les 37 piles et leurs composants persistants avec le plan, au commit et à la reprise ; pas de garantie de coupure électrique ni de borne mesurée de latence des barrières synchrones. `TODO(Codex)` dans `InventoryMarker.save`.
+- [ ] **Deux clients réels sur serveur dédié jetable** : la couverture actuelle utilise des joueurs simulés dans le serveur Fabric et un client réel avec serveur intégré. Tester objets moddés, fluides, redémarrages, publication Hub/backup/rollback et packs malveillants/surdimensionnés.
+- [ ] **Parité complète d'authoring** : les nouvelles récompenses ont un roundtrip partagé ; étendre ce contrat à tous les événements, quantités, conditions, descripteurs et exports de migration.
 
-## Known implementation markers
+## P1 — outils de création et intégrations
 
-- `server/src/main/java/dev/questplus/fabric/QuestRuntime.java`: `chooseReward`, `submitItem`, `claim` — async persistence, delivery, crash safety.
-- `server/src/main/java/dev/questplus/core/RewardTables.java`: `validateChoice`, `resolve`, `choose`; currently resolves the first undecided choice via command.
-- `client/src/main/java/dev/questplus/fabric/client/QuestScreen.java`: add a player-specific selection UI.
-- `server/src/main/java/dev/questplus/fabric/api/QuestPlusApi.java`: adapter contract for trusted fluids/FE events.
-- `web/editor/src/components/QuestDetails.tsx`: choice reward authoring; `Inspector.tsx`: condition descriptors.
-- `web/editor/src/core/ftb-import.js`: conservative JSON5 conversion; `useStudio.ts`: migration/report preview.
-- `web/editor/src/components/BulkEditor.tsx` / `TemplateLibrary.tsx`: more authoring workflows.
+- [x] Éditeur graphique commun aux récompenses normales et aux paliers : ajouter/supprimer/réordonner, choix, random/loot/all, poids, tirages, vide, pourcentages, simulation sans attribution, sélecteurs d'objets/advancements et champs des récompenses d'extension.
+- [x] Titres d'options et descriptions de choix traduisibles, aperçu de cartes, erreurs bloquant l'export. Nouveaux libellés anglais/français/espagnol/chinois ; contrôles clavier natifs et vérification visuelle bureau/390 px.
+- [x] Tables nommées portables dans les métadonnées du projet et du Hub, insérées comme **copies indépendantes** dans les quêtes. Les tables imbriquées, références circulaires et commandes dans les pools sont rejetées.
+- [x] **Références de tables** : résolution des `questplus:table` avant activation du registre, cycles/noms inconnus/profondeur bornée, bibliothèque éditable et validation d’export ; les anciens droits restent concrets.
+- [ ] **Caisses et compositions imbriquées** : objet ouvrable et Data Components, protocole de consommation/attribution durable et loot tables vanilla ; `TODO(Codex)` dans `NamedRewardTables`.
+- [ ] **Fluides/énergie** : seuls les appels Java serveur de confiance `reportFluidTransferred`/`reportEnergyTransferred` après un vrai transfert alimentent les objectifs. Écrire et tester chaque adaptateur de mod technique ; ne pas compter une capacité ou un stock comme un transfert.
+- [x] **Observation** : raycast serveur, bloc/entité/tags, durée continue, reset cible/dimension, progression et formulaires ; GameTest réel.
+- [x] **Stages et toast** : objectif/condition/récompense de stage, fournisseur serveur remplaçable et tags vanilla par défaut ; toast traduisible reçu par client natif. Fournisseur d’un mod tiers toujours à intégrer au modpack.
+- [x] **Dépendances et présentation** : commencée/quorum, sous-titres/tags/formes/échelle, quête optionnelle, réglages de visibilité/texte/détails/liens et toast ; masquage appliqué côté serveur.
+- [x] **Groupes de chapitres** : champ validé `group`, bibliothèque Studio et groupes repliables natifs. Import des définitions/traductions de groupes FTB encore partiel.
+- [ ] **Data Components** : prédicats exacts/partiels et sauvegarde des objets enchantés, renommés ou chargés lors des récompenses/imports/soumissions.
+- [x] **Paramètres d’objectifs d’extension** : données `data` ≤16 KiB, validateur et prédicat Java obligatoires pour des données non vides, formulaire de descripteur ; sélecteurs de registres dans les trois types de formulaires. Test de collision entre types d’état.
+- [ ] **Extensions dans les pools** : les pools acceptent objets, XP/niveaux, advancements, messages, stages et toasts intégrés. Les handlers tiers requièrent encore un contrat d’aperçu/validation explicite ; commandes et pools imbriqués restent rejetés.
+- [ ] **Migration de progression** : aperçu par fingerprint, backup, acceptation administrateur explicite et rollback quand les IDs/étapes changent.
 
-**Do not remove TODOs solely because the PRs were merged. Mark each item only after implementation, tests and verification.**
+## P2 — migration et finition
+
+- [ ] **FTB** : ancien SNBT, groupes de chapitres, traductions externes, décorations, Data Components, quorums complexes et objectifs/récompenses tiers. Conserver warning+skip lorsque la sémantique n'est pas préservée ; ne jamais supprimer silencieusement un prérequis.
+- [x] **Revue d’import FTB** : rapport inline filtrable, IDs et exclusions explicites, téléchargement des sources, confirmation/annulation et undo. Parcours navigateur vérifié.
+- [ ] **Revue avancée** : sélection partielle, aperçu comparatif par quête et restauration explicite après publication rejetée.
+- [ ] **Édition en masse** : transformations d'objectifs, aperçu par quête, virtualisation, multi-sélection du graphe, copie entre catégories, tags et diagnostics de conflits ; préserver undo.
+- [x] **Modèles portables** : snapshots dans les métadonnées projet/ZIP/Hub et copie explicite entre bibliothèque personnelle et projet ; couverture de roundtrip.
+- [ ] **Modèles avancés** : revue de conflits/versionnement et médias externes portables.
+- [ ] **Internationalisation globale** : les nouvelles interfaces récompenses sont traduites ; reprendre les anciens libellés encore anglais, dont les options projet et les messages d'import. Les textures externes manquantes ont un fallback mais peuvent produire des 404 navigateur.
+- [ ] **Matrice de compatibilité** : serveur dédié 26.3, deux clients, Iris/shaders, registres divergents, sessions Hub et reprise des sauvegardes. Le test client de base n'est pas cette matrice complète.
+
+Voir [comparatif FTB](ftb-quests-gap-analysis.md) et [preuves de validation](reviews/reward-integration/README.md).
+
+## Validation de cette continuation
+
+Revue indépendante : quatre défauts corrigés (collision d’états, `all_started`, SNBT sans virgules, collisions d’identifiants de stage). Test additionnel de 5 000 polls pendant une sauvegarde : les snapshots resondés ne saturent plus la file. Source et périmètre exacts : [comparatif FTB](ftb-quests-gap-analysis.md), [preuves](reviews/ftb-parity/README.md). La PR reste brouillon tant que les écarts bloquants ci-dessus sont ouverts.

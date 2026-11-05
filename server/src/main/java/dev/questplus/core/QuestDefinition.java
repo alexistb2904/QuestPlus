@@ -7,7 +7,20 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
     Map<String,String> description, List<Objective> objectives, Condition requires,
     List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
     String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
+    String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich, int objectiveThreshold, boolean progressBeforeUnlock, Presentation presentation) {
+    public QuestDefinition(String id, String category, String icon, Map<String,String> title,
+    Map<String,String> description, List<Objective> objectives, Condition requires,
+    List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
+    String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
     String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich, int objectiveThreshold, boolean progressBeforeUnlock) {
+        this(id,category,icon,title,description,objectives,requires,rewards,progression,layout,narrative,fingerprint,objectiveMode,tiers,afterLast,cooldownSeconds,timeLimitSeconds,noDeath,kind,acknowledgement,hidden,size,descriptionRich,objectiveThreshold,progressBeforeUnlock,Presentation.DEFAULT);
+    }
+    public QuestDefinition { if(presentation==null)presentation=Presentation.DEFAULT; }
+    public record Presentation(Map<String,String> subtitle,List<String> tags,String shape,double iconScale,boolean optional,
+        boolean disableCompletionToast,boolean hideDetailsUntilUnlocked,boolean hideTextUntilCompleted,
+        boolean invisibleUntilCompleted,int invisibleUntilTasks,boolean hideDependencyLines,boolean hideDependentLines) {
+        public static final Presentation DEFAULT=new Presentation(Map.of(),List.of(),"square",1,false,false,false,false,false,0,false,false);
+    }
     public QuestDefinition(String id, String category, String icon, Map<String,String> title,
         Map<String,String> description, List<Objective> objectives, Condition requires,
         List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
@@ -48,9 +61,12 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
         this(id,category,icon,title,description,objectives,requires,rewards,progression,layout,narrative,fingerprint,
             objectiveMode,tiers,afterLast,cooldownSeconds,timeLimitSeconds,noDeath,kind,acknowledgement,false,32);
     }
-    public record Objective(String id, String event, String target, long count, Map<String,String> text, Condition conditions, boolean optional) {
+    public record Objective(String id, String event, String target, long count, Map<String,String> text, Condition conditions, boolean optional,String data) {
+        public Objective(String id,String event,String target,long count,Map<String,String> text,Condition conditions,boolean optional) {
+            this(id,event,target,count,text,conditions,optional,"{}");
+        }
         public Objective(String id,String event,String target,long count,Map<String,String> text,Condition conditions) {
-            this(id,event,target,count,text,conditions,false);
+            this(id,event,target,count,text,conditions,false,"{}");
         }
     }
     public record Reward(String type, String item, int count, int amount, String data, Map<String,String> text) {
@@ -65,6 +81,8 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
                 case "or" -> children.stream().anyMatch(c -> c.matches(context, completed));
                 case "not" -> !children.getFirst().matches(context, completed);
                 case "quest" -> completed.contains(value);
+                case "started" -> completed.contains("@started:"+value);
+                case "at_least" -> children.stream().filter(c->c.matches(context,completed)).count()>=Integer.parseInt(value);
                 case "healthAtMost" -> context.get("health") instanceof Number n && n.doubleValue() <= Double.parseDouble(value);
                 case "healthAtLeast" -> context.get("health") instanceof Number n && n.doubleValue() >= Double.parseDouble(value);
                 case "sneaking" -> context.get("sneaking") instanceof Boolean b && b == Boolean.parseBoolean(value);
@@ -74,7 +92,7 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
             };
         }
         public void questReferences(Set<String> out) {
-            if (operator.equals("quest")) out.add(value);
+            if (operator.equals("quest") || operator.equals("started")) out.add(value);
             children.forEach(c -> c.questReferences(out));
         }
     }

@@ -48,7 +48,7 @@ export async function readZip(file){
     if(pos+46+n+extra+comment>bytes.length)throw Error('Fichier ZIP tronqué');
     const name=decoder.decode(bytes.subarray(pos+46,pos+46+n));
     pos+=46+n+extra+comment;
-    if(name.endsWith('/')||!/\.json5?$/i.test(name))continue;
+    if(name.endsWith('/')||!/\.(?:json5?|snbt|txt)$/i.test(name))continue;
     if(name.includes('..')||name.startsWith('/')||name.includes('\\'))throw Error('Chemin ZIP non autorisé : '+name);
     if((flag&1)!==0)throw Error('ZIP chiffré non pris en charge');
     if(![0,8].includes(method))throw Error('Compression ZIP non prise en charge : '+method);

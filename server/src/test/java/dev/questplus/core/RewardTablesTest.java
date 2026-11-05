@@ -6,6 +6,40 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RewardTablesTest {
+    @Test void translatedNativeOptionsValidateResolveAndCheckInstalledRegistries(@org.junit.jupiter.api.io.TempDir java.nio.file.Path root) throws Exception {
+        var data=JsonParser.parseString("""
+            {"description":{"en_us":"Choose wisely","fr_fr":"Choisissez bien"},"options":[
+             {"type":"questplus:advancement","data":{"advancement":"minecraft:story/mine_stone"},"text":{"en_us":"Stone Age"}},
+             {"type":"questplus:message","data":{"message":"Well done"}}
+            ]}
+            """).getAsJsonObject();
+        RewardTables.validateChoice(data);
+        var choice=new QuestDefinition.Reward("questplus:choice",null,0,0,data.toString(),Map.of());
+        assertEquals("Stone Age",RewardTables.choose(choice,0).text().get("en_us"));
+        assertEquals("questplus:message",RewardTables.choose(choice,1).type());
+        java.nio.file.Files.writeString(root.resolve("q.json"),"""
+            {"schemaVersion":1,"id":"questplus:test","category":"questplus:test","icon":"minecraft:stone","title":{"en_us":"Test"},
+             "progression":"once","objectives":[{"id":"x","event":"manual","target":"questplus:test","count":1}],
+             "rewards":[{"type":"questplus:choice","data":%s}]}
+            """.formatted(data));
+        var checked=new ArrayList<String>();
+        QuestRegistry.load(root,(kind,id)->checked.add(kind+":"+id));
+        assertTrue(checked.contains("advancement_complete:minecraft:story/mine_stone"));
+        assertThrows(IllegalArgumentException.class,()->QuestRegistry.load(root,(kind,id)->{
+            if(kind.equals("advancement_complete"))throw new IllegalArgumentException("Missing advancement");
+        }));
+    }
+    @Test void explicitSlotsAreImmutableAndDoNotConsumeAnotherChoiceOnReplay() {
+        var choice=new QuestDefinition.Reward("questplus:choice",null,0,0,
+            "{\"options\":[{\"type\":\"experience\",\"amount\":7},{\"type\":\"experience_levels\",\"amount\":2}]}",Map.of());
+        var grant=new PlayerProgress.RewardGrant("questplus:test",List.of(choice,choice));
+        var selected=RewardTables.choose(grant,1,0);
+        assertEquals("questplus:choice",selected.rewards().get(0).type());
+        assertEquals("experience",selected.rewards().get(1).type());
+        assertThrows(IllegalArgumentException.class,()->RewardTables.choose(selected,1,1));
+        assertThrows(IllegalArgumentException.class,()->RewardTables.choose(grant,-1,0));
+        assertEquals("questplus:choice",grant.rewards().get(1).type());
+    }
     @Test void weightedPoolResolvesToConcreteEntitlement() {
         JsonObject table=JsonParser.parseString("""
           {"rolls":3,"options":[

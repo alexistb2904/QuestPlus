@@ -6,7 +6,7 @@ import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions
 import {GearEditor,armorPreset} from './GearEditor';
 import {hubEditorDescriptors} from '../core/hub-registry.js';
 import {versionWarning} from '../ui/minecraft-icons.js';
-import {ItemIcon} from './IconPicker';
+import {ItemIcon,TargetPicker} from './IconPicker';
 import {RichEditor,DescriptionEditor} from './RichEditor';
 import {tUI} from '../ui/ui-i18n.js';
 import type {Project,Selection} from '../types';
@@ -37,35 +37,35 @@ function IconField({id,onUpdate,onChooseIcon,project}:{id:string;onUpdate:(v:str
   <button type="button" className="button secondary" onClick={onChooseIcon}>{tUI('Browse')}</button>
  </div>{versionWarning(project,id)&&<small className="version-alert">{versionWarning(project,id)}</small>}</div>;
 }
-// TODO(Codex P1): extend registry descriptors to objective parameters and support
-// typed modded value pickers; this condition form only covers declared scalar fields.
 export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{value:any;scope:string;project:Project;onChange:(next:any)=>void;currentQuestId?:string}){
+ const [picker,setPicker]=useState<{kind:any;pick:(id:string)=>void}|null>(null);
  const requires=scope==='requires';
  const available=project.quests.filter(q=>q.id&&q.id!==currentQuestId&&!(q.kind==='information'&&q.acknowledgement==='read_only')).map(q=>[q.id,text(q.title,'en_us')||q.id] as [string,string]);
  const mutate=(fn:(root:any)=>any)=>{try{onChange(fn(value))}catch(e){console.error(e)}};
  const newLeaf=()=>requires?{quest:available[0]?.[0]||''}:{dimension:'minecraft:overworld'};
  const add=(path:string,child:any)=>mutate(root=>addChild(root,path,child));
  const remove=(path:string)=>mutate(root=>setAt(root,path,null));
- const group=(path:string,kind:'and'|'or'|'not')=>mutate(root=>root?wrap(root,path,kind):{[kind]:kind==='not'?newLeaf():[newLeaf()]});
+ const group=(path:string,kind:'and'|'or'|'not'|'at_least')=>mutate(root=>root?wrap(root,path,kind):kind==='at_least'?{at_least:{count:1,of:[newLeaf()]}}:{[kind]:kind==='not'?newLeaf():[newLeaf()]});
  function render(node:any,path:string,depth:number):React.ReactNode{
   const child=childrenOf(node);
   if(child){
    return <div key={path} className={'cond-group depth-'+Math.min(depth,4)}>
     <div className="cond-group-head"><select className="cond-op" aria-label={tUI("Logical operator")} value={child.type} onChange={e=>group(path,e.target.value as any)}>
-     <option value="and">AND</option><option value="or">OR</option><option value="not">NOT</option>
-    </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>
+     <option value="and">AND</option><option value="or">OR</option><option value="not">NOT</option><option value="at_least">{tUI('At least N')}</option>
+    </select>{child.type==='at_least'&&<input type="number" min={1} max={child.children.length} aria-label={tUI('Required prerequisites')} value={node.at_least.count} onChange={e=>mutate(root=>setAt(root,path,{at_least:{...node.at_least,count:Number(e.target.value)}}))}/>}<button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>
     <div className="cond-children">{child.children.map((c:any,i:number)=>render(c,path?path+'.'+i:String(i),depth+1))}</div>
     {child.type!=='not'&&<div className="cond-tools"><button disabled={requires&&!available.length} onClick={()=>add(path,newLeaf())}>+ {tUI(requires?'Quest':'Condition')}</button></div>}
    </div>;
   }
   if(requires){
-   return <div className="cond-leaf" key={path}><select aria-label={tUI('Prerequisite quest')} value={node?.quest||''} onChange={e=>mutate(root=>setAt(root,path,{quest:e.target.value}))}>
-    <option value="">{tUI('Select quest…')}</option>{node?.quest&&!available.some(([id])=>id===node.quest)&&<option value={node.quest}>{node.quest}</option>}{available.map(([id,name])=><option key={id} value={id}>{name}</option>)}
+   const prerequisite=node?.started?'started':'quest',target=node?.[prerequisite]||'';
+   return <div className="cond-leaf" key={path}><select aria-label={tUI('Prerequisite state')} value={prerequisite} onChange={e=>mutate(root=>setAt(root,path,{[e.target.value]:target}))}><option value="quest">{tUI('Completed')}</option><option value="started">{tUI('Started')}</option></select><select aria-label={tUI('Prerequisite quest')} value={target} onChange={e=>mutate(root=>setAt(root,path,{[prerequisite]:e.target.value}))}>
+    <option value="">{tUI('Select quest…')}</option>{target&&!available.some(([id])=>id===target)&&<option value={target}>{target}</option>}{available.map(([id,name])=><option key={id} value={id}>{name}</option>)}
    </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>;
   }
  const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
  const extensions=hubEditorDescriptors('condition');
- const choices:[string,string][]=[...OBJECTIVE_KIN,['equipment','Equipment'],['position','Position'],['context','Context'],...extensions.map(d=>[d.id,d.label] as [string,string])];
+ const choices:[string,string][]=[...OBJECTIVE_KINDS,['equipment','Equipment'],['position','Position'],['context','Context'],...extensions.map(d=>[d.id,d.label] as [string,string])];
  const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},'questplus:gear':{items:armorPreset('iron')},position:{xMin:0},context:{key:'',equals:true}};
  const setKind=(next:string)=>mutate(root=>{
   const descriptor=extensions.find(d=>d.id===next);
@@ -84,10 +84,11 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
     kind==='position'?<div className="field-row">{['xMin','xMax','yMin','yMax','zMin','zMax'].map(axis=><label className="field" key={axis}><span>{axis}</span><input type="number" value={val?.[axis]??''} onChange={e=>{const next={...val};if(e.target.value==='')delete next[axis];else next[axis]=Number(e.target.value);mutate(root=>setAt(root,path,{position:next}));}}/></label>)}</div>:
     kind==='context'?<><input aria-label={tUI("Context key")} value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label={tUI("Context value (JSON)")} defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:
     extensions.some(d=>d.id===kind)&&val&&typeof val==='object'&&!Array.isArray(val)?<div className="field-row">
-     {extensions.find(d=>d.id===kind)!.fields.map((field:any)=><label key={field.key} className="field">
-       <span>{field.label}</span>{field.type==='boolean'?<input type="checkbox" checked={!!val[field.key]} onChange={e=>setMember(field.key,e.target.checked)}/>:
-       <input aria-label={field.label} type={field.type==='integer'?'number':'text'} value={val[field.key]??''}
-        onChange={e=>setMember(field.key,field.type==='integer'?Math.round(Number(e.target.value)||0):e.target.value)}/>}</label>)}
+     {extensions.find(d=>d.id===kind)!.fields.map((field:any)=><div key={field.key} className="field-row">
+       {field.type==='boolean'?<label className="checkbox-row"><input type="checkbox" checked={!!val[field.key]} onChange={e=>setMember(field.key,e.target.checked)}/>{field.label}</label>:
+       <><Field label={field.label} type={field.type==='integer'?'number':'text'} value={val[field.key]??''} onChange={v=>setMember(field.key,v)}/>
+       {!['string','integer'].includes(field.type)&&<button type="button" className="button secondary" onClick={()=>setPicker({kind:field.type,pick:id=>setMember(field.key,id)})}>{tUI('Browse')}</button>}</>}
+      </div>)}
     </div>:
     typeof val==='object'?<small>{tUI('Edit custom conditions in Advanced JSON.')}</small>:
     <input aria-label={tUI('Condition value')} value={val??''} onChange={e=>mutate(root=>setAt(root,path,{[kind]:kind.startsWith('health')?Number(e.target.value):e.target.value}))}/>}
@@ -98,7 +99,9 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
   <div className="cond-tools root-tools">
    <button disabled={requires&&!available.length} onClick={()=>add('',newLeaf())}>+ {tUI(requires?'Quest':'Condition')}</button>
    <button disabled={!value&&requires&&!available.length} onClick={()=>group('','and')}>AND</button><button disabled={!value&&requires&&!available.length} onClick={()=>group('','or')}>OR</button><button disabled={!value&&requires&&!available.length} onClick={()=>group('','not')}>NOT</button>
+   <button disabled={!value&&requires&&!available.length} onClick={()=>group('','at_least')}>{tUI('At least N')}</button>
   </div>
+  {picker&&<TargetPicker kind={picker.kind} onClose={()=>setPicker(null)} onPick={id=>{picker.pick(id);setPicker(null)}}/>}
  </div>;
 }
 function TranslationHelp({onOpen}:{onOpen?:()=>void}){
@@ -127,6 +130,7 @@ export function Inspector({project,categoryId,selection,language,onUpdate,onActi
      <Section title="Category">
       <div className="translated-field"><Field label="Name (English)" value={category.title?.en_us||''} onChange={v=>onUpdate('title.en_us',v)}/><TranslationHelp onOpen={onOpenTranslations}/></div>
       <IconField id={category.icon} project={project} onUpdate={v=>onUpdate('icon',v)} onChooseIcon={()=>onChooseIcon('icon')}/>
+      <Field label="Chapter group" value={category.group||''} onChange={v=>onUpdate('group',v)} placeholder="Exploration"/>
       <Field label="Display order (lowest first)" type="number" value={category.order??''} placeholder="0" onChange={v=>onUpdate('order',v)}/>
       <div className="translated-field"><Field label="Description (English)" value={category.description?.en_us||''} onChange={v=>onUpdate('description.en_us',v)} rows={3}/><TranslationHelp onOpen={onOpenTranslations}/></div>
      </Section>
@@ -166,6 +170,14 @@ export function Inspector({project,categoryId,selection,language,onUpdate,onActi
       <Field label="X" type="number" value={position?.x??0} onChange={v=>onUpdate('layout.x',v)}/>
       <Field label="Y" type="number" value={position?.y??0} onChange={v=>onUpdate('layout.y',v)}/>
      </div></Section>
+     <Disclosure title="Presentation">
+      <Translated label="Subtitle" value={quest.presentation?.subtitle||{}} prefix="presentation.subtitle" onUpdate={onUpdate}/>
+      <Field label="Quest tags" value={(quest.presentation?.tags||[]).join(', ')} onChange={v=>onUpdate('presentation.tags',String(v).split(',').map(s=>s.trim()).filter(Boolean))}/>
+      <Select label="Node shape" value={quest.presentation?.shape||'square'} options={['square','circle','rounded_square','diamond','pentagon','hexagon','octagon','heart','gear'].map(s=>[s,s])} onChange={v=>onUpdate('presentation.shape',v)}/>
+      <Field label="Icon scale" type="number" value={quest.presentation?.iconScale??1} onChange={v=>onUpdate('presentation.iconScale',v)}/>
+      {(['optional','disableCompletionToast','hideDetailsUntilUnlocked','hideTextUntilCompleted','invisibleUntilCompleted','hideDependencyLines','hideDependentLines'] as const).map((key,i)=><label className="checkbox-row" key={key}><input type="checkbox" checked={!!quest.presentation?.[key]} onChange={e=>onUpdate('presentation.'+key,e.target.checked)}/>{tUI(['Optional quest','Disable completion toast','Hide details until unlocked','Hide text until completed','Invisible until completed','Hide incoming links','Hide outgoing links'][i])}</label>)}
+      <Field label="Completed objectives before visible" type="number" value={quest.presentation?.invisibleUntilTasks??0} onChange={v=>onUpdate('presentation.invisibleUntilTasks',v)}/>
+     </Disclosure>
      <Section title="Visibility"><label className="checkbox-row"><input type="checkbox" checked={!!quest.hidden} onChange={e=>onUpdate('hidden',e.target.checked)}/> {tUI('Hidden until unlocked')}</label></Section>
     </>}
    </div>

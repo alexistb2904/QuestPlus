@@ -69,8 +69,18 @@ set "RESULT=%ERRORLEVEL%"
 popd
 exit /b %RESULT%
 
+:API_INSTALL
+if exist "%ROOT%\web\api\node_modules\json5\package.json" exit /b 0
+pushd "%ROOT%\web\api" || exit /b 1
+call npm ci --no-audit --no-fund
+set "RESULT=%ERRORLEVEL%"
+popd
+exit /b %RESULT%
+
 :API_TASK
 call :CHECK_NODE
+if errorlevel 1 exit /b 1
+call :API_INSTALL
 if errorlevel 1 exit /b 1
 pushd "%ROOT%\web\api" || exit /b 1
 call npm run %~1
@@ -170,6 +180,8 @@ node "%ROOT%\web\api\tools\setup-local.mjs" "%ROOT%"
 exit /b %ERRORLEVEL%
 
 :API_RUN
+call :API_INSTALL
+if errorlevel 1 exit /b 1
 call :STUDIO_BUILD
 if errorlevel 1 exit /b 1
 call :SETUP

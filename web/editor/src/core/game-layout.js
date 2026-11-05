@@ -3,6 +3,8 @@ export const NODE_SIZE=32,HORIZONTAL_GAP=64,VERTICAL_GAP=72;
 export function questRefs(node,out=[]){
   if(!node||typeof node!=='object')return out;
   if(typeof node.quest==='string')out.push(node.quest);
+  if(typeof node.started==='string')out.push(node.started);
+  for(const part of node.at_least?.of||[])questRefs(part,out);
   for(const part of node.and||[])questRefs(part,out);
   for(const part of node.or||[])questRefs(part,out);
   if(node.not)questRefs(node.not,out);

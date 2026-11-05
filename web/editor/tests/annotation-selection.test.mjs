@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {annotation,category,emptyProject,selectedOwner,fileMap,importDocuments,validate} from '../src/core/project.js';
@@ -16,7 +17,7 @@ test('same annotation ID in different categories resolves and edits only the act
  assert.equal(selectedOwner(p,selection,'questplus:missing'),undefined);
  assert.equal(selectedOwner(p,selection),undefined);
  assert.equal(selectedOwner(p,{type:'category',id:'questplus:second'},'questplus:first'),p.categories[1]);
- const docs=[...fileMap(p)].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content}));
+ const docs=[...fileMap(p)].filter(([name])=>/\.json5?$/.test(name)).map(([name,content])=>({name,content}));
  assert.equal(importDocuments(docs).categories[1].annotations[0].align,'right');
 });
 

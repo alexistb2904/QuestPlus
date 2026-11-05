@@ -23,6 +23,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             context.setScreen(QuestScreen::new);
             context.waitTicks(30);
             context.takeScreenshot("questplus-tablet-initial");
+            rewardFixture(context,world.getServer());
             diagramFixture(context);
             context.runOnClient(client -> {
                 client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6,0,0));
@@ -211,6 +212,83 @@ public final class QuestClientGameTest implements FabricClientGameTest {
         });
     }
 
+    private static void rewardFixture(ClientGameTestContext context,net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+        final String id="questplus:client_choice_fixture";
+        String[] category={null};
+        int before=context.computeOnClient(client->client.player.totalExperience);
+        server.runOnServer(instance->{
+            try {
+                var runtime=dev.questplus.fabric.QuestPlusMod.runtime();category[0]=runtime.categories().getFirst().id();
+                Files.writeString(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"),"""
+                    {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'minecraft:chest',title:{en_us:'Reward choices'},progression:'once',presentation:{shape:'hexagon',subtitle:{en_us:'Server validated'},iconScale:0.8},
+                     objectives:[{id:'check',event:'manual',target:'questplus:client_choice_marker',count:1}],
+                     rewards:[
+                      {type:'questplus:choice',data:{options:[{type:'experience',amount:7},{type:'experience_levels',amount:2}]}},
+                      {type:'questplus:choice',data:{options:[{type:'experience',amount:11},{type:'experience_levels',amount:3}]}},
+                      {type:'questplus:random',data:{options:[{type:'experience',amount:1,weight:1}]}},
+                      {type:'questplus:stage',data:{stage:'questplus:client_reward',remove:false}},
+                      {type:'questplus:toast',data:{title:{en_us:'Custom reward'},description:{en_us:'Stage unlocked'},icon:'minecraft:diamond'}}
+                     ]}
+                    """.formatted(category[0]));
+                runtime.reload();
+            } catch(Exception e){throw new RuntimeException(e);}
+        });
+        context.waitFor(client->QuestPlusClient.STATE.quests.containsKey(id),300);
+        boolean nativeTablet=FabricLoader.getInstance().isModLoaded("fp_pal")&&FabricLoader.getInstance().isModLoaded("player_animation_library");
+        if(nativeTablet) {
+            context.setScreen(()->null);
+            context.getInput().pressKey(InputConstants.KEY_J);
+            context.waitFor(client->TabletSurfaceRenderer.active(),120);
+            context.waitTicks(5);
+        }
+        context.setScreen(()->{
+            var screen=new QuestScreen();
+            try {
+                var selected=QuestScreen.class.getDeclaredField("selected");selected.setAccessible(true);selected.set(screen,id);
+                var cat=QuestScreen.class.getDeclaredField("category");cat.setAccessible(true);cat.set(screen,category[0]);
+            } catch(Exception e){throw new RuntimeException(e);}
+            return screen;
+        });
+        context.waitTicks(5);clickButton(context,"interact");
+        context.waitFor(client->QuestPlusClient.STATE.progress(id).has("rewardState")&&!QuestClientState.flag(QuestPlusClient.STATE.progress(id),"saving"),300);
+        String token=context.computeOnClient(client->QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").get("token").getAsString());
+        clickButton(context,"choose");context.waitTicks(2);
+        context.takeScreenshot("questplus-reward-choice-options");
+        clickButton(context,"xp",7);clickButton(context,"confirm_choice");
+        context.waitFor(client->QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").getAsJsonArray("rewards").get(0).getAsJsonObject().get("type").getAsString().equals("experience")&&!QuestClientState.flag(QuestPlusClient.STATE.progress(id),"saving"),300);
+        clickButton(context,"xp",11);clickButton(context,"confirm_choice");
+        context.waitFor(client->QuestClientState.flag(QuestPlusClient.STATE.progress(id),"claimable"),300);
+        context.waitTicks(3);context.takeScreenshot("questplus-reward-server-result");
+        context.runOnClient(client->QuestToast.clear());
+        clickButton(context,"claim");
+        context.waitFor(client->"delivered".equals(QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").get("status").getAsString()),300);
+        context.waitFor(client->client.player.totalExperience==before+19,300);
+        context.waitFor(client->{
+            try {
+                var active=QuestToast.class.getDeclaredField("active");active.setAccessible(true);
+                return String.valueOf(active.get(null)).contains("Custom reward");
+            }catch(Exception error){throw new RuntimeException(error);}
+        },300);
+        context.waitTicks(8);context.takeScreenshot("questplus-reward-claimed");
+        context.runOnClient(client->QuestPlusClient.chooseReward(id,token,0,1));
+        context.waitFor(client->"action_rejected".equals(QuestPlusClient.STATE.error),300);
+        server.runOnServer(instance->{
+            if(!dev.questplus.fabric.QuestStages.stages(instance.getPlayerList().getPlayers().getFirst()).contains("questplus:client_reward"))throw new AssertionError("Stage reward was not delivered by server");
+            if(instance.getPlayerList().getPlayers().getFirst().totalExperience!=before+19)throw new AssertionError("Replayed choice delivered duplicate XP");
+            try {
+                Files.delete(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"));
+                dev.questplus.fabric.QuestPlusMod.runtime().reload();
+            }catch(Exception e){throw new RuntimeException(e);}
+        });
+        if(nativeTablet) {
+            context.runOnClient(client->client.gui.screen().onClose());
+            context.waitFor(client->client.gui.screen()==null&&!QuestClientTabletFlow.nativeHandsActive(),180);
+        }
+        context.setScreen(QuestScreen::new);
+        context.runOnClient(client->QuestPlusClient.sync());
+        context.waitFor(client->!QuestPlusClient.STATE.quests.containsKey(id),300);
+    }
+
     private static void diagramFixture(ClientGameTestContext context) {
         var originalCategories=new java.util.LinkedHashMap<String,com.google.gson.JsonObject>();
         var originalQuests=new java.util.LinkedHashMap<String,dev.questplus.core.QuestDefinition>();
@@ -346,6 +424,9 @@ public final class QuestClientGameTest implements FabricClientGameTest {
     }
 
     private static void clickButton(ClientGameTestContext context,String key,Object... args) {
+        context.waitFor(client->client.gui.screen() instanceof QuestScreen screen && screen.children().stream()
+            .filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            .anyMatch(b->b.active && b.visible && b.getMessage().getString().equals(QuestPlusClient.tr(key,args).getString())),120);
         var point=context.computeOnClient(client -> {
             var screen=(QuestScreen)client.gui.screen();
             var button=screen.children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
@@ -353,8 +434,9 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             if (TabletSurfaceRenderer.active()) return TabletFaceAnchor.windowPoint(
                 (button.getX()+button.getWidth()/2.0)*TabletSurfaceRenderer.uiScale(),
                 (button.getY()+button.getHeight()/2.0)*TabletSurfaceRenderer.uiScale());
-            return new TabletFaceAnchor.Point((button.getX()+button.getWidth()/2.0)*client.getWindow().getWidth()/client.getWindow().getGuiScaledWidth(),
-                (button.getY()+button.getHeight()/2.0)*client.getWindow().getHeight()/client.getWindow().getGuiScaledHeight());
+            var viewport=dev.questplus.clientmodel.TabletUiViewport.fit(client.getWindow().getGuiScaledWidth(),client.getWindow().getGuiScaledHeight(),QuestPlusClient.settings.scale);
+            return new TabletFaceAnchor.Point(viewport.screenX(button.getX()+button.getWidth()/2.0)*client.getWindow().getWidth()/client.getWindow().getGuiScaledWidth(),
+                viewport.screenY(button.getY()+button.getHeight()/2.0)*client.getWindow().getHeight()/client.getWindow().getGuiScaledHeight());
         });
         clickWindow(context,point);
     }

@@ -3,7 +3,7 @@ import {Dialog} from './Dialog';
 import {savedQuestTemplates,exportTemplateBundle,importTemplateBundle} from '../core/studio-template-library.js';
 
 /** Personal templates stay local and portable; quest packs do not silently include them. */
-export function TemplateLibrary({onClose}:{onClose:()=>void}){
+export function TemplateLibrary({onClose,projectTemplates,onSaveProject}:{onClose:()=>void;projectTemplates?:any[];onSaveProject?:(templates:any[])=>void}){
  const [templates,setTemplates]=useState(()=>savedQuestTemplates());
  const [message,setMessage]=useState(''),ref=useRef<HTMLInputElement>(null);
  const refresh=()=>setTemplates(savedQuestTemplates());
@@ -29,6 +29,10 @@ export function TemplateLibrary({onClose}:{onClose:()=>void}){
    <button className="button primary" onClick={()=>ref.current?.click()}>Import templates</button>
    <input type="file" hidden accept=".json" ref={ref} onChange={e=>{const f=e.target.files?.[0];if(f)void importFile(f);e.target.value=''}}/>
   </div>
+  {onSaveProject&&<div className="toolbar-row">
+   <button className="button secondary" onClick={()=>{onSaveProject(structuredClone([...(projectTemplates||[]).filter(old=>!templates.some(t=>t.id===old.id)),...templates]));setMessage('Personal templates copied into this project.')}}>Copy personal templates to project</button>
+   <button className="button secondary" disabled={!projectTemplates?.length} onClick={()=>{try{const count=importTemplateBundle(JSON.stringify({format:'questplus-studio-templates',version:1,templates:projectTemplates}));refresh();setMessage(count+' project templates copied to this browser.')}catch(error){setMessage('Import failed: '+(error as Error).message)}}}>Copy project templates to personal library</button>
+  </div>}
   <p role="status" className="picker-help">{message||templates.length+' personal templates saved in this browser.'}</p>
   <div className="bulk-quest-list">
    {templates.map(template=><div className="mini-card" key={template.id}><strong>{template.label}</strong><small style={{display:'block'}}>{template.id} · {template.quest.objectives.length} objectives</small></div>)}

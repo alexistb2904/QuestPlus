@@ -1,6 +1,6 @@
 @font-face{font-family:'Pixelify Sans';src:url('../../public/fonts/pixelify-bold.ttf') format('truetype');font-weight:700;font-display:swap}
 :root{color-scheme:dark;--bg:#111214;--pane:#242327;--pane2:#1b1c20;--line:#4b494f;--line2:#6b6870;--text:#f1eee9;--muted:#c1b9b1;--faint:#aca39a;--accent:#ae73e8;--accent-bright:#dec2ff;--gold:#e9bc73;--error:#ffb1a4;--success:#ade291;font-family:'Segoe UI',Arial,sans-serif;font-size:13px}
-*{box-sizing:border-box}html,body,#root{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text)}
+*{box-sizing:border-box}html,body,#root{margin:0;width:100%;height:100%;overflow:clip;background:var(--bg);color:var(--text)}
 body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--accent-bright);outline-offset:3px}button{transition:background-color .13s,border-color .13s}button:hover:not(:disabled){border-color:#c8b6d8}input,textarea{caret-color:var(--accent-bright)}input::placeholder,textarea::placeholder{color:#aaa6ab}::selection{background:#765294;color:#fff}*{scrollbar-width:thin;scrollbar-color:#69616c #1c1a1e}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#69616c;border:2px solid #1c1a1e}p{margin:0}a{color:var(--accent-bright)}svg{flex-shrink:0;vertical-align:middle}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .app{display:flex;flex-direction:column;height:100dvh;min-height:500px;padding:4px;gap:5px;background:#101012}
 .stone{background-color:#28272b;background-image:linear-gradient(#232226e8,#19191def),url('../../public/textures/stone.png');background-size:auto,64px}
@@ -303,3 +303,30 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .bulk-dialog .bulk-quest-list .checkbox-row:hover{background:#56396e}
 .bulk-dialog .picker-filters{display:flex;flex-wrap:wrap;gap:8px}
 .bulk-dialog .picker-filters .field{min-width:160px;flex:1}
+
+.reward-editor{display:grid;gap:10px;min-width:0}.reward-order{display:inline-flex;gap:3px;margin-left:auto}.reward-editor .field-row{flex-wrap:wrap}.reward-editor .mini-card{min-width:0}.reward-preview{display:grid;gap:6px;max-height:220px;overflow:auto;padding:4px;background:#241c17;border:1px solid var(--line)}.reward-preview-card{display:flex;align-items:center;gap:8px;min-width:0;width:100%;padding:9px;text-align:left;border:1px solid #685441;background:#30241e;box-shadow:inset 0 1px #ffffff12;color:var(--text)}.reward-preview-card span{overflow-wrap:anywhere;flex:1;min-width:0}.reward-preview-card small{color:var(--gold)}.reward-preview-card.selected{border-color:var(--gold);background:#523727}.reward-simulation{display:block;padding:10px;border-left:2px solid var(--gold);overflow-wrap:anywhere}.reward-error{color:var(--error)}
+
+
+/* Shape only the surface so ports, resize controls and focus remain accessible. */
+.graph-node:not(.shape-square){background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+.graph-node:not(.shape-square)::before,.graph-node:not(.shape-square)::after{content:'';position:absolute;pointer-events:none;clip-path:var(--node-mask)}
+.graph-node:not(.shape-square)::before{inset:-2px;background:#98949d}
+.graph-node:not(.shape-square)::after{inset:0;background:#34343a}
+.graph-node:not(.shape-square).selected::before{background:#b576f0}
+.graph-node:not(.shape-square).selected::after{background:#472965}
+.graph-node:not(.shape-square) .node-select{position:relative;z-index:1}
+.graph-node.shape-circle{--node-mask:circle(50%)}
+.graph-node.shape-rounded_square{--node-mask:inset(0 round 22%)}
+.graph-node.shape-diamond{--node-mask:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.graph-node.shape-heart{--node-mask:polygon(50% 18%,70% 0,90% 4%,100% 25%,96% 48%,50% 100%,4% 48%,0 25%,10% 4%,30% 0)}
+.graph-node.shape-pentagon{--node-mask:polygon(50.00% 0.00%,97.55% 34.55%,79.39% 90.45%,20.61% 90.45%,2.45% 34.55%)}
+.graph-node.shape-hexagon{--node-mask:polygon(50.00% 0.00%,93.30% 25.00%,93.30% 75.00%,50.00% 100.00%,6.70% 75.00%,6.70% 25.00%)}
+.graph-node.shape-octagon{--node-mask:polygon(50.00% 0.00%,85.36% 14.64%,100.00% 50.00%,85.36% 85.36%,50.00% 100.00%,14.64% 85.36%,0.00% 50.00%,14.64% 14.64%)}
+.graph-node.shape-gear{--node-mask:polygon(50.00% 0.00%,62.94% 1.70%,68.75% 17.52%,76.52% 23.48%,93.30% 25.00%,98.30% 37.06%,87.50% 50.00%,86.22% 59.71%,93.30% 75.00%,85.36% 85.36%,68.75% 82.48%,59.71% 86.22%,50.00% 100.00%,37.06% 98.30%,31.25% 82.48%,23.48% 76.52%,6.70% 75.00%,1.70% 62.94%,12.50% 50.00%,13.78% 40.29%,6.70% 25.00%,14.64% 14.64%,31.25% 17.52%,40.29% 13.78%)}
+.chapter-group-title{font-size:12px;color:var(--gold,#e9bc73);margin:14px 8px 5px;overflow-wrap:anywhere}
+
+@media(max-width:600px){
+ .project-bar{flex-wrap:wrap;gap:6px;align-items:center}
+ .project-bar>.checkbox-row{order:3;flex-basis:100%;justify-content:flex-start;white-space:normal}
+ .project-bar .export-button{margin-left:auto}
+}

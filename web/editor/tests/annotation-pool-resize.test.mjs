@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {category,quest,emptyProject,annotation,seedProjectLocale,annotationRich,annotationText,compactCategoryImages,expandCategoryImages,fileMap,importDocuments,validate} from '../src/core/project.js';
@@ -18,10 +19,10 @@ test('five references to same image become one indexed pool entry, with ZIP roun
  assert.equal(JSON.stringify(packed).includes('data:image/png'),true);
  assert.equal(JSON.stringify(packed.annotations).includes('data:image/png'),false);
  assert.equal(c.annotations[0].rich.en_us[0].data,tiny); // editor never mutates
- const files=fileMap(p),raw=JSON.parse(files.get('categories/test.json'));
+ const files=fileMap(p),raw=JSON5.parse(files.get('categories/test.json5'));
  assert.equal(raw.images.length,1);
  assert.equal(raw.annotations[1].rich.en_us[1].ref,0);
- const reimport=importDocuments([...files].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content})));
+ const reimport=importDocuments([...files].filter(([name])=>/\.json5?$/.test(name)).map(([name,content])=>({name,content})));
  assert.deepEqual(reimport.categories[0].annotations,c.annotations);
  assert.equal(reimport.categories[0].images,undefined);
 });
@@ -63,7 +64,7 @@ test('custom quest and annotation dimensions survive export/import and invalid s
  p.categories[0].annotations=[{...annotation('banner'),width:400,height:300,rich:{en_us:[img()]}}];
  assert.deepEqual(validate(p),[]);
  const files=fileMap(p);
- const read=importDocuments([...files].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content})));
+ const read=importDocuments([...files].filter(([name])=>/\.json5?$/.test(name)).map(([name,content])=>({name,content})));
  assert.equal(read.quests[0].size,96);
  assert.deepEqual([read.categories[0].annotations[0].width,read.categories[0].annotations[0].height],[400,300]);
  read.quests[0].size=0;

@@ -37,6 +37,12 @@ public final class QuestPlusApi {
             QuestPlusMod.context(responsible)));
     }
     public static void registerEvent(String id,String registry,boolean state) { QuestExtensions.registerEvent(id,registry,state); }
+    public static void registerObjectiveData(String event,Consumer<JsonObject> validator,BiPredicate<JsonObject,QuestEvent> matcher) {
+        QuestExtensions.registerObjective(event,validator,matcher);
+    }
+    public static void registerStageProvider(dev.questplus.fabric.QuestStages.Provider provider) { dev.questplus.fabric.QuestStages.register(provider); }
+    public static java.util.Set<String> stages(ServerPlayer player) { return dev.questplus.fabric.QuestStages.stages(player); }
+    public static void setStage(ServerPlayer player,String stage,boolean present) { dev.questplus.fabric.QuestStages.set(player,stage,present); }
     public static void registerCondition(String id,Consumer<JsonElement> validator,BiPredicate<JsonElement,Map<String,Object>> predicate) { QuestExtensions.registerCondition(id,validator,predicate); }
     /** Add a validated no-code editor form for a previously registered custom event, condition or reward. */
     public static void registerEditorDescriptor(String kind,String id,String label,JsonArray fields) {

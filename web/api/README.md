@@ -16,6 +16,7 @@ Requires Node 22 and Java 25 + Fabric 26.3.
 3. Run the integrated web service:
 
        cd web/api
+       npm ci
        HUB_SERVER_KEY=<64-hex-secret> HUB_PUBLIC_URL=http://localhost:8787 \
          node server.mjs
 

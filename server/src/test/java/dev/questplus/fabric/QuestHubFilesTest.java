@@ -37,8 +37,10 @@ class QuestHubFilesTest {
                 Files.createDirectories(file.getParent());Files.writeString(file,doc.get("content").getAsString());
             }
             Path player=temp.resolve("data/questplus/players/test.json");Files.createDirectories(player.getParent());Files.writeString(player,"{}");
+            Files.writeString(def.resolve("queststudio-compatibility.json"),"{\"format\":1,\"rewardTables\":[{\"name\":\"Miner loot\"}]}");
             JsonArray snapshot=QuestHubFiles.snapshot(def);
-            assertEquals(3,snapshot.size());
+            assertEquals(4,snapshot.size());
+            assertTrue(snapshot.asList().stream().anyMatch(el->el.getAsJsonObject().get("content").getAsString().contains("Miner loot")));
             for(var el:snapshot)assertFalse(el.getAsJsonObject().get("name").getAsString().contains("players"));
         }finally{
             try(var walk=Files.walk(temp)){for(Path file:walk.sorted(Comparator.reverseOrder()).toList())Files.delete(file);}

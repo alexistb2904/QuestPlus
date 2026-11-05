@@ -92,7 +92,7 @@ public final class AdvancedEvents {
         if (registry.hasEvent("advancement_complete")) {
             for (String target:registry.objectives("advancement_complete").stream()
                     .map(o->o.target()).distinct().toList()) {
-                var advancement=player.getServer().getAdvancements().get(Identifier.parse(target));
+                var advancement=player.level().getServer().getAdvancements().get(Identifier.parse(target));
                 if(advancement==null)continue;
                 boolean done=player.getAdvancements().getOrStartProgress(advancement).isDone();
                 var ctx=QuestPlusMod.context(player);
@@ -110,6 +110,12 @@ public final class AdvancedEvents {
                 ctx.put("stateValues",Map.of(target,value));
                 QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",target,Set.of(),1,ctx));
             }
+        }
+        if(registry.hasEvent("stage")) {
+            var values=new HashMap<String,Long>();var stages=QuestStages.stages(player);
+            for(var objective:registry.objectives("stage"))values.put(objective.target(),stages.contains(objective.target())?1L:0L);
+            var context=QuestPlusMod.context(player);context.put("stateValues",values);
+            for(String target:values.keySet())QuestPlusMod.runtime().event(player,new QuestEvent("stage",target,Set.of(),1,context));
         }
         if(registry.hasEvent("xp_levels")) {
             var ctx=QuestPlusMod.context(player);

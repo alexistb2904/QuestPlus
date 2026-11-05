@@ -19,19 +19,32 @@ public final class JsonProgressStore implements AutoCloseable {
     private final Path root;
     private final Path players;
     private final Path journal;
+    private final Path inventoryJournal;
+    private final SavedMarker savedMarker;
     private final WriteHook hook;
     private volatile boolean poisoned;
     private final ThreadPoolExecutor writer = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
         new ArrayBlockingQueue<>(128), new ThreadPoolExecutor.AbortPolicy());
 
+    @FunctionalInterface public interface SavedMarker {
+        String read(UUID player) throws IOException;
+        default void verifyInventory(UUID player,JsonArray expected) throws IOException {throw new IOException("Saved inventory verification is required");}
+    }
     @FunctionalInterface interface WriteHook { void after(String point) throws IOException; }
     private record Image(String path, String before, String after, String json) {}
     private record Operation(int schemaVersion, UUID id, boolean committed, List<Image> images) {}
-    public JsonProgressStore(Path root) throws IOException { this(root, point -> {}); }
-    JsonProgressStore(Path root, WriteHook hook) throws IOException {
+    private record InventoryOperation(int schemaVersion, UUID id, UUID player, String previousMarker,
+            JsonArray inventoryBefore, JsonArray inventoryAfter, List<Image> images) {}
+    public record ClaimAudit(UUID id, UUID player, String claim, String operator, String outcome, String reason, long timestamp) {}
+    public JsonProgressStore(Path root) throws IOException { this(root, point -> {}, null); }
+    public static JsonProgressStore withSavedMarker(Path root, SavedMarker savedMarker) throws IOException { return new JsonProgressStore(root, point -> {}, savedMarker); }
+    JsonProgressStore(Path root, WriteHook hook) throws IOException { this(root, hook, null); }
+    JsonProgressStore(Path root, WriteHook hook, SavedMarker savedMarker) throws IOException {
         this.root = Objects.requireNonNull(root).toAbsolutePath().normalize();
         players = this.root.resolve("players"); journal = this.root.resolve("transactions/pending.json");
-        this.hook = Objects.requireNonNull(hook); recover();
+        inventoryJournal = this.root.resolve("transactions/inventory.json");
+        this.savedMarker = savedMarker;
+        this.hook = Objects.requireNonNull(hook); recoverInventory(); recover();
     }
 
     public PlayerProgress load(UUID id) throws IOException {
@@ -105,18 +118,7 @@ public final class JsonProgressStore implements AutoCloseable {
     public CompletableFuture<Void> transaction(Map<UUID,PlayerProgress> states,Map<UUID,TeamData> teams) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
-            Map<Path,byte[]> snapshots = new LinkedHashMap<>();
-            for (var entry : new TreeMap<>(states).entrySet()) {
-                entry.getValue().validate(); byte[] bytes = GSON.toJson(entry.getValue()).getBytes(StandardCharsets.UTF_8);
-                decode(bytes); snapshots.put(file(entry.getKey()),bytes);
-            }
-            for (var entry : new TreeMap<>(teams).entrySet()) {
-                if (!entry.getKey().equals(entry.getValue().id)) throw new IllegalArgumentException("Team key/ID mismatch");
-                entry.getValue().validate(); byte[] bytes = GSON.toJson(entry.getValue()).getBytes(StandardCharsets.UTF_8);
-                decodeTeam(bytes); snapshots.put(teamFile(entry.getKey()),bytes);
-            }
-            if (snapshots.isEmpty()) throw new IllegalArgumentException("Empty transaction");
-            for (byte[] bytes : snapshots.values()) if (bytes.length > MAX_BYTES) throw new IOException("Progress exceeds 8 MiB");
+            Map<Path,byte[]> snapshots = snapshots(states,teams);
             writer.execute(() -> {
                 try { checkPending(); transact(snapshots); future.complete(null); }
                 catch (Exception e) { future.completeExceptionally(e); }
@@ -124,17 +126,141 @@ public final class JsonProgressStore implements AutoCloseable {
         } catch (Exception e) { future.completeExceptionally(e); }
         return future;
     }
-    private void checkPending() throws IOException {
-        if (poisoned || Files.exists(journal)) throw new IOException("Pending Quest Plus transaction requires restart/recovery");
+    private Map<Path,byte[]> snapshots(Map<UUID,PlayerProgress> states, Map<UUID,TeamData> teams) throws IOException {
+        Map<Path,byte[]> snapshots = new LinkedHashMap<>();
+        for (var entry : new TreeMap<>(states).entrySet()) {
+            entry.getValue().validate(); byte[] bytes = GSON.toJson(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+            decode(bytes); snapshots.put(file(entry.getKey()),bytes);
+        }
+        for (var entry : new TreeMap<>(teams).entrySet()) {
+            if (!entry.getKey().equals(entry.getValue().id)) throw new IllegalArgumentException("Team key/ID mismatch");
+            entry.getValue().validate(); byte[] bytes = GSON.toJson(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+            decodeTeam(bytes); snapshots.put(teamFile(entry.getKey()),bytes);
+        }
+        if (snapshots.isEmpty()) throw new IllegalArgumentException("Empty transaction");
+        for (byte[] bytes : snapshots.values()) if (bytes.length > MAX_BYTES) throw new IOException("Progress exceeds 8 MiB");
+        return snapshots;
     }
-    private void transact(Map<Path,byte[]> snapshots) throws IOException {
-        List<Image> images = new ArrayList<>();
-        for (var entry : snapshots.entrySet()) {
-            Path target = entry.getKey(); String before = null;
-            if (Files.exists(target)) { byte[] old = read(target); validateImage(target,old); before = hash(old); }
+
+    /** Intent is durable before the caller may touch inventory. All arguments are detached here. */
+    public CompletableFuture<Void> prepareInventory(UUID operation, UUID player, String previousMarker,
+            JsonArray before, JsonArray after, Map<UUID,PlayerProgress> states, Map<UUID,TeamData> teams) {
+        try {
+            Map<Path,byte[]> snapshots = snapshots(states,teams);
+            JsonArray beforeCopy=before.deepCopy(), afterCopy=after.deepCopy();
+            return queued(() -> {
+                checkPending();
+                var intent=new InventoryOperation(1,operation,player,previousMarker,beforeCopy,afterCopy,images(snapshots));
+                validateInventory(intent);
+                byte[] bytes=GSON.toJson(intent).getBytes(StandardCharsets.UTF_8);
+                if(bytes.length>128*1024*1024)throw new IOException("Inventory journal exceeds 128 MiB");
+                atomic(inventoryJournal,bytes); hook.after("inventory:intent");
+            });
+        } catch(Exception error) { return CompletableFuture.failedFuture(error); }
+    }
+    public CompletableFuture<Void> commitInventory(UUID operation) {
+        return queued(() -> {
+            InventoryOperation intent=readInventory();
+            if(!intent.id().equals(operation))throw new IOException("Inventory operation mismatch");
+            if(savedMarker==null || !operation.toString().equals(savedMarker.read(intent.player())))
+                throw new IOException("Inventory consumption has not been saved");
+            savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());
+            applyInventory(intent);
+        });
+    }
+    public CompletableFuture<Void> resolveClaim(UUID player, PlayerProgress after, ClaimAudit audit) {
+        try {
+            if(!player.equals(audit.player()))throw new IllegalArgumentException("Audit player mismatch");
+            Map<Path,byte[]> snapshots=snapshots(Map.of(player,after),Map.of());
+            Path file=root.resolve("audit/"+audit.id()+".json");
+            byte[] bytes=GSON.toJson(audit).getBytes(StandardCharsets.UTF_8); validateImage(file,bytes);
+            snapshots.put(file,bytes);
+            return queued(() -> { checkPending(); if(Files.exists(file))throw new IOException("Duplicate audit ID"); transact(snapshots); });
+        } catch(Exception error) { return CompletableFuture.failedFuture(error); }
+    }
+    @FunctionalInterface private interface IOAction { void run() throws IOException; }
+    private CompletableFuture<Void> queued(IOAction action) {
+        var future=new CompletableFuture<Void>();
+        try { writer.execute(() -> {
+            try { action.run(); future.complete(null); }
+            catch(Exception error) { future.completeExceptionally(error); }
+        }); } catch(Exception error) { future.completeExceptionally(error); }
+        return future;
+    }
+    private InventoryOperation readInventory() throws IOException {
+        try {
+            if(Files.size(inventoryJournal)>128*1024*1024)throw new IOException("Inventory journal exceeds 128 MiB");
+            JsonObject value;
+            try(Reader reader=Files.newBufferedReader(inventoryJournal,StandardCharsets.UTF_8)) { value=object(QuestRegistry.parseStrict(reader)); }
+            fields(value,"schemaVersion","id","player","previousMarker","inventoryBefore","inventoryAfter","images");
+            var intent=GSON.fromJson(value,InventoryOperation.class); validateInventory(intent); return intent;
+        } catch(RuntimeException error) { throw new IOException("Invalid inventory journal",error); }
+    }
+    private void validateInventory(InventoryOperation intent) throws IOException {
+        if(intent.schemaVersion()!=1 || intent.id()==null || intent.player()==null || intent.previousMarker()==null
+                || intent.inventoryBefore()==null || intent.inventoryAfter()==null
+                || intent.inventoryBefore().size()!=37 || intent.inventoryAfter().size()!=37
+                || intent.images()==null || intent.images().isEmpty())throw new IOException("Invalid inventory intent");
+        if(!intent.previousMarker().isEmpty())UUID.fromString(intent.previousMarker());
+        Set<Path> targets=new HashSet<>();
+        for(Image image:intent.images()) {
+            Path target=resolveImage(image.path());
+            if(!targets.add(target) || image.json()==null || image.after()==null ||
+                    image.before()!=null && !image.before().matches("[a-f0-9]{64}"))throw new IOException("Invalid inventory image");
+            byte[] bytes=image.json().getBytes(StandardCharsets.UTF_8);
+            if(bytes.length>MAX_BYTES || !hash(bytes).equals(image.after()))throw new IOException("Invalid inventory image hash/size");
+            validateImage(target,bytes);
+        }
+    }
+    private void recoverInventory() throws IOException {
+        if(Files.notExists(inventoryJournal)) {
+            if(Files.exists(temporary(inventoryJournal)))throw new IOException("Incomplete inventory journal; retain for review");
+            return;
+        }
+        if(savedMarker==null)throw new IOException("Inventory recovery requires vanilla player save evidence");
+        var intent=readInventory(); String marker=savedMarker.read(intent.player());
+        if(intent.id().toString().equals(marker)) { savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());applyInventory(intent);return; }
+        if(!intent.previousMarker().equals(marker))throw new IOException("Unknown inventory marker; retain files for review");
+        savedMarker.verifyInventory(intent.player(),intent.inventoryBefore());
+        // The old marker proves the withdrawal was never saved. Never restore inventory or replay the event.
+        checkImages(intent.images(),false);
+        Files.delete(inventoryJournal); Files.deleteIfExists(temporary(inventoryJournal));
+    }
+    private void applyInventory(InventoryOperation intent) throws IOException {
+        checkImages(intent.images(),true);
+        try {
+            for(Image image:intent.images()) {
+                Path target=resolveImage(image.path());
+                if(Files.exists(target) && hash(read(target)).equals(image.after()))continue;
+                // Hashes already proved this target belongs to the pending intent, including interrupted temporary files.
+                atomic(target,image.json().getBytes(StandardCharsets.UTF_8)); hook.after("inventory:file:"+image.path());
+            }
+            hook.after("inventory:commit");
+            Files.delete(inventoryJournal); Files.deleteIfExists(temporary(inventoryJournal));
+        } catch(IOException | RuntimeException error) { poisoned=true; throw error; }
+    }
+    private void checkImages(List<Image> images, boolean allowAfter) throws IOException {
+        for(Image image:images) {
+            Path target=resolveImage(image.path()); String current=Files.exists(target)?hash(read(target)):null;
+            if(!Objects.equals(current,image.before()) && !(allowAfter && Objects.equals(current,image.after())))
+                throw new IOException("Inventory recovery conflict for "+image.path()+"; retain files for review");
+        }
+    }
+    private List<Image> images(Map<Path,byte[]> snapshots) throws IOException {
+        List<Image> images=new ArrayList<>();
+        for(var entry:snapshots.entrySet()) {
+            Path target=entry.getKey(); String before=null;
+            if(Files.exists(target)) { byte[] old=read(target); validateImage(target,old); before=hash(old); }
             else rejectLeftovers(target);
             images.add(new Image(root.relativize(target).toString().replace('\\','/'),before,hash(entry.getValue()),new String(entry.getValue(),StandardCharsets.UTF_8)));
         }
+        return List.copyOf(images);
+    }
+    private void checkPending() throws IOException {
+        if (poisoned || Files.exists(journal) || Files.exists(inventoryJournal) || Files.exists(temporary(inventoryJournal))) throw new IOException("Pending Quest Plus transaction requires restart/recovery");
+    }
+    private void transact(Map<Path,byte[]> snapshots) throws IOException {
+        List<Image> images = images(snapshots);
         Operation operation = new Operation(1,UUID.randomUUID(),false,List.copyOf(images));
         byte[] bytes = GSON.toJson(operation).getBytes(StandardCharsets.UTF_8);
         if (bytes.length > 128 * 1024 * 1024) throw new IOException("Transaction journal exceeds 128 MiB");
@@ -185,7 +311,7 @@ public final class JsonProgressStore implements AutoCloseable {
         Files.delete(journal); Files.deleteIfExists(temporary(journal));
     }
     private Path resolveImage(String path) throws IOException {
-        if (!path.matches("(?:players|teams)/[a-fA-F0-9-]{36}\\.json")) throw new IOException("Invalid transaction path " + path);
+        if (!path.matches("(?:players|teams|audit)/[a-fA-F0-9-]{36}\\.json")) throw new IOException("Invalid transaction path " + path);
         UUID.fromString(path.substring(path.indexOf('/')+1,path.length()-5));
         Path target = root.resolve(path).normalize();
         if (!target.startsWith(root)) throw new IOException("Transaction path escaped world data");
@@ -196,7 +322,18 @@ public final class JsonProgressStore implements AutoCloseable {
         catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
     private void validateImage(Path path,byte[] bytes) throws IOException {
-        if (path.getParent().equals(players)) decode(bytes);
+        if(path.getParent().equals(root.resolve("audit"))) {
+            try {
+                JsonObject value=object(QuestRegistry.parseStrict(new StringReader(new String(bytes,StandardCharsets.UTF_8))));
+                fields(value,"id","player","claim","operator","outcome","reason","timestamp");
+                ClaimAudit audit=GSON.fromJson(value,ClaimAudit.class);
+                if(audit.id()==null || audit.player()==null || !path.getFileName().toString().equals(audit.id()+".json")
+                        || audit.claim()==null || audit.claim().isBlank() || audit.operator()==null || audit.operator().isBlank()
+                        || !Set.of("delivered","discard").contains(audit.outcome()) || audit.reason()==null || audit.reason().isBlank()
+                        || audit.reason().length()>1024 || audit.timestamp()<0)throw new IllegalArgumentException("Invalid claim audit");
+            } catch(RuntimeException error) { throw new IOException("Invalid claim audit",error); }
+        }
+        else if (path.getParent().equals(players)) decode(bytes);
         else { TeamData team = decodeTeam(bytes); if (!path.equals(teamFile(team.id))) throw new IOException("Team filename/ID mismatch"); }
     }
     private static void rejectLeftovers(Path file) throws IOException {

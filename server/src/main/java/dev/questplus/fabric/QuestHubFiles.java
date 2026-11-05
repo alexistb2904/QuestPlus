@@ -21,7 +21,7 @@ final class QuestHubFiles {
     }
     static JsonArray snapshot(Path definitions) throws IOException {
         JsonArray files=new JsonArray();
-        for(String folder:List.of("config.json","quests","categories")){
+        for(String folder:List.of("config.json","queststudio-compatibility.json","quests","categories")){
             Path root=definitions.resolve(folder);
             if(!Files.exists(root))continue;
             try(var walk=Files.isDirectory(root)?Files.walk(root):java.util.stream.Stream.of(root)) {
@@ -73,7 +73,6 @@ final class QuestHubFiles {
             Files.createDirectories(stage.resolve("quests"));Files.createDirectories(stage.resolve("categories"));
             for(var el:documents){
                 JsonObject f=el.getAsJsonObject();String name=f.get("name").getAsString();
-                if(name.equals("queststudio-compatibility.json"))continue;
                 Path target=stage.resolve(name).normalize();
                 if(!target.startsWith(stage))throw new IOException("Invalid destination");
                 Files.createDirectories(target.getParent());

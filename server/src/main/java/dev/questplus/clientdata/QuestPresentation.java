@@ -2,13 +2,14 @@ package dev.questplus.clientdata;
 
 import com.google.gson.JsonObject;
 import dev.questplus.core.QuestDefinition;
+import java.util.Set;
 
 /** Small display rules shared by the GUI and HUD; server projection remains authoritative. */
 public final class QuestPresentation {
     private QuestPresentation() {}
 
     public static String status(QuestDefinition quest, JsonObject progress) {
-        if (flag(progress,"claimable")) return "reward_ready";
+        if (flag(progress,"claimable") || progress.has("rewardState") && "choice".equals(progress.getAsJsonObject("rewardState").get("status").getAsString())) return "reward_ready";
         if (flag(progress,"terminal") || quest.progression().equals("once") && flag(progress,"completed")
                 || flag(progress,"waitingRestart")) return "completed";
         if (!flag(progress,"unlocked")) return "locked";
@@ -68,6 +69,9 @@ public final class QuestPresentation {
             return new String[]{"Reach XP level ","Atteindre le niveau XP ","Alcanzar nivel XP ","达到经验等级 "}[column]+objective.count();
         if (objective.event().equals("location"))
             return new String[]{"Reach location","Atteindre la position","Llegar a la posición","到达指定位置"}[column];
+        if(Set.of("observe_block","observe_entity").contains(objective.event()))
+            return new String[]{"Observe ","Observer ","Observar ","观察 "}[column]+targetName+" · "+(objective.count()/20.0)+" s";
+        if(objective.event().equals("stage"))return new String[]{"Have stage ","Posséder le stage ","Tener etapa ","拥有阶段 "}[column]+objective.target();
         if (objective.event().equals("manual"))
             return new String[]{"Confirm","Confirmer","Confirmar","确认"}[column];
         if (objective.event().equals("player_death"))

@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -23,7 +24,7 @@ test('pixel font sizes are validated and serialized for annotations and descript
  project.quests=[questData];
  assert.deepEqual(validate(project),[]);
  const doc=fileMap(project);
- const imported=importDocuments([...doc].filter(([name])=>name.endsWith('.json')).map(([name,content])=>({name,content})));
+ const imported=importDocuments([...doc].filter(([name])=>/\.json5?$/.test(name)).map(([name,content])=>({name,content})));
  assert.deepEqual(imported.quests[0].descriptionRich.en_us,parts);
  seedProjectLocale(imported,'fr_fr');
  assert.deepEqual(imported.quests[0].descriptionRich.fr_fr,parts);
