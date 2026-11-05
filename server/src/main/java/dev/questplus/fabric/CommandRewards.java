@@ -36,7 +36,7 @@ final class CommandRewards {
             throw new IllegalArgumentException("Command reward requires one command string");
         String cmd=data.get("command").getAsString();
         if(cmd.length()<1||cmd.length()>240||cmd.isBlank()||cmd.contains("\n")||cmd.contains("\r")
-            ||cmd.indexOf('\u0000')>=0||cmd.startsWith("//"))
+            ||cmd.indexOf((char)0)>=0||cmd.startsWith("//"))
             throw new IllegalArgumentException("Invalid command reward");
     }
 }
