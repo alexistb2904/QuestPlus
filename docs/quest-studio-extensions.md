@@ -22,8 +22,8 @@ Descriptors may declare `kind` = `event`, `condition`, or `reward`, a namespaced
 ### How it appears in Studio
 
 - Event descriptors are added to the Action selector. The event's target remains a namespaced ID; the descriptor's extra `fields` are currently *informational*, because objective data cannot yet hold arbitrary extension form fields.
-- Reward descriptors appear as a new reward button and are edited as `data` fields. The extension must already have called `registerReward` and its registered server validator controls which values are accepted.
-- Condition descriptors are transported and validated but require the corresponding condition editor UI. Until then, use the existing condition JSON editor.
+- Reward descriptors appear in the shared normal/tier reward-type selector and are edited as `data` fields. Registry-backed reward fields use the existing target picker where supported. The extension must already have called `registerReward` and its registered server validator controls which values are accepted.
+- Condition descriptors render declared scalar fields in the condition editor. Registry-aware condition pickers and objective parameter payloads remain incomplete.
 - The **Mod Registry Browser** uses the same approved-session registry snapshot as the editor and can also import an offline JSON snapshot. Offline data is for editing only and cannot influence server gameplay state.
 
 ### Compatibility
