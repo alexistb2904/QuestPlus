@@ -168,7 +168,12 @@ public final class QuestRegistry {
         String mechanical=mechanics(objectives);
         if (kind.equals("information")) mechanical += "|information|"+acknowledgement;
         if (version==2) mechanical += "|v2|"+progression+"|"+mode+"|"+afterLast+"|"+cooldown+"|"+timeLimit+"|"+noDeath
-            +"|"+objectiveThreshold+"|"+objectives.stream().map(x->x.id()+":"+x.optional()).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
+            +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
+        // Preserve legacy progress fingerprints exactly. New optional/threshold semantics are
+        // only fingerprinted when a pack actually uses them.
+        if(mode.equals("at_least")||objectives.stream().anyMatch(QuestDefinition.Objective::optional))
+            mechanical+="|selection-v1|"+objectiveThreshold+"|"+objectives.stream()
+                .map(x->x.id()+":"+x.optional()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
             mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
