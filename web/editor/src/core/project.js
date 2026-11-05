@@ -101,7 +101,7 @@ export function orderedCategories(categories){
   return [...categories].sort((a,b)=>(a.order??Number.MAX_SAFE_INTEGER)-(b.order??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
 }
 export function category(id='questplus:new_category',en='New category'){
-  return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
+  return {id,icon:'minecraft:book',title:{en_us:en},description:{en_us:'Quest category'},annotations:[]};
 }
 export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}){
   return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',size:32,title:{en_us:en},
