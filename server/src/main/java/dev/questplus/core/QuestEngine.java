@@ -39,7 +39,7 @@ public final class QuestEngine {
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
             if (state) {
-                Object values=objective.event().equals("xp_levels")?event.context().get("stateValues"):event.context().get("inventory");
+                Object values=Set.of("xp_levels","custom_stat").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
                 amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
             }
             if (p==null && amount==0) continue;
@@ -92,7 +92,7 @@ public final class QuestEngine {
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
             boolean isInventory=objective.event().equals("inventory_count");
-            if ((!isInventory&&!objective.event().equals("xp_levels")) || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
+            if ((!isInventory&&!Set.of("xp_levels","custom_stat").contains(objective.event())) || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
             Map<?,?> values=isInventory?inventory:states;
             if(!values.containsKey(objective.target()))continue;
             Object value=values.get(objective.target());
