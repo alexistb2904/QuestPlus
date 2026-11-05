@@ -65,6 +65,30 @@ final class QuestCommands {
                         + " | cycles="+(p==null ? 0 : p.cycles)+" tier="+(p==null ? 0 : p.tier)+" restart="+(p!=null && p.waitingRestart)
                         + " | rewards="+personal.entitlements.values().stream().filter(r -> r.questId().equals(id)).count()+" | " + runtime.engine().diagnostic(progress,id).orElse("compatible")),false);
                 }))))
+            .then(literal("submit")
+                .then(argument("quest",StringArgumentType.word()).suggests((c,builder)->{
+                    try{
+                        QuestPlusMod.runtime().visibleQuests(c.getSource().getPlayerOrException().getUUID())
+                            .stream().map(dev.questplus.core.QuestDefinition::id)
+                            .filter(id->id.startsWith(builder.getRemaining())).sorted().forEach(builder::suggest);
+                    }catch(Exception ignored){}
+                    return builder.buildFuture();
+                }).then(argument("objective",StringArgumentType.word()).suggests((c,builder)->{
+                    try{
+                        String id=StringArgumentType.getString(c,"quest");
+                        QuestPlusMod.runtime().visibleQuest(c.getSource().getPlayerOrException().getUUID(),id)
+                            .objectives().stream().filter(o->Set.of("item_submit","item_turn_in").contains(o.event()))
+                            .map(dev.questplus.core.QuestDefinition.Objective::id)
+                            .filter(x->x.startsWith(builder.getRemaining())).forEach(builder::suggest);
+                    }catch(Exception ignored){}
+                    return builder.buildFuture();
+                }).executes(c->execute(c,source->{
+                    var player=source.getPlayerOrException();
+                    String id=StringArgumentType.getString(c,"quest");
+                    String objective=StringArgumentType.getString(c,"objective");
+                    int submitted=QuestPlusMod.runtime().submitItem(player,id,objective);
+                    source.sendSuccess(()->Component.literal("Submitted "+submitted+" items to "+id+" / "+objective),false);
+                })))))
             .then(literal("claim").then(questArgument().executes(c -> execute(c,s -> {
                 var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
                 QuestPlusMod.runtime().visibleQuest(player.getUUID(),id); QuestPlusMod.runtime().claim(player,id);
