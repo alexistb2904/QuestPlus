@@ -81,3 +81,16 @@ test('FTB importer distinguishes automatic possession, crafting and player hand-
  assert.equal(report.questCount,5);
  assert.deepEqual(validate(report.project),[]);
 });
+
+test('FTB advancement objective and reward stay type-safe',()=>{
+ const {project,warnings}=inspectFtbPack([{name:'chapters/adv.json5',content:`{
+  id:'adv',quests:[{id:'stone',title:'Stone Age',
+   tasks:[{type:'advancement',advancement:'minecraft:story/mine_stone'}],
+   rewards:[{type:'advancement',advancement:'minecraft:story/iron_tools'}]
+  }]
+ }`}]);
+ assert.equal(project.quests.length,1,JSON.stringify(warnings));
+ assert.equal(project.quests[0].objectives[0].event,'advancement_complete');
+ assert.deepEqual(project.quests[0].rewards[0],{type:'questplus:advancement',data:{advancement:'minecraft:story/iron_tools'}});
+ assert.deepEqual(validate(project),[]);
+});
