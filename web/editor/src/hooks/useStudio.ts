@@ -356,6 +356,11 @@ export function useStudio() {
                     data:kind==="add-loot"?{rolls:1,emptyWeight:1,options}:{options}});
                 return;
             }
+            if (kind === "add-message") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:message",data:{message:"Quest completed!"}});
+                return;
+            }
             if (kind === "add-command") {
                 o.rewards ||= [];
                 o.rewards.push({type:"questplus:command",data:{command:"say Quest completed"}});
