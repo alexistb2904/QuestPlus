@@ -114,6 +114,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
 export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale,translationRequest=0}:Props){
  const [tab,setTab]=useState<Tab>('objectives');
   const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:PickerKind}|null>(null);
+  const [rewardAdvBrowser,setRewardAdvBrowser]=useState<number|null>(null);
  useEffect(()=>{
   if(!translationRequest)return;
   setTab('localization');
@@ -186,7 +187,10 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
      {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
-      r.type==='questplus:advancement'?<Field label="Advancement ID" value={r.data?.advancement||''} onChange={v=>onUpdate('rewards.'+i+'.data.advancement',v)} placeholder="minecraft:story/mine_stone"/>:
+      r.type==='questplus:advancement'?<div className="field-row">
+       <Field label="Advancement ID" value={r.data?.advancement||''} onChange={v=>onUpdate('rewards.'+i+'.data.advancement',v)} placeholder="minecraft:story/mine_stone"/>
+       <button className="button secondary" type="button" onClick={()=>setRewardAdvBrowser(i)}>{ui('Browse')}</button>
+      </div>:
       r.type==='questplus:message'?<Field label="Message to player" value={r.data?.message||''}
         onChange={v=>onUpdate('rewards.'+i+'.data.message',v)}/>:
       r.type==='questplus:command'?<div className="mini-card">
@@ -227,6 +231,8 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <Disclosure title="Custom label"><Translated label="Text" prefix={'rewards.'+i+'.text'} value={r.text} language={language} onUpdate={onUpdate}/></Disclosure>
     </div>)}
    </>}
+   {rewardAdvBrowser!==null&&<TargetPicker kind="advancement" onClose={()=>setRewardAdvBrowser(null)}
+     onPick={id=>{onUpdate('rewards.'+rewardAdvBrowser+'.data.advancement',id);setRewardAdvBrowser(null)}}/>}
    {tab==='conditions'&&<>
     <div className="detail-heading"><strong>{ui('Prerequisites')}</strong></div>
     <p>{ui('A quest becomes available when its prerequisites are complete.')}</p>
