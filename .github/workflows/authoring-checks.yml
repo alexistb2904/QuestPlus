@@ -1,6 +1,15 @@
 name: Quest Plus authoring checks
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'client/**'
+      - 'web/editor/**'
+      - 'build.gradle'
+      - 'gradle/**'
+      - '.github/workflows/authoring-checks.yml'
   pull_request:
     paths:
       - 'server/**'
