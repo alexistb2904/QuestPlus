@@ -15,7 +15,7 @@ export const EVENTS = [
 ];
 export const EVENT_KEYS = EVENTS.map(([id])=>id);
 export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
-export const MODES=['all','any','sequence'];
+export const MODES=['all','any','sequence','at_least'];
 const ID=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const LOCAL=/^[a-z0-9_.-]+$/;
 export const text=(value,lang='en_us')=>{
@@ -300,6 +300,12 @@ for(const a of c.annotations||[]){
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
+    if(Object.hasOwn(q,'objectiveThreshold') && (q.objectiveMode!=='at_least'||!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1||q.objectiveThreshold>256))fail(label,'Seuil X sur N invalide');
+    if(q.objectiveMode==='at_least' && (!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1))fail(label,'Définir le nombre d’objectifs nécessaires');
+    if(q.kind!=='information'&&Array.isArray(q.objectives)){
+      const required=q.objectives.filter(o=>!o.optional).length;
+      if(required<1 || q.objectiveMode==='at_least' && q.objectiveThreshold>required)fail(label,'Objectifs obligatoires insuffisants');
+    }
     if(q.layout&&(!Number.isFinite(q.layout.x)||!Number.isFinite(q.layout.y)))fail(label,'Position invalide');
     const info=q.kind==='information';
     if(Object.hasOwn(q,'kind')&&!['standard','information'].includes(q.kind))fail(label,'Type de quête invalide');
@@ -318,6 +324,7 @@ for(const a of c.annotations||[]){
       if(!EVENT_KEYS.includes(o.event)&&!ID.test(o.event))fail(label,'Événement non reconnu');
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
+      if(Object.hasOwn(o,'optional')&&typeof o.optional!=='boolean')fail(label,'Objectif facultatif invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
       if(o.event==='location'){
         const bounds=o.conditions?.position || (Array.isArray(o.conditions?.and)?o.conditions.and.find(node=>node?.position)?.position:null);
