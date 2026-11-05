@@ -38,6 +38,7 @@ function convertTask(t,id,index,chapter){
     case 'dimension':return withTarget('dimension_enter',resource(t.dimension),1);
     case 'stat':return withTarget('custom_stat',resource(t.stat),t.value??t.count??1);
     case 'advancement':return withTarget('advancement_complete',resource(t.advancement),1);
+    case 'advancement':return withTarget('advancement_complete',resource(t.advancement),1);
     case 'xp': {
       if(ftbBool(t.points,false))throw Error('FTB XP points task cannot safely map to XP levels');
       return withTarget('xp_levels','questplus:levels',t.value??1);
@@ -64,6 +65,11 @@ function convertReward(r){
     const amount=r[type]??r.amount;
     if(!validCount(amount)||amount>1_000_000)throw Error('invalid XP amount');
     return {type:type==='xp'?'experience':'experience_levels',amount};
+  }
+  if(type==='advancement') {
+    const advancement=resource(r.advancement);
+    if(!ID.test(advancement||''))throw Error('invalid advancement reward ID');
+    return {type:'questplus:advancement',data:{advancement}};
   }
   if(type==='item'){
     if(r.item?.components||r.item?.tag)throw Error('custom item components require manual conversion');
