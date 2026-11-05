@@ -54,7 +54,7 @@ function LocalizationPanel({project,quest,category,onUpdate,onAddLocale}:{projec
 }
 
 
-type PickerKind='block'|'item'|'entity'|'biome'|'structure';
+type PickerKind='block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement';
 function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBrowse}:{
  objective:Objective;index:number;questId:string;onUpdate:Props['onUpdate'];onCondition:Props['onCondition'];
  onBrowse:(index:number,kind:PickerKind)=>void;
@@ -64,7 +64,8 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  const path='objectives.'+i;
  const editTarget=(value:string)=>onUpdate(path+'.target',value);
  const editCount=(value:number)=>onUpdate(path+'.count',Math.max(1,Math.floor(value)||1));
- const browse=['block','item','entity','biome','structure'].includes(kind);
+ const pickerKind=o.event==='custom_stat'?'statistic':o.event==='advancement_complete'?'advancement':kind;
+ const browse=['block','item','entity','biome','structure','statistic','advancement'].includes(pickerKind);
  const modifier=(next:any)=>onCondition('objective:'+i,next);
  const field=()=>{
   if(kind==='position')return <div className="coordinate-fields objective-coordinates">
@@ -93,7 +94,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
    </div>;
   return <div className="target-field">
      <Field label={kind==='custom'?'Custom target ID':'Target ID'} value={o.target} onChange={editTarget} placeholder={kind==='custom'?'modid:target':'minecraft:stone'}/>
-     {browse&&<button type="button" className="button secondary" onClick={()=>onBrowse(i,kind as PickerKind)}>{tUI('Browse')}</button>}
+     {browse&&<button type="button" className="button secondary" onClick={()=>onBrowse(i,pickerKind as PickerKind)}>{tUI('Browse')}</button>}
    </div>;
  };
  return <div className={'field-row objective-inputs objective-inputs-'+kind}>
@@ -112,7 +113,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
 
 export function QuestDetails({project,selection,language,onUpdate,onAction,onCondition,onAddLocale,translationRequest=0}:Props){
  const [tab,setTab]=useState<Tab>('objectives');
-  const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:'block'|'item'|'entity'|'biome'|'structure'}|null>(null);
+  const [targetBrowser,setTargetBrowser]=useState<{index:number;kind:PickerKind}|null>(null);
  useEffect(()=>{
   if(!translationRequest)return;
   setTab('localization');
