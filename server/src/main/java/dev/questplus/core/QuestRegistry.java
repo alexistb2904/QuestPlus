@@ -40,11 +40,16 @@ public final class QuestRegistry {
     public static QuestRegistry load(Path dir, ValidationHook hook) throws IOException {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
         if (Files.exists(dir)) try (var paths = Files.walk(dir)) {
-            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
-                try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
-                    reader.setStrictness(Strictness.STRICT);
-                    var root = readJson(reader, 0);
-                    if (reader.peek() != JsonToken.END_DOCUMENT) throw new IllegalArgumentException("Trailing JSON content");
+            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")||p.toString().endsWith(".json5")).sorted().toList()) {
+                try {
+                    JsonElement root;
+                    if(path.toString().endsWith(".json5"))
+                        root = QuestJson5.parse(Files.readString(path, StandardCharsets.UTF_8));
+                    else try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+                        reader.setStrictness(Strictness.STRICT);
+                        root = readJson(reader, 0);
+                        if (reader.peek() != JsonToken.END_DOCUMENT) throw new IllegalArgumentException("Trailing JSON content");
+                    }
                     var q = parse(root.getAsJsonObject(), hook);
                     if (quests.putIfAbsent(q.id(), q) != null) throw new IllegalArgumentException("Duplicate quest " + q.id());
                 } catch (RuntimeException e) { throw new IllegalArgumentException(path + ": " + e.getMessage(), e); }
@@ -97,36 +102,44 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
+            "objectiveMode","objectiveThreshold","progressBeforeUnlock","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
         String progression=string(o,"progression");
         if (!Set.of("once","repeatable","infinite","tiered").contains(progression) || (version==1 && !progression.equals("once"))) throw new IllegalArgumentException("Invalid progression/schema version");
         String mode=o.has("objectiveMode") ? string(o,"objectiveMode") : "all";
-        if (!Set.of("all","any","sequence").contains(mode)) throw new IllegalArgumentException("Invalid objectiveMode");
+        if (!Set.of("all","any","sequence","at_least").contains(mode)) throw new IllegalArgumentException("Invalid objectiveMode");
+        int objectiveThreshold=o.has("objectiveThreshold") ? (int)integer(o,"objectiveThreshold",1,256) : 1;
+        if(o.has("objectiveThreshold") && !mode.equals("at_least"))throw new IllegalArgumentException("objectiveThreshold requires at_least mode");
         long cooldown=o.has("cooldownSeconds") ? integer(o,"cooldownSeconds",0,31_536_000) : 0;
         long timeLimit=o.has("timeLimitSeconds") ? integer(o,"timeLimitSeconds",1,31_536_000) : 0;
         boolean noDeath=o.has("noDeath") && bool(o,"noDeath");
+        boolean progressBeforeUnlock=o.has("progressBeforeUnlock") && bool(o,"progressBeforeUnlock");
         String kind=o.has("kind") ? string(o,"kind") : "standard";
         if (!Set.of("standard","information").contains(kind)) throw new IllegalArgumentException("Invalid quest kind");
         String acknowledgement=o.has("acknowledgement") ? string(o,"acknowledgement") : "manual";
         if (!Set.of("manual","read_only").contains(acknowledgement) || (o.has("acknowledgement") && !kind.equals("information")))
             throw new IllegalArgumentException("Invalid information acknowledgement");
-        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode")
+        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode") || o.has("objectiveThreshold") || progressBeforeUnlock
                 || cooldown!=0 || timeLimit!=0 || noDeath))
             throw new IllegalArgumentException("Information quests require schemaVersion 2 and once progression without timers or tiers");
-        if (version==1 && (o.has("objectiveMode") || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
+        if (version==1 && (o.has("objectiveMode") || o.has("objectiveThreshold") || progressBeforeUnlock || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
             throw new IllegalArgumentException("Advanced progression requires schemaVersion 2");
         List<QuestDefinition.Objective> objectives = new ArrayList<>(); Set<String> ids = new HashSet<>();
         if (array(o,"objectives").size() > 256) throw new IllegalArgumentException("Too many objectives");
         for (JsonElement e : array(o,"objectives")) {
-            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions");
+            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions","optional");
             String oid = string(v,"id"), event = string(v,"event"), target = string(v,"target");
             if (!oid.matches("[a-z0-9_.-]+") || !ids.add(oid)) throw new IllegalArgumentException("Invalid objective " + oid);
             QuestExtensions.event(event);
             identifier(target.startsWith("#") ? target.substring(1) : target); hook.validate(event,target);
-            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null));
+            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null,v.has("optional") && bool(v,"optional")));
+        }
+        if(kind.equals("standard")) {
+            long required=objectives.stream().filter(objective->!objective.optional()).count();
+            if(required==0 || mode.equals("at_least") && objectiveThreshold>required)
+                throw new IllegalArgumentException("Quest needs enough non-optional objectives for completion");
         }
         if (kind.equals("information")) {
             if (!objectives.isEmpty()) throw new IllegalArgumentException("Information quests must not define gameplay objectives");
@@ -157,10 +170,16 @@ public final class QuestRegistry {
         if (kind.equals("information")) mechanical += "|information|"+acknowledgement;
         if (version==2) mechanical += "|v2|"+progression+"|"+mode+"|"+afterLast+"|"+cooldown+"|"+timeLimit+"|"+noDeath
             +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
+        // Preserve legacy progress fingerprints exactly. New optional/threshold semantics are
+        // only fingerprinted when a pack actually uses them.
+        if(mode.equals("at_least")||objectives.stream().anyMatch(QuestDefinition.Objective::optional))
+            mechanical+="|selection-v1|"+objectiveThreshold+"|"+objectives.stream()
+                .map(x->x.id()+":"+x.optional()).collect(Collectors.joining(","));
+        if(progressBeforeUnlock)mechanical+="|flexible-v1";
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
             mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
-            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of());
+            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold,progressBeforeUnlock);
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
         Map<String,JsonArray> parsed=new HashMap<>();
@@ -204,16 +223,33 @@ public final class QuestRegistry {
             var v=value.getAsJsonObject(); String type=string(v,"type");
             Map<String,String> text=v.has("text") ? translations(object(v,"text")) : Map.of();
             QuestDefinition.Reward reward;
-            if (type.equals("experience")) {
+            if (type.equals("experience") || type.equals("experience_levels")) {
                 fields(v,"type","amount","text"); reward=new QuestDefinition.Reward(type,null,0,(int)integer(v,"amount",1,1_000_000),"{}",text);
             } else if (type.equals("item")) {
                 fields(v,"type","item","count","text"); String item=identifier(string(v,"item")); hook.validate("item",item);
                 reward=new QuestDefinition.Reward(type,item,(int)integer(v,"count",1,2304),0,"{}",text);
             } else {
                 fields(v,"type","data","text"); var data=object(v,"data"); QuestExtensions.validateReward(type,data);
+                if(type.equals("questplus:advancement"))
+                    hook.validate("advancement_complete",data.get("advancement").getAsString());
+                if(Set.of("questplus:random","questplus:loot","questplus:all").contains(type))
+                    for(var option:data.getAsJsonArray("options")){
+                        var entry=option.getAsJsonObject();
+                        if(entry.get("type").getAsString().equals("item"))
+                            hook.validate("item",entry.get("item").getAsString());
+                    }
                 reward=new QuestDefinition.Reward(type,null,0,0,data.toString(),text);
             }
             QuestExtensions.validateSavedReward(reward); result.add(reward);
+        }
+        int maximum=0;
+        for(var reward:result){
+            if(Set.of("questplus:random","questplus:loot","questplus:all").contains(reward.type())){
+                var data=JsonParser.parseString(reward.data()).getAsJsonObject();
+                maximum+=reward.type().equals("questplus:all") ? data.getAsJsonArray("options").size() :
+                    data.has("rolls")?data.get("rolls").getAsInt():1;
+            }else maximum++;
+            if(maximum>64)throw new IllegalArgumentException("Expanded reward table may exceed 64 grants");
         }
         return List.copyOf(result);
     }

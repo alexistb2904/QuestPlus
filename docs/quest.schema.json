@@ -78,7 +78,8 @@
       "enum": [
         "all",
         "any",
-        "sequence"
+        "sequence",
+        "at_least"
       ]
     },
     "tiers": {
@@ -224,6 +225,17 @@
           ]
         }
       }
+    },
+    "objectiveThreshold": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256,
+      "description": "When objectiveMode is at_least, require this many non-optional objectives."
+    },
+    "progressBeforeUnlock": {
+      "type": "boolean",
+      "default": false,
+      "description": "Record gameplay objectives before prerequisites are completed, but defer completion and rewards until unlocked."
     }
   },
   "allOf": [
@@ -450,7 +462,14 @@
                 "travel_distance",
                 "location",
                 "player_death",
-                "manual"
+                "manual",
+                "xp_levels",
+                "item_submit",
+                "item_turn_in",
+                "custom_stat",
+                "advancement_complete",
+                "fluid_transfer",
+                "energy_transfer"
               ]
             },
             {
@@ -500,6 +519,11 @@
         },
         "conditions": {
           "$ref": "#/$defs/objectiveCondition"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Optional bonus objective; does not gate quest completion."
         }
       }
     },
@@ -843,6 +867,27 @@
           "properties": {
             "type": {
               "const": "experience"
+            },
+            "amount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "text": {
+              "$ref": "#/$defs/translations"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "amount"
+          ],
+          "properties": {
+            "type": {
+              "const": "experience_levels"
             },
             "amount": {
               "type": "integer",

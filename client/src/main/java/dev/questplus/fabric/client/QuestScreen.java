@@ -29,6 +29,7 @@ public final class QuestScreen extends Screen {
     private Map<QuestLayout.Edge,List<QuestLayout.Point>> routes=Map.of();
     private QuestCamera camera=new QuestCamera(QuestCamera.MIN_ZOOM,QuestCamera.MAX_ZOOM);
     private String category,selected,tab="quests",filter="all",confirmation;
+    private String submitObjective;
     private EditBox search,input;
     private String query="";
     private int left,top,right,bottom,treeLeft,treeTop,treeRight,treeBottom,detailsScroll,categoryScroll,teamPage;
@@ -571,21 +572,34 @@ public final class QuestScreen extends Screen {
                 pendingManualQuest=selected;
                 pendingManualAt=System.currentTimeMillis();
             }
-            action(currentAction,selected);
+            action(currentAction,currentAction.equals("submit") ? selected+"|"+submitObjective : selected);
             updateQuestAction();
         }); updateQuestAction();
     }
     private void updateQuestAction() {
         if (questAction==null || selected==null) return;
         var p=state.progress(selected); var q=state.quests.get(selected); if (q==null) return;
+        submitObjective=null;
+        if (!QuestClientState.flag(p,"completed") && QuestClientState.flag(p,"unlocked")) {
+            JsonObject counters=p==null?null:p.getAsJsonObject("counters");
+            int tierIndex=QuestClientState.count(p,"tier");
+            long factor=q.progression().equals("tiered") && !q.tiers().isEmpty()
+                ? q.tiers().get(Math.min(tierIndex,q.tiers().size()-1)).threshold() : 1L;
+            for(var objective:q.objectives()) {
+                long progress=counters!=null && counters.has(objective.id()) ? counters.get(objective.id()).getAsLong() : 0;
+                if(progress>=objective.count()*factor)continue;
+                if(Set.of("item_submit","item_turn_in").contains(objective.event()))submitObjective=objective.id();
+                if(q.objectiveMode().equals("sequence") || submitObjective!=null)break;
+            }
+        }
         currentAction=QuestClientState.flag(p,"claimable") ? "claim" : QuestClientState.flag(p,"waitingRestart") ? "restart" : (q.kind().equals("information") && q.acknowledgement().equals("manual") ||
             q.objectives().stream().anyMatch(o -> o.event().equals("manual") && o.target().equals(q.id())))
-            && !QuestClientState.flag(p,"completed") ? "trigger" : null;
+            && !QuestClientState.flag(p,"completed") ? "trigger" : submitObjective!=null ? "submit" : null;
         questAction.visible=currentAction!=null;
         boolean pending=currentAction!=null && currentAction.equals("trigger") && Objects.equals(pendingManualQuest,selected)
             && System.currentTimeMillis()-pendingManualAt<2500L;
         questAction.active=currentAction!=null && !pending && (currentAction.equals("claim") || QuestClientState.flag(p,"unlocked"));
-        if (currentAction!=null) questAction.setMessage(t(pending ? "processing" : currentAction));
+        if (currentAction!=null) questAction.setMessage(currentAction.equals("submit") ? Component.literal("Submit items") : t(pending ? "processing" : currentAction));
     }
     private void drawDetails(GuiGraphicsExtractor g) {
         var q=state.quests.get(selected); if (q==null) return;
@@ -767,9 +781,14 @@ public final class QuestScreen extends Screen {
     }
     private ItemStack rewardIcon(QuestDefinition.Reward r) {
         if (r.item()!=null) return icon(r.item());
-        return new ItemStack(r.type().equals("experience") ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
+        return new ItemStack(Set.of("experience","experience_levels").contains(r.type()) ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
     }
-    private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
+    // TODO(Codex P0): player-specific reward-choice picker in tablet, with disabled Claim
+    // until the server confirms /questplus choose persisted the concrete option.
+    private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("questplus:advancement") ?
+            "Advancement: "+com.google.gson.JsonParser.parseString(r.data()).getAsJsonObject()
+                .get("advancement").getAsString() :
+            r.type().equals("experience_levels") ? r.amount()+" XP levels" : r.type().equals("experience") ? t("xp",r.amount()).getString() : r.item()!=null ? r.count()+" × "+icon(r.item()).getHoverName().getString() : t("custom_reward").getString(); }
     private String questName(String id) {
         var quest=state.quests.get(id);
         return quest==null?t("unknown_quest").getString():state.text(quest.title());

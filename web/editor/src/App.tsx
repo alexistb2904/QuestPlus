@@ -42,6 +42,10 @@ import { QuestDetails } from "./components/QuestDetails";
 import { IconPicker, ItemIcon } from "./components/IconPicker";
 import { Dialog } from "./components/Dialog";
 import { HubPanel } from "./components/HubPanel";
+import {RegistryBrowser} from "./components/RegistryBrowser";
+import {BulkEditor} from "./components/BulkEditor";
+import {TemplateLibrary} from "./components/TemplateLibrary";
+import JSON5 from "json5";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 
 export default function App() {
@@ -60,6 +64,9 @@ export default function App() {
 		[jsonError, setJsonError] = useState(""),
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
+	const [registryOpen,setRegistryOpen]=useState(false);
+	const [bulkOpen,setBulkOpen]=useState(false);
+	const [templatesOpen,setTemplatesOpen]=useState(false);
 	const [showQuestTitles, setShowQuestTitles] = useState(() => localStorage.getItem("questplus.quest-titles") === "true");
 	useEffect(() => {
 		localStorage.setItem("questplus.quest-titles", String(showQuestTitles));
@@ -127,7 +134,7 @@ export default function App() {
 	});
 	const changeCamera = (next: any) => setState((s) => ({ ...s, camera: { ...next, zoom: clampZoom(next.zoom) } }));
 	const editJson = () => {
-		setJsonContent(JSON.stringify(owner(project, selection, categoryId), null, 2));
+		setJsonContent(JSON5.stringify(owner(project, selection, categoryId), null, 2));
 		setJsonError("");
 		setJsonOpen(true);
 	};
@@ -250,6 +257,9 @@ export default function App() {
 					<input ref={searchRef} aria-label={tUI("Search quests…")} placeholder={tUI("Search quests…")} value={search} onChange={(e) => setSearch(e.target.value)} />
 					<kbd>Ctrl K</kbd>
 				</div>
+				<button className="button secondary" onClick={()=>setRegistryOpen(true)}><Package size={16}/>Mod Registry</button>
+				<button className="button secondary" onClick={()=>setBulkOpen(true)}><SlidersHorizontal size={16}/>Bulk Edit</button>
+				<button className="button secondary" onClick={()=>setTemplatesOpen(true)}><FolderOpen size={16}/>Templates</button>
 				<button className="button violet" onClick={studio.createCategory}>
 					<FolderOpen size={17} />
 					<span>{tUI("Add Category")}</span>
@@ -264,7 +274,7 @@ export default function App() {
 				hidden
 				type="file"
 				multiple
-				accept=".json,.zip"
+				accept=".json,.json5,.zip"
 				onChange={(e) => {
 					void studio.importFiles(e.target.files);
 					e.target.value = "";
@@ -389,6 +399,7 @@ export default function App() {
 							onRoute={studio.setLinkRoute}
 							onBackgroundCreate={rect=>{studio.createBackground(rect);setTool('select')}}
 							onCreateAt={(kind, at) => (kind === "quest" ? studio.createQuest(at) : studio.createAnnotation(at))}
+							onCreateTemplate={(templateId, at) => studio.createQuest(at, templateId)}
 							showQuestTitles={showQuestTitles}
 							showGrid={grid}
 							gridSize={gridSize}
@@ -473,6 +484,11 @@ export default function App() {
 						}
 					/>
 				</label>
+				<label className="checkbox-row" title="Trusted server administrators only. Commands are disabled by default.">
+                    <input type="checkbox" checked={project.config?.enableCommandRewards===true}
+                      onChange={e=>studio.mutate(state=>{state.project.config ||= {};state.project.config.enableCommandRewards=e.target.checked;},'config:commandRewards')}/>
+                    Enable server command rewards (trusted packs)
+                </label>
 				<button
 					className="button primary export-button"
 					onClick={() => {
@@ -482,6 +498,17 @@ export default function App() {
 					{tUI("Export ZIP")}
 				</button>
 			</footer>
+			{templatesOpen&&<TemplateLibrary onClose={()=>setTemplatesOpen(false)}/>} 
+			{bulkOpen&&<BulkEditor project={project} onClose={()=>setBulkOpen(false)} onApply={(result,count)=>{
+    studio.mutate(draft=>{draft.project=result},'bulk-edit');
+    studio.toast('Updated '+count+' quests');
+   }}/>} 
+			{registryOpen && <RegistryBrowser onClose={()=>setRegistryOpen(false)} onPick={(kind,id)=>{
+        const matches:Record<string,string[]>={items:['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'],blocks:['block_break','block_place','block_interact'],fluids:['fluid_transfer'],entities:['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'],biomes:['biome_visit'],structures:['structure_visit'],dimensions:['dimension_enter'],statistics:['custom_stat'],advancements:['advancement_complete']};
+        const index=selected?.objectives?.findIndex(o=>(matches[kind]||[]).includes(o.event))??-1;
+        if(index>=0){studio.setField('objectives.'+index+'.target',id);studio.toast('Selected '+id);setRegistryOpen(false);}
+        else void navigator.clipboard.writeText(id).then(()=>studio.toast('Copied '+id)).catch(()=>studio.toast('Resource ID: '+id));
+       }}/>} 
 			{picker && (
 				<IconPicker
 					onPick={(id) => {

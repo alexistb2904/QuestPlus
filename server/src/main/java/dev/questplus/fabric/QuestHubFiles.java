@@ -2,6 +2,7 @@ package dev.questplus.fabric;
 
 import com.google.gson.*;
 import dev.questplus.core.QuestRegistry;
+import dev.questplus.core.QuestJson5;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,7 @@ final class QuestHubFiles {
     private static final int MAX_FILES=2000, MAX_TOTAL=12*1024*1024;
     private static boolean allowed(String name) {
         return name.equals("config.json") || name.equals("queststudio-compatibility.json")
-            || name.matches("(quests|categories)/[a-z0-9_./-]+\\.json")
+            || (name.matches("quests/[a-z0-9_./-]+\\.json5?") || name.matches("categories/[a-z0-9_./-]+\\.json5?"))
                 && !Arrays.asList(name.split("/")).contains("..");
     }
     static JsonArray snapshot(Path definitions) throws IOException {
@@ -53,7 +54,7 @@ final class QuestHubFiles {
             if(name.equals("config.json"))hasConfig=true;
             if(name.startsWith("quests/"))hasQuest=true;
             if(name.startsWith("categories/"))hasCategory=true;
-            try{QuestRegistry.parseStrict(new StringReader(content));}
+            try{if(name.endsWith(".json5"))QuestJson5.parse(content);else QuestRegistry.parseStrict(new StringReader(content));}
             catch(RuntimeException ex){throw new IOException("Invalid JSON in "+name,ex);}
         }
         if(!hasConfig||!hasQuest||!hasCategory)throw new IOException("Pack requires config, categories and quests");

@@ -1,5 +1,7 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {gameLayout} from '../core/game-layout.js';
+import {QUEST_TEMPLATES} from '../core/quest-templates.js';
+import {savedQuestTemplates} from '../core/studio-template-library.js';
 import {dependencyError} from '../core/quest-links.js';
 import {edgePoints,nearestSegment,backgroundRect,insertWaypoint} from '../core/diagram-geometry.js';
 import {text,annotationText,annotationRich} from '../core/project.js';
@@ -10,10 +12,11 @@ import {tUI} from '../ui/ui-i18n.js';
 import {ItemIcon} from './IconPicker';
 import type {Quest,Category,Selection,Camera,Position} from '../types';
 
-type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan'|'background';showQuestTitles?:boolean;onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onBackgroundCreate?:(rect:{x:number;y:number;width:number;height:number})=>void;onRoute?:(from:string,to:string,points:Position[])=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
-export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onResize,onBackgroundCreate,onRoute,showGrid,gridSize,snap,tool,showQuestTitles=false}:Props){
+type Props={quests:Quest[];allQuests:Quest[];onLink:(sourceId:string,targetId:string)=>void;category?:Category;language:string;selection:Selection|null;camera:Camera;onCamera:(v:Camera)=>void;onSelect:(s:Selection)=>void;showGrid:boolean;gridSize:number;snap:boolean;tool:'select'|'pan'|'background';showQuestTitles?:boolean;onPosition:(type:'quest'|'annotation',id:string,at:Position)=>void;onCreateAt?:(kind:'quest'|'annotation',at:Position)=>void;onCreateTemplate?:(templateId:string,at:Position)=>void;onBackgroundCreate?:(rect:{x:number;y:number;width:number;height:number})=>void;onRoute?:(from:string,to:string,points:Position[])=>void;onResize?:(kind:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number})=>void};
+export function TreeCanvas({quests,allQuests,onLink,category,language,selection,camera,onCamera,onSelect,onPosition,onCreateAt,onCreateTemplate,onResize,onBackgroundCreate,onRoute,showGrid,gridSize,snap,tool,showQuestTitles=false}:Props){
  const ref=useRef<HTMLDivElement>(null);
  const [contextMenu,setContextMenu]=useState<{x:number;y:number;at:Position}|null>(null);
+ const [customTemplates,setCustomTemplates]=useState<{id:string;label:string}[]>([]);
  const resize=useRef<{type:'quest'|'annotation';id:string;startX:number;startY:number;width:number;height:number;size:number;pointer:number}|null>(null);
  const [resizeGhost,setResizeGhost]=useState<{id:string;width?:number;height?:number;size?:number}|null>(null);
  const resizePending=useRef<{id:string;width?:number;height?:number;size?:number}|null>(null);
@@ -180,12 +183,17 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
  return <div className="viewport" id="viewport" ref={ref} aria-label={tUI('Interactive quest tree')} role="region" tabIndex={0} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
    onContextMenu={e=>{e.preventDefault();const rect=ref.current!.getBoundingClientRect();
      const x=e.clientX-rect.left,y=e.clientY-rect.top;
+     setCustomTemplates(savedQuestTemplates().map(({id,label})=>({id,label})));
      setContextMenu({x:Math.min(x,Math.max(0,rect.width-185)),y:Math.min(y,Math.max(0,rect.height-115)),at:world(x,y)});
    }}
    onKeyDown={e=>{if(e.key==='Escape'){showCable(null);setContextMenu(null);dragging.current=null;drawing.current=null;setDraft(null);routeDrag.current=null;setRouteGhost(null);return;}if((e.target as HTMLElement).closest('[data-node-id],[data-waypoint]'))return;const delta=24/clampZoom(camera.zoom);if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();onCamera({...camera,x:camera.x+(e.key==='ArrowLeft'?-delta:e.key==='ArrowRight'?delta:0),y:camera.y+(e.key==='ArrowUp'?-delta:e.key==='ArrowDown'?delta:0)})}}}
    style={{backgroundImage:showGrid?undefined:'none',backgroundSize:(gridSize*clampZoom(camera.zoom))+'px '+(gridSize*clampZoom(camera.zoom))+'px',backgroundPosition:(-camera.x*clampZoom(camera.zoom)+size.width/2)+'px '+(-camera.y*clampZoom(camera.zoom)+size.height/2)+'px','--diagram-zoom':clampZoom(camera.zoom)} as React.CSSProperties}>
   {contextMenu&&<div className="graph-context-menu" role="menu" style={{left:contextMenu.x,top:contextMenu.y}} onPointerDown={e=>e.stopPropagation()}>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('quest',contextMenu.at);setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Create quest')}</button>
+   <details className="template-submenu"><summary>{tUI('Choose quest template')}</summary><div className="template-options">
+    {QUEST_TEMPLATES.map(template=><button key={template.id} role="menuitem" title={template.description} type="button" onClick={()=>{onCreateTemplate?.(template.id,contextMenu.at);setContextMenu(null)}}>{template.label}</button>)}
+    {customTemplates.map(template=><button key={template.id} role="menuitem" title="Saved custom template" type="button" onClick={()=>{onCreateTemplate?.(template.id,contextMenu.at);setContextMenu(null)}}>★ {template.label}</button>)}
+   </div></details>
    <button role="menuitem" type="button" onClick={()=>{onCreateAt?.('annotation',contextMenu.at);setContextMenu(null)}}><StickyNote size={15}/>{tUI('Create annotation')}</button>
    <button role="menuitem" type="button" onClick={()=>{onBackgroundCreate?.({...contextMenu.at,width:280,height:180});setContextMenu(null)}}><SquarePlus size={15}/>{tUI('Add background')}</button>
    </div>}

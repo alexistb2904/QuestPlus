@@ -44,7 +44,11 @@ public final class QuestPresentation {
             case "npc_interact" -> new String[]{"Talk to","Parler à","Hablar con","交谈"};
             case "biome_visit","structure_visit" -> new String[]{"Visit","Visiter","Visitar","探索"};
             case "dimension_enter" -> new String[]{"Enter","Entrer dans","Entrar en","进入"};
+            case "fluid_transfer" -> new String[]{"Transfer fluid","Transférer le fluide","Transferir fluido","传输流体"};
+            case "energy_transfer" -> new String[]{"Transfer FE","Transférer FE","Transferir FE","传输能量"};
             case "inventory_count" -> new String[]{"Hold","Posséder","Tener","持有"};
+            case "item_submit" -> new String[]{"Submit","Soumettre","Entregar","提交"};
+            case "item_turn_in" -> new String[]{"Turn in","Remettre","Entregar y consumir","交付并消耗"};
             case "travel_distance" -> new String[]{"Travel","Parcourir","Recorrer","行进"};
             case "location" -> new String[]{"Reach","Atteindre","Llegar a","抵达"};
             case "player_death" -> new String[]{"Die","Mourir","Morir","死亡"};
@@ -55,6 +59,13 @@ public final class QuestPresentation {
             String meters=java.math.BigDecimal.valueOf(objective.count()/100.0).stripTrailingZeros().toPlainString();
             return new String[]{"Travel ","Parcourir ","Recorrer ","行进 "}[column]+meters+" m";
         }
+        if (objective.event().equals("custom_stat"))
+            return new String[]{"Reach stat ","Atteindre la statistique ","Alcanzar estadística ","达到统计值 "}[column]
+                +objective.target()+" ≥ "+objective.count();
+        if (objective.event().equals("advancement_complete"))
+            return new String[]{"Complete advancement ","Compléter le progrès ","Completar progreso ","完成进度 "}[column]+objective.target();
+        if (objective.event().equals("xp_levels"))
+            return new String[]{"Reach XP level ","Atteindre le niveau XP ","Alcanzar nivel XP ","达到经验等级 "}[column]+objective.count();
         if (objective.event().equals("location"))
             return new String[]{"Reach location","Atteindre la position","Llegar a la posición","到达指定位置"}[column];
         if (objective.event().equals("manual"))

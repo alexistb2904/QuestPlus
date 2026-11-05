@@ -1,4 +1,5 @@
 import {BUILTIN_PROJECT} from '../data/default-data.js';
+import JSON5 from 'json5';
 import {validRich,mediaPattern} from './rich-format.js';
 import {BIOMES,STRUCTURES,DIMENSIONS} from './objective-targets.js';
 import {isCategoryLink} from './diagram-geometry.js';
@@ -9,12 +10,12 @@ export const EVENTS = [
   ['item_consume','Consommer'],['fish_item','Pêcher un objet'],['trade','Échanger'],['entity_kill','Tuer des entités'],
   ['fish_entity','Pêcher une entité'],['questplus:fish_any','Pêcher des poissons (toutes espèces)'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
   ['npc_interact','Parler à un PNJ'],['biome_visit','Visiter un biome'],['structure_visit','Visiter une structure'],
-  ['dimension_enter','Entrer dans une dimension'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
-  ['location','Atteindre une position'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
+  ['dimension_enter','Entrer dans une dimension'],['item_submit','Soumettre (sans retrait)'],['item_turn_in','Remettre et consommer'],['fluid_transfer','Transférer un fluide'],['energy_transfer','Transférer de l’énergie'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
+  ['location','Atteindre une position'],['xp_levels','Posséder des niveaux XP'],['custom_stat','Atteindre une statistique Minecraft'],['advancement_complete','Compléter un advancement'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
 ];
 export const EVENT_KEYS = EVENTS.map(([id])=>id);
 export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
-export const MODES=['all','any','sequence'];
+export const MODES=['all','any','sequence','at_least'];
 const ID=/^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const LOCAL=/^[a-z0-9_.-]+$/;
 export const text=(value,lang='en_us')=>{
@@ -100,7 +101,7 @@ export function orderedCategories(categories){
   return [...categories].sort((a,b)=>(a.order??Number.MAX_SAFE_INTEGER)-(b.order??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
 }
 export function category(id='questplus:new_category',en='New category'){
-  return {id,icon:'minecraft:book',title:{en_us:en},annotations:[]};
+  return {id,icon:'minecraft:book',title:{en_us:en},description:{en_us:'Quest category'},annotations:[]};
 }
 export function quest(group,id='questplus:quest',en='New quest',layout={x:0,y:0}){
   return {schemaVersion:2,id,category:group.id,icon:'minecraft:book',size:32,title:{en_us:en},
@@ -189,13 +190,70 @@ export function validate(p){
   const validateRewards=(list,label)=>{
     if(!Array.isArray(list)){fail(label,'Liste de récompenses invalide');return;}
     if(list.length>64)fail(label,'64 récompenses maximum');
+    let expanded=0;
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
-      if(r.type==='experience'&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
+      if(r.type==='questplus:message'){
+        if(typeof r.data?.message!=='string'||!r.data.message.trim()||r.data.message.length>256||
+            Object.keys(r.data||{}).join()!=='message')fail(label,'Message de récompense invalide');
+      }
+      if(r.type==='questplus:command'){
+        if(typeof r.data?.command!=='string'||r.data.command.length<1||r.data.command.length>240||!r.data.command.trim()
+            ||[10,13,0].some(code=>r.data.command.includes(String.fromCharCode(code)))||r.data.command.startsWith('//')||Object.keys(r.data||{}).join()!=='command')
+          fail(label,'Commande invalide');
+        if(p?.config?.enableCommandRewards!==true)fail(label,'Activer les récompenses de commandes dans les paramètres du projet (serveur approuvé)');
+      }
+      if(r.type==='questplus:choice'){
+        const options=r.data?.options;
+        if(!r.data||typeof r.data!=='object'||Array.isArray(r.data)||
+           Object.keys(r.data).sort().join(',')!=='options'||
+           !Array.isArray(options)||options.length<2||options.length>32)
+           fail(label,'Choix de récompense : 2 à 32 options requises');
+        for(const option of Array.isArray(options)?options:[]){
+          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option de récompense invalide');continue;}
+          if(option.type==='item'){
+            if(Object.keys(option).sort().join(',')!=='count,item,type'||!ID.test(option.item||'')||option.item==='minecraft:air'||
+               !Number.isInteger(option.count)||option.count<1||option.count>2304)
+              fail(label,'Option objet de récompense invalide');
+          }else if(['experience','experience_levels'].includes(option.type)){
+            if(Object.keys(option).sort().join(',')!=='amount,type'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
+              fail(label,'Option XP de récompense invalide');
+          }else fail(label,'Option de récompense au choix : type interdit');
+        }
+        expanded++;
+      }
+      if(['questplus:random','questplus:loot','questplus:all'].includes(r.type)){
+        const data=r.data;
+        const options=data?.options,rolls=data?.rolls??1;
+        expanded+=r.type==='questplus:all'?(Array.isArray(options)?options.length:0):(Number.isInteger(rolls)?rolls:0);
+        if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).some(k=>r.type==='questplus:loot'?!['options','rolls','emptyWeight'].includes(k):r.type==='questplus:all'?k!=='options':!['options','rolls'].includes(k))
+            ||!Array.isArray(options)||options.length<1||options.length>32
+            ||(r.type!=='questplus:all'&&(!Number.isInteger(rolls)||rolls<1||rolls>16))
+            ||(r.type==='questplus:loot'&&(!Number.isInteger(data?.emptyWeight)||data.emptyWeight<0||data.emptyWeight>1000000))
+            ||(r.type==='questplus:all'&&Object.hasOwn(data,'rolls')))
+            fail(label,'Table de récompenses aléatoires invalide');
+        let weight=0;
+        for(const option of Array.isArray(options)?options:[]){
+          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option aléatoire invalide');continue}
+          weight+=Number.isSafeInteger(option.weight)?option.weight:0;
+          if(!Number.isInteger(option.weight)||option.weight<1||option.weight>1000000)fail(label,'Poids de récompense invalide');
+          if(option.type==='item'){
+            if(Object.keys(option).sort().join(',')!=='count,item,type,weight'||!ID.test(option.item||'')||option.item==='minecraft:air'||!Number.isInteger(option.count)||option.count<1||option.count>2304)
+              fail(label,'Option objet invalide');
+          }else if(['experience','experience_levels'].includes(option.type)){
+            if(Object.keys(option).sort().join(',')!=='amount,type,weight'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
+              fail(label,'Option XP invalide');
+          }else fail(label,'Type de récompense aléatoire non reconnu');
+        }
+        if(weight>32000000)fail(label,'Poids de récompenses trop élevé');
+      } else if(r.type!=='questplus:choice') expanded++;
+
+      if(['experience','experience_levels'].includes(r.type)&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
       else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
-      else if(!['experience','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
+      else if(!['experience','experience_levels','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
       if(Object.hasOwn(r,'text')&&!translations(r.text))fail(label,'Texte récompense : traduction anglaise et textes non vides requis');
     }
+    if(expanded>64)fail(label,'Trop de récompenses après tirage aléatoire (maximum 64)');
   };
   const validateCondition=(root,label,prerequisite=false)=>{
     let nodes=0;
@@ -299,6 +357,14 @@ for(const a of c.annotations||[]){
     if(![1,2].includes(q.schemaVersion))fail(label,'schemaVersion doit être 1 ou 2');
     if(!PROGRESSIONS.includes(q.progression)||q.schemaVersion===1&&q.progression!=='once')fail(label,'Mode de progression incompatible');
     if(Object.hasOwn(q,'objectiveMode')&&!MODES.includes(q.objectiveMode))fail(label,'Mode d’objectifs invalide');
+    if(Object.hasOwn(q,'progressBeforeUnlock') && typeof q.progressBeforeUnlock!=='boolean')fail(label,'Progression flexible invalide');
+    if(q.progressBeforeUnlock && (q.schemaVersion!==2 || q.kind==='information'))fail(label,'Progression flexible uniquement sur quêtes standards v2');
+    if(Object.hasOwn(q,'objectiveThreshold') && (q.objectiveMode!=='at_least'||!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1||q.objectiveThreshold>256))fail(label,'Seuil X sur N invalide');
+    if(q.objectiveMode==='at_least' && (!Number.isInteger(q.objectiveThreshold)||q.objectiveThreshold<1))fail(label,'Définir le nombre d’objectifs nécessaires');
+    if(q.kind!=='information'&&Array.isArray(q.objectives)){
+      const required=q.objectives.filter(o=>!o.optional).length;
+      if(required<1 || q.objectiveMode==='at_least' && q.objectiveThreshold>required)fail(label,'Objectifs obligatoires insuffisants');
+    }
     if(q.layout&&(!Number.isFinite(q.layout.x)||!Number.isFinite(q.layout.y)))fail(label,'Position invalide');
     const info=q.kind==='information';
     if(Object.hasOwn(q,'kind')&&!['standard','information'].includes(q.kind))fail(label,'Type de quête invalide');
@@ -317,6 +383,7 @@ for(const a of c.annotations||[]){
       if(!EVENT_KEYS.includes(o.event)&&!ID.test(o.event))fail(label,'Événement non reconnu');
       if(!/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(o.target||''))fail(label,'Cible invalide');
       if(!Number.isInteger(o.count)||o.count<1||o.count>1000000000)fail(label,'Quantité invalide');
+      if(Object.hasOwn(o,'optional')&&typeof o.optional!=='boolean')fail(label,'Objectif facultatif invalide');
       if(Object.hasOwn(o,'text')&&!translations(o.text))fail(label,'Texte objectif : traduction anglaise et textes non vides requis');
       if(o.event==='location'){
         const bounds=o.conditions?.position || (Array.isArray(o.conditions?.and)?o.conditions.and.find(node=>node?.position)?.position:null);
@@ -410,7 +477,7 @@ export function expandCategoryImages(category){
 }
 export function fileMap(p){
   const map=new Map(), used=new Set();
-  function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,JSON.stringify(obj,null,2)+'\n');}
+  function put(path,obj){if(used.has(path))throw new Error('Fichier dupliqué : '+path);used.add(path);map.set(path,(path.endsWith('.json5')?JSON5.stringify(obj,null,2):JSON.stringify(obj,null,2))+'\n');}
   const fileName=id=>{const [ns,...rest]=id.split(':');const path=rest.join(':');if(!ID.test(id))throw new Error('ID invalide: '+id);return ns==='questplus'?path:ns+'/'+path;};
   put('config.json',p.config||{schemaVersion:1,autosaveSeconds:5});
   // Studio-only metadata is separate: QuestRegistry must never see unknown fields
@@ -419,8 +486,8 @@ export function fileMap(p){
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
     iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
-  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',compactCategoryImages(c));
-  for(const q of p.quests)put('quests/'+fileName(q.id)+'.json',q);
+  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json5',compactCategoryImages(c));
+  for(const q of p.quests)put('quests/'+fileName(q.id)+'.json5',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
   return map;
 }
@@ -428,8 +495,8 @@ export function importDocuments(documents){
   const p=emptyProject();let valid=0;
   for(const {name,content} of documents){
     const path=String(name).replace(/\\/g,'/').replace(/^.*?(?=(?:quests|categories)\/)/,'');
-    if(!/\.json$/i.test(path))continue;
-    let obj;try{obj=JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON invalide dans '+name+' : '+e.message);}
+    if(!/\.json5?$/i.test(path))continue;
+    let obj;try{obj=path.toLowerCase().endsWith('.json5')?JSON5.parse(String(content).replace(/^\uFEFF/,'')):JSON.parse(String(content).replace(/^\uFEFF/,''));}catch(e){throw Error('JSON/JSON5 invalide dans '+name+' : '+e.message);}
     if(/(?:^|\/)queststudio-compatibility\.json$/i.test(path)){
       p.targetMinecraftVersion=obj.targetMinecraftVersion||'26.3';
       p.iconVersions=obj.iconVersions||{};

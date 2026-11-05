@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.function.LongSupplier;
 
 public final class QuestEngine {
-    public record Completion(String questId,String key,List<QuestDefinition.Reward> rewards) {}
+    public record Completion(String questId,String key,List<QuestDefinition.Reward> rewards) {
+        public Completion { rewards=RewardTables.resolve(rewards); }
+    }
     private final QuestRegistry registry;
     private final LongSupplier clock;
     public QuestEngine(QuestRegistry registry) { this(registry,System::currentTimeMillis); }
@@ -26,14 +28,20 @@ public final class QuestEngine {
         Set<String> touched=new LinkedHashSet<>();
         for (var candidate:registry.candidates(event)) {
             var q=candidate.quest(); var objective=candidate.objective(); var p=player.quests.get(q.id());
+            if (event.type().equals("item_submit") || event.type().equals("item_turn_in")) {
+                if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
+            }
             if ((p!=null && (terminal(q,p) || p.waitingRestart)) || diagnostic(player,q.id()).isPresent()
-                || (q.requires()!=null && !q.requires().matches(event.context(),completed))) continue;
+                || (q.requires()!=null && !q.progressBeforeUnlock() && !q.requires().matches(event.context(),completed))) continue;
             if (p!=null && p.attemptId==null && p.startedAt>0 && now-p.startedAt<q.cooldownSeconds()*1000) continue;
             if (p!=null && q.timeLimitSeconds()>0 && p.attemptId!=null && now-p.startedAt>=q.timeLimitSeconds()*1000) { newAttempt(p); player.revision++; }
             if (objective.conditions()!=null && !objective.conditions().matches(event.context(),completed)) continue;
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
-            if (state && event.context().get("inventory") instanceof Map<?,?> inventory) amount=inventory.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
+            if (state) {
+                Object values=Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
+                amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
+            }
             if (p==null && amount==0) continue;
             if (q.objectiveMode().equals("sequence")) {
                 final var sequenceState=p;
@@ -52,38 +60,66 @@ public final class QuestEngine {
             touched.add(q.id());
         }
         List<Completion> result=new ArrayList<>();
-        for (String id:touched) {
-            var q=registry.get(id); var p=player.quests.get(id);
-            refreshStates(player,q,p,event.context(),completed,sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
-            if (q.progression().equals("tiered")) {
-                while (p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())) {
-                    var tier=q.tiers().get(p.tier++); p.reachedTiers.add(tier.id()); p.completed=true;
-                    result.add(new Completion(id,id+"|"+p.attemptId+"|"+tier.id(),tier.rewards())); player.revision++;
+        Set<String> evaluated=new HashSet<>();
+        while(!touched.isEmpty()){
+            List<String> batch=List.copyOf(touched);
+            touched.clear();
+            int previousAwards=result.size();
+            for(String id:batch){
+                if(evaluated.contains(id))continue;
+                var q=registry.get(id);
+                var p=player.quests.get(id);
+                if(p==null || terminal(q,p) || p.waitingRestart)continue;
+                refreshStates(player,q,p,event.context(),completed(player),sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
+                // Flexible quests can track progress while locked but never grant rewards early.
+                if(q.requires()!=null && !q.requires().matches(event.context(),completed(player)))continue;
+                evaluated.add(id);
+                if(q.progression().equals("tiered")){
+                    while(p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())){
+                        var tier=q.tiers().get(p.tier++);p.reachedTiers.add(tier.id());p.completed=true;
+                        result.add(new Completion(id,id+"|"+p.attemptId+"|"+tier.id(),tier.rewards()));player.revision++;
+                    }
+                    if(p.tier==q.tiers().size()){
+                        if(q.afterLast().equals("repeat")){p.cycles++;newAttempt(p);p.startedAt=now;}
+                        else p.terminal=true;
+                    }
+                }else if(isSatisfied(q,p)){
+                    p.completed=true;p.cycles++;
+                    String key=q.progression().equals("once")?id:id+"|"+p.attemptId;
+                    result.add(new Completion(id,key,q.rewards()));player.revision++;
+                    switch(q.progression()){
+                        case "once" -> p.terminal=true;
+                        case "repeatable" -> {p.waitingRestart=true;p.startedAt=now;}
+                        case "infinite" -> {newAttempt(p);p.startedAt=now;}
+                        default -> throw new IllegalStateException("Invalid progression");
+                    }
                 }
-                if (p.tier==q.tiers().size()) {
-                    if (q.afterLast().equals("repeat")) { p.cycles++; newAttempt(p); p.startedAt=now; }
-                    else p.terminal=true;
-                }
-            } else if (isSatisfied(q,p)) {
-                p.completed=true; p.cycles++;
-                String key=q.progression().equals("once") ? id : id+"|"+p.attemptId;
-                result.add(new Completion(id,key,q.rewards())); player.revision++;
-                switch (q.progression()) {
-                    case "once" -> p.terminal=true;
-                    case "repeatable" -> { p.waitingRestart=true; p.startedAt=now; }
-                    case "infinite" -> { newAttempt(p); p.startedAt=now; }
-                    default -> throw new IllegalStateException("Invalid progression");
+            }
+            // Grant cascades in the same authoritative transaction: completing a prerequisite
+            // can unlock already-satisfied flexible quests without another gameplay event.
+            if(result.size()>previousAwards){
+                var unlocked=completed(player);
+                for(var q:registry.all()){
+                    if(!q.progressBeforeUnlock()||evaluated.contains(q.id()))continue;
+                    var p=player.quests.get(q.id());
+                    if(p==null||terminal(q,p)||p.waitingRestart||diagnostic(player,q.id()).isPresent())continue;
+                    if(q.requires()!=null && !q.requires().matches(event.context(),unlocked))continue;
+                    if(isSatisfied(q,p))touched.add(q.id());
                 }
             }
         }
         return List.copyOf(result);
     }
     private static void refreshStates(PlayerProgress owner,QuestDefinition q,PlayerProgress.QuestProgress p,Map<String,Object> context,Set<String> completed,int accessibleStep) {
-        if (!(context.get("inventory") instanceof Map<?,?> inventory)) return;
+        Map<?,?> inventory=context.get("inventory") instanceof Map<?,?> m?m:Map.of();
+        Map<?,?> states=context.get("stateValues") instanceof Map<?,?> m?m:Map.of();
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
-            if (!objective.event().equals("inventory_count") || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
-            Object value=inventory.get(objective.target());
+            boolean isInventory=objective.event().equals("inventory_count");
+            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())) || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
+            Map<?,?> values=isInventory?inventory:states;
+            if(!values.containsKey(objective.target()))continue;
+            Object value=values.get(objective.target());
             long count=value instanceof Number n ? Math.max(0,n.longValue()) : 0;
             if (objective.conditions()!=null && !objective.conditions().matches(context,completed)) count=0;
             long maximum=objective.count()*(q.progression().equals("tiered") ? q.tiers().getLast().threshold() : 1);
@@ -96,12 +132,18 @@ public final class QuestEngine {
         return satisfied(q,p,q.progression().equals("tiered") ? q.tiers().get(Math.min(p.tier,q.tiers().size()-1)).threshold() : 1);
     }
     private static boolean satisfied(QuestDefinition q,PlayerProgress.QuestProgress p,long factor) {
-        var checks=q.objectives().stream().map(o -> p.counters.getOrDefault(o.id(),0L)>=o.count()*factor);
-        return q.objectiveMode().equals("any") ? checks.anyMatch(Boolean::booleanValue) : checks.allMatch(Boolean::booleanValue);
+        long successes=q.objectives().stream().filter(o->!o.optional())
+            .filter(o->p.counters.getOrDefault(o.id(),0L)>=o.count()*factor).count();
+        long required=q.objectives().stream().filter(o->!o.optional()).count();
+        return switch(q.objectiveMode()){
+            case "any" -> successes>=1;
+            case "at_least" -> successes>=q.objectiveThreshold();
+            default -> successes==required;
+        };
     }
     private static int firstIncomplete(QuestDefinition q,PlayerProgress.QuestProgress p) {
         long factor=q.progression().equals("tiered") ? q.tiers().get(Math.min(p.tier,q.tiers().size()-1)).threshold() : 1;
-        for (int i=0;i<q.objectives().size();i++) { var o=q.objectives().get(i); if (p.counters.getOrDefault(o.id(),0L)<o.count()*factor) return i; }
+        for (int i=0;i<q.objectives().size();i++) { var o=q.objectives().get(i); if (!o.optional() && p.counters.getOrDefault(o.id(),0L)<o.count()*factor) return i; }
         return q.objectives().size();
     }
     private static void newAttempt(PlayerProgress.QuestProgress p) { p.counters.clear(); p.tier=0; p.attemptId=null; p.startedAt=0; p.waitingRestart=false; }
