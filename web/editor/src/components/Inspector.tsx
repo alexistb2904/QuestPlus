@@ -4,6 +4,7 @@ import {annotationText,annotationRich,text,selectedOwner} from '../core/project.
 import {gameLayout} from '../core/game-layout.js';
 import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
 import {GearEditor,armorPreset} from './GearEditor';
+import {hubEditorDescriptors} from '../core/hub-registry.js';
 import {versionWarning} from '../ui/minecraft-icons.js';
 import {ItemIcon} from './IconPicker';
 import {RichEditor,DescriptionEditor} from './RichEditor';
@@ -61,9 +62,14 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
    </select><button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button></div>;
   }
  const kind=Object.keys(node||{})[0]||'dimension',val=node?.[kind];
- const choices=[...OBJECTIVE_KINDS,['equipment','Equipment'],['position','Position'],['context','Context']];
+ const extensions=hubEditorDescriptors('condition');
+ const choices:[string,string][]=[...OBJECTIVE_KIN,['equipment','Equipment'],['position','Position'],['context','Context'],...extensions.map(d=>[d.id,d.label] as [string,string])];
  const defaults:Record<string,any>={sneaking:true,equipment:{slot:'mainhand',item:'minecraft:stone'},'questplus:gear':{items:armorPreset('iron')},position:{xMin:0},context:{key:'',equals:true}};
- const setKind=(next:string)=>mutate(root=>setAt(root,path,{[next]:defaults[next]??(next.startsWith('health')?2:'minecraft:overworld')}));
+ const setKind=(next:string)=>mutate(root=>{
+  const descriptor=extensions.find(d=>d.id===next);
+  const initial=descriptor?Object.fromEntries(descriptor.fields.map((field:any)=>[field.key,field.type==='boolean'?false:field.type==='integer'?0:'minecraft:stone'])):undefined;
+  return setAt(root,path,{[next]:initial??defaults[next]??(next.startsWith('health')?2:'minecraft:overworld')});
+ });
  const setMember=(member:string,next:any)=>mutate(root=>setAt(root,path,{[kind]:{...val,[member]:next}}));
   return <div className="cond-leaf" key={path}>
    <select aria-label={tUI('Condition type')} value={kind} onChange={e=>setKind(e.target.value)}>
@@ -75,6 +81,12 @@ export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{v
     kind==='equipment'?<><select aria-label={tUI("Equipment slot")} value={val?.slot||'mainhand'} onChange={e=>setMember('slot',e.target.value)}>{['mainhand','offhand','head','chest','legs','feet'].map(s=><option key={s} value={s}>{s}</option>)}</select><input aria-label={tUI("Equipment item")} value={val?.item||''} onChange={e=>setMember('item',e.target.value)}/></>:
     kind==='position'?<div className="field-row">{['xMin','xMax','yMin','yMax','zMin','zMax'].map(axis=><label className="field" key={axis}><span>{axis}</span><input type="number" value={val?.[axis]??''} onChange={e=>{const next={...val};if(e.target.value==='')delete next[axis];else next[axis]=Number(e.target.value);mutate(root=>setAt(root,path,{position:next}));}}/></label>)}</div>:
     kind==='context'?<><input aria-label={tUI("Context key")} value={val?.key||''} onChange={e=>setMember('key',e.target.value)}/><input aria-label={tUI("Context value (JSON)")} defaultValue={JSON.stringify(val?.equals??true)} key={path+':'+JSON.stringify(val?.equals)} onBlur={e=>{try{const next=JSON.parse(e.target.value);if(next===null||typeof next==='object')throw Error();setMember('equals',next)}catch{e.target.value=JSON.stringify(val?.equals??true)}}}/></>:
+    extensions.some(d=>d.id===kind)&&val&&typeof val==='object'&&!Array.isArray(val)?<div className="field-row">
+     {extensions.find(d=>d.id===kind)!.fields.map((field:any)=><label key={field.key} className="field">
+       <span>{field.label}</span>{field.type==='boolean'?<input type="checkbox" checked={!!val[field.key]} onChange={e=>setMember(field.key,e.target.checked)}/>:
+       <input aria-label={field.label} type={field.type==='integer'?'number':'text'} value={val[field.key]??''}
+        onChange={e=>setMember(field.key,field.type==='integer'?Math.round(Number(e.target.value)||0):e.target.value)}/>}</label>)}
+    </div>:
     typeof val==='object'?<small>{tUI('Edit custom conditions in Advanced JSON.')}</small>:
     <input aria-label={tUI('Condition value')} value={val??''} onChange={e=>mutate(root=>setAt(root,path,{[kind]:kind.startsWith('health')?Number(e.target.value):e.target.value}))}/>}
    <button aria-label={tUI('Remove condition')} className="cond-remove" onClick={()=>remove(path)}>×</button>
