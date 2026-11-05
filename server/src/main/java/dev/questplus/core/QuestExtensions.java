@@ -20,6 +20,7 @@ public final class QuestExtensions {
         EVENTS.put("structure_visit",new EventType("structure",false));
         EVENTS.put("dimension_enter",new EventType("dimension",false));
         EVENTS.put("inventory_count",new EventType("item",true));
+        EVENTS.put("xp_levels",new EventType("marker",true));
         // Evaluated from authoritative server equipment snapshots, not player events.
         EVENTS.put("equipment_check",new EventType("marker",false));
         EVENTS.put("questplus:fish_any",new EventType("marker",false));
