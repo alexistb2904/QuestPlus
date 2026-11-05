@@ -450,7 +450,8 @@
                 "travel_distance",
                 "location",
                 "player_death",
-                "manual"
+                "manual",
+                "xp_levels"
               ]
             },
             {
