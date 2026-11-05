@@ -504,7 +504,7 @@ export default function App() {
     studio.toast('Updated '+count+' quests');
    }}/>} 
 			{registryOpen && <RegistryBrowser onClose={()=>setRegistryOpen(false)} onPick={(kind,id)=>{
-        const matches:Record<string,string[]>={items:['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'],blocks:['block_break','block_place','block_interact'],entities:['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'],biomes:['biome_visit'],structures:['structure_visit'],dimensions:['dimension_enter'],statistics:['custom_stat'],advancements:['advancement_complete']};
+        const matches:Record<string,string[]>={items:['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'],blocks:['block_break','block_place','block_interact'],fluids:['fluid_transfer'],entities:['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'],biomes:['biome_visit'],structures:['structure_visit'],dimensions:['dimension_enter'],statistics:['custom_stat'],advancements:['advancement_complete']};
         const index=selected?.objectives?.findIndex(o=>(matches[kind]||[]).includes(o.event))??-1;
         if(index>=0){studio.setField('objectives.'+index+'.target',id);studio.toast('Selected '+id);setRegistryOpen(false);}
         else void navigator.clipboard.writeText(id).then(()=>studio.toast('Copied '+id)).catch(()=>studio.toast('Resource ID: '+id));
