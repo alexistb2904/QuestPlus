@@ -34,7 +34,10 @@ public final class QuestJson5 {
         if(p.isNumber()){
             double check=p.getAsDouble();
             if(!Double.isFinite(check))throw new IllegalArgumentException("Non-finite JSON5 number");
-            return new JsonPrimitive(p.getAsBigDecimal());
+            Number number=p.getAsNumber();
+            java.math.BigDecimal decimal=number instanceof java.math.BigInteger integer
+                ? new java.math.BigDecimal(integer) : new java.math.BigDecimal(number.toString());
+            return new JsonPrimitive(decimal);
         }
         throw new IllegalArgumentException("Unsupported JSON5 value");
     }
