@@ -19,6 +19,7 @@ import {
 import { questId, categoryId } from "../core/quest-ids.js";
 import {buildQuestFromTemplate} from "../core/quest-templates.js";
 import JSON5 from "json5";
+import {inspectFtbPack} from "../core/ftb-import.js";
 import { makeZip, readZip } from "../core/zip.js";
 import { withPrerequisite } from "../core/quest-links.js";
 import { fitEditor } from "../core/editor-geometry.js";
@@ -446,7 +447,11 @@ export function useStudio() {
 				if (file.name.endsWith(".zip")) docs.push(...(await readZip(file)));
 				else if (/\.json5?$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
 			}
-			const p = importDocuments(docs) as Project,
+			const ftb=docs.some(({name})=>/(?:^|[\\/])chapters[\\/][^\\/]+\\.json5?$/i.test(name));
+			const report=ftb?inspectFtbPack(docs):null;
+			if(report?.warnings.length&&!confirm("FTB Quests import is partial. "+report.questCount+" quests converted; "+report.warnings.length+" compatibility warnings. Import supported content?\n\n"+report.warnings.slice(0,8).join('\n')))return;
+			if(report&&!report.questCount)throw Error('No FTB quests could be converted without changing semantics.');
+			const p = (report?.project||importDocuments(docs)) as Project,
 				errors = validate(p);
 			if (errors.length) throw Error(errors[0].where + ": " + errors[0].message);
 			mutate((s) => {
