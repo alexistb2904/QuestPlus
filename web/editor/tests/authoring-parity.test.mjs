@@ -24,7 +24,7 @@ test('FTB preview imports only supported semantics and reports unsupported ones'
  assert.equal(report.questCount,1);
  assert.equal(report.project.quests[0].objectives.length,2);
  assert.equal(report.project.quests[0].objectives[0].event,'entity_kill');
- assert.equal(report.project.quests[0].objectives[1].event,'item_submit');
+ assert.equal(report.project.quests[0].objectives[1].event,'inventory_count');
  assert.ok(report.warnings.some(w=>w.includes('reward')));
 });
 test('FTB importer rejects packs with no chapters',()=>{
@@ -63,4 +63,21 @@ test('FTB unknown task blocks import of that quest and its dependents',()=>{
  assert.equal(report.questCount,1);
  assert.ok(report.warnings.some(w=>w.includes('skipped')));
  assert.equal(report.project.quests[0].objectives[0].event,'manual');
+});
+
+test('FTB importer distinguishes automatic possession, crafting and player hand-in',()=>{
+ const content=`{id:'item_modes',consume_items:false,quests:[
+  {id:'a',tasks:[{type:'item',item:{id:'minecraft:stone'},count:12}]},
+  {id:'b',tasks:[{type:'item',item:{id:'minecraft:chest'},count:2,only_from_crafting:true}]},
+  {id:'c',tasks:[{type:'item',item:{id:'minecraft:diamond'},count:3,consume_items:true}]},
+  {id:'d',tasks:[{type:'item',item:{id:'minecraft:diamond'},count:3,task_screen_only:true}]},
+  {id:'e',tasks:[{type:'advancement',advancement:'minecraft:story/mine_stone'}]},
+  {id:'f',tasks:[{type:'xp',value:20,points:false}]}
+ ]}`;
+ const report=inspectFtbPack([{name:'chapters/items.json5',content}]);
+ const modes=report.project.quests.map(q=>q.objectives[0].event);
+ assert.deepEqual(modes,['inventory_count','item_craft','item_turn_in','advancement_complete','xp_levels']);
+ assert.ok(report.warnings.some(w=>w.includes('Task Screen-only')));
+ assert.equal(report.questCount,5);
+ assert.deepEqual(validate(report.project),[]);
 });
