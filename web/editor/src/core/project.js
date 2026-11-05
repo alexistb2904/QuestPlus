@@ -193,6 +193,12 @@ export function validate(p){
     let expanded=0;
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
+      if(r.type==='questplus:command'){
+        if(typeof r.data?.command!=='string'||r.data.command.length<1||r.data.command.length>240||!r.data.command.trim()
+            ||/[\\r\\n\\0]/.test(r.data.command)||r.data.command.startsWith('//')||Object.keys(r.data||{}).join()!=='command')
+          fail(label,'Commande invalide');
+        if(p?.config?.enableCommandRewards!==true)fail(label,'Activer les récompenses de commandes dans les paramètres du projet (serveur approuvé)');
+      }
       if(['questplus:random','questplus:loot','questplus:all'].includes(r.type)){
         const data=r.data;
         const options=data?.options,rolls=data?.rolls??1;
