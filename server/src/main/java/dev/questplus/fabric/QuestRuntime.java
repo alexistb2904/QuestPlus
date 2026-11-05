@@ -275,6 +275,7 @@ public final class QuestRuntime implements AutoCloseable {
         }
         Registry<?> values = switch (registryKind) {
             case "block" -> BuiltInRegistries.BLOCK;
+            case "fluid" -> BuiltInRegistries.FLUID;
             case "entity" -> BuiltInRegistries.ENTITY_TYPE;
             case "effect" -> BuiltInRegistries.MOB_EFFECT;
             case "biome" -> server.registryAccess().lookupOrThrow(Registries.BIOME);
