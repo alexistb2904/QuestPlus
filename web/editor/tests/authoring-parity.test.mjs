@@ -94,3 +94,31 @@ test('FTB advancement objective and reward stay type-safe',()=>{
  assert.deepEqual(project.quests[0].rewards[0],{type:'questplus:advancement',data:{advancement:'minecraft:story/iron_tools'}});
  assert.deepEqual(validate(project),[]);
 });
+
+test('reward builder validates random tables, command opt-in and message',()=>{
+ const copyQuest=()=>buildQuestFromTemplate(category,'questplus:authoring/rewards','Reward validation',{x:0,y:0},'basic');
+ const project={categories:[category],quests:[copyQuest()],config:{schemaVersion:1,autosaveSeconds:5}};
+ const q=project.quests[0];
+ q.rewards=[{type:'questplus:random',data:{rolls:2,options:[
+   {weight:4,type:'item',item:'minecraft:diamond',count:1},
+   {weight:1,type:'experience_levels',amount:5},
+ ]}},{type:'questplus:message',data:{message:'Congratulations!'}}];
+ assert.deepEqual(validate(project),[]);
+ q.rewards[0].data.options[0].weight=0;
+ assert.ok(validate(project).some(issue=>issue.message.includes('Poids')));
+ q.rewards=[{type:'questplus:loot',data:{rolls:1,emptyWeight:2,options:[
+  {weight:1,type:'item',item:'minecraft:iron_ingot',count:4}
+ ]}}];
+ assert.deepEqual(validate(project),[]);
+ q.rewards=[{type:'questplus:command',data:{command:'say well done'}}];
+ assert.ok(validate(project).some(issue=>issue.message.includes('Activer')));
+ project.config.enableCommandRewards=true;
+ assert.deepEqual(validate(project),[]);
+ q.rewards[0].data.command='say hello\\nworld';
+ assert.ok(validate(project).some(issue=>issue.message.includes('Commande invalide')));
+ q.rewards=[{type:'questplus:all',data:{options:[
+  {weight:1,type:'item',item:'minecraft:diamond',count:1},
+  {weight:1,type:'experience',amount:300}
+ ]}}];
+ assert.deepEqual(validate(project),[]);
+});
