@@ -209,7 +209,7 @@ public final class QuestRegistry {
             var v=value.getAsJsonObject(); String type=string(v,"type");
             Map<String,String> text=v.has("text") ? translations(object(v,"text")) : Map.of();
             QuestDefinition.Reward reward;
-            if (type.equals("experience")) {
+            if (type.equals("experience") || type.equals("experience_levels")) {
                 fields(v,"type","amount","text"); reward=new QuestDefinition.Reward(type,null,0,(int)integer(v,"amount",1,1_000_000),"{}",text);
             } else if (type.equals("item")) {
                 fields(v,"type","item","count","text"); String item=identifier(string(v,"item")); hook.validate("item",item);
