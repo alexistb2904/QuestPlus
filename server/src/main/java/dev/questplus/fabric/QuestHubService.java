@@ -114,6 +114,7 @@ final class QuestHubService implements AutoCloseable {
         tagIds(tags,"blocks",BuiltInRegistries.BLOCK);
         tagIds(tags,"entities",BuiltInRegistries.ENTITY_TYPE);
         result.add("tags",tags);
+        result.add("extensions",dev.questplus.fabric.api.QuestStudioDescriptors.snapshot());
         return result;
     }
     private void addIds(JsonObject output,String name,Collection<?> ids){
