@@ -223,7 +223,7 @@ public final class QuestRegistry {
                 reward=new QuestDefinition.Reward(type,item,(int)integer(v,"count",1,2304),0,"{}",text);
             } else {
                 fields(v,"type","data","text"); var data=object(v,"data"); QuestExtensions.validateReward(type,data);
-                if(type.equals("questplus:random"))
+                if(Set.of("questplus:random","questplus:loot","questplus:all").contains(type))
                     for(var option:data.getAsJsonArray("options")){
                         var entry=option.getAsJsonObject();
                         if(entry.get("type").getAsString().equals("item"))
@@ -235,9 +235,10 @@ public final class QuestRegistry {
         }
         int maximum=0;
         for(var reward:result){
-            if(reward.type().equals("questplus:random")){
+            if(Set.of("questplus:random","questplus:loot","questplus:all").contains(reward.type())){
                 var data=JsonParser.parseString(reward.data()).getAsJsonObject();
-                maximum+=data.has("rolls")?data.get("rolls").getAsInt():1;
+                maximum+=reward.type().equals("questplus:all") ? data.getAsJsonArray("options").size() :
+                    data.has("rolls")?data.get("rolls").getAsInt():1;
             }else maximum++;
             if(maximum>64)throw new IllegalArgumentException("Expanded reward table may exceed 64 grants");
         }
