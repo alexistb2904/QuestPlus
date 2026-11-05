@@ -37,6 +37,24 @@ public final class RewardTables {
             } else throw new IllegalArgumentException("Random reward option must be an item or XP");
         }
     }
+    /** Loot pools may intentionally award nothing; random pools always award an option. */
+    public static void validateLoot(JsonObject data) {
+        if(!data.has("emptyWeight"))throw new IllegalArgumentException("Loot requires an explicit emptyWeight");
+        var normalized=data.deepCopy();normalized.remove("emptyWeight");
+        validate(normalized);
+        integer(data,"emptyWeight",0,1_000_000);
+    }
+    /** All reward pools grant each entry once, ignoring weights. */
+    public static void validateAll(JsonObject data) {
+        if(!data.keySet().equals(Set.of("options")))throw new IllegalArgumentException("All-table rewards require options");
+        validate(data);
+    }
+    private static QuestDefinition.Reward concrete(JsonObject option,Map<String,String> text) {
+        String type=option.get("type").getAsString();
+        return type.equals("item")
+            ? new QuestDefinition.Reward(type,option.get("item").getAsString(),option.get("count").getAsInt(),0,"{}",text)
+            : new QuestDefinition.Reward(type,null,0,option.get("amount").getAsInt(),"{}",text);
+    }
     private static int integer(JsonObject object,String key,int min,int max){
         if(!object.has(key)||!object.get(key).isJsonPrimitive()||!object.getAsJsonPrimitive(key).isNumber())
             throw new IllegalArgumentException("Missing integer "+key);
@@ -49,24 +67,28 @@ public final class RewardTables {
     public static List<QuestDefinition.Reward> resolve(List<QuestDefinition.Reward> authored){
         List<QuestDefinition.Reward> selected=new ArrayList<>();
         for(var reward:authored){
-            if(!reward.type().equals("questplus:random")) { selected.add(reward); continue; }
+            if(!Set.of("questplus:random","questplus:loot","questplus:all").contains(reward.type())) { selected.add(reward); continue; }
             JsonObject data=JsonParser.parseString(reward.data()).getAsJsonObject();
-            validate(data);
+            if(reward.type().equals("questplus:loot"))validateLoot(data);
+            else if(reward.type().equals("questplus:all"))validateAll(data);
+            else validate(data);
             JsonArray options=data.getAsJsonArray("options");
+            if(reward.type().equals("questplus:all")){
+                for(var option:options)selected.add(concrete(option.getAsJsonObject(),reward.text()));
+                continue;
+            }
             long total=0;
             for(var choice:options)total+=choice.getAsJsonObject().get("weight").getAsLong();
+            long weightedTotal=total+(reward.type().equals("questplus:loot")?data.get("emptyWeight").getAsInt():0);
             int rolls=data.has("rolls")?data.get("rolls").getAsInt():1;
             for(int i=0;i<rolls;i++){
-                long ticket=ThreadLocalRandom.current().nextLong(total);
+                long ticket=ThreadLocalRandom.current().nextLong(weightedTotal);
+                if(ticket>=total)continue; // Explicitly empty loot roll.
                 for(var entry:options){
                     JsonObject option=entry.getAsJsonObject();
                     ticket-=option.get("weight").getAsLong();
                     if(ticket>=0)continue;
-                    String type=option.get("type").getAsString();
-                    if(type.equals("item"))
-                        selected.add(new QuestDefinition.Reward(type,option.get("item").getAsString(),option.get("count").getAsInt(),0,"{}",reward.text()));
-                    else
-                        selected.add(new QuestDefinition.Reward(type,null,0,option.get("amount").getAsInt(),"{}",reward.text()));
+                    selected.add(concrete(option,reward.text()));
                     break;
                 }
             }
