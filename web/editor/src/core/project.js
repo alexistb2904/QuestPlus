@@ -199,7 +199,7 @@ export function validate(p){
       }
       if(r.type==='questplus:command'){
         if(typeof r.data?.command!=='string'||r.data.command.length<1||r.data.command.length>240||!r.data.command.trim()
-            ||/[\\r\\n\\0]/.test(r.data.command)||r.data.command.startsWith('//')||Object.keys(r.data||{}).join()!=='command')
+            ||[10,13,0].some(code=>r.data.command.includes(String.fromCharCode(code)))||r.data.command.startsWith('//')||Object.keys(r.data||{}).join()!=='command')
           fail(label,'Commande invalide');
         if(p?.config?.enableCommandRewards!==true)fail(label,'Activer les récompenses de commandes dans les paramètres du projet (serveur approuvé)');
       }
