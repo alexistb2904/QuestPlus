@@ -102,14 +102,16 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
+            "objectiveMode","objectiveThreshold","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
         String progression=string(o,"progression");
         if (!Set.of("once","repeatable","infinite","tiered").contains(progression) || (version==1 && !progression.equals("once"))) throw new IllegalArgumentException("Invalid progression/schema version");
         String mode=o.has("objectiveMode") ? string(o,"objectiveMode") : "all";
-        if (!Set.of("all","any","sequence").contains(mode)) throw new IllegalArgumentException("Invalid objectiveMode");
+        if (!Set.of("all","any","sequence","at_least").contains(mode)) throw new IllegalArgumentException("Invalid objectiveMode");
+        int objectiveThreshold=o.has("objectiveThreshold") ? (int)integer(o,"objectiveThreshold",1,256) : 1;
+        if(o.has("objectiveThreshold") && !mode.equals("at_least"))throw new IllegalArgumentException("objectiveThreshold requires at_least mode");
         long cooldown=o.has("cooldownSeconds") ? integer(o,"cooldownSeconds",0,31_536_000) : 0;
         long timeLimit=o.has("timeLimitSeconds") ? integer(o,"timeLimitSeconds",1,31_536_000) : 0;
         boolean noDeath=o.has("noDeath") && bool(o,"noDeath");
@@ -118,20 +120,25 @@ public final class QuestRegistry {
         String acknowledgement=o.has("acknowledgement") ? string(o,"acknowledgement") : "manual";
         if (!Set.of("manual","read_only").contains(acknowledgement) || (o.has("acknowledgement") && !kind.equals("information")))
             throw new IllegalArgumentException("Invalid information acknowledgement");
-        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode")
+        if (kind.equals("information") && (version!=2 || !progression.equals("once") || o.has("tiers") || o.has("objectiveMode") || o.has("objectiveThreshold")
                 || cooldown!=0 || timeLimit!=0 || noDeath))
             throw new IllegalArgumentException("Information quests require schemaVersion 2 and once progression without timers or tiers");
-        if (version==1 && (o.has("objectiveMode") || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
+        if (version==1 && (o.has("objectiveMode") || o.has("objectiveThreshold") || o.has("tiers") || o.has("afterLast") || o.has("cooldownSeconds") || o.has("timeLimitSeconds") || o.has("noDeath")))
             throw new IllegalArgumentException("Advanced progression requires schemaVersion 2");
         List<QuestDefinition.Objective> objectives = new ArrayList<>(); Set<String> ids = new HashSet<>();
         if (array(o,"objectives").size() > 256) throw new IllegalArgumentException("Too many objectives");
         for (JsonElement e : array(o,"objectives")) {
-            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions");
+            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions","optional");
             String oid = string(v,"id"), event = string(v,"event"), target = string(v,"target");
             if (!oid.matches("[a-z0-9_.-]+") || !ids.add(oid)) throw new IllegalArgumentException("Invalid objective " + oid);
             QuestExtensions.event(event);
             identifier(target.startsWith("#") ? target.substring(1) : target); hook.validate(event,target);
-            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null));
+            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null,v.has("optional") && bool(v,"optional")));
+        }
+        if(kind.equals("standard")) {
+            long required=objectives.stream().filter(objective->!objective.optional()).count();
+            if(required==0 || mode.equals("at_least") && objectiveThreshold>required)
+                throw new IllegalArgumentException("Quest needs enough non-optional objectives for completion");
         }
         if (kind.equals("information")) {
             if (!objectives.isEmpty()) throw new IllegalArgumentException("Information quests must not define gameplay objectives");
@@ -161,11 +168,11 @@ public final class QuestRegistry {
         String mechanical=mechanics(objectives);
         if (kind.equals("information")) mechanical += "|information|"+acknowledgement;
         if (version==2) mechanical += "|v2|"+progression+"|"+mode+"|"+afterLast+"|"+cooldown+"|"+timeLimit+"|"+noDeath
-            +"|"+objectives.stream().map(QuestDefinition.Objective::id).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
+            +"|"+objectiveThreshold+"|"+objectives.stream().map(x->x.id()+":"+x.optional()).collect(Collectors.joining(","))+"|"+tiers.stream().map(t -> t.id()+":"+t.threshold()).collect(Collectors.joining(","));
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
             mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
-            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of());
+            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold);
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
         Map<String,JsonArray> parsed=new HashMap<>();
