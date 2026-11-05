@@ -151,6 +151,12 @@ public final class QuestNetwork {
             switch(request.action()) {
                 case "sync" -> sync(player,true);
                 case "claim" -> { runtime.visibleQuest(actor,value); runtime.claim(player,value); }
+                case "submit" -> {
+                    String[] parts=value.split("\\|",2);
+                    if(parts.length!=2 || parts[0].isBlank() || !parts[1].matches("[a-z0-9_.-]+"))
+                        throw new IllegalArgumentException("Invalid submission selection");
+                    runtime.submitItem(player,parts[0],parts[1]);
+                }
                 case "claim_all" -> runtime.claimAll(player);
                 case "restart" -> { runtime.visibleQuest(actor,value); runtime.mutate(actor,value,"restart"); }
                 case "trigger" -> { runtime.visibleQuest(actor,value); runtime.event(player,new QuestEvent("manual",value,Set.of(),1,QuestPlusMod.context(player))); }
