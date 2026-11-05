@@ -122,7 +122,7 @@ export function useStudio() {
 				if (!o) return;
 				if(path==='style'&&value==='background')delete o.rich;
 				if (path === "category" && s.selection?.type === "quest") s.categoryId = value;
-				if (s.selection?.type === "quest" && o.schemaVersion === 1 && ["noDeath", "objectiveMode", "timeLimitSeconds", "cooldownSeconds"].includes(path))
+				if (s.selection?.type === "quest" && o.schemaVersion === 1 && ["noDeath", "objectiveMode", "objectiveThreshold", "progressBeforeUnlock", "timeLimitSeconds", "cooldownSeconds"].includes(path))
 					o.schemaVersion = 2;
 				if (path.startsWith("layout.") && s.selection?.type === "quest" && !o.layout)
 					o.layout = { ...gameLayout(s.project.quests.filter((q) => q.category === o.category)).points.get(o.id) };
