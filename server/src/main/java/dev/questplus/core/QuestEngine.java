@@ -33,7 +33,10 @@ public final class QuestEngine {
             if (objective.conditions()!=null && !objective.conditions().matches(event.context(),completed)) continue;
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
-            if (state && event.context().get("inventory") instanceof Map<?,?> inventory) amount=inventory.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
+            if (state) {
+                Object values=objective.event().equals("xp_levels")?event.context().get("stateValues"):event.context().get("inventory");
+                amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
+            }
             if (p==null && amount==0) continue;
             if (q.objectiveMode().equals("sequence")) {
                 final var sequenceState=p;
@@ -79,11 +82,15 @@ public final class QuestEngine {
         return List.copyOf(result);
     }
     private static void refreshStates(PlayerProgress owner,QuestDefinition q,PlayerProgress.QuestProgress p,Map<String,Object> context,Set<String> completed,int accessibleStep) {
-        if (!(context.get("inventory") instanceof Map<?,?> inventory)) return;
+        Map<?,?> inventory=context.get("inventory") instanceof Map<?,?> m?m:Map.of();
+        Map<?,?> states=context.get("stateValues") instanceof Map<?,?> m?m:Map.of();
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
-            if (!objective.event().equals("inventory_count") || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
-            Object value=inventory.get(objective.target());
+            boolean isInventory=objective.event().equals("inventory_count");
+            if ((!isInventory&&!objective.event().equals("xp_levels")) || (q.objectiveMode().equals("sequence") && index>accessibleStep)) continue;
+            Map<?,?> values=isInventory?inventory:states;
+            if(!values.containsKey(objective.target()))continue;
+            Object value=values.get(objective.target());
             long count=value instanceof Number n ? Math.max(0,n.longValue()) : 0;
             if (objective.conditions()!=null && !objective.conditions().matches(context,completed)) count=0;
             long maximum=objective.count()*(q.progression().equals("tiered") ? q.tiers().getLast().threshold() : 1);
