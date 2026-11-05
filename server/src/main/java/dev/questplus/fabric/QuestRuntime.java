@@ -582,6 +582,8 @@ public final class QuestRuntime implements AutoCloseable {
      * Choices are personal entitlements even when quest progress is shared by a team.
      * Subsequent claims cannot reroll this choice.
      */
+    // TODO(Codex P0): add an authenticated GUI packet / explicit choice slot for multiple choice rewards,
+    // and a crash/reconnect regression covering the durable entitlement save before claim.
     public void chooseReward(ServerPlayer actor,String questId,int zeroBasedOption) throws IOException {
         assertThread();
         UUID uuid=actor.getUUID();
