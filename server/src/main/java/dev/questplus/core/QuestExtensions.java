@@ -23,6 +23,7 @@ public final class QuestExtensions {
         REWARDS.put("questplus:random",RewardTables::validate);
         REWARDS.put("questplus:loot",RewardTables::validateLoot);
         REWARDS.put("questplus:all",RewardTables::validateAll);
+        REWARDS.put("questplus:choice",RewardTables::validateChoice);
         REWARDS.put("questplus:message",data -> {
             if(!data.keySet().equals(Set.of("message")) ||
                 !data.get("message").isJsonPrimitive() ||
