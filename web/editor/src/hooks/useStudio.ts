@@ -18,6 +18,7 @@ import {
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
 import {buildQuestFromTemplate} from "../core/quest-templates.js";
+import JSON5 from "json5";
 import { makeZip, readZip } from "../core/zip.js";
 import { withPrerequisite } from "../core/quest-links.js";
 import { fitEditor } from "../core/editor-geometry.js";
@@ -443,7 +444,7 @@ export function useStudio() {
 			const docs: { name: string; content: string }[] = [];
 			for (const file of Array.from(files)) {
 				if (file.name.endsWith(".zip")) docs.push(...(await readZip(file)));
-				else if (file.name.endsWith(".json")) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
+				else if (/\.json5?$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
 			}
 			const p = importDocuments(docs) as Project,
 				errors = validate(p);
@@ -485,7 +486,7 @@ export function useStudio() {
 	}
 	function applyJson(raw: string) {
 		try {
-			const obj = JSON.parse(raw),
+			const obj = JSON5.parse(raw),
 				s = state.selection;
 			if (!s || !obj || Array.isArray(obj) || typeof obj !== "object") throw Error("Invalid object");
 			const p = copy(state.project) as Project;
