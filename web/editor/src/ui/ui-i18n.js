@@ -474,8 +474,8 @@ ROWS.push(
 );
 // Complete unfinished Spanish/Chinese strings while preserving approved French copy.
 const completions=new Map(UI_COMPLETIONS.map(([key,es,zh])=>[key,[es,zh]]));
-for(const row of ROWS){const replacement=completions.get(row[0]);if(replacement){row[2]=replacement[0];row[3]=replacement[1];}}
 ROWS.push(...UI_ADDITIONAL);
+for(const row of ROWS){const replacement=completions.get(row[0]);if(replacement){row[2]=replacement[0];row[3]=replacement[1];}}
 const translations = new Map();
 for (const [en, fr, es, zh] of ROWS) {
 	const row = { en, fr, es, zh };

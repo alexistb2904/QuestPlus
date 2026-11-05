@@ -1,6 +1,6 @@
 async page => {
  const assert=(value,message)=>{if(!value)throw Error(message)};
- const save=async()=>{await page.getByRole('button',{name:'Save',exact:true}).click();return page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')))};
+ const save=async()=>{await page.getByRole('button',{name:'Save draft',exact:true}).click();return page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')))};
  const choose=async name=>page.locator('.quest-item').filter({hasText:name}).click();
  const source='questplus:equipment/set_leather',target='questplus:equipment/set_copper';
  const node=id=>page.locator('[data-node-id="'+id+'"]');

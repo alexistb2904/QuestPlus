@@ -27,6 +27,7 @@ final class QuestClientTabletFlow {
         // No separate HUD tablet should be drawn here.
     }
     static boolean nativeHandsActive() { return nativeHands && stage!=Stage.CLOSED; }
+    static boolean closing() { return stage==Stage.CLOSING; }
     static boolean thirdPersonHolding() { return nativeHands && (stage==Stage.OPENING || stage==Stage.HELD); }
 
     static void toggle(Minecraft client) {

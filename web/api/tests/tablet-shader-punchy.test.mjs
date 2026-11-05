@@ -6,6 +6,23 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 const read=p=>readFileSync(path.join(root,p),'utf8');
 
+test('First Person Model yields through its activation API without changing player settings',()=>{
+ const compat=read('client/src/main/java/dev/questplus/fabric/client/FirstPersonTabletCompat.java');
+ assert.match(compat,/registerPlayerHandler/);
+ assert.match(compat,/preventFirstperson" -> QuestClientTabletFlow.nativeHandsActive\(\)/);
+ assert.doesNotMatch(compat,/setEnabled/);
+});
+
+test('only tablet hands skip the second Iris pass before FP PAL submits geometry',()=>{
+ const shader=read('client/src/main/java/dev/questplus/fabric/client/TabletShaderCompat.java');
+ const hands=read('client/src/main/java/dev/questplus/fabric/client/mixin/TabletNativeArmsMixin.java');
+ const face=read('client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java');
+ assert.match(shader,/getMethod\("isRenderingSolid"\)/);
+ assert.match(shader,/HANDS==null \|\| !shadersActive\(\)/);
+ assert.match(hands,/!TabletShaderCompat.translucentHandPass\(\)/);
+ assert.match(face,/TabletNativeArms.active\(\) && TabletShaderCompat.translucentHandPass\(\)/);
+});
+
 test('Iris presence alone does not activate shader behavior: actual pack state is checked',()=>{
  const shader=read('client/src/main/java/dev/questplus/fabric/client/TabletShaderCompat.java');
  assert.match(shader,/isModLoaded\("iris"\)/);

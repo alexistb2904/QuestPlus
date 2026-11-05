@@ -1,6 +1,6 @@
 import React,{useId,useState} from 'react';
 import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target,Info} from 'lucide-react';
-import {annotationText,annotationRich,text} from '../core/project.js';
+import {annotationText,annotationRich,text,selectedOwner} from '../core/project.js';
 import {gameLayout} from '../core/game-layout.js';
 import {childrenOf,setAt,addChild,wrap,OBJECTIVE_KINDS} from '../core/conditions.js';
 import {GearEditor,armorPreset} from './GearEditor';
@@ -10,7 +10,7 @@ import {RichEditor,DescriptionEditor} from './RichEditor';
 import {tUI} from '../ui/ui-i18n.js';
 import type {Project,Selection} from '../types';
 
-export type Props={project:Project;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;onOpenTranslations?:()=>void;translationRequest?:number;};
+export type Props={project:Project;categoryId?:string|null;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;onOpenTranslations?:()=>void;translationRequest?:number;};
 type FieldProps={label:string;value:any;onChange:(value:any)=>void;type?:string;placeholder?:string;rows?:number};
 export function Field({label,value,onChange,type='text',placeholder='',rows}:FieldProps){
  return <label className="field"><span>{tUI(label)}</span>{rows?
@@ -91,11 +91,11 @@ function TranslationHelp({onOpen}:{onOpen?:()=>void}){
  const message=tUI('Add translations in the Languages tab.');
  return <button type="button" className="translation-help" title={message} aria-label={tUI('Open the Languages tab to translate this text')} onClick={onOpen}><Info size={15} aria-hidden="true"/></button>;
 }
-export function Inspector({project,selection,language,onUpdate,onAction,onChooseIcon,onOpenTranslations}:Props){
+export function Inspector({project,categoryId,selection,language,onUpdate,onAction,onChooseIcon,onOpenTranslations}:Props){
  const [copyStatus,setCopyStatus]=useState<'idle'|'copied'|'error'>('idle');
  const category=selection?.type==='category'?project.categories.find(c=>c.id===selection.id):undefined;
  const quest=selection?.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
- const note=selection?.type==='annotation'?project.categories.flatMap(c=>c.annotations||[]).find(a=>a.id===selection.id):undefined;
+ const note=selection?.type==='annotation'?selectedOwner(project,selection,categoryId):undefined;
  let position=quest?.layout;
  if(quest&&!position){try{position=gameLayout(project.quests.filter(q=>q.category===quest.category)).points.get(quest.id)}catch{/* Invalid prerequisites remain editable while validation reports the cycle. */}}
  const changeKind=(next:string)=>{if(next===(quest?.kind||'standard'))return;if(next==='information'&&!confirm(tUI('Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?')))return;onAction('kind:'+next)};
@@ -128,6 +128,7 @@ export function Inspector({project,selection,language,onUpdate,onAction,onChoose
       {note.style!=='background'&&<RichEditor key={note.id+'-'+language} locale={language}
        content={annotationRich(note,language)||[{type:'text',text:annotationText(note,language),font:'default'}]}
        onChange={(parts,plain)=>onUpdate('rich-and-text',{locale:language,parts,plain})}/>}
+      <Select label="Text alignment" value={note.align||'center'} options={[['left','Left'],['center','Center'],['right','Right']]} onChange={v=>onUpdate('align',v)}/>
       <Select label="Style" value={note.style||'note'} options={[[ 'note','Framed'],['heading','Heading'],['label','Label'],['background','Background']]} onChange={v=>onUpdate('style',v)}/>
       <Field label="Color" type="color" value={note.color||'#c6a986'} onChange={v=>onUpdate('color',v)}/>
       <div className="field-row"><Field label="Width" type="number" value={note.width??170} onChange={v=>onUpdate('width',Math.max(1,Math.round(v)||1))}/>

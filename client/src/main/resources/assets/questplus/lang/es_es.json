@@ -185,5 +185,14 @@
   "questplus.client.condition.detail.gear.material.iron": "hierro",
   "questplus.client.condition.detail.gear.material.golden": "oro",
   "questplus.client.condition.detail.gear.material.diamond": "diamante",
-  "questplus.client.condition.detail.gear.material.netherite": "netherita"
+  "questplus.client.condition.detail.gear.material.netherite": "netherita",
+  "questplus.hub.open_editor": "Abrir Quest Studio → ",
+  "questplus.hub.open_editor_hint": "Abrir el editor de misiones. Se requiere aprobación en Minecraft.",
+  "questplus.hub.command_hint": "Haz clic para rellenar el comando y pulsa Intro: %s",
+  "questplus.hub.browser_approved": "Navegador autorizado. Carga las misiones en Quest Studio y usa Guardar en el servidor.",
+  "questplus.hub.compare_code": "Compara este código con el de Quest Studio: ",
+  "questplus.hub.saved": "Misiones guardadas. Los jugadores ya ven las misiones actualizadas.",
+  "questplus.hub.save_failed": "Guardado rechazado. Se conservan las misiones anteriores: %s",
+  "questplus.hub.approve_browser": "[Autorizar este navegador]",
+  "questplus.hub.import_pack": "[Importar este paquete]"
 }

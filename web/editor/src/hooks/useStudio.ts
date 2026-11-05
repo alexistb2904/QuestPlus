@@ -14,6 +14,7 @@ import {
 	references,
 	PROGRESSIONS,
     orderedCategories,
+    selectedOwner as owner,
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
 import { makeZip, readZip } from "../core/zip.js";
@@ -41,12 +42,7 @@ const initial = (): Session => {
 	} catch {}
 	return fallback;
 };
-export function owner(project: Project, selection: Selection | null): any {
-	if (!selection) return null;
-	if (selection.type === "quest") return project.quests.find((q) => q.id === selection.id);
-	if (selection.type === "category") return project.categories.find((q) => q.id === selection.id);
-	return project.categories.flatMap((c) => c.annotations || []).find((n) => n.id === selection.id);
-}
+export { selectedOwner as owner } from "../core/project.js";
 export function useStudio() {
 	const [state, commitState] = useState<Session>(initial),
 		[notice, setNotice] = useState("");
@@ -119,7 +115,7 @@ export function useStudio() {
 	function setField(path: string, value: any) {
 		mutate(
 			(s) => {
-				const o = owner(s.project, s.selection);
+				const o = owner(s.project, s.selection, s.categoryId);
 				if (!o) return;
 				if(path==='style'&&value==='background')delete o.rich;
 				if (path === "category" && s.selection?.type === "quest") s.categoryId = value;
@@ -253,7 +249,7 @@ export function useStudio() {
 		if (kind.startsWith("delete-") && !confirm(tUI("Delete selected item?"))) return;
 		mutate((s) => {
 			const selected = s.selection,
-				o = owner(s.project, selected);
+				o = owner(s.project, selected, s.categoryId);
 			if (!o) return;
 			if (kind.startsWith("progression:")) {
 				const value = kind.slice(12);
@@ -297,7 +293,7 @@ export function useStudio() {
 				return;
 			}
 			if (kind === "duplicate-annotation") {
-				const group = s.project.categories.find((c) => c.annotations?.some((a) => a.id === o.id));
+				const group = s.project.categories.find((c) => c.id === s.categoryId);
 				if (!group) return;
 				const clone = copy(o);
 				let i = 2;
@@ -315,7 +311,8 @@ export function useStudio() {
 				return;
 			}
 			if (kind === "delete-annotation") {
-				s.project.categories.forEach((c) => (c.annotations = c.annotations?.filter((n) => n.id !== o.id)));
+				const group = s.project.categories.find(c => c.id === s.categoryId);
+				if (group) group.annotations = group.annotations?.filter(n => n.id !== o.id);
 				s.selection = { type: "category", id: s.categoryId || "" };
 				return;
 			}
@@ -353,7 +350,7 @@ export function useStudio() {
 	}
 	function changeCondition(scope: string, value: any) {
 		mutate((s) => {
-			const q = owner(s.project, s.selection);
+			const q = owner(s.project, s.selection, s.categoryId);
 			if (!q) return;
 			if (scope === "requires") {
 				if (value) q.requires = value;
@@ -370,7 +367,7 @@ export function useStudio() {
 	}
 	function setPosition(type: "quest" | "annotation", id: string, pos: { x: number; y: number }) {
 		mutate((s) => {
-			const o = owner(s.project, { type, id });
+			const o = owner(s.project, { type, id }, s.categoryId);
 			if (!o) return;
 			if (type === "quest") o.layout = pos;
 			else {
@@ -381,7 +378,7 @@ export function useStudio() {
 	}
 	function resizeNode(type:'quest'|'annotation',id:string,size:{width?:number;height?:number;size?:number}){
 		mutate(s=>{
-			const o=owner(s.project,{type,id});
+			const o=owner(s.project,{type,id},s.categoryId);
 			if(!o)return;
 			if(type==='quest'&&size.size!==undefined)o.size=Math.max(1,Math.round(size.size));
 			if(type==='annotation'){
@@ -485,11 +482,6 @@ export function useStudio() {
 			return false;
 		}
 	}
-	// Manual Save creates an importable ZIP; automatic local autosave never downloads files.
-	function saveAndExport() {
-		save();
-		return exportZip();
-	}
 	function applyJson(raw: string) {
 		try {
 			const obj = JSON.parse(raw),
@@ -505,7 +497,7 @@ export function useStudio() {
 				p.categories[i] = obj;
 			}
 			if (s.type === "annotation")
-				for (const c of p.categories) {
+				for (const c of p.categories.filter(c => c.id === state.categoryId)) {
 					const i = c.annotations?.findIndex((a) => a.id === s.id) ?? -1;
 					if (i !== -1) {
 						c.annotations![i] = obj;
@@ -559,7 +551,6 @@ export function useStudio() {
 		connectQuests,
 		importFiles,
 		exportZip,
-		saveAndExport,
 		applyJson,
 	};
 }

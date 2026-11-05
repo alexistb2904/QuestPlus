@@ -1,5 +1,5 @@
 async page => {
- const save=async()=>{await page.getByRole('button',{name:'Enregistrer',exact:true}).click();return page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')))};
+ const save=async()=>{await page.getByRole('button',{name:'Enregistrer le brouillon',exact:true}).click();return page.evaluate(()=>JSON.parse(localStorage.getItem('questplus.quest-studio.v1')))};
  await page.setViewportSize({width:1440,height:1000});
  await page.locator('.quest-item').filter({hasText:'Maître du cuir'}).click();
  await page.getByRole('tab',{name:'Prérequis',exact:true}).click();

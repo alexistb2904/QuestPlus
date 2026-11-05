@@ -60,7 +60,9 @@ test('client asset installation caches verified downloads and never fetches agai
     files:[{primary:true,filename:'punchy.jar',url:'https://cdn.modrinth.com/data/example/versions/demo/punchy.jar',
       size:content.length,hashes:{sha512:expected}}]}]),{status:200});
   }
-  return new Response(content,{status:200});
+  const response=new Response(content,{status:200});
+  Object.defineProperty(response,'url',{value:target});
+  return response;
  };
  try{
   const asset=ASSETS.find(x=>x.id==='punchy-fpa');

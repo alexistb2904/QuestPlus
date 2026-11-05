@@ -6,6 +6,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -63,14 +66,32 @@ final class QuestHubService implements AutoCloseable {
     boolean configured(){return origin!=null&&!closed;}
     private String endpoint(String p){return origin.toString().replaceAll("/$","")+p;}
     private void notify(CommandSourceStack source,String message){
-        source.sendSuccess(()->Component.literal("[QuestPlus Hub] "+message),false);
+        source.sendSuccess(()->chat(Component.literal(message).withStyle(ChatFormatting.GRAY)),false);
     }
     private void fail(CommandSourceStack source,String message){
-        source.sendFailure(Component.literal("[QuestPlus Hub] "+message));
+        source.sendFailure(chat(Component.literal(message).withStyle(ChatFormatting.RED)));
     }
-    private void messageOwner(String message){
+    static Component chat(Component content) {
+        return Component.literal("[QuestPlus] ").withStyle(ChatFormatting.GOLD).append(content);
+    }
+    static Component editorLink(String url) {
+        URI target=URI.create(url);
+        if (!Set.of("https","http").contains(target.getScheme()) || target.getHost()==null)
+            throw new IllegalArgumentException("Invalid editor URL");
+        return Component.translatableWithFallback("questplus.hub.open_editor","Open Quest Studio → ").withStyle(ChatFormatting.GREEN)
+            .append(Component.literal(url).withStyle(style->style.withColor(ChatFormatting.AQUA).withUnderlined(true)
+                .withClickEvent(new ClickEvent.OpenUrl(target))
+                .withHoverEvent(new HoverEvent.ShowText(Component.translatableWithFallback("questplus.hub.open_editor_hint","Open the quest editor. Approval in Minecraft is still required.")))));
+    }
+    static Component commandLink(Component label,String command) {
+        return label.copy().withStyle(style->style.withColor(ChatFormatting.GREEN).withUnderlined(true)
+            .withClickEvent(new ClickEvent.SuggestCommand(command))
+            .withHoverEvent(new HoverEvent.ShowText(Component.translatableWithFallback("questplus.hub.command_hint","Click to fill the command, then press Enter: %s",command))));
+    }
+    private void messageOwner(String message){messageOwner(Component.literal(message).withStyle(ChatFormatting.GRAY));}
+    private void messageOwner(Component content){
         ServerPlayer player=owner==null?null:server.getPlayerList().getPlayer(owner);
-        if(player!=null)player.sendSystemMessage(Component.literal("[QuestPlus Hub] "+message));
+        if(player!=null)player.sendSystemMessage(chat(content));
     }
     private String signature(JsonArray documents) {
         try{
@@ -128,7 +149,7 @@ final class QuestHubService implements AutoCloseable {
         try{
             JsonArray files=QuestHubFiles.snapshot(world.resolve("questplus"));
             JsonObject payload=new JsonObject();
-            payload.addProperty("serverName","QuestPlus Minecraft Server");
+            payload.addProperty("serverName",ChatFormatting.stripFormatting(server.getMotd()));
             payload.add("files",files);payload.add("registry",registry());
             String localSignature=signature(files);
             UUID actor=player.getUUID();
@@ -136,7 +157,7 @@ final class QuestHubService implements AutoCloseable {
                 owner=actor;session=result.get("id").getAsString();lastPending=null;pendingApproval=null;
                 lastJobId=null;lastAck=null;revisionSignature=localSignature;lastPoll=0;
                 String url=result.get("url").getAsString();
-                messageOwner("Editor link (requires in-game approval): "+url);
+                messageOwner(editorLink(url));
             },e->fail(source,"Could not create session: "+e));
             notify(source,"Creating a secured editor session…");
         }catch(Exception error){fail(source,error.getMessage());}
@@ -150,7 +171,7 @@ final class QuestHubService implements AutoCloseable {
         JsonObject payload=new JsonObject();payload.addProperty("session",session);
         payload.addProperty("id",pendingApproval.get("id").getAsString());payload.addProperty("code",code);
         request("POST","/v1/server/approve",payload,result->{
-            pendingApproval=null;messageOwner("Browser authorized. Saving in Quest Studio will publish to this server.");
+            pendingApproval=null;messageOwner(Component.translatableWithFallback("questplus.hub.browser_approved","Browser approved. Load the server quests in Quest Studio, then use Save to server.").withStyle(ChatFormatting.GREEN));
         },e->fail(source,"Approval denied: "+e));
     }
     void revoke(CommandSourceStack source){
@@ -170,8 +191,9 @@ final class QuestHubService implements AutoCloseable {
                 String pendingId=p.get("id").getAsString();
                 if(!pendingId.equals(lastPending)){
                     lastPending=pendingId;pendingApproval=p;
-                    messageOwner("Browser approval requested. Compare the code in Quest Studio: "+p.get("code").getAsString());
-                    messageOwner("Authorize: /questplus editor approve "+p.get("code").getAsString());
+                    messageOwner(Component.translatableWithFallback("questplus.hub.compare_code","Compare this code with Quest Studio: ").withStyle(ChatFormatting.YELLOW)
+                        .append(Component.literal(p.get("code").getAsString()).withStyle(ChatFormatting.AQUA,ChatFormatting.BOLD)));
+                    messageOwner(commandLink(Component.translatableWithFallback("questplus.hub.approve_browser","[Approve this browser]"), "/questplus editor approve "+p.get("code").getAsString()));
                 }
             }
             JsonElement publish=data.get("job");
@@ -187,10 +209,10 @@ final class QuestHubService implements AutoCloseable {
                         QuestHubFiles.apply(world,job.getAsJsonArray("files"),QuestPlusMod.runtime());
                         revisionSignature=signature(QuestHubFiles.snapshot(world.resolve("questplus")));
                         lastAck.addProperty("success",true);
-                        messageOwner("Quests published successfully; online players received an updated snapshot.");
+                        messageOwner(Component.translatableWithFallback("questplus.hub.saved","Quests saved. Online players now see the updated quests.").withStyle(ChatFormatting.GREEN));
                     }catch(Exception e){
                         lastAck.addProperty("success",false);lastAck.addProperty("error",e.getMessage());
-                        messageOwner("Publication rejected, previous quests retained: "+e.getMessage());
+                        messageOwner(Component.translatableWithFallback("questplus.hub.save_failed","Save rejected. Previous quests are kept: %s",e.getMessage()).withStyle(ChatFormatting.RED));
                     }
                 }
             }
@@ -213,7 +235,8 @@ final class QuestHubService implements AutoCloseable {
                 JsonArray files=result.getAsJsonArray("files");QuestHubFiles.validate(files);
                 long quests=0,categories=0;for(var el:files){String name=el.getAsJsonObject().get("name").getAsString();if(name.startsWith("quests/"))quests++;if(name.startsWith("categories/"))categories++;}
                 imports.put(id,new PendingImport(packId,files,System.currentTimeMillis()+120_000));
-                notify(source,"Pack "+packId+": "+quests+" quests, "+categories+" categories. Confirm within 2 minutes: /questplus import confirm");
+                notify(source,"Pack "+packId+": "+quests+" quests, "+categories+" categories. Confirm within 2 minutes.");
+                source.sendSuccess(()->chat(commandLink(Component.translatableWithFallback("questplus.hub.import_pack","[Import this pack]"), "/questplus import confirm")),false);
             }catch(Exception e){fail(source,"Pack rejected: "+e.getMessage());}
         },e->fail(source,"Import failed: "+e));
     }

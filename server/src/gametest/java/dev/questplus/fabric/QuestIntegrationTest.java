@@ -33,7 +33,8 @@ public final class QuestIntegrationTest {
             """;
         String valid="""
             {"id":"questplus:diagram_fixture","title":{"en_us":"Diagram"},"description":{"en_us":"Fixture"},
-             "annotations":[{"id":"area","x":0,"y":0,"width":300,"height":180,"text":{},"style":"background","color":"#896f55"}],
+             "annotations":[{"id":"area","x":0,"y":0,"width":300,"height":180,"text":{},"style":"background","color":"#896f55"},
+                {"id":"caption","x":0,"y":-120,"text":{"en_us":"Aligned"},"style":"label","align":"right"}],
              "linkRoutes":[{"from":"questplus:diagram_a","to":"questplus:diagram_b","points":[{"x":20,"y":30}]}]}
             """;
         boolean createdA=false,createdB=false,createdCategory=false;
@@ -45,7 +46,13 @@ public final class QuestIntegrationTest {
             var loaded=runtime.categories().stream().filter(c -> c.id().equals("questplus:diagram_fixture")).findFirst().orElseThrow();
             helper.assertTrue(loaded.annotations().getFirst().style().equals("background") && loaded.linkRoutes().getFirst().points().size()==1,
                 "Background and route survive actual registry reload");
+            helper.assertTrue("right".equals(loaded.annotations().getLast().align()),
+                "Annotation alignment survives authoritative reload and client projection");
             long generation=runtime.catalogGeneration();
+            Files.writeString(category,valid.replace("\"align\":\"right\"", "\"align\":\"justify\""));
+            boolean alignmentRejected=false; try { runtime.reload(); } catch (IllegalArgumentException expected) { alignmentRejected=true; }
+            helper.assertTrue(alignmentRejected && runtime.catalogGeneration()==generation && runtime.categories().contains(loaded),
+                "Invalid alignment keeps the previous registry intact");
             Files.writeString(category,valid.replace("\"x\":20", "\"x\":100001"));
             boolean rejected=false; try { runtime.reload(); } catch (IllegalArgumentException expected) { rejected=true; }
             helper.assertTrue(rejected && runtime.catalogGeneration()==generation && runtime.categories().contains(loaded),

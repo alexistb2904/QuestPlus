@@ -36,8 +36,16 @@ est désactivé**, car les matériaux `entityTranslucent` sont souvent traités
 comme du verre / SSR dans les shaders. L'intensité maximale dépend uniquement
 de l'état de Self Illumination.
 
-Cette séparation limite les reflets, mais les réflexions et le DOF propres à
-Bliss ou à un autre shader peuvent encore affecter les modèles 3D.
+Iris 1.11.7 soumet les mains dans deux passes, solide puis translucide.
+FP PAL 1.1.1 soumet son modèle personnalisé dans les deux, hors du filtrage
+vanilla des objets tenus. Avec Bliss, cette seconde soumission transforme
+le cadre et l'écran en miroir. Changer seulement `entityTranslucent` en
+`entityCutout` ne suffit donc pas.
+
+QuestPlus filtre maintenant cette seconde soumission directement dans
+`FpRenderBuffer.drawGeometry` et dans son rendu des bras natifs. Le modèle
+reste dans la passe solide, même si le joueur tient deux blocs de verre.
+Les autres animations et objets reprennent les passes habituelles à la fermeture.
 
 ## Fermeture : restauration impérative de l'interface Minecraft
 
@@ -49,12 +57,62 @@ Désormais :
 - Le HUD n'est masqué que pendant l'affichage réel du `QuestScreen`.
   Dès que Échap ferme la fenêtre, Minecraft reprend sa hotbar et son HUD.
 - Le système laisse terminer les animations normales.
+- La fin `hold_on_last_frame` est reconnue par l'état PAL `PAUSED`, même
+  lorsque les fractions de rendu placent son compteur juste sous la durée
+  exacte. Les snapshots conservent alors la pose finale normalisée.
+- L'atlas conserve sa dernière image pendant le rangement : l'interface
+  ne devient plus un écran noir dès la fermeture de la fenêtre.
 - Un délai de sécurité de **2,5 secondes** force l'arrêt de l'animation de
   fermeture si elle n'a pas rendu de dernier état.
 - Un délai de **3,5 secondes** récupère également une ouverture bloquée,
   en proposant alors la GUI standard.
 - Une exception FP PAL, l'apparition d'une autre fenêtre ou une déconnexion
   libèrent le contrôleur et rétablissent l'état de caméra.
+
+First Person Model utilise son API `ActivationHandler.preventFirstperson`
+pour céder temporairement le rendu du corps à FP PAL, puis le reprendre.
+Son réglage d'activation utilisateur n'est pas modifié.
+
+Punchy Moves intercepte ses raccourcis avant Minecraft. En cas de conflit avec
+la touche configurable de QuestPlus, la tablette reçoit cette touche ; une
+autre affectation redonne son raccourci à l'émote sans modifier les réglages.
+
+## Matrice GPU reproductible
+
+```powershell
+node scripts/test-tablet-compatibility.mjs
+# Un profil seulement : baseline, punchy, nea ou firstperson
+node scripts/test-tablet-compatibility.mjs punchy
+```
+
+Le lanceur télécharge les versions officielles Modrinth déclarées pour 26.3,
+vérifie leur SHA-512 et utilise uniquement `build/tablet-assets/` et
+`build/tablet-compat/<profil>/`. Il ne modifie pas `run/client/`, ses mods,
+ses options ou ses sauvegardes. Les versions et empreintes figurent dans
+`assets.json` de chaque profil ; les preuves sont dans `screenshots/` et
+`logs/latest.log`.
+
+| Profil | Mods supplémentaires à PAL / FP PAL / QuestPlus |
+| --- | --- |
+| baseline | Iris, Sodium |
+| punchy | Iris, Sodium, Punchy!, Punchy Moves, Fluid & Foolish, 3D Skin Layers |
+| nea | Iris, Sodium, Not Enough Animations, 3D Skin Layers |
+| firstperson | Iris, Sodium, Not Enough Animations, First Person Model, 3D Skin Layers |
+
+Chaque profil teste l'absence de shader puis Bliss, Complementary Reimagined,
+Complementary Unbound, BSL, Photon, MakeUp et Sildur's Vibrant. Deux cycles
+par rendu : écran éclairé / mains vides et écran non éclairé / verre dans les
+deux mains. Les assertions vérifient l'activation réelle du shader, une zone
+sombre de l'interface dans la capture GPU (régression miroir), l'évolution
+des os pendant le rangement, la conservation de l'atlas et la restitution
+du HUD / de la caméra. Un cycle en marchant et les poses de deux avatars
+distants simulés complètent chaque profil. Ce dernier essai n'est pas une
+connexion multijoueur à deux clients réels.
+
+La capture d'une zone sombre ne prouve pas à elle seule la lisibilité de
+tous les textes : les captures restent à examiner visuellement. Les packs
+sont testés avec leurs réglages par défaut, sur le GPU disponible ; cela ne
+couvre pas toutes les options PBR / DOF, les pilotes ou les combinaisons de mods.
 
 ## Validation manuelle (client Fabric 26.3 + Iris + Punchy)
 

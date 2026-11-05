@@ -73,7 +73,7 @@ Chaque catégorie accepte désormais `annotations` (au plus 128 objets), par exe
 {"annotations":[{"id":"depart","x":0,"y":-70,"text":{"en_us":"Start here","fr_fr":"Commencez ici"},"style":"heading","color":"#c6a986"}]}
 ```
 
-Les styles admis sont `note`, `heading`, `label` et `background`. Les annotations utilisent le même repère `layout.x/y` et la même caméra zoom/pan que les quêtes ; elles sont uniquement visuelles. `x` et `y` doivent être finis et entre ±100000, et l'ID unique par catégorie.
+Les styles admis sont `note`, `heading`, `label` et `background`. Les annotations utilisent le même repère `layout.x/y` et la même caméra zoom/pan que les quêtes ; elles sont uniquement visuelles. `x` et `y` doivent être finis et entre ±100000, et l'ID unique par catégorie. Le champ facultatif `align` accepte `left`, `center` ou `right` pour aligner le texte dans sa zone, dans l’éditeur et dans Minecraft.
 
 Une annotation `background` dessine un rectangle derrière les quêtes et leurs liens. Ses `width` et `height` sont des entiers de 1 à 100000, exprimés en unités du diagramme et mis à l'échelle avec le zoom ; `text` reste un objet obligatoire mais peut être vide. Le contenu `rich` n'est pas accepté. Les autres styles conservent leurs dimensions en pixels à l'écran.
 

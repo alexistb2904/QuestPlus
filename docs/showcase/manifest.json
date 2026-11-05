@@ -1,0 +1,75 @@
+{
+  "capturedOn": "2026-11-05",
+  "minecraft": "26.3",
+  "questplus": "0.2.0",
+  "fabricLoader": "0.20.1",
+  "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+  "playerAnimationLibrary": "1.2.8",
+  "firstPersonPalExpansion": "1.1.1",
+  "assets": {
+    "sodium": {
+      "project": "sodium",
+      "version": "mc26.3-0.9.2-fabric",
+      "versionId": "bAZQdGpg",
+      "sha512": "f3f260f204b8ce5e8777c2c73f537956755ec61f3817b0b78b5e5568e8aa40f14891f146475075109747665c7c88a45ca0ca9a8df3c68d79c58ecdaa8d8c4b93",
+      "folder": "mods",
+      "file": "questplus-test-sodium-b---d-pg.jar"
+    },
+    "iris": {
+      "project": "iris",
+      "version": "1.11.7+26.3-fabric",
+      "versionId": "vTN4NRGW",
+      "sha512": "d8d3312f77fc52a48e4a6cd836fda33669bdebcb4de0b8c0d30adc808b287330a533e0baef355cc1ce6336a26851d9775369a802a4666b7b7a6266af20088f42",
+      "folder": "mods",
+      "file": "questplus-test-iris-v--4----.jar"
+    },
+    "complementary-reimagined": {
+      "project": "complementary-reimagined",
+      "version": "r5.9.3",
+      "versionId": "Bqen1mJX",
+      "sha512": "45304b1d7862afdb2177b7e6226fc9c6737911d17a4ad46cc9c519ca4deb935f05072cd337cd8b19a15bb8062b57b54eceec7bdee4cd572d94858e2946d37d85",
+      "folder": "shaderpacks",
+      "file": "questplus-test-complementary-reimagined--qen1m--.zip"
+    }
+  },
+  "capture": "GPU-rendered Minecraft frames; default Complementary HIGH preset; synchronous readback watchdog compensation in capture harness only",
+  "editing": "Cuts only, no generated game imagery; GIFs sampled at 10 fps, not a performance measurement",
+  "files": {
+    "details.webp": {
+      "bytes": 100778,
+      "sha256": "c4a9c4c27371166060df0e2a6c37dc85f307fd490ab028aad58ae4a226fce05d"
+    },
+    "hud.webp": {
+      "bytes": 118192,
+      "sha256": "7397ee41c8c95b4ac78e670527856fde6d638ae207844fc6485ebff8d7b9e127"
+    },
+    "quests.gif": {
+      "bytes": 2523528,
+      "sha256": "553a6e5cb6d811a8aabd46f07db2ddfa6c035c9e406f9d43207f01c8da823710"
+    },
+    "quests.mp4": {
+      "bytes": 621866,
+      "sha256": "e349789b85d2c970343ead7df0b0cb3bb133cd30ce7b5062a9502f75018e617d"
+    },
+    "studio.webp": {
+      "bytes": 179826,
+      "sha256": "e2630827e864c0441d3d194b64f26881ff2aff98b31cdd81c0149705cc5b94c5"
+    },
+    "tablet.gif": {
+      "bytes": 4164882,
+      "sha256": "4633cf089bf56c8e89d0026e2c6349d1631555517bbd41d9e7b37b97109fe6fd"
+    },
+    "tablet.mp4": {
+      "bytes": 1209825,
+      "sha256": "3c92271903a5b8ecaafda5d5149f0310a9505bdb51e92b8c2a692833487edeb5"
+    },
+    "tablet.webp": {
+      "bytes": 88874,
+      "sha256": "ecba396b8555d81fe6ff1976deb62212bbc7a9f0a4290b21d177c43658786f9f"
+    },
+    "team.webp": {
+      "bytes": 77718,
+      "sha256": "487b719134f739f125a1bdfbcf98a6d8d9597db6b2e1e3e40ea516339a12e60a"
+    }
+  }
+}

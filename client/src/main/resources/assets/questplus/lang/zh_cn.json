@@ -185,5 +185,14 @@
   "questplus.client.condition.detail.gear.material.iron": "铁",
   "questplus.client.condition.detail.gear.material.golden": "金",
   "questplus.client.condition.detail.gear.material.diamond": "钻石",
-  "questplus.client.condition.detail.gear.material.netherite": "下界合金"
+  "questplus.client.condition.detail.gear.material.netherite": "下界合金",
+  "questplus.hub.open_editor": "打开 Quest Studio → ",
+  "questplus.hub.open_editor_hint": "打开任务编辑器。仍需在 Minecraft 中批准。",
+  "questplus.hub.command_hint": "点击填入命令，然后按回车：%s",
+  "questplus.hub.browser_approved": "浏览器已获授权。在 Quest Studio 加载服务器任务后，使用保存到服务器。",
+  "questplus.hub.compare_code": "请核对 Quest Studio 中的验证码：",
+  "questplus.hub.saved": "任务已保存。在线玩家现在可以看到更新后的任务。",
+  "questplus.hub.save_failed": "保存被拒绝。之前的任务已保留：%s",
+  "questplus.hub.approve_browser": "[批准此浏览器]",
+  "questplus.hub.import_pack": "[导入此任务包]"
 }

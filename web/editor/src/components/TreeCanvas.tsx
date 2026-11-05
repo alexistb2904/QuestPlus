@@ -251,7 +251,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
        <span className="node-icon"><ItemIcon id={q.icon} size={Math.max(16,nodeSize-6)}/></span><span className="sr-only">{text(q.title,language)}</span>
       </button>
       <button className="node-connector" data-link-port="true" aria-disabled={unavailable} aria-label={tUI('Connect quest')+' '+text(q.title,language)} title={tUI(unavailable?'A read-only quest cannot unlock another quest.':'Drag to another quest to add a prerequisite')} style={{'--port-scale':1} as React.CSSProperties}
-       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+nodeSize/2},to:null,error:'',moved:false})}}}><Plus size={14}/></button>
+       onClick={e=>{e.stopPropagation();if(e.detail===0&&!unavailable){onSelect({type:'quest',id:q.id});showCable({from:q.id,point:{x:p.x,y:p.y+nodeSize/2},to:null,error:'',moved:false})}}}><Plus size={10}/></button>
       {q.objectives?.some(o=>o.event==='npc_interact')&&<MessageCircle className="node-npc" size={13}/>}
       {showQuestTitles&&<span className="node-title-below" title={q.id}>{text(q.title,language)}</span>}
        {selection?.type==='quest'&&selection.id===q.id&&<>{handle('quest',q.id,nodeSize,nodeSize,q.size??32)}<span className="node-position">x: {worldPosition.x} &nbsp; y: {worldPosition.y}</span><span className="selection-handles" aria-hidden="true"/></>}
@@ -264,7 +264,7 @@ export function TreeCanvas({quests,allQuests,onLink,category,language,selection,
     const nodeWidth=resizeGhost?.id===a.id?resizeGhost.width??a.width??170:a.width??170;
     const nodeHeight=resizeGhost?.id===a.id?resizeGhost.height??a.height??100:a.height??100;
     return <div role="button" tabIndex={0} aria-label={annotationText(a,language)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect({type:'annotation',id:a.id})}}} key={a.id} className={'annotation-node '+(a.style||'note')+(selection?.type==='annotation'&&selection.id===a.id?' selected':'')}
-       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,width:nodeWidth,height:nodeHeight,borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+clampZoom(camera.zoom)+')'}}>
+       data-node-id={a.id} data-node-type="annotation" style={{left:p.x,top:p.y,width:nodeWidth,height:nodeHeight,textAlign:a.align||'center',borderColor:a.color||'#c6a986',color:a.color||'#c6a986',transform:'translate(-50%,-50%) scale('+clampZoom(camera.zoom)+')'}}>
        {rich?<span dangerouslySetInnerHTML={{__html:richToHtml(rich)}}/>:annotationText(a,language)}
        {selection?.type==='annotation'&&selection.id===a.id&&handle('annotation',a.id,a.width??170,a.height??100,32)}
       </div>;

@@ -139,7 +139,8 @@ final class RichAnnotationRenderer {
         } else if (style.equals("note")) QuestSkin.panel(g,left,top,w,total,0xdd33271f,border);
         int cy=top+5+(total-measuredHeight)/2;
         for(var row:lines){
-            int cx=x-row.width/2;
+            String align=note.has("align")?note.get("align").getAsString():"center";
+            int cx=switch(align){case "left" -> left+6; case "right" -> left+w-6-row.width; default -> x-row.width/2;};
             for(var part:row.parts){
                 if(part.image()!=null){
                     g.blit(part.image().getTextureView(),RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST),

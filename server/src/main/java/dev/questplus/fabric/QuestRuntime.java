@@ -129,7 +129,7 @@ public final class QuestRuntime implements AutoCloseable {
                     for (var element:category.getAsJsonArray("annotations")) {
                         if (!element.isJsonObject()) throw new IllegalArgumentException("Invalid annotation in "+path);
                         var note=element.getAsJsonObject();
-                        if (!Set.of("id","x","y","text","style","color","rich","width","height").containsAll(note.keySet())
+                        if (!Set.of("id","x","y","text","style","color","rich","width","height","align").containsAll(note.keySet())
                                 || !note.keySet().containsAll(Set.of("id","x","y","text")))
                             throw new IllegalArgumentException("Invalid annotation fields in "+path);
                         String aid=note.get("id").getAsString();
@@ -219,7 +219,7 @@ public final class QuestRuntime implements AutoCloseable {
                             return false;
                         });
                         if (!style.equals("background") && noteText.isEmpty() && !hasRich) throw new IllegalArgumentException("Annotation has no translated content: "+aid);
-                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich),width,height));
+                        annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich),width,height,ClientProjection.annotationAlignment(note)));
                     }
                 }
                 List<ClientProjection.LinkRoute> routes=ClientProjection.routes(category.get("linkRoutes"),id,candidate);

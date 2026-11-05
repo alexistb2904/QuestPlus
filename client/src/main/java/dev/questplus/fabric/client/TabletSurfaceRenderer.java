@@ -44,6 +44,11 @@ public final class TabletSurfaceRenderer {
         return QuestClientTabletFlow.nativeHandsActive()
             && mc.gui.screen() instanceof QuestScreen;
     }
+    /** Keep the last rendered UI on the physical display while it is being put away. */
+    public static boolean hasSurface() {
+        return target!=null && QuestClientTabletFlow.nativeHandsActive()
+            && (active() || QuestClientTabletFlow.closing());
+    }
     public static RenderTarget target() { return rendering ? target : null; }
 
     public static void render() {

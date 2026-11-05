@@ -137,7 +137,7 @@ public final class AdvancedEvents {
     public static void item(ServerPlayer player, String type, ItemStack stack, int count) {
         if (count <= 0 || stack.isEmpty()) return;
         emit(player, type, BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
-            stack.getItem().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), count);
+            stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), count);
         // Aggregate all four vanilla catches without accidentally counting treasure or junk.
         if (type.equals("fish_item") && Set.of(
                 "minecraft:cod","minecraft:salmon","minecraft:pufferfish","minecraft:tropical_fish")
@@ -147,12 +147,12 @@ public final class AdvancedEvents {
 
     public static void block(ServerPlayer player, String type, BlockState state) {
         emit(player, type, BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(),
-            state.getBlock().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
+            state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
     }
 
     public static void entity(ServerPlayer player, String type, Entity entity) {
         emit(player, type, BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(),
-            entity.getType().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
+            BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
     }
 
     private static void emit(ServerPlayer player, String type, String target, Set<String> tags, long count) {
@@ -184,6 +184,6 @@ public final class AdvancedEvents {
     private static void add(Map<String,Long> counts, ItemStack stack) {
         if (stack.isEmpty()) return;
         counts.merge(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(), (long) stack.getCount(), Long::sum);
-        stack.getItem().builtInRegistryHolder().tags().forEach(t -> counts.merge("#" + t.location(), (long) stack.getCount(), Long::sum));
+        stack.typeHolder().tags().forEach(t -> counts.merge("#" + t.location(), (long) stack.getCount(), Long::sum));
     }
 }

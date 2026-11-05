@@ -82,7 +82,7 @@ public final class QuestPlusMod implements ModInitializer {
                 var tool = BREAK_TOOLS.remove(player.getUUID());
                 if (tool != null && tool.position().equals(pos)) context.put("tool",tool.tool());
                 runtime.event(serverPlayer,new QuestEvent("block_break",BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(),
-                    state.getBlock().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context));
+                    state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context));
             }
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity,source) -> {
@@ -91,13 +91,13 @@ public final class QuestPlusMod implements ModInitializer {
             var responsible = source.getEntity() instanceof ServerPlayer player ? player
                 : entity.getKillCredit() instanceof ServerPlayer player ? player : null;
             if (responsible != null && responsible!=entity) runtime.event(responsible,new QuestEvent("entity_kill",BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(),
-                entity.getType().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context(responsible)));
+                BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context(responsible)));
         });
     }
 
     public static void pickedUp(ServerPlayer player,ItemStack item,int count) {
         if (runtime != null && count > 0) runtime.event(player,new QuestEvent("item_obtained",BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
-            item.getItem().builtInRegistryHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),count,context(player)));
+            item.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),count,context(player)));
     }
 
     public static Map<String,Object> context(ServerPlayer player) {

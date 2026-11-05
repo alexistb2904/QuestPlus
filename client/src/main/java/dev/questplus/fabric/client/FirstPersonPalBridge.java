@@ -3,6 +3,7 @@ package dev.questplus.fabric.client;
 import com.github.razorplay01.fp_pal.firstperson.FpAnimationSystem;
 import com.github.razorplay01.fp_pal.firstperson.FpAnimationResources;
 import com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer;
+import com.zigythebird.playeranimcore.enums.State;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
@@ -27,10 +28,13 @@ final class FirstPersonPalBridge {
         var expected=FpAnimationResources.getAnimation(id);
         if (expected==null) return false;
         var current=controller.getCurrentAnimationInstance();
-        boolean ended=current==expected ? controller.getAnimationTicks()>=expected.length()
+        boolean held=current==expected && controller.getAnimationState()==State.PAUSED;
+        boolean ended=current==expected ? terminalPose(controller.getAnimationTicks(),expected.length(),held)
             : current==null && controller.hasAnimationFinished();
-        return ended && TabletFrameInterpolation.settled(id,expected.length());
+        return ended && (held || TabletFrameInterpolation.settled(id,expected.length()));
     }
+    // PAL pauses a held final frame; render partials can then report a time just below its length.
+    static boolean terminalPose(double ticks,double length,boolean held) { return held || ticks>=length; }
     static void prepareFrame(float partialTick) { TabletFrameInterpolation.apply(partialTick); }
     static void stop() {
         TabletFrameInterpolation.reset();

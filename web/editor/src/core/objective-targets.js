@@ -173,6 +173,7 @@ export const EVENT_LABELS={
   "inventory_count": "Hold items",
   "entity_kill": "Kill entities",
   "fish_entity": "Fish entity",
+  "questplus:fish_any": "Fish (any species)",
   "tame_animal": "Tame animal",
   "breed_animal": "Breed animals",
   "npc_interact": "Interact with NPC",

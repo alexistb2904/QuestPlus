@@ -23,7 +23,7 @@ test('tablet settings cycle toast position without changing HUD position',()=>{
  assert.match(screen,/button\("notification_position"/);
  assert.match(screen,/settings\.notificationPosition=\(settings\.notificationPosition\+1\)%9/);
  assert.match(screen,/settings\.hudPosition=\(settings\.hudPosition\+1\)%9/);
- assert.match(screen,/notificationAnchor\.setTooltip\(Tooltip\.create\(notificationLabel\)\)/);
+ assert.match(screen,/notificationAnchor\.hoverText\(notificationLabel\)/);
 });
 
 test('new notification position setting is translated into all four primary languages',()=>{

@@ -11,6 +11,8 @@
     "TabletGuiRendererMixin",
     "TabletGuiExtractorMixin",
     "TabletNativeArmsMixin",
+    "TabletIrisHandMixin",
+    "PunchyMovesKeyMixin",
     "TabletFpInterpolationMixin",
     "TabletHudMixin",
     "TabletModelPartAccessor"

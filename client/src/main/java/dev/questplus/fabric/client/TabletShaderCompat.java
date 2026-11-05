@@ -12,8 +12,31 @@ import java.lang.reflect.Method;
 public final class TabletShaderCompat {
     private record IrisAccess(Object instance,Method method){}
     private static final IrisAccess IRIS=findIris();
+    private record HandAccess(Object instance,Method active,Method solid){}
+    private static final HandAccess HANDS=findHands();
     private static boolean warned;
     private TabletShaderCompat(){}
+    private static HandAccess findHands() {
+        if(IRIS==null)return null;
+        try {
+            var type=Class.forName("net.irisshaders.iris.pathways.HandRenderer",false,TabletShaderCompat.class.getClassLoader());
+            return new HandAccess(type.getField("INSTANCE").get(null),type.getMethod("isActive"),type.getMethod("isRenderingSolid"));
+        } catch(ReflectiveOperationException|LinkageError ex) {
+            QuestPlusMod.LOGGER.warn("Iris hand pass API is unavailable; tablet pass filtering disabled",ex);
+            return null;
+        }
+    }
+    /** FP PAL submits custom geometry in both Iris hand passes; the tablet belongs to the solid pass. */
+    public static boolean translucentHandPass() {
+        if(HANDS==null || !shadersActive())return false;
+        try {
+            return Boolean.TRUE.equals(HANDS.active().invoke(HANDS.instance()))
+                && Boolean.FALSE.equals(HANDS.solid().invoke(HANDS.instance()));
+        } catch(ReflectiveOperationException|LinkageError ex) {
+            if(!warned){warned=true;QuestPlusMod.LOGGER.warn("Cannot identify Iris hand pass",ex);}
+            return false;
+        }
+    }
     private static IrisAccess findIris() {
         if(!FabricLoader.getInstance().isModLoaded("iris"))return null;
         try{

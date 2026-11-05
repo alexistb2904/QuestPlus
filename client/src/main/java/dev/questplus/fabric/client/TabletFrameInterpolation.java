@@ -3,6 +3,7 @@ package dev.questplus.fabric.client;
 import com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer;
 import com.github.razorplay01.fp_pal.firstperson.FpRenderState;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.enums.State;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.Identifier;
@@ -29,7 +30,8 @@ public final class TabletFrameInterpolation {
         FpRenderState.getExtraBones().forEach((name,bone) -> bones.put(name,new PlayerAnimBone(bone)));
         var animation=controller.getCurrentAnimationInstance();
         if (animation==null) return;
-        SNAPSHOTS.accept(new Snapshot(id,controller.getAnimationTicks(),animation.length(),bones));
+        boolean held=controller.getAnimationState()==State.PAUSED;
+        SNAPSHOTS.accept(new Snapshot(id,held ? animation.length() : controller.getAnimationTicks(),animation.length(),bones));
     }
 
     public static void apply(float partial) {
@@ -49,7 +51,6 @@ public final class TabletFrameInterpolation {
         from.position.lerp(to.position,alpha,result.position);
         from.rotation.lerp(to.rotation,alpha,result.rotation);
         from.scale.lerp(to.scale,alpha,result.scale);
-        result.bend=from.bend+(to.bend-from.bend)*alpha;
     }
     private static PlayerAnimBone[] core() {
         return new PlayerAnimBone[]{FpRenderState.fpPlayerArms,FpRenderState.fpRightArm,FpRenderState.fpLeftArm,

@@ -185,5 +185,14 @@
   "questplus.client.condition.detail.gear.material.iron": "fer",
   "questplus.client.condition.detail.gear.material.golden": "or",
   "questplus.client.condition.detail.gear.material.diamond": "diamant",
-  "questplus.client.condition.detail.gear.material.netherite": "Netherite"
+  "questplus.client.condition.detail.gear.material.netherite": "Netherite",
+  "questplus.hub.open_editor": "Ouvrir Quest Studio → ",
+  "questplus.hub.open_editor_hint": "Ouvrir l’éditeur de quêtes. Une validation dans Minecraft reste nécessaire.",
+  "questplus.hub.command_hint": "Cliquez pour remplir la commande, puis appuyez sur Entrée : %s",
+  "questplus.hub.browser_approved": "Navigateur autorisé. Chargez les quêtes du serveur dans Quest Studio, puis utilisez Enregistrer sur le serveur.",
+  "questplus.hub.compare_code": "Comparez ce code avec celui de Quest Studio : ",
+  "questplus.hub.saved": "Quêtes enregistrées. Les joueurs en ligne voient les quêtes mises à jour.",
+  "questplus.hub.save_failed": "Enregistrement refusé. Les quêtes précédentes sont conservées : %s",
+  "questplus.hub.approve_browser": "[Autoriser ce navigateur]",
+  "questplus.hub.import_pack": "[Importer ce pack]"
 }

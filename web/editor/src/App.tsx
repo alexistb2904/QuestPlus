@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-	Save,
 	Minus,
 	Download,
 	FolderOpen,
@@ -113,11 +112,6 @@ export default function App() {
 		const callback = (event: KeyboardEvent) => {
 			if (!(event.ctrlKey || event.metaKey)) return;
 			const key = event.key.toLowerCase();
-			if (key === "s") {
-				event.preventDefault();
-				if (!studio.saveAndExport()) setIssuesOpen(true);
-				return;
-			}
 			if (key === "k") {
 				event.preventDefault();
 				searchRef.current?.focus();
@@ -133,7 +127,7 @@ export default function App() {
 	});
 	const changeCamera = (next: any) => setState((s) => ({ ...s, camera: { ...next, zoom: clampZoom(next.zoom) } }));
 	const editJson = () => {
-		setJsonContent(JSON.stringify(owner(project, selection), null, 2));
+		setJsonContent(JSON.stringify(owner(project, selection, categoryId), null, 2));
 		setJsonError("");
 		setJsonOpen(true);
 	};
@@ -159,6 +153,7 @@ export default function App() {
 	};
 	const inspectorProps = {
 		project,
+		categoryId,
 		selection,
 		language,
 		onUpdate: studio.setField,
@@ -205,19 +200,10 @@ export default function App() {
 				</div>
 			</header>
 			<div className="command-bar stone" role="toolbar" aria-label={tUI("Editor actions")}>
-                <HubPanel project={project} onLoad={next=>{
+                <HubPanel project={project} onSaveLocal={()=>{const saved=studio.save();if(saved)studio.toast(tUI("Saved locally"));return saved}} onLoad={next=>{
                   setState(s=>{const first=orderedCategories(next.categories)[0]?.id||null;
                     return {...s,project:next,categoryId:first,selection:first?{type:"category",id:first}:null,camera:{x:0,y:0,zoom:1},language:"en_us"}});
                 }}/>
-				<button
-					className="button primary"
-					onClick={() => {
-						if (!studio.saveAndExport()) setIssuesOpen(true);
-					}}
-					title={tUI("Save and download a ZIP (Ctrl+S)")}>
-					<Save size={18} />
-					{tUI("Save")}
-				</button>
 				<button className="button secondary" onClick={() => setPreviewOpen(true)} disabled={!selected}>
 					<Eye size={18} />
 					{tUI("Preview")}

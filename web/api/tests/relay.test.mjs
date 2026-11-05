@@ -53,7 +53,8 @@ test('Hub enforces browser approval and immutable packs before Minecraft publish
   const start=await api(base,'/v1/server/sessions',{method:'POST',key,body:{serverName:'Test server',files,registry:{items:['mymod:crystal']}}});
   assert.equal(start.status,201);
   const id=start.data.id;
-  assert.ok(start.data.url.startsWith(base+'/?session='));
+  assert.equal(new URL(start.data.url).origin,base);
+  assert.equal(new URL(start.data.url).searchParams.get('hub'),base);
   assert.ok(start.data.url.includes('session='+id));
   const pending=await api(base,'/v1/editor/sessions/'+id+'/request',{method:'POST',body:{}});
   assert.equal(pending.status,201);

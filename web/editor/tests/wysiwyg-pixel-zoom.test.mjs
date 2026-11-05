@@ -40,7 +40,7 @@ test('zoom controls scale every node and annotation without changing saved world
  assert.match(canvas,/showQuestTitles=false/);
  assert.match(canvas,/node-title-below/);
  const app=read('../src/App.tsx');
- assert.match(app,/useState\(\(\)=>localStorage\.getItem\("questplus\.quest-titles"\)==="true"\)/);
+ assert.match(app,/useState\(\(\)\s*=>\s*localStorage\.getItem\("questplus\.quest-titles"\)\s*===\s*"true"\)/);
  assert.match(app,/aria-pressed=\{showQuestTitles\}/);
 });
 

@@ -32,7 +32,7 @@ Requires Node 22 and Java 25 + Fabric 26.3.
 6. As an operator, run `/questplus editor`, open the received URL in a
    browser, request authorization and approve the matching six-digit
    code using `/questplus editor approve <code>`. Load server quests and
-   publish when finished.
+   use **Save to server** (or Ctrl+S) when finished. The editor waits for Minecraft validation before confirming the save. **Export ZIP** stays a separate offline action.
 
 ### Commands
 

@@ -38,7 +38,13 @@ public final class TeamIntegrationTest {
           """);
         runtime.reload();
         runtime.mutate(aid,"questplus:survival/logs","grant"); runtime.mutate(bid,"questplus:combat/skeletons","grant");
-        Runnable idle=() -> helper.assertTrue(!runtime.isBusy(aid) && !runtime.isBusy(bid),"Await durable team operation");
+        Runnable idle=() -> {
+            if (runtime.isBusy(aid) || runtime.isBusy(bid)) {
+                // Unpaced GameTests must give the disk writer time to complete.
+                java.util.concurrent.locks.LockSupport.parkNanos(1_000_000);
+                helper.fail("Await durable team operation");
+            }
+        };
         var sequence=helper.startSequence();
         sequence.thenWaitUntil(idle).thenExecute(step(() -> {
             helper.assertTrue(dispatcher.execute("questplus team create Integration",a.createCommandSourceStack())==1,"Create team command");

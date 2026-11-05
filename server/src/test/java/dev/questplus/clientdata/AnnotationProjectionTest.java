@@ -28,6 +28,25 @@ final class AnnotationProjectionTest {
             .getAsJsonObject("rich").getAsJsonArray("fr_fr").get(0).getAsJsonObject().get("ref").getAsInt());
     }
 
+    @Test void alignmentIsValidatedAndIncludedInClientSnapshots(){
+        var json=new com.google.gson.JsonObject();
+        assertNull(ClientProjection.annotationAlignment(json));
+        for (String align:List.of("left","center","right")) {
+            json.addProperty("align",align);
+            assertEquals(align,ClientProjection.annotationAlignment(json));
+            var note=new ClientProjection.Annotation("note",0,0,Map.of("en_us","Hello"),"label","#c6a986",Map.of(),170,100,align);
+            assertEquals(align,new Gson().toJsonTree(note).getAsJsonObject().get("align").getAsString());
+        }
+        for (String invalid:List.of("justify","","LEFT")) {
+            json.addProperty("align",invalid);
+            assertThrows(IllegalArgumentException.class,()->ClientProjection.annotationAlignment(json));
+        }
+        json.add("align",com.google.gson.JsonNull.INSTANCE);
+        assertThrows(IllegalArgumentException.class,()->ClientProjection.annotationAlignment(json));
+        json.addProperty("align",123);
+        assertThrows(IllegalArgumentException.class,()->ClientProjection.annotationAlignment(json));
+    }
+
     @Test void legacyConstructorsRetainDefaultDimensions(){
         var note=new ClientProjection.Annotation("old",0,0,Map.of("en_us","Welcome"),"label","#c6a986");
         assertNull(note.width());

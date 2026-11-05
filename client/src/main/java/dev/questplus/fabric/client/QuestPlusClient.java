@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.networking.v1.*;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.resources.Identifier;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.*;
@@ -19,6 +20,7 @@ public final class QuestPlusClient implements ClientModInitializer {
     /** Only newly-unlocked quests show a blue category marker until viewed. */
     public static final Set<String> NEW_UNLOCKS=new HashSet<>();
     private static KeyMapping open;
+    public static boolean matchesOpenKey(KeyEvent event) { return open!=null && open.matches(event); }
     private static long transfer=-1;
     private static String[] fragments;
     private static int bytes, received;
@@ -34,6 +36,7 @@ public final class QuestPlusClient implements ClientModInitializer {
         TabletPoseClient.register();
         QuestClientTabletFlow.register();
         PunchyTabletCompat.register();
+        FirstPersonTabletCompat.register();
         open=KeyMappingHelper.registerKeyMapping(new KeyMapping("questplus.client.open", InputConstants.KEY_J,KeyMapping.Category.MISC));
         ClientPlayNetworking.registerGlobalReceiver(QuestNetwork.State.TYPE,(payload,context) -> context.client().execute(() -> receive(payload)));
         ClientPlayConnectionEvents.JOIN.register((handler,sender,client) -> { clear(); sync(); });

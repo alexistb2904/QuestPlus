@@ -1,7 +1,7 @@
 export type LocaleMap=Record<string,string>;
 export type Position={x:number;y:number};
 export type RichPart={type:'text';text:string;bold?:boolean;italic?:boolean;underline?:boolean;strike?:boolean;font?:string;size?:number;sizePx?:number;color?:string;highlight?:string}|{type:'image';data:string;width:number;height:number};
-export type Annotation={id:string;x:number;y:number;text:LocaleMap;style?:'note'|'heading'|'label'|'background';color?:string;width?:number;height?:number;rich?:Record<string,RichPart[]>};
+export type Annotation={align?:'left'|'center'|'right';id:string;x:number;y:number;text:LocaleMap;style?:'note'|'heading'|'label'|'background';color?:string;width?:number;height?:number;rich?:Record<string,RichPart[]>};
 export type LinkRoute={from:string;to:string;points:Position[]};
 export type Category={id:string;order?:number;icon:string;title:LocaleMap;description?:LocaleMap;annotations?:Annotation[];linkRoutes?:LinkRoute[]};
 export type Objective={id:string;event:string;target:string;count:number;text?:LocaleMap;conditions?:any};

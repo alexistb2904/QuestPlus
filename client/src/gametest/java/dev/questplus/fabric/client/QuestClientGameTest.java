@@ -13,6 +13,10 @@ import java.nio.file.*;
 public final class QuestClientGameTest implements FabricClientGameTest {
     public static net.minecraft.world.entity.player.PlayerSkin skin;
     @Override public void runTest(ClientGameTestContext context) {
+        if (Boolean.getBoolean("questplus.tabletCompatibility")) {
+            TabletCompatibilityTest.run(context);
+            return;
+        }
         try (var world=context.worldBuilder().create()) {
             context.waitFor(client -> QuestPlusClient.STATE.ready,600);
             context.runOnClient(client -> { if (QuestPlusClient.STATE.quests.isEmpty()) throw new AssertionError("Empty initial catalogue"); });
@@ -286,7 +290,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
     }
 
     /** Real rendering and pose packets, using two client-side remote avatars rather than two connections. */
-    private static void remotePoseTrial(ClientGameTestContext context,net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
+    static void remotePoseTrial(ClientGameTestContext context,net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server) {
         var holderId=new java.util.UUID(0,101);
         var witnessId=new java.util.UUID(0,102);
         context.runOnClient(client -> {

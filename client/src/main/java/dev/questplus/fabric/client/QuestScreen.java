@@ -507,12 +507,11 @@ public final class QuestScreen extends Screen {
             int color=0xff000000|Integer.parseInt(hex.substring(1),16);
             int w=note.has("width")?Math.max(1,note.get("width").getAsInt()):Math.max(35,font.width(label)+12);
             int h=note.has("height")?Math.max(1,note.get("height").getAsInt()):20;
-            if (style.equals("heading")) {
-                QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-4),x-w/2,y-5,color,true);
-            } else {
-                if (!style.equals("label")) QuestSkin.panel(g,x-w/2,y-h/2,w,h,0xdd33271f,color);
-                QuestSkin.text(g,font,font.plainSubstrByWidth(label,w-10),x-w/2+5,y-4,color,false);
-            }
+            String visible=font.plainSubstrByWidth(label,Math.max(1,w-12));
+            String align=note.has("align")?note.get("align").getAsString():"center";
+            int tx=switch(align){case "left" -> x-w/2+6; case "right" -> x+w/2-6-font.width(visible); default -> x-font.width(visible)/2;};
+            if (!style.equals("heading") && !style.equals("label")) QuestSkin.panel(g,x-w/2,y-h/2,w,h,0xdd33271f,color);
+            QuestSkin.text(g,font,visible,tx,y-4,color,style.equals("heading"));
             } finally { g.pose().popMatrix(); }
         }
     }

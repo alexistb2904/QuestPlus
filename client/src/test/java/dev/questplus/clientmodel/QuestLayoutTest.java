@@ -60,8 +60,10 @@ class QuestLayoutTest {
     @Test void extremeManualPositionsKeepCameraFinite() {
         var camera = new QuestCamera(.25, 3);
         var layout = QuestLayout.compute(List.of(q("a",new QuestDefinition.Layout(-1e308,-1e308)),q("b",new QuestDefinition.Layout(1e308,1e308))));
+        camera.zoomAt(.5,200,150);
+        double originalZoom=camera.zoom();
         camera.fit(layout,0,0,400,300,10);
         assertTrue(Double.isFinite(camera.screenX(0))); assertTrue(Double.isFinite(camera.screenY(0)));
-        assertEquals(.25,camera.zoom());
+        assertEquals(originalZoom,camera.zoom());
     }
 }

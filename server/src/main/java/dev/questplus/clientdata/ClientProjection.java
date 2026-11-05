@@ -10,13 +10,24 @@ public final class ClientProjection {
     private ClientProjection() {}
 
     public record Annotation(String id, double x, double y, Map<String,String> text, String style, String color,
-                             Map<String,JsonArray> rich, Integer width, Integer height) {
+                             Map<String,JsonArray> rich, Integer width, Integer height, String align) {
+        public Annotation(String id,double x,double y,Map<String,String> text,String style,String color,Map<String,JsonArray> rich,Integer width,Integer height) {
+            this(id,x,y,text,style,color,rich,width,height,null);
+        }
         public Annotation(String id,double x,double y,Map<String,String> text,String style,String color,Map<String,JsonArray> rich) {
             this(id,x,y,text,style,color,rich,null,null);
         }
         public Annotation(String id,double x,double y,Map<String,String> text,String style,String color) {
             this(id,x,y,text,style,color,Map.of(),null,null);
         }
+    }
+    public static String annotationAlignment(JsonObject note) {
+        if (!note.has("align")) return null;
+        JsonElement value=note.get("align");
+        if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()
+                || !Set.of("left","center","right").contains(value.getAsString()))
+            throw new IllegalArgumentException("Invalid annotation alignment");
+        return value.getAsString();
     }
     public record RoutePoint(double x,double y) {}
     public record LinkRoute(String from,String to,List<RoutePoint> points) {}
