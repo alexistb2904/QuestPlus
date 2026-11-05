@@ -89,6 +89,17 @@ public final class AdvancedEvents {
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
                     target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
         }
+        if(registry.hasEvent("custom_stat")) {
+            // The existing sample loop already limits per-tick work to eight players.
+            for (var objective:registry.objectives("custom_stat")) {
+                Identifier id=Identifier.parse(objective.target());
+                if(!Stats.CUSTOM.contains(id))continue;
+                long value=player.getStats().getValue(Stats.CUSTOM.get(id));
+                var ctx=QuestPlusMod.context(player);
+                ctx.put("stateValues",Map.of(objective.target(),Math.max(0L,value)));
+                QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",objective.target(),Set.of(),1,ctx));
+            }
+        }
         if(registry.hasEvent("xp_levels")) {
             var ctx=QuestPlusMod.context(player);
             ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));
