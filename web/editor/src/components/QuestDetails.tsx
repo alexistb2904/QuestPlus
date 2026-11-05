@@ -173,7 +173,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      setTargetBrowser(null);
    }}/>}
    {tab==='rewards'&&<>
-    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button></div></div>
+    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button></div></div>
     {!!hubEditorDescriptors('reward').length&&<div className="toolbar-row" aria-label="Mod rewards">
       {hubEditorDescriptors('reward').map(d=><button className="button secondary" type="button" key={d.id} onClick={()=>{
         const data=Object.fromEntries(d.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:'']));
@@ -185,6 +185,28 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
      {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
+      r.type==='questplus:random'?<div className="random-reward-builder">
+        <p>{ui('Rolls are selected when the quest completes, and stored until claimed.')}</p>
+        <Field label="Rolls" type="number" value={r.data?.rolls||1}
+          onChange={v=>onUpdate('rewards.'+i+'.data.rolls',Math.max(1,Math.min(16,Math.floor(v))))}/>
+        {(r.data?.options||[]).map((option:any,j:number)=><div className="mini-card" key={j}>
+          <div className="field-row">
+            <Select label="Type" value={option.type} options={[[ 'item','Item'],['experience','XP points'],['experience_levels','XP Levels']]}
+              onChange={type=>onUpdate('rewards.'+i+'.data.options.'+j,{weight:option.weight||1,type,...(type==='item'?{item:'minecraft:diamond',count:1}:{amount:5})})}/>
+            <Field label="Weight" type="number" value={option.weight} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.weight',Math.max(1,Math.min(1000000,Math.floor(v))))}/>
+            {option.type==='item'?<>
+              <Field label="Item ID" value={option.item} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.item',v)}/>
+              <Field label="Count" type="number" value={option.count} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.count',Math.max(1,Math.floor(v)))}/>
+            </>:<Field label="XP amount" type="number" value={option.amount} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.amount',Math.max(1,Math.floor(v)))}/>}
+            <button className="tiny danger" title="Remove option" aria-label="Remove option" disabled={r.data?.options?.length<=1}
+              onClick={()=>onUpdate('rewards.'+i+'.data.options',(r.data?.options||[]).filter((_:any,k:number)=>k!==j))}><Trash2 size={14}/></button>
+          </div>
+        </div>)}
+        <button className="button secondary" disabled={(r.data?.options?.length||0)>=32}
+          onClick={()=>onUpdate('rewards.'+i+'.data.options',[...(r.data?.options||[]),{weight:1,type:'item',item:'minecraft:diamond',count:1}])}>
+          + {ui('Add random option')}
+        </button>
+      </div>:
       (hubEditorDescriptors('reward').some(d=>d.id===r.type)?<div className="field-row">
         {hubEditorDescriptors('reward').find(d=>d.id===r.type)!.fields.map(field=><div key={field.key}>
           {field.type==='boolean'?<label className="checkbox-row"><input type="checkbox" checked={!!r.data?.[field.key]} onChange={e=>onUpdate('rewards.'+i+'.data.'+field.key,e.target.checked)}/>{field.label}</label>:
