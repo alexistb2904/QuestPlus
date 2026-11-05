@@ -14,6 +14,8 @@ public final class QuestExtensions {
     private static final Map<String,Consumer<JsonObject>> REWARDS = new ConcurrentHashMap<>();
     static {
         REWARDS.put("questplus:random",RewardTables::validate);
+        REWARDS.put("questplus:loot",RewardTables::validateLoot);
+        REWARDS.put("questplus:all",RewardTables::validateAll);
         for (String type : List.of("block_break","block_place","block_interact")) EVENTS.put(type,new EventType("block",false));
         for (String type : List.of("item_obtained","item_craft","item_smelt","item_use","item_consume","fish_item","trade")) EVENTS.put(type,new EventType("item",false));
         for (String type : List.of("entity_kill","fish_entity","tame_animal","breed_animal","npc_interact")) EVENTS.put(type,new EventType("entity",false));
