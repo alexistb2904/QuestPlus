@@ -45,6 +45,8 @@ public final class QuestPresentation {
             case "biome_visit","structure_visit" -> new String[]{"Visit","Visiter","Visitar","探索"};
             case "dimension_enter" -> new String[]{"Enter","Entrer dans","Entrar en","进入"};
             case "inventory_count" -> new String[]{"Hold","Posséder","Tener","持有"};
+            case "item_submit" -> new String[]{"Submit","Soumettre","Entregar","提交"};
+            case "item_turn_in" -> new String[]{"Turn in","Remettre","Entregar y consumir","交付并消耗"};
             case "travel_distance" -> new String[]{"Travel","Parcourir","Recorrer","行进"};
             case "location" -> new String[]{"Reach","Atteindre","Llegar a","抵达"};
             case "player_death" -> new String[]{"Die","Mourir","Morir","死亡"};
