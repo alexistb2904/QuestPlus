@@ -43,6 +43,7 @@ import { IconPicker, ItemIcon } from "./components/IconPicker";
 import { Dialog } from "./components/Dialog";
 import { HubPanel } from "./components/HubPanel";
 import {RegistryBrowser} from "./components/RegistryBrowser";
+import JSON5 from "json5";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 
 export default function App() {
@@ -129,7 +130,7 @@ export default function App() {
 	});
 	const changeCamera = (next: any) => setState((s) => ({ ...s, camera: { ...next, zoom: clampZoom(next.zoom) } }));
 	const editJson = () => {
-		setJsonContent(JSON.stringify(owner(project, selection, categoryId), null, 2));
+		setJsonContent(JSON5.stringify(owner(project, selection, categoryId), null, 2));
 		setJsonError("");
 		setJsonOpen(true);
 	};
@@ -267,7 +268,7 @@ export default function App() {
 				hidden
 				type="file"
 				multiple
-				accept=".json,.zip"
+				accept=".json,.json5,.zip"
 				onChange={(e) => {
 					void studio.importFiles(e.target.files);
 					e.target.value = "";
