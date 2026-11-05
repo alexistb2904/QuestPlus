@@ -193,13 +193,16 @@ export function validate(p){
     let expanded=0;
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
-      if(r.type==='questplus:random'){
+      if(['questplus:random','questplus:loot','questplus:all'].includes(r.type)){
         const data=r.data;
         const options=data?.options,rolls=data?.rolls??1;
-        expanded+=Number.isInteger(rolls)?rolls:0;
-        if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).some(k=>!['options','rolls'].includes(k))
+        expanded+=r.type==='questplus:all'?(Array.isArray(options)?options.length:0):(Number.isInteger(rolls)?rolls:0);
+        if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).some(k=>r.type==='questplus:loot'?!['options','rolls','emptyWeight'].includes(k):r.type==='questplus:all'?k!=='options':!['options','rolls'].includes(k))
             ||!Array.isArray(options)||options.length<1||options.length>32
-            ||!Number.isInteger(rolls)||rolls<1||rolls>16)fail(label,'Table de récompenses aléatoires invalide');
+            ||(r.type!=='questplus:all'&&(!Number.isInteger(rolls)||rolls<1||rolls>16))
+            ||(r.type==='questplus:loot'&&(!Number.isInteger(data?.emptyWeight)||data.emptyWeight<0||data.emptyWeight>1000000))
+            ||(r.type==='questplus:all'&&Object.hasOwn(data,'rolls')))
+            fail(label,'Table de récompenses aléatoires invalide');
         let weight=0;
         for(const option of Array.isArray(options)?options:[]){
           if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option aléatoire invalide');continue}
