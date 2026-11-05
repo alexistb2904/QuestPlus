@@ -192,9 +192,9 @@ export function validate(p){
     if(list.length>64)fail(label,'64 récompenses maximum');
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
-      if(r.type==='experience'&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
+      if(['experience','experience_levels'].includes(r.type)&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
       else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
-      else if(!['experience','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
+      else if(!['experience','experience_levels','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
       if(Object.hasOwn(r,'text')&&!translations(r.text))fail(label,'Texte récompense : traduction anglaise et textes non vides requis');
     }
   };
