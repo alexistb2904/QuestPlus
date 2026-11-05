@@ -12,6 +12,8 @@ export const QUEST_TEMPLATES=Object.freeze([
   {id:'equipment',label:'Equipment mastery',description:'Wear an enchanted armor piece'},
   {id:'sequence',label:'Progression chain',description:'Complete actions in order'},
   {id:'timed',label:'Timed challenge',description:'Finish within five minutes'},
+  {id:'fluid',label:'Fluid transfer (integration)',description:'Trusted mod reports successful fluid mB transfers'},
+  {id:'energy',label:'Energy transfer (integration)',description:'Trusted mod reports successful FE transfers'},
   {id:'xp',label:'XP levels',description:'Reach a given XP level'},
   {id:'stat',label:'Minecraft statistic',description:'Reach a tracked stat value'},
   {id:'advancement',label:'Advancement',description:'Finish a vanilla or modded advancement'},
@@ -33,6 +35,8 @@ export function buildQuestFromTemplate(category,id,title,position,templateId='ba
       q.icon='minecraft:diamond_chestplate';
       q.objectives=[step('gear','equipment_check','questplus:gear',1,{'questplus:gear':{items:[{slot:'chest',item:'minecraft:diamond_chestplate',enchantments:{'minecraft:protection':4}}]}})];break;
     case 'sequence':q.icon='minecraft:iron_pickaxe';q.objectives=[step('wood','block_break','minecraft:oak_log',8),step('stone','block_break','minecraft:stone',32),step('iron','inventory_count','minecraft:iron_ingot',8)];q.objectiveMode='sequence';break;
+    case 'fluid':q.icon='minecraft:water_bucket';q.objectives=[step('fluid','fluid_transfer','minecraft:water',1000)];break;
+    case 'energy':q.icon='minecraft:redstone';q.objectives=[step('energy','energy_transfer','questplus:fe',10000)];break;
     case 'xp':q.icon='minecraft:experience_bottle';q.objectives=[step('level','xp_levels','questplus:levels',30)];break;
     case 'stat':q.icon='minecraft:compass';q.objectives=[step('jumps','custom_stat','minecraft:jump',100)];break;
     case 'advancement':q.icon='minecraft:book';q.objectives=[step('stone_age','advancement_complete','minecraft:story/mine_stone',1)];break;
