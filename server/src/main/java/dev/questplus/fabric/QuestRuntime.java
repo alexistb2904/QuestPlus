@@ -240,6 +240,12 @@ public final class QuestRuntime implements AutoCloseable {
     private void validateRegistryReference(String kind, String target) {
         String registryKind=kind.equals("icon") || kind.equals("tool") || kind.equals("item") ? "item"
             : Set.of("dimension","biome","effect").contains(kind) ? kind : QuestExtensions.event(kind).registry();
+        if (kind.equals("custom_stat")) {
+            Identifier stat=Identifier.parse(target);
+            if (!BuiltInRegistries.CUSTOM_STAT.containsKey(stat))
+                throw new IllegalArgumentException("Unknown custom statistic "+target);
+            return;
+        }
         if (registryKind.equals("marker")) {
             Identifier.parse(target.startsWith("#") ? target.substring(1) : target);
             if (kind.equals("travel_distance") && !target.equals("questplus:travel") || kind.equals("location") && !target.equals("questplus:position")
