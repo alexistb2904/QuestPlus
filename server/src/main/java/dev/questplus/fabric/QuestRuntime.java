@@ -265,7 +265,7 @@ public final class QuestRuntime implements AutoCloseable {
         if (registryKind.equals("marker")) {
             Identifier.parse(target.startsWith("#") ? target.substring(1) : target);
             if (kind.equals("travel_distance") && !target.equals("questplus:travel") || kind.equals("location") && !target.equals("questplus:position")
-                    || kind.equals("player_death") && !target.equals("questplus:death")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
+                    || kind.equals("player_death") && !target.equals("questplus:death") || kind.equals("energy_transfer") && !target.equals("questplus:fe")) throw new IllegalArgumentException("Invalid built-in event target: "+kind+" "+target);
             return;
         }
         if (registryKind.equals("dimension")) {
