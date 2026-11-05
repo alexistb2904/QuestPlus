@@ -120,8 +120,8 @@ export const changeObjectiveEvent=(objective,event,questId)=>{
   if(objective.event===event)return objective;
   const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
   // Switching between related events must not erase an already chosen modded ID.
-  const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','fluid','custom'].includes(newKind);
-  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
+  const sameRegistry=oldKind===newKind && event!=='energy_transfer' && ['block','item','entity','biome','structure','dimension','fluid','custom'].includes(newKind);
+  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='energy_transfer'?'questplus:fe':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
   const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
   const cleaned=removePositionCondition(objective.conditions);
   if(cleaned)next.conditions=cleaned;
