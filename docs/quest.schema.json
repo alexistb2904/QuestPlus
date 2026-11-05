@@ -460,7 +460,8 @@
                 "manual",
                 "xp_levels",
                 "item_submit",
-                "item_turn_in"
+                "item_turn_in",
+                "custom_stat"
               ]
             },
             {
