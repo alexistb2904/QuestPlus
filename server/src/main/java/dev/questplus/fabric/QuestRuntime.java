@@ -76,7 +76,7 @@ public final class QuestRuntime implements AutoCloseable {
         Set<String> categoryIds = new HashSet<>();
         List<ClientProjection.Category> candidateCategories = new ArrayList<>();
         try (var paths = Files.walk(definitions.resolve("categories"))) {
-            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).toList()) {
+            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json") || p.toString().endsWith(".json5")).toList()) {
                 var category = Defaults.readObject(path);
                 if (!Set.of("id","title","description","icon","annotations","order","images","linkRoutes").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
