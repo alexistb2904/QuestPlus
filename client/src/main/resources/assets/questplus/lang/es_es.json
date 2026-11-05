@@ -220,5 +220,10 @@
   "questplus.choice_saved": "Quest Plus: elección guardada.",
   "questplus.client.error.choice_save_failed": "No se pudo guardar la elección. Un administrador debe revisar el almacenamiento.",
   "questplus.client.back": "Volver",
-  "questplus.client.interact": "Confirmar objetivo"
+  "questplus.client.interact": "Confirmar objetivo",
+  "questplus.client.condition.detail.started": "Misión iniciada: %s",
+  "questplus.client.condition.detail.at_least": "Al menos %s de: %s",
+  "questplus.client.condition.detail.stage": "Etapa: %s",
+  "questplus.client.reward_type.questplus:stage": "Etapa",
+  "questplus.client.reward_type.questplus:toast": "Notificación"
 }

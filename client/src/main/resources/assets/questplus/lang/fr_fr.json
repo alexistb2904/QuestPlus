@@ -220,5 +220,10 @@
   "questplus.choice_saved": "Quest Plus : choix enregistré.",
   "questplus.client.error.choice_save_failed": "Le choix n’a pas pu être enregistré. Un administrateur doit vérifier le stockage.",
   "questplus.client.back": "Retour",
-  "questplus.client.interact": "Valider l’objectif"
+  "questplus.client.interact": "Valider l’objectif",
+  "questplus.client.condition.detail.started": "Quête commencée : %s",
+  "questplus.client.condition.detail.at_least": "Au moins %s parmi : %s",
+  "questplus.client.condition.detail.stage": "Stage : %s",
+  "questplus.client.reward_type.questplus:stage": "Stage",
+  "questplus.client.reward_type.questplus:toast": "Notification"
 }

@@ -111,6 +111,12 @@ public final class AdvancedEvents {
                 QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",target,Set.of(),1,ctx));
             }
         }
+        if(registry.hasEvent("stage")) {
+            var values=new HashMap<String,Long>();var stages=QuestStages.stages(player);
+            for(var objective:registry.objectives("stage"))values.put(objective.target(),stages.contains(objective.target())?1L:0L);
+            var context=QuestPlusMod.context(player);context.put("stateValues",values);
+            for(String target:values.keySet())QuestPlusMod.runtime().event(player,new QuestEvent("stage",target,Set.of(),1,context));
+        }
         if(registry.hasEvent("xp_levels")) {
             var ctx=QuestPlusMod.context(player);
             ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));

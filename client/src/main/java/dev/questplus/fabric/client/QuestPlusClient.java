@@ -83,7 +83,7 @@ public final class QuestPlusClient implements ClientModInitializer {
                     var quest=STATE.quests.get(entry.getKey());
                     if("unlocked".equals(event))NEW_UNLOCKS.add(entry.getKey());
                     if(settings.notifications && event!=null && quest!=null){
-                        QuestToast.show(event,STATE.text(quest.title()),quest.icon());
+                        if(!event.equals("completed")||!quest.presentation().disableCompletionToast())QuestToast.show(event,STATE.text(quest.title()),quest.icon());
                         break;
                     }
                 }

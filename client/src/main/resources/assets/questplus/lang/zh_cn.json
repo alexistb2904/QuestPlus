@@ -220,5 +220,10 @@
   "questplus.choice_saved": "Quest Plus：选择已保存。",
   "questplus.client.error.choice_save_failed": "选择保存失败。请管理员检查存储。",
   "questplus.client.back": "返回",
-  "questplus.client.interact": "确认目标"
+  "questplus.client.interact": "确认目标",
+  "questplus.client.condition.detail.started": "任务已开始：%s",
+  "questplus.client.condition.detail.at_least": "至少满足 %s 项：%s",
+  "questplus.client.condition.detail.stage": "阶段：%s",
+  "questplus.client.reward_type.questplus:stage": "阶段",
+  "questplus.client.reward_type.questplus:toast": "通知"
 }

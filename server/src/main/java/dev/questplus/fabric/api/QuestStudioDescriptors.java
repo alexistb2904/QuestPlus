@@ -13,7 +13,7 @@ public final class QuestStudioDescriptors {
     private QuestStudioDescriptors() {}
     private static final Map<String, JsonObject> DEFINITIONS=new ConcurrentHashMap<>();
     private static final Set<String> KINDS=Set.of("event","condition","reward");
-    private static final Set<String> TYPES=Set.of("string","integer","boolean","item","block","entity","biome","dimension","enchantment");
+    private static final Set<String> TYPES=Set.of("string","integer","boolean","item","block","entity","biome","dimension","enchantment","fluid","structure","statistic","advancement","effect");
     private static final String ID="[a-z0-9_.-]+:[a-z0-9_./-]+";
     private static final String KEY="[a-z][a-zA-Z0-9_]{0,39}";
 

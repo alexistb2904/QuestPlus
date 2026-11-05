@@ -23,11 +23,12 @@ public final class QuestEngine {
             }));
             return List.of();
         }
-        long now=clock.getAsLong(); Set<String> completed=completed(player);
+        long now=clock.getAsLong(); Set<String> completed=prerequisiteState(player);
         Map<String,Integer> sequenceSteps=new HashMap<>();
         Set<String> touched=new LinkedHashSet<>();
         for (var candidate:registry.candidates(event)) {
             var q=candidate.quest(); var objective=candidate.objective(); var p=player.quests.get(q.id());
+            if(!QuestExtensions.matchesObjective(objective,event))continue;
             if (event.type().equals("item_submit") || event.type().equals("item_turn_in")) {
                 if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
             }
@@ -41,7 +42,7 @@ public final class QuestEngine {
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
             if (state) {
-                Object values=Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
+                Object values=Set.of("xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
                 amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
             }
             if (p==null && amount==0) continue;
@@ -72,9 +73,9 @@ public final class QuestEngine {
                 var q=registry.get(id);
                 var p=player.quests.get(id);
                 if(p==null || terminal(q,p) || p.waitingRestart)continue;
-                refreshStates(player,q,p,event.context(),completed(player),sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
+                refreshStates(player,q,p,event,prerequisiteState(player),sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
                 // Flexible quests can track progress while locked but never grant rewards early.
-                if(q.requires()!=null && !q.requires().matches(event.context(),completed(player)))continue;
+                if(q.requires()!=null && !q.requires().matches(event.context(),prerequisiteState(player)))continue;
                 evaluated.add(id);
                 if(q.progression().equals("tiered")){
                     while(p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())){
@@ -100,7 +101,7 @@ public final class QuestEngine {
             // Grant cascades in the same authoritative transaction: completing a prerequisite
             // can unlock already-satisfied flexible quests without another gameplay event.
             if(result.size()>previousAwards){
-                var unlocked=completed(player);
+                var unlocked=prerequisiteState(player);
                 for(var q:registry.all()){
                     if(!q.progressBeforeUnlock()||evaluated.contains(q.id()))continue;
                     var p=player.quests.get(q.id());
@@ -112,13 +113,15 @@ public final class QuestEngine {
         }
         return List.copyOf(result);
     }
-    private static void refreshStates(PlayerProgress owner,QuestDefinition q,PlayerProgress.QuestProgress p,Map<String,Object> context,Set<String> completed,int accessibleStep) {
+    private static void refreshStates(PlayerProgress owner,QuestDefinition q,PlayerProgress.QuestProgress p,QuestEvent event,Set<String> completed,int accessibleStep) {
+        var context=event.context();
         Map<?,?> inventory=context.get("inventory") instanceof Map<?,?> m?m:Map.of();
         Map<?,?> states=context.get("stateValues") instanceof Map<?,?> m?m:Map.of();
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
             boolean isInventory=objective.event().equals("inventory_count");
-            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
+            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
+            if(!isInventory&&!objective.event().equals(event.type()))continue;
             Map<?,?> values=isInventory?inventory:states;
             if(!values.containsKey(objective.target()))continue;
             Object value=values.get(objective.target());
@@ -174,5 +177,9 @@ public final class QuestEngine {
     public PlayerProgress.QuestProgress progress(PlayerProgress player,String id) { registry.get(id); return player.quests.get(id); }
     private static boolean terminal(QuestDefinition q,PlayerProgress.QuestProgress p) { return p.terminal || (q.progression().equals("once") && p.completed); }
     private static PlayerProgress.QuestProgress fresh(QuestDefinition q) { var p=new PlayerProgress.QuestProgress(); p.fingerprint=q.fingerprint(); return p; }
-    private static Set<String> completed(PlayerProgress player) { Set<String> result=new HashSet<>(); player.quests.forEach((id,p) -> { if (p.completed) result.add(id); }); return result; }
+    public static Set<String> prerequisiteState(PlayerProgress player) {
+        Set<String> result=new HashSet<>();
+        player.quests.forEach((id,p)->{if(p.completed)result.add(id);if(p.completed||p.attemptId!=null||p.startedAt>0||p.counters.values().stream().anyMatch(v->v>0))result.add("@started:"+id);});
+        return result;
+    }
 }

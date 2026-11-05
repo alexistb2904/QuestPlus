@@ -48,6 +48,21 @@ final class QuestCommands {
                     var p = QuestPlusMod.runtime().player(UuidArgument.getUuid(c,"player"));
                     s.sendSuccess(() -> Component.literal("team="+p.teamId+" quests=" + p.quests.size() + " claims=" + p.claims+" entitlements="+p.entitlements.keySet()),false);
                 }))))
+            .then(literal("recovery").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .then(literal("inspect").then(argument("player",UuidArgument.uuid()).executes(c -> execute(c,s -> {
+                    UUID id=UuidArgument.getUuid(c,"player");
+                    var claims=QuestPlusMod.runtime().reservedClaims(id);
+                    s.sendSuccess(() -> Component.literal("Reserved claims for "+id+": "+claims),false);
+                }))))
+                .then(literal("resolve").then(argument("player",UuidArgument.uuid())
+                    .then(argument("claim",StringArgumentType.string())
+                        .then(argument("outcome",StringArgumentType.word())
+                            .then(argument("reason",StringArgumentType.greedyString()).executes(c -> execute(c,s -> {
+                                UUID id=UuidArgument.getUuid(c,"player"); String key=StringArgumentType.getString(c,"claim");
+                                String outcome=StringArgumentType.getString(c,"outcome");
+                                QuestPlusMod.runtime().resolveReservedClaim(id,key,outcome,StringArgumentType.getString(c,"reason"),s.getTextName());
+                                s.sendSuccess(() -> Component.literal("Resolved claim "+key+" for "+id+" as "+outcome),true);
+                            }))))))))
             .then(literal("progress")
                 .executes(c -> execute(c,s -> {
                     var player = s.getPlayerOrException();

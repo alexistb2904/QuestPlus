@@ -38,6 +38,7 @@ public final class RewardTables {
                 || !entry.getValue().getAsJsonPrimitive().isString() || entry.getValue().getAsString().isBlank()
                 || entry.getValue().getAsString().length()>limit)throw new IllegalArgumentException("Invalid reward translation");
     }
+    // TODO(Codex P1): item component predicates and safe third-party pool previews remain unsupported.
     private static void validateOption(JsonObject option,boolean weighted) {
         var plain=option.deepCopy();
         if(weighted)plain.remove("weight");
@@ -52,7 +53,7 @@ public final class RewardTables {
         } else if(Set.of("experience","experience_levels").contains(type)) {
             if(!plain.keySet().equals(Set.of("type","amount")))throw new IllegalArgumentException("Invalid XP option");
             integer(plain,"amount",1,1_000_000);
-        } else if(Set.of("questplus:advancement","questplus:message").contains(type)) {
+        } else if(Set.of("questplus:advancement","questplus:message","questplus:stage","questplus:toast").contains(type)) {
             if(!plain.keySet().equals(Set.of("type","data")))throw new IllegalArgumentException("Invalid reward option");
             QuestExtensions.validateReward(type,plain.getAsJsonObject("data"));
         } else throw new IllegalArgumentException("Unsupported reward option; commands and nested pools are forbidden");

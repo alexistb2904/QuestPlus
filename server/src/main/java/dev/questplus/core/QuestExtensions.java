@@ -12,6 +12,8 @@ public final class QuestExtensions {
     private static final Map<String,EventType> EVENTS = new ConcurrentHashMap<>();
     private static final Map<String,ConditionType> CONDITIONS = new ConcurrentHashMap<>();
     private static final Map<String,Consumer<JsonObject>> REWARDS = new ConcurrentHashMap<>();
+    private record ObjectiveType(Consumer<JsonObject> validator,BiPredicate<JsonObject,QuestEvent> predicate) {}
+    private static final Map<String,ObjectiveType> OBJECTIVES=new ConcurrentHashMap<>();
     static {
         REWARDS.put("questplus:advancement",data -> {
             if(!data.keySet().equals(Set.of("advancement")) ||
@@ -48,6 +50,29 @@ public final class QuestExtensions {
         EVENTS.put("xp_levels",new EventType("marker",true));
         EVENTS.put("custom_stat",new EventType("marker",true));
         EVENTS.put("advancement_complete",new EventType("marker",true));
+        EVENTS.put("observe_block",new EventType("block",true));
+        EVENTS.put("observe_entity",new EventType("entity",true));
+        EVENTS.put("stage",new EventType("marker",true));
+        CONDITIONS.put("questplus:stage",new ConditionType(value->{
+            if(!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString())throw new IllegalArgumentException("Expected stage ID");
+            namespaced(value.getAsString());
+        },(value,context)->context.get("stages") instanceof Set<?> stages && stages.contains(value.getAsString())));
+        REWARDS.put("questplus:stage",data->{
+            if(!data.keySet().equals(Set.of("stage","remove")) || !data.get("remove").isJsonPrimitive() || !data.getAsJsonPrimitive("remove").isBoolean())
+                throw new IllegalArgumentException("Stage reward requires stage and remove");
+            namespaced(data.get("stage").getAsString());
+        });
+        REWARDS.put("questplus:toast",data->{
+            if(!Set.of("title","description","icon").equals(data.keySet()))throw new IllegalArgumentException("Toast requires title, description, icon");
+            for(String field:List.of("title","description")) {
+                var translated=data.getAsJsonObject(field);
+                if(!translated.has("en_us") || translated.size()>128)throw new IllegalArgumentException("Toast requires English translation");
+                for(var entry:translated.entrySet())if(!entry.getKey().matches("[a-z]{2,3}_[a-z]{2,4}") || !entry.getValue().isJsonPrimitive()
+                    || !entry.getValue().getAsJsonPrimitive().isString() || entry.getValue().getAsString().isBlank() || entry.getValue().getAsString().length()>256)
+                    throw new IllegalArgumentException("Invalid toast translation");
+            }
+            namespaced(data.get("icon").getAsString());
+        });
         // Evaluated from authoritative server equipment snapshots, not player events.
         EVENTS.put("equipment_check",new EventType("marker",false));
         EVENTS.put("questplus:fish_any",new EventType("marker",false));
@@ -92,6 +117,21 @@ public final class QuestExtensions {
                 || EVENTS.putIfAbsent(id,new EventType(registry,state))!=null) throw new IllegalArgumentException("Invalid/duplicate event " + id);
     }
     public static EventType event(String id) { var type=EVENTS.get(id); if (type==null) throw new IllegalArgumentException("Unknown event " + id); return type; }
+    public static void registerObjective(String event,Consumer<JsonObject> validator,BiPredicate<JsonObject,QuestEvent> predicate) {
+        namespaced(event);event(event);
+        if(OBJECTIVES.putIfAbsent(event,new ObjectiveType(Objects.requireNonNull(validator),Objects.requireNonNull(predicate)))!=null)
+            throw new IllegalArgumentException("Duplicate objective handler "+event);
+    }
+    public static void validateObjective(String event,JsonObject data) {
+        if(data.toString().length()>16384)throw new IllegalArgumentException("Objective data exceeds 16 KiB");
+        var type=OBJECTIVES.get(event);
+        if(type!=null)type.validator().accept(data);
+        else if(!data.isEmpty())throw new IllegalArgumentException("Objective has no registered data validator: "+event);
+    }
+    public static boolean matchesObjective(QuestDefinition.Objective objective,QuestEvent event) {
+        var type=OBJECTIVES.get(objective.event());
+        return type==null || type.predicate().test(JsonParser.parseString(Objects.toString(objective.data(),"{}")).getAsJsonObject(),event);
+    }
     public static void registerCondition(String id,Consumer<JsonElement> validator,BiPredicate<JsonElement,Map<String,Object>> predicate) {
         namespaced(id); if (CONDITIONS.putIfAbsent(id,new ConditionType(Objects.requireNonNull(validator),Objects.requireNonNull(predicate)))!=null) throw new IllegalArgumentException("Duplicate condition " + id);
     }

@@ -220,12 +220,14 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             try {
                 var runtime=dev.questplus.fabric.QuestPlusMod.runtime();category[0]=runtime.categories().getFirst().id();
                 Files.writeString(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"),"""
-                    {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'minecraft:chest',title:{en_us:'Reward choices'},progression:'once',
+                    {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'minecraft:chest',title:{en_us:'Reward choices'},progression:'once',presentation:{shape:'hexagon',subtitle:{en_us:'Server validated'},iconScale:0.8},
                      objectives:[{id:'check',event:'manual',target:'questplus:client_choice_marker',count:1}],
                      rewards:[
                       {type:'questplus:choice',data:{options:[{type:'experience',amount:7},{type:'experience_levels',amount:2}]}},
                       {type:'questplus:choice',data:{options:[{type:'experience',amount:11},{type:'experience_levels',amount:3}]}},
-                      {type:'questplus:random',data:{options:[{type:'experience',amount:1,weight:1}]}}
+                      {type:'questplus:random',data:{options:[{type:'experience',amount:1,weight:1}]}},
+                      {type:'questplus:stage',data:{stage:'questplus:client_reward',remove:false}},
+                      {type:'questplus:toast',data:{title:{en_us:'Custom reward'},description:{en_us:'Stage unlocked'},icon:'minecraft:diamond'}}
                      ]}
                     """.formatted(category[0]));
                 runtime.reload();
@@ -257,13 +259,21 @@ public final class QuestClientGameTest implements FabricClientGameTest {
         clickButton(context,"xp",11);clickButton(context,"confirm_choice");
         context.waitFor(client->QuestClientState.flag(QuestPlusClient.STATE.progress(id),"claimable"),300);
         context.waitTicks(3);context.takeScreenshot("questplus-reward-server-result");
+        context.runOnClient(client->QuestToast.clear());
         clickButton(context,"claim");
         context.waitFor(client->"delivered".equals(QuestPlusClient.STATE.progress(id).getAsJsonObject("rewardState").get("status").getAsString()),300);
         context.waitFor(client->client.player.totalExperience==before+19,300);
-        context.takeScreenshot("questplus-reward-claimed");
+        context.waitFor(client->{
+            try {
+                var active=QuestToast.class.getDeclaredField("active");active.setAccessible(true);
+                return String.valueOf(active.get(null)).contains("Custom reward");
+            }catch(Exception error){throw new RuntimeException(error);}
+        },300);
+        context.waitTicks(8);context.takeScreenshot("questplus-reward-claimed");
         context.runOnClient(client->QuestPlusClient.chooseReward(id,token,0,1));
         context.waitFor(client->"action_rejected".equals(QuestPlusClient.STATE.error),300);
         server.runOnServer(instance->{
+            if(!dev.questplus.fabric.QuestStages.stages(instance.getPlayerList().getPlayers().getFirst()).contains("questplus:client_reward"))throw new AssertionError("Stage reward was not delivered by server");
             if(instance.getPlayerList().getPlayers().getFirst().totalExperience!=before+19)throw new AssertionError("Replayed choice delivered duplicate XP");
             try {
                 Files.delete(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"));

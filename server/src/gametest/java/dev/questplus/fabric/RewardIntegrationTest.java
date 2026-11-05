@@ -22,6 +22,7 @@ public final class RewardIntegrationTest {
     private static ServerPlayer connect(GameTestHelper helper,GameProfile profile) {
         var server=helper.getLevel().getServer();
         var player=new ServerPlayer(server,helper.getLevel(),profile,ClientInformation.createDefault());
+        server.getPlayerList().loadPlayerData(player.nameAndId()).ifPresent(tag->player.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,server.registryAccess(),tag)));
         var connection=new Connection(PacketFlow.SERVERBOUND);new EmbeddedChannel(connection);
         server.getPlayerList().placeNewPlayer(connection,player,CommonListenerCookie.createInitial(profile,false));
         player.setGameMode(GameType.SURVIVAL);return player;
@@ -34,6 +35,57 @@ public final class RewardIntegrationTest {
         boolean rejected=false;try{action.run();}catch(IllegalArgumentException|IllegalStateException expected){rejected=true;}
         helper.assertTrue(rejected,message);
     }
+    @GameTest(maxTicks=2000)
+    public void observationAndStageRewardsUseServerState(GameTestHelper helper) throws Exception {
+        var runtime=QuestPlusMod.runtime();var server=helper.getLevel().getServer();
+        var directory=server.getWorldPath(LevelResource.ROOT).resolve("questplus/quests");
+        Path watch=directory.resolve("observe-integration.json5"),stage=directory.resolve("stage-integration.json5");
+        String category=runtime.categories().getFirst().id();
+        Files.writeString(watch,"""
+            {schemaVersion:2,id:'questplus:observe_integration',category:'%s',icon:'minecraft:stone',title:{en_us:'Observe'},progression:'once',
+             objectives:[{id:'watch',event:'observe_block',target:'minecraft:diamond_block',count:20}],
+             rewards:[{type:'questplus:all',data:{options:[{type:'questplus:stage',weight:1,data:{stage:'questplus:observed',remove:false}},
+              {type:'questplus:toast',weight:1,data:{title:{en_us:'Observed'},description:{en_us:'Stage unlocked'},icon:'minecraft:diamond_block'}}]}}]}
+            """.formatted(category));
+        Files.writeString(stage,"""
+            {schemaVersion:2,id:'questplus:stage_integration',category:'%s',icon:'minecraft:book',title:{en_us:'Stage'},progression:'once',
+             objectives:[{id:'stage',event:'stage',target:'questplus:observed',count:1}],rewards:[]}
+            """.formatted(category));
+        runtime.reload();var profile=new GameProfile(UUID.randomUUID(),"observation-test");
+        ServerPlayer[] player={connect(helper,profile)};
+        var at=helper.absolutePos(new net.minecraft.core.BlockPos(1,1,1));
+        var target=at.offset(0,1,3);
+        var state=runtime.state(profile.id());
+        helper.getLevel().setBlockAndUpdate(target,net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK.defaultBlockState());
+        Runnable idle=()->helper.assertTrue(!runtime.isBusy(profile.id()),"Await observation save");
+        helper.startSequence().thenWaitUntil(idle).thenExecute(()->{
+            player[0].setNoGravity(true);player[0].setPos(at.getX()+.5,at.getY(),at.getZ()+.5);
+            player[0].setYRot(0);player[0].setYHeadRot(0);player[0].setXRot(0);
+        }).thenExecuteAfter(5,()->{
+            var progress=state.quests.get("questplus:observe_integration");
+            helper.assertTrue(progress!=null&&progress.counters.getOrDefault("watch",0L)>0&&!progress.completed,"Server raycast accumulates real gaze");
+            player[0].setYRot(180);player[0].setYHeadRot(180);
+        }).thenExecuteAfter(3,()->{
+            var progress=state.quests.get("questplus:observe_integration");
+            helper.assertTrue(progress.counters.get("watch")==0,"Looking away resets dwell time; count="+progress.counters.get("watch")+", rotation="+player[0].getYRot()+", ray="+player[0].pick(6,1,false));player[0].setYRot(0);player[0].setYHeadRot(0);
+        }).thenWaitUntil(()->helper.assertTrue(state.quests.get("questplus:observe_integration").completed,"Continuous server gaze completes"))
+        .thenWaitUntil(idle).thenExecute(step(()->{
+            runtime.claim(player[0],"questplus:observe_integration");
+            for(int i=0;i<5000;i++)runtime.event(player[0],new QuestEvent("stage","questplus:observed",Set.of(),1,Map.of("stateValues",Map.of("questplus:observed",1L))));
+            helper.assertTrue(!state.quests.containsKey("questplus:stage_integration"),"Busy polls neither overflow nor queue stale stage values");
+        }))
+        .thenWaitUntil(idle).thenWaitUntil(()->helper.assertTrue(QuestStages.stages(player[0]).contains("questplus:observed"),"Saved concrete stage reward delivered"))
+        .thenWaitUntil(()->helper.assertTrue(state.quests.containsKey("questplus:stage_integration")&&state.quests.get("questplus:stage_integration").completed,"Authoritative stage poll completes objective"))
+        .thenWaitUntil(idle).thenExecute(()->{server.getPlayerList().remove(player[0]);runtime.disconnect(profile.id());player[0]=connect(helper,profile);})
+        .thenWaitUntil(idle).thenExecute(step(()->{
+            helper.assertTrue(QuestStages.stages(player[0]).contains("questplus:observed"),"Default stage provider survives reconnect");
+            reject(helper,()->runtime.claim(player[0],"questplus:observe_integration"),"Reconnect cannot replay stage/toast reward");
+            QuestStages.set(player[0],"questplus:observed",false);
+            helper.assertTrue(!QuestStages.stages(player[0]).contains("questplus:observed"),"Trusted provider can remove stage");
+            Files.delete(watch);Files.delete(stage);runtime.reload();
+        })).thenSucceed();
+    }
+
     @GameTest(maxTicks=2000)
     public void submissionsRespectOptionalStepsTagsAndTierRequirements(GameTestHelper helper) throws Exception {
         var runtime=QuestPlusMod.runtime();var server=helper.getLevel().getServer();
@@ -50,6 +102,16 @@ public final class RewardIntegrationTest {
             {schemaVersion:2,id:'questplus:tier_submission',category:'%s',icon:'minecraft:oak_log',title:{en_us:'Tier submissions'},progression:'tiered',
              objectives:[{id:'check',event:'item_submit',target:'#minecraft:logs',count:4}],rewards:[],tiers:[{id:'first',threshold:1,rewards:[]},{id:'second',threshold:2,rewards:[]}]}
             """.formatted(category));
+        var infinite=directory.resolve("infinite-handin.json5");
+        Files.writeString(infinite,"""
+            {schemaVersion:2,id:'questplus:infinite_handin',category:'%s',icon:'minecraft:dirt',title:{en_us:'Infinite handin'},progression:'infinite',
+             objectives:[{id:'deposit',event:'item_turn_in',target:'minecraft:dirt',count:1}],rewards:[{type:'experience',amount:1}]}
+            """.formatted(category));
+        var repeat=directory.resolve("tier-repeat-handin.json5");
+        Files.writeString(repeat,"""
+            {schemaVersion:2,id:'questplus:tier_repeat_handin',category:'%s',icon:'minecraft:dirt',title:{en_us:'Tier repeat handin'},progression:'tiered',afterLast:'repeat',
+             objectives:[{id:'deposit',event:'item_turn_in',target:'minecraft:dirt',count:1}],rewards:[],tiers:[{id:'first',threshold:1,rewards:[{type:'experience',amount:1}]}]}
+            """.formatted(category));
         runtime.reload();var player=connect(helper,new GameProfile(UUID.randomUUID(),"submission-test"));
         var inventory=player.getInventory();
         Runnable idle=()->helper.assertTrue(!runtime.isBusy(player.getUUID()),"Await submission save");
@@ -63,6 +125,13 @@ public final class RewardIntegrationTest {
             helper.assertTrue(runtime.submitItem(player,"questplus:optional_submission","bonus")==4,"Optional sequence submission consumes exactly four items");
             helper.assertTrue(inventory.getItem(0).isEmpty()&&player.getOffhandItem().isEmpty(),"Main and offhand consumed exactly once");
             reject(helper,()->runtime.submitItem(player,"questplus:optional_submission","bonus"),"Duplicate hand-in rejected");
+            var recovery=server.getCommands().getDispatcher().getRoot().getChild("questplus").getChild("recovery");
+            helper.assertTrue(!recovery.canUse(player.createCommandSourceStack()),"Recovery is inaccessible to ordinary players");
+            helper.assertTrue(recovery.canUse(server.createCommandSourceStack()),"Recovery is accessible to operators");
+            String claim="questplus:manual_review|test";
+            runtime.player(player.getUUID()).claims.put(claim,"reserved");
+            int result=server.getCommands().getDispatcher().execute("questplus recovery resolve "+player.getUUID()+" \""+claim+"\" discard reviewed",server.createCommandSourceStack());
+            helper.assertTrue(result==1 && "delivered".equals(runtime.player(player.getUUID()).claims.get(claim)),"Reviewed claim is finalized without redelivery");
             var progress=runtime.state(player.getUUID()).quests.get("questplus:optional_submission");
             helper.assertTrue(progress.counters.get("bonus")==4&&!progress.completed,"Optional hand-in advances itself without skipping required task");
             inventory.setItem(1,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.OAK_LOG,2));
@@ -84,7 +153,15 @@ public final class RewardIntegrationTest {
             helper.assertTrue(server.getCommands().getDispatcher().execute("questplus trigger questplus:optional_submission",player.createCommandSourceStack())==1,"Legacy command reuses scoped custom-marker interaction");
         })).thenWaitUntil(idle).thenExecute(step(()->{
             helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:optional_submission").completed,"Authorized manual interaction uses its declared custom marker");
-            Files.delete(optional);Files.delete(tier);runtime.reload();
+            inventory.setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
+            runtime.submitItem(player,"questplus:infinite_handin","deposit");
+            runtime.submitItem(player,"questplus:infinite_handin","deposit");
+            helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:infinite_handin").cycles==2,"Reset counters never reject a successful infinite hand-in");
+            helper.assertTrue(inventory.getItem(0).isEmpty(),"One item withdrawn per durable infinite cycle");
+            inventory.setItem(0,new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIRT,2));
+            runtime.submitItem(player,"questplus:tier_repeat_handin","deposit");runtime.submitItem(player,"questplus:tier_repeat_handin","deposit");
+            helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:tier_repeat_handin").cycles==2&&inventory.getItem(0).isEmpty(),"Final repeating tier commits exactly one withdrawal per cycle");
+            Files.delete(repeat);Files.delete(infinite);Files.delete(optional);Files.delete(tier);runtime.reload();
         })).thenSucceed();
     }
     @GameTest(maxTicks=2000)

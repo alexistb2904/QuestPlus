@@ -106,12 +106,13 @@ public final class QuestNetwork {
             JsonObject value=new JsonObject(); value.addProperty("id",invite.id.toString()); value.addProperty("name",invite.name);
             value.addProperty("owner",invite.owner.toString()); value.addProperty("expiresAt",invite.invitations.get(id)); invitations.add(value);
         }
-        boolean full=force || session.generation!=runtime.catalogGeneration() || session.progress==null || !session.visible.equals(visibleIds);
+        boolean restricted=visible.stream().anyMatch(q->q.presentation().hideDetailsUntilUnlocked()||q.presentation().hideTextUntilCompleted());
+        boolean full=force || restricted&&!Objects.equals(progress,session.progress) || session.generation!=runtime.catalogGeneration() || session.progress==null || !session.visible.equals(visibleIds);
         JsonObject packet=new JsonObject();
         if (full) {
             packet.addProperty("type","snapshot");
             packet.add("categories",ClientProjection.categories(runtime.categories(),visible));
-            packet.add("quests",ClientProjection.quests(visible));
+            packet.add("quests",ClientProjection.quests(visible,runtime.state(id)));
             packet.add("progress",progress); packet.add("team",team); packet.add("invitations",invitations);
         } else {
             JsonObject changed=new JsonObject();
@@ -154,6 +155,11 @@ public final class QuestNetwork {
         }
         long id=++transfer;
         for (int i=0;i<parts.size();i++) ServerPlayNetworking.send(player,new State(id,i,parts.size(),parts.get(i)));
+    }
+    public static void notice(ServerPlayer player,String title,String description,String icon) {
+        if(!ServerPlayNetworking.canSend(player,State.TYPE))return;
+        var packet=new JsonObject();packet.addProperty("type","notice");packet.addProperty("title",title);
+        packet.addProperty("description",description);packet.addProperty("icon",icon);send(player,packet);
     }
     static void error(ServerPlayer player,String code) { error(player,code,null); }
     private static void error(ServerPlayer player,String code,String detail) {

@@ -39,6 +39,7 @@ public final class QuestRegistry {
     }
     public static QuestRegistry load(Path dir, ValidationHook hook) throws IOException {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
+        var tables=NamedRewardTables.load(dir);
         if (Files.exists(dir)) try (var paths = Files.walk(dir)) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")||p.toString().endsWith(".json5")).sorted().toList()) {
                 try {
@@ -50,7 +51,7 @@ public final class QuestRegistry {
                         root = readJson(reader, 0);
                         if (reader.peek() != JsonToken.END_DOCUMENT) throw new IllegalArgumentException("Trailing JSON content");
                     }
-                    var q = parse(root.getAsJsonObject(), hook);
+                    var q = parse(tables.quest(root.getAsJsonObject()), hook);
                     if (quests.putIfAbsent(q.id(), q) != null) throw new IllegalArgumentException("Duplicate quest " + q.id());
                 } catch (RuntimeException e) { throw new IllegalArgumentException(path + ": " + e.getMessage(), e); }
             }
@@ -102,7 +103,7 @@ public final class QuestRegistry {
     }
     private static QuestDefinition parse(JsonObject o, ValidationHook hook) {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
-            "objectiveMode","objectiveThreshold","progressBeforeUnlock","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich");
+            "objectiveMode","objectiveThreshold","progressBeforeUnlock","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich","presentation");
         long version = integer(o,"schemaVersion",1,2);
         String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
@@ -129,12 +130,13 @@ public final class QuestRegistry {
         List<QuestDefinition.Objective> objectives = new ArrayList<>(); Set<String> ids = new HashSet<>();
         if (array(o,"objectives").size() > 256) throw new IllegalArgumentException("Too many objectives");
         for (JsonElement e : array(o,"objectives")) {
-            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions","optional");
+            JsonObject v = e.getAsJsonObject(); fields(v,"id","event","target","count","text","conditions","optional","data");
             String oid = string(v,"id"), event = string(v,"event"), target = string(v,"target");
             if (!oid.matches("[a-z0-9_.-]+") || !ids.add(oid)) throw new IllegalArgumentException("Invalid objective " + oid);
             QuestExtensions.event(event);
             identifier(target.startsWith("#") ? target.substring(1) : target); hook.validate(event,target);
-            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null,v.has("optional") && bool(v,"optional")));
+            JsonObject data=v.has("data")?object(v,"data"):new JsonObject();QuestExtensions.validateObjective(event,data);
+            objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null,v.has("optional") && bool(v,"optional"),data.toString()));
         }
         if(kind.equals("standard")) {
             long required=objectives.stream().filter(objective->!objective.optional()).count();
@@ -179,7 +181,26 @@ public final class QuestRegistry {
         try { fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mechanical.getBytes(StandardCharsets.UTF_8))); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
         return new QuestDefinition(id,category,icon,title,description,List.copyOf(objectives),requires,List.copyOf(rewards),progression,layout,o.has("narrative") ? translations(object(o,"narrative")) : Map.of(),fingerprint,
             mode,List.copyOf(tiers),afterLast,cooldown,timeLimit,noDeath,kind,acknowledgement,o.has("hidden") && bool(o,"hidden"),o.has("size") ? (int)integer(o,"size",1,Integer.MAX_VALUE) : 32,
-            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold,progressBeforeUnlock);
+            o.has("descriptionRich")?descriptionRich(object(o,"descriptionRich")):Map.of(),objectiveThreshold,progressBeforeUnlock,presentation(o));
+    }
+    private static QuestDefinition.Presentation presentation(JsonObject quest) {
+        if(!quest.has("presentation"))return QuestDefinition.Presentation.DEFAULT;
+        var p=object(quest,"presentation");fields(p,"subtitle","tags","shape","iconScale","optional","disableCompletionToast","hideDetailsUntilUnlocked","hideTextUntilCompleted","invisibleUntilCompleted","invisibleUntilTasks","hideDependencyLines","hideDependentLines");
+        Map<String,String> subtitle=p.has("subtitle")?translations(object(p,"subtitle")):Map.of();
+        List<String> tags=new ArrayList<>();
+        if(p.has("tags"))for(var value:array(p,"tags")) {
+            if(tags.size()>=64 || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString() || !value.getAsString().matches("[a-zA-Z0-9_.:/-]{1,80}"))throw new IllegalArgumentException("Invalid quest tag");
+            if(!tags.contains(value.getAsString()))tags.add(value.getAsString());
+        }
+        String shape=p.has("shape")?string(p,"shape"):"square";
+        if(!Set.of("square","circle","rounded_square","diamond","pentagon","hexagon","octagon","heart","gear").contains(shape))throw new IllegalArgumentException("Unknown quest shape");
+        double scale=p.has("iconScale")?number(p,"iconScale"):1;
+        if(scale<.25||scale>2)throw new IllegalArgumentException("Icon scale outside .25..2");
+        return new QuestDefinition.Presentation(subtitle,List.copyOf(tags),shape,scale,
+            p.has("optional")&&bool(p,"optional"),p.has("disableCompletionToast")&&bool(p,"disableCompletionToast"),
+            p.has("hideDetailsUntilUnlocked")&&bool(p,"hideDetailsUntilUnlocked"),p.has("hideTextUntilCompleted")&&bool(p,"hideTextUntilCompleted"),
+            p.has("invisibleUntilCompleted")&&bool(p,"invisibleUntilCompleted"),p.has("invisibleUntilTasks")?(int)integer(p,"invisibleUntilTasks",0,256):0,
+            p.has("hideDependencyLines")&&bool(p,"hideDependencyLines"),p.has("hideDependentLines")&&bool(p,"hideDependentLines"));
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
         Map<String,JsonArray> parsed=new HashMap<>();
@@ -257,7 +278,7 @@ public final class QuestRegistry {
     }
     private static String mechanics(List<QuestDefinition.Objective> objectives) {
         return objectives.stream().sorted(Comparator.comparing(QuestDefinition.Objective::id))
-            .map(o -> o.id() + "|" + o.event() + "|" + o.target() + "|" + o.count() + "|" + conditionSignature(o.conditions()))
+            .map(o -> o.id() + "|" + o.event() + "|" + o.target() + "|" + o.count() + "|" + conditionSignature(o.conditions())+(o.data()!=null&&!o.data().equals("{}")?"|data:"+o.data():""))
             .collect(Collectors.joining("\n"));
     }
     private static String conditionSignature(QuestDefinition.Condition c) {
@@ -269,7 +290,12 @@ public final class QuestRegistry {
         String key = o.keySet().iterator().next(); JsonElement value = o.get(key); List<QuestDefinition.Condition> children = new ArrayList<>(); String literal = null;
         if (key.equals("and") || key.equals("or")) { if (!value.isJsonArray() || value.getAsJsonArray().isEmpty()) throw new IllegalArgumentException("Empty condition"); for (var child : value.getAsJsonArray()) children.add(condition(child.getAsJsonObject(),prerequisite,hook,depth+1,nodes)); }
         else if (key.equals("not")) children.add(condition(value.getAsJsonObject(),prerequisite,hook,depth+1,nodes));
-        else if (prerequisite && key.equals("quest")) literal = identifier(string(o,key));
+        else if (key.equals("at_least")) {
+            var quorum=value.getAsJsonObject();fields(quorum,"count","of");var options=array(quorum,"of");
+            literal=Long.toString(integer(quorum,"count",1,options.size()));
+            for(var child:options)children.add(condition(child.getAsJsonObject(),prerequisite,hook,depth+1,nodes));
+        }
+        else if (prerequisite && Set.of("quest","started").contains(key)) literal = identifier(string(o,key));
         else if (!prerequisite && Set.of("dimension","tool","biome","effect").contains(key)) { literal = identifier(string(o,key)); hook.validate(key,literal); }
         else if (!prerequisite && key.equals("sneaking") && value.isJsonPrimitive() && value.getAsJsonPrimitive().isBoolean()) literal = value.getAsString();
         else if (!prerequisite && (key.equals("healthAtMost") || key.equals("healthAtLeast"))) { double n = number(o,key); if (n < 0) throw new IllegalArgumentException("Invalid health"); literal = Double.toString(n); }

@@ -26,6 +26,7 @@ public final class QuestRuntime implements AutoCloseable {
     private final MinecraftServer server;
     private final Path definitions;
     private final JsonProgressStore store;
+    private final InventoryMarker inventoryMarker;
     private final Map<UUID,PlayerProgress> players = new HashMap<>();
     private final Set<UUID> dirty = new HashSet<>();
     private final Set<UUID> blocked = new HashSet<>();
@@ -56,7 +57,8 @@ public final class QuestRuntime implements AutoCloseable {
         Path world = server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize();
         definitions = world.resolve("questplus");
         Defaults.install(definitions);
-        store = new JsonProgressStore(world.resolve("data/questplus"));
+        inventoryMarker=new InventoryMarker(server);
+        store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"),inventoryMarker::saved);
         try { reload(); teams=new TeamManager(store,registry,players); } catch (IOException | RuntimeException e) { store.close(); throw e; }
     }
 
@@ -87,7 +89,7 @@ public final class QuestRuntime implements AutoCloseable {
         try (var paths = Files.walk(definitions.resolve("categories"))) {
             for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json") || p.toString().endsWith(".json5")).toList()) {
                 var category = Defaults.readObject(path);
-                if (!Set.of("id","title","description","icon","annotations","order","images","linkRoutes").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
+                if (!Set.of("id","title","description","icon","annotations","order","images","linkRoutes","group").containsAll(category.keySet()) || !category.keySet().containsAll(Set.of("id","title","description")))
                     throw new IllegalArgumentException("Invalid category " + path);
                 String id = category.get("id").getAsString();
                 if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !categoryIds.add(id)) throw new IllegalArgumentException("Invalid/duplicate category " + id);
@@ -231,8 +233,14 @@ public final class QuestRuntime implements AutoCloseable {
                         annotations.add(new ClientProjection.Annotation(aid,x,y,Map.copyOf(noteText),style,color,Map.copyOf(rich),width,height,ClientProjection.annotationAlignment(note)));
                     }
                 }
+                String group="";
+                if(category.has("group")) {
+                    var value=category.get("group");
+                    if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isString()||value.getAsString().length()>160||value.getAsString().chars().anyMatch(Character::isISOControl))throw new IllegalArgumentException("Invalid chapter group");
+                    group=value.getAsString().trim();
+                }
                 List<ClientProjection.LinkRoute> routes=ClientProjection.routes(category.get("linkRoutes"),id,candidate);
-                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order,List.copyOf(images),routes));
+                candidateCategories.add(new ClientProjection.Category(id,Map.copyOf(title),Map.copyOf(description),icon,List.copyOf(annotations),order,List.copyOf(images),routes,group));
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
@@ -338,7 +346,6 @@ public final class QuestRuntime implements AutoCloseable {
      * event context: an item submitted to one quest cannot advance a different quest.
      * Inventory is modified only on the server thread, after all checks succeed.
      */
-    // TODO(Codex): journal withdrawals with vanilla player saves; inventory and progress JSON still cannot commit atomically.
     public int submitItem(ServerPlayer actor, String questId, String objectiveId) throws IOException {
         assertThread();
         if(actor.isSpectator() || actor.isCreative())throw new IllegalArgumentException("Submission requires survival/adventure mode");
@@ -356,8 +363,7 @@ public final class QuestRuntime implements AutoCloseable {
             throw new IllegalArgumentException("Quest already completed or awaiting restart");
         if(engine.diagnostic(state,questId).isPresent())throw new IllegalArgumentException("Quest progress needs migration");
         Map<String,Object> ctx=QuestPlusMod.context(actor);
-        Set<String> completed=new HashSet<>();
-        state.quests.forEach((id,p)->{if(p.completed)completed.add(id);});
+        Set<String> completed=QuestEngine.prerequisiteState(state);
         if(quest.requires()!=null && !quest.progressBeforeUnlock() && !quest.requires().matches(ctx,completed))
             throw new IllegalArgumentException("Quest prerequisites are not satisfied");
         if(objective.conditions()!=null && !objective.conditions().matches(ctx,completed))
@@ -397,25 +403,64 @@ public final class QuestRuntime implements AutoCloseable {
         if(!consuming && amount<remaining)throw new IllegalArgumentException("Non-consuming submission requires the full objective amount");
         // A non-consuming submission is a one-shot full inventory verification.
         // A consuming hand-in may accumulate partial deposits.
-        if(consuming){
-            int left=amount;
-            for(int i=0;i<36 && left>0;i++){
-                ItemStack stack=actor.getInventory().getItem(i);
-                if(!matches.test(stack))continue;
-                int remove=Math.min(left,stack.getCount());stack.shrink(remove);left-=remove;
-            }
-            if(left>0 && matches.test(offhand)){
-                int remove=Math.min(left,offhand.getCount());offhand.shrink(remove);left-=remove;
-            }
-            if(left!=0)throw new IllegalStateException("Inventory changed during submission");
-            actor.getInventory().setChanged();
-        }
         ctx.put("submissionQuest",questId);ctx.put("submissionObjective",objectiveId);
         String eventTarget=tag==null?target:"minecraft:air";
         Set<String> tags=tag==null?Set.of():Set.of(target.substring(1));
-        event(actor,new QuestEvent(objective.event(),eventTarget,tags,amount,ctx));
+        var submission=new QuestEvent(objective.event(),eventTarget,tags,amount,ctx);
+        if(consuming) durableSubmission(actor,submission,matches,amount,questId,objectiveId,previous);
+        else event(actor,submission);
         QuestNetwork.invalidate(uuid);
         return amount;
+    }
+
+    private void durableSubmission(ServerPlayer actor,QuestEvent event,java.util.function.Predicate<ItemStack> matches,
+            int amount,String questId,String objectiveId,long previous) throws IOException {
+        UUID id=actor.getUUID(); Set<UUID> members=group(id);
+        Map<UUID,PlayerProgress> personal=new HashMap<>();
+        for(UUID member:members)personal.put(member,JsonProgressStore.detachedCopy(player(member)));
+        UUID teamId=player(id).teamId;
+        TeamData team=teamId==null?null:new com.google.gson.Gson().fromJson(new com.google.gson.Gson().toJson(teams.get(teamId)),TeamData.class);
+        if(team!=null)team.progress=JsonProgressStore.detachedCopy(teams.get(teamId).progress);
+        PlayerProgress progress=team==null?personal.get(id):team.progress;
+        var awards=engine.applyDetailed(progress,event);
+        var entry=progress.quests.get(questId);
+        if(entry==null || entry.counters.getOrDefault(objectiveId,0L)<=previous && awards.stream().noneMatch(award->award.questId().equals(questId)))
+            throw new IllegalArgumentException("Submission did not advance the objective");
+        Set<UUID> recipients=teamRewardPolicy.equals("contributor")?Set.of(id):members;
+        for(UUID recipient:recipients)for(var award:awards)
+            personal.get(recipient).entitle(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+        List<ItemStack> before=new ArrayList<>(),after=new ArrayList<>();
+        for(int i=0;i<37;i++) { var stack=(i==36?actor.getOffhandItem():actor.getInventory().getItem(i)).copy(); before.add(stack); after.add(stack.copy()); }
+        int left=amount;
+        for(var stack:after)if(left>0 && matches.test(stack)) { int remove=Math.min(left,stack.getCount()); stack.shrink(remove); left-=remove; }
+        if(left!=0)throw new IllegalStateException("Inventory changed during submission");
+        var ops=net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,server.registryAccess());
+        var beforeJson=new com.google.gson.JsonArray(); var afterJson=new com.google.gson.JsonArray();
+        for(int i=0;i<37;i++) {
+            beforeJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,before.get(i)).getOrThrow());
+            afterJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,after.get(i)).getOrThrow());
+        }
+        try {
+            String old=inventoryMarker.live(actor); UUID baseline=UUID.randomUUID();
+            inventoryMarker.set(actor,old,baseline); inventoryMarker.save(actor,baseline.toString());
+            UUID operation=UUID.randomUUID();
+            store.prepareInventory(operation,id,baseline.toString(),beforeJson,afterJson,personal,team==null?Map.of():Map.of(teamId,team)).join();
+            inventoryMarker.set(actor,baseline.toString(),operation);
+            for(int i=0;i<36;i++)actor.getInventory().setItem(i,after.get(i));
+            actor.getInventory().setItem(40,after.get(36)); actor.getInventory().setChanged();
+            inventoryMarker.save(actor,operation.toString());
+            store.commitInventory(operation).join();
+            personal.forEach(players::put);
+            if(team!=null)teams.get(teamId).progress=team.progress;
+            dirty.removeAll(members); if(teamId!=null)dirtyTeams.remove(teamId);
+            members.forEach(QuestNetwork::invalidate);
+        } catch(Exception error) { failStorage(error); throw new IOException("Item submission requires storage recovery",error); }
+        for(var award:awards)for(UUID member:members) {
+            var online=server.getPlayerList().getPlayer(member);
+            if(online!=null)online.sendSystemMessage(award.rewards().isEmpty()
+                ? Messages.text(online,"questplus.completed_no_reward",title(online,registry.get(award.questId())))
+                : Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
+        }
     }
 
     public void interactObjective(ServerPlayer actor,String questId,String objectiveId) throws IOException {
@@ -435,13 +480,15 @@ public final class QuestRuntime implements AutoCloseable {
         // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
         if (closing || storageFailed || (!event.type().equals("manual") && (player.isSpectator() || player.isCreative()))
             || blocked.contains(player.getUUID())) return;
+        if (!event.type().equals("player_death") && registry.candidates(event).isEmpty()) return;
         if (busy.contains(player.getUUID())) {
+            // Polls are sampled again; queued stale snapshots can overflow or complete a lost gaze.
+            if(Set.of("inventory_count","xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(event.type()))return;
             if (deferred.size()>=4096) throw new IllegalStateException("Quest Plus deferred event capacity exceeded");
             deferred.addLast(new DeferredEvent(player,event)); return;
         }
         try {
             UUID uuid=player.getUUID(); PlayerProgress progress = state(uuid);
-            if (!event.type().equals("player_death") && registry.candidates(event).isEmpty()) return;
             long revision = progress.revision;
             var completed = engine.applyDetailed(progress,event);
             if (progress.revision != revision) changed(uuid);
@@ -634,7 +681,26 @@ public final class QuestRuntime implements AutoCloseable {
         });
         affected.forEach(QuestNetwork::invalidate);
     }
-    // TODO(Codex): add audited operator resolution for reserved claims; never auto-redeliver after partial delivery.
+    public Map<String,PlayerProgress.RewardGrant> reservedClaims(UUID id) throws IOException {
+        assertThread(); var progress=player(id); var result=new TreeMap<String,PlayerProgress.RewardGrant>();
+        progress.claims.forEach((key,status)->{if(status.equals("reserved"))result.put(key,progress.entitlements.get(key));});
+        return result;
+    }
+    public void resolveReservedClaim(UUID id,String key,String outcome,String reason,String operator) throws IOException {
+        assertThread(); ensureFree(group(id));
+        if(claiming.contains(id))throw new IllegalStateException("Reward delivery is in progress");
+        if(!Set.of("delivered","discard").contains(outcome) || reason.isBlank() || reason.length()>1024 || operator.isBlank())
+            throw new IllegalArgumentException("Invalid resolution or reason");
+        var current=player(id);
+        if(!"reserved".equals(current.claims.get(key)))throw new IllegalArgumentException("Claim is not reserved");
+        var after=JsonProgressStore.detachedCopy(current);
+        after.claims.put(key,"delivered");
+        var audit=new JsonProgressStore.ClaimAudit(UUID.randomUUID(),id,key,operator,outcome,reason,System.currentTimeMillis());
+        try { store.resolveClaim(id,after,audit).join(); }
+        catch(java.util.concurrent.CompletionException error) { failStorage(error); throw new IOException("Claim resolution failed; storage frozen",error); }
+        current.claims.put(key,"delivered"); QuestNetwork.invalidate(id);
+        QuestPlusMod.LOGGER.warn("Quest Plus claim resolved: player={} claim={} outcome={} operator={} reason={}",id,key,outcome,operator,reason);
+    }
     public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null,null); }
     private void claim(ServerPlayer player, String id,String requestedKey,Runnable onDelivered) throws IOException {
         assertThread();

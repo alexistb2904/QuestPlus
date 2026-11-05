@@ -16,6 +16,12 @@ class QuestStudioDescriptorsTest {
         assertThrows(IllegalArgumentException.class,()->
             QuestStudioDescriptors.register("event","questplus_test:resource","Duplicate",new JsonArray()));
     }
+    @Test void allRegistryFieldTypesRemainDataOnly() {
+        for(String type:java.util.List.of("fluid","structure","statistic","advancement","effect")) {
+            var fields=new JsonArray();var field=new JsonObject();field.addProperty("key","target");field.addProperty("type",type);field.addProperty("label","Target");fields.add(field);
+            assertDoesNotThrow(()->QuestStudioDescriptors.register("condition","questplus_test:"+type,"Registry picker",fields));
+        }
+    }
     @Test void rejectsExecutableOrAmbiguousEditorFields() {
         JsonArray fields=new JsonArray();
         fields.add(JsonParser.parseString("""

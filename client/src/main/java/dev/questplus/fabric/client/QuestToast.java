@@ -12,7 +12,7 @@ import java.util.Deque;
 
 /** Bounded, animated quest achievements, separate from the pinned HUD. */
 final class QuestToast {
-    private record Notice(String kind,String name,String icon) {}
+    private record Notice(String kind,String name,String icon,String heading) {}
     private static final Deque<Notice> QUEUE=new ArrayDeque<>();
     private static Notice active;
     private static long started;
@@ -21,12 +21,16 @@ final class QuestToast {
 
     static void show(String kind,String name,String icon) {
         if (QUEUE.size()==3) QUEUE.removeFirst();
-        QUEUE.addLast(new Notice(kind,name,icon));
+        QUEUE.addLast(new Notice(kind,name,icon,null));
+    }
+    static void showCustom(String title,String description,String icon) {
+        if(QUEUE.size()==3)QUEUE.removeFirst();QUEUE.addLast(new Notice("custom",description,icon,title));
     }
     static void clear() {
         QUEUE.clear(); active=null;
     }
-    static void draw(GuiGraphicsExtractor g) {
+    static void draw(GuiGraphicsExtractor g) { draw(g,g.guiWidth(),g.guiHeight()); }
+    static void draw(GuiGraphicsExtractor g,int width,int height) {
         var mc=Minecraft.getInstance();
         if (mc.player==null || !QuestPlusClient.settings.notifications) return;
         long now=System.currentTimeMillis();
@@ -37,8 +41,8 @@ final class QuestToast {
         }
         if (active==null) return;
 
-        float scale=(float)Math.clamp(Math.min(g.guiWidth()/700.0,g.guiHeight()/420.0),0.68,1.0);
-        int virtualWidth=(int)(g.guiWidth()/scale),virtualHeight=(int)(g.guiHeight()/scale);
+        float scale=(float)Math.clamp(Math.min(width/700.0,height/420.0),0.68,1.0);
+        int virtualWidth=(int)(width/scale),virtualHeight=(int)(height/scale);
         int w=Math.min(188,virtualWidth-20);
         if (w<80) return;
         var position=QuestToastPlacement.at(QuestPlusClient.settings.notificationPosition,
@@ -64,7 +68,7 @@ final class QuestToast {
         ItemStack icon=id!=null&&BuiltInRegistries.ITEM.containsKey(id)
             ?new ItemStack(BuiltInRegistries.ITEM.getValue(id)):new ItemStack(Items.BOOK);
         g.item(icon,x+10,y+10);
-        String heading=QuestPlusClient.tr("toast."+active.kind).getString();
+        String heading=active.heading==null?QuestPlusClient.tr("toast."+active.kind).getString():mc.font.plainSubstrByWidth(active.heading,w-43);
         String name=mc.font.plainSubstrByWidth(active.name,w-43);
         g.text(mc.font,heading,x+36,y+7,accent,false);
         g.text(mc.font,name,x+36,y+20,0xffe6e0d5,false);

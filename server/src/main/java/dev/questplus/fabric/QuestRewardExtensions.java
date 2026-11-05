@@ -14,6 +14,9 @@ public final class QuestRewardExtensions {
         Objects.requireNonNull(fits); Objects.requireNonNull(deliver);
         QuestExtensions.registerReward(id,validator); HANDLERS.put(id,new Handler(fits,deliver));
     }
+    static void bind(String id,BiPredicate<ServerPlayer,QuestDefinition.Reward> fits,BiConsumer<ServerPlayer,QuestDefinition.Reward> deliver) {
+        if(HANDLERS.putIfAbsent(id,new Handler(fits,deliver))!=null)throw new IllegalArgumentException("Duplicate handler "+id);
+    }
     private static Handler handler(String id) { var handler=HANDLERS.get(id); if (handler==null) throw new IllegalArgumentException("Reward handler unavailable: "+id); return handler; }
     static boolean fits(ServerPlayer player,QuestDefinition.Reward reward) { return handler(reward.type()).fits().test(player,reward); }
     static void deliver(ServerPlayer player,QuestDefinition.Reward reward) { handler(reward.type()).deliver().accept(player,reward); }

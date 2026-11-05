@@ -32,7 +32,10 @@ public final class ClientProjection {
     public record RoutePoint(double x,double y) {}
     public record LinkRoute(String from,String to,List<RoutePoint> points) {}
     public record Category(String id, Map<String,String> title, Map<String,String> description, String icon,
-                           List<Annotation> annotations, int order, List<String> images, List<LinkRoute> linkRoutes) {
+                           List<Annotation> annotations, int order, List<String> images, List<LinkRoute> linkRoutes, String group) {
+        public Category(String id,Map<String,String> title,Map<String,String> description,String icon,List<Annotation> annotations,int order,List<String> images,List<LinkRoute> routes) {
+            this(id,title,description,icon,annotations,order,images,routes,"");
+        }
         public Category(String id,Map<String,String> title,Map<String,String> description,String icon,List<Annotation> annotations,int order,List<String> images) {
             this(id,title,description,icon,annotations,order,images,List.of());
         }
@@ -116,31 +119,43 @@ public final class ClientProjection {
     }
 
     public static List<QuestDefinition> visible(Collection<QuestDefinition> quests,PlayerProgress state) {
-        Set<String> completed=new HashSet<>();
-        state.quests.forEach((id,p) -> { if (p.completed) completed.add(id); });
-        return quests.stream().filter(q -> !q.hidden() || state.quests.containsKey(q.id())
-            || q.requires()==null || q.requires().matches(Map.of(),completed)).toList();
+        Set<String> completed=QuestEngine.prerequisiteState(state);
+        return quests.stream().filter(q -> {
+            var p=state.quests.get(q.id());var settings=q.presentation();
+            if(settings.invisibleUntilCompleted() && (p==null||!p.completed))return false;
+            if(settings.invisibleUntilTasks()>0 && (p==null||q.objectives().stream().filter(o->p.counters.getOrDefault(o.id(),0L)>=o.count()).count()<settings.invisibleUntilTasks()))return false;
+            return !q.hidden() || p!=null || q.requires()==null || q.requires().matches(Map.of(),completed);
+        }).toList();
     }
 
-    public static JsonArray quests(Collection<QuestDefinition> quests) {
+    public static JsonArray quests(Collection<QuestDefinition> quests) {return quests(quests,new PlayerProgress());}
+    public static JsonArray quests(Collection<QuestDefinition> quests,PlayerProgress state) {
         JsonArray out = new JsonArray();
         Set<String> visibleIds=new HashSet<>(); quests.forEach(q -> visibleIds.add(q.id()));
         quests.stream().sorted(Comparator.comparing(QuestDefinition::id)).forEach(q -> {
             JsonObject item=JSON.toJsonTree(q).getAsJsonObject();
             if (item.has("requires")) redact(item.getAsJsonObject("requires"),visibleIds);
+            for(var objective:item.getAsJsonArray("objectives"))objective.getAsJsonObject().remove("data");
             stripRewards(item.getAsJsonArray("rewards"));
             for (JsonElement tier:item.getAsJsonArray("tiers")) stripRewards(tier.getAsJsonObject().getAsJsonArray("rewards"));
             item.add("rewardPreview",rewards(q.rewards()));
             JsonArray tierPreviews=new JsonArray();
             for(var tier:q.tiers())tierPreviews.add(rewards(tier.rewards()));
             item.add("tierRewardPreviews",tierPreviews);
+            var p=state.quests.get(q.id());boolean completed=p!=null&&p.completed;
+            boolean unlocked=q.requires()==null||q.requires().matches(Map.of(),QuestEngine.prerequisiteState(state));
+            var settings=q.presentation();
+            if(settings.hideTextUntilCompleted()&&!completed || settings.hideDetailsUntilUnlocked()&&!unlocked) {
+                for(String field:List.of("description","descriptionRich","narrative"))item.add(field,new JsonObject());
+            }
+            if(settings.hideDetailsUntilUnlocked()&&!unlocked)for(String field:List.of("objectives","rewards","tiers","rewardPreview","tierRewardPreviews"))item.add(field,new JsonArray());
             out.add(item);
         });
         return out;
     }
 
     private static void redact(JsonObject condition,Set<String> visibleIds) {
-        if (condition.get("operator").getAsString().equals("quest") && !visibleIds.contains(condition.get("value").getAsString())) {
+        if (Set.of("quest","started").contains(condition.get("operator").getAsString()) && !visibleIds.contains(condition.get("value").getAsString())) {
             condition.addProperty("operator","hidden"); condition.addProperty("value","undiscovered");
         }
         for (JsonElement child:condition.getAsJsonArray("children")) redact(child.getAsJsonObject(),visibleIds);
@@ -164,6 +179,10 @@ public final class ClientProjection {
                 String field=reward.type().equals("questplus:advancement")?"advancement":"message";
                 value.add(field,JsonParser.parseString(reward.data()).getAsJsonObject().get(field));
             }
+            else if(Set.of("questplus:stage","questplus:toast").contains(reward.type())) {
+                var data=JsonParser.parseString(reward.data()).getAsJsonObject();
+                for(String field:reward.type().equals("questplus:stage")?List.of("stage","remove"):List.of("title","description","icon"))value.add(field,data.get(field));
+            }
             else if(Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all").contains(reward.type())) {
                 var data=JsonParser.parseString(reward.data()).getAsJsonObject();
                 var options=new JsonArray();
@@ -176,6 +195,10 @@ public final class ClientProjection {
                     if(Set.of("questplus:advancement","questplus:message").contains(type)) {
                         String field=type.equals("questplus:advancement")?"advancement":"message";
                         safe.add(field,option.getAsJsonObject("data").get(field));
+                    }
+                    if(Set.of("questplus:stage","questplus:toast").contains(type)) {
+                        var payload=option.getAsJsonObject("data");
+                        for(String field:type.equals("questplus:stage")?List.of("stage","remove"):List.of("title","description","icon"))safe.add(field,payload.get(field));
                     }
                     options.add(safe);
                 }
@@ -192,8 +215,7 @@ public final class ClientProjection {
 
     public static JsonObject progress(Collection<QuestDefinition> quests, QuestEngine engine, PlayerProgress state, PlayerProgress personal) {
         JsonObject result=new JsonObject();
-        Set<String> completed=new HashSet<>();
-        state.quests.forEach((id,p) -> { if (p.completed) completed.add(id); });
+        Set<String> completed=QuestEngine.prerequisiteState(state);
         Set<String> claimableAny=new HashSet<>();
         Map<String,Map.Entry<String,PlayerProgress.RewardGrant>> pending=new HashMap<>(),receipts=new HashMap<>();
         personal.entitlements.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {

@@ -47,6 +47,9 @@ final class QuestConditionText {
             case "position" -> position(value);
             case "context" -> context(value);
             case "quest" -> tr("quest",questTitle.apply(value));
+            case "started" -> tr("started",questTitle.apply(value));
+            case "at_least" -> tr("at_least",value,String.join(", ",c.children().stream().map(child->describe(child,questTitle)).toList()));
+            case "questplus:stage" -> tr("stage",JsonParser.parseString(value).getAsString());
             default -> tr("other",c.operator(),name(value));
         };
     }

@@ -38,6 +38,21 @@ public final class QuestScreen extends Screen {
     private String rewardTitle="",rewardDescription="";
     private record RewardCard(JsonObject reward,String label) {}
     private List<RewardCard> rewardCards=List.of();
+    private record CategoryRow(String group,JsonObject category) {}
+    private final Set<String> collapsedGroups=new HashSet<>();
+    private List<CategoryRow> categoryRows=List.of();
+    private long categoryRowsRevision=-1;
+    private List<CategoryRow> categoryRows() {
+        if(categoryRowsRevision==state.catalogueRevision)return categoryRows;
+        var grouped=new LinkedHashMap<String,List<JsonObject>>();
+        for(var value:state.categories.values())grouped.computeIfAbsent(value.has("group")?value.get("group").getAsString():"",ignored->new ArrayList<>()).add(value);
+        var rows=new ArrayList<CategoryRow>();
+        grouped.forEach((name,values)->{
+            if(!name.isBlank())rows.add(new CategoryRow(name,null));
+            if(!collapsedGroups.contains(name))for(var value:values)rows.add(new CategoryRow(name,value));
+        });
+        categoryRows=List.copyOf(rows);categoryRowsRevision=state.catalogueRevision;return categoryRows;
+    }
     private EditBox search,input;
     private String query="";
     private int left,top,right,bottom,treeLeft,treeTop,treeRight,treeBottom,detailsScroll,categoryScroll,teamPage;
@@ -306,6 +321,7 @@ public final class QuestScreen extends Screen {
         }
         super.extractRenderState(g,mx,my,delta);
         drawBoundedHover(g,mx,my);
+        if(attachedToScreenFace)QuestToast.draw(g,width,height);
         if (attachedToScreenFace) g.disableScissor();
         g.pose().popMatrix();
     }
@@ -338,11 +354,19 @@ public final class QuestScreen extends Screen {
             QuestSkin.text(g,font,rows.get(i),place.x()+6,place.y()+4+i*11,0xfff4e3c5,false);
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
-        var categories=new ArrayList<>(state.categories.values());
+        var categories=categoryRows();
         int count=Math.max(1,(treeBottom-treeTop)/26);
         categoryScroll=Math.clamp(categoryScroll,0,Math.max(0,categories.size()-count));
         for (int i=categoryScroll;i<Math.min(categories.size(),categoryScroll+count);i++) {
-            var c=categories.get(i); int x=left+9,y=treeTop+(i-categoryScroll)*26;
+            var row=categories.get(i);int x=left+9,y=treeTop+(i-categoryScroll)*26;
+            if(row.category()==null) {
+                QuestSkin.panel(g,x,y,22,22,0xff25211c,0xffa58b59);
+                g.item(icon("minecraft:bookshelf"),x+3,y+3);
+                g.text(minecraft.font,collapsedGroups.contains(row.group())?"+":"−",x+15,y+14,0xffffdf9c,false);
+                if(mx>=x&&mx<x+22&&my>=y&&my<y+22)hoverTitle=row.group();
+                continue;
+            }
+            var c=row.category();
             boolean active=c.get("id").getAsString().equals(category);
             QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
             g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
@@ -355,7 +379,7 @@ public final class QuestScreen extends Screen {
                 g.fill(x+16,y+16,x+20,y+20,marker);
             }
             if(mx>=x && mx<x+22 && my>=y && my<y+22)
-                hoverTitle=localized(c.getAsJsonObject("title"))+
+                hoverTitle=(c.has("group")&&!c.get("group").getAsString().isBlank()?c.get("group").getAsString()+" / ":"")+localized(c.getAsJsonObject("title"))+
                     (claimable?" · "+t("claim").getString():fresh?" · "+t("toast.unlocked").getString():"");
         }
         if (categories.size()>count) {
@@ -394,7 +418,7 @@ public final class QuestScreen extends Screen {
             if (!layout.points().isEmpty()) g.fill(bx+2,top+(41),bx+2+(int)((bar-4)*done/layout.points().size()),top+(42),0xffa37bab);
         }
         if (mx>=x && mx<x+w && my>=top+26 && my<treeTop)
-            hoverTitle=localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"));
+            hoverTitle=(c.has("group")&&!c.get("group").getAsString().isBlank()?c.get("group").getAsString()+" / ":"")+localized(c.getAsJsonObject("title"))+"\n"+localized(c.getAsJsonObject("description"));
     }
     private void drawPaper(GuiGraphicsExtractor g) {
         QuestSkin.panel(g,treeLeft,treeTop,treeRight-treeLeft,treeBottom-treeTop,0xff38291f,0xff805d42);
@@ -445,10 +469,10 @@ public final class QuestScreen extends Screen {
             var p=layout.points().get(id); int x=(int)camera.screenX(p.x()),y=(int)camera.screenY(p.y()),r=nodeRadius(state.quests.get(id));
             // Scale the complete node, not just the distance to neighbouring nodes.
             g.pose().pushMatrix(); g.pose().translate(x,y); g.pose().scale((float)camera.zoom()); g.pose().translate(-x,-y);
-            QuestSkin.panel(g,x-r,y-r,2*r,2*r,0xff433a32,color(id));
-            if (r>7) g.outline(x-r+2,y-r+2,2*r-4,2*r-4,0xff625344);
+            drawQuestShape(g,state.quests.get(id).presentation().shape(),x,y,r,color(id));
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
-            g.pose().pushMatrix(); g.pose().translate(x-r/2f,y-r/2f); g.pose().scale(r/16f);
+            float iconSize=(float)(r*state.quests.get(id).presentation().iconScale());
+            g.pose().pushMatrix(); g.pose().translate(x-iconSize/2f,y-iconSize/2f); g.pose().scale(iconSize/16f);
             g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
             String progression=state.quests.get(id).progression();
             if (!progression.equals("once")) {
@@ -463,7 +487,7 @@ public final class QuestScreen extends Screen {
             else if (statuses.get(id).equals("locked")) { g.fill(x+r-5,y+r-4,x+r+1,y+r+1,0xffaca196); g.outline(x+r-4,y+r-7,4,4,0xffaca196); g.fill(x+r-3,y+r-2,x+r-2,y+r,0xff483c34); }
             g.pose().popMatrix();
             double hitRadius=r*camera.zoom();
-            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) hoverTitle=titles.get(id)+" · "+t("status."+statuses.get(id)).getString()
+            if (mx>=x-hitRadius && mx<=x+hitRadius && my>=y-hitRadius && my<=y+hitRadius) hoverTitle=titles.get(id)+" · "+t("status."+statuses.get(id)).getString()+"\n"+state.text(state.quests.get(id).presentation().subtitle())
                 +(progression.equals("once") ? "" : " · "+t("progression."+progression).getString());
         }
         if (!any && layout.points().isEmpty()) QuestSkin.centered(g,font,t("empty"),(treeLeft+treeRight)/2,(treeTop+treeBottom)/2,0xff9ea99d);
@@ -529,6 +553,16 @@ public final class QuestScreen extends Screen {
             } finally { g.pose().popMatrix(); }
         }
     }
+    private void drawQuestShape(GuiGraphicsExtractor g,String shape,int x,int y,int radius,int edge) {
+        if(shape.equals("square")){QuestSkin.panel(g,x-radius,y-radius,radius*2,radius*2,0xff433a32,edge);return;}
+        g.pose().pushMatrix();g.pose().translate(x-radius,y-radius);g.pose().scale(radius/16f);
+        for(var span:QuestShape.spans(shape)) {
+            int start=span.start(),end=span.end(),row=span.row();
+            g.fill(start,row,end,row+1,edge);
+            if(end-start>2&&row>0&&row<31)g.fill(start+1,row,end-1,row+1,0xff433a32);
+        }
+        g.pose().popMatrix();
+    }
     private int nodeRadius(QuestDefinition quest){
         int size=quest==null||quest.size()==0?32:Math.max(1,quest.size());
         return size/2;
@@ -563,7 +597,8 @@ public final class QuestScreen extends Screen {
             double nr=nodeRadius(state.quests.get(e.getKey()))*camera.zoom();
             return sx+nr>=treeLeft&&sx-nr<=treeRight&&sy+nr>=treeTop&&sy-nr<=treeBottom;
         }).map(Map.Entry::getKey).toList();
-        visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())).filter(e -> {
+        visibleEdges=layout.edges().stream().filter(e -> filtered.contains(e.from()) && filtered.contains(e.to())
+            && !state.quests.get(e.to()).presentation().hideDependencyLines() && !state.quests.get(e.from()).presentation().hideDependentLines()).filter(e -> {
             var a=layout.points().get(e.from()); var z=layout.points().get(e.to());
             return routes.containsKey(e) || Math.max(a.x(),z.x())>=l && Math.min(a.x(),z.x())<=r && Math.max(a.y(),z.y())>=t && Math.min(a.y(),z.y())<=b;
         }).toList();
@@ -630,7 +665,9 @@ public final class QuestScreen extends Screen {
         if (!Objects.equals(detailQuest,selected) || detailSequence!=state.sequence || detailWidth!=w || !Objects.equals(detailLanguage,minecraft.options.languageCode)) {
         detailQuest=selected; detailSequence=state.sequence; detailWidth=w; detailLanguage=minecraft.options.languageCode;
         List<DetailRow> lines=new ArrayList<>();
-        append(lines,state.text(q.title()),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
+        append(lines,state.text(q.title()),w);
+        if(!q.presentation().subtitle().isEmpty())append(lines,state.text(q.presentation().subtitle()),w);
+        if(q.presentation().optional())append(lines,t("optional").getString(),w); append(lines,t("status."+status(q.id())).getString()+" · "+t("progression."+q.progression()).getString(),w);
         String description=state.text(q.description());
         List<String> labels=q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
         var richDescription=q.descriptionRich()==null?null:selectRichDescription(q.descriptionRich(),minecraft.options.languageCode);
@@ -804,6 +841,7 @@ public final class QuestScreen extends Screen {
         return QuestPresentation.objectiveText(o,minecraft.options.languageCode,target);
     }
     private ItemStack previewIcon(JsonObject reward) {
+        if(reward.has("icon"))return icon(reward.get("icon").getAsString());
         if(reward.has("item"))return icon(reward.get("item").getAsString());
         return new ItemStack(Set.of("experience","experience_levels").contains(reward.get("type").getAsString())?Items.EXPERIENCE_BOTTLE:Items.CHEST);
     }
@@ -812,9 +850,11 @@ public final class QuestScreen extends Screen {
         String label=type.equals("item")?reward.get("count").getAsInt()+" × "+previewIcon(reward).getHoverName().getString():
             type.equals("experience")?t("xp",reward.get("amount").getAsInt()).getString():
             type.equals("experience_levels")?t("xp_levels",reward.get("amount").getAsInt()).getString():
-            Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all","questplus:advancement","questplus:message","questplus:command").contains(type)?t("reward_type."+type).getString():type;
+            Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all","questplus:advancement","questplus:message","questplus:command","questplus:stage","questplus:toast").contains(type)?t("reward_type."+type).getString():type;
         if(reward.has("advancement"))label+=" · "+reward.get("advancement").getAsString();
         if(reward.has("message"))label+=" · "+reward.get("message").getAsString();
+        if(reward.has("stage"))label+=" · "+(reward.get("remove").getAsBoolean()?"− ":"+ ")+reward.get("stage").getAsString();
+        if(type.equals("questplus:toast"))label+=" · "+rewardText(reward,"title")+" · "+rewardText(reward,"description");
         String title=rewardText(reward,"text");
         if(!title.isBlank())return title+" · "+label;
         return label;
@@ -1033,8 +1073,13 @@ public final class QuestScreen extends Screen {
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
         if (x>=left+8 && x<treeLeft-5 && y>=treeTop && y<treeBottom) {
-            int index=categoryScroll+(int)((y-treeTop)/26); var ids=new ArrayList<>(state.categories.keySet());
-            if (index<ids.size()) { selected=null; chooseCategory(ids.get(index)); init(); } return true;
+            int index=categoryScroll+(int)((y-treeTop)/26);var rows=categoryRows();
+            if(index<rows.size()) {
+                var row=rows.get(index);
+                if(row.category()==null){if(!collapsedGroups.add(row.group()))collapsedGroups.remove(row.group());categoryRowsRevision=-1;}
+                else {selected=null;chooseCategory(row.category().get("id").getAsString());}
+                init();
+            }return true;
         }
         if (!overlayDetails && inTree(x,y)) { dragging=true; dragged=false; downX=x; downY=y; return true; }
         return false;
@@ -1089,7 +1134,7 @@ public final class QuestScreen extends Screen {
         if (tab.equals("quests")) {
             if (x>=left+7 && x<treeLeft && y>=treeTop && y<treeBottom) {
                 int count=Math.max(1,(treeBottom-treeTop)/26);
-                categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,state.categories.size()-count)); return true;
+                categoryScroll=Math.clamp(categoryScroll-(int)Math.signum(vertical),0,Math.max(0,categoryRows().size()-count)); return true;
             }
             if (selected!=null && x>=detailLeft) { detailsScroll-=(int)(vertical*24); return true; }
             if (inTree(x,y)) {

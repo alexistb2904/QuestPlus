@@ -20,6 +20,10 @@ public final class QuestClientState {
     public static boolean flag(JsonObject object,String name) { return object.has(name) && object.get(name).getAsBoolean(); }
     public static long count(JsonObject object,String name) { return object.has(name) ? object.get(name).getAsLong() : 0; }
     public boolean apply(JsonObject message) {
+        if(message.has("type") && message.get("type").getAsString().equals("notice")) {
+            QuestToast.showCustom(message.get("title").getAsString(),message.get("description").getAsString(),message.get("icon").getAsString());
+            return true;
+        }
         if (message.has("error")) {
             error=message.get("error").getAsString();
             errorDetail=message.has("detail")?message.get("detail").getAsString():null;
