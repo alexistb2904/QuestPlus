@@ -163,6 +163,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
       <div className="mini-card-head"><ItemIcon id={o.target?.replace(/^#/,'')} size={25}/><strong>{i+1}. {objectiveLabel(o,language)}</strong><small title={o.id}>{o.id}</small><button className="tiny danger" aria-label={ui('Remove objective')} title={ui('Remove objective')} onClick={()=>onAction('remove-objective',i)}><Trash2 size={14}/></button></div>
       <ObjectiveInputs objective={o} index={i} questId={quest.id} onUpdate={onUpdate} onCondition={onCondition}
        onBrowse={(index,kind)=>setTargetBrowser({index,kind})}/>
+      <label className="checkbox-row"><input type="checkbox" checked={!!o.optional} onChange={e=>onUpdate('objectives.'+i+'.optional',e.target.checked)}/>{ui('Optional objective')}</label>
       <Disclosure title="Custom label"><Translated label="Text" prefix={'objectives.'+i+'.text'} value={o.text} language={language} onUpdate={onUpdate}/></Disclosure>
       <Disclosure title="Conditions"><ConditionEditor project={project} scope={'objective:'+i} value={o.conditions} onChange={v=>onCondition('objective:'+i,v)}/></Disclosure>
      </div>)}</div>}
@@ -204,7 +205,8 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
     {info?<p>{ui('Information quests are completed once.')}</p>:<>
      <div className="field-row">
       <Select label="Mode" value={quest.progression} options={[[ 'once','Once'],['repeatable','Repeatable'],['infinite','Infinite'],['tiered','Tiered']]} onChange={changeProgression}/>
-      <Select label="Objectives" value={quest.objectiveMode||'all'} options={[[ 'all','All'],['any','Any'],['sequence','Sequence']]} onChange={v=>{onUpdate('objectiveMode',v)}}/>
+      <Select label="Objectives" value={quest.objectiveMode||'all'} options={[[ 'all','All'],['any','Any'],['sequence','Sequence'],['at_least','At least N']]} onChange={v=>{onUpdate('objectiveMode',v);if(v==='at_least'&&!quest.objectiveThreshold)onUpdate('objectiveThreshold',1);else if(v!=='at_least')onUpdate('objectiveThreshold',undefined)}}/>
+      {quest.objectiveMode==='at_least'&&<Field label="Required objectives" type="number" value={quest.objectiveThreshold||1} onChange={v=>onUpdate('objectiveThreshold',Math.max(1,Math.floor(v)))}/>}
       <Field label="Cooldown (s)" type="number" value={quest.cooldownSeconds??0} onChange={v=>{onUpdate('cooldownSeconds',Math.max(0,v))}}/>
       <Field label="Time limit (s)" type="number" value={quest.timeLimitSeconds??''} placeholder="—" onChange={v=>{onUpdate('timeLimitSeconds',v>0?v:undefined)}}/>
      </div>
