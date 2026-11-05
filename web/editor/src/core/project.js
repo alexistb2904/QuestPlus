@@ -11,7 +11,7 @@ export const EVENTS = [
   ['fish_entity','Pêcher une entité'],['questplus:fish_any','Pêcher des poissons (toutes espèces)'],['tame_animal','Apprivoiser'],['breed_animal','Reproduire'],
   ['npc_interact','Parler à un PNJ'],['biome_visit','Visiter un biome'],['structure_visit','Visiter une structure'],
   ['dimension_enter','Entrer dans une dimension'],['item_submit','Soumettre (sans retrait)'],['item_turn_in','Remettre et consommer'],['inventory_count','Posséder des objets'],['travel_distance','Parcourir une distance'],
-  ['location','Atteindre une position'],['xp_levels','Posséder des niveaux XP'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
+  ['location','Atteindre une position'],['xp_levels','Posséder des niveaux XP'],['custom_stat','Atteindre une statistique'],['equipment_check','Vérifier un équipement'],['player_death','Mourir'],['manual','Manuel']
 ];
 export const EVENT_KEYS = EVENTS.map(([id])=>id);
 export const PROGRESSIONS=['once','repeatable','infinite','tiered'];
