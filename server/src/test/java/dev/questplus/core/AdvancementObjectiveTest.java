@@ -23,6 +23,16 @@ class AdvancementObjectiveTest {
         assertEquals(List.of("test:advance"),engine.apply(player,event(1)));
         assertTrue(engine.apply(player,event(1)).isEmpty());
     }
+    @Test void advancementRewardRequiresAValidIdentifier() {
+        var valid=com.google.gson.JsonParser.parseString(
+            "{\"advancement\":\"minecraft:story/iron_tools\"}").getAsJsonObject();
+        assertDoesNotThrow(()->QuestExtensions.validateReward("questplus:advancement",valid));
+        var malformed=com.google.gson.JsonParser.parseString(
+            "{\"advancement\":\"/execute as @e\"}").getAsJsonObject();
+        assertThrows(IllegalArgumentException.class,
+            ()->QuestExtensions.validateReward("questplus:advancement",malformed));
+    }
+
     private QuestEvent event(int value) {
         return new QuestEvent("advancement_complete","minecraft:story/mine_stone",Set.of(),1,
             Map.of("stateValues",Map.of("minecraft:story/mine_stone",value)));
