@@ -44,6 +44,8 @@ public final class QuestPresentation {
             case "npc_interact" -> new String[]{"Talk to","Parler à","Hablar con","交谈"};
             case "biome_visit","structure_visit" -> new String[]{"Visit","Visiter","Visitar","探索"};
             case "dimension_enter" -> new String[]{"Enter","Entrer dans","Entrar en","进入"};
+            case "fluid_transfer" -> new String[]{"Transfer fluid","Transférer le fluide","Transferir fluido","传输流体"};
+            case "energy_transfer" -> new String[]{"Transfer FE","Transférer FE","Transferir FE","传输能量"};
             case "inventory_count" -> new String[]{"Hold","Posséder","Tener","持有"};
             case "item_submit" -> new String[]{"Submit","Soumettre","Entregar","提交"};
             case "item_turn_in" -> new String[]{"Turn in","Remettre","Entregar y consumir","交付并消耗"};
