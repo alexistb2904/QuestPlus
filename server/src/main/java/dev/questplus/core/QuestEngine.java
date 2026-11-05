@@ -26,6 +26,9 @@ public final class QuestEngine {
         Set<String> touched=new LinkedHashSet<>();
         for (var candidate:registry.candidates(event)) {
             var q=candidate.quest(); var objective=candidate.objective(); var p=player.quests.get(q.id());
+            if (event.type().equals("item_submit") || event.type().equals("item_turn_in")) {
+                if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
+            }
             if ((p!=null && (terminal(q,p) || p.waitingRestart)) || diagnostic(player,q.id()).isPresent()
                 || (q.requires()!=null && !q.requires().matches(event.context(),completed))) continue;
             if (p!=null && p.attemptId==null && p.startedAt>0 && now-p.startedAt<q.cooldownSeconds()*1000) continue;
