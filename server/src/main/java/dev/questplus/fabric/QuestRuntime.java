@@ -42,6 +42,7 @@ public final class QuestRuntime implements AutoCloseable {
     private TeamManager teams;
     private boolean storageFailed;
     private String teamRewardPolicy="all_members";
+    private boolean commandRewardsEnabled;
     private QuestRegistry registry;
     private List<ClientProjection.Category> categories = List.of();
     private long catalogGeneration;
@@ -62,7 +63,7 @@ public final class QuestRuntime implements AutoCloseable {
     public void reload() throws IOException {
         assertThread();
         var config = Defaults.readObject(definitions.resolve("config.json"));
-        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
+        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy","enableCommandRewards").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
                 || !config.get("schemaVersion").isJsonPrimitive() || !config.get("schemaVersion").getAsJsonPrimitive().isNumber()
                 || config.get("schemaVersion").getAsBigDecimal().intValueExact() != 1)
             throw new IllegalArgumentException("Unsupported config.json");
@@ -72,7 +73,15 @@ public final class QuestRuntime implements AutoCloseable {
         if (seconds < 1 || seconds > 300) throw new IllegalArgumentException("autosaveSeconds must be 1..300");
         String policy=config.has("teamRewardPolicy") ? config.get("teamRewardPolicy").getAsString() : "all_members";
         if (!Set.of("all_members","contributor").contains(policy)) throw new IllegalArgumentException("Invalid teamRewardPolicy");
+        if(config.has("enableCommandRewards") && (!config.get("enableCommandRewards").isJsonPrimitive() ||
+            !config.get("enableCommandRewards").getAsJsonPrimitive().isBoolean()))
+            throw new IllegalArgumentException("enableCommandRewards must be a boolean");
+        boolean allowCommands=config.has("enableCommandRewards") && config.get("enableCommandRewards").getAsBoolean();
         QuestRegistry candidate = QuestRegistry.load(definitions.resolve("quests"), this::validateRegistryReference);
+        if(!allowCommands && candidate.all().stream().anyMatch(q->
+            q.rewards().stream().anyMatch(r->r.type().equals("questplus:command")) ||
+            q.tiers().stream().flatMap(t->t.rewards().stream()).anyMatch(r->r.type().equals("questplus:command"))))
+            throw new IllegalArgumentException("Command rewards require enableCommandRewards=true in trusted world config");
         Set<String> categoryIds = new HashSet<>();
         List<ClientProjection.Category> candidateCategories = new ArrayList<>();
         try (var paths = Files.walk(definitions.resolve("categories"))) {
@@ -233,6 +242,7 @@ public final class QuestRuntime implements AutoCloseable {
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
         teamRewardPolicy=policy;
+        commandRewardsEnabled=allowCommands;
         autosaveTicks = seconds * 20;
         QuestNetwork.invalidateAll(server);
     }
@@ -281,6 +291,7 @@ public final class QuestRuntime implements AutoCloseable {
         if ((kind.equals("item") || kind.equals("inventory_count")) && id.equals(Identifier.parse("minecraft:air"))) throw new IllegalArgumentException("AIR cannot be an item reward/inventory objective");
     }
 
+    public boolean commandRewardsEnabled(){return commandRewardsEnabled;}
     public QuestRegistry registry() { return registry; }
     public List<ClientProjection.Category> categories() { return categories; }
     public long catalogGeneration() { return catalogGeneration; }
