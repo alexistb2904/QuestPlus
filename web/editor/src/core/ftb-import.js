@@ -81,6 +81,8 @@ function convertReward(r){
   throw Error('unsupported FTB reward '+(r.type||'(missing type)'));
 }
 
+// TODO(Codex P2): migrate SNBT, chapter groups, translations, Data Components,
+// stage gates and complex reward tables. Reject unsupported required semantics.
 export function inspectFtbPack(documents){
   const project=emptyProject(),warnings=[],sources=[],ids=new Map(),seen=new Set(),candidates=[];
   for(const {name,content} of documents){
