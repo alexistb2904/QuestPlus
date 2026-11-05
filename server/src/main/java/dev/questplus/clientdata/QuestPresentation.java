@@ -57,6 +57,11 @@ public final class QuestPresentation {
             String meters=java.math.BigDecimal.valueOf(objective.count()/100.0).stripTrailingZeros().toPlainString();
             return new String[]{"Travel ","Parcourir ","Recorrer ","行进 "}[column]+meters+" m";
         }
+        if (objective.event().equals("custom_stat"))
+            return new String[]{"Reach stat ","Atteindre la statistique ","Alcanzar estadística ","达到统计值 "}[column]
+                +objective.target()+" ≥ "+objective.count();
+        if (objective.event().equals("advancement_complete"))
+            return new String[]{"Complete advancement ","Compléter le progrès ","Completar progreso ","完成进度 "}[column]+objective.target();
         if (objective.event().equals("xp_levels"))
             return new String[]{"Reach XP level ","Atteindre le niveau XP ","Alcanzar nivel XP ","达到经验等级 "}[column]+objective.count();
         if (objective.event().equals("location"))
