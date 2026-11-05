@@ -230,6 +230,8 @@ public final class QuestRegistry {
                 reward=new QuestDefinition.Reward(type,item,(int)integer(v,"count",1,2304),0,"{}",text);
             } else {
                 fields(v,"type","data","text"); var data=object(v,"data"); QuestExtensions.validateReward(type,data);
+                if(type.equals("questplus:advancement"))
+                    hook.validate("advancement_complete",data.get("advancement").getAsString());
                 if(Set.of("questplus:random","questplus:loot","questplus:all").contains(type))
                     for(var option:data.getAsJsonArray("options")){
                         var entry=option.getAsJsonObject();
