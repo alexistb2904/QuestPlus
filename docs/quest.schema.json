@@ -231,6 +231,11 @@
       "minimum": 1,
       "maximum": 256,
       "description": "When objectiveMode is at_least, require this many non-optional objectives."
+    },
+    "progressBeforeUnlock": {
+      "type": "boolean",
+      "default": false,
+      "description": "Record gameplay objectives before prerequisites are completed, but defer completion and rewards until unlocked."
     }
   },
   "allOf": [
