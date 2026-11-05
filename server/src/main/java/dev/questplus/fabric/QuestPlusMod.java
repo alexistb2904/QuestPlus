@@ -38,6 +38,7 @@ public final class QuestPlusMod implements ModInitializer {
 
     @Override public void onInitialize() {
         QuestNetwork.register();
+        CommandRewards.install();
         TabletPoseNetwork.register();
         AdvancedEvents.register();
         CommandRegistrationCallback.EVENT.register((dispatcher,access,environment) -> QuestCommands.register(dispatcher));
