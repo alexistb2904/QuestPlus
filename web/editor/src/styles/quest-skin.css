@@ -289,3 +289,9 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .hub-toolbar-status.success{color:#ade291}.hub-toolbar-status.error{color:#ffb1a4}
 .annotation-node.label>span{text-align:inherit}
 @media(max-width:680px){.hub-panel{padding:16px;gap:16px}.hub-dialog .react-dialog-heading{padding:14px 16px}.hub-command{align-items:stretch;flex-direction:column}.hub-command .button{align-self:flex-start}.hub-footer{align-items:stretch;flex-direction:column;padding:14px 16px}.hub-actions>.button{flex:1}.hub-toolbar-button{padding-inline:8px}.hub-toolbar-status{max-width:150px}}
+
+/* Context menu templates stay keyboard-accessible and never grow beyond the viewport. */
+.graph-context-menu .template-submenu summary{cursor:pointer;list-style:none;padding:9px 10px;color:#e7d6f1;font-size:12px;border-radius:3px}
+.graph-context-menu .template-submenu summary:hover,.graph-context-menu .template-submenu summary:focus-visible{background:#56396e}
+.graph-context-menu .template-options{max-height:min(45vh,340px);overflow:auto;display:flex;flex-direction:column;gap:2px;border-top:1px solid #654e74}
+.graph-context-menu .template-options button{width:100%;flex-shrink:0}
