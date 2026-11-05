@@ -190,13 +190,38 @@ export function validate(p){
   const validateRewards=(list,label)=>{
     if(!Array.isArray(list)){fail(label,'Liste de récompenses invalide');return;}
     if(list.length>64)fail(label,'64 récompenses maximum');
+    let expanded=0;
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
+      if(r.type==='questplus:random'){
+        const data=r.data;
+        const options=data?.options,rolls=data?.rolls??1;
+        expanded+=Number.isInteger(rolls)?rolls:0;
+        if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).some(k=>!['options','rolls'].includes(k))
+            ||!Array.isArray(options)||options.length<1||options.length>32
+            ||!Number.isInteger(rolls)||rolls<1||rolls>16)fail(label,'Table de récompenses aléatoires invalide');
+        let weight=0;
+        for(const option of Array.isArray(options)?options:[]){
+          if(!option||typeof option!=='object'||Array.isArray(option)){fail(label,'Option aléatoire invalide');continue}
+          weight+=Number.isSafeInteger(option.weight)?option.weight:0;
+          if(!Number.isInteger(option.weight)||option.weight<1||option.weight>1000000)fail(label,'Poids de récompense invalide');
+          if(option.type==='item'){
+            if(Object.keys(option).sort().join(',')!=='count,item,type,weight'||!ID.test(option.item||'')||option.item==='minecraft:air'||!Number.isInteger(option.count)||option.count<1||option.count>2304)
+              fail(label,'Option objet invalide');
+          }else if(['experience','experience_levels'].includes(option.type)){
+            if(Object.keys(option).sort().join(',')!=='amount,type,weight'||!Number.isInteger(option.amount)||option.amount<1||option.amount>1000000)
+              fail(label,'Option XP invalide');
+          }else fail(label,'Type de récompense aléatoire non reconnu');
+        }
+        if(weight>32000000)fail(label,'Poids de récompenses trop élevé');
+      } else expanded++;
+
       if(['experience','experience_levels'].includes(r.type)&&(!Number.isInteger(r.amount)||r.amount<1||r.amount>1000000))fail(label,'XP invalide');
       else if(r.type==='item'&&(!ID.test(r.item)||r.item==='minecraft:air'||!Number.isInteger(r.count)||r.count<1||r.count>2304))fail(label,'Récompense objet invalide');
       else if(!['experience','experience_levels','item'].includes(r.type)&&(!ID.test(r.type||'')||!r.data||typeof r.data!=='object'||Array.isArray(r.data)))fail(label,'Récompense personnalisée invalide');
       if(Object.hasOwn(r,'text')&&!translations(r.text))fail(label,'Texte récompense : traduction anglaise et textes non vides requis');
     }
+    if(expanded>64)fail(label,'Trop de récompenses après tirage aléatoire (maximum 64)');
   };
   const validateCondition=(root,label,prerequisite=false)=>{
     let nodes=0;
