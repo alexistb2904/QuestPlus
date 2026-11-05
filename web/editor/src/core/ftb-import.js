@@ -104,8 +104,11 @@ export function inspectFtbPack(documents){
       try{rewards.push(convertReward(reward))}
       catch(error){warnings.push(id+': reward '+(reward?.type||i)+' not imported: '+error.message)}
     }
-    if(raw.min_required_dependencies && raw.min_required_dependencies>1 ||
-       raw.dependency_requirement && !['all_completed','ALL_COMPLETED'].includes(raw.dependency_requirement)){
+    const deps=Array.isArray(raw.dependencies)?raw.dependencies:[];
+    const minimum=raw.min_required_dependencies??0;
+    if(!Number.isInteger(minimum)||minimum<0||minimum>deps.length ||
+       (minimum>1&&minimum<deps.length) ||
+       (raw.dependency_requirement&&!['all_completed','ALL_COMPLETED','any_completed','ANY_COMPLETED'].includes(raw.dependency_requirement))){
       warnings.push(id+': unsupported dependency rule; quest skipped');continue;
     }
     const quest={schemaVersion:2,id,category:categoryId,icon:'minecraft:book',
@@ -135,7 +138,10 @@ export function inspectFtbPack(documents){
     const dependencies=source.get(q.id)?.dependencies;
     if(!Array.isArray(dependencies)||!dependencies.length)continue;
     const conditions=dependencies.map(dep=>({quest:ids.get(String(dep))}));
-    q.requires=conditions.length===1?conditions[0]:{and:conditions};
+    const raw=source.get(q.id);
+    const any=raw.min_required_dependencies===1&&conditions.length>1 ||
+        ['any_completed','ANY_COMPLETED'].includes(raw.dependency_requirement);
+    q.requires=conditions.length===1?conditions[0]:any?{or:conditions}:{and:conditions};
   }
   if(!project.quests.length)warnings.push('No safely convertible quests found. Original FTB files were not modified.');
   return {project,warnings,chapterCount:sources.length,questCount:project.quests.length,sourceIdMap:ids};
