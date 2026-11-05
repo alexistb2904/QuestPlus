@@ -43,6 +43,7 @@ import { IconPicker, ItemIcon } from "./components/IconPicker";
 import { Dialog } from "./components/Dialog";
 import { HubPanel } from "./components/HubPanel";
 import {RegistryBrowser} from "./components/RegistryBrowser";
+import {BulkEditor} from "./components/BulkEditor";
 import JSON5 from "json5";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 
@@ -63,6 +64,7 @@ export default function App() {
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
 	const [registryOpen,setRegistryOpen]=useState(false);
+	const [bulkOpen,setBulkOpen]=useState(false);
 	const [showQuestTitles, setShowQuestTitles] = useState(() => localStorage.getItem("questplus.quest-titles") === "true");
 	useEffect(() => {
 		localStorage.setItem("questplus.quest-titles", String(showQuestTitles));
@@ -254,6 +256,7 @@ export default function App() {
 					<kbd>Ctrl K</kbd>
 				</div>
 				<button className="button secondary" onClick={()=>setRegistryOpen(true)}><Package size={16}/>Mod Registry</button>
+				<button className="button secondary" onClick={()=>setBulkOpen(true)}><SlidersHorizontal size={16}/>Bulk Edit</button>
 				<button className="button violet" onClick={studio.createCategory}>
 					<FolderOpen size={17} />
 					<span>{tUI("Add Category")}</span>
@@ -492,6 +495,10 @@ export default function App() {
 					{tUI("Export ZIP")}
 				</button>
 			</footer>
+			{bulkOpen&&<BulkEditor project={project} onClose={()=>setBulkOpen(false)} onApply={(result,count)=>{
+    studio.mutate(draft=>{draft.project=result},'bulk-edit');
+    studio.toast('Updated '+count+' quests');
+   }}/>} 
 			{registryOpen && <RegistryBrowser onClose={()=>setRegistryOpen(false)} onPick={(kind,id)=>{
         const matches:Record<string,string[]>={items:['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'],blocks:['block_break','block_place','block_interact'],entities:['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'],biomes:['biome_visit'],structures:['structure_visit'],dimensions:['dimension_enter'],statistics:['custom_stat'],advancements:['advancement_complete']};
         const index=selected?.objectives?.findIndex(o=>(matches[kind]||[]).includes(o.event))??-1;
