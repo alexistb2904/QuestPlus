@@ -176,7 +176,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      setTargetBrowser(null);
    }}/>}
    {tab==='rewards'&&<>
-    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" type="button" onClick={()=>onUpdate('rewards',[...(quest.rewards||[]),{type:'questplus:advancement',data:{advancement:'minecraft:story/mine_stone'}}])}>+ Advancement</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button><button className="button secondary" onClick={()=>onAction('add-loot')}>+ Loot Chance</button><button className="button secondary" onClick={()=>onAction('add-all')}>+ All Table</button><button className="button secondary" onClick={()=>onAction('add-command')}>+ Command</button><button className="button secondary" onClick={()=>onAction('add-message')}>+ Message</button></div></div>
+    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" type="button" onClick={()=>onUpdate('rewards',[...(quest.rewards||[]),{type:'questplus:advancement',data:{advancement:'minecraft:story/mine_stone'}}])}>+ Advancement</button><button className="button secondary" onClick={()=>onAction('add-choice')}>+ Player Choice</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button><button className="button secondary" onClick={()=>onAction('add-loot')}>+ Loot Chance</button><button className="button secondary" onClick={()=>onAction('add-all')}>+ All Table</button><button className="button secondary" onClick={()=>onAction('add-command')}>+ Command</button><button className="button secondary" onClick={()=>onAction('add-message')}>+ Message</button></div></div>
     {!!hubEditorDescriptors('reward').length&&<div className="toolbar-row" aria-label="Mod rewards">
       {hubEditorDescriptors('reward').map(d=><button className="button secondary" type="button" key={d.id} onClick={()=>{
         const data=Object.fromEntries(d.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:'']));
@@ -197,6 +197,25 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
       r.type==='questplus:command'?<div className="mini-card">
         <p>Only trusted server pack authors may enable command rewards. The command runs on the server as the claiming player (GAMEMASTER permission maximum).</p>
         <Field label="Server command" value={r.data?.command||''} onChange={v=>onUpdate('rewards.'+i+'.data.command',v)} placeholder="say Quest completed"/>
+      </div>:
+      r.type==='questplus:choice'?<div className="random-reward-builder">
+        <p>Player selects one option using /questplus choose &lt;quest&gt; &lt;option number&gt; before claiming. UI selection in the tablet is a TODO.</p>
+        {(r.data?.options||[]).map((option:any,j:number)=><div className="mini-card" key={j}>
+          <div className="field-row">
+            <Select label={'Option '+(j+1)} value={option.type} options={[[ 'item','Item'],['experience','XP points'],['experience_levels','XP Levels']]}
+              onChange={type=>onUpdate('rewards.'+i+'.data.options.'+j,{type,...(type==='item'?{item:'minecraft:diamond',count:1}:{amount:10})})}/>
+            {option.type==='item'?<>
+              <Field label="Item ID" value={option.item} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.item',v)}/>
+              <Field label="Count" type="number" value={option.count} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.count',Math.max(1,Math.floor(v)))}/>
+            </>:<Field label="XP amount" type="number" value={option.amount} onChange={v=>onUpdate('rewards.'+i+'.data.options.'+j+'.amount',Math.max(1,Math.floor(v)))}/>}
+            <button className="tiny danger" type="button" title="Remove option" disabled={(r.data?.options?.length||0)<=2}
+              onClick={()=>onUpdate('rewards.'+i+'.data.options',(r.data?.options||[]).filter((_:any,k:number)=>k!==j))}><Trash2 size={14}/></button>
+          </div>
+        </div>)}
+        <button className="button secondary" type="button" disabled={(r.data?.options?.length||0)>=32}
+          onClick={()=>onUpdate('rewards.'+i+'.data.options',[...(r.data?.options||[]),{type:'item',item:'minecraft:emerald',count:1}])}>
+          + Add choice option
+        </button>
       </div>:
       ['questplus:random','questplus:loot','questplus:all'].includes(r.type)?<div className="random-reward-builder">
         <p>{ui('Rolls are selected when the quest completes, and stored until claimed.')}</p>
