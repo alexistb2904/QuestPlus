@@ -173,7 +173,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      setTargetBrowser(null);
    }}/>}
    {tab==='rewards'&&<>
-    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button></div></div>
+    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button><button className="button secondary" onClick={()=>onAction('add-random')}>+ Weighted Random</button><button className="button secondary" onClick={()=>onAction('add-loot')}>+ Loot Chance</button><button className="button secondary" onClick={()=>onAction('add-all')}>+ All Table</button></div></div>
     {!!hubEditorDescriptors('reward').length&&<div className="toolbar-row" aria-label="Mod rewards">
       {hubEditorDescriptors('reward').map(d=><button className="button secondary" type="button" key={d.id} onClick={()=>{
         const data=Object.fromEntries(d.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:'']));
@@ -185,10 +185,12 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
      {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
-      r.type==='questplus:random'?<div className="random-reward-builder">
+      ['questplus:random','questplus:loot','questplus:all'].includes(r.type)?<div className="random-reward-builder">
         <p>{ui('Rolls are selected when the quest completes, and stored until claimed.')}</p>
-        <Field label="Rolls" type="number" value={r.data?.rolls||1}
-          onChange={v=>onUpdate('rewards.'+i+'.data.rolls',Math.max(1,Math.min(16,Math.floor(v))))}/>
+        {r.type!=='questplus:all'&&<Field label="Rolls" type="number" value={r.data?.rolls||1}
+          onChange={v=>onUpdate('rewards.'+i+'.data.rolls',Math.max(1,Math.min(16,Math.floor(v))))}/>}
+        {r.type==='questplus:loot'&&<Field label="Empty chance weight" type="number" value={r.data?.emptyWeight??0}
+          onChange={v=>onUpdate('rewards.'+i+'.data.emptyWeight',Math.max(0,Math.min(1000000,Math.floor(v))))}/>}
         {(r.data?.options||[]).map((option:any,j:number)=><div className="mini-card" key={j}>
           <div className="field-row">
             <Select label="Type" value={option.type} options={[[ 'item','Item'],['experience','XP points'],['experience_levels','XP Levels']]}
