@@ -106,12 +106,18 @@ public final class QuestEngine {
         return satisfied(q,p,q.progression().equals("tiered") ? q.tiers().get(Math.min(p.tier,q.tiers().size()-1)).threshold() : 1);
     }
     private static boolean satisfied(QuestDefinition q,PlayerProgress.QuestProgress p,long factor) {
-        var checks=q.objectives().stream().map(o -> p.counters.getOrDefault(o.id(),0L)>=o.count()*factor);
-        return q.objectiveMode().equals("any") ? checks.anyMatch(Boolean::booleanValue) : checks.allMatch(Boolean::booleanValue);
+        long successes=q.objectives().stream().filter(o->!o.optional())
+            .filter(o->p.counters.getOrDefault(o.id(),0L)>=o.count()*factor).count();
+        long required=q.objectives().stream().filter(o->!o.optional()).count();
+        return switch(q.objectiveMode()){
+            case "any" -> successes>=1;
+            case "at_least" -> successes>=q.objectiveThreshold();
+            default -> successes==required;
+        };
     }
     private static int firstIncomplete(QuestDefinition q,PlayerProgress.QuestProgress p) {
         long factor=q.progression().equals("tiered") ? q.tiers().get(Math.min(p.tier,q.tiers().size()-1)).threshold() : 1;
-        for (int i=0;i<q.objectives().size();i++) { var o=q.objectives().get(i); if (p.counters.getOrDefault(o.id(),0L)<o.count()*factor) return i; }
+        for (int i=0;i<q.objectives().size();i++) { var o=q.objectives().get(i); if (!o.optional() && p.counters.getOrDefault(o.id(),0L)<o.count()*factor) return i; }
         return q.objectives().size();
     }
     private static void newAttempt(PlayerProgress.QuestProgress p) { p.counters.clear(); p.tier=0; p.attemptId=null; p.startedAt=0; p.waitingRestart=false; }
