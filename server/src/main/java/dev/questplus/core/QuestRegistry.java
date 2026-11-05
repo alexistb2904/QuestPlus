@@ -40,11 +40,16 @@ public final class QuestRegistry {
     public static QuestRegistry load(Path dir, ValidationHook hook) throws IOException {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
         if (Files.exists(dir)) try (var paths = Files.walk(dir)) {
-            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
-                try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
-                    reader.setStrictness(Strictness.STRICT);
-                    var root = readJson(reader, 0);
-                    if (reader.peek() != JsonToken.END_DOCUMENT) throw new IllegalArgumentException("Trailing JSON content");
+            for (Path path : paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")||p.toString().endsWith(".json5")).sorted().toList()) {
+                try {
+                    JsonElement root;
+                    if(path.toString().endsWith(".json5"))
+                        root = QuestJson5.parse(Files.readString(path, StandardCharsets.UTF_8));
+                    else try (JsonReader reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+                        reader.setStrictness(Strictness.STRICT);
+                        root = readJson(reader, 0);
+                        if (reader.peek() != JsonToken.END_DOCUMENT) throw new IllegalArgumentException("Trailing JSON content");
+                    }
                     var q = parse(root.getAsJsonObject(), hook);
                     if (quests.putIfAbsent(q.id(), q) != null) throw new IllegalArgumentException("Duplicate quest " + q.id());
                 } catch (RuntimeException e) { throw new IllegalArgumentException(path + ": " + e.getMessage(), e); }
