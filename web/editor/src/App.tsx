@@ -44,6 +44,7 @@ import { Dialog } from "./components/Dialog";
 import { HubPanel } from "./components/HubPanel";
 import {RegistryBrowser} from "./components/RegistryBrowser";
 import {BulkEditor} from "./components/BulkEditor";
+import {TemplateLibrary} from "./components/TemplateLibrary";
 import JSON5 from "json5";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 
@@ -65,6 +66,7 @@ export default function App() {
 		[previewOpen, setPreviewOpen] = useState(false);
 	const [registryOpen,setRegistryOpen]=useState(false);
 	const [bulkOpen,setBulkOpen]=useState(false);
+	const [templatesOpen,setTemplatesOpen]=useState(false);
 	const [showQuestTitles, setShowQuestTitles] = useState(() => localStorage.getItem("questplus.quest-titles") === "true");
 	useEffect(() => {
 		localStorage.setItem("questplus.quest-titles", String(showQuestTitles));
@@ -257,6 +259,7 @@ export default function App() {
 				</div>
 				<button className="button secondary" onClick={()=>setRegistryOpen(true)}><Package size={16}/>Mod Registry</button>
 				<button className="button secondary" onClick={()=>setBulkOpen(true)}><SlidersHorizontal size={16}/>Bulk Edit</button>
+				<button className="button secondary" onClick={()=>setTemplatesOpen(true)}><FolderOpen size={16}/>Templates</button>
 				<button className="button violet" onClick={studio.createCategory}>
 					<FolderOpen size={17} />
 					<span>{tUI("Add Category")}</span>
@@ -495,6 +498,7 @@ export default function App() {
 					{tUI("Export ZIP")}
 				</button>
 			</footer>
+			{templatesOpen&&<TemplateLibrary onClose={()=>setTemplatesOpen(false)}/>} 
 			{bulkOpen&&<BulkEditor project={project} onClose={()=>setBulkOpen(false)} onApply={(result,count)=>{
     studio.mutate(draft=>{draft.project=result},'bulk-edit');
     studio.toast('Updated '+count+' quests');
