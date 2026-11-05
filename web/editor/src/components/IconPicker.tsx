@@ -38,13 +38,14 @@ export function IconPicker({onPick,onClose}:{onPick:(value:string)=>void;onClose
 }
 
 /** A searchable vanilla catalogue with an unrestricted namespaced-ID input for modded content. */
-export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'|'biome'|'structure';onPick:(value:string)=>void;onClose:()=>void}){
+export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement';onPick:(value:string)=>void;onClose:()=>void}){
  const [search,setSearch]=useState(''),[limit,setLimit]=useState(96),[custom,setCustom]=useState('');
  const catalogue=useMemo(()=>{
    let defaults:string[];
    if(kind==='biome')defaults=BIOMES;
    else if(kind==='structure')defaults=STRUCTURES;
    else if(kind==='entity')defaults=ENTITIES;
+   else if(kind==='statistic'||kind==='advancement')defaults=[];
    else defaults=vanillaCatalog().filter((item:any)=>kind==='block'?item.kind==='block'||item.kind==='both':item.kind==='item'||item.kind==='both').map((item:any)=>item.id);
    return [...new Set([...defaults,...hubTargets(kind)])].sort();
  },[kind]);
