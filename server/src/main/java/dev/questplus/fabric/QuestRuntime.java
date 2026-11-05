@@ -310,6 +310,88 @@ public final class QuestRuntime implements AutoCloseable {
         if (ids.stream().anyMatch(busy::contains)) throw new IllegalStateException("Quest Plus operation is still saving; try again shortly");
     }
 
+    /** Server-authoritative player hand-in. The selected quest and objective are encoded in
+     * event context: an item submitted to one quest cannot advance a different quest.
+     * Inventory is modified only on the server thread, after all checks succeed.
+     */
+    public int submitItem(ServerPlayer actor, String questId, String objectiveId) throws IOException {
+        assertThread();
+        if(actor.isSpectator() || actor.isCreative())throw new IllegalArgumentException("Submission requires survival/adventure mode");
+        UUID uuid=actor.getUUID();
+        ensureFree(group(uuid));
+        QuestDefinition quest=visibleQuest(uuid,questId);
+        QuestDefinition.Objective objective=quest.objectives().stream()
+            .filter(o->o.id().equals(objectiveId)).findFirst().orElseThrow(()->new IllegalArgumentException("Unknown objective"));
+        boolean consuming=objective.event().equals("item_turn_in");
+        if(!consuming && !objective.event().equals("item_submit"))
+            throw new IllegalArgumentException("Objective is not a submission task");
+        PlayerProgress state=state(uuid);
+        PlayerProgress.QuestProgress progress=state.quests.get(questId);
+        if(progress!=null&&(progress.terminal || progress.waitingRestart || quest.progression().equals("once")&&progress.completed))
+            throw new IllegalArgumentException("Quest already completed or awaiting restart");
+        if(engine.diagnostic(state,questId).isPresent())throw new IllegalArgumentException("Quest progress needs migration");
+        Map<String,Object> ctx=QuestPlusMod.context(actor);
+        Set<String> completed=new HashSet<>();
+        state.quests.forEach((id,p)->{if(p.completed)completed.add(id);});
+        if(quest.requires()!=null && !quest.requires().matches(ctx,completed))
+            throw new IllegalArgumentException("Quest prerequisites are not satisfied");
+        if(objective.conditions()!=null && !objective.conditions().matches(ctx,completed))
+            throw new IllegalArgumentException("Objective conditions are not satisfied");
+        if(progress!=null && quest.timeLimitSeconds()>0 && progress.attemptId!=null &&
+            System.currentTimeMillis()-progress.startedAt>=quest.timeLimitSeconds()*1000)
+            throw new IllegalArgumentException("Quest timer expired");
+        if(progress!=null && progress.attemptId==null && progress.startedAt>0 &&
+            System.currentTimeMillis()-progress.startedAt<quest.cooldownSeconds()*1000)
+            throw new IllegalArgumentException("Quest cooldown is still active");
+        long factor=quest.progression().equals("tiered")
+            ? quest.tiers().get(Math.min(progress==null?0:progress.tier,quest.tiers().size()-1)).threshold() : 1L;
+        if(quest.objectiveMode().equals("sequence")) {
+            for(var preceding:quest.objectives()) {
+                if(preceding==objective)break;
+                if(progress==null || progress.counters.getOrDefault(preceding.id(),0L)<preceding.count()*factor)
+                    throw new IllegalArgumentException("Complete earlier steps first");
+            }
+        }
+        long maximum=objective.count()*(quest.progression().equals("tiered")?quest.tiers().getLast().threshold():1L);
+        long previous=progress==null?0:progress.counters.getOrDefault(objectiveId,0L);
+        long remaining=maximum-previous;
+        if(remaining<=0)throw new IllegalArgumentException("Objective already supplied");
+        String target=objective.target();
+        net.minecraft.tags.TagKey<net.minecraft.world.item.Item> tag=target.startsWith("#")
+            ? net.minecraft.tags.TagKey.create(Registries.ITEM,Identifier.parse(target.substring(1))) : null;
+        java.util.function.Predicate<ItemStack> matches=stack->!stack.isEmpty() &&
+            (tag==null?BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(target):stack.is(tag));
+        long available=0;
+        for(int i=0;i<36;i++){ItemStack stack=actor.getInventory().getItem(i);if(matches.test(stack))available+=stack.getCount();}
+        ItemStack offhand=actor.getOffhandItem();
+        if(matches.test(offhand))available+=offhand.getCount();
+        if(available<=0 || !consuming && available<remaining)
+            throw new IllegalArgumentException("Not enough required items to submit");
+        int amount=(int)Math.min(remaining,Math.min(available,2304L));
+        if(!consuming && amount<remaining)throw new IllegalArgumentException("Non-consuming submission requires the full objective amount");
+        // A non-consuming submission is a one-shot full inventory verification.
+        // A consuming hand-in may accumulate partial deposits.
+        if(consuming){
+            int left=amount;
+            for(int i=0;i<36 && left>0;i++){
+                ItemStack stack=actor.getInventory().getItem(i);
+                if(!matches.test(stack))continue;
+                int remove=Math.min(left,stack.getCount());stack.shrink(remove);left-=remove;
+            }
+            if(left>0 && matches.test(offhand)){
+                int remove=Math.min(left,offhand.getCount());offhand.shrink(remove);left-=remove;
+            }
+            if(left!=0)throw new IllegalStateException("Inventory changed during submission");
+            actor.getInventory().setChanged();
+        }
+        ctx.put("submissionQuest",questId);ctx.put("submissionObjective",objectiveId);
+        String eventTarget=tag==null?target:"minecraft:air";
+        Set<String> tags=tag==null?Set.of():Set.of(target.substring(1));
+        event(actor,new QuestEvent(objective.event(),eventTarget,tags,amount,ctx));
+        QuestNetwork.invalidate(uuid);
+        return amount;
+    }
+
     public void event(ServerPlayer player, QuestEvent event) {
         assertThread();
         // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
