@@ -7,7 +7,15 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
     Map<String,String> description, List<Objective> objectives, Condition requires,
     List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
     String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
-    String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich) {
+    String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich, int objectiveThreshold) {
+    public QuestDefinition(String id, String category, String icon, Map<String,String> title,
+        Map<String,String> description, List<Objective> objectives, Condition requires,
+        List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
+        String objectiveMode, List<Tier> tiers, String afterLast, long cooldownSeconds, long timeLimitSeconds, boolean noDeath,
+        String kind, String acknowledgement, boolean hidden, int size, Map<String,JsonArray> descriptionRich) {
+        this(id,category,icon,title,description,objectives,requires,rewards,progression,layout,narrative,fingerprint,
+            objectiveMode,tiers,afterLast,cooldownSeconds,timeLimitSeconds,noDeath,kind,acknowledgement,hidden,size,descriptionRich,1);
+    }
     public QuestDefinition(String id, String category, String icon, Map<String,String> title,
         Map<String,String> description, List<Objective> objectives, Condition requires,
         List<Reward> rewards, String progression, Layout layout, Map<String,String> narrative, String fingerprint,
@@ -32,7 +40,11 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
         this(id,category,icon,title,description,objectives,requires,rewards,progression,layout,narrative,fingerprint,
             objectiveMode,tiers,afterLast,cooldownSeconds,timeLimitSeconds,noDeath,kind,acknowledgement,false,32);
     }
-    public record Objective(String id, String event, String target, long count, Map<String,String> text, Condition conditions) {}
+    public record Objective(String id, String event, String target, long count, Map<String,String> text, Condition conditions, boolean optional) {
+        public Objective(String id,String event,String target,long count,Map<String,String> text,Condition conditions) {
+            this(id,event,target,count,text,conditions,false);
+        }
+    }
     public record Reward(String type, String item, int count, int amount, String data, Map<String,String> text) {
         public Reward(String type,String item,int count,int amount) { this(type,item,count,amount,"{}",Map.of()); }
     }
