@@ -343,6 +343,11 @@ export function useStudio() {
 				o.rewards.push({ type: "experience", amount: 5 });
 				return;
 			}
+			if (kind === "add-xp-levels") {
+				o.rewards ||= [];
+				o.rewards.push({type:"experience_levels",amount:5});
+				return;
+			}
 			if (kind === "add-item") {
 				o.rewards ||= [];
 				o.rewards.push({ type: "item", item: "minecraft:diamond", count: 1 });
