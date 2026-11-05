@@ -10,6 +10,7 @@ export const QUEST_TEMPLATES=Object.freeze([
   {id:'equipment',label:'Equipment mastery',description:'Wear an enchanted armor piece'},
   {id:'sequence',label:'Progression chain',description:'Complete actions in order'},
   {id:'timed',label:'Timed challenge',description:'Finish within five minutes'},
+  {id:'xp',label:'XP levels',description:'Reach a given XP level'},
   {id:'repeat',label:'Repeatable contract',description:'Repeat after a cooldown'},
   {id:'information',label:'Information / story',description:'Read an introduction without gameplay actions'}
 ]);
@@ -26,6 +27,7 @@ export function buildQuestFromTemplate(category,id,title,position,templateId='ba
       q.icon='minecraft:diamond_chestplate';
       q.objectives=[step('gear','equipment_check','questplus:gear',1,{'questplus:gear':{items:[{slot:'chest',item:'minecraft:diamond_chestplate',enchantments:{'minecraft:protection':4}}]}})];break;
     case 'sequence':q.icon='minecraft:iron_pickaxe';q.objectives=[step('wood','block_break','minecraft:oak_log',8),step('stone','block_break','minecraft:stone',32),step('iron','inventory_count','minecraft:iron_ingot',8)];q.objectiveMode='sequence';break;
+    case 'xp':q.icon='minecraft:experience_bottle';q.objectives=[step('level','xp_levels','questplus:levels',30)];break;
     case 'timed':q.icon='minecraft:clock';q.objectives=[step('hunt','entity_kill','minecraft:zombie',10)];q.timeLimitSeconds=300;break;
     case 'repeat':q.icon='minecraft:emerald';q.objectives=[step('trade','trade','minecraft:emerald',8)];q.progression='repeatable';q.cooldownSeconds=3600;break;
     case 'information':q.kind='information';q.acknowledgement='manual';q.objectives=[];q.narrative={en_us:'Add your story or instructions here.'};break;
