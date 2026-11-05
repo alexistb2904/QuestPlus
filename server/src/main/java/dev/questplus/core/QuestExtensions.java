@@ -40,6 +40,10 @@ public final class QuestExtensions {
         EVENTS.put("inventory_count",new EventType("item",true));
         EVENTS.put("item_submit",new EventType("item",false));
         EVENTS.put("item_turn_in",new EventType("item",false));
+        // These events require a trusted server-side mod integration. They do NOT imply
+        // automatic extraction from arbitrary modded tanks or power cables.
+        EVENTS.put("fluid_transfer",new EventType("fluid",false));
+        EVENTS.put("energy_transfer",new EventType("marker",false));
         EVENTS.put("xp_levels",new EventType("marker",true));
         EVENTS.put("custom_stat",new EventType("marker",true));
         EVENTS.put("advancement_complete",new EventType("marker",true));
@@ -83,7 +87,7 @@ public final class QuestExtensions {
     private QuestExtensions() {}
     public static void registerEvent(String id,String registry,boolean state) {
         namespaced(id);
-        if (!Set.of("block","item","entity","biome","structure","dimension","marker").contains(registry)
+        if (!Set.of("block","item","entity","biome","structure","dimension","fluid","marker").contains(registry)
                 || EVENTS.putIfAbsent(id,new EventType(registry,state))!=null) throw new IllegalArgumentException("Invalid/duplicate event " + id);
     }
     public static EventType event(String id) { var type=EVENTS.get(id); if (type==null) throw new IllegalArgumentException("Unknown event " + id); return type; }
