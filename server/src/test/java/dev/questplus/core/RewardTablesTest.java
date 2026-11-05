@@ -22,6 +22,23 @@ class RewardTablesTest {
         assertTrue(resolved.stream().noneMatch(r->r.type().equals("questplus:random")));
     }
 
+    @Test void lootAndAllPoolsHaveDifferentClaimSemantics() {
+        var items=JsonParser.parseString("""
+            {"options":[{"weight":1,"type":"item","item":"minecraft:diamond","count":2},
+                        {"weight":1,"type":"experience_levels","amount":5}]}
+            """).getAsJsonObject();
+        RewardTables.validateAll(items);
+        var all=new QuestDefinition.Reward("questplus:all",null,0,0,items.toString(),Map.of());
+        assertEquals(2,RewardTables.resolve(List.of(all)).size());
+
+        var loot=items.deepCopy();
+        loot.addProperty("emptyWeight",0);
+        RewardTables.validateLoot(loot);
+        var chosen=new QuestDefinition.Reward("questplus:loot",null,0,0,loot.toString(),Map.of());
+        assertEquals(1,RewardTables.resolve(List.of(chosen)).size());
+        loot.addProperty("emptyWeight",-1);
+        assertThrows(IllegalArgumentException.class,()->RewardTables.validateLoot(loot));
+    }
     @Test void rejectsScriptsInvalidWeightsAndUnknownRewardTypes() {
         for(String json:List.of(
           "{\"options\":[{\"weight\":0,\"type\":\"item\",\"item\":\"minecraft:diamond\",\"count\":1}]}",
