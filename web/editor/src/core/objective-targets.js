@@ -98,6 +98,7 @@ export const OBJECTIVE_UI=Object.freeze({
   player_death:{kind:'death',amount:'Deaths'},
   equipment_check:{kind:'custom',amount:null},
   xp_levels:{kind:'custom',amount:'XP Levels'},
+  custom_stat:{kind:'custom',amount:'Minimum statistic'},
   'questplus:fish_any':{kind:'custom',amount:'Fish'},
   manual:{kind:'manual',amount:'Confirmations'}
 });
@@ -190,5 +191,6 @@ export const EVENT_LABELS={
   "player_death": "Die",
   "equipment_check": "Verified Equipment",
   "xp_levels": "Reach an XP level",
+  "custom_stat": "Reach a Minecraft statistic",
   "manual": "Manual confirmation"
 };
