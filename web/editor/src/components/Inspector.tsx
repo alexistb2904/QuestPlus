@@ -37,6 +37,8 @@ function IconField({id,onUpdate,onChooseIcon,project}:{id:string;onUpdate:(v:str
   <button type="button" className="button secondary" onClick={onChooseIcon}>{tUI('Browse')}</button>
  </div>{versionWarning(project,id)&&<small className="version-alert">{versionWarning(project,id)}</small>}</div>;
 }
+// TODO(Codex P1): extend registry descriptors to objective parameters and support
+// typed modded value pickers; this condition form only covers declared scalar fields.
 export function ConditionEditor({value,scope,project,onChange,currentQuestId}:{value:any;scope:string;project:Project;onChange:(next:any)=>void;currentQuestId?:string}){
  const requires=scope==='requires';
  const available=project.quests.filter(q=>q.id&&q.id!==currentQuestId&&!(q.kind==='information'&&q.acknowledgement==='read_only')).map(q=>[q.id,text(q.title,'en_us')||q.id] as [string,string]);
