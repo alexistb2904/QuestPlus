@@ -9,6 +9,7 @@ import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
 import {Field,Select,Translated,Disclosure,ConditionEditor} from './Inspector';
 import {GearEditor,updateGear,armorPreset} from './GearEditor';
+import {hubEditorDescriptors} from '../core/hub-registry.js';
 import type {Props} from './Inspector';
 import type {Reward,Project,Quest,Category,Objective} from '../types';
 
@@ -97,7 +98,7 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
  };
  return <div className={'field-row objective-inputs objective-inputs-'+kind}>
   <Select label="Action" value={o.event}
-    options={[...EVENTS.map(([id])=>[id,EVENT_LABELS[id]||id] as [string,string]),...(!EVENTS.some(([id])=>id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
+    options={[...EVENTS.map(([id])=>[id,EVENT_LABELS[id]||id] as [string,string]),...hubEditorDescriptors('event').filter(d=>!EVENTS.some(([id])=>id===d.id)).map(d=>[d.id,d.label] as [string,string]),...(!EVENTS.some(([id])=>id===o.event)&&!hubEditorDescriptors('event').some(d=>d.id===o.event)?[[o.event,o.event] as [string,string]]:[])]}
     onChange={event=>{
       const next=changeObjectiveEvent(o,event,questId);
       if(event==='equipment_check' && !next.conditions?.['questplus:gear'])
@@ -172,12 +173,24 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
    }}/>}
    {tab==='rewards'&&<>
     <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button></div></div>
+    {!!hubEditorDescriptors('reward').length&&<div className="toolbar-row" aria-label="Mod rewards">
+      {hubEditorDescriptors('reward').map(d=><button className="button secondary" type="button" key={d.id} onClick={()=>{
+        const data=Object.fromEntries(d.fields.map(f=>[f.key,f.type==='boolean'?false:f.type==='integer'?1:'']));
+        onUpdate('rewards',[...(quest.rewards||[]),{type:d.id,data}]);
+      }}>+ {d.label}</button>)}
+    </div>}
     {!quest.rewards?.length&&<p>{ui('No rewards')}</p>}
     {(quest.rewards||[]).map((r,i)=><div className="mini-card" key={i}>
      <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
      {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
-      <button className="button secondary" onClick={()=>onAction('advanced-json')}>{ui('Edit custom rewards in Advanced JSON.')}</button>}
+      (hubEditorDescriptors('reward').some(d=>d.id===r.type)?<div className="field-row">
+        {hubEditorDescriptors('reward').find(d=>d.id===r.type)!.fields.map(field=><div key={field.key}>
+          {field.type==='boolean'?<label className="checkbox-row"><input type="checkbox" checked={!!r.data?.[field.key]} onChange={e=>onUpdate('rewards.'+i+'.data.'+field.key,e.target.checked)}/>{field.label}</label>:
+          <Field label={field.label} type={field.type==='integer'?'number':'text'} value={r.data?.[field.key]??''}
+            onChange={v=>onUpdate('rewards.'+i+'.data.'+field.key,field.type==='integer'?Math.max(0,Math.floor(Number(v)||0)):v)}/>}
+        </div>)}
+      </div>:<button className="button secondary" onClick={()=>onAction('advanced-json')}>{ui('Edit custom rewards in Advanced JSON.')}</button>)}
      <Disclosure title="Custom label"><Translated label="Text" prefix={'rewards.'+i+'.text'} value={r.text} language={language} onUpdate={onUpdate}/></Disclosure>
     </div>)}
    </>}
