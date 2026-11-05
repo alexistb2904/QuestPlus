@@ -18,6 +18,7 @@ import {
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
 import {buildQuestFromTemplate} from "../core/quest-templates.js";
+import {savedQuestTemplates,saveQuestTemplate,buildSavedQuest} from "../core/studio-template-library.js";
 import JSON5 from "json5";
 import {inspectFtbPack} from "../core/ftb-import.js";
 import { makeZip, readZip } from "../core/zip.js";
@@ -203,7 +204,12 @@ export function useStudio() {
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
-			s.project.quests.push(buildQuestFromTemplate(currentCategory,id,name,{x:Math.round(at?.x??s.camera.x),y:Math.round(at?.y??s.camera.y)},templateId));
+			const position={x:Math.round(at?.x??s.camera.x),y:Math.round(at?.y??s.camera.y)};
+            const saved=templateId.startsWith('custom:')?savedQuestTemplates().find(t=>t.id===templateId):null;
+            if(templateId.startsWith('custom:')&&!saved)throw Error('Saved template unavailable: '+templateId);
+            const quest=saved?buildSavedQuest(saved,currentCategory,id,name,position)
+                :buildQuestFromTemplate(currentCategory,id,name,position,templateId);
+            s.project.quests.push(quest);
 			s.selection = { type: "quest", id };
 		});
 	}
@@ -240,6 +246,15 @@ export function useStudio() {
 		},'route:'+from+'>'+to);
 	}
 	function action(kind: string, index = 0) {
+        if(kind==='save-as-template'){
+            const selected=state.project.quests.find(q=>state.selection?.type==='quest'&&q.id===state.selection.id);
+            if(!selected)return;
+            const name=prompt('Save quest template as',text(selected.title,'en_us'))?.trim();
+            if(!name)return;
+            try{saveQuestTemplate(selected,name);toast('Template saved. Right-click the diagram to use it.')}
+            catch(error){toast('Could not save template: '+(error as Error).message)}
+            return;
+        }
 		if (kind === "create-quest") return createQuest();
 		if (kind === "create-annotation") return createAnnotation();
 		if (kind === "create-background") return createBackground({x:state.camera.x,y:state.camera.y,width:280,height:180});
