@@ -2,6 +2,7 @@ package dev.questplus.fabric;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.*;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -112,6 +113,13 @@ final class QuestCommands {
                     String objective=StringArgumentType.getString(c,"objective");
                     int submitted=QuestPlusMod.runtime().submitItem(player,id,objective);
                     source.sendSuccess(()->Component.literal("Submitted "+submitted+" items to "+id+" / "+objective),false);
+                })))))
+            .then(literal("choose").then(questArgument().then(argument("option",IntegerArgumentType.integer(1,32))
+                .executes(c->execute(c,source->{
+                    var actor=source.getPlayerOrException();
+                    String id=StringArgumentType.getString(c,"quest");
+                    int oneBased=IntegerArgumentType.getInteger(c,"option");
+                    QuestPlusMod.runtime().chooseReward(actor,id,oneBased-1);
                 })))))
             .then(literal("claim").then(questArgument().executes(c -> execute(c,s -> {
                 var player=s.getPlayerOrException(); String id=StringArgumentType.getString(c,"quest");
