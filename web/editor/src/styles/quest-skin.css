@@ -295,3 +295,11 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .graph-context-menu .template-submenu summary:hover,.graph-context-menu .template-submenu summary:focus-visible{background:#56396e}
 .graph-context-menu .template-options{max-height:min(45vh,340px);overflow:auto;display:flex;flex-direction:column;gap:2px;border-top:1px solid #654e74}
 .graph-context-menu .template-options button{width:100%;flex-shrink:0}
+
+/* Bulk authoring: keep the complete project from turning a modal into a full-page list. */
+.bulk-dialog{width:min(740px,calc(100vw - 32px));max-width:calc(100vw - 32px)}
+.bulk-dialog .bulk-quest-list{max-height:min(38vh,360px);overflow:auto;display:flex;flex-direction:column;gap:4px;margin:10px 0 16px;padding:6px;border:1px solid #796184;border-radius:4px}
+.bulk-dialog .bulk-quest-list .checkbox-row{padding:5px 8px;margin:0;align-items:center;cursor:pointer}
+.bulk-dialog .bulk-quest-list .checkbox-row:hover{background:#56396e}
+.bulk-dialog .picker-filters{display:flex;flex-wrap:wrap;gap:8px}
+.bulk-dialog .picker-filters .field{min-width:160px;flex:1}
