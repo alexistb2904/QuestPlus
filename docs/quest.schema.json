@@ -467,7 +467,9 @@
                 "item_submit",
                 "item_turn_in",
                 "custom_stat",
-                "advancement_complete"
+                "advancement_complete",
+                "fluid_transfer",
+                "energy_transfer"
               ]
             },
             {
