@@ -17,6 +17,7 @@ import {
     selectedOwner as owner,
 } from "../core/project.js";
 import { questId, categoryId } from "../core/quest-ids.js";
+import {buildQuestFromTemplate} from "../core/quest-templates.js";
 import { makeZip, readZip } from "../core/zip.js";
 import { withPrerequisite } from "../core/quest-links.js";
 import { fitEditor } from "../core/editor-geometry.js";
@@ -194,13 +195,13 @@ export function useStudio() {
 			s.camera = { x: 0, y: 0, zoom: 1 };
 		});
 	}
-	function createQuest(at?:{x:number;y:number}) {
+	function createQuest(at?:{x:number;y:number},templateId='basic') {
 		if (!currentCategory) return toast(tUI("Create a category first"));
 		const name = prompt(tUI("Quest (English)"), tUI("New quest"))?.trim();
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
-			s.project.quests.push(newQuest(currentCategory, id, name, { x: Math.round(at?.x??s.camera.x), y: Math.round(at?.y??s.camera.y) }));
+			s.project.quests.push(buildQuestFromTemplate(currentCategory,id,name,{x:Math.round(at?.x??s.camera.x),y:Math.round(at?.y??s.camera.y)},templateId));
 			s.selection = { type: "quest", id };
 		});
 	}
