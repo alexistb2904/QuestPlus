@@ -19,7 +19,7 @@ export function inspectFtbPack(documents) {
   for(const {name,root} of sources){
     const fileName=name.replace(/\\/g,'/').split('/').pop().replace(/\.json5?$/i,'');
     const categoryId=safeName('questplus:ftb',root.id||fileName);
-    project.categories.push({id:categoryId,icon:'minecraft:book',title:{en_us:String(root.title||fileName)},annotations:[]});
+    project.categories.push({id:categoryId,icon:'minecraft:book',title:{en_us:String(root.title||fileName)},description:{en_us:'Imported from FTB Quests'},annotations:[]});
     for(let ix=0;ix<root.quests.length;ix++){
       const raw=root.quests[ix];if(!raw||typeof raw!=='object')continue;
       const id=safeName(categoryId,String(raw.id||ix+1));
