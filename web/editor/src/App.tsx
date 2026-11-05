@@ -478,6 +478,11 @@ export default function App() {
 						}
 					/>
 				</label>
+				<label className="checkbox-row" title="Trusted server administrators only. Commands are disabled by default.">
+                    <input type="checkbox" checked={project.config?.enableCommandRewards===true}
+                      onChange={e=>studio.mutate(state=>{state.project.config ||= {};state.project.config.enableCommandRewards=e.target.checked;},'config:commandRewards')}/>
+                    Enable server command rewards (trusted packs)
+                </label>
 				<button
 					className="button primary export-button"
 					onClick={() => {
