@@ -78,7 +78,8 @@
       "enum": [
         "all",
         "any",
-        "sequence"
+        "sequence",
+        "at_least"
       ]
     },
     "tiers": {
@@ -224,6 +225,12 @@
           ]
         }
       }
+    },
+    "objectiveThreshold": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256,
+      "description": "When objectiveMode is at_least, require this many non-optional objectives."
     }
   },
   "allOf": [
@@ -503,6 +510,11 @@
         },
         "conditions": {
           "$ref": "#/$defs/objectiveCondition"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Optional bonus objective; does not gate quest completion."
         }
       }
     },
