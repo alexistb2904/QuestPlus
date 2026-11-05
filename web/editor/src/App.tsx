@@ -389,6 +389,7 @@ export default function App() {
 							onRoute={studio.setLinkRoute}
 							onBackgroundCreate={rect=>{studio.createBackground(rect);setTool('select')}}
 							onCreateAt={(kind, at) => (kind === "quest" ? studio.createQuest(at) : studio.createAnnotation(at))}
+							onCreateTemplate={(templateId, at) => studio.createQuest(at, templateId)}
 							showQuestTitles={showQuestTitles}
 							showGrid={grid}
 							gridSize={gridSize}
