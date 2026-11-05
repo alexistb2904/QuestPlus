@@ -602,6 +602,16 @@ public final class QuestRuntime implements AutoCloseable {
                     else if (reward.type().equals("item")) for (var stack : stacks(reward)) {
                         if (!player.getInventory().add(stack) || !stack.isEmpty()) throw new IllegalStateException("Inventory changed during reward delivery");
                     }
+                    else if(reward.type().equals("questplus:advancement")) {
+                        String key=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                            .get("advancement").getAsString();
+                        var holder=server.getAdvancements().get(Identifier.parse(key));
+                        if(holder==null)throw new IllegalStateException("Missing advancement for reserved reward "+key);
+                        var progressEntry=player.getAdvancements().getOrStartProgress(holder);
+                        List<String> remaining=new ArrayList<>();
+                        progressEntry.getRemainingCriteria().forEach(remaining::add);
+                        for(String criterion:remaining)player.getAdvancements().award(holder,criterion);
+                    }
                     else QuestRewardExtensions.deliver(player,reward);
                 }
                 progress.claims.put(key,"delivered");
@@ -626,7 +636,14 @@ public final class QuestRuntime implements AutoCloseable {
         return stacks;
     }
     private static boolean fits(ServerPlayer player,List<QuestDefinition.Reward> rewards) {
-        for (var reward:rewards) if (!Set.of("item","experience","experience_levels").contains(reward.type()) && !QuestRewardExtensions.fits(player,reward)) return false;
+        for(var reward:rewards) {
+            if(reward.type().equals("questplus:advancement")) {
+                String id=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
+                    .get("advancement").getAsString();
+                if(player.getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
+            } else if(!Set.of("item","experience","experience_levels").contains(reward.type()) &&
+                    !QuestRewardExtensions.fits(player,reward))return false;
+        }
         List<ItemStack> slots = player.getInventory().getNonEquipmentItems().stream().map(ItemStack::copy).toList();
         var simulated = new ArrayList<>(slots);
         for (var reward : rewards) if (reward.type().equals("item")) for (ItemStack input : stacks(reward)) {
