@@ -23,6 +23,7 @@ public final class QuestExtensions {
         EVENTS.put("item_submit",new EventType("item",false));
         EVENTS.put("item_turn_in",new EventType("item",false));
         EVENTS.put("xp_levels",new EventType("marker",true));
+        EVENTS.put("custom_stat",new EventType("marker",true));
         // Evaluated from authoritative server equipment snapshots, not player events.
         EVENTS.put("equipment_check",new EventType("marker",false));
         EVENTS.put("questplus:fish_any",new EventType("marker",false));
