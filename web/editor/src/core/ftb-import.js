@@ -7,7 +7,13 @@ const validCount=value=>Number.isSafeInteger(value)&&value>=1&&value<=1_000_000_
 const resource=value=>typeof value==='string'?value:value&&typeof value==='object'&&!Array.isArray(value)?value.id:null;
 const kind=value=>String(value||'').split(':').at(-1);
 
-function convertTask(t,id,index){
+function ftbBool(value,inherited=false){
+  if(value===undefined||value===null||value==='default')return inherited;
+  if(value===true||value==='true')return true;
+  if(value===false||value==='false')return false;
+  throw Error('unknown FTB tristate '+String(value));
+}
+function convertTask(t,id,index,chapter){
   if(!t||typeof t!=='object'||Array.isArray(t))throw Error('invalid task');
   const type=kind(t.type),count=t.count??t.value??1;
   const withTarget=(event,target,quantity=count,conditions=undefined)=>{
@@ -16,14 +22,26 @@ function convertTask(t,id,index){
   };
   switch(type){
     case 'item': {
-      if(t.item?.components||t.item?.tag)throw Error('item components/tag filters need manual conversion');
-      return withTarget(t.consume_items===true?'item_turn_in':'item_submit',resource(t.item),t.count??t.item?.count??1);
+      if(t.item?.components && Object.keys(t.item.components).length || t.item?.tag ||
+         t.match_components && !['none','NONE'].includes(t.match_components))
+        throw Error('item component/tag matching needs manual conversion');
+      const consume=ftbBool(t.consume_items,ftbBool(chapter?.consume_items,false));
+      const craft=ftbBool(t.only_from_crafting,false);
+      const screen=ftbBool(t.task_screen_only,false);
+      if(screen)throw Error('FTB Task Screen-only automation is not equivalent to a player action');
+      if(consume&&craft)throw Error('crafted-and-consumed item semantics are not supported together');
+      return withTarget(craft?'item_craft':consume?'item_turn_in':'inventory_count',resource(t.item),t.count??t.item?.count??1);
     }
     case 'kill':return withTarget('entity_kill',resource(t.entity),t.value??t.count??1);
     case 'biome':return withTarget('biome_visit',resource(t.biome),1);
     case 'structure':return withTarget('structure_visit',resource(t.structure),1);
     case 'dimension':return withTarget('dimension_enter',resource(t.dimension),1);
     case 'stat':return withTarget('custom_stat',resource(t.stat),t.value??t.count??1);
+    case 'advancement':return withTarget('advancement_complete',resource(t.advancement),1);
+    case 'xp': {
+      if(ftbBool(t.points,false))throw Error('FTB XP points task cannot safely map to XP levels');
+      return withTarget('xp_levels','questplus:levels',t.value??1);
+    }
     case 'checkmark':return withTarget('manual',id,1);
     case 'location': {
       if(!Array.isArray(t.position)||t.position.length!==3||!t.position.every(Number.isFinite))
@@ -89,14 +107,14 @@ export function inspectFtbPack(documents){
         if(ids.has(foreign))warnings.push('Duplicate FTB quest ID '+foreign+'; dependencies are ambiguous');
         else ids.set(foreign,id);
       }
-      candidates.push({id,raw,categoryId,index:ix,foreign});
+      candidates.push({id,raw,categoryId,index:ix,foreign,chapter:root});
     }
   }
-  for(const {id,raw,categoryId,index,foreign} of candidates){
+  for(const {id,raw,categoryId,index,foreign,chapter} of candidates){
     const objectives=[],rewards=[];let safe=true;
     const tasks=Array.isArray(raw.tasks)?raw.tasks:[];
     for(const [i,task] of tasks.entries()){
-      try{objectives.push(convertTask(task,id,i))}
+      try{objectives.push(convertTask(task,id,i,chapter))}
       catch(error){warnings.push(id+': task '+(task?.type||i)+' not imported: '+error.message);safe=false}
     }
     if(!safe||!objectives.length){warnings.push(id+': skipped to prevent an easier/incomplete quest');continue}
@@ -114,7 +132,13 @@ export function inspectFtbPack(documents){
     const quest={schemaVersion:2,id,category:categoryId,icon:'minecraft:book',
       title:{en_us:String(raw.title||'Imported quest '+(index+1))},objectives,rewards,progression:'once',
       layout:{x:Number.isFinite(raw.x)?raw.x:index*60,y:Number.isFinite(raw.y)?raw.y:0}};
-    if(raw.require_sequential_tasks===true)quest.objectiveMode='sequence';
+    if(ftbBool(raw.require_sequential_tasks,ftbBool(chapter?.require_sequential_tasks,false)))quest.objectiveMode='sequence';
+    if(['flexible','FLEXIBLE'].includes(raw.progression_mode||chapter?.progression_mode))quest.progressBeforeUnlock=true;
+    if(ftbBool(raw.can_repeat,ftbBool(chapter?.default_repeatable_quest,false))){
+      quest.progression='repeatable';
+      if(Number.isInteger(raw.repeat_cooldown)&&raw.repeat_cooldown>=0&&raw.repeat_cooldown<=31536000)
+        quest.cooldownSeconds=raw.repeat_cooldown;
+    }
     if(raw.hide_until_deps_complete===true)quest.hidden=true;
     // Keep source dependencies only for a second pass; never publish unresolved references.
     project.quests.push(quest);
