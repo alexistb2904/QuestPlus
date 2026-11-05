@@ -339,7 +339,7 @@ public final class QuestRuntime implements AutoCloseable {
         Map<String,Object> ctx=QuestPlusMod.context(actor);
         Set<String> completed=new HashSet<>();
         state.quests.forEach((id,p)->{if(p.completed)completed.add(id);});
-        if(quest.requires()!=null && !quest.requires().matches(ctx,completed))
+        if(quest.requires()!=null && !quest.progressBeforeUnlock() && !quest.requires().matches(ctx,completed))
             throw new IllegalArgumentException("Quest prerequisites are not satisfied");
         if(objective.conditions()!=null && !objective.conditions().matches(ctx,completed))
             throw new IllegalArgumentException("Objective conditions are not satisfied");
