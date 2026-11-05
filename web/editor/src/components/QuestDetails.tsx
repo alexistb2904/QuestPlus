@@ -158,6 +158,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
   <div className="detail-content" role="tabpanel" id="detail-panel" aria-labelledby={'detail-tab-'+tab}>
    {tab==='objectives'&&<>
     <div className="detail-heading"><strong>{ui('Quest objectives')} · {text(quest.title,language)}</strong>
+     <button type="button" className="button secondary" onClick={()=>onAction('save-as-template')}>Save as template</button>
      {!info&&<button className="button primary" onClick={()=>onAction('add-objective')}><Plus size={14}/>{ui('Objective')}</button>}</div>
     {info?<div className="objective-row"><Translated label="Content" prefix="narrative" value={quest.narrative} language={language} onUpdate={onUpdate}/>
       <Select label="Completion" value={quest.acknowledgement||'manual'} options={[[ 'manual','Acknowledge'],['read_only','Read only']]} onChange={v=>onUpdate('acknowledgement',v)}/></div>:
