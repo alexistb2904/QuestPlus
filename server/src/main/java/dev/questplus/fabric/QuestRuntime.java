@@ -348,6 +348,7 @@ public final class QuestRuntime implements AutoCloseable {
         if(quest.objectiveMode().equals("sequence")) {
             for(var preceding:quest.objectives()) {
                 if(preceding==objective)break;
+                if(preceding.optional())continue;
                 if(progress==null || progress.counters.getOrDefault(preceding.id(),0L)<preceding.count()*factor)
                     throw new IllegalArgumentException("Complete earlier steps first");
             }
