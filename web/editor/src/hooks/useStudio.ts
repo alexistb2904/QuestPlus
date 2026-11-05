@@ -348,7 +348,15 @@ export function useStudio() {
 				o.rewards.push({type:"experience_levels",amount:5});
 				return;
 			}
-			if (kind === "add-item") {
+			if (kind === "add-random") {
+                o.rewards ||= [];
+                o.rewards.push({type:"questplus:random",data:{rolls:1,options:[
+                    {weight:1,type:"item",item:"minecraft:diamond",count:1},
+                    {weight:3,type:"item",item:"minecraft:emerald",count:2}
+                ]}});
+                return;
+            }
+            if (kind === "add-item") {
 				o.rewards ||= [];
 				o.rewards.push({ type: "item", item: "minecraft:diamond", count: 1 });
 				return;
