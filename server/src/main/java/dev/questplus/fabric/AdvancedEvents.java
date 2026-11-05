@@ -89,6 +89,11 @@ public final class AdvancedEvents {
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
                     target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
         }
+        if(registry.hasEvent("xp_levels")) {
+            var ctx=QuestPlusMod.context(player);
+            ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));
+            QuestPlusMod.runtime().event(player,new QuestEvent("xp_levels","questplus:levels",Set.of(),1,ctx));
+        }
         // A single authoritative snapshot per sampled player. Gear is never supplied by clients.
         if (registry.hasEvent("equipment_check")) {
             var ctx = QuestPlusMod.context(player);
