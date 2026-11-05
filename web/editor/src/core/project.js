@@ -193,6 +193,10 @@ export function validate(p){
     let expanded=0;
     for(const r of list){
       if(!r||typeof r!=='object'||Array.isArray(r)){fail(label,'Récompense invalide');continue;}
+      if(r.type==='questplus:message'){
+        if(typeof r.data?.message!=='string'||!r.data.message.trim()||r.data.message.length>256||
+            Object.keys(r.data||{}).join()!=='message')fail(label,'Message de récompense invalide');
+      }
       if(r.type==='questplus:command'){
         if(typeof r.data?.command!=='string'||r.data.command.length<1||r.data.command.length>240||!r.data.command.trim()
             ||/[\\r\\n\\0]/.test(r.data.command)||r.data.command.startsWith('//')||Object.keys(r.data||{}).join()!=='command')
