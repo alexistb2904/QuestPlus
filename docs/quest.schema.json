@@ -859,6 +859,27 @@
           "additionalProperties": false,
           "required": [
             "type",
+            "amount"
+          ],
+          "properties": {
+            "type": {
+              "const": "experience_levels"
+            },
+            "amount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "text": {
+              "$ref": "#/$defs/translations"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
             "item",
             "count"
           ],
