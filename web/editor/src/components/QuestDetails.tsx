@@ -235,6 +235,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
       <Field label="Time limit (s)" type="number" value={quest.timeLimitSeconds??''} placeholder="—" onChange={v=>{onUpdate('timeLimitSeconds',v>0?v:undefined)}}/>
      </div>
      <label className="checkbox-row"><input type="checkbox" checked={!!quest.noDeath} onChange={e=>{onUpdate('noDeath',e.target.checked)}}/> {ui('Without dying')}</label>
+     <label className="checkbox-row"><input type="checkbox" checked={!!quest.progressBeforeUnlock} onChange={e=>onUpdate('progressBeforeUnlock',e.target.checked)}/>{ui('Track objectives before prerequisites are unlocked')}</label>
      {quest.progression==='tiered'&&<>
       <Select label="After last tier" value={quest.afterLast||'stop'} options={[[ 'stop','Stop'],['repeat','Repeat last tier']]} onChange={v=>onUpdate('afterLast',v)}/>
       {(quest.tiers||[]).map((tier:Tier,i:number)=><div className="mini-card" key={tier.id}>
