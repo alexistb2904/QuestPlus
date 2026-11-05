@@ -76,7 +76,7 @@ public final class QuestExtensions {
         if (r==null || r.type()==null) throw new IllegalArgumentException("Invalid reward");
         if (r.type().equals("item")) {
             if (r.item()==null || !r.item().matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || r.item().equals("minecraft:air") || r.count()<1 || r.count()>2304) throw new IllegalArgumentException("Invalid item reward");
-        } else if (r.type().equals("experience")) {
+        } else if (r.type().equals("experience") || r.type().equals("experience_levels")) {
             if (r.amount()<1 || r.amount()>1_000_000) throw new IllegalArgumentException("Invalid experience reward");
         } else validateReward(r.type(),JsonParser.parseString(r.data()).getAsJsonObject());
     }
