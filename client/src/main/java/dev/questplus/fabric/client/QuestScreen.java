@@ -783,6 +783,8 @@ public final class QuestScreen extends Screen {
         if (r.item()!=null) return icon(r.item());
         return new ItemStack(Set.of("experience","experience_levels").contains(r.type()) ? Items.EXPERIENCE_BOTTLE : Items.CHEST);
     }
+    // TODO(Codex P0): player-specific reward-choice picker in tablet, with disabled Claim
+    // until the server confirms /questplus choose persisted the concrete option.
     private String reward(QuestDefinition.Reward r) { if (r.text()!=null && !r.text().isEmpty()) return state.text(r.text()); return r.type().equals("questplus:advancement") ?
             "Advancement: "+com.google.gson.JsonParser.parseString(r.data()).getAsJsonObject()
                 .get("advancement").getAsString() :
