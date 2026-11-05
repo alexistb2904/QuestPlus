@@ -171,11 +171,11 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
      setTargetBrowser(null);
    }}/>}
    {tab==='rewards'&&<>
-    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button></div></div>
+    <div className="detail-heading"><strong>{ui('Rewards')}</strong><div className="toolbar-row"><button className="button secondary" onClick={()=>onAction('add-xp')}>+ XP</button><button className="button secondary" onClick={()=>onAction('add-xp-levels')}>+ XP Levels</button><button className="button primary" onClick={()=>onAction('add-item')}>+ {ui('Item')}</button></div></div>
     {!quest.rewards?.length&&<p>{ui('No rewards')}</p>}
     {(quest.rewards||[]).map((r,i)=><div className="mini-card" key={i}>
-     <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
-     {r.type==='experience'?<Field label="XP" type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
+     <div className="mini-card-head"><strong>{r.type==='experience'?ui('Experience'):r.type==='experience_levels'?'XP Levels':r.type==='item'?ui('Item'):r.type}</strong><button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>onAction('remove-reward',i)}><Trash2 size={14}/></button></div>
+     {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>onUpdate('rewards.'+i+'.amount',v)}/>:
       r.type==='item'?<div className="field-row"><Field label="Item ID" value={r.item} onChange={v=>onUpdate('rewards.'+i+'.item',v)}/><Field label="Count" type="number" value={r.count} onChange={v=>onUpdate('rewards.'+i+'.count',v)}/></div>:
       <button className="button secondary" onClick={()=>onAction('advanced-json')}>{ui('Edit custom rewards in Advanced JSON.')}</button>}
      <Disclosure title="Custom label"><Translated label="Text" prefix={'rewards.'+i+'.text'} value={r.text} language={language} onUpdate={onUpdate}/></Disclosure>
@@ -202,7 +202,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
        <div className="mini-card-head"><strong>{ui('Tier')} {i+1} · {tier.id}</strong><button className="tiny danger" aria-label={ui('Remove tier')} onClick={()=>{if(window.confirm(ui('Remove this tier and its rewards?')))onUpdate('tiers',(quest.tiers as Tier[]).filter((_,n)=>n!==i))}}><Trash2 size={14}/></button></div>
        <Field label="Threshold" type="number" value={tier.threshold} onChange={v=>changeTier(i,{...tier,threshold:Math.max(1,v)})}/>
        {tier.rewards.map((r,j)=><div className="field-row" key={j}>
-        {r.type==='experience'?<Field label="XP" type="number" value={r.amount} onChange={v=>changeTier(i,{...tier,rewards:tier.rewards.map((x,k)=>k===j?{...x,amount:v}:x)})}/>:
+        {(r.type==='experience'||r.type==='experience_levels')?<Field label={r.type==='experience'?'XP':'XP Levels'} type="number" value={r.amount} onChange={v=>changeTier(i,{...tier,rewards:tier.rewards.map((x,k)=>k===j?{...x,amount:v}:x)})}/>:
          r.type==='item'?<><Field label="Item ID" value={r.item} onChange={v=>changeTier(i,{...tier,rewards:tier.rewards.map((x,k)=>k===j?{...x,item:v}:x)})}/><Field label="Count" type="number" value={r.count} onChange={v=>changeTier(i,{...tier,rewards:tier.rewards.map((x,k)=>k===j?{...x,count:v}:x)})}/></>:
          <button className="button secondary" onClick={()=>onAction('advanced-json')}>{r.type} · {ui('Advanced JSON')}</button>}
         <button className="tiny danger" aria-label={ui('Remove reward')} onClick={()=>changeTier(i,{...tier,rewards:tier.rewards.filter((_,k)=>k!==j)})}><Trash2 size={14}/></button>
