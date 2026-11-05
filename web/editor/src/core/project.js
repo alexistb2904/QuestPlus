@@ -420,7 +420,7 @@ export function fileMap(p){
     format:1,targetMinecraftVersion:p.targetMinecraftVersion||'26.3',
     iconVersions:p.iconVersions||{},editorLocales:p.editorLocales||[]
   });
-  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json',compactCategoryImages(c));
+  for(const c of p.categories)put('categories/'+fileName(c.id)+'.json5',compactCategoryImages(c));
   for(const q of p.quests)put('quests/'+fileName(q.id)+'.json5',q);
   map.set('index.txt',[...map.keys()].join('\n')+'\n');
   return map;
