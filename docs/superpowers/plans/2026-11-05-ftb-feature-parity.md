@@ -1,0 +1,29 @@
+# FTB functional parity implementation plan
+
+Spec: user continuation asks to remove missing Quest Plus functionality compared with FTB Quests, then test. Start at 50490e4 on feat/p0-p2-player-integration, preserve the main IDE checkout. Reference docs/ftb-quests-gap-analysis.md and current official FTB task/reward/settings documentation. Reuse current Core, native tablet, Studio and atomic JSON transaction infrastructure. Never replace missing mechanics with a success checkbox or an inert form.
+
+Global constraints: one Fabric 26.3 / Java 25 JAR; server-authoritative game state on server thread; old quest IDs/schemaVersion/fingerprints preserved when new optional fields absent; no player/ledger/key data sent to Studio; trust-boundary validation and meaningful tests; final Java build+integration/client tests and Studio/API suites; focused commits; no merge while a real blocker remains. New features must be authored and visible in interfaces. Resolve routine decisions without pausing user.
+
+### Task 1: inventory durability and reserved-claim recovery
+
+Owner scope: QuestRuntime.java, JsonProgressStore.java, QuestCommands.java, new transaction/recovery classes, required new mixins/attachment registration and targeted persistence/GameTests. Do not edit QuestDefinition, QuestRegistry, QuestEngine, ClientProjection, QuestScreen or web/editor; parent owns these. Inspect actual mapped JAR signatures and existing journal code. Implement a durable hand-in plan including inventory before/after and quest/team/reward after-images, coordinated with a persisted per-player operation marker saved atomically with vanilla inventory. Recovery must distinguish consumed-and-saved from not-consumed and never credit/withdraw twice, overwrite unrelated newer state or silently discard stacks/components. Freeze affected operations for unresolved conflicts and provide an OP-only audited inspect/resolve route for ambiguous reserved claims, choosing reviewed delivered/discard outcomes without automatic redelivery. Inventory withdrawals happen only after durable intent, real validation, and successful engine plan. Test crash before/after inventory save and progress commit, storage failure, logout, team state, duplicate request, metadata preservation and permissions. Reuse transaction snapshots; do not claim cross-storage atomicity without evidence. Ask parent for schema integration needs instead of editing its files. Keep source TODO only for a boundary actually unimplemented. Do not run full Gradle suites concurrently with parent; focused tests are allowed after coordinating. Report files and invariants, no subagents.
+
+### Task 2: missing task/reward mechanics
+
+Parent integration owns core schema, QuestExtensions, AdvancedEvents/new server adapters, QuestPlusApi, QuestPlusMod, networking and client feedback. Add consecutive block/entity observation with server raycasts and reset on loss/dimension/disconnect; configurable ticks; no client position claims. Add default stages using persistent vanilla player tags plus replaceable trusted server provider, task/condition/grant/revoke reward. Add localized toast reward sent as bounded public data, including auto-display semantics. Add quest-started and prerequisite quorum conditions with actual state semantics and cycle validation. Add type-aware extension objective payload/validator without weakening existing targets. Extend native labels/authoring and tests. Coordinate runtime hooks with Task 1 owner.
+
+### Task 3: reusable tables and loot crates
+
+Parent integration owns named reward-table registry, bounded references/cycle checking, Studio export and API/Hub path contracts, safe public previews and native crate item. Materialize stable reward snapshots at entitlement creation. Items/crates must preserve Data Components, be usable from vanilla loot/commands, and never reroll a persisted operation. Keep weighted/random/all/choice semantics and validate total expansion. Integrate with Task 1 durable inventory transactions instead of creating a second unsafe withdrawal path.
+
+### Task 4: authoring/presentation parity
+
+Implement chapter groups, quest subtitle/tags/shape/icon scale, optional quest, completed/started/quorum dependencies, detailed visibility policies and individual completion-toast controls. Validate/render on server, native tablet and Studio, not only editor JSON. Keep project metadata separate from mutable player state. Reuse the native graph renderer and existing editor components. Provide meaningful shared export fixtures and visibility/privacy tests.
+
+### Task 5: FTB migration and creator workflows
+
+Once earlier ownership is released, dispatch an implementer for web/editor only: support conservative legacy SNBT, external text, groups/decorations and newly supported tasks/rewards/dependencies; retain original backup and source-ID mapping; inline searchable severity report with selection/dependency closure and confirmation; portable project quest templates; useful bulk objectives/tags/copy with undo and conflict diagnostics. Preserve unsupported third-party semantics as explicit blocked imports until the trusted plugin is present. Tests must validate real roundtrips, not source regex alone.
+
+### Task 6: final verification, review, docs and PR
+
+Maintain evidence-based checklist by feature; verify trusted fluid/item/energy integrations through actual available APIs, never claim universal compatibility with absent mods. Run npm ci/typecheck/test/build Studio, npm ci/test API, Java 25 build integrationTest and runClientGameTest. Inspect native/browser captures and malformed/replay/team/crash regressions. Run independent task and whole-branch review; fix findings. Update gap analysis without deleting unimplemented limitations. Commit/push coherent changes and update PR #30; merge only if all requested features and blocking checks are actually satisfied.

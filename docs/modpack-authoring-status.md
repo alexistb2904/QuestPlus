@@ -65,3 +65,10 @@ Test on a disposable Minecraft 26.3 world with two clients, modded registries, i
 - Local evidence: 161 Java tests, six dedicated-server GameTests, 129 Studio tests, 29 API tests and the real client GameTest. Screenshots and validation limits: [reward review](reviews/reward-integration/README.md).
 
 This closes the interface gaps above, not the inventory/JSON crash-atomicity or reserved-claim recovery gaps. See the [updated backlog](CODEX_TODO_P0_P2.md) before production certification or merging a release.
+
+
+## Continuation FTB — 5 novembre 2026
+
+Observation, stages/toasts, dépendances commencées/quorums, réglages de présentation, groupes de chapitres, tables nommées référencées et paramètres d’objectifs d’extension sont désormais raccordés au serveur et aux interfaces. L’import SNBT inclut les séparateurs multilignes FTB, une revue avant remplacement et l’undo ; les modèles peuvent voyager dans le projet.
+
+Les remises ont un journal coordonné avec un marqueur vanilla et une reprise contrôlée ; les claims ambigus ont une résolution OP auditée. Ces changements remplacent les constats historiques ci-dessus, sans constituer une garantie de coupure électrique ni de parité complète. [État courant et écarts](ftb-quests-gap-analysis.md), [preuves de tests](reviews/ftb-parity/README.md).

@@ -5,9 +5,9 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 
 ## Vérifié sur le checkout
 
-- [x] Java 25 : `gradlew.bat build integrationTest` ; 161 tests unitaires, six GameTests serveur requis, contrôle des sauvegardes des 140 UUID après arrêt.
-- [x] Client réel : `gradlew.bat runClientGameTest` ; clics dans la tablette 3D, deux choix indépendants, confirmation persistée, attribution et rejet d'un rejeu. Captures dans `docs/reviews/reward-integration/`.
-- [x] Studio : `npm ci`, `npm run typecheck`, `npm test` (129), `npm run build` ; API : `npm ci`, `npm test` (29). Lanceur Windows `scripts/_qa.bat api-test` vérifié.
+- [x] Java 25 : `gradlew.bat build integrationTest` ; 175 tests unitaires, sept GameTests serveur (dont le contrôle vanilla), contrôle des sauvegardes des 140 UUID après arrêt.
+- [x] Client réel : `gradlew.bat runClientGameTest` ; clics dans la tablette 3D, deux choix indépendants, confirmation persistée, attribution et rejet d'un rejeu. Captures initiales dans `docs/reviews/reward-integration/`, continuation dans `docs/reviews/ftb-parity/`.
+- [x] Studio : `npm ci`, `npm run typecheck`, `npm test` (138), `npm run build` ; API : `npm ci`, `npm test` (29). Lanceur Windows `scripts/_qa.bat api-test` vérifié.
 - [x] Revue indépendante : confusion de cycle dans Claim All et accumulation des reçus corrigées, avec régressions GameTest. Un seul reçu livré détaillé et un résultat vide au maximum sont conservés par quête ; les clés anti-rejeu restent conservées.
 - [ ] Observer les vérifications GitHub de la PR ; ne pas confondre les validations locales avec un résultat CI.
 
@@ -25,8 +25,9 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 
 ## P0 — reste bloquant avant certification multijoueur
 
-- [ ] **Atomicité des remises d'objets** : `QuestRuntime.submitItem` modifie l'inventaire puis persiste la progression. Le JSON et la sauvegarde vanilla ne forment pas une transaction. Concevoir journal, réservation durable et récupération coordonnée avec la sauvegarde joueur ; tester arrêt brutal avant/après retrait, disque plein, déconnexion et réentrance. Aucun claim d'exactly-once pour cette fenêtre.
-- [ ] **Récupération des claims réservés** : la réservation durable empêche un rejeu, mais une déconnexion/inventaire modifié/exception après réservation exige une revue administrateur. Ajouter une commande de résolution auditée ; jamais de nouvelle attribution automatique après un effet partiel. `TODO(Codex)` conservé dans `QuestRuntime.claim`.
+- [x] **Journal des remises et récupération de processus** : plan détaché, piles sérialisées par codec, marqueur sauvegardé avec l’inventaire vanilla, images JSON joueur/équipe et empreintes ; reprise avant/après save sans nouveau prélèvement. Régressions nouveau fichier `.tmp`, répétition infinie et dernier palier répétable.
+- [x] **Claims réservés** : `/questplus recovery inspect <uuid>` et `resolve <uuid> "<claim>" <delivered|discard> <reason>`, permissions OP et décision auditée atomiquement ; aucune réattribution automatique.
+- [ ] **Durabilité matérielle des remises** : tester coupure réelle à chaque frontière, disque plein, composants moddés et comparaison complète de l’inventaire relu. Le readback actuel vérifie le marqueur ; pas de garantie de coupure électrique ni de borne mesurée de latence des barrières synchrones. `TODO(Codex)` dans `InventoryMarker.save`.
 - [ ] **Deux clients réels sur serveur dédié jetable** : la couverture actuelle utilise des joueurs simulés dans le serveur Fabric et un client réel avec serveur intégré. Tester objets moddés, fluides, redémarrages, publication Hub/backup/rollback et packs malveillants/surdimensionnés.
 - [ ] **Parité complète d'authoring** : les nouvelles récompenses ont un roundtrip partagé ; étendre ce contrat à tous les événements, quantités, conditions, descripteurs et exports de migration.
 
@@ -35,22 +36,31 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 - [x] Éditeur graphique commun aux récompenses normales et aux paliers : ajouter/supprimer/réordonner, choix, random/loot/all, poids, tirages, vide, pourcentages, simulation sans attribution, sélecteurs d'objets/advancements et champs des récompenses d'extension.
 - [x] Titres d'options et descriptions de choix traduisibles, aperçu de cartes, erreurs bloquant l'export. Nouveaux libellés anglais/français/espagnol/chinois ; contrôles clavier natifs et vérification visuelle bureau/390 px.
 - [x] Tables nommées portables dans les métadonnées du projet et du Hub, insérées comme **copies indépendantes** dans les quêtes. Les tables imbriquées, références circulaires et commandes dans les pools sont rejetées.
-- [ ] **Tables référencées dynamiquement côté serveur** : la bibliothèque actuelle matérialise des snapshots inline, sans propagation d'une modification aux copies déjà insérées. Définir des références versionnées, l'intégrité, les cycles et la résolution bornée avant d'ajouter des références vivantes.
+- [x] **Références de tables** : résolution des `questplus:table` avant activation du registre, cycles/noms inconnus/profondeur bornée, bibliothèque éditable et validation d’export ; les anciens droits restent concrets.
+- [ ] **Caisses et compositions imbriquées** : objet ouvrable et Data Components, protocole de consommation/attribution durable et loot tables vanilla ; `TODO(Codex)` dans `NamedRewardTables`.
 - [ ] **Fluides/énergie** : seuls les appels Java serveur de confiance `reportFluidTransferred`/`reportEnergyTransferred` après un vrai transfert alimentent les objectifs. Écrire et tester chaque adaptateur de mod technique ; ne pas compter une capacité ou un stock comme un transfert.
-- [ ] **Observation** : raycast serveur, cible bloc/entité, durée de regard, dimension et anti-spam.
-- [ ] **Stages** : intégration optionnelle et versionnée ; objectifs/conditions/récompenses. Aucun lien dur à un mod absent.
+- [x] **Observation** : raycast serveur, bloc/entité/tags, durée continue, reset cible/dimension, progression et formulaires ; GameTest réel.
+- [x] **Stages et toast** : objectif/condition/récompense de stage, fournisseur serveur remplaçable et tags vanilla par défaut ; toast traduisible reçu par client natif. Fournisseur d’un mod tiers toujours à intégrer au modpack.
+- [x] **Dépendances et présentation** : commencée/quorum, sous-titres/tags/formes/échelle, quête optionnelle, réglages de visibilité/texte/détails/liens et toast ; masquage appliqué côté serveur.
+- [x] **Groupes de chapitres** : champ validé `group`, bibliothèque Studio et groupes repliables natifs. Import des définitions/traductions de groupes FTB encore partiel.
 - [ ] **Data Components** : prédicats exacts/partiels et sauvegarde des objets enchantés, renommés ou chargés lors des récompenses/imports/soumissions.
-- [ ] **Extensions** : les conditions/récompenses ont des formulaires de champs ; compléter les pickers de conditions et les paramètres d'objectifs. `Objective` ne possède pas de champ arbitraire `data` : concevoir d'abord validation et contrat Java. Ne pas afficher des champs qui ne seraient jamais utilisés par le moteur.
-- [ ] **Récompenses d'extension dans les pools** : les pools acceptent uniquement objets, XP, niveaux, advancements et messages. Ajouter un contrat de validation/aperçu sûr avant d'autoriser d'autres handlers ou des pools imbriqués.
+- [x] **Paramètres d’objectifs d’extension** : données `data` ≤16 KiB, validateur et prédicat Java obligatoires pour des données non vides, formulaire de descripteur ; sélecteurs de registres dans les trois types de formulaires. Test de collision entre types d’état.
+- [ ] **Extensions dans les pools** : les pools acceptent objets, XP/niveaux, advancements, messages, stages et toasts intégrés. Les handlers tiers requièrent encore un contrat d’aperçu/validation explicite ; commandes et pools imbriqués restent rejetés.
 - [ ] **Migration de progression** : aperçu par fingerprint, backup, acceptation administrateur explicite et rollback quand les IDs/étapes changent.
 
 ## P2 — migration et finition
 
 - [ ] **FTB** : ancien SNBT, groupes de chapitres, traductions externes, décorations, Data Components, quorums complexes et objectifs/récompenses tiers. Conserver warning+skip lorsque la sémantique n'est pas préservée ; ne jamais supprimer silencieusement un prérequis.
-- [ ] **Rapport d'import FTB** : le JSON téléchargeable et la confirmation existent ; ajouter une liste inline filtrable par gravité, sélection/aperçu comparatif et restauration explicite après publication rejetée. Sources originales inchangées.
+- [x] **Revue d’import FTB** : rapport inline filtrable, IDs et exclusions explicites, téléchargement des sources, confirmation/annulation et undo. Parcours navigateur vérifié.
+- [ ] **Revue avancée** : sélection partielle, aperçu comparatif par quête et restauration explicite après publication rejetée.
 - [ ] **Édition en masse** : transformations d'objectifs, aperçu par quête, virtualisation, multi-sélection du graphe, copie entre catégories, tags et diagnostics de conflits ; préserver undo.
-- [ ] **Modèles de quêtes portables** : les modèles personnels restent locaux au navigateur. Ajouter stockage projet, revue d'import, versionnement, traductions et médias portables.
+- [x] **Modèles portables** : snapshots dans les métadonnées projet/ZIP/Hub et copie explicite entre bibliothèque personnelle et projet ; couverture de roundtrip.
+- [ ] **Modèles avancés** : revue de conflits/versionnement et médias externes portables.
 - [ ] **Internationalisation globale** : les nouvelles interfaces récompenses sont traduites ; reprendre les anciens libellés encore anglais, dont les options projet et les messages d'import. Les textures externes manquantes ont un fallback mais peuvent produire des 404 navigateur.
 - [ ] **Matrice de compatibilité** : serveur dédié 26.3, deux clients, Iris/shaders, registres divergents, sessions Hub et reprise des sauvegardes. Le test client de base n'est pas cette matrice complète.
 
 Voir [comparatif FTB](ftb-quests-gap-analysis.md) et [preuves de validation](reviews/reward-integration/README.md).
+
+## Validation de cette continuation
+
+Revue indépendante : quatre défauts corrigés (collision d’états, `all_started`, SNBT sans virgules, collisions d’identifiants de stage). Test additionnel de 5 000 polls pendant une sauvegarde : les snapshots resondés ne saturent plus la file. Source et périmètre exacts : [comparatif FTB](ftb-quests-gap-analysis.md), [preuves](reviews/ftb-parity/README.md). La PR reste brouillon tant que les écarts bloquants ci-dessus sont ouverts.
