@@ -21,7 +21,7 @@ final class QuestHud {
     // Quest text changes with server state or locale, not every rendered frame.
     private static long cachedRevision=Long.MIN_VALUE;
     private static String cachedLanguage;
-    private static Set<String> cachedPins=Set.of();
+    private static List<String> cachedPins=List.of();
     private static List<Panel> cachedPanels=List.of();
     private QuestHud() {}
 
@@ -34,9 +34,9 @@ final class QuestHud {
         if (settings.hud && state.ready && !settings.pinned.isEmpty()) {
             if (cachedRevision!=state.hudRevision
                 || !Objects.equals(cachedLanguage,mc.options.languageCode)
-                || !cachedPins.equals(settings.pinned)) {
+                || !samePins(settings.pinned)) {
                 cachedPanels=buildPanels(mc,settings,state);
-                cachedPins=Set.copyOf(settings.pinned);
+                cachedPins=List.copyOf(settings.pinned);
                 cachedLanguage=mc.options.languageCode;
                 cachedRevision=state.hudRevision;
             }
@@ -58,6 +58,13 @@ final class QuestHud {
             }
         }
         QuestToast.draw(g);
+    }
+
+    private static boolean samePins(Set<String> pinned) {
+        if(cachedPins.size()!=pinned.size())return false;
+        int i=0;
+        for(String id:pinned)if(!Objects.equals(cachedPins.get(i++),id))return false;
+        return true;
     }
 
     private static List<Panel> buildPanels(Minecraft mc,ClientSettings settings,QuestClientState state) {
