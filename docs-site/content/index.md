@@ -5,7 +5,7 @@ hero:
   text: Build your adventure
   tagline: Create Minecraft quests in Quest Studio or integrate your own Fabric mod.
   image:
-    src: /QuestPlus/questplus-logo.png
+    src: /questplus-mark.svg
     alt: Quest Plus
   actions:
     - theme: brand
