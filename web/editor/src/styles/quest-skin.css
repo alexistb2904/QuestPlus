@@ -342,3 +342,21 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .presentation-group>strong{display:block;color:#e2d3e7;font-size:11px;margin-bottom:10px}
 .presentation-group .checkbox-row{min-height:29px;padding:3px 0}
 .search-select{position:relative}.search-select-trigger{width:100%;min-height:30px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;background:#18181de8;border:1px solid #6a626d;border-radius:3px;color:var(--text);padding:5px 8px;font-size:12px}.search-select-trigger[aria-expanded=true]{border-color:#bd86e6}.search-select-menu{position:relative;z-index:4;margin-top:4px;padding:5px;background:#211b27;border:1px solid #796184;border-radius:3px;box-shadow:0 8px 20px #0008}.search-select-menu input{margin-bottom:5px}.search-select-menu [role=listbox]{max-height:180px;overflow:auto}.search-select-menu [role=option]{display:block;width:100%;padding:7px 8px;text-align:left;border:0;border-radius:2px;background:transparent;color:var(--text);font-size:12px}.search-select-menu [role=option]:hover,.search-select-menu [role=option]:focus-visible{background:#493751}.search-select-menu [aria-selected=true]{color:#ead2ff;background:#4b2f64}.search-select-menu small{display:block;padding:8px;color:#c7b7cf}
+
+/* Initial project choice mirrors the Quest Studio stone and amethyst surfaces. */
+.startup-dialog{width:min(610px,calc(100vw - 28px));max-width:calc(100vw - 28px);border:2px solid #866d9c;background:linear-gradient(160deg,#332b39,#231c29);box-shadow:0 20px 75px #08050ac9,inset 0 1px #d0b4e333}
+.startup-dialog .react-dialog-heading{padding:17px 20px;border-bottom:1px solid #63516c;background:#34273d}
+.startup-body{padding:20px;display:grid;gap:16px;color:#e9deed}
+.startup-body>p{margin:0;color:#c9b6d1;line-height:1.5}
+.startup-choices{display:grid;gap:10px}
+.startup-choice{display:flex;align-items:center;gap:15px;width:100%;min-width:0;min-height:87px;padding:16px;text-align:left;border:1px solid #786084;border-radius:5px;background:linear-gradient(110deg,#413449,#30273a);color:#efe4f4;cursor:pointer}
+.startup-choice:hover,.startup-choice:focus-visible{background:#50385f;border-color:#d0a6e7;outline:2px solid #c99bea;outline-offset:1px}
+.startup-choice>svg:first-child{flex:none;color:#d3a4ee}
+.startup-choice>svg:last-child{flex:none;margin-left:auto;color:#b893cc}
+.startup-choice>span{display:grid;gap:4px;min-width:0}
+.startup-choice strong{font-size:15px}
+.startup-choice small{color:#d0bed9;font-size:12px;line-height:1.35}
+.startup-footer{display:flex;gap:14px;align-items:center;justify-content:space-between}
+.startup-footer span{font-size:11px;line-height:1.45;color:#dec2a8}
+.startup-footer .button{flex:none}
+@media(max-width:550px){.startup-body{padding:14px}.startup-choice{min-height:76px;padding:12px;gap:10px}.startup-choice strong{font-size:13px}.startup-footer{align-items:flex-start;flex-direction:column-reverse}.startup-footer .button{align-self:flex-end}}
