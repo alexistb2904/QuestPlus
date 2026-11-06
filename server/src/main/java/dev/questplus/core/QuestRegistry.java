@@ -17,8 +17,6 @@ public final class QuestRegistry {
     private final Map<String,List<Candidate>> index;
     private final Map<String,List<QuestDefinition.Objective>> byEvent;
     private final Map<String,List<String>> targetsByEvent;
-    private final Set<String> fullContextKeys;
-    private final boolean cascadeRequiresContext;
     private QuestRegistry(Map<String,QuestDefinition> quests) {
         this.quests = Map.copyOf(quests);
         Map<String,List<Candidate>> index = new HashMap<>();
@@ -32,24 +30,6 @@ public final class QuestRegistry {
         grouped.forEach((event,objectives) -> targets.put(event,objectives.stream()
             .map(QuestDefinition.Objective::target).distinct().toList()));
         targetsByEvent=Map.copyOf(targets);
-        // Build this dependency index once per catalog rather than serializing the
-        // entire inventory, equipment and active effects on every ordinary block.
-        Set<String> contextual=new HashSet<>();
-        boolean cascade=false;
-        for(QuestDefinition quest:quests.values()) {
-            boolean dynamicPrerequisite=needsContext(quest.requires());
-            if(quest.progressBeforeUnlock() && dynamicPrerequisite)cascade=true;
-            boolean inventorySibling=quest.objectives().stream().anyMatch(o->o.event().equals("inventory_count"));
-            for(QuestDefinition.Objective objective:quest.objectives()) {
-                if(!dynamicPrerequisite && !needsContext(objective.conditions())
-                    && !inventorySibling && objective.data().equals("{}")
-                    && !QuestExtensions.hasObjectiveHandler(objective.event()))continue;
-                for(String target:ItemComponents.targets(objective))
-                    contextual.add(objective.event()+"\0"+target);
-            }
-        }
-        fullContextKeys=Set.copyOf(contextual);
-        cascadeRequiresContext=cascade;
     }
     public Optional<QuestDefinition> find(String id) { return Optional.ofNullable(quests.get(id)); }
     public QuestDefinition get(String id) { var q = quests.get(id); if (q == null) throw new IllegalArgumentException("Unknown quest: " + id); return q; }
@@ -59,24 +39,6 @@ public final class QuestRegistry {
         return byEvent.getOrDefault(event,List.of());
     }
     public List<String> targets(String event) { return targetsByEvent.getOrDefault(event,List.of()); }
-    private static boolean needsContext(QuestDefinition.Condition condition) {
-        if(condition==null)return false;
-        return switch(condition.operator()) {
-            case "quest","started" -> false;
-            case "and","or","not","at_least" -> condition.children().stream().anyMatch(QuestRegistry::needsContext);
-            default -> true;
-        };
-    }
-    /**
-     * True when any candidate relies on dynamic context, item components or a
-     * custom objective handler. The global cascade safeguard preserves flexible
-     * prerequisites evaluated when a different quest completes.
-     */
-    public boolean requiresFullContext(String type,String target,Set<String> tags) {
-        if(cascadeRequiresContext||fullContextKeys.contains(type+"\0"+target))return true;
-        for(String tag:tags)if(fullContextKeys.contains(type+"\\0#"+tag))return true;
-        return false;
-    }
     /** Allocation-free early test before constructing expensive gameplay context. */
     public boolean hasCandidate(String type,String target,Set<String> tags) {
         if(index.containsKey(type+"\0"+target))return true;
