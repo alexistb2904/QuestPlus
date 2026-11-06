@@ -25,6 +25,8 @@ Les définitions restent des JSON lisibles. IDs et tags moddés, prérequis, con
 
 ## Documentation
 
+**[English documentation website](https://alexistb2904.github.io/QuestPlus/docs/)** offers Markdown guides for setup, Quest Studio, authoring, objectives, rewards, commands and compatibility. Its source is in [`docs-site/`](docs-site/).
+
 | Besoin | Guide |
 | --- | --- |
 | Installer, jouer, créer et importer un pack | [Démarrage](docs/getting-started.md) |

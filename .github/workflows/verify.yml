@@ -30,6 +30,11 @@ jobs:
           npm run typecheck
           npm run build
           npm test
+      - name: Build Markdown documentation
+        working-directory: docs-site
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
       - name: Exercise QuestPlus Hub security and publishing protocol
         working-directory: web/api
         run: |

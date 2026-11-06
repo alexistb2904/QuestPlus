@@ -6,7 +6,7 @@ This page distinguishes implemented authoring paths from features that cannot be
 
 - Minecraft Java 26.3 with Fabric, Java 25 and the matching Fabric API.
 - React-based Quest Studio with browser drafts, ZIP/JSON5 export, templates and multilingual quest text.
-- Categories, quests, graph layout, annotations, prerequisities and graphical editing.
+- Categories, quests, graph layout, annotations, prerequisites and graphical editing.
 - Standard gameplay objectives, submissions, observation, stages, equipment, XP and modded registry IDs.
 - One-time, repeating and tiered progression, optional tasks and server-driven rewards.
 - Choice, random, loot and reusable named reward tables with bounded validation.

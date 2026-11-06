@@ -25,7 +25,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/install' },
       { text: 'Authoring', link: '/guide/studio' },
       { text: 'Reference', link: '/reference/commands' },
-      { text: 'Quest Studio', link: '/QuestPlus/', target: '_blank' }
+      { text: 'Quest Studio', link: 'https://alexistb2904.github.io/QuestPlus/', target: '_blank' }
     ],
     sidebar: [
       {

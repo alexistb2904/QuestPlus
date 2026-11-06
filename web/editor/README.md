@@ -32,6 +32,8 @@ but the live server workflow requires the integrated web backend.
 
 ## Features and storage
 
+If a previous browser draft exists, a startup dialog lets the author resume it or create a fresh empty or example-based project. Choosing a new project replaces the browser draft, so export a ZIP first if the existing work should be kept.
+
 - Reuse the **20 categories and 222 quests** bundled by Minecraft Quest Plus (209 new Vanilla+ challenges plus 13 historical examples).
 - Drag quests and annotations in an interactive tree that uses the same
   layout algorithm and world coordinates as the mod.

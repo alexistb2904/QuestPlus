@@ -360,3 +360,7 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .startup-footer span{font-size:11px;line-height:1.45;color:#dec2a8}
 .startup-footer .button{flex:none}
 @media(max-width:550px){.startup-body{padding:14px}.startup-choice{min-height:76px;padding:12px;gap:10px}.startup-choice strong{font-size:13px}.startup-footer{align-items:flex-start;flex-direction:column-reverse}.startup-footer .button{align-self:flex-end}}
+
+.studio-docs-link{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #695773;border-radius:4px;color:#e2caed;font-size:12px;font-weight:600;text-decoration:none;background:#302739}
+.studio-docs-link:hover,.studio-docs-link:focus-visible{color:#fff;border-color:#cc9be7;background:#4a3658}
+@media(max-width:600px){.studio-docs-link{padding:6px}.studio-docs-link span{display:none}}

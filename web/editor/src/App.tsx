@@ -25,6 +25,7 @@ import {
 	SlidersHorizontal,
 	GitBranch,
 	Square,
+	BookOpen,
 } from "lucide-react";
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
@@ -192,6 +193,7 @@ export default function App() {
 				</div>
 				<div className="landscape-banner" role="img" aria-label={tUI("Minecraft landscape")} />
 				<div className="top-actions">
+					<a className="studio-docs-link" href="https://alexistb2904.github.io/QuestPlus/docs/" target="_blank" rel="noopener noreferrer" title={tUI("Documentation")} aria-label={tUI("Documentation")}><BookOpen size={16} aria-hidden="true" /><span>{tUI("Documentation")}</span></a>
 					<label className="language-control">
 						<Globe size={15} />
 						<span className="sr-only">Interface</span>
