@@ -18,7 +18,9 @@ public final class QuestNetwork {
     private static final Gson JSON=new Gson();
     private static final int CHARS=6000;
     private static final Map<UUID,Session> SESSIONS=new HashMap<>();
-    private static final Set<UUID> DIRTY=new HashSet<>();
+    /** Stable order ensures progress under sustained updates and backpressure. */
+    private static final Set<UUID> DIRTY=new LinkedHashSet<>();
+    private static final int MAX_SYNC_PLAYERS_PER_TICK=12;
     private static long transfer;
     private QuestNetwork() {}
 
@@ -90,9 +92,14 @@ public final class QuestNetwork {
             long now=System.currentTimeMillis();
             SESSIONS.forEach((id,session) -> { if (session.expiresAt<=now) DIRTY.add(id); });
         }
-        if (tick%4!=0 || DIRTY.isEmpty()) return;
-        for (UUID id:List.copyOf(DIRTY)) {
-            DIRTY.remove(id);
+        if (DIRTY.isEmpty()) return;
+        // Cap serialization + packet bursts per tick; duplicate invalidations coalesce.
+        // Active queues are drained fairly on successive ticks, not all at once.
+        int processed=0;
+        var pending=DIRTY.iterator();
+        while(pending.hasNext() && processed++<MAX_SYNC_PLAYERS_PER_TICK) {
+            UUID id=pending.next();
+            pending.remove();
             ServerPlayer player=server.getPlayerList().getPlayer(id);
             if (player==null || !ServerPlayNetworking.canSend(player,State.TYPE)) continue;
             try { sync(player,false); }
