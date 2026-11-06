@@ -15,7 +15,7 @@ import java.util.*;
  * ObservationCounter still requires consecutive validated ticks for dwell rewards.
  */
 final class ObservationEvents {
-    private static final int IDLE_SAMPLE_TICKS = 8;
+    private static final int IDLE_SAMPLE_TICKS = 3;
     private static final Map<UUID,Tracker> TRACKERS = new HashMap<>();
     private static QuestRegistry lastRegistry;
     private static final class Tracker {
