@@ -27,6 +27,22 @@ class QuestCoreTest {
         assertEquals(Set.of("minecraft:oak_log","#minecraft:logs"),new HashSet<>(registry.targets("block_break")));
         assertTrue(registry.targets("item_obtained").isEmpty());
     }
+    @Test void indexedCandidatesDoNotDuplicateAnObjectiveMatchingItemAndTag() throws Exception {
+        write("multi","""
+            {"schemaVersion":1,"id":"questplus:multi","category":"questplus:general",
+             "icon":"minecraft:diamond","title":{"en_us":"Multi"},
+             "objectives":[{"id":"one","event":"item_obtained","target":"minecraft:diamond","count":1,
+                 "data":{"targets":["minecraft:diamond","#minecraft:gems"]}}],
+             "rewards":[],"progression":"once"}
+            """);
+        QuestRegistry registry=load();
+        var event=new QuestEvent("item_obtained","minecraft:diamond",Set.of("minecraft:gems"),1,Map.of());
+        assertEquals(1,registry.candidates(event).size());
+        assertEquals("questplus:multi",registry.candidates(event).getFirst().quest().id());
+        assertEquals(1,registry.candidates(new QuestEvent("item_obtained","minecraft:diamond",Set.of(),1,Map.of())).size());
+        assertTrue(registry.candidates(new QuestEvent("item_obtained","minecraft:stick",Set.of(),1,Map.of())).isEmpty());
+    }
+
     @Test void tagsSaturationAndDependencySnapshot() throws Exception {
         write("a",quest("a","#minecraft:logs","")); write("b",quest("b","minecraft:oak_log",",\"requires\":{\"quest\":\"questplus:a\"}"));
         var engine = new QuestEngine(load()); var player = new PlayerProgress();
