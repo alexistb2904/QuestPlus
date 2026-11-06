@@ -14,14 +14,26 @@ public final class QuestRegistry {
     @FunctionalInterface public interface ValidationHook { void validate(String kind, String id); }
     public record Candidate(QuestDefinition quest, QuestDefinition.Objective objective) {}
     private final Map<String,QuestDefinition> quests;
-    private final Map<String,List<Candidate>> index;
+    private final Map<String,Map<String,List<Candidate>>> exactIndex;
+    private final Map<String,Map<String,List<Candidate>>> tagIndex;
     private final Map<String,List<QuestDefinition.Objective>> byEvent;
     private final Map<String,List<String>> targetsByEvent;
     private QuestRegistry(Map<String,QuestDefinition> quests) {
         this.quests = Map.copyOf(quests);
-        Map<String,List<Candidate>> index = new HashMap<>();
-        quests.values().forEach(q -> q.objectives().forEach(o -> ItemComponents.targets(o).forEach(target->index.computeIfAbsent(o.event()+"\0"+target,k->new ArrayList<>()).add(new Candidate(q,o)))));
-        index.replaceAll((k,v) -> List.copyOf(v)); this.index = Map.copyOf(index);
+        // Separate exact and tag indexes avoid allocating event+target strings
+        // for every block break, pickup, crafting action and entity kill.
+        Map<String,Map<String,List<Candidate>>> exact=new HashMap<>(),tags=new HashMap<>();
+        quests.values().forEach(q -> q.objectives().forEach(o -> {
+            var candidate=new Candidate(q,o);
+            for(String key:ItemComponents.targets(o)){
+                boolean tag=key.startsWith("#");
+                var table=tag?tags:exact;
+                var targets=table.computeIfAbsent(o.event(),ignored->new HashMap<>());
+                targets.computeIfAbsent(tag?key.substring(1):key,ignored->new ArrayList<>()).add(candidate);
+            }
+        }));
+        exactIndex=freezeIndex(exact);
+        tagIndex=freezeIndex(tags);
         Map<String,List<QuestDefinition.Objective>> grouped=new HashMap<>();
         quests.values().forEach(q -> q.objectives().forEach(o -> grouped.computeIfAbsent(o.event(),ignored -> new ArrayList<>()).add(o)));
         grouped.replaceAll((key,value) -> List.copyOf(value)); byEvent=Map.copyOf(grouped);
@@ -39,21 +51,34 @@ public final class QuestRegistry {
         return byEvent.getOrDefault(event,List.of());
     }
     public List<String> targets(String event) { return targetsByEvent.getOrDefault(event,List.of()); }
-    /** Allocation-free early test before constructing expensive gameplay context. */
+    private static Map<String,Map<String,List<Candidate>>> freezeIndex(
+            Map<String,Map<String,List<Candidate>>> source) {
+        Map<String,Map<String,List<Candidate>>> frozen=new HashMap<>();
+        source.forEach((event,targets)->{
+            Map<String,List<Candidate>> values=new HashMap<>();
+            targets.forEach((target,candidates)->values.put(target,List.copyOf(candidates)));
+            frozen.put(event,Map.copyOf(values));
+        });
+        return Map.copyOf(frozen);
+    }
+    /** No temporary strings or result lists on the hot no-match path. */
     public boolean hasCandidate(String type,String target,Set<String> tags) {
-        if(index.containsKey(type+"\0"+target))return true;
-        for(String tag:tags)if(index.containsKey(type+"\0#"+tag))return true;
+        var exact=exactIndex.get(type);
+        if(exact!=null && exact.containsKey(target))return true;
+        var byTag=tagIndex.get(type);
+        if(byTag==null)return false;
+        for(String tag:tags)if(byTag.containsKey(tag))return true;
         return false;
     }
     public List<Candidate> candidates(QuestEvent event) {
-        List<Candidate> exact=index.getOrDefault(event.type()+"\0"+event.target(),List.of());
-        // Most events have a single exact match or no authored target. Return
-        // immutable registry lists directly; no per-block stream/distinct allocation.
-        List<Candidate> first=exact;
+        var exact=exactIndex.get(event.type());
+        var byTag=tagIndex.get(event.type());
+        List<Candidate> first=exact==null?List.of():exact.getOrDefault(event.target(),List.of());
+        if(byTag==null || event.tags().isEmpty())return first;
         LinkedHashSet<Candidate> merged=null;
         for(String tag:event.tags()){
-            List<Candidate> matches=index.getOrDefault(event.type()+"\0#"+tag,List.of());
-            if(matches.isEmpty())continue;
+            List<Candidate> matches=byTag.get(tag);
+            if(matches==null || matches.isEmpty())continue;
             if(first.isEmpty()){first=matches;continue;}
             if(merged==null)merged=new LinkedHashSet<>(first);
             merged.addAll(matches);
