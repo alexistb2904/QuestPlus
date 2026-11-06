@@ -27,6 +27,34 @@ class JsonProgressStoreTest {
             assertTrue(Files.readString(file().resolveSibling(id + ".json.bak")).contains("reserved"));
         }
     }
+    @Test void deferredAutosaveUsesDetachedMutableState() throws Exception {
+        var source=progress("reserved");
+        var quest=new PlayerProgress.QuestProgress();
+        quest.fingerprint="stable";
+        quest.counters.put("one",3L);
+        quest.cumulative.put("one",10L);
+        quest.reachedTiers.add("first");
+        source.quests.put("questplus:first",quest);
+        source.entitlements.put("questplus:first",new PlayerProgress.RewardGrant("questplus:first",
+            List.of(new dev.questplus.core.QuestDefinition.Reward("experience",null,0,4))));
+        try(var store=new JsonProgressStore(root)){
+            var autosave=store.saveAutosaveBatch(Map.of(id,source));
+            // Mutate every nested structure immediately after queueing the write.
+            source.claims.put("questplus:first","delivered");
+            quest.counters.put("one",99L);
+            quest.cumulative.clear();
+            quest.reachedTiers.clear();
+            source.entitlements.clear();
+            autosave.join();
+            var restored=store.load(id);
+            assertEquals("reserved",restored.claims.get("questplus:first"));
+            assertEquals(3L,restored.quests.get("questplus:first").counters.get("one"));
+            assertEquals(10L,restored.quests.get("questplus:first").cumulative.get("one"));
+            assertTrue(restored.quests.get("questplus:first").reachedTiers.contains("first"));
+            assertFalse(restored.entitlements.isEmpty());
+        }
+    }
+
     @Test void rejectsInvalidFilesWithoutOverwrite() throws Exception {
         Files.createDirectories(file().getParent());
         try (var store = new JsonProgressStore(root)) {
