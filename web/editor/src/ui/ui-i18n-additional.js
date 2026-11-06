@@ -1,6 +1,7 @@
 /** Additional UI keys and localized validation messages: [English, French, Spanish, Chinese]. */
 export const UI_ADDITIONAL = [
   ["Documentation", "Documentation", "Documentación", "文档"],
+  ["Learn how to create quests and integrate your mod.", "Apprenez à créer des quêtes et à intégrer votre mod.", "Aprende a crear misiones e integrar tu mod.", "了解如何创建任务并集成你的模组。"],
   ["Welcome to Quest Studio","Bienvenue dans Quest Studio","Bienvenido a Quest Studio","欢迎使用 Quest Studio"],
   ["Choose how to start. Your last browser draft is still available.","Choisissez comment commencer. Votre dernier brouillon enregistré dans ce navigateur est toujours disponible.","Elige cómo empezar. Tu último borrador guardado en este navegador sigue disponible.","请选择如何开始。浏览器中上次保存的草稿仍然可用。"],
   ["Create a project","Créer un projet","Crear un proyecto","创建项目"],

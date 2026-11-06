@@ -1,60 +1,60 @@
-# Command reference
+# Commands
 
-This table follows the command registration in `server/src/main/java/dev/questplus/fabric/QuestCommands.java` on `main`. `<quest>` is a namespaced quest ID. `<player>`, `<team>`, `<source>` and `<operation>` are UUIDs.
+Use namespaced quest IDs such as `questplus:survival/logs`. **OP** commands require operator permission.
 
-**Operator** means Minecraft's `COMMANDS_GAMEMASTER` permission. Commands that require a player cannot run from the server console unless they explicitly accept a player UUID.
+## Players
 
-## Player commands
-
-| Command | Purpose |
+| Command | Action |
 | --- | --- |
-| `/questplus` | Show help |
-| `/questplus progress` | Show up to 50 visible quests with progress |
-| `/questplus progress <quest>` | Inspect one visible quest and its cycles |
-| `/questplus submit <quest> <objective>` | Submit a supported objective |
-| `/questplus choose <quest> <option>` | Choose a reward option, 1 to 32 |
-| `/questplus claim <quest>` | Claim pending eligible rewards |
-| `/questplus restart <quest>` | Restart an eligible repeatable quest |
-| `/questplus trigger <quest>` | Trigger a manual objective |
+| `/questplus` | Help |
+| `/questplus progress [quest]` | View progress |
+| `/questplus submit <quest> <objective>` | Submit an objective |
+| `/questplus trigger <quest>` | Activate a manual objective |
+| `/questplus choose <quest> <option>` | Choose a reward |
+| `/questplus claim <quest>` | Claim rewards |
+| `/questplus restart <quest>` | Restart an eligible quest |
+
+## Teams
+
+| Command | Action |
+| --- | --- |
 | `/questplus team create <name>` | Create a team |
-| `/questplus team invite <player>` | Invite a player UUID |
-| `/questplus team join <team>` | Join with an invitation |
-| `/questplus team decline <team>` | Decline an invitation |
-| `/questplus team leave` | Leave the team |
-| `/questplus team kick <player>` | Remove a member, if authorized |
-| `/questplus team transfer <player>` | Transfer ownership, if authorized |
-| `/questplus team disband` | Disband the team, if authorized |
+| `/questplus team invite <player>` | Invite a player |
+| `/questplus team join <team>` | Join |
+| `/questplus team decline <team>` | Decline |
+| `/questplus team leave` | Leave |
+| `/questplus team kick <player>` | Remove a player |
+| `/questplus team transfer <player>` | Transfer ownership |
+| `/questplus team disband` | Disband |
+| `/questplus team info` | Show membership |
 | `/questplus team invitations` | List invitations |
-| `/questplus team info` | Inspect membership |
 
-## Operator commands
+## Operators
 
-| Command | Purpose |
+| Command | Action |
 | --- | --- |
-| `/questplus reload` | Validate and reload world definitions |
-| `/questplus editor` | Create a browser authorization session |
-| `/questplus editor approve <code>` | Approve a matching browser code |
-| `/questplus editor revoke` | Revoke browser access |
-| `/questplus rollback` | Restore previous published definitions |
-| `/questplus import <pack>` | Preview a shared pack ID |
-| `/questplus import confirm` | Apply the pending import |
-| `/questplus debug` | Show runtime summary |
-| `/questplus debug <player>` | Inspect stored player progress |
-| `/questplus diagnose <quest>` | Show objective counters and conditions |
-| `/questplus quest grant <player> <quest>` | Grant completion to a player |
-| `/questplus quest reset <player> <quest>` | Reset a player's quest |
-| `/questplus recovery inspect <player>` | Inspect reserved claims |
-| `/questplus recovery resolve <player> <claim> <outcome> <reason>` | Resolve a reserved claim after audit |
-| `/questplus migrate-ftb preview <source> <player>` | Preview private progress migration |
-| `/questplus migrate-ftb confirm` | Confirm reviewed migration |
-| `/questplus migrate-ftb rollback <operation>` | Roll back a migration if safe |
+| `/questplus reload` | Reload definitions |
+| `/questplus editor` | Start online editing |
+| `/questplus editor approve <code>` | Approve browser access |
+| `/questplus editor revoke` | Revoke access |
+| `/questplus rollback` | Restore previous definitions |
+| `/questplus import <pack>` | Preview a shared pack |
+| `/questplus import confirm` | Confirm import |
+| `/questplus debug [player]` | Runtime diagnostics |
+| `/questplus diagnose <quest>` | Inspect quest conditions |
+| `/questplus quest grant <player> <quest>` | Grant completion |
+| `/questplus quest reset <player> <quest>` | Reset player progress |
 
-### Notes
+## Recovery and migration (OP)
 
-- `<quest>` is a **greedy string** in most one-quest commands, so it consumes the rest of the command line.
-- `submit` only lists eligible submission objectives. It does not make every objective manually completable.
-- Operator recovery is for ambiguous reserved claims, not an automatic refund or reward replay tool.
-- The command tree does **not** provide a general-purpose in-game editor for arbitrary JSON files.
-- Team actions enforce ownership and membership rules even though the commands themselves are visible to players.
+| Command | Action |
+| --- | --- |
+| `/questplus recovery inspect <player>` | Inspect claims |
+| `/questplus recovery resolve <player> <claim> <outcome> <reason>` | Resolve a claim |
+| `/questplus migrate-ftb preview <source> <player>` | Preview a migration |
+| `/questplus migrate-ftb confirm` | Apply migration |
+| `/questplus migrate-ftb rollback <operation>` | Roll back safely |
 
-The graphical tablet is the preferred player interface. Use commands for automation, administration and debugging.
+Player, team and operation identifiers use UUIDs where required.
+
+[Connect Quest Studio](/guide/import-and-publish)

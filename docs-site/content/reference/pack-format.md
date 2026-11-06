@@ -1,57 +1,38 @@
-# Pack format and file layout
+# JSON5 quest packs
 
-Quest Plus uses versioned definition files. The current authoring workflow exports **JSON5** for quests and categories, while world configuration and player progress remain strict JSON.
+Quest Studio generates the files for you. Direct JSON5 editing is also supported.
 
-## World layout
+## Example quest
 
-```text
-<world>/
-  questplus/
-    config.json
-    queststudio-compatibility.json
-    index.txt
-    categories/
-      engineering.json5
-    quests/
-      engineering/
-        first_circuit.json5
-  data/
-    questplus/
-      ...
-```
+~~~json5
+{
+  schemaVersion: 2,
+  id: 'example:stone',
+  category: 'example:basics',
+  icon: 'minecraft:stone',
+  title: { en_us: 'Collect stone' },
+  objectives: [
+    { id: 'stone', event: 'item_obtained', target: 'minecraft:stone', count: 32 }
+  ],
+  rewards: [{ type: 'experience', amount: 50 }],
+  progression: 'once'
+}
+~~~
 
-The definitions folder and persistent player state are intentionally separate. Never ship `data/questplus/` as part of an authored quest pack.
+The category must exist, and quest and objective IDs must stay stable once progress is saved.
 
-## Core quest fields
+## Folder layout
 
-| Field | Meaning |
-| --- | --- |
-| `schemaVersion` | Quest schema, currently 1 or 2 |
-| `id` | Stable `namespace:path` identifier |
-| `category` | Existing category ID |
-| `icon` | Minecraft or modded icon ID |
-| `title` | Localized map with `en_us` |
-| `description` | Optional localized explanation |
-| `objectives` | Tasks with stable local IDs |
-| `objectiveMode` | `all`, `any`, `sequence` or `at_least` |
-| `requires` | Dependency expression |
-| `rewards` | Server-recognized reward entries |
-| `progression` | `once`, `repeatable`, `infinite` or `tiered` |
-| `layout` | Optional diagram coordinates |
+~~~text
+questplus/
+  config.json
+  categories/
+    basics.json5
+  quests/
+    basics/
+      stone.json5
+~~~
 
-JSON5 allows comments and trailing commas in authored definitions. Unknown field names or unregistered event/reward types can still fail server validation.
+Install the pack under `<world>/questplus/`. Player save data is stored separately.
 
-## Advanced authoring
-
-- Use unique category and quest IDs within the pack.
-- Keep objective IDs stable so old progress is not accidentally orphaned.
-- Keep dependency expressions acyclic.
-- Prefer resource IDs and tags from installed mods rather than hard-coded display names.
-- Validate large annotation images and rich text before export.
-- Test mechanics that depend on other installed mods on an actual matching server.
-
-## Canonical sources
-
-The complete [JSON Schema](https://github.com/alexistb2904/QuestPlus/blob/main/docs/quest.schema.json) and [detailed format notes](https://github.com/alexistb2904/QuestPlus/blob/main/docs/json-schema.md) are maintained with the mod.
-
-Use Quest Studio's **Advanced JSON** panel only when the visual controls cannot express a supported field. The validation and export path remains the same.
+[JSON Schema](https://github.com/alexistb2904/QuestPlus/blob/main/docs/quest.schema.json) · [Custom objective events](/reference/java-api)

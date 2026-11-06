@@ -65,7 +65,8 @@ test('new English Markdown guide obeys punctuation rules',()=>{
      else if(item.name.endsWith('.md')){
        const body=fs.readFileSync(next,'utf8');
        assert.ok(!body.includes('—'),item.name+' contains an em dash');
-       assert.ok(!body.includes(';'),item.name+' contains a semicolon');
+       const prose=body.replace(/~~~[^]*?~~~/g,'');
+       assert.ok(!prose.includes(';'),item.name+' contains a semicolon outside code');
      }
    }
  };

@@ -1,39 +1,39 @@
 ---
 layout: home
-
 hero:
   name: QUEST PLUS
-  text: Modding your adventure
-  tagline: Build quest trees, connect gameplay objectives and deliver rewards with an editor designed for Minecraft modpacks.
+  text: Build your adventure
+  tagline: Create Minecraft quests in Quest Studio or integrate your own Fabric mod.
+  image:
+    src: /QuestPlus/questplus-logo.png
+    alt: Quest Plus
   actions:
     - theme: brand
-      text: Start authoring
-      link: /guide/studio
+      text: Open Quest Studio
+      link: https://alexistb2904.github.io/QuestPlus/
     - theme: alt
-      text: Install the mod
-      link: /guide/install
-
+      text: Create a quest
+      link: /guide/categories-and-quests
 features:
-  - title: Quest Studio
-    details: Create and arrange quest trees in React, add annotations, edit mechanics and export JSON5 packs.
+  - title: Play
+    details: Install and navigate the quest tablet.
+    link: /guide/install
+  - title: Create
+    details: Categories, objectives, rewards and exports.
     link: /guide/studio
-  - title: Flexible gameplay
-    details: Server-validated objectives, player submissions, prerequisites, repeatable progression and reward pools.
-    link: /guide/objectives
-  - title: Developer-friendly
-    details: Versioned definition files, commands, registry browser and extension descriptors.
-    link: /reference/pack-format
-  - title: FTB migration
-    details: Import compatible FTB Quests definitions with a review step that reports missing mechanics.
-    link: /guide/import-and-publish
+  - title: Integrate
+    details: Java hooks and custom mechanics.
+    link: /reference/java-api
+  - title: Manage
+    details: Server commands and Hub HTTP requests.
+    link: /reference/commands
 ---
 
-## Build quests, not boilerplate
+## Find what you need
 
-Quest Plus is a Fabric mod for Minecraft Java 26.3. Players use a customizable tablet and a quest HUD. Modpack authors use Quest Studio or versioned JSON5 files.
+- [Create a quest](/guide/categories-and-quests)
+- [Track an event from my mod](/reference/java-api)
+- [Connect a server](/guide/import-and-publish)
+- [Send an HTTP request](/reference/web-api)
 
-Start with [the editor guide](/guide/studio), then consult the [command reference](/reference/commands) and [capability boundaries](/reference/limitations) before shipping a pack.
-
-::: tip Source of truth
-This website is built from Markdown in `docs-site/content/`. The React editor lives in `web/editor/`, not in the retired GitHub Pages editor snapshot.
-:::
+Progress and rewards are validated by the Minecraft server.
