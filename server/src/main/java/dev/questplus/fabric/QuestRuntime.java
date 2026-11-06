@@ -29,11 +29,11 @@ public final class QuestRuntime implements AutoCloseable {
     private final JsonProgressStore store;
     private final InventoryMarker inventoryMarker;
     private final Map<UUID,PlayerProgress> players = new HashMap<>();
-    private final Set<UUID> dirty = new HashSet<>();
+    private final Set<UUID> dirty = new LinkedHashSet<>();
     private final Set<UUID> blocked = new HashSet<>();
     private final Set<UUID> claiming = new HashSet<>();
     private final Set<UUID> busy = new HashSet<>();
-    private final Set<UUID> dirtyTeams = new HashSet<>();
+    private final Set<UUID> dirtyTeams = new LinkedHashSet<>();
     private record DeferredEvent(ServerPlayer player,QuestEvent event) {}
     private final ArrayDeque<DeferredEvent> deferred = new ArrayDeque<>();
     private final List<TeamWrite> pendingTeams = new ArrayList<>();
@@ -61,6 +61,8 @@ public final class QuestRuntime implements AutoCloseable {
     private int autosavesInFlight,teamAutosavesInFlight;
     private static final int AUTOSAVE_PLAYERS_PER_BATCH=24;
     private static final int AUTOSAVE_IN_FLIGHT_MAX=2;
+    private static final int AUTOSAVE_PLAYER_SCAN_BUDGET=96;
+    private static final int AUTOSAVE_TEAM_SCAN_BUDGET=16;
     /** Bound automatic reward checks per tick instead of traversing every connected player at once. */
     private int autoClaimCursor;
     private static final int AUTO_CLAIM_PLAYERS_PER_TICK = 16;
@@ -659,14 +661,21 @@ public final class QuestRuntime implements AutoCloseable {
     private void flushDirty() {
         if(autosavesInFlight<AUTOSAVE_IN_FLIGHT_MAX && !dirty.isEmpty()){
             Map<UUID,PlayerProgress> snapshots=new LinkedHashMap<>();
-            for(UUID id:dirty){
-                if(busy.contains(id))continue;
+            List<UUID> postponed=new ArrayList<>();
+            var iterator=dirty.iterator();
+            int examined=0;
+            while(iterator.hasNext() && examined++<AUTOSAVE_PLAYER_SCAN_BUDGET
+                && snapshots.size()<AUTOSAVE_PLAYERS_PER_BATCH){
+                UUID id=iterator.next();
+                iterator.remove();
+                if(busy.contains(id)){postponed.add(id);continue;}
                 var current=players.get(id);
                 if(current!=null)snapshots.put(id,current);
-                if(snapshots.size()>=AUTOSAVE_PLAYERS_PER_BATCH)break;
             }
+            // Busy players rotate to the end, so a busy prefix cannot starve
+            // autosaves for healthy players in a very large online population.
+            dirty.addAll(postponed);
             if(!snapshots.isEmpty()){
-                dirty.removeAll(snapshots.keySet());
                 autosavesInFlight++;
                 store.saveAutosaveBatch(snapshots).whenComplete((ok,error) -> server.execute(() -> {
                     autosavesInFlight--;
@@ -680,10 +689,18 @@ public final class QuestRuntime implements AutoCloseable {
         // One noncritical team autosave at a time. Transactional saves and
         // reward claims use the same ordered writer and are never postponed here.
         if(teamAutosavesInFlight==0 && !dirtyTeams.isEmpty()){
-            for(UUID id:dirtyTeams){
+            List<UUID> postponed=new ArrayList<>();
+            var iterator=dirtyTeams.iterator();
+            int examined=0;
+            while(iterator.hasNext() && examined++<AUTOSAVE_TEAM_SCAN_BUDGET){
+                UUID id=iterator.next();
                 TeamData team=teams.rewardScope(id);
-                if(team.members.stream().anyMatch(busy::contains))continue;
-                dirtyTeams.remove(id);
+                if(team.members.stream().anyMatch(busy::contains)){
+                    iterator.remove();
+                    postponed.add(id);
+                    continue;
+                }
+                iterator.remove();
                 teamAutosavesInFlight++;
                 store.transaction(Map.of(),Map.of(id,team)).whenComplete((ok,error) -> server.execute(() -> {
                     teamAutosavesInFlight--;
@@ -691,6 +708,7 @@ public final class QuestRuntime implements AutoCloseable {
                 }));
                 break;
             }
+            dirtyTeams.addAll(postponed);
         }
         autosaveDraining=!dirty.isEmpty() || !dirtyTeams.isEmpty()
             || autosavesInFlight>0 || teamAutosavesInFlight>0;
