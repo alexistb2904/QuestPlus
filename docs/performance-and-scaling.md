@@ -27,12 +27,12 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 - Le registre renvoie directement sa liste immuable de candidats pour un seul index (cible exacte **ou** tag). Les objectifs correspondant à plusieurs index restent dédupliqués. Le garde de `QuestRuntime.event()` utilise `hasCandidate()` et n'alloue pas de liste de résultats pour les événements non pertinents.
 - `QuestEngine` partage les ensembles constants d'événements, calcule les prérequis une seule fois à l'intérieur de la validation d'une quête, vérifie les objectifs obligatoires en une seule boucle et n'utilise plus de Stream dans la boucle de détection des quêtes commencées. Les conditions, le verrouillage et les transitions de tiers restent évalués côté serveur.
 - `PlayerProgress.copyForAutosave()` crée une copie indépendante de tous les champs persistés, y compris compteurs, cumuls, paliers et récompenses. Le thread Minecraft copie uniquement les structures de données mutables ; le **worker d'écriture** effectue ensuite sérialisation JSON, validation et accès disque.
-- `QuestRuntime` répartit les autosauvegardes personnelles par lots de **24 états au maximum** et plafonne à **2 lots en attente**. Les sauvegardes non critiques d'équipe sont également séquencées. Le journal de transactions, les réservations de récompenses et les opérations d'inventaire restent sur la voie **transactionnelle et durable**, volontairement séparée.
+- `QuestRuntime` répartit les autosauvegardes personnelles par lots de **24 états au maximum** et plafonne à **2 lots en attente**. L'inspection des joueurs sales est elle-même plafonnée à **96 UUID par passe**, avec rotation des joueurs bloqués ; les équipes sont inspectées à **16 UUID maximum** pour éviter de refaire un scan global permanent. Les sauvegardes non critiques d'équipe sont également séquencées. Le journal de transactions, les réservations de récompenses et les opérations d'inventaire restent sur la voie **transactionnelle et durable**, volontairement séparée.
 - **Compromis important :** le snapshot des données est toujours effectué sur le thread Minecraft (il doit voir un état stable) ; une très grande progression individuelle peut encore occasionner une courte pause. Une sérialisation strictement hors thread ne signifie pas absence absolue de coût sur le tick. Les commits critiques gardent leurs garanties de crash/recovery.
 
 ### Profiler sans redémarrer Minecraft
 
-Le script `scripts/profile-questplus.ps1` déclenche un enregistrement JFR **borné** (15 à 3 600 secondes) sur une JVM Java 25 déjà lancée :
+Le script `scripts/profile-questplus.ps1` (fondé sur la [commande officielle JFR de Java 25](https://docs.oracle.com/en/java/javase/25/docs/specs/man/jcmd.html)) déclenche un enregistrement JFR **borné** (15 à 3 600 secondes) sur une JVM Java 25 déjà lancée :
 
 ```powershell
 jcmd -l
