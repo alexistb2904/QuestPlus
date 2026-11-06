@@ -22,12 +22,34 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 
 **Compromis intentionnel :** la détection du début d'observation peut prendre jusqu'à ~3 ticks (150 ms à 20 TPS). Après détection, chaque tick consécutif reste nécessaire pour compter la durée. Les objectifs de position/statistiques ont un échantillonnage plafonné à 8 joueurs/tick, donc leur latence peut être élevée si une seule JVM accepte des milliers de joueurs.
 
+## Moteur de progression et persistance — deuxième passe
+
+- Le registre renvoie directement sa liste immuable de candidats pour un seul index (cible exacte **ou** tag). Les objectifs correspondant à plusieurs index restent dédupliqués. Le garde de `QuestRuntime.event()` utilise `hasCandidate()` et n'alloue pas de liste de résultats pour les événements non pertinents.
+- `QuestEngine` partage les ensembles constants d'événements, calcule les prérequis une seule fois à l'intérieur de la validation d'une quête, vérifie les objectifs obligatoires en une seule boucle et n'utilise plus de Stream dans la boucle de détection des quêtes commencées. Les conditions, le verrouillage et les transitions de tiers restent évalués côté serveur.
+- `PlayerProgress.copyForAutosave()` crée une copie indépendante de tous les champs persistés, y compris compteurs, cumuls, paliers et récompenses. Le thread Minecraft copie uniquement les structures de données mutables ; le **worker d'écriture** effectue ensuite sérialisation JSON, validation et accès disque.
+- `QuestRuntime` répartit les autosauvegardes personnelles par lots de **24 états au maximum** et plafonne à **2 lots en attente**. Les sauvegardes non critiques d'équipe sont également séquencées. Le journal de transactions, les réservations de récompenses et les opérations d'inventaire restent sur la voie **transactionnelle et durable**, volontairement séparée.
+- **Compromis important :** le snapshot des données est toujours effectué sur le thread Minecraft (il doit voir un état stable) ; une très grande progression individuelle peut encore occasionner une courte pause. Une sérialisation strictement hors thread ne signifie pas absence absolue de coût sur le tick. Les commits critiques gardent leurs garanties de crash/recovery.
+
+### Profiler sans redémarrer Minecraft
+
+Le script `scripts/profile-questplus.ps1` déclenche un enregistrement JFR **borné** (15 à 3 600 secondes) sur une JVM Java 25 déjà lancée :
+
+```powershell
+jcmd -l
+.\scripts\profile-questplus.ps1 -ProcessId 12345 -DurationSeconds 120 -Settings profile -Output profiles/questplus.jfr
+```
+
+Sur Linux : `jcmd <PID> JFR.start name=QuestPlusProfile settings=profile duration=120s filename=/chemin/questplus.jfr`.
+Ouvrir ensuite le fichier dans **Java Mission Control** ; vérifier les allocations associées aux méthodes `dev.questplus`, le thread serveur et les pauses GC. Utiliser `-Settings default` pour une capture moins intrusive. **Ne pas publier les traces JFR brutes**, qui peuvent inclure des noms de mondes, chemins et autres informations d'environnement. Les fichiers `*.jfr` et `profiles/` sont ignorés par Git.
+
+Protocole : réaliser une capture **à vide**, tablette fermée ; une seconde avec quêtes/intérêts actifs ; une troisième avec 100 reconnexions et récompenses. Comparer au même modpack sans QuestPlus, à version de Java et monde identiques. Le script n'exécute pas les benchmarks à lui seul et ne prétend pas valider 3 000 joueurs.
+
 ## Nouvelles étapes P0/P1 à mesurer avant une affirmation « 3 000 joueurs »
 
 1. **Profil JFR / spark / allocations** : comparer avec/sans QuestPlus sur un vrai modpack 500 mods. Mesurer p50/p95/p99 du tick, allocations par tick, CPU du serveur, disque et volume réseau par joueur. Éviter de fixer des pourcentages de gain sans mesures.
 2. **Cache de contexte ciblé par condition** : le contexte générique fabrique encore inventaire, équipements et snapshots d'armure pour certaines requêtes ; bâtir une projection strictement requise par chaque événement, en gardant la compatibilité des extensions Java.
 3. **Index d'objectifs actifs par joueur/équipe** : réduire les scans de quêtes déjà terminées et les observations inutiles. Cache invalidé par révision du progrès, recharge du catalogue et changement d'équipe. Conserver les conditions dynamiques et les quêtes répétables.
-4. **Persistance** : examiner le coût de sérialisation JSON sur le thread de jeu et les transactions de récompenses à synchronisation forte. Coalescer les écritures non critiques, donner la priorité aux transactions de remise, borner file mémoire et backpressure ; ne jamais dégrader l'anti-duplication en échange de TPS.
+4. **Persistance — partie implémentée** : autosauvegardes personnelles sérialisées sur le worker et réparties en lots bornés ; mesurer encore le coût des copies en tick, les IOPS et les temps de latence d'une réservation lorsqu'un lot de 24 fichiers est en cours d'écriture. Ne jamais dégrader l'anti-duplication en échange de TPS.
 5. **Protocole réseau** : mutualiser la sérialisation des définitions identiques au niveau génération, plafonner octets/tick et envois/joueur, vérification de version/sequence et reconstitution des fragments, tests de reconnexion. Le delta reste privilégié.
 6. **Client moddé** : aucun scan permanent d'inventaire côté client, aucun layout ni recalcul de textures/annotations si tablette fermée, invalidation ciblée des caches de diagramme, rendu cullé, pas d'allocation superflue par frame. Mesurer avec Iris, shaders, 500 mods et petite configuration.
 7. **Tests de charge** : 100/300 joueurs par nœud puis 3 000 sur plusieurs nœuds ; reconnexions simultanées, équipes de 64, 1 000 objectifs, progression intensive, changement de catalogue, disque lent, crash/restart et trafic client hostile.
