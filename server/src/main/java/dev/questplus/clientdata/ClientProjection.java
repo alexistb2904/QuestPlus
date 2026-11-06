@@ -134,10 +134,31 @@ public final class ClientProjection {
         return List.copyOf(visible);
     }
 
+    /**
+     * Only these transitions change the quest definition bytes sent to a player.
+     * Counter updates can use a small progress delta without resending all quests.
+     */
+    public static Map<String,Integer> redactionFlags(Collection<QuestDefinition> quests,PlayerProgress state) {
+        Set<String> completed=QuestEngine.prerequisiteState(state);
+        Map<String,Integer> flags=new HashMap<>();
+        for(QuestDefinition q:quests) {
+            var settings=q.presentation();
+            if(!settings.hideTextUntilCompleted()&&!settings.hideDetailsUntilUnlocked())continue;
+            var progress=state.quests.get(q.id());
+            boolean done=progress!=null&&progress.completed;
+            boolean unlocked=q.requires()==null||q.requires().matches(Map.of(),completed);
+            int mask=(settings.hideTextUntilCompleted()&&!done?1:0) |
+                (settings.hideDetailsUntilUnlocked()&&!unlocked?2:0);
+            flags.put(q.id(),mask);
+        }
+        return Map.copyOf(flags);
+    }
+
     public static JsonArray quests(Collection<QuestDefinition> quests) {return quests(quests,new PlayerProgress());}
     public static JsonArray quests(Collection<QuestDefinition> quests,PlayerProgress state) {
         JsonArray out = new JsonArray();
         Set<String> visibleIds=new HashSet<>(); quests.forEach(q -> visibleIds.add(q.id()));
+        Set<String> completedIds=QuestEngine.prerequisiteState(state);
         quests.stream().sorted(Comparator.comparing(QuestDefinition::id)).forEach(q -> {
             JsonObject item=JSON.toJsonTree(q).getAsJsonObject();
             if (item.has("requires")) redact(item.getAsJsonObject("requires"),visibleIds);
@@ -149,7 +170,7 @@ public final class ClientProjection {
             for(var tier:q.tiers())tierPreviews.add(rewards(tier.rewards()));
             item.add("tierRewardPreviews",tierPreviews);
             var p=state.quests.get(q.id());boolean completed=p!=null&&p.completed;
-            boolean unlocked=q.requires()==null||q.requires().matches(Map.of(),QuestEngine.prerequisiteState(state));
+            boolean unlocked=q.requires()==null||q.requires().matches(Map.of(),completedIds);
             var settings=q.presentation();
             if(settings.hideTextUntilCompleted()&&!completed || settings.hideDetailsUntilUnlocked()&&!unlocked) {
                 for(String field:List.of("description","descriptionRich","narrative"))item.add(field,new JsonObject());
