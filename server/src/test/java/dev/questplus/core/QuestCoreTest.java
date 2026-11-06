@@ -16,6 +16,17 @@ class QuestCoreTest {
     private QuestRegistry load() throws Exception { return QuestRegistry.load(dir,(kind,id) -> {}); }
     private void write(String name,String text) throws Exception { Files.writeString(dir.resolve(name + ".json"),text); }
     private QuestEvent event(long amount) { return new QuestEvent("block_break","minecraft:oak_log",Set.of("minecraft:logs"),amount,Map.of()); }
+    @Test void candidateFastPathMatchesExactAndTagTargets() throws Exception {
+        write("exact",quest("exact","minecraft:oak_log",""));
+        write("tag",quest("tag","#minecraft:logs",""));
+        QuestRegistry registry=load();
+        assertTrue(registry.hasCandidate("block_break","minecraft:oak_log",Set.of()));
+        assertTrue(registry.hasCandidate("block_break","minecraft:birch_log",Set.of("minecraft:logs")));
+        assertFalse(registry.hasCandidate("block_break","minecraft:birch_log",Set.of()));
+        assertFalse(registry.hasCandidate("item_obtained","minecraft:oak_log",Set.of("minecraft:logs")));
+        assertEquals(Set.of("minecraft:oak_log","#minecraft:logs"),new HashSet<>(registry.targets("block_break")));
+        assertTrue(registry.targets("item_obtained").isEmpty());
+    }
     @Test void tagsSaturationAndDependencySnapshot() throws Exception {
         write("a",quest("a","#minecraft:logs","")); write("b",quest("b","minecraft:oak_log",",\"requires\":{\"quest\":\"questplus:a\"}"));
         var engine = new QuestEngine(load()); var player = new PlayerProgress();
