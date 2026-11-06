@@ -39,6 +39,12 @@ public final class QuestRegistry {
         return byEvent.getOrDefault(event,List.of());
     }
     public List<String> targets(String event) { return targetsByEvent.getOrDefault(event,List.of()); }
+    /** Allocation-free early test before constructing expensive gameplay context. */
+    public boolean hasCandidate(String type,String target,Set<String> tags) {
+        if(index.containsKey(type+"\0"+target))return true;
+        for(String tag:tags)if(index.containsKey(type+"\0#"+tag))return true;
+        return false;
+    }
     public List<Candidate> candidates(QuestEvent event) {
         List<Candidate> result = new ArrayList<>(index.getOrDefault(event.type() + "\0" + event.target(),List.of()));
         for (String tag : event.tags()) result.addAll(index.getOrDefault(event.type() + "\0#" + tag,List.of()));
