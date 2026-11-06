@@ -575,7 +575,7 @@ public final class QuestRuntime implements AutoCloseable {
         // Manual acknowledgements are valid even in creative/spectator; only gameplay counters are restricted.
         if (closing || storageFailed || (!event.type().equals("manual") && (player.isSpectator() || player.isCreative()))
             || blocked.contains(player.getUUID())) return;
-        if (!event.type().equals("player_death") && registry.candidates(event).isEmpty()) return;
+        if (!event.type().equals("player_death") && !registry.hasCandidate(event.type(),event.target(),event.tags())) return;
         if (busy.contains(player.getUUID())) {
             // Polls are sampled again; queued stale snapshots can overflow or complete a lost gaze.
             if(Set.of("inventory_count","xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(event.type()))return;
