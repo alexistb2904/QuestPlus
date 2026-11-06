@@ -16,7 +16,13 @@ final class QuestHud {
     private record ObjectiveLine(String label,String modifier,long current,long target) {
         int height() { return 19+(modifier.isBlank()?0:11); }
     }
-    private record Panel(QuestDefinition quest,String name,String status,List<ObjectiveLine> lines,int height) {}
+    private record Panel(QuestDefinition quest,String name,String status,List<ObjectiveLine> lines,int height,
+                         ItemStack icon,String caption) {}
+    // Quest text changes with server state or locale, not every rendered frame.
+    private static long cachedRevision=Long.MIN_VALUE;
+    private static String cachedLanguage;
+    private static Set<String> cachedPins=Set.of();
+    private static List<Panel> cachedPanels=List.of();
     private QuestHud() {}
 
     static void draw(GuiGraphicsExtractor g) {
@@ -26,45 +32,27 @@ final class QuestHud {
         if (mc.player==null || TabletSurfaceRenderer.hidesHud() || mc.gui.screen() instanceof QuestScreen) return;
 
         if (settings.hud && state.ready && !settings.pinned.isEmpty()) {
-            List<Panel> panels=new ArrayList<>();
+            if (cachedRevision!=state.hudRevision
+                || !Objects.equals(cachedLanguage,mc.options.languageCode)
+                || !cachedPins.equals(settings.pinned)) {
+                cachedPanels=buildPanels(mc,settings,state);
+                cachedPins=Set.copyOf(settings.pinned);
+                cachedLanguage=mc.options.languageCode;
+                cachedRevision=state.hudRevision;
+            }
             float scale=hudScale(g.guiWidth(),g.guiHeight());
             int virtualHeight=(int)(g.guiHeight()/scale);
-            // Keep the tracker below ~42% of the display height on GUI Auto.
-            int total=0,maxHeight=Math.max(48,Math.min(virtualHeight-92,(int)(virtualHeight*.42)));
-            for (String id:settings.pinned) {
-                var q=state.quests.get(id);
-                if (q==null) continue;
-                JsonObject progress=state.progress(id), counters=progress.getAsJsonObject("counters");
-                List<ObjectiveLine> objectives=new ArrayList<>();
-                if (q.kind().equals("information")) {
-                    if (!QuestClientState.flag(progress,"completed"))
-                        objectives.add(new ObjectiveLine(QuestPlusClient.tr(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),"",0,0));
-                } else {
-                    for (var objective:q.objectives()) {
-                        if (objectives.size()>=2) break;
-                        long count=counters!=null&&counters.has(objective.id())?counters.get(objective.id()).getAsLong():0;
-                        String base=state.text(objective.text());
-                        if (base.isBlank()) {
-                            String target=objective.target().replace("#","").replace("minecraft:","").replace('_',' ').replace('/',' ');
-                            base=QuestPresentation.objectiveText(objective,mc.options.languageCode,target);
-                        }
-                        String modifier=objective.conditions()==null?"":QuestConditionText.describe(objective.conditions(),qid->{
-                            var other=state.quests.get(qid);
-                            return other==null?QuestPlusClient.tr("unknown_quest").getString():state.text(other.title());
-                        });
-                        objectives.add(new ObjectiveLine(base,modifier,count,QuestPresentation.target(q,objective,progress)));
-                    }
-                }
-                int height=25+objectives.stream().mapToInt(ObjectiveLine::height).sum()+(q.objectives().size()>2?9:0);
-                if (!panels.isEmpty() && total+height+5>maxHeight) break;
-                panels.add(new Panel(q,state.text(q.title()),QuestPresentation.status(q,progress),List.copyOf(objectives),height));
-                total+=height+5;
-                if (panels.size()>=ClientSettings.MAX_PINNED) break;
+            int maxHeight=Math.max(48,Math.min(virtualHeight-92,(int)(virtualHeight*.42)));
+            int total=0,count=0;
+            for (Panel panel:cachedPanels) {
+                if(count>0 && total+panel.height()+5>maxHeight)break;
+                total+=panel.height()+5;
+                count++;
             }
-            if (!panels.isEmpty()) {
+            if(count>0){
                 g.pose().pushMatrix();
                 g.pose().scale(scale);
-                drawPanels(g,mc,panels,total-4,settings.hudPosition,
+                drawPanels(g,mc,cachedPanels,count,total-4,settings.hudPosition,
                     (int)(g.guiWidth()/scale),virtualHeight);
                 g.pose().popMatrix();
             }
@@ -72,32 +60,69 @@ final class QuestHud {
         QuestToast.draw(g);
     }
 
+    private static List<Panel> buildPanels(Minecraft mc,ClientSettings settings,QuestClientState state) {
+        List<Panel> panels=new ArrayList<>();
+        for (String id:settings.pinned) {
+            var q=state.quests.get(id);
+            if (q==null)continue;
+            JsonObject progress=state.progress(id), counters=progress.getAsJsonObject("counters");
+            List<ObjectiveLine> objectives=new ArrayList<>();
+            if (q.kind().equals("information")) {
+                if (!QuestClientState.flag(progress,"completed"))
+                    objectives.add(new ObjectiveLine(QuestPlusClient.tr(q.acknowledgement().equals("manual")
+                        ? "information_review" : "information_read").getString(),"",0,0));
+            } else {
+                for (var objective:q.objectives()) {
+                    if (objectives.size()>=2) break;
+                    long count=counters!=null&&counters.has(objective.id())?counters.get(objective.id()).getAsLong():0;
+                    String base=state.text(objective.text());
+                    if (base.isBlank()) {
+                        String target=objective.target().replace("#","").replace("minecraft:","").replace('_',' ').replace('/',' ');
+                        base=QuestPresentation.objectiveText(objective,mc.options.languageCode,target);
+                    }
+                    String modifier=objective.conditions()==null?"":QuestConditionText.describe(objective.conditions(),qid->{
+                        var other=state.quests.get(qid);
+                        return other==null?QuestPlusClient.tr("unknown_quest").getString():state.text(other.title());
+                    });
+                    objectives.add(new ObjectiveLine(base,modifier,count,QuestPresentation.target(q,objective,progress)));
+                }
+            }
+            int height=25+objectives.stream().mapToInt(ObjectiveLine::height).sum()+(q.objectives().size()>2?9:0);
+            String status=QuestPresentation.status(q,progress);
+            String caption=status.equals("reward_ready")?QuestPlusClient.tr("hud.claim").getString()
+                :status.equals("completed")?QuestPlusClient.tr("hud.completed").getString()
+                :q.progression().equals("once")?"":QuestPlusClient.tr("progression."+q.progression()).getString();
+            var identifier=Identifier.tryParse(q.icon());
+            ItemStack icon=identifier!=null&&BuiltInRegistries.ITEM.containsKey(identifier)
+                ?new ItemStack(BuiltInRegistries.ITEM.getValue(identifier)):new ItemStack(Items.BOOK);
+            panels.add(new Panel(q,state.text(q.title()),status,List.copyOf(objectives),height,icon,caption));
+            if(panels.size()>=ClientSettings.MAX_PINNED)break;
+        }
+        return List.copyOf(panels);
+    }
+
     /** Reduced logical HUD scale at GUI Auto / narrow screens. */
     static float hudScale(int guiWidth,int guiHeight) {
         return (float)Math.clamp(Math.min(guiWidth/640.0,guiHeight/390.0),0.68,1.0);
     }
-    private static void drawPanels(GuiGraphicsExtractor g,Minecraft mc,List<Panel> panels,int height,
+    private static void drawPanels(GuiGraphicsExtractor g,Minecraft mc,List<Panel> panels,int count,int height,
                                    int position,int virtualWidth,int virtualHeight) {
         int w=Math.min(170,virtualWidth-14);
         int x=position%3==0?7:position%3==1?(virtualWidth-w)/2:virtualWidth-w-7;
         int y=position/3==0?28:position/3==1?(virtualHeight-height)/2:virtualHeight-height-43;
         y=Math.max(5,y);
-        for (Panel panel:panels) {
+        for (int i=0;i<count;i++) {
+            Panel panel=panels.get(i);
             boolean reward=panel.status.equals("reward_ready");
             boolean done=panel.status.equals("completed");
             int accent=reward?0xffd9b177:done?0xff8d9d87:0xffa89986;
             g.fill(x+1,y+1,x+w+1,y+panel.height+1,0x22000000);
             g.fill(x,y,x+w,y+panel.height,0x99151718);
             g.fill(x,y,x+2,y+panel.height,accent);
-            var identifier=Identifier.tryParse(panel.quest.icon());
-            ItemStack icon=identifier!=null&&BuiltInRegistries.ITEM.containsKey(identifier)
-                ?new ItemStack(BuiltInRegistries.ITEM.getValue(identifier)):new ItemStack(Items.BOOK);
-            if(!RichAnnotationRenderer.drawIcon(g,panel.quest.icon(),x+5,y+3,16))g.item(icon,x+5,y+3);
+            if(!RichAnnotationRenderer.drawIcon(g,panel.quest.icon(),x+5,y+3,16))g.item(panel.icon,x+5,y+3);
             String title=mc.font.plainSubstrByWidth(panel.name,Math.max(1,w-32));
             g.text(mc.font,title,x+25,y+3,0xfff0eae0,false);
-            String caption=reward?QuestPlusClient.tr("hud.claim").getString()
-                :done?QuestPlusClient.tr("hud.completed").getString()
-                :panel.quest.progression().equals("once")?"":QuestPlusClient.tr("progression."+panel.quest.progression()).getString();
+            String caption=panel.caption;
             if (!caption.isEmpty()) g.text(mc.font,mc.font.plainSubstrByWidth(caption,w-30),x+25,y+13,accent,false);
 
             int row=y+25;
