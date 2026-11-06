@@ -89,10 +89,9 @@ public final class QuestPlusMod implements ModInitializer {
                 String target=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
                 var tags=state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
                 if(runtime.registry().hasCandidate("block_break",target,tags)){
-                    boolean full=runtime.registry().requiresFullContext("block_break",target,tags);
-                    var eventContext=full?context(serverPlayer):Map.<String,Object>of();
-                    if (full && tool != null && tool.position().equals(pos)) eventContext.put("tool",tool.tool());
-                    runtime.event(serverPlayer,new QuestEvent("block_break",target,tags,1,eventContext));
+                    var context=context(serverPlayer);
+                    if (tool != null && tool.position().equals(pos)) context.put("tool",tool.tool());
+                    runtime.event(serverPlayer,new QuestEvent("block_break",target,tags,1,context));
                 }
             }
         });
@@ -106,8 +105,7 @@ public final class QuestPlusMod implements ModInitializer {
                 String target=BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
                 var tags=BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet());
                 if(runtime.registry().hasCandidate("entity_kill",target,tags))
-                    runtime.event(responsible,new QuestEvent("entity_kill",target,tags,1,
-                        runtime.registry().requiresFullContext("entity_kill",target,tags)?context(responsible):Map.of()));
+                    runtime.event(responsible,new QuestEvent("entity_kill",target,tags,1,context(responsible)));
             }
         });
     }
