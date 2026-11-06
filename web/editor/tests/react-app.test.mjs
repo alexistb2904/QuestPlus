@@ -11,7 +11,9 @@ test('React mount uses TypeScript components, not legacy editor.js',()=>{
 });
 test('Quest Studio preserves Minecraft data and annotation editing',()=>{
  const hook=read('../src/hooks/useStudio.ts'),tree=read('../src/components/TreeCanvas.tsx'),rich=read('../src/components/RichEditor.tsx');
- for(const key of ['fileMap','readZip','makeZip','importDocuments','questplus.quest-studio.v1'])assert.ok(hook.includes(key),key);
+ const startup=read('../src/core/startup-session.js');
+ for(const key of ['fileMap','readZip','makeZip','importDocuments','STUDIO_STORAGE_KEY'])assert.ok(hook.includes(key),key);
+ assert.ok(startup.includes('questplus.quest-studio.v1'));
  for(const key of ['gameLayout','onPointerMove','onWheel','onPointerCancel'])assert.ok(tree.includes(key),key);
  assert.ok(rich.includes('toEmbeddedImage'));
 });
