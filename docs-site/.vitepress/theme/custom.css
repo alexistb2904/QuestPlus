@@ -1,62 +1,271 @@
-/* Dark amethyst, stone and oak, inspired by the React Quest Studio workspace. */
+/* Quest Studio documentation. Shared visual language: stone, oak, grass and amethyst. */
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/QuestPlus/fonts/pixelify-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
 :root {
-  --vp-c-brand-1: #cda0f0;
-  --vp-c-brand-2: #b17ad9;
-  --vp-c-brand-3: #8055a6;
-  --vp-c-brand-soft: #704f8c35;
-  --vp-font-family-base: Inter, system-ui, sans-serif;
+  color-scheme: dark;
+  --vp-font-family-base: "Segoe UI", Arial, sans-serif;
+  --vp-font-family-mono: Consolas, "Courier New", monospace;
+  --vp-layout-max-width: 1540px;
+  --vp-nav-height: 62px;
+  --vp-c-bg: #111214;
+  --vp-c-bg-alt: #19191d;
+  --vp-c-bg-elv: #29272c;
+  --vp-c-bg-soft: #242327;
+  --vp-c-gutter: #111214;
+  --vp-c-divider: #4b494f;
+  --vp-c-border: #67616c;
+  --vp-c-text-1: #f1eee9;
+  --vp-c-text-2: #c1b9b1;
+  --vp-c-text-3: #aca39a;
+  --vp-c-brand-1: #d9a9ff;
+  --vp-c-brand-2: #ae73e8;
+  --vp-c-brand-3: #7943a4;
+  --vp-c-brand-soft: #7943a439;
+  --vp-code-block-bg: #151418;
+  --vp-code-copy-code-bg: #343036;
+  --vp-home-hero-name-color: #f2ddad;
+  --vp-home-hero-name-background: none;
+  --qp-stone: linear-gradient(#232226e8,#19191def),url("/QuestPlus/textures/stone.png");
+  --qp-oak: linear-gradient(#221912bf,#211b17c7),url("/QuestPlus/textures/dark-oak.png");
+  --qp-gold: #e9bc73;
+  --qp-violet: #ae73e8;
+  --qp-grass: #568833;
 }
-.dark {
-  --vp-c-bg: #201b26;
-  --vp-c-bg-alt: #28212e;
-  --vp-c-bg-elv: #35293c;
-  --vp-c-bg-soft: #302738;
-  --vp-c-divider: #64516c;
-  --vp-c-gutter: #18141e;
-  --vp-c-text-1: #f1e5f6;
-  --vp-c-text-2: #d1c0d8;
-  --vp-c-text-3: #a996b1;
-  --vp-code-block-bg: #18151e;
+html, body, #app { background: #111214; color: #f1eee9; }
+body { background-image: radial-gradient(ellipse at 50% 0,#38274636,transparent 60%); }
+::selection { background:#765294; color:#fff; }
+* { scrollbar-color:#69616c #1c1a1e; scrollbar-width:thin; }
+a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline:2px solid #dec2ff; outline-offset:3px; }
+
+/* Header: the same stone workspace bar and oak title plaque as Quest Studio. */
+.VPNav, .VPNavBar, .VPNavBar .content, .VPNavBar .content-body {
+  background-color: #28272b !important;
+  background-image: var(--qp-stone) !important;
+  background-size: auto,64px !important;
 }
-.VPNav, .VPNavBar {
-  background: #261e2ff2 !important;
-  border-bottom-color: #685472 !important;
+.VPNavBar { border-bottom:2px solid #655850 !important; box-shadow:0 4px 10px #0008,inset 0 1px #ffffff17; }
+.VPNavBar .divider, .VPNavBar .divider-line { background:#62544b !important; }
+.VPNavBarTitle .title {
+  background-image:linear-gradient(#52331bae,#392414c9),url("/QuestPlus/textures/dark-oak.png");
+  background-size:auto,128px;
+  border:2px solid #946234;
+  border-radius:4px;
+  box-shadow:inset 0 1px #dca76b66,0 3px 7px #0009;
+  padding:5px 15px !important;
+  color:#f6e5be !important;
+  font:700 22px/1.3 "Pixelify Sans", sans-serif;
+  letter-spacing:.02em;
+  text-shadow:0 2px 2px #000;
 }
-.VPSidebar { background: linear-gradient(150deg, #2d2333, #241f2a) !important; }
-.VPSidebarItem.level-0>.item .text { color: #ddbded; letter-spacing: .05em; }
-.VPNavBarTitle .title, .VPHomeHero .name {
-  letter-spacing: .08em;
-  text-shadow: 2px 2px #1a111d;
+.VPNavBarTitle .logo { width:30px; height:30px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 2px 1px #000); }
+.VPNavBarTitle.has-sidebar .title { border-bottom:none !important; }
+.VPNavBarMenuLink, .VPNavBarMenuGroup .text {
+  color:#ddd1c3 !important; font-size:12px; font-weight:700;
+  text-shadow:0 1px 1px #0008;
 }
-.VPHomeHero {
-  padding-top: 30px;
-  background:
-    radial-gradient(ellipse at 80% 20%, #7b4d9633, transparent 45%),
-    repeating-linear-gradient(90deg, transparent 0 49px, #a78bba08 50px 51px);
+.VPNavBarMenuLink:hover, .VPNavBarMenuLink.active, .VPNavBarMenuGroup:hover .text { color:#e3bbff !important; }
+.VPNavBarMenuLink.active { box-shadow:inset 0 -3px #ae73e8; }
+.VPNavBarSearch .DocSearch-Button, .VPNavBarSearch .button, .VPNavBarSearch button {
+  border:1px solid #6b616c !important;
+  background:linear-gradient(#36343b,#242329) !important;
+  box-shadow:inset 0 1px #ffffff1c,0 2px 3px #0006;
+  border-radius:4px !important;
 }
-.VPHomeHero .text { color: #f2d3a3 !important; }
-.VPHomeHero .tagline { max-width: 640px; }
+.VPNavScreen { background-image:var(--qp-stone); background-size:auto,64px; }
+
+/* Sidebar resembles the Studio category tree on dark oak. */
+.VPSidebar {
+  background-color:#292018 !important;
+  background-image:var(--qp-oak) !important;
+  background-size:auto,160px !important;
+  border-right:1px solid #68533b;
+  box-shadow:inset -3px 0 #0004;
+}
+.VPSidebar .curtain { background:transparent !important; }
+.VPSidebarItem.level-0 { padding-top:10px; margin-bottom:14px; }
+.VPSidebarItem.level-0 > .item {
+  background-image:var(--qp-stone);
+  background-size:auto,64px;
+  border:1px solid #655b59;
+  border-top:4px solid var(--qp-grass);
+  border-radius:3px;
+  padding:5px 11px 7px;
+  box-shadow:0 2px 4px #0008,inset 0 1px #ffffff16;
+}
+.VPSidebarItem.level-0 > .item .text {
+  font:700 17px/1.25 "Pixelify Sans",sans-serif;
+  color:#f0d3a0;
+  letter-spacing:.02em;
+  text-shadow:0 2px #000;
+}
+.VPSidebarItem.level-1 .item {
+  min-height:33px;
+  padding:3px 8px;
+  border:1px solid transparent;
+  border-radius:3px;
+  margin:1px 4px;
+}
+.VPSidebarItem.level-1 .text { font-size:12px; color:#d5c6b7; }
+.VPSidebarItem.level-1 .item:hover { background:#4a3830a9; border-color:#6c5542; }
+.VPSidebarItem.level-1.is-active .item, .VPSidebarItem.level-1 .item:has(.is-active) {
+  background:linear-gradient(#684191,#482a6a);
+  border-color:#9970ba;
+  box-shadow:inset 0 1px #dcc3f229;
+}
+.VPSidebarItem.level-1.is-active .text, .VPSidebarItem .is-active .text { color:#fff !important; }
+
+/* Each guide is a textured stone panel, not a generic white documentation page. */
+.VPContent {
+  background-color:#141418;
+  background-image:linear-gradient(#71708316 1px,transparent 1px),linear-gradient(90deg,#71708316 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.VPDoc .content-container { max-width:920px !important; }
+.VPDoc .content .vp-doc {
+  padding:27px 30px 33px;
+  background-color:#242327;
+  background-image:var(--qp-stone);
+  background-size:auto,64px;
+  border:1px solid #645d68;
+  border-top:4px solid var(--qp-grass);
+  border-radius:4px;
+  box-shadow:inset 1px 1px #ffffff1c,0 5px 15px #0008;
+}
+.vp-doc h1, .VPHomeHero .name, .VPHomeHero .text {
+  color:#f2dfb0;
+  font-family:"Pixelify Sans",sans-serif;
+  font-weight:700;
+  text-shadow:0 2px 2px #000a;
+}
+.vp-doc h1 { font-size:33px; line-height:1.2; letter-spacing:.01em; }
+.vp-doc h2 {
+  margin-top:27px;
+  border-bottom:1px solid #66546c;
+  font:700 24px/1.35 "Pixelify Sans",sans-serif;
+  color:#e6c5ff;
+}
+.vp-doc h3 { font:700 18px/1.4 "Pixelify Sans",sans-serif; color:#edc888; }
+.vp-doc p, .vp-doc li, .vp-doc td { color:#ded6db; line-height:1.65; }
+.vp-doc a { color:#dab0fa; text-underline-offset:3px; }
+.vp-doc a:hover { color:#f2d3ff; }
+.vp-doc code:not(pre code) {
+  background:#44334e;
+  border:1px solid #70517c;
+  color:#f8d7aa;
+  border-radius:3px;
+  padding:2px 5px;
+}
+.vp-doc div[class*="language-"] {
+  background:#151418;
+  border:1px solid #65596c;
+  border-radius:3px;
+  box-shadow:inset 0 1px 3px #0009,0 2px 5px #0005;
+}
+.vp-doc table { display:block; width:max-content; max-width:100%; overflow-x:auto; border:1px solid #695c67; border-radius:3px; }
+.vp-doc th { background:#48334e; color:#f3ddff; font-weight:700; }
+.vp-doc td { background:#242128; }
+.vp-doc tr:nth-child(even) td { background:#302936; }
+.vp-doc tr:hover td { background:#3c3145; }
+.vp-doc .custom-block {
+  background:#302739;
+  border:1px solid #725d7d;
+  border-left:4px solid #af83d3;
+  border-radius:3px;
+  padding:13px 17px;
+}
+.vp-doc .custom-block.tip { border-left-color:#77af51; background:#253322; }
+.vp-doc .custom-block.warning { border-left-color:#e9bc73; background:#382d21; }
+.vp-doc .custom-block .custom-block-title { color:#f0d6a8; font-weight:700; }
+.vp-doc blockquote { border-left-color:#ae73e8; background:#2e2635; padding:9px 15px; }
+.VPDocAsideOutline .outline-title { color:#e9bc73; font:700 16px "Pixelify Sans",sans-serif; }
+.VPDocAsideOutline a:hover, .VPDocAsideOutline .active { color:#debaff !important; }
+.VPDocFooter .pager-link {
+  border:1px solid #73616f;
+  background:var(--qp-stone);
+  background-size:auto,64px;
+  border-radius:3px;
+  box-shadow:inset 0 1px #ffffff16,0 3px 5px #0006;
+}
+.VPDocFooter .pager-link:hover { border-color:#ae73e8; }
+
+/* Home uses the Studio's large wooden plaque, beveled controls and quest-node tiles. */
+.VPHome { background:transparent; }
+.VPHomeHero { position:relative; padding-top:57px !important; padding-bottom:25px !important; }
+.VPHomeHero::before {
+  content:"";position:absolute;left:50%;top:8px;transform:translateX(-50%);
+  width:min(1120px,92vw);height:100%;pointer-events:none;
+  background:radial-gradient(ellipse at 60% 45%,#71468e41,transparent 66%);
+}
+.VPHomeHero .name { font-size:clamp(42px,6vw,68px);letter-spacing:.02em; color:#f1d9a0; }
+.VPHomeHero .text { color:#c99aeb !important; font-size:clamp(27px,4vw,43px); }
+.VPHomeHero .tagline { color:#d6ccd8; max-width:620px; font-size:16px; }
+.VPHomeHero .image-src { image-rendering:pixelated; filter:drop-shadow(0 9px 4px #0008); }
+.VPHomeHero .image-container { transform:scale(.92); }
+.VPButton {
+  border-radius:4px !important;
+  box-shadow:inset 0 1px 1px #ffffff25,0 3px 5px #000a;
+  text-shadow:0 1px 1px #0009;
+  font-weight:700 !important;
+}
 .VPButton.brand {
-  border: 1px solid #e7beff !important;
-  background: linear-gradient(180deg, #8a54ac, #593978) !important;
-  box-shadow: inset 0 2px #ffffff26, 0 4px #0e091354;
+  border:2px solid #73b548 !important;
+  color:#fff !important;
+  background:linear-gradient(#3d8d20,#21600e) !important;
 }
-.VPButton.alt { border: 1px solid #736077 !important; }
+.VPButton.brand:hover { border-color:#a0dc72 !important; background:linear-gradient(#4caa2d,#286d11) !important; }
+.VPButton.alt {
+  color:#f2e5fb !important;
+  border:2px solid #b48acb !important;
+  background:linear-gradient(#7943a4,#4a276b) !important;
+}
+.VPButton.alt:hover { border-color:#d9b4ea !important; }
+.VPFeatures { padding-top:16px !important; }
 .VPFeature {
-  background: linear-gradient(155deg, #372c3f, #27202d) !important;
-  border: 1px solid #705b7a !important;
-  border-radius: 5px !important;
-  box-shadow: inset 0 2px #ffffff0b, 0 6px 18px #0002;
+  background-color:#28272b !important;
+  background-image:var(--qp-stone) !important;
+  background-size:auto,64px !important;
+  border:2px solid #726779 !important;
+  border-top:4px solid var(--qp-grass) !important;
+  border-radius:4px !important;
+  box-shadow:inset 1px 1px 1px #e1dce63b,inset -2px -2px 1px #0b0c10,0 5px 8px #0009;
 }
-.vp-doc h2 { border-bottom-color: #61496e; color: #eac8ff; }
-.vp-doc h3 { color: #f0d3a9; }
-.vp-doc :not(pre)>code { background: #46334d; color: #f9cfb1; }
-.vp-doc table { display: block; overflow-x: auto; }
-.vp-doc th { background: #46394b; }
-.vp-doc tr:nth-child(2n) { background: #2b2332; }
-.vp-doc blockquote { border-color: #bc86d9; background: #392c42; padding: 12px 15px; }
-.vp-doc a { text-decoration-color: #b58fc8; }
-.VPDoc .content-container { max-width: 890px !important; }
+.VPFeature:hover { border-color:#b576f0 !important; transform:translateY(-2px); }
+.VPFeature .title { color:#f0d7a9; font:700 22px "Pixelify Sans",sans-serif; }
+.VPFeature .details { color:#d3c8d7; font-size:13px; }
+.VPHomeContent .vp-doc {
+  max-width:960px;
+  margin:25px auto 45px;
+  padding:18px 24px;
+  background-image:var(--qp-oak);
+  background-size:auto,160px;
+  border:1px solid #725a40;
+  border-top:4px solid var(--qp-grass);
+  border-radius:4px;
+  box-shadow:0 5px 15px #0006;
+}
+.VPHomeContent .vp-doc h2 { color:#f1d9a0; margin-top:0; }
+.VPFooter {
+  background-image:var(--qp-oak) !important;
+  background-size:auto,160px !important;
+  border-top:3px solid #568833 !important;
+}
+.VPFooter .message { color:#debd88 !important; font:700 14px "Pixelify Sans",sans-serif; letter-spacing:.05em; }
+@media (max-width:960px) {
+  .VPDoc .content .vp-doc { padding:20px 18px; }
+  .VPNavBarTitle .title { font-size:18px; padding:3px 9px !important; }
+  .VPHomeHero { padding-top:35px !important; }
+}
+@media (max-width:640px) {
+  .VPNavBarTitle .title { border-width:1px; font-size:17px; }
+  .VPHomeHero .image-container { transform:scale(.72); }
+  .VPHomeContent .vp-doc { margin-inline:12px; padding:15px 16px; }
+  .vp-doc h1 { font-size:28px; }
+  .vp-doc h2 { font-size:22px; }
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; }
+  .VPFeature { transition:none !important; }
 }
