@@ -30,3 +30,7 @@ web/api/.env.*
 docs-site/node_modules/
 docs-site/dist/
 docs-site/.vitepress/cache/
+
+# Local JVM performance traces (may include game/world identifiers)
+profiles/
+*.jfr
