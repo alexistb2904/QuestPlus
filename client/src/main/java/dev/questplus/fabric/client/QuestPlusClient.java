@@ -25,6 +25,9 @@ public final class QuestPlusClient implements ClientModInitializer {
     private static String[] fragments;
     private static int bytes, received;
     private static long started, lastSync;
+    // Cap allocations from fragmented state packets without truncating normal large packs.
+    private static final int MAX_TRANSFER_PARTS=8192;
+    private static final int MAX_TRANSFER_CHARS=24*1024*1024;
     public static Component tr(String key,Object... arguments) { return Component.translatable("questplus.client."+key,arguments); }
     public static void action(String action,String argument) {
         if (ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE)) ClientPlayNetworking.send(new QuestNetwork.Action(action,argument));
@@ -57,16 +60,25 @@ public final class QuestPlusClient implements ClientModInitializer {
     private static void clear() { NEW_UNLOCKS.clear(); STATE.clear(); fragments=null; transfer=-1; QuestToast.clear(); lastSync=0; }
     private static void receive(QuestNetwork.State packet) {
         try {
-            if (packet.total()<1 || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
+            if (packet.total()<1 || packet.total()>MAX_TRANSFER_PARTS
+                || packet.index()<0 || packet.index()>=packet.total()) throw new IllegalArgumentException("fragment bounds");
             if (transfer!=packet.transfer()) { transfer=packet.transfer(); fragments=new String[packet.total()]; received=bytes=0; started=System.currentTimeMillis(); }
             if (fragments==null || fragments.length!=packet.total()) throw new IllegalArgumentException("fragment count");
             if (fragments[packet.index()]!=null) return;
+            if (bytes>MAX_TRANSFER_CHARS-packet.data().length()) throw new IllegalArgumentException("transfer too large");
             bytes+=packet.data().length();
             fragments[packet.index()]=packet.data(); received++;
             if (received!=fragments.length) return;
             var message=dev.questplus.core.QuestRegistry.parseStrict(new java.io.StringReader(String.join("",fragments))).getAsJsonObject(); fragments=null;
             boolean initial=!STATE.ready;
-            Map<String,JsonObject> previous=Map.copyOf(STATE.progress);
+            // Only compare entries included in this transfer. Copying the entire
+            // quest state map on every small delta is O(all authored quests).
+            Map<String,JsonObject> previous=new HashMap<>();
+            if(!initial && message.has("progress"))
+                for(var entry:message.getAsJsonObject("progress").entrySet()) {
+                    var old=STATE.progress.get(entry.getKey());
+                    if(old!=null)previous.put(entry.getKey(),old);
+                }
             if (!STATE.apply(message)) { sync(); return; }
             // Completed quests leave the HUD immediately, even with notifications off.
             boolean pinChanged=settings.pinned.removeIf(id -> QuestClientState.flag(STATE.progress(id),"completed"));
