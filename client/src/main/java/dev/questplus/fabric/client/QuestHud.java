@@ -112,13 +112,13 @@ final class QuestHud {
     static float hudScale(int guiWidth,int guiHeight) {
         return (float)Math.clamp(Math.min(guiWidth/640.0,guiHeight/390.0),0.68,1.0);
     }
-    private static void drawPanels(GuiGraphicsExtractor g,Minecraft mc,List<Panel> panels,int count,int height,
+    private static void drawPanels(GuiGraphicsExtractor g,Minecraft mc,List<Panel> panels,int panelCount,int height,
                                    int position,int virtualWidth,int virtualHeight) {
         int w=Math.min(170,virtualWidth-14);
         int x=position%3==0?7:position%3==1?(virtualWidth-w)/2:virtualWidth-w-7;
         int y=position/3==0?28:position/3==1?(virtualHeight-height)/2:virtualHeight-height-43;
         y=Math.max(5,y);
-        for (int i=0;i<count;i++) {
+        for (int i=0;i<panelCount;i++) {
             Panel panel=panels.get(i);
             boolean reward=panel.status.equals("reward_ready");
             boolean done=panel.status.equals("completed");
