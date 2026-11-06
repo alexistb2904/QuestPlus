@@ -269,3 +269,88 @@ a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-vis
 @media (prefers-reduced-motion: reduce) {
   .VPFeature { transition:none !important; }
 }
+
+/* Mobile usability: keep the Quest Studio plaque away from screen edges. */
+.VPNavBarTitle { min-width: 0; display: flex; align-items: center; }
+.VPNavBarTitle .title {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  height: auto !important;
+  min-height: 44px;
+  max-height: 50px;
+  max-width: 100%;
+  margin-block: 7px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.VPNavBarTitle .logo { display: block; flex: none; width: 30px; height: 30px; margin: 0; }
+.VPNavBarTitle .title span { min-width: 0; }
+.VPNavBarTitle .title:focus-visible { outline-offset: 2px; }
+
+/* Code panels use the real dark Shiki palette and scroll inside the stone card. */
+.VPDoc .content, .VPDoc .content-container,
+.VPDoc .content .vp-doc, .vp-doc .custom-block { min-width: 0; max-width: 100%; }
+.vp-doc div[class*="language-"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 18px 0 !important;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #151418 !important;
+}
+.vp-doc div[class*="language-"] pre {
+  box-sizing: border-box;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #84619f #201c25;
+  color: #e8e1ed;
+}
+.vp-doc div[class*="language-"] code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+  white-space: pre;
+  overflow-wrap: normal;
+  color: #e8e1ed;
+}
+.vp-doc div[class*="language-"] .lang { color: #c8b6d0 !important; }
+.vp-doc div[class*="language-"] .copy { background-color: #343036 !important; }
+.vp-doc div[class*="language-"] code span { background-color: transparent; }
+.vp-doc :where(p, li, td) { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  :root { --vp-nav-height: 68px; }
+  .VPNavBar { min-height: var(--vp-nav-height); }
+  .VPNavBarTitle .title {
+    height: 46px !important;
+    min-height: 46px;
+    margin-block: 10px;
+    padding: 5px 9px !important;
+    border-width: 2px !important;
+    font-size: clamp(13px, 3.8vw, 17px) !important;
+    line-height: 1.1;
+    gap: 7px;
+    letter-spacing: 0;
+  }
+  .VPNavBarTitle .logo { width: 26px; height: 26px; }
+  .VPNavBarTitle { max-width: calc(100vw - 151px); }
+  .VPDoc .content .vp-doc { padding: 18px 14px 24px; }
+  .VPDoc .container { padding-inline: 12px !important; }
+  .vp-doc div[class*="language-"] {
+    border-radius: 4px !important;
+    margin: 15px 0 !important;
+    box-shadow: inset 0 1px 3px #0009;
+  }
+  .vp-doc div[class*="language-"] pre { font-size: 12px; line-height: 1.6; }
+  .vp-doc div[class*="language-"] code { font-size: 12px; }
+  .vp-doc h2 { overflow-wrap: break-word; }
+  .vp-doc table { width: 100%; max-width: 100%; }
+  .VPNavScreenMenuLink .link { min-height: 44px; }
+}

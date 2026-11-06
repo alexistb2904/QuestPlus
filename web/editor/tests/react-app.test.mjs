@@ -72,3 +72,33 @@ test('new English Markdown guide obeys punctuation rules',()=>{
  };
  traverse(fsRoot);
 });
+
+test('docs cover every built-in objective and reward type',()=>{
+ const source=read('../src/core/project.js');
+ const events=source.split('export const EVENTS = [')[1]?.split('];')[0];
+ assert.ok(events,'objective event registry is present');
+ const objectives=read('../../../docs-site/content/guide/objectives.md');
+ const types=[...events.matchAll(/\['([^']+)','[^']+'\]/g)].map(match=>match[1]);
+ assert.ok(types.length>=35,'expected all current built-in objective types');
+ for(const type of types)assert.ok(objectives.includes('`'+type+'`'),'Undocumented objective: '+type);
+ const rewards=read('../../../docs-site/content/guide/rewards.md');
+ const editor=read('../src/components/RewardEditor.tsx');
+ const names=editor.split('const types:')[1]?.split('const make=')[0];
+ assert.ok(names,'built-in rewards and pools are present');
+ for(const [,type] of names.matchAll(/\['([^']+)','[^']+'\]/g))
+   assert.ok(rewards.includes('`'+type+'`'),'Undocumented reward: '+type);
+ for(const type of ['questplus:command','questplus:table'])
+   assert.ok(rewards.includes('`'+type+'`'),'Undocumented special reward: '+type);
+});
+test('docs are dark, mobile-safe and have their own deployable logo',()=>{
+ const config=read('../../../docs-site/.vitepress/config.mts');
+ const css=read('../../../docs-site/.vitepress/theme/custom.css');
+ assert.match(config,/appearance: 'force-dark'/);
+ assert.match(config,/theme: 'github-dark'/);
+ assert.ok(config.includes("logo: '/questplus-mark.svg'"));
+ assert.match(config,/text: 'Open editor'/);
+ assert.doesNotMatch(config,/Open editor ↗/);
+ assert.ok(css.includes('overflow-x: auto !important'));
+ assert.ok(css.includes('.VPNavBarTitle .title'));
+ assert.ok(fs.existsSync(new URL('../../../docs-site/content/public/questplus-mark.svg',import.meta.url)));
+});

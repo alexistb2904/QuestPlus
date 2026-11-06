@@ -8,18 +8,19 @@ export default defineConfig({
   srcDir: 'content',
   outDir: 'dist',
   cleanUrls: false,
-  appearance: false,
+  appearance: 'force-dark',
+  markdown: { theme: 'github-dark' },
   lastUpdated: true,
   head: [
     ['meta', { name: 'theme-color', content: '#18181b' }],
-    ['link', { rel: 'icon', href: '/QuestPlus/questplus-logo.png' }]
+    ['link', { rel: 'icon', href: '/QuestPlus/docs/questplus-mark.svg' }]
   ],
   locales: {
     root: { label: 'English', lang: 'en-US' }
     // Additional language roots can be added as translated pages are written.
   },
   themeConfig: {
-    logo: '/QuestPlus/questplus-logo.png',
+    logo: '/questplus-mark.svg',
     siteTitle: 'QuestPlus Docs',
     search: { provider: 'local' },
     nav: [
@@ -27,7 +28,7 @@ export default defineConfig({
       { text: 'Quest Studio', link: '/guide/studio' },
       { text: 'Integrations', link: '/reference/java-api' },
       { text: 'Commands', link: '/reference/commands' },
-      { text: 'Open editor ↗', link: 'https://alexistb2904.github.io/QuestPlus/', target: '_blank' }
+      { text: 'Open editor', link: 'https://alexistb2904.github.io/QuestPlus/', target: '_blank' }
     ],
     sidebar: [
       {
