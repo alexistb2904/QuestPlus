@@ -55,6 +55,9 @@ public final class QuestRuntime implements AutoCloseable {
     private QuestEngine engine;
     private int autosaveTicks;
     private int ticks;
+    /** Bound automatic reward checks per tick instead of traversing every connected player at once. */
+    private int autoClaimCursor;
+    private static final int AUTO_CLAIM_PLAYERS_PER_TICK = 16;
     private boolean closing;
 
     public QuestRuntime(MinecraftServer server) throws IOException {
@@ -621,17 +624,29 @@ public final class QuestRuntime implements AutoCloseable {
         int count=Math.min(512,deferred.size());
         for (int i=0;i<count;i++) { var item=deferred.removeFirst(); event(item.player(),item.event()); }
         if (++ticks % autosaveTicks == 0) flushDirty();
-        if(ticks%20==0)for(var actor:server.getPlayerList().getPlayers()) {
-            UUID id=actor.getUUID();if(busy.contains(id)||claiming.contains(id)||blocked.contains(id))continue;
-            try {
-                var personal=player(id);
-                var next=personal.entitlements.entrySet().stream().filter(e->!personal.claims.containsKey(e.getKey())&&!e.getValue().rewards().isEmpty()
-                    &&e.getValue().rewards().stream().allMatch(r->!r.policy().autoClaim().equals("disabled")&&!r.type().equals("questplus:choice"))).sorted(Map.Entry.comparingByKey()).findFirst();
-                if(next.isPresent()) {
-                    var entry=next.get();boolean toast=entry.getValue().rewards().stream().anyMatch(r->r.policy().autoClaim().equals("enabled"));
-                    claim(actor,entry.getValue().questId(),entry.getKey(),toast?null:()->{});
-                }
-            }catch(IOException|IllegalArgumentException|IllegalStateException unavailable) { /* Retry after inventory space or the current transaction changes. */ }
+        // Keep the tick-time budget independent of the number of online players.
+        // Failed auto-claims are retried on the next round (including when inventory space becomes available).
+        var online=server.getPlayerList().getPlayers();
+        if (!online.isEmpty()) {
+            int count=Math.min(AUTO_CLAIM_PLAYERS_PER_TICK,online.size());
+            for (int i=0;i<count;i++) {
+                var actor=online.get(Math.floorMod(autoClaimCursor++,online.size()));
+                UUID id=actor.getUUID();
+                if(busy.contains(id)||claiming.contains(id)||blocked.contains(id))continue;
+                try {
+                    var personal=player(id);
+                    Map.Entry<String,PlayerProgress.RewardGrant> next=null;
+                    for(var entry:personal.entitlements.entrySet()) {
+                        if(personal.claims.containsKey(entry.getKey())||entry.getValue().rewards().isEmpty()
+                            ||entry.getValue().rewards().stream().anyMatch(r->r.policy().autoClaim().equals("disabled")||r.type().equals("questplus:choice")))continue;
+                        if(next==null||entry.getKey().compareTo(next.getKey())<0)next=entry;
+                    }
+                    if(next!=null){
+                        boolean toast=next.getValue().rewards().stream().anyMatch(r->r.policy().autoClaim().equals("enabled"));
+                        claim(actor,next.getValue().questId(),next.getKey(),toast?null:()->{});
+                    }
+                }catch(IOException|IllegalArgumentException|IllegalStateException unavailable) { /* Retry after inventory space or the current transaction changes. */ }
+            }
         }
     }
     private void flushDirty() {
