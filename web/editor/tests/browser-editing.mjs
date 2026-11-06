@@ -5,7 +5,7 @@ async page => {
  const source='questplus:equipment/set_leather',target='questplus:equipment/set_copper';
  const node=id=>page.locator('[data-node-id="'+id+'"]');
  const drag=async(from,to)=>{const a=await node(from).locator('.node-connector').boundingBox(),b=await node(to).locator('.node-select').boundingBox();await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});assert(await page.locator('.connection-preview').count()===1,'live cable preview');await page.mouse.up();};
- await page.setViewportSize({width:1440,height:1000});await page.reload();await page.locator('#ui-language').selectOption('en');await page.locator('#preview-language').selectOption('en_us');
+ await page.setViewportSize({width:1440,height:1000});await page.reload();if(await page.locator('.startup-dialog').isVisible())await page.locator('.startup-dialog .startup-choice').nth(1).click();await page.locator('#ui-language').selectOption('en');await page.locator('#preview-language').selectOption('en_us');
  await choose('Master of Leather');await page.getByRole('button',{name:'Fit',exact:true}).click();
  const baseline=(await save()).project;
  assert(await page.locator('.minimap').count()===0,'minimap removed');

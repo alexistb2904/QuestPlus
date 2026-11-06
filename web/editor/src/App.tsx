@@ -25,6 +25,7 @@ import {
 	SlidersHorizontal,
 	GitBranch,
 	Square,
+	BookOpen,
 } from "lucide-react";
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
@@ -59,6 +60,7 @@ export default function App() {
 		setUiLocale(l);
 		return l;
 	});
+	const [startupStep, setStartupStep] = useState<"resume" | "create" | null>(() => studio.hasPreviousProject ? "resume" : null);
 	const [translationRequest, setTranslationRequest] = useState(0);
 	const [picker, setPicker] = useState<string | null>(null),
 		[jsonOpen, setJsonOpen] = useState(false),
@@ -191,6 +193,7 @@ export default function App() {
 				</div>
 				<div className="landscape-banner" role="img" aria-label={tUI("Minecraft landscape")} />
 				<div className="top-actions">
+					<a className="studio-docs-link" href="https://alexistb2904.github.io/QuestPlus/docs/" target="_blank" rel="noopener noreferrer" title={tUI("Documentation")} aria-label={tUI("Documentation")}><BookOpen size={16} aria-hidden="true" /><span>{tUI("Documentation")}</span></a>
 					<label className="language-control">
 						<Globe size={15} />
 						<span className="sr-only">Interface</span>
@@ -504,6 +507,54 @@ export default function App() {
 					{tUI("Export ZIP")}
 				</button>
 			</footer>
+			{startupStep && (
+				<Dialog
+					className="startup-dialog"
+					title={tUI(startupStep === "resume" ? "Welcome to Quest Studio" : "Create a project")}
+					dismissible={false}
+					onClose={() => {}}>
+					<div className="startup-body">
+						<p>{tUI(startupStep === "resume"
+							? "Choose how to start. Your last browser draft is still available."
+							: "Choose what your new project should contain.")}</p>
+						<div className="startup-choices">
+							{startupStep === "resume" ? (
+							<>
+								<button className="startup-choice" onClick={() => setStartupStep("create")}>
+									<Plus size={22} aria-hidden="true" />
+									<span><strong>{tUI("Create a new project")}</strong><small>{tUI("Start from scratch or use the bundled examples.")}</small></span>
+									<ChevronRight size={18} aria-hidden="true" />
+								</button>
+								<button className="startup-choice" onClick={() => setStartupStep(null)}>
+									<FolderOpen size={22} aria-hidden="true" />
+									<span><strong>{tUI("Resume current project")}</strong><small>{tUI("Open the last project saved in this browser.")}</small></span>
+									<ChevronRight size={18} aria-hidden="true" />
+								</button>
+							</>
+						) : (
+							<>
+								<button className="startup-choice" onClick={() => { studio.startFresh(false); setStartupStep(null); }}>
+									<Square size={22} aria-hidden="true" />
+									<span><strong>{tUI("Empty project")}</strong><small>{tUI("No categories or quests. Build your own pack.")}</small></span>
+									<ChevronRight size={18} aria-hidden="true" />
+								</button>
+								<button className="startup-choice" onClick={() => { studio.startFresh(true); setStartupStep(null); }}>
+									<Package size={22} aria-hidden="true" />
+									<span><strong>{tUI("Project with examples")}</strong><small>{tUI("Use the built-in Quest Plus catalogue.")}</small></span>
+									<ChevronRight size={18} aria-hidden="true" />
+								</button>
+							</>
+						)}
+						</div>
+						{startupStep === "create" && (
+							<div className="startup-footer">
+								<span>{tUI("Creating a project replaces the current browser draft. Export a ZIP first if you need a backup.")}</span>
+								<button className="button secondary" onClick={() => setStartupStep("resume")}>{tUI("Back")}</button>
+							</div>
+						)}
+					</div>
+				</Dialog>
+			)}
 			{tablesOpen&&<RewardTableLibrary project={studio.state.project} language={language} onChange={tables=>studio.mutate(s=>{s.project.rewardTables=tables})} onClose={()=>setTablesOpen(false)}/>}
 			{templatesOpen&&<TemplateLibrary projectTemplates={studio.state.project.questTemplates} onSaveProject={studio.setProjectTemplates} onSaveSelected={selected?()=>doAction('save-as-template'):undefined} onClose={()=>setTemplatesOpen(false)}/>}
 			{bulkOpen&&<BulkEditor project={project} onClose={()=>setBulkOpen(false)} onApply={(result,count)=>{

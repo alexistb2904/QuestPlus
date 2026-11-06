@@ -25,3 +25,8 @@ web/api/.env.*
 
 # World owner secrets (do not commit local server credentials)
 **/questplus-hub.json
+
+# Static Markdown documentation
+docs-site/node_modules/
+docs-site/dist/
+docs-site/.vitepress/cache/

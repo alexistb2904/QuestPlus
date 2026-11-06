@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import {readStoredStudioSession, STUDIO_STORAGE_KEY} from "../core/startup-session.js";
 import {
 	demoProject,
 	emptyProject,
@@ -30,7 +31,7 @@ import {pruneLinkRoutes,isCategoryLink} from '../core/diagram-geometry.js';
 import type { Dispatch, SetStateAction } from "react";
 import type { Project, Selection, Camera, Quest, Category } from "../types";
 export type Session = { project: Project; categoryId: string | null; selection: Selection | null; camera: Camera; language: string };
-const KEY = "questplus.quest-studio.v1";
+const KEY = STUDIO_STORAGE_KEY;
 const initial = (): Session => {
 	const p = demoProject() as Project;
 	const fallback = {
@@ -40,15 +41,14 @@ const initial = (): Session => {
 		camera: { x: 0, y: 30, zoom: 1 },
 		language: "en_us",
 	};
-	try {
-		const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-		if (saved?.project?.categories && saved?.project?.quests) return { ...fallback, ...saved };
-	} catch {}
+	const saved = readStoredStudioSession();
+	if (saved) return { ...fallback, ...saved };
 	return fallback;
 };
 export { selectedOwner as owner } from "../core/project.js";
 export function useStudio() {
-	const [state, commitState] = useState<Session>(initial),
+	const [hasPreviousProject] = useState(() => Boolean(readStoredStudioSession())),
+		[state, commitState] = useState<Session>(initial),
 		[notice, setNotice] = useState("");
 	const [pendingImport, setPendingImport] = useState<{report:ReturnType<typeof inspectFtbPack>;documents:{name:string;content:string}[];files:File[]}|null>(null);
 	const latest = useRef(state);
@@ -468,6 +468,20 @@ export function useStudio() {
 			});
 		});
 	}
+	function startFresh(withExamples: boolean) {
+		const project = (withExamples ? demoProject() : emptyProject()) as Project;
+		const first = orderedCategories(project.categories)[0]?.id || null;
+		history.current = [];
+		future.current = [];
+		last.current = { field: "", time: 0 };
+		setState({
+			project,
+			categoryId: first,
+			selection: first ? { type: "category", id: first } : null,
+			camera: { x: 0, y: 0, zoom: 1 },
+			language: "en_us",
+		});
+	}
 	function reset(defaults: boolean) {
 		if (!confirm(tUI("Replace current project? Export first if needed."))) return;
 		mutate((s) => {
@@ -609,6 +623,8 @@ export function useStudio() {
 		}
 	}
 	return {
+		hasPreviousProject,
+		startFresh,
 		state,
 		setState,
 		notice,

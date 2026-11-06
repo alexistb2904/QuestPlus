@@ -32,6 +32,8 @@ but the live server workflow requires the integrated web backend.
 
 ## Features and storage
 
+If a previous browser draft exists, a startup dialog lets the author resume it or create a fresh empty or example-based project. Choosing a new project replaces the browser draft, so export a ZIP first if the existing work should be kept.
+
 - Reuse the **20 categories and 222 quests** bundled by Minecraft Quest Plus (209 new Vanilla+ challenges plus 13 historical examples).
 - Drag quests and annotations in an interactive tree that uses the same
   layout algorithm and world coordinates as the mod.
@@ -77,7 +79,7 @@ labelled graph cards, violet selection, details tabs below the graph and persist
 properties on the right. At narrow widths these panels stack; tabs remain horizontally
 scrollable. The design contract is in `../../DESIGN.md`.
 
-- Save / Ctrl+S preserves the browser draft **and downloads `QuestPlus-quests.zip`**,
+- Save / Ctrl+S preserves the browser draft locally or publishes to an authorized connected server. Use **Export ZIP** to download `QuestPlus-quests.zip`,
   ready to import into the Minecraft mod. Automatic autosave remains local-only;
   the footer also provides a dedicated Export ZIP action. Invalid quest packs
   cannot be exported until validation issues are fixed.

@@ -1,0 +1,62 @@
+/* Dark amethyst, stone and oak, inspired by the React Quest Studio workspace. */
+:root {
+  --vp-c-brand-1: #cda0f0;
+  --vp-c-brand-2: #b17ad9;
+  --vp-c-brand-3: #8055a6;
+  --vp-c-brand-soft: #704f8c35;
+  --vp-font-family-base: Inter, system-ui, sans-serif;
+}
+.dark {
+  --vp-c-bg: #201b26;
+  --vp-c-bg-alt: #28212e;
+  --vp-c-bg-elv: #35293c;
+  --vp-c-bg-soft: #302738;
+  --vp-c-divider: #64516c;
+  --vp-c-gutter: #18141e;
+  --vp-c-text-1: #f1e5f6;
+  --vp-c-text-2: #d1c0d8;
+  --vp-c-text-3: #a996b1;
+  --vp-code-block-bg: #18151e;
+}
+.VPNav, .VPNavBar {
+  background: #261e2ff2 !important;
+  border-bottom-color: #685472 !important;
+}
+.VPSidebar { background: linear-gradient(150deg, #2d2333, #241f2a) !important; }
+.VPSidebarItem.level-0>.item .text { color: #ddbded; letter-spacing: .05em; }
+.VPNavBarTitle .title, .VPHomeHero .name {
+  letter-spacing: .08em;
+  text-shadow: 2px 2px #1a111d;
+}
+.VPHomeHero {
+  padding-top: 30px;
+  background:
+    radial-gradient(ellipse at 80% 20%, #7b4d9633, transparent 45%),
+    repeating-linear-gradient(90deg, transparent 0 49px, #a78bba08 50px 51px);
+}
+.VPHomeHero .text { color: #f2d3a3 !important; }
+.VPHomeHero .tagline { max-width: 640px; }
+.VPButton.brand {
+  border: 1px solid #e7beff !important;
+  background: linear-gradient(180deg, #8a54ac, #593978) !important;
+  box-shadow: inset 0 2px #ffffff26, 0 4px #0e091354;
+}
+.VPButton.alt { border: 1px solid #736077 !important; }
+.VPFeature {
+  background: linear-gradient(155deg, #372c3f, #27202d) !important;
+  border: 1px solid #705b7a !important;
+  border-radius: 5px !important;
+  box-shadow: inset 0 2px #ffffff0b, 0 6px 18px #0002;
+}
+.vp-doc h2 { border-bottom-color: #61496e; color: #eac8ff; }
+.vp-doc h3 { color: #f0d3a9; }
+.vp-doc :not(pre)>code { background: #46334d; color: #f9cfb1; }
+.vp-doc table { display: block; overflow-x: auto; }
+.vp-doc th { background: #46394b; }
+.vp-doc tr:nth-child(2n) { background: #2b2332; }
+.vp-doc blockquote { border-color: #bc86d9; background: #392c42; padding: 12px 15px; }
+.vp-doc a { text-decoration-color: #b58fc8; }
+.VPDoc .content-container { max-width: 890px !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
