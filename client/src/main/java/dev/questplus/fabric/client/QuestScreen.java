@@ -42,6 +42,21 @@ public final class QuestScreen extends Screen {
     private final Set<String> collapsedGroups=new HashSet<>();
     private List<CategoryRow> categoryRows=List.of();
     private long categoryRowsRevision=-1;
+    private final Map<String,Integer> categoryBadges=new HashMap<>();
+    private long badgeRevision=-1;
+    private int badgeNewUnlocks=-1;
+    /** Index category markers on progress deltas, never scan all quests per rendered category. */
+    private void updateCategoryBadges() {
+        if(badgeRevision==state.hudRevision && badgeNewUnlocks==QuestPlusClient.NEW_UNLOCKS.size())return;
+        categoryBadges.clear();
+        for(var q:state.quests.values()) {
+            int flags=(QuestClientState.flag(state.progress(q.id()),"claimable")?1:0)
+                |(QuestPlusClient.NEW_UNLOCKS.contains(q.id())?2:0);
+            if(flags!=0)categoryBadges.merge(q.category(),flags,(a,b)->a|b);
+        }
+        badgeRevision=state.hudRevision;
+        badgeNewUnlocks=QuestPlusClient.NEW_UNLOCKS.size();
+    }
     private List<CategoryRow> categoryRows() {
         if(categoryRowsRevision==state.catalogueRevision)return categoryRows;
         var grouped=new LinkedHashMap<String,List<JsonObject>>();
@@ -366,6 +381,7 @@ public final class QuestScreen extends Screen {
             QuestSkin.text(g,font,rows.get(i),place.x()+6,place.y()+4+i*11,0xfff4e3c5,false);
     }
     private void drawCategories(GuiGraphicsExtractor g,int mx,int my) {
+        updateCategoryBadges();
         var categories=categoryRows();
         int count=Math.max(1,(treeBottom-treeTop)/26);
         categoryScroll=Math.clamp(categoryScroll,0,Math.max(0,categories.size()-count));
@@ -383,8 +399,9 @@ public final class QuestScreen extends Screen {
             QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
             drawIcon(g,c.has("icon") ? c.get("icon").getAsString() : "minecraft:book",x+3,y+3);
             String catId=c.get("id").getAsString();
-            boolean claimable=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestClientState.flag(state.progress(q.id()),"claimable"));
-            boolean fresh=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestPlusClient.NEW_UNLOCKS.contains(q.id()));
+            int markers=categoryBadges.getOrDefault(catId,0);
+            boolean claimable=(markers&1)!=0;
+            boolean fresh=(markers&2)!=0;
             if(claimable || fresh){
                 int marker=claimable ? 0xfff3c46d : 0xff8ad6f2;
                 g.fill(x+15,y+15,x+21,y+21,0xff211914);
