@@ -1,6 +1,6 @@
 # QuestPlus
 
-**Votre aventure, au creux des mains.** Une tablette 3D animée pour découvrir vos quêtes, suivre vos objectifs et récupérer vos récompenses sans quitter votre monde.
+**Votre aventure au creux des mains.** Une tablette 3D animée pour découvrir vos quêtes, suivre vos objectifs et récupérer vos récompenses sans quitter votre monde.
 
 ![La tablette QuestPlus dans Minecraft avec Complementary Reimagined](docs/showcase/tablet.webp)
 
