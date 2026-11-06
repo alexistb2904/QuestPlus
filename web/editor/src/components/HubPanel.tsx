@@ -129,7 +129,7 @@ export function HubPanel({project,onLoad,onSaveLocal}:{project:Project;onLoad:(p
  const saveLabel=token&&loaded?'Save to server':session||token?'Connect to save':'Save draft';
  const stateLabel=token?(loaded?(dirty?'Unpublished changes':'Up to date on server'):'Ready to load'):pending?'Approve in Minecraft':'No server connected';
  return <>
-  <button type="button" className={'button secondary hub-toolbar-button'+(token?' connected':'')} onClick={()=>setOpen(true)} title={token?(serverName||tUI('Connected server'))+' — '+tUI(stateLabel):tUI(stateLabel)}>
+  <button type="button" className={'button secondary hub-toolbar-button'+(token?' connected':'')} onClick={()=>setOpen(true)} title={token?(serverName||tUI('Connected server'))+' · '+tUI(stateLabel):tUI(stateLabel)}>
    <Server size={17}/><span>{token?serverName||tUI('Connected server'):tUI('Server & sharing')}</span>
   </button>
   <button type="button" className="button primary" disabled={busy} onClick={save} title={tUI(saveLabel)+' (Ctrl+S)'}>

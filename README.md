@@ -36,9 +36,6 @@ Les définitions restent des JSON lisibles. IDs et tags moddés, prérequis, con
 
 ## FAQ
 
-**Quelle différence avec FTB Quests ?**  
-QuestPlus est un projet indépendant, centré sur la tablette 3D, l'éditeur web et des packs JSON. Ce n'est pas un remplacement compatible fichier pour fichier : aucun import FTB Quests n'est fourni. [FTB Quests](https://github.com/FTBTeam/FTB-Quests) possède son propre système et son écosystème.
-
 **Les shaders sont obligatoires ?**  
 Non. Les captures sont réalisées avec **Iris + Complementary Reimagined**. Les versions utilisées et les limites des tests sont indiquées dans le [guide de compatibilité](docs/compatibility.md).
 

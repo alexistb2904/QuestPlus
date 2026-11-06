@@ -12,6 +12,7 @@ public final class QuestSkin {
     /** Whole texture pixels keep the compact 500x300 screen font legible. */
     public static final float TEXT_SCALE=1f;
     public static void text(GuiGraphicsExtractor g,Font font,String text,int x,int y,int color,boolean shadow) {
+        color=themedText(color);
         g.pose().pushMatrix();
         g.pose().translate(x,y);
         g.pose().scale(TEXT_SCALE);
@@ -19,6 +20,7 @@ public final class QuestSkin {
         g.pose().popMatrix();
     }
     public static void text(GuiGraphicsExtractor g,Font font,Component text,int x,int y,int color,boolean shadow) {
+        color=themedText(color);
         g.pose().pushMatrix();
         g.pose().translate(x,y);
         g.pose().scale(TEXT_SCALE);
@@ -26,6 +28,7 @@ public final class QuestSkin {
         g.pose().popMatrix();
     }
     public static void centered(GuiGraphicsExtractor g,Font font,Component text,int x,int y,int color) {
+        color=themedText(color);
         g.pose().pushMatrix();
         g.pose().translate(x,y);
         g.pose().scale(TEXT_SCALE);
@@ -43,4 +46,5 @@ public final class QuestSkin {
         g.fill(x+1,y+1,x+2,y+2,border); g.fill(r-2,y+1,r-1,y+2,border);
         g.fill(x+1,b-2,x+2,b-1,border); g.fill(r-2,b-2,r-1,b-1,border);
     }
+    private static int themedText(int color){return color==INK?dev.questplus.fabric.client.QuestResourceTheme.global("text_color",color):color==DIM?dev.questplus.fabric.client.QuestResourceTheme.global("disabled_text_color",color):color;}
 }

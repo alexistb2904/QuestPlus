@@ -40,7 +40,11 @@ abstract class TabletFaceCaptureMixin {
     @Redirect(method="render",at=@At(value="INVOKE",target="Lcom/github/razorplay01/fp_pal/firstperson/FpRenderBuffer;drawGeometry(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;Lcom/github/razorplay01/fp_pal/firstperson/FpRenderBuffer$GeometryRenderer;)V"),remap=false)
     private static void questplus$surfacePass(FpRenderBuffer buffer,PoseStack pose,RenderType type,FpRenderBuffer.GeometryRenderer geometry) {
         if (dev.questplus.fabric.client.TabletNativeArms.active() && TabletShaderCompat.translucentHandPass()) return;
-        if (!questplus$usesAtlas()) { buffer.drawGeometry(pose,type,geometry);return; }
+        if (!questplus$usesAtlas()) {
+            buffer.drawGeometry(pose,QUESTPLUS_MODEL.equals(modelId) && TabletShaderCompat.shadersActive()
+                ? RenderTypes.entityCutout(TABLET_BODY) : type,geometry);
+            return;
+        }
         // With shaders, draw the physical frame from its ORIGINAL static opaque
         // texture, not the live GUI framebuffer atlas. Bliss can interpret a
         // dynamically populated entity atlas as a reflective/glass material.

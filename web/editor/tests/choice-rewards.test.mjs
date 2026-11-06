@@ -16,9 +16,9 @@ const sample=()=>{
 test('valid player choice between an item and XP levels',()=>{
  assert.deepEqual(validate(sample()),[]);
 });
-test('reject too few options and unsupported server commands',()=>{
+test('one option is valid; empty choices and server commands are rejected',()=>{
  const p=sample();
- p.quests[0].rewards[0].data.options.length=1;
+ p.quests[0].rewards[0].data.options.length=0;
  assert.ok(validate(p).length>0);
  p.quests[0].rewards[0].data.options.push({type:'questplus:command',command:'say hi'});
  assert.ok(validate(p).length>0);

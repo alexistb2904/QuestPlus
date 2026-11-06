@@ -4,7 +4,29 @@
   "version": "1.0.0",
   "name": "Quest Plus integration tests",
   "environment": "*",
-  "mixins": [{"config":"questplus-test.client.mixins.json","environment":"client"}],
-  "entrypoints": {"fabric-client-gametest": ["dev.questplus.fabric.client.QuestClientGameTest"], "fabric-gametest": ["dev.questplus.fabric.QuestIntegrationTest", "dev.questplus.fabric.AdvancedEventsTest", "dev.questplus.fabric.TeamIntegrationTest", "dev.questplus.fabric.RewardIntegrationTest"]},
-  "depends": {"questplus": "*", "fabric-gametest-api-v1": "*"}
+  "mixins": [
+    {
+      "config": "questplus-test.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "dev.questplus.fabric.client.QuestClientGameTest"
+    ],
+    "fabric-gametest": [
+      "dev.questplus.fabric.QuestIntegrationTest",
+      "dev.questplus.fabric.AdvancedEventsTest",
+      "dev.questplus.fabric.TeamIntegrationTest",
+      "dev.questplus.fabric.RewardIntegrationTest",
+      "dev.questplus.fabric.FtbParityIntegrationTest"
+    ],
+    "main": [
+      "dev.questplus.fabric.FtbTestItems"
+    ]
+  },
+  "depends": {
+    "questplus": "*",
+    "fabric-gametest-api-v1": "*"
+  }
 }

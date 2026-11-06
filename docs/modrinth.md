@@ -48,9 +48,6 @@ Les builds Forge, NeoForge, Quilt et Bedrock ne sont pas proposés. Les packs de
 
 ## FAQ
 
-**Quelle différence avec FTB Quests ?**  
-QuestPlus est indépendant et met l'accent sur la tablette 3D, l'éditeur web et les packs JSON. [FTB Quests](https://github.com/FTBTeam/FTB-Quests) possède son propre système et son écosystème. Aucun import de ses fichiers n'est fourni : choisissez selon les besoins de votre pack.
-
 **Faut-il un compte ou une connexion permanente ?**  
 Non pour jouer et travailler sur un pack local. Le service web est facultatif ; il sert au partage et à l'édition connectée.
 

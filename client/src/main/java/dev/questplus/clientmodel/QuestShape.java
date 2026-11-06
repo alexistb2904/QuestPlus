@@ -19,9 +19,15 @@ public final class QuestShape {
         }
     }
     public static java.util.List<Span> spans(String shape) {return MASKS.getOrDefault(shape,MASKS.get("square"));}
+    public static void install(String name,java.util.List<Span> spans) {
+        if(!name.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")||spans.isEmpty()||spans.size()>512||spans.stream().anyMatch(s->s.start()<0||s.end()>32||s.start()>=s.end()||s.row()<0||s.row()>31))throw new IllegalArgumentException("Invalid shape mask");
+        MASKS.put(name,java.util.List.copyOf(spans));
+    }
+    public static void removeCustom(String name){if(name.contains(":"))MASKS.remove(name);}
     private QuestShape() {}
     public static boolean contains(String shape,double x,double y) {
         if(Math.abs(x)>1||Math.abs(y)>1)return false;
+        if(shape.contains(":")&&MASKS.containsKey(shape)){int col=Math.min(31,(int)((x+1)*16)),row=Math.min(31,(int)((y+1)*16));return MASKS.get(shape).stream().anyMatch(s->s.row()==row&&col>=s.start()&&col<s.end());}
         return switch(shape) {
             case "circle" -> x*x+y*y<=1;
             case "rounded_square" -> Math.pow(Math.abs(x),4)+Math.pow(Math.abs(y),4)<=1;

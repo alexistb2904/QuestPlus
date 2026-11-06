@@ -1,4 +1,5 @@
 {
+  "questplus.client.show_recipe": "Haz clic para ver las recetas",
   "questplus.help": "/questplus progress [misión] | claim <misión> | restart <misión> | trigger <misión> | team create/invite/invitations/join/decline/leave/kick/transfer/disband/info. Administración: reload | debug [uuid] | quest grant/reset <uuid> <misión>.",
   "questplus.restarted": "Intento de misión reiniciado.",
   "questplus.team_saved": "Acción del equipo guardada. Usa /questplus team info para ver su ID y miembros.",
@@ -199,15 +200,18 @@
   "questplus.client.confirm_choice": "Confirmar elección",
   "questplus.client.possible_rewards": "Recompensas posibles",
   "questplus.client.actual_rewards": "Resultado del servidor",
+  "questplus.client.toast.claimed": "RECOMPENSA RECLAMADA",
+  "questplus.client.toast.claim_all": "RECOMPENSAS RECLAMADAS",
+  "questplus.client.toast.choice_saved": "ELECCIÓN GUARDADA",
   "questplus.client.xp_levels": "%s niveles XP",
   "questplus.client.submit": "Entregar objetos",
   "questplus.client.no_rewards": "Sin recompensas",
-  "questplus.client.per_roll": "Probabilidad por sorteo; puede repetirse",
+  "questplus.client.per_roll": "Probabilidad por sorteo. El resultado puede repetirse.",
   "questplus.client.optional": "Opcional",
   "questplus.client.external_integration": "Requiere integración del servidor",
   "questplus.client.reward_status.choice": "Elige cada recompensa antes de reclamar",
-  "questplus.client.reward_status.ready": "Guardado; listo para reclamar",
-  "questplus.client.reward_status.reserved": "Reservado; requiere revisión administrativa",
+  "questplus.client.reward_status.ready": "Guardado y listo para reclamar",
+  "questplus.client.reward_status.reserved": "Reservado para revisión administrativa",
   "questplus.client.reward_status.delivered": "Ya reclamado",
   "questplus.client.reward_status.empty": "Este sorteo no otorgó nada",
   "questplus.client.reward_type.questplus:choice": "Elección del jugador",
@@ -225,5 +229,9 @@
   "questplus.client.condition.detail.at_least": "Al menos %s de: %s",
   "questplus.client.condition.detail.stage": "Etapa: %s",
   "questplus.client.reward_type.questplus:stage": "Etapa",
-  "questplus.client.reward_type.questplus:toast": "Notificación"
+  "questplus.client.reward_type.questplus:toast": "Notificación",
+  "item.questplus.loot_crate": "Caja de botín",
+  "questplus.crate.opened": "Caja abierta. Las recompensas se guardarán y entregarán cuando haya espacio.",
+  "item.questplus.tablet": "Tableta de misiones",
+  "itemGroup.questplus.quest": "Quest"
 }

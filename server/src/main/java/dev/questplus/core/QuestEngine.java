@@ -29,7 +29,7 @@ public final class QuestEngine {
         for (var candidate:registry.candidates(event)) {
             var q=candidate.quest(); var objective=candidate.objective(); var p=player.quests.get(q.id());
             if(!QuestExtensions.matchesObjective(objective,event))continue;
-            if (event.type().equals("item_submit") || event.type().equals("item_turn_in")) {
+            if (Set.of("item_submit","item_turn_in","xp_submit_levels","xp_submit_points","fluid_submit","energy_submit").contains(event.type())) {
                 if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
             }
             if(event.type().equals("manual") && event.context().containsKey("manualQuest")
@@ -42,8 +42,9 @@ public final class QuestEngine {
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
             if (state) {
-                Object values=Set.of("xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
+                Object values=Set.of("xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
                 amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
+                if(objective.event().equals("inventory_count"))amount=ItemComponents.inventoryCount(objective,event.context(),amount);
             }
             if (p==null && amount==0) continue;
             if (q.objectiveMode().equals("sequence") && !objective.optional()) {
@@ -120,12 +121,13 @@ public final class QuestEngine {
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
             boolean isInventory=objective.event().equals("inventory_count");
-            if ((!isInventory&&!Set.of("xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
+            if ((!isInventory&&!Set.of("xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
             if(!isInventory&&!objective.event().equals(event.type()))continue;
             Map<?,?> values=isInventory?inventory:states;
-            if(!values.containsKey(objective.target()))continue;
+            if(!values.containsKey(objective.target())&&!(isInventory&&!objective.data().equals("{}")&&context.get("itemStacks") instanceof List<?>))continue;
             Object value=values.get(objective.target());
             long count=value instanceof Number n ? Math.max(0,n.longValue()) : 0;
+            if(isInventory)count=ItemComponents.inventoryCount(objective,context,count);
             if (objective.conditions()!=null && !objective.conditions().matches(context,completed)) count=0;
             long maximum=objective.count()*(q.progression().equals("tiered") ? q.tiers().getLast().threshold() : 1);
             long next=Math.min(maximum,count);

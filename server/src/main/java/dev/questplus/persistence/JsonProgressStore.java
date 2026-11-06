@@ -2,6 +2,7 @@ package dev.questplus.persistence;
 
 import com.google.gson.*;
 import dev.questplus.core.PlayerProgress;
+import dev.questplus.core.QuestDefinition;
 import dev.questplus.core.QuestRegistry;
 import dev.questplus.team.TeamData;
 import java.io.*;
@@ -29,12 +30,13 @@ public final class JsonProgressStore implements AutoCloseable {
     @FunctionalInterface public interface SavedMarker {
         String read(UUID player) throws IOException;
         default void verifyInventory(UUID player,JsonArray expected) throws IOException {throw new IOException("Saved inventory verification is required");}
+        default void verifyExperience(UUID player,JsonObject expected) throws IOException {throw new IOException("Saved experience verification is required");}
     }
     @FunctionalInterface interface WriteHook { void after(String point) throws IOException; }
     private record Image(String path, String before, String after, String json) {}
     private record Operation(int schemaVersion, UUID id, boolean committed, List<Image> images) {}
     private record InventoryOperation(int schemaVersion, UUID id, UUID player, String previousMarker,
-            JsonArray inventoryBefore, JsonArray inventoryAfter, List<Image> images) {}
+            JsonArray inventoryBefore, JsonArray inventoryAfter, List<Image> images,JsonObject experienceBefore,JsonObject experienceAfter) {}
     public record ClaimAudit(UUID id, UUID player, String claim, String operator, String outcome, String reason, long timestamp) {}
     public JsonProgressStore(Path root) throws IOException { this(root, point -> {}, null); }
     public static JsonProgressStore withSavedMarker(Path root, SavedMarker savedMarker) throws IOException { return new JsonProgressStore(root, point -> {}, savedMarker); }
@@ -145,12 +147,17 @@ public final class JsonProgressStore implements AutoCloseable {
     /** Intent is durable before the caller may touch inventory. All arguments are detached here. */
     public CompletableFuture<Void> prepareInventory(UUID operation, UUID player, String previousMarker,
             JsonArray before, JsonArray after, Map<UUID,PlayerProgress> states, Map<UUID,TeamData> teams) {
+        return prepareInventory(operation,player,previousMarker,before,after,states,teams,null,null);
+    }
+    public CompletableFuture<Void> prepareInventory(UUID operation, UUID player, String previousMarker,
+            JsonArray before, JsonArray after, Map<UUID,PlayerProgress> states, Map<UUID,TeamData> teams,JsonObject experienceBefore,JsonObject experienceAfter) {
         try {
             Map<Path,byte[]> snapshots = snapshots(states,teams);
             JsonArray beforeCopy=before.deepCopy(), afterCopy=after.deepCopy();
+            var experienceBeforeCopy=experienceBefore==null?null:experienceBefore.deepCopy();var experienceAfterCopy=experienceAfter==null?null:experienceAfter.deepCopy();
             return queued(() -> {
                 checkPending();
-                var intent=new InventoryOperation(1,operation,player,previousMarker,beforeCopy,afterCopy,images(snapshots));
+                var intent=new InventoryOperation(1,operation,player,previousMarker,beforeCopy,afterCopy,images(snapshots),experienceBeforeCopy,experienceAfterCopy);
                 validateInventory(intent);
                 byte[] bytes=GSON.toJson(intent).getBytes(StandardCharsets.UTF_8);
                 if(bytes.length>128*1024*1024)throw new IOException("Inventory journal exceeds 128 MiB");
@@ -165,13 +172,17 @@ public final class JsonProgressStore implements AutoCloseable {
             if(savedMarker==null || !operation.toString().equals(savedMarker.read(intent.player())))
                 throw new IOException("Inventory consumption has not been saved");
             savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());
+            if(intent.experienceAfter()!=null)savedMarker.verifyExperience(intent.player(),intent.experienceAfter());
             applyInventory(intent);
         });
     }
     public CompletableFuture<Void> resolveClaim(UUID player, PlayerProgress after, ClaimAudit audit) {
+        return resolveClaim(player,after,audit,Map.of());
+    }
+    public CompletableFuture<Void> resolveClaim(UUID player, PlayerProgress after, ClaimAudit audit, Map<UUID,TeamData> teams) {
         try {
             if(!player.equals(audit.player()))throw new IllegalArgumentException("Audit player mismatch");
-            Map<Path,byte[]> snapshots=snapshots(Map.of(player,after),Map.of());
+            Map<Path,byte[]> snapshots=snapshots(Map.of(player,after),teams);
             Path file=root.resolve("audit/"+audit.id()+".json");
             byte[] bytes=GSON.toJson(audit).getBytes(StandardCharsets.UTF_8); validateImage(file,bytes);
             snapshots.put(file,bytes);
@@ -192,7 +203,9 @@ public final class JsonProgressStore implements AutoCloseable {
             if(Files.size(inventoryJournal)>128*1024*1024)throw new IOException("Inventory journal exceeds 128 MiB");
             JsonObject value;
             try(Reader reader=Files.newBufferedReader(inventoryJournal,StandardCharsets.UTF_8)) { value=object(QuestRegistry.parseStrict(reader)); }
-            fields(value,"schemaVersion","id","player","previousMarker","inventoryBefore","inventoryAfter","images");
+            var allowed=Set.of("schemaVersion","id","player","previousMarker","inventoryBefore","inventoryAfter","images","experienceBefore","experienceAfter");
+            if(!allowed.containsAll(value.keySet())||!value.keySet().containsAll(Set.of("schemaVersion","id","player","previousMarker","inventoryBefore","inventoryAfter","images")))throw new IOException("Invalid inventory journal fields");
+            for(String field:List.of("experienceBefore","experienceAfter"))if(value.has(field)&&value.get(field).isJsonNull())value.remove(field);
             var intent=GSON.fromJson(value,InventoryOperation.class); validateInventory(intent); return intent;
         } catch(RuntimeException error) { throw new IOException("Invalid inventory journal",error); }
     }
@@ -202,6 +215,14 @@ public final class JsonProgressStore implements AutoCloseable {
                 || intent.inventoryBefore().size()!=37 || intent.inventoryAfter().size()!=37
                 || intent.images()==null || intent.images().isEmpty())throw new IOException("Invalid inventory intent");
         if(!intent.previousMarker().isEmpty())UUID.fromString(intent.previousMarker());
+        if((intent.experienceBefore()==null)!=(intent.experienceAfter()==null))throw new IOException("Incomplete experience intent");
+        if(intent.experienceBefore()!=null)for(var xp:List.of(intent.experienceBefore(),intent.experienceAfter())) {
+            fields(xp,"level","progress","total");
+            if(!xp.keySet().equals(Set.of("level","progress","total"))||integer(xp.get("level"))<0||integer(xp.get("total"))<0
+                ||!xp.get("progress").isJsonPrimitive()||!xp.getAsJsonPrimitive("progress").isNumber()
+                ||!Double.isFinite(xp.get("progress").getAsDouble())||xp.get("progress").getAsDouble()<0||xp.get("progress").getAsDouble()>=1)
+                throw new IOException("Invalid experience intent");
+        }
         Set<Path> targets=new HashSet<>();
         for(Image image:intent.images()) {
             Path target=resolveImage(image.path());
@@ -219,9 +240,10 @@ public final class JsonProgressStore implements AutoCloseable {
         }
         if(savedMarker==null)throw new IOException("Inventory recovery requires vanilla player save evidence");
         var intent=readInventory(); String marker=savedMarker.read(intent.player());
-        if(intent.id().toString().equals(marker)) { savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());applyInventory(intent);return; }
+        if(intent.id().toString().equals(marker)) { savedMarker.verifyInventory(intent.player(),intent.inventoryAfter());if(intent.experienceAfter()!=null)savedMarker.verifyExperience(intent.player(),intent.experienceAfter());applyInventory(intent);return; }
         if(!intent.previousMarker().equals(marker))throw new IOException("Unknown inventory marker; retain files for review");
         savedMarker.verifyInventory(intent.player(),intent.inventoryBefore());
+        if(intent.experienceBefore()!=null)savedMarker.verifyExperience(intent.player(),intent.experienceBefore());
         // The old marker proves the withdrawal was never saved. Never restore inventory or replay the event.
         checkImages(intent.images(),false);
         Files.delete(inventoryJournal); Files.deleteIfExists(temporary(inventoryJournal));
@@ -404,7 +426,12 @@ public final class JsonProgressStore implements AutoCloseable {
                     JsonObject grant = object(entitlement.getValue()); fields(grant,"questId","rewards"); string(grant.get("questId"));
                     if (!grant.get("rewards").isJsonArray()) throw new IllegalArgumentException("Invalid reward grant");
                     for (JsonElement reward : grant.getAsJsonArray("rewards")) {
-                        JsonObject r = object(reward); fields(r,"type","item","count","amount","data","text");
+                        JsonObject r = object(reward);if(!r.has("policy"))r.add("policy",GSON.toJsonTree(QuestDefinition.RewardPolicy.DEFAULT));fields(r,"type","item","count","amount","data","text","policy");
+                        if(r.has("policy")&&!r.get("policy").isJsonNull()) {
+                            var policy=object(r.get("policy"));fields(policy,"teamReward","autoClaim","excludeFromClaimAll","teamScope");
+                            bool(policy.get("teamReward"));bool(policy.get("excludeFromClaimAll"));string(policy.get("autoClaim"));
+                            if(policy.has("teamScope")&&!policy.get("teamScope").isJsonNull())UUID.fromString(text(policy.get("teamScope")));
+                        }
                         string(r.get("type")); if (!r.get("item").isJsonNull()) string(r.get("item")); integer(r.get("count")); integer(r.get("amount"));
                         string(r.get("data")); for (var translation : object(r.get("text")).entrySet()) string(translation.getValue());
                     }
@@ -426,7 +453,8 @@ public final class JsonProgressStore implements AutoCloseable {
         try {
             JsonObject root = object(QuestRegistry.parseStrict(new InputStreamReader(new ByteArrayInputStream(bytes),
                 StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT))));
-            fields(root,"schemaVersion","id","name","owner","members","invitations","progress","disbanded");
+            if(!root.has("rewardClaims"))root.add("rewardClaims",new JsonObject());
+            fields(root,"schemaVersion","id","name","owner","members","invitations","progress","disbanded","rewardClaims");
             if (integer(root.get("schemaVersion")) != 1) throw new IllegalArgumentException("Unsupported team version");
             UUID.fromString(text(root.get("id"))); UUID.fromString(text(root.get("owner"))); string(root.get("name")); bool(root.get("disbanded"));
             if (!root.get("members").isJsonArray()) throw new IllegalArgumentException("Invalid team members");

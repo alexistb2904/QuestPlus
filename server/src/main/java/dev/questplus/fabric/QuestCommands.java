@@ -42,6 +42,7 @@ final class QuestCommands {
                 .then(literal("confirm").executes(c -> execute(c,s -> QuestPlusMod.hub().confirmImport(s))))
                 .then(argument("pack",StringArgumentType.word())
                     .executes(c -> execute(c,s -> QuestPlusMod.hub().previewImport(s,StringArgumentType.getString(c,"pack"))))))
+            .then(migrationCommand())
             .then(literal("debug").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(c -> execute(c,s -> s.sendSuccess(() -> Component.literal("Quest Plus 0.2.0 | quests=" + QuestPlusMod.runtime().registry().all().size() + " | teams="+QuestPlusMod.runtime().teams().allTeams().size()+" | server-authoritative"),false)))
                 .then(argument("player",UuidArgument.uuid()).executes(c -> execute(c,s -> {
@@ -117,7 +118,7 @@ final class QuestCommands {
                     try{
                         String id=StringArgumentType.getString(c,"quest");
                         QuestPlusMod.runtime().visibleQuest(c.getSource().getPlayerOrException().getUUID(),id)
-                            .objectives().stream().filter(o->Set.of("item_submit","item_turn_in").contains(o.event()))
+                            .objectives().stream().filter(o->Set.of("item_submit","item_turn_in","xp_submit_levels","xp_submit_points","fluid_submit","energy_submit").contains(o.event()))
                             .map(dev.questplus.core.QuestDefinition.Objective::id)
                             .filter(x->x.startsWith(builder.getRemaining())).forEach(builder::suggest);
                     }catch(Exception ignored){}
@@ -154,6 +155,18 @@ final class QuestCommands {
                 .requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(literal("grant").then(argument("player",UuidArgument.uuid()).then(questArgument().executes(c -> mutate(c,true)))))
                 .then(literal("reset").then(argument("player",UuidArgument.uuid()).then(questArgument().executes(c -> mutate(c,false)))))));
+    }
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> migrationCommand() {
+        var command=literal("migrate-ftb").requires(s->s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
+        command.then(literal("preview").then(argument("source",UuidArgument.uuid()).then(argument("player",UuidArgument.uuid()).executes(c->execute(c,s->{
+            String review=QuestPlusMod.runtime().migrations().preview(s.getTextName(),UuidArgument.getUuid(c,"source"),UuidArgument.getUuid(c,"player"));s.sendSuccess(()->Component.literal(review),false);
+        })))));
+        command.then(literal("confirm").executes(c->execute(c,s->migrationResult(s,QuestPlusMod.runtime().migrations().confirm(s.getTextName()),"FTB progress imported; private rollback backup saved."))));
+        command.then(literal("rollback").then(argument("operation",UuidArgument.uuid()).executes(c->execute(c,s->migrationResult(s,QuestPlusMod.runtime().migrations().rollback(UuidArgument.getUuid(c,"operation")),"FTB migration rolled back.")))));
+        return command;
+    }
+    private static void migrationResult(CommandSourceStack source,java.util.concurrent.CompletableFuture<Void> result,String message) {
+        result.whenComplete((ok,error)->{if(error!=null)source.sendFailure(Component.literal("FTB migration failed: "+error.getMessage()));else source.sendSuccess(()->Component.literal(message),false);});
     }
     private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack,String> questArgument() {
         return argument("quest",StringArgumentType.greedyString()).suggests((context,builder) -> {

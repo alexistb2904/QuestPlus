@@ -122,6 +122,12 @@ public final class AdvancedEvents {
             ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));
             QuestPlusMod.runtime().event(player,new QuestEvent("xp_levels","questplus:levels",Set.of(),1,ctx));
         }
+        if(registry.hasEvent("xp_points")) {
+            long level=player.experienceLevel;
+            long total=level<=16?level*level+6*level:level<=31?(5*level*level-81*level+720)/2:(9*level*level-325*level+4440)/2;
+            var ctx=QuestPlusMod.context(player);ctx.put("stateValues",Map.of("questplus:points",Math.max(0,total+(long)(player.experienceProgress*player.getXpNeededForNextLevel()))));
+            QuestPlusMod.runtime().event(player,new QuestEvent("xp_points","questplus:points",Set.of(),1,ctx));
+        }
         // A single authoritative snapshot per sampled player. Gear is never supplied by clients.
         if (registry.hasEvent("equipment_check")) {
             var ctx = QuestPlusMod.context(player);
@@ -169,8 +175,9 @@ public final class AdvancedEvents {
 
     public static void item(ServerPlayer player, String type, ItemStack stack, int count) {
         if (count <= 0 || stack.isEmpty()) return;
-        emit(player, type, BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
-            stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), count);
+        var context=QuestPlusMod.context(player);context.put("itemComponents",QuestItemStacks.components(stack,player.registryAccess()));
+        QuestPlusMod.runtime().event(player,new QuestEvent(type,BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
+            stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),count,context));
         // Aggregate all four vanilla catches without accidentally counting treasure or junk.
         if (type.equals("fish_item") && Set.of(
                 "minecraft:cod","minecraft:salmon","minecraft:pufferfish","minecraft:tropical_fish")
@@ -210,8 +217,11 @@ public final class AdvancedEvents {
         }
         var biome = player.level().getBiome(player.blockPosition()).unwrapKey().map(k -> k.identifier().toString()).orElse("");
         Set<String> effects = player.getActiveEffects().stream().map(e -> e.getEffect().unwrapKey().map(k -> k.identifier().toString()).orElse("")).collect(Collectors.toSet());
-        return Map.of("biome", biome, "position", Map.of("x", player.getX(), "y", player.getY(), "z", player.getZ()),
-            "equipment", equipment, "effects", effects, "inventory", inventory);
+        var result=new HashMap<String,Object>(Map.of("biome", biome, "position", Map.of("x", player.getX(), "y", player.getY(), "z", player.getZ()),
+            "equipment", equipment, "effects", effects, "inventory", inventory));
+        if(runtime!=null&&runtime.registry().objectives("inventory_count").stream().anyMatch(o->!o.data().equals("{}")))
+            result.put("itemStacks",QuestItemStacks.snapshot(player));
+        return result;
     }
 
     private static void add(Map<String,Long> counts, ItemStack stack) {

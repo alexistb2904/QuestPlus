@@ -23,10 +23,18 @@ def export():
         round(.72*16-math.sin(pitch)*camera[1]-math.cos(pitch)*camera[2],6)]
     animation['azurelib_format_version'] = 2
     for clip in animation['animations'].values():
+        # Keep static Blockbench channels in the same sampled form as animated tracks.
+        for bone in clip['bones'].values():
+            for channel,value in list(bone.items()):
+                if channel in ('rotation','position','scale') and not isinstance(value,dict):
+                    bone[channel] = {'0.0': value if isinstance(value,list) else [value]*3}
         clip['bones']['fp_player_arms'] = {'rotation': {'0.0': [-math.degrees(pitch),0,0]}}
         clip['player_animation_library'] = {'fpDisplayTranslation': display, 'fpDisplayScale': 1, 'fpDisplayAnchor': 'camera'}
     animation['animations']['questplus.open']['loop'] = 'hold_on_last_frame'
     animation['animations']['questplus.close']['loop'] = 'hold_on_last_frame'
+    animation['animations']['questplus.carry_open']['loop'] = 'hold_on_last_frame'
+    animation['animations']['questplus.carry_close']['loop'] = 'hold_on_last_frame'
+    animation['animations']['questplus.carry_attack']['loop'] = 'hold_on_last_frame'
     for bone in bones:
         if bone['name'] in ('rightArm','leftArm'):
             bone.pop('cubes', None)
@@ -38,6 +46,31 @@ def export():
         (RUNTIME/'fp_models/questplus_first_person.geo.json', geometry),
     ]:
         path.write_text(json.dumps(data, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+    # Reuse the physical tablet and its UVs for inventory and third-person item rendering.
+    elements = []
+    def item_point(point):
+        return [round(point[0]+8,6),round(point[1]-18.8+8,6),round(point[2]+9.785+8,6)]
+    for bone in bones:
+        for cube in bone.get('cubes', []):
+            element = {'from': item_point(cube['origin']),
+                       'to': item_point([a+b for a,b in zip(cube['origin'],cube['size'])]),
+                       'faces': {}}
+            for face, uv in cube['uv'].items():
+                u,v = uv['uv']; w,h = uv['uv_size']
+                element['faces'][face] = {'uv': [u/16,v/16,(u+w)/16,(v+h)/16], 'texture': '#tablet'}
+            rotations = [(axis,angle) for axis,angle in zip('xyz',cube.get('rotation',[])) if angle]
+            if rotations:
+                assert len(rotations)==1 and rotations[0][1] in (-45,-22.5,22.5,45), rotations
+                element['rotation'] = {'origin': item_point(cube['pivot']), 'axis': rotations[0][0], 'angle': rotations[0][1]}
+            elements.append(element)
+    item = {'textures': {'tablet': 'questplus:fp/questplus_first_person', 'particle': 'questplus:fp/questplus_first_person'},
+            'elements': elements, 'display': {
+                'gui': {'rotation': [15,155,0], 'scale': [.85,.85,.85]},
+                'thirdperson_righthand': {'rotation': [0,0,0], 'translation': [0,2,0], 'scale': [.4,.4,.4]},
+                'thirdperson_lefthand': {'rotation': [0,0,0], 'translation': [0,2,0], 'scale': [.4,.4,.4]},
+                'firstperson_righthand': {'rotation': [0,0,-20], 'translation': [2,-3,-3], 'scale': [.5,.5,.5]},
+                'firstperson_lefthand': {'rotation': [0,0,20], 'translation': [2,-3,-3], 'scale': [.5,.5,.5]}}}
+    (RUNTIME/'models/item/tablet.json').write_text(json.dumps(item,indent=2)+'\n',encoding='utf-8')
     print('Native Blockbench export; camera display:', display)
     return animation, geometry
 

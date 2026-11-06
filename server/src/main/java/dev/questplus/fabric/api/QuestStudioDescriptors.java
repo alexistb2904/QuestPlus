@@ -38,6 +38,7 @@ public final class QuestStudioDescriptors {
         JsonObject descriptor=new JsonObject();
         descriptor.addProperty("kind",kind);descriptor.addProperty("id",id);descriptor.addProperty("label",label);
         descriptor.add("fields",validated);
+        if(kind.equals("reward")&&dev.questplus.core.QuestExtensions.allowsPoolReward(id))descriptor.addProperty("pool",true);
         if(DEFINITIONS.putIfAbsent(kind+":"+id,descriptor)!=null)
             throw new IllegalArgumentException("Duplicate Quest Studio descriptor "+kind+":"+id);
     }

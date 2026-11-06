@@ -20,7 +20,7 @@ import { questId, categoryId } from "../core/quest-ids.js";
 import {buildQuestFromTemplate} from "../core/quest-templates.js";
 import {savedQuestTemplates,saveQuestTemplate,buildSavedQuest} from "../core/studio-template-library.js";
 import JSON5 from "json5";
-import {inspectFtbPack} from "../core/ftb-import.js";
+import {inspectFtbPack,selectFtbQuests} from "../core/ftb-import.js";
 import { makeZip, readZip } from "../core/zip.js";
 import { withPrerequisite } from "../core/quest-links.js";
 import { fitEditor } from "../core/editor-geometry.js";
@@ -512,7 +512,11 @@ export function useStudio() {
 			const docs: { name: string; content: string }[] = [];
 			for (const file of Array.from(files)) {
 				if (file.name.endsWith(".zip")) docs.push(...(await readZip(file)));
-				else if (/\.(?:json5?|snbt|txt)$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
+				else if (/\.(?:png|jpe?g|gif)$/i.test(file.name)) {
+                    const content=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file);});
+                    docs.push({name:(file as any).webkitRelativePath||file.name,content});
+                }
+                else if (/\.(?:json5?|snbt|txt)$/i.test(file.name)) docs.push({ name: (file as any).webkitRelativePath || file.name, content: await file.text() });
 			}
 			const ftb=docs.some(({name})=>/(?:^|[\\/])chapters[\\/][^\\/]+\.(?:json5?|snbt)$/i.test(name));
             const report=ftb?inspectFtbPack(docs):null;
@@ -533,14 +537,14 @@ export function useStudio() {
 			toast(tUI("Import error:") + " " + (e as Error).message);
 		}
 	}
-    function confirmFtbImport(){
+    function confirmFtbImport(selection:string[],options?:{fluidUnits:string;energyRatio:number}){
         if(!pendingImport)return;
-        const p=pendingImport.report.project as Project;
+        const p=selectFtbQuests(options?inspectFtbPack(pendingImport.documents,options):pendingImport.report,selection) as Project;
         if(!p.quests.length){toast('No FTB quests could be safely converted');return;}
         const errors=validate(p);if(errors.length){toast(errors[0].where+': '+errors[0].message);return;}
         mutate(s=>{s.project=p;s.categoryId=orderedCategories(p.categories)[0]?.id||null;
             s.selection=s.categoryId?{type:'category',id:s.categoryId}:null;
-            s.camera={x:0,y:0,zoom:1};s.language='en_us';});
+            s.camera=fit(p.categories.find(c=>c.id===s.categoryId),p.quests.filter(q=>q.category===s.categoryId));s.language='en_us';});
         setPendingImport(null);toast(tUI('Pack imported'));
     }
     function cancelFtbImport(){setPendingImport(null)}

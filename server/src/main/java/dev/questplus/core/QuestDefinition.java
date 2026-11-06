@@ -18,7 +18,11 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
     public QuestDefinition { if(presentation==null)presentation=Presentation.DEFAULT; }
     public record Presentation(Map<String,String> subtitle,List<String> tags,String shape,double iconScale,boolean optional,
         boolean disableCompletionToast,boolean hideDetailsUntilUnlocked,boolean hideTextUntilCompleted,
-        boolean invisibleUntilCompleted,int invisibleUntilTasks,boolean hideDependencyLines,boolean hideDependentLines) {
+        boolean invisibleUntilCompleted,int invisibleUntilTasks,boolean hideDependencyLines,boolean hideDependentLines,boolean hideUntilDependenciesVisible) {
+        public Presentation(Map<String,String> subtitle,List<String> tags,String shape,double iconScale,boolean optional,boolean disableCompletionToast,
+            boolean hideDetailsUntilUnlocked,boolean hideTextUntilCompleted,boolean invisibleUntilCompleted,int invisibleUntilTasks,boolean hideDependencyLines,boolean hideDependentLines) {
+            this(subtitle,tags,shape,iconScale,optional,disableCompletionToast,hideDetailsUntilUnlocked,hideTextUntilCompleted,invisibleUntilCompleted,invisibleUntilTasks,hideDependencyLines,hideDependentLines,false);
+        }
         public static final Presentation DEFAULT=new Presentation(Map.of(),List.of(),"square",1,false,false,false,false,false,0,false,false);
     }
     public QuestDefinition(String id, String category, String icon, Map<String,String> title,
@@ -69,8 +73,16 @@ public record QuestDefinition(String id, String category, String icon, Map<Strin
             this(id,event,target,count,text,conditions,false,"{}");
         }
     }
-    public record Reward(String type, String item, int count, int amount, String data, Map<String,String> text) {
+    public record Reward(String type, String item, int count, int amount, String data, Map<String,String> text, RewardPolicy policy) {
+        public Reward { if(policy==null)policy=RewardPolicy.DEFAULT; }
+        public Reward(String type,String item,int count,int amount,String data,Map<String,String> text) { this(type,item,count,amount,data,text,RewardPolicy.DEFAULT); }
         public Reward(String type,String item,int count,int amount) { this(type,item,count,amount,"{}",Map.of()); }
+        public Reward withPolicy(RewardPolicy value) { return new Reward(type,item,count,amount,data,text,value); }
+    }
+    public record RewardPolicy(boolean teamReward,String autoClaim,boolean excludeFromClaimAll,UUID teamScope) {
+        public RewardPolicy(boolean teamReward,String autoClaim,boolean excludeFromClaimAll) {this(teamReward,autoClaim,excludeFromClaimAll,null);}
+        public static final RewardPolicy DEFAULT=new RewardPolicy(false,"disabled",false);
+        public RewardPolicy { if(autoClaim==null)autoClaim="disabled"; if(!Set.of("disabled","enabled","no_toast","invisible").contains(autoClaim)||teamScope!=null&&!teamReward)throw new IllegalArgumentException("Invalid reward policy"); }
     }
     public record Tier(String id,long threshold,List<Reward> rewards) {}
     public record Layout(double x, double y) {}

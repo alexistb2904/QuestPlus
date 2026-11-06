@@ -50,7 +50,8 @@ test('Hub enforces browser approval and immutable packs before Minecraft publish
   assert.equal((await fetch(base+'/v1/notfound')).status,404);
   assert.equal((await api(base,'/v1/server/sessions',{method:'POST',body:{serverName:'test',files}})).status,401);
   assert.equal((await api(base,'/v1/packs',{method:'POST',origin:'https://evil.example',body:{files}})).status,403);
-  const start=await api(base,'/v1/server/sessions',{method:'POST',key,body:{serverName:'Test server',files,registry:{items:['mymod:crystal']}}});
+  const assets={names:{'mymod:crystal':{fr_fr:'Cristal'}},textures:{'mymod:crystal':'data:image/png;base64,iVBORw0KGgo='}};
+  const start=await api(base,'/v1/server/sessions',{method:'POST',key,body:{serverName:'Test server',files,registry:{items:['mymod:crystal'],assets}}});
   assert.equal(start.status,201);
   const id=start.data.id;
   assert.equal(new URL(start.data.url).origin,base);
@@ -73,6 +74,7 @@ test('Hub enforces browser approval and immutable packs before Minecraft publish
   const data=await api(base,'/v1/editor/sessions/'+id+'/data',{key:auth});
   assert.deepEqual(data.data.files,files);
   assert.deepEqual(data.data.registry.items,['mymod:crystal']);
+  assert.deepEqual(data.data.registry.assets,assets);
   assert.equal((await api(base,'/v1/editor/sessions/'+id+'/publish',{method:'POST',key:auth,
    body:{files,baseRevision:'wrong'}})).status,409);
   const updated=files.map(f=>f.name==='config.json'?{...f,content:'{"schemaVersion":1,"autosaveSeconds":12}'}:f);

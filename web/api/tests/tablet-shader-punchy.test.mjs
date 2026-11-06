@@ -76,7 +76,8 @@ test('Esc and stalled animation cannot indefinitely hide hotbar and first-person
  const flow=read('client/src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java');
  const renderer=read('client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java');
  const hud=read('client/src/main/java/dev/questplus/fabric/client/mixin/TabletHudMixin.java');
- assert.match(renderer,/nativeHandsActive\(\)\s*&& Minecraft\.getInstance\(\)\.gui\.screen\(\) instanceof QuestScreen/);
+  assert.match(renderer,/nativeHandsActive\(\)\s*&& screen\(\)!=null/);
+  assert.match(renderer,/return QuestRecipeViewer\.tabletScreen\(\)/);
  assert.match(flow,/CLOSE_WATCHDOG_NANOS=2_500_000_000L/);
  assert.match(flow,/OPEN_WATCHDOG_NANOS=3_500_000_000L/);
  assert.match(flow,/System\.nanoTime\(\)-closingSince>CLOSE_WATCHDOG_NANOS/);
@@ -91,7 +92,7 @@ test('Punchy remains disabled while native tablet hands own animation',()=>{
  assert.match(bridge,/getMethod\("disable",String\.class,BooleanSupplier\.class\)/);
  assert.match(bridge,/QuestClientTabletFlow\.nativeHandsActive\(\)/);
  const opening=flow.slice(flow.indexOf('private static void open(Minecraft client)'),flow.indexOf('static void close()'));
- assert.ok(opening.indexOf('nativeHands=true;stage=Stage.OPENING')<opening.indexOf('FirstPersonPalBridge.play("questplus.open")'));
+ assert.ok(opening.indexOf('nativeHands=true;stage=Stage.OPENING')<opening.indexOf('FirstPersonPalBridge.play(openingClip)'));
 });
 
 test('removed independent shader-safe toggle and translated automatic blur explanation in four locales',()=>{

@@ -45,6 +45,17 @@ final class InventoryMarker {
             if(!actual.equals(expected))throw new IOException("Saved inventory/components differ from the submission plan");
         }catch(RuntimeException error){throw new IOException("Cannot verify saved inventory/components",error);}
     }
+    static JsonObject experience(ServerPlayer player) {
+        var result=new JsonObject();result.addProperty("level",player.experienceLevel);result.addProperty("progress",player.experienceProgress);result.addProperty("total",player.totalExperience);return result;
+    }
+    static void experience(ServerPlayer player,JsonObject value) {
+        player.experienceLevel=value.get("level").getAsInt();player.experienceProgress=value.get("progress").getAsFloat();player.totalExperience=value.get("total").getAsInt();player.giveExperienceLevels(0);
+    }
+    void verifySavedExperience(UUID player,JsonObject expected) throws IOException {
+        var nbt=NbtIo.readCompressed(directory.resolve(player+".dat"),NbtAccounter.create(32*1024*1024));
+        if(nbt.getInt("XpLevel").orElse(-1)!=expected.get("level").getAsInt()||Float.compare(nbt.getFloat("XpP").orElse(-1f),expected.get("progress").getAsFloat())!=0
+            ||nbt.getInt("XpTotal").orElse(-1)!=expected.get("total").getAsInt())throw new IOException("Saved experience differs from the submission plan");
+    }
     private static String marker(Collection<String> tags) throws IOException {
         var values=tags.stream().filter(tag->tag.startsWith(PREFIX)).toList();
         if(values.size()>1)throw new IOException("Multiple inventory markers");

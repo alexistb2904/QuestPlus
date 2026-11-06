@@ -77,12 +77,13 @@ public final class QuestScreen extends Screen {
     private long filteredSequence=-2,filteredCatalogue=-2;
     private String filteredQuery,filteredLanguage,filteredFilter;
     private double cachedLeft=Double.NaN,cachedTop,cachedRight,cachedBottom;
-    private record DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted,JsonObject rich,int richHeight) {
-        DetailRow(List<String> lines,ItemStack icon,String progress) { this(lines,icon,progress,null,null,0); }
-        DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted) { this(lines,icon,progress,formatted,null,0); }
+    private record DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted,JsonObject rich,int richHeight,boolean recipe) {
+        DetailRow(List<String> lines,ItemStack icon,String progress) { this(lines,icon,progress,null,null,0,false); }
+        DetailRow(List<String> lines,ItemStack icon,String progress,List<FormattedCharSequence> formatted) { this(lines,icon,progress,formatted,null,0,false); }
         int lineCount() { return formatted==null ? lines.size() : formatted.size(); }
     }
     private List<DetailRow> detailLines=List.of();
+    private final List<QuestRecipeViewer.Target> recipeTargets=new ArrayList<>();
     private String detailQuest,detailLanguage;
     private long detailSequence=-2;
     private int detailWidth;
@@ -116,6 +117,8 @@ public final class QuestScreen extends Screen {
         return result;
     }
     @Override protected void init() {
+        recipeTargets.clear();
+        QuestResourceTheme.reload();
         attachedToScreenFace=TabletSurfaceRenderer.active();
         if(attachedToScreenFace) {
             width=Math.max(1,TabletSurfaceRenderer.logicalWidth());
@@ -254,12 +257,19 @@ public final class QuestScreen extends Screen {
     private boolean shown(String id) {
         return filtered.contains(id);
     }
-    private int color(String id) { return switch(statuses.get(id)) { case "completed" -> 0xff789474; case "reward_ready" -> 0xffecc875; case "active" -> 0xffb58a56; case "available" -> 0xffb09aba; default -> 0xff716a65; }; }
+    private int color(String id) {
+        int fallback=switch(statuses.get(id)){case "completed"->0xff789474;case "reward_ready"->0xffecc875;case "active"->0xffb58a56;case "available"->0xffb09aba;default->0xff716a65;};
+        String property=switch(statuses.get(id)){case "completed","reward_ready"->"quest_completed_color";case "active"->"quest_started_color";case "available"->"quest_not_started_color";default->"quest_locked_color";};
+        return QuestResourceTheme.color(state.quests.get(id),property,fallback);
+    }
     private ItemStack icon(String id) {
         return icons.computeIfAbsent(id,key -> { var resource=Identifier.tryParse(key); // A visible barrier item is the fallback for unknown IDs (e.g. a 26.4 item on 26.3).
             // Never resolve an unknown ID to AIR or paint a blank item slot.
             return resource!=null && BuiltInRegistries.ITEM.containsKey(resource)
                 ? new ItemStack(BuiltInRegistries.ITEM.getValue(resource)) : new ItemStack(Items.BARRIER); });
+    }
+    private void drawIcon(GuiGraphicsExtractor graphics,String id,int x,int y) {
+        if(!RichAnnotationRenderer.drawIcon(graphics,id,x,y,16))graphics.item(icon(id),x,y);
     }
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta) {
         // Preserve the real first-person tablet frame; an opaque GUI backdrop would hide it.
@@ -320,6 +330,8 @@ public final class QuestScreen extends Screen {
             QuestSkin.text(g,font,font.plainSubstrByWidth(message,Math.max(1,right-left-30)),left+12,bottom-11,0xffe3a692,false);
         }
         super.extractRenderState(g,mx,my,delta);
+        if(tab.equals("quests") && selected!=null && !rewardView && QuestRecipeViewer.available())
+            for(var target:recipeTargets)if(target.contains(mx,my,treeTop+55,bottom-7))hoverTitle=t("show_recipe").getString();
         drawBoundedHover(g,mx,my);
         if(attachedToScreenFace)QuestToast.draw(g,width,height);
         if (attachedToScreenFace) g.disableScissor();
@@ -369,7 +381,7 @@ public final class QuestScreen extends Screen {
             var c=row.category();
             boolean active=c.get("id").getAsString().equals(category);
             QuestSkin.panel(g,x,y,22,22,active ? 0xff513827 : 0xff2d241e,active ? 0xffd5ae74 : 0xff6f513d);
-            g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+3,y+3);
+            drawIcon(g,c.has("icon") ? c.get("icon").getAsString() : "minecraft:book",x+3,y+3);
             String catId=c.get("id").getAsString();
             boolean claimable=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestClientState.flag(state.progress(q.id()),"claimable"));
             boolean fresh=state.quests.values().stream().anyMatch(q -> catId.equals(q.category()) && QuestPlusClient.NEW_UNLOCKS.contains(q.id()));
@@ -407,7 +419,7 @@ public final class QuestScreen extends Screen {
         var c=state.categories.get(category); if (c==null) return;
         int x=treeLeft,w=right-7-treeLeft;
         QuestSkin.panel(g,x,top+(26),w,23,0xff3b2b21,0xff866046);
-        g.item(icon(c.has("icon") ? c.get("icon").getAsString() : "minecraft:book"),x+5,top+(30));
+        drawIcon(g,c.has("icon") ? c.get("icon").getAsString() : "minecraft:book",x+5,top+(30));
         QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("title")),Math.max(1,w-32-(w>260 ? 90 : 0))),x+24,top+(30),QuestSkin.INK,false);
         QuestSkin.text(g,font,font.plainSubstrByWidth(localized(c.getAsJsonObject("description")),Math.max(1,w-32-(w>260 ? 90 : 0))),x+24,top+(39),QuestSkin.DIM,false);
         long done=completedNodes;
@@ -441,7 +453,8 @@ public final class QuestScreen extends Screen {
             var a=layout.points().get(edge.from()); var b=layout.points().get(edge.to());
             int x1=(int)camera.screenX(a.x()),y1=(int)camera.screenY(a.y())+(int)Math.round(nodeRadius(state.quests.get(edge.from()))*camera.zoom());
             int x2=(int)camera.screenX(b.x()),y2=(int)camera.screenY(b.y())-(int)Math.round(nodeRadius(state.quests.get(edge.to()))*camera.zoom());
-            int c=QuestClientState.flag(state.progress(edge.from()),"completed") ? 0xffd9c4a4 : 0xff827366;
+            boolean completed=QuestClientState.flag(state.progress(edge.from()),"completed");
+            int c=QuestResourceTheme.color(state.quests.get(edge.from()),completed?"dependency_line_completed_color":"dependency_line_uncompleted_color",completed?0xffd9c4a4:0xff827366);
             if (routes.containsKey(edge) && !routes.get(edge).isEmpty()) {
                 int previousX=x1,previousY=y1;
                 for (var point:routes.get(edge)) {
@@ -473,7 +486,7 @@ public final class QuestScreen extends Screen {
             if (id.equals(selected) || id.equals(keyboardQuest)) QuestSkin.panel(g,x-r-2,y-r-2,2*r+4,2*r+4,0x00433a32,0xffe9dab1);
             float iconSize=(float)(r*state.quests.get(id).presentation().iconScale());
             g.pose().pushMatrix(); g.pose().translate(x-iconSize/2f,y-iconSize/2f); g.pose().scale(iconSize/16f);
-            g.item(icon(state.quests.get(id).icon()),0,0); g.pose().popMatrix();
+            drawIcon(g,state.quests.get(id).icon(),0,0); g.pose().popMatrix();
             String progression=state.quests.get(id).progression();
             if (!progression.equals("once")) {
                 String marker=progression.equals("repeatable") ? "R" : progression.equals("infinite") ? "∞" : "◆";
@@ -554,6 +567,7 @@ public final class QuestScreen extends Screen {
         }
     }
     private void drawQuestShape(GuiGraphicsExtractor g,String shape,int x,int y,int radius,int edge) {
+        QuestResourceTheme.ensureShape(shape);
         if(shape.equals("square")){QuestSkin.panel(g,x-radius,y-radius,radius*2,radius*2,0xff433a32,edge);return;}
         g.pose().pushMatrix();g.pose().translate(x-radius,y-radius);g.pose().scale(radius/16f);
         for(var span:QuestShape.spans(shape)) {
@@ -571,7 +585,8 @@ public final class QuestScreen extends Screen {
         return visibleNodes.stream().filter(id->{
             var p=layout.points().get(id);
             double r=nodeRadius(state.quests.get(id))*camera.zoom();
-            return Math.abs(camera.screenX(p.x())-x)<=r && Math.abs(camera.screenY(p.y())-y)<=r;
+            var shape=state.quests.get(id).presentation().shape();QuestResourceTheme.ensureShape(shape);
+            return r>0&&QuestShape.contains(shape,(x-camera.screenX(p.x()))/r,(y-camera.screenY(p.y()))/r);
         }).findFirst();
     }
     private void updateRenderCache() {
@@ -642,7 +657,7 @@ public final class QuestScreen extends Screen {
             for(var objective:q.objectives()) {
                 long progress=counters!=null && counters.has(objective.id()) ? counters.get(objective.id()).getAsLong() : 0;
                 if(progress>=objective.count()*factor)continue;
-                if(Set.of("item_submit","item_turn_in").contains(objective.event()))submitObjective=objective.id();
+                if(Set.of("item_submit","item_turn_in","xp_submit_levels","xp_submit_points","fluid_submit","energy_submit").contains(objective.event()))submitObjective=objective.id();
                 if(objective.event().equals("manual"))manualObjective=objective.id();
                 if(q.objectiveMode().equals("sequence") && !objective.optional() || submitObjective!=null || manualObjective!=null)break;
             }
@@ -657,6 +672,7 @@ public final class QuestScreen extends Screen {
         if (currentAction!=null) questAction.setMessage(t(pending || QuestClientState.flag(p,"saving") ? "processing" : currentAction));
     }
     private void drawDetails(GuiGraphicsExtractor g) {
+        recipeTargets.clear();
         if(rewardView){drawRewardView(g);return;}
         var q=state.quests.get(selected); if (q==null) return;
         int x=detailLeft,w=right-x-8,y=treeTop+(55),end=bottom-(7);
@@ -700,7 +716,10 @@ public final class QuestScreen extends Screen {
             long value=counters!=null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
             String label=objectiveLabelForDisplay(o)+(o.optional()?" · "+t("optional").getString():"");
             if(Set.of("fluid_transfer","energy_transfer").contains(o.event()))label+=" · "+t("external_integration").getString();
-            appendTile(lines,label,w,iconForObjective(q,o),value+" / "+QuestPresentation.target(q,o,p)+(o.event().equals("fluid_transfer")?" mB":o.event().equals("energy_transfer")?" FE":""));
+            var recipe=recipeForObjective(o);
+            lines.add(new DetailRow(wrap(label,Math.max(1,w-26)),recipe.isEmpty()?iconForObjective(q,o):recipe,
+                value+" / "+QuestPresentation.target(q,o,p)+(o.event().equals("fluid_transfer")?" mB":o.event().equals("energy_transfer")?" FE":""),
+                null,null,0,!recipe.isEmpty()));
         }
         } else if (!QuestClientState.flag(p,"completed"))
             append(lines,t(q.acknowledgement().equals("manual") ? "information_review" : "information_read").getString(),w);
@@ -732,6 +751,7 @@ public final class QuestScreen extends Screen {
                 if (!row.icon().isEmpty()) {
                     QuestSkin.panel(g,x,rowY,w,h-2,0xff29211c,QuestSkin.EDGE);
                     g.item(row.icon(),x+3,rowY+2);
+                    if(row.recipe())recipeTargets.add(new QuestRecipeViewer.Target(row.icon(),x+3,rowY+2));
                     textX+=23;
                 }
                 for (int i=0;i<row.lineCount();i++) {
@@ -779,7 +799,7 @@ public final class QuestScreen extends Screen {
         note.addProperty("width",Math.max(60,Math.min(400,width)));
         note.addProperty("height",Math.min(300,Math.max(20,height-8)));
         var rich=new JsonObject();rich.add("en_us",parts);note.add("rich",rich);
-        lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,null,note,height));
+        lines.add(new DetailRow(List.of(),ItemStack.EMPTY,null,null,note,height,false));
     }
     private int richDetailHeight(JsonObject part,int width){
         if("image".equals(part.get("type").getAsString()))
@@ -819,6 +839,25 @@ public final class QuestScreen extends Screen {
             }
         }
         return id!=null && BuiltInRegistries.ITEM.containsKey(id) ? icon(o.target()) : icon(q.icon());
+    }
+    private ItemStack recipeForObjective(QuestDefinition.Objective objective) {
+        String registry;
+        try { registry=dev.questplus.core.QuestExtensions.event(objective.event()).registry(); }
+        catch(IllegalArgumentException unknown) { return ItemStack.EMPTY; }
+        if(!registry.equals("item") && !registry.equals("block"))return ItemStack.EMPTY;
+        var target=objective.target();
+        var id=Identifier.tryParse(target.startsWith("#")?target.substring(1):target);
+        if(id==null)return ItemStack.EMPTY;
+        if(registry.equals("item")) {
+            if(!target.startsWith("#"))return BuiltInRegistries.ITEM.getOptional(id).map(ItemStack::new).orElse(ItemStack.EMPTY);
+            var tag=BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM,id));
+            if(tag.isPresent())for(var item:tag.get())if(item.value()!=Items.AIR)return new ItemStack(item.value());
+        } else {
+            if(!target.startsWith("#"))return BuiltInRegistries.BLOCK.getOptional(id).map(block->new ItemStack(block)).orElse(ItemStack.EMPTY);
+            var tag=BuiltInRegistries.BLOCK.get(TagKey.create(Registries.BLOCK,id));
+            if(tag.isPresent())for(var block:tag.get())if(block.value().asItem()!=Items.AIR)return new ItemStack(block.value());
+        }
+        return ItemStack.EMPTY;
     }
     private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
         // The equipment marker describes itself via the condition. Old worlds
@@ -915,7 +954,7 @@ public final class QuestScreen extends Screen {
         for(var value:reward.getAsJsonArray("options")) {
             var option=value.getAsJsonObject();String chance="";
             if(type.equals("questplus:all"))chance=" · 100%";
-            else if(option.has("weight"))chance=String.format(Locale.ROOT," · %.2f%%",option.get("weight").getAsDouble()*100/total);
+            else if(option.has("weight"))chance=String.format(Locale.ROOT," · %.2f%%",total==0?0:option.get("weight").getAsDouble()==0?100:option.get("weight").getAsDouble()*100/total);
             cards.add(new RewardCard(option,rewardLabel(option)+chance));
         }
         if(reward.has("emptyWeight") && reward.get("emptyWeight").getAsInt()>0) {
@@ -931,7 +970,8 @@ public final class QuestScreen extends Screen {
         QuestSkin.text(g,font,font.plainSubstrByWidth(title,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+41,QuestSkin.INK,false);
         String hint=receipt==null||potentialRewards?t("per_roll").getString():t("reward_status."+receipt.get("status").getAsString()).getString();
         if(!rewardDescription.isBlank())hint=rewardDescription;
-        QuestSkin.text(g,font,font.plainSubstrByWidth(hint,(int)(w/QuestSkin.TEXT_SCALE)),x,treeTop+54,QuestSkin.DIM,false);
+        List<String> hintLines=wrap(hint,(int)(w/QuestSkin.TEXT_SCALE));
+        for(int i=0;i<Math.min(2,hintLines.size());i++)QuestSkin.text(g,font,hintLines.get(i),x,treeTop+52+i*10,QuestSkin.DIM,false);
         QuestSkin.text(g,font,(rewardPage+1)+" / "+Math.max(1,(rewardCards.size()+3)/4),x+w/3+8,treeTop+177,QuestSkin.DIM,false);
         if(settings.animations && !settings.reducedMotion && receipt!=null && !potentialRewards) {
             double reveal=Math.clamp((System.currentTimeMillis()-rewardRevealAt)/400.0,0,1);
@@ -1072,6 +1112,8 @@ public final class QuestScreen extends Screen {
         if (super.mouseClicked(event,doubleClick)) return true;
         if (!tab.equals("quests") || event.button()!=InputConstants.MOUSE_BUTTON_LEFT) return false;
         double x=event.x(),y=event.y();
+        if(selected!=null && !rewardView && QuestRecipeViewer.available())
+            for(var target:recipeTargets)if(target.contains(x,y,treeTop+55,bottom-7))return QuestRecipeViewer.open(target.stack());
         if (x>=left+8 && x<treeLeft-5 && y>=treeTop && y<treeBottom) {
             int index=categoryScroll+(int)((y-treeTop)/26);var rows=categoryRows();
             if(index<rows.size()) {

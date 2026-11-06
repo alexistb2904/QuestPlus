@@ -37,6 +37,9 @@ public final class QuestPlusMod implements ModInitializer {
     }
 
     @Override public void onInitialize() {
+        QuestCrateItem.register();
+        QuestTabletItem.register();
+        QuestCreativeTab.register();
         QuestNetwork.register();
         CommandRewards.install();
         TabletPoseNetwork.register();
@@ -90,6 +93,7 @@ public final class QuestPlusMod implements ModInitializer {
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity,source) -> {
             if (runtime == null) return;
+            runtime.dropCrate(entity);
             if (entity instanceof ServerPlayer dead) runtime.event(dead,new QuestEvent("player_death","questplus:death",Set.of(),1,context(dead)));
             var responsible = source.getEntity() instanceof ServerPlayer player ? player
                 : entity.getKillCredit() instanceof ServerPlayer player ? player : null;
@@ -99,8 +103,7 @@ public final class QuestPlusMod implements ModInitializer {
     }
 
     public static void pickedUp(ServerPlayer player,ItemStack item,int count) {
-        if (runtime != null && count > 0) runtime.event(player,new QuestEvent("item_obtained",BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
-            item.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),count,context(player)));
+        if (runtime != null && count > 0) AdvancedEvents.item(player,"item_obtained",item,count);
     }
 
     public static Map<String,Object> context(ServerPlayer player) {

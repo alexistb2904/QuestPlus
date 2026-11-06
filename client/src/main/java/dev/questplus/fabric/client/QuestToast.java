@@ -67,7 +67,7 @@ final class QuestToast {
         var id=Identifier.tryParse(active.icon);
         ItemStack icon=id!=null&&BuiltInRegistries.ITEM.containsKey(id)
             ?new ItemStack(BuiltInRegistries.ITEM.getValue(id)):new ItemStack(Items.BOOK);
-        g.item(icon,x+10,y+10);
+        if(!RichAnnotationRenderer.drawIcon(g,active.icon,x+10,y+10,16))g.item(icon,x+10,y+10);
         String heading=active.heading==null?QuestPlusClient.tr("toast."+active.kind).getString():mc.font.plainSubstrByWidth(active.heading,w-43);
         String name=mc.font.plainSubstrByWidth(active.name,w-43);
         g.text(mc.font,heading,x+36,y+7,accent,false);

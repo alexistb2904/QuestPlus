@@ -51,4 +51,8 @@ public final class QuestPlusApi {
     public static void registerReward(String id,Consumer<JsonObject> validator,BiPredicate<ServerPlayer,QuestDefinition.Reward> fits,BiConsumer<ServerPlayer,QuestDefinition.Reward> deliver) {
         QuestRewardExtensions.register(id,validator,fits,deliver);
     }
+    /** Explicitly opt a trusted handler into immutable pools; public previews contain only its type and authored label. */
+    public static void registerPoolReward(String id,Consumer<JsonObject> validator,BiPredicate<ServerPlayer,QuestDefinition.Reward> fits,BiConsumer<ServerPlayer,QuestDefinition.Reward> deliver) {
+        registerReward(id,validator,fits,deliver);QuestExtensions.allowPoolReward(id);
+    }
 }

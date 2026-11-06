@@ -13,6 +13,14 @@ import java.nio.file.*;
 public final class QuestClientGameTest implements FabricClientGameTest {
     public static net.minecraft.world.entity.player.PlayerSkin skin;
     @Override public void runTest(ClientGameTestContext context) {
+        if(Boolean.getBoolean("questplus.recipeReturn")) {
+            RecipeReturnGameTest.run(context);
+            return;
+        }
+        if (Boolean.getBoolean("questplus.tabletCarryOnly")) {
+            TabletCarryGameTest.run(context);
+            return;
+        }
         if (Boolean.getBoolean("questplus.tabletCompatibility")) {
             TabletCompatibilityTest.run(context);
             return;
@@ -219,8 +227,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
         server.runOnServer(instance->{
             try {
                 var runtime=dev.questplus.fabric.QuestPlusMod.runtime();category[0]=runtime.categories().getFirst().id();
+                var bytes=new java.io.ByteArrayOutputStream();
+                var png=new java.awt.image.BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                for(int y=0;y<16;y++)for(int x=0;x<16;x++)png.setRGB(x,y,0xffff00ff);
+                javax.imageio.ImageIO.write(png,"png",bytes);
+                String customIcon="data:image/png;base64,"+java.util.Base64.getEncoder().encodeToString(bytes.toByteArray());
                 Files.writeString(instance.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("questplus/quests/client-choice.json5"),"""
-                    {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'minecraft:chest',title:{en_us:'Reward choices'},progression:'once',presentation:{shape:'hexagon',subtitle:{en_us:'Server validated'},iconScale:0.8},
+                    {schemaVersion:1,id:'questplus:client_choice_fixture',category:'%s',icon:'%s',title:{en_us:'Reward choices'},progression:'once',presentation:{shape:'hexagon',subtitle:{en_us:'Server validated'},iconScale:0.8},
                      objectives:[{id:'check',event:'manual',target:'questplus:client_choice_marker',count:1}],
                      rewards:[
                       {type:'questplus:choice',data:{options:[{type:'experience',amount:7},{type:'experience_levels',amount:2}]}},
@@ -229,11 +242,12 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                       {type:'questplus:stage',data:{stage:'questplus:client_reward',remove:false}},
                       {type:'questplus:toast',data:{title:{en_us:'Custom reward'},description:{en_us:'Stage unlocked'},icon:'minecraft:diamond'}}
                      ]}
-                    """.formatted(category[0]));
+                    """.formatted(category[0],customIcon));
                 runtime.reload();
             } catch(Exception e){throw new RuntimeException(e);}
         });
         context.waitFor(client->QuestPlusClient.STATE.quests.containsKey(id),300);
+        context.runOnClient(client->{if(!QuestPlusClient.STATE.quests.get(id).icon().startsWith("data:image/png;base64,"))throw new AssertionError("Custom quest icon was not projected");});
         boolean nativeTablet=FabricLoader.getInstance().isModLoaded("fp_pal")&&FabricLoader.getInstance().isModLoaded("player_animation_library");
         if(nativeTablet) {
             context.setScreen(()->null);
@@ -379,10 +393,19 @@ public final class QuestClientGameTest implements FabricClientGameTest {
                 var player=new net.minecraft.client.player.RemotePlayer(client.level,profile);
                 player.setId(id++); player.setPos(client.player.getX()+(profile.id().equals(holderId) ? -.85 : .85),client.player.getY(),client.player.getZ()+3.2);
                 player.setYRot(180); player.setXRot(0); player.yHeadRot=180; player.yBodyRot=180; player.setOldPosAndRot();
+                if (profile.id().equals(holderId)) player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,
+                    new net.minecraft.world.item.ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse("questplus:tablet"))));
                 client.level.addEntity(player);
             }
         });
         context.getInput().lookAt(0,0); context.waitTicks(5);
+        assertRemoteCarry(context);
+        context.takeScreenshot("questplus-remote-carried-front");
+        var carryView=context.computeOnClient(client -> client.player.position());
+        context.runOnClient(client -> { client.player.setPos(carryView.add(-3,0,3.2));client.player.setOldPosAndRot(); });
+        context.getInput().lookAt(-90,0);context.waitTicks(3);context.takeScreenshot("questplus-remote-carried-side");
+        context.runOnClient(client -> { client.player.setPos(carryView);client.player.setOldPosAndRot(); });
+        context.getInput().lookAt(0,0);
         sendPose(server,holderId,true); context.waitTicks(12); context.takeScreenshot("questplus-remote-opening");
         context.waitTicks(18); context.takeScreenshot("questplus-remote-idle");
         assertRemoteArms(context);
@@ -399,9 +422,21 @@ public final class QuestClientGameTest implements FabricClientGameTest {
         assertRemoteArms(context);
         sendPose(server,holderId,false); context.waitTicks(12); context.takeScreenshot("questplus-remote-closing");
         context.waitTicks(18); context.takeScreenshot("questplus-remote-closed");
+        assertRemoteCarry(context);
         context.runOnClient(client -> {
             client.level.removeEntity(9000,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
             client.level.removeEntity(9001,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED); skin=null;
+        });
+    }
+    private static void assertRemoteCarry(ClientGameTestContext context) {
+        context.runOnClient(client -> {
+            var holder=(net.minecraft.client.player.RemotePlayer)client.level.getEntity(9000);
+            @SuppressWarnings("unchecked") var renderer=(net.minecraft.client.renderer.entity.player.AvatarRenderer<net.minecraft.client.player.RemotePlayer>)(Object)client.getEntityRenderDispatcher().getRenderer(holder);
+            var state=renderer.createRenderState();renderer.extractRenderState(holder,state,1);
+            var model=renderer.getModel();model.setupAnim(state);
+            if (!state.getMainHandItemState().isEmpty()
+                || Math.abs(model.rightArm.xRot-Math.toRadians(TabletThirdPersonAnimation.carry().right().x()))>.001)
+                throw new AssertionError("Closed tablet retained the generic item pose");
         });
     }
     private static void assertRemoteArms(ClientGameTestContext context) {
@@ -411,6 +446,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
             @SuppressWarnings("unchecked") var renderer=(net.minecraft.client.renderer.entity.player.AvatarRenderer<net.minecraft.client.player.RemotePlayer>)(Object)client.getEntityRenderDispatcher().getRenderer(holder);
             var state=renderer.createRenderState(); renderer.extractRenderState(holder,state,1);
             var model=renderer.getModel(); model.setupAnim(state);
+            if (!state.getMainHandItemState().isEmpty()) throw new AssertionError("The item duplicated the animated remote tablet");
             if (Math.abs(model.rightArm.xRot-Math.toRadians(-53))>.05) throw new AssertionError("Remote holder does not match the exported Blockbench arm");
             renderer.extractRenderState(witness,state,1); model.setupAnim(state);
             if (Math.abs(model.rightArm.xRot)>.2 || Math.abs(model.leftArm.xRot)>.2

@@ -12,6 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
+import net.fabricmc.loader.api.FabricLoader;
 import java.net.URI;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
@@ -42,9 +43,10 @@ final class QuestHubService implements AutoCloseable {
         world=server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize();
         http=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(6)).followRedirects(HttpClient.Redirect.NEVER).build();
         Path config=world.resolve("questplus-hub.json");
+        if(!Files.exists(config))config=FabricLoader.getInstance().getConfigDir().resolve("questplus-hub.json");
         try {
             if(!Files.exists(config)){
-                QuestPlusMod.LOGGER.info("QuestPlus Hub is disabled. Configure world/questplus-hub.json to enable.");
+                QuestPlusMod.LOGGER.info("QuestPlus Hub is disabled. Configure world/questplus-hub.json or config/questplus-hub.json to enable.");
                 return;
             }
             JsonObject cfg=Defaults.readObject(config);
@@ -118,6 +120,12 @@ final class QuestHubService implements AutoCloseable {
         tagIds(tags,"entities",BuiltInRegistries.ENTITY_TYPE);
         result.add("tags",tags);
         result.add("extensions",dev.questplus.fabric.api.QuestStudioDescriptors.snapshot());
+        Map<String,Set<String>> assets=new HashMap<>();
+        for(String kind:List.of("items","blocks","entities","effects","enchantments","biomes","structures")) {
+            Set<String> ids=new HashSet<>();result.getAsJsonArray(kind).forEach(id->ids.add(id.getAsString()));assets.put(kind,ids);
+        }
+        List<Path> roots=FabricLoader.getInstance().getAllMods().stream().flatMap(mod->mod.getRootPaths().stream()).toList();
+        result.add("assets",new StudioRegistryAssets(roots).collect(assets));
         return result;
     }
     private void addIds(JsonObject output,String name,Collection<?> ids){
@@ -147,7 +155,7 @@ final class QuestHubService implements AutoCloseable {
             }));
     }
     void createSession(CommandSourceStack source){
-        if(!configured()){fail(source,"Configure world/questplus-hub.json (HTTPS URL and server key) first");return;}
+        if(!configured()){fail(source,"Configure world/questplus-hub.json or config/questplus-hub.json (HTTPS URL and server key) first");return;}
         ServerPlayer player;
         try{player=source.getPlayerOrException();}catch(Exception e){fail(source,"Open the editor as an in-game operator");return;}
         try{

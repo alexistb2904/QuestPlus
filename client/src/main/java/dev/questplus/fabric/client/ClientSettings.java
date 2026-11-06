@@ -10,7 +10,7 @@ public final class ClientSettings {
     public static final int MAX_PINNED=3;
     private static final Gson JSON = new Gson();
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
-    public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
+    public boolean hud = false, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
     /** Off by default: damage closes the tablet and plays its close animation. */
     public boolean stayOpenOnDamage = false;
     public int hudPosition = 2, notificationPosition = 1, detail = 1;
@@ -27,6 +27,7 @@ public final class ClientSettings {
                 // Older installations had no notification anchor: retain the previous top-centre placement.
                 if(settings!=null && (json==null || !json.has("notificationPosition")))
                     settings.notificationPosition=1;
+                if(settings!=null && (json==null || !json.has("hud"))) settings.hud=false;
                 // Gson does not initialize newly-added instance fields for older configs.
                 if(settings!=null && !json.has("screenEmissive")) settings.screenEmissive=true;
                 if(settings!=null && !json.has("screenBrightness")) settings.screenBrightness=1.0;

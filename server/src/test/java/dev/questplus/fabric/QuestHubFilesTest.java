@@ -28,6 +28,13 @@ class QuestHubFilesTest {
         JsonArray incomplete=good.deepCopy();incomplete.remove(0);
         assertThrows(Exception.class,()->QuestHubFiles.validate(incomplete));
     }
+    @Test void browserAndPackLinksCannotEnableOrDeliverCommands() {
+        var documents=valid();assertDoesNotThrow(()->QuestHubFiles.rejectRemoteCommands(documents));
+        documents.get(2).getAsJsonObject().addProperty("content","{\"rewards\":[{\"type\":\"questplus:command\",\"data\":{\"command\":\"say remote\"}}]}");
+        assertThrows(java.io.IOException.class,()->QuestHubFiles.rejectRemoteCommands(documents));
+        var enabled=valid();enabled.get(0).getAsJsonObject().addProperty("content","{\"enableCommandRewards\":true}");
+        assertThrows(java.io.IOException.class,()->QuestHubFiles.rejectRemoteCommands(enabled));
+    }
     @Test void snapshotsOnlyDefinitionsAndNeverPlayerProgress() throws Exception{
         Path temp=Files.createTempDirectory("questhub-test");
         try{

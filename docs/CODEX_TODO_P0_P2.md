@@ -1,7 +1,7 @@
 # Quest Plus — suivi Codex P0–P2
 
 Mise à jour du 5 novembre 2026, après les PR #27/#29 et l'intégration des récompenses dans les interfaces.
-Une case cochée correspond aux limites de validation décrites ci-dessous. Le projet ne revendique pas encore une parité complète avec FTB Quests.
+Une case cochée correspond aux limites de validation décrites ci-dessous. Les fonctionnalités et limites connues sont détaillées ci-dessous.
 
 ## Vérifié sur le checkout
 
@@ -60,8 +60,8 @@ Une case cochée correspond aux limites de validation décrites ci-dessous. Le p
 - [ ] **Internationalisation globale** : les nouvelles interfaces récompenses sont traduites ; reprendre les anciens libellés encore anglais, dont les options projet et les messages d'import. Les textures externes manquantes ont un fallback mais peuvent produire des 404 navigateur.
 - [ ] **Matrice de compatibilité** : serveur dédié 26.3, deux clients, Iris/shaders, registres divergents, sessions Hub et reprise des sauvegardes. Le test client de base n'est pas cette matrice complète.
 
-Voir [comparatif FTB](ftb-quests-gap-analysis.md) et [preuves de validation](reviews/reward-integration/README.md).
+Voir [état des fonctionnalités](ftb-quests-gap-analysis.md) et [preuves de validation](reviews/reward-integration/README.md).
 
 ## Validation de cette continuation
 
-Revue indépendante : quatre défauts corrigés (collision d’états, `all_started`, SNBT sans virgules, collisions d’identifiants de stage). Test additionnel de 5 000 polls pendant une sauvegarde : les snapshots resondés ne saturent plus la file. Source et périmètre exacts : [comparatif FTB](ftb-quests-gap-analysis.md), [preuves](reviews/ftb-parity/README.md). La PR reste brouillon tant que les écarts bloquants ci-dessus sont ouverts.
+Revue indépendante : quatre défauts corrigés (collision d’états, `all_started`, SNBT sans virgules, collisions d’identifiants de stage). Test additionnel de 5 000 polls pendant une sauvegarde : les snapshots resondés ne saturent plus la file. Source et périmètre exacts : [état des fonctionnalités](ftb-quests-gap-analysis.md), [preuves](reviews/ftb-parity/README.md). La PR reste brouillon tant que les écarts bloquants ci-dessus sont ouverts.

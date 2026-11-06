@@ -1,46 +1,58 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {Package} from 'lucide-react';
 import {Dialog} from './Dialog';
-import {vanillaCatalog,iconUrl,blockIconUrl,blockExists,inVanillaRegistry,loadVanillaIcons} from '../ui/minecraft-icons.js';
-import {tUI} from '../ui/ui-i18n.js';
+import {vanillaCatalog,iconUrl,inVanillaRegistry,loadVanillaIcons} from '../ui/minecraft-icons.js';
+import {tUI,getUiLocale} from '../ui/ui-i18n.js';
 import {BIOMES,STRUCTURES,ENTITIES,DIMENSIONS} from '../core/objective-targets.js';
 import {ENCHANTMENTS_26_3} from '../data/vanilla-enchantments-26.3.js';
-import {hubTargets} from '../core/hub-registry.js';
+import {hubTargets,hubTexture,hubLabel} from '../core/hub-registry.js';
+import {resourceMatcher} from '../core/resource-search.js';
+import {ResourceGrid} from './ResourceGrid';
 
 export function ItemIcon({id,version='26.3',size=30}:{id?:string;version?:string;size?:number}){
  const [fail,setFail]=useState(0);
  useEffect(()=>setFail(0),[id,version]);
- const blockFirst=blockExists(id);
- const url=!inVanillaRegistry(id)?'':fail===0?(blockFirst?blockIconUrl(id||'',version):iconUrl(id||'',version)):fail===1?(blockFirst?iconUrl(id||'',version):blockIconUrl(id||'',version)):'';
- return <span className="mc-icon" title={id||''} style={{width:size,height:size,flexShrink:0}}>
+ const url=fail===0?((id||'').startsWith('data:image/png;base64,')?id:hubTexture(id||'')||(inVanillaRegistry(id)?iconUrl(id||'',version):'')):'';
+ return <span className="mc-icon" title={id?.startsWith('data:')?tUI('Custom image'):id||''} style={{width:size,height:size,flexShrink:0}}>
   {url?<img alt="" loading="lazy" src={url} onError={()=>setFail(f=>f+1)}/>:<Package size={Math.min(size,24)} aria-hidden="true"/>}
  </span>;
 }
 export function IconPicker({onPick,onClose}:{onPick:(value:string)=>void;onClose:()=>void}){
- const [search,setSearch]=useState(''),[filter,setFilter]=useState('all'),[limit,setLimit]=useState(96);
+ const [search,setSearch]=useState(''),[filter,setFilter]=useState('all'),[error,setError]=useState('');
+ const upload=async(file:File)=>{
+  if(file.type!=='image/png'||file.size>16384){setError(tUI('Choose a PNG up to 16 KB and 128 × 128 pixels.'));return}
+  const url=URL.createObjectURL(file),image=new Image();
+  try{await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=()=>reject();image.src=url});
+   if(image.naturalWidth>128||image.naturalHeight>128||!image.naturalWidth||!image.naturalHeight)throw Error();
+   const data=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file)});
+   onPick(data);
+  }catch{setError(tUI('Choose a PNG up to 16 KB and 128 × 128 pixels.'))}finally{URL.revokeObjectURL(url)}
+ };
  useEffect(()=>{loadVanillaIcons().catch(()=>{});},[]);
  const matches=useMemo(()=>{
   const vanilla=vanillaCatalog();
   const known=new Set(vanilla.map((v:any)=>v.id));
-  const modded=[...hubTargets('item').map(id=>({id,label:id.split(':')[1].replace(/_/g,' '),kind:'item'})),
-    ...hubTargets('block').map(id=>({id,label:id.split(':')[1].replace(/_/g,' '),kind:'block'}))]
-    .filter(item=>!known.has(item.id));
-  return [...vanilla,...modded].filter((item:any)=>(filter==='all'||item.kind===filter||item.kind==='both')&&(item.id+' '+item.label).toLowerCase().includes(search.toLowerCase()));
+  const modded=[...hubTargets('item').map(id=>({id,label:hubLabel(id,getUiLocale()),kind:'item'})),
+    ...hubTargets('block').map(id=>({id,label:hubLabel(id,getUiLocale()),kind:'block'}))]
+    .filter(item=>{if(known.has(item.id))return false;known.add(item.id);return true});
+  const matches=resourceMatcher(search);
+  return [...vanilla,...modded].filter((item:any)=>(filter==='all'||item.kind===filter||item.kind==='both')&&matches(item.id,item.label));
  },[search,filter]);
  return <Dialog title={tUI('Choose an icon')} onClose={onClose} className="icon-dialog">
-   <div className="picker-filters"><input autoFocus aria-label={tUI('Search every item and block…')} value={search} onChange={e=>{setSearch(e.target.value);setLimit(96)}} placeholder={tUI('Search every item and block…')}/>
-    <select value={filter} onChange={e=>{setFilter(e.target.value);setLimit(96)}} aria-label={tUI("Icon type")}><option value="all">{tUI('All')}</option><option value="item">{tUI('Items')}</option><option value="block">{tUI('Blocks')}</option></select>
+   <div className="picker-filters"><input autoFocus aria-label={tUI('Search every item and block…')} value={search} onChange={e=>setSearch(e.target.value)} placeholder={tUI('Search every item and block…')}/>
+    <select value={filter} onChange={e=>setFilter(e.target.value)} aria-label={tUI("Icon type")}><option value="all">{tUI('All')}</option><option value="item">{tUI('Items')}</option><option value="block">{tUI('Blocks')}</option></select>
    </div>
    <div className="picker-count">{matches.length} {tUI('results')}</div>
-   <div className="picker-grid">{matches.slice(0,limit).map((item:any)=><button key={item.id} className="picker-item" title={item.id} onClick={()=>onPick(item.id)}><ItemIcon id={item.id}/><span>{item.label}</span></button>)}</div>
-   {matches.length>limit&&<button className="button secondary" onClick={()=>setLimit(l=>l+120)}>{tUI('Load more')}</button>}
+   <label className="button secondary icon-upload">{tUI('Upload image')}<input type="file" accept="image/png" hidden onChange={e=>{const file=e.target.files?.[0];if(file)void upload(file);e.target.value=''}}/></label>
+   {error&&<p role="alert" className="error-line">{error}</p>}
+   <ResourceGrid key={search+'\0'+filter} items={matches} onPick={onPick} renderIcon={id=><ItemIcon id={id}/>}/>
    <p className="picker-help">{tUI('Modded items: enter a namespaced ID (e.g. create:brass_ingot) directly.')}</p>
  </Dialog>;
 }
 
 /** A searchable vanilla catalogue with an unrestricted namespaced-ID input for modded content. */
 export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'|'biome'|'structure'|'statistic'|'advancement'|'fluid'|'dimension'|'enchantment'|'effect';onPick:(value:string)=>void;onClose:()=>void}){
- const [search,setSearch]=useState(''),[limit,setLimit]=useState(96),[custom,setCustom]=useState('');
+ const [search,setSearch]=useState(''),[custom,setCustom]=useState('');
  const catalogue=useMemo(()=>{
    let defaults:string[];
    if(kind==='biome')defaults=BIOMES;
@@ -53,13 +65,12 @@ export function TargetPicker({kind,onPick,onClose}:{kind:'block'|'item'|'entity'
    else defaults=vanillaCatalog().filter((item:any)=>kind==='block'?item.kind==='block'||item.kind==='both':item.kind==='item'||item.kind==='both').map((item:any)=>item.id);
    return [...new Set([...defaults,...hubTargets(kind)])].sort();
  },[kind]);
- const matches=useMemo(()=>catalogue.filter(id=>id.toLowerCase().includes(search.trim().toLowerCase())),[catalogue,search]);
+ const matches=useMemo(()=>{const match=resourceMatcher(search);return catalogue.filter(id=>match(id))},[catalogue,search]);
  const valid=/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(custom.trim());
  return <Dialog title={tUI('Choose target')} onClose={onClose} className="icon-dialog">
-   <div className="picker-filters"><input autoFocus value={search} onChange={e=>{setSearch(e.target.value);setLimit(96)}} placeholder={tUI('Search targets…')} aria-label={tUI('Search targets…')}/></div>
+   <div className="picker-filters"><input autoFocus value={search} onChange={e=>setSearch(e.target.value)} placeholder={tUI('Search targets…')} aria-label={tUI('Search targets…')}/></div>
    <div className="picker-count">{matches.length} {tUI('results')}</div>
-   <div className="picker-grid">{matches.slice(0,limit).map(id=><button type="button" className="picker-item" key={id} title={id} onClick={()=>onPick(id)}>{(kind==='block'||kind==='item')&&<ItemIcon id={id}/>}<span>{id.replace('minecraft:','').replace(/_/g,' ')}</span></button>)}</div>
-   {matches.length>limit&&<button className="button secondary" onClick={()=>setLimit(n=>n+120)}>{tUI('Load more')}</button>}
+   <ResourceGrid key={kind+'\0'+search} items={matches.map(id=>({id,label:id.startsWith('minecraft:')?id.replace('minecraft:','').replace(/_/g,' '):hubLabel(id,getUiLocale())}))} onPick={onPick} renderIcon={kind==='block'||kind==='item'?id=><ItemIcon id={id}/>:undefined}/>
    <div className="target-custom"><input aria-label={tUI('Modded target ID')} placeholder="modid:custom_target" value={custom} spellCheck={false} onChange={e=>setCustom(e.target.value)}/><button className="button primary" type="button" disabled={!valid} onClick={()=>onPick(custom.trim())}>{tUI('Use ID')}</button></div>
  </Dialog>;
 }

@@ -40,7 +40,7 @@ export const targetKind=event=>
  ['block_break','block_place','block_interact','observe_block'].includes(event)?'block':
  ['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'].includes(event)?'item':
  ['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact','observe_entity'].includes(event)?'entity':
- event==='fluid_transfer'?'fluid':event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
+ ['fluid_transfer','fluid_submit'].includes(event)?'fluid':event==='biome_visit'?'biome':event==='structure_visit'?'structure':null;
 export const initialTarget=event=>(
  event==='dimension_enter'?'minecraft:overworld':MARKERS[event]||
  (targetKind(event)==='block'?'minecraft:stone':targetKind(event)==='item'?'minecraft:stick':
@@ -88,6 +88,8 @@ export const OBJECTIVE_UI=Object.freeze({
   inventory_count:{kind:'item',amount:'Required in inventory'},
   item_submit:{kind:'item',amount:'Items to verify'},
   item_turn_in:{kind:'item',amount:'Items to consume'},
+  fluid_submit:{kind:'fluid',amount:'Millibuckets (mB)'},
+  energy_submit:{kind:'custom',amount:'Energy (FE)'},
   fluid_transfer:{kind:'fluid',amount:'Fluid (mB)'},
   energy_transfer:{kind:'custom',amount:'Energy (FE)'},
   entity_kill:{kind:'entity',amount:'Kills'},
@@ -103,6 +105,9 @@ export const OBJECTIVE_UI=Object.freeze({
   player_death:{kind:'death',amount:'Deaths'},
   equipment_check:{kind:'custom',amount:null},
   xp_levels:{kind:'custom',amount:'XP Levels'},
+  xp_submit_levels:{kind:'custom',amount:'XP Levels'},
+  xp_submit_points:{kind:'custom',amount:'XP points'},
+  xp_points:{kind:'custom',amount:'XP points'},
   custom_stat:{kind:'custom',amount:'Stat value'},
   advancement_complete:{kind:'custom',amount:null},
   'questplus:fish_any':{kind:'custom',amount:'Fish'},
@@ -123,9 +128,10 @@ export const changeObjectiveEvent=(objective,event,questId)=>{
   if(objective.event===event)return objective;
   const oldKind=objectiveUi(objective.event).kind,newKind=objectiveUi(event).kind;
   // Switching between related events must not erase an already chosen modded ID.
-  const sameRegistry=oldKind===newKind && event!=='energy_transfer' && ['block','item','entity','biome','structure','dimension','fluid','custom'].includes(newKind);
-  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':event==='xp_levels'?'questplus:levels':event==='energy_transfer'?'questplus:fe':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
+  const sameRegistry=oldKind===newKind && ['block','item','entity','biome','structure','dimension','fluid'].includes(newKind);
+  const target=sameRegistry?objective.target:event==='questplus:fish_any'?'questplus:fish':event==='equipment_check'?'questplus:gear':['xp_levels','xp_submit_levels'].includes(event)?'questplus:levels':['xp_points','xp_submit_points'].includes(event)?'questplus:points':['energy_transfer','energy_submit'].includes(event)?'questplus:fe':event==='custom_stat'?'minecraft:jump':event==='advancement_complete'?'minecraft:story/mine_stone':event==='manual'?(questId||'questplus:manual'):initialTarget(event);
   const next={...objective,event,target,count:sameRegistry?objective.count:event==='travel_distance'?100:1};
+  if(objective.event!==event)delete next.data;
   const cleaned=removePositionCondition(objective.conditions);
   if(cleaned)next.conditions=cleaned;
   else delete next.conditions;
@@ -186,6 +192,8 @@ export const EVENT_LABELS={
   "inventory_count": "Hold items",
   "item_submit": "Submit without consuming",
   "item_turn_in": "Submit and consume",
+  "fluid_submit": "Submit fluid",
+  "energy_submit": "Submit energy",
   "fluid_transfer": "Transfer fluid",
   "energy_transfer": "Transfer energy",
   "entity_kill": "Kill entities",
@@ -202,6 +210,9 @@ export const EVENT_LABELS={
   "player_death": "Die",
   "equipment_check": "Verified Equipment",
   "xp_levels": "Reach an XP level",
+  "xp_points": "Have XP points",
+  "xp_submit_points": "Submit XP points",
+  "xp_submit_levels": "Submit XP levels",
   "custom_stat": "Reach a Minecraft stat",
   "advancement_complete": "Complete an advancement",
   "manual": "Manual confirmation"

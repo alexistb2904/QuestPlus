@@ -1,4 +1,5 @@
 {
+  "questplus.client.show_recipe": "Cliquer pour voir les recettes",
   "questplus.help": "/questplus progress [quête] | claim <quête> | restart <quête> | trigger <quête> | team create/invite/invitations/join/decline/leave/kick/transfer/disband/info. Administration : reload | debug [uuid] | quest grant/reset <uuid> <quête>.",
   "questplus.restarted": "Tentative de quête redémarrée.",
   "questplus.team_saved": "Opération d'équipe sauvegardée. /questplus team info affiche son identifiant et ses membres.",
@@ -199,15 +200,18 @@
   "questplus.client.confirm_choice": "Confirmer le choix",
   "questplus.client.possible_rewards": "Récompenses possibles",
   "questplus.client.actual_rewards": "Résultat serveur",
+  "questplus.client.toast.claimed": "RÉCOMPENSE RÉCUPÉRÉE",
+  "questplus.client.toast.claim_all": "RÉCOMPENSES RÉCUPÉRÉES",
+  "questplus.client.toast.choice_saved": "CHOIX ENREGISTRÉ",
   "questplus.client.xp_levels": "%s niveaux XP",
   "questplus.client.submit": "Soumettre les objets",
   "questplus.client.no_rewards": "Aucune récompense",
-  "questplus.client.per_roll": "Chance par tirage ; doublons possibles",
+  "questplus.client.per_roll": "Chance par tirage. Plusieurs tirages peuvent donner la même récompense.",
   "questplus.client.optional": "Optionnel",
   "questplus.client.external_integration": "Intégration serveur requise",
   "questplus.client.reward_status.choice": "Choisir chaque récompense avant de récupérer",
-  "questplus.client.reward_status.ready": "Enregistré ; prêt à récupérer",
-  "questplus.client.reward_status.reserved": "Réservé ; vérification administrateur requise",
+  "questplus.client.reward_status.ready": "Enregistré et prêt à récupérer",
+  "questplus.client.reward_status.reserved": "Réservé pour vérification par un administrateur",
   "questplus.client.reward_status.delivered": "Déjà récupéré",
   "questplus.client.reward_status.empty": "Ce tirage n’a rien attribué",
   "questplus.client.reward_type.questplus:choice": "Choix du joueur",
@@ -225,5 +229,9 @@
   "questplus.client.condition.detail.at_least": "Au moins %s parmi : %s",
   "questplus.client.condition.detail.stage": "Stage : %s",
   "questplus.client.reward_type.questplus:stage": "Stage",
-  "questplus.client.reward_type.questplus:toast": "Notification"
+  "questplus.client.reward_type.questplus:toast": "Notification",
+  "item.questplus.loot_crate": "Caisse de butin",
+  "questplus.crate.opened": "Caisse ouverte. Les récompenses seront livrées dès qu’une place sera disponible.",
+  "item.questplus.tablet": "Tablette de quêtes",
+  "itemGroup.questplus.quest": "Quest"
 }

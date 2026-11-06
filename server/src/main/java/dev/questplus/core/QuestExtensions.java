@@ -12,15 +12,17 @@ public final class QuestExtensions {
     private static final Map<String,EventType> EVENTS = new ConcurrentHashMap<>();
     private static final Map<String,ConditionType> CONDITIONS = new ConcurrentHashMap<>();
     private static final Map<String,Consumer<JsonObject>> REWARDS = new ConcurrentHashMap<>();
+    private static final Set<String> POOL_REWARDS=ConcurrentHashMap.newKeySet();
     private record ObjectiveType(Consumer<JsonObject> validator,BiPredicate<JsonObject,QuestEvent> predicate) {}
     private static final Map<String,ObjectiveType> OBJECTIVES=new ConcurrentHashMap<>();
     static {
         REWARDS.put("questplus:advancement",data -> {
-            if(!data.keySet().equals(Set.of("advancement")) ||
+            if(!Set.of("advancement","criterion").containsAll(data.keySet()) ||
                     !data.has("advancement") || !data.get("advancement").isJsonPrimitive() ||
                     !data.get("advancement").getAsJsonPrimitive().isString() ||
                     !data.get("advancement").getAsString().matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
                 throw new IllegalArgumentException("Advancement reward requires a registered advancement ID");
+            if(data.has("criterion")&&(!data.get("criterion").isJsonPrimitive()||!data.getAsJsonPrimitive("criterion").isString()||data.get("criterion").getAsString().isBlank()||data.get("criterion").getAsString().length()>256))throw new IllegalArgumentException("Invalid advancement criterion");
         });
         REWARDS.put("questplus:random",RewardTables::validate);
         REWARDS.put("questplus:loot",RewardTables::validateLoot);
@@ -43,11 +45,16 @@ public final class QuestExtensions {
         EVENTS.put("inventory_count",new EventType("item",true));
         EVENTS.put("item_submit",new EventType("item",false));
         EVENTS.put("item_turn_in",new EventType("item",false));
+        EVENTS.put("xp_submit_levels",new EventType("marker",false));
+        EVENTS.put("xp_submit_points",new EventType("marker",false));
         // These events require a trusted server-side mod integration. They do NOT imply
         // automatic extraction from arbitrary modded tanks or power cables.
         EVENTS.put("fluid_transfer",new EventType("fluid",false));
         EVENTS.put("energy_transfer",new EventType("marker",false));
+        EVENTS.put("fluid_submit",new EventType("fluid",false));
+        EVENTS.put("energy_submit",new EventType("marker",false));
         EVENTS.put("xp_levels",new EventType("marker",true));
+        EVENTS.put("xp_points",new EventType("marker",true));
         EVENTS.put("custom_stat",new EventType("marker",true));
         EVENTS.put("advancement_complete",new EventType("marker",true));
         EVENTS.put("observe_block",new EventType("block",true));
@@ -89,14 +96,17 @@ public final class QuestExtensions {
         CONDITIONS.put("position",new ConditionType(value -> {
             var o=value.getAsJsonObject();
             if (o.isEmpty()) throw new IllegalArgumentException("Position bounds cannot be empty");
-            for (var e:o.entrySet()) if (!Set.of("xMin","xMax","yMin","yMax","zMin","zMax").contains(e.getKey()) || !e.getValue().isJsonPrimitive()
-                    || !e.getValue().getAsJsonPrimitive().isNumber() || !Double.isFinite(e.getValue().getAsDouble())) throw new IllegalArgumentException("Invalid position bounds");
+            if(o.has("blockCoordinates")&&(!o.get("blockCoordinates").isJsonPrimitive()||!o.getAsJsonPrimitive("blockCoordinates").isBoolean()))throw new IllegalArgumentException("Invalid block coordinate mode");
+            for (var e:o.entrySet()) if (!e.getKey().equals("blockCoordinates") && (!Set.of("xMin","xMax","yMin","yMax","zMin","zMax").contains(e.getKey()) || !e.getValue().isJsonPrimitive()
+                    || !e.getValue().getAsJsonPrimitive().isNumber() || !Double.isFinite(e.getValue().getAsDouble()))) throw new IllegalArgumentException("Invalid position bounds");
             for (String axis:List.of("x","y","z")) if (o.has(axis+"Min") && o.has(axis+"Max") && o.get(axis+"Min").getAsDouble()>o.get(axis+"Max").getAsDouble()) throw new IllegalArgumentException("Inverted position bounds");
         },(value,context) -> {
             if (!(context.get("position") instanceof Map<?,?> position)) return false;
             for (var e:value.getAsJsonObject().entrySet()) {
+                if(e.getKey().equals("blockCoordinates"))continue;
                 if (!(position.get(e.getKey().substring(0,1)) instanceof Number n)) return false;
-                if (e.getKey().endsWith("Min") ? n.doubleValue()<e.getValue().getAsDouble() : n.doubleValue()>e.getValue().getAsDouble()) return false;
+                double coordinate=value.getAsJsonObject().has("blockCoordinates")&&value.getAsJsonObject().get("blockCoordinates").getAsBoolean()?Math.floor(n.doubleValue()):n.doubleValue();
+                if (e.getKey().endsWith("Min") ? coordinate<e.getValue().getAsDouble() : coordinate>e.getValue().getAsDouble()) return false;
             }
             return true;
         }));
@@ -124,11 +134,25 @@ public final class QuestExtensions {
     }
     public static void validateObjective(String event,JsonObject data) {
         if(data.toString().length()>16384)throw new IllegalArgumentException("Objective data exceeds 16 KiB");
+        if(event.equals("energy_submit")) {
+            if(!Set.of("fePerEnergy").containsAll(data.keySet()))throw new IllegalArgumentException("Unknown energy parameter");
+            if(data.has("fePerEnergy")&&(!data.get("fePerEnergy").isJsonPrimitive()||!data.getAsJsonPrimitive("fePerEnergy").isNumber()
+                ||data.get("fePerEnergy").getAsBigDecimal().intValueExact()<1||data.get("fePerEnergy").getAsInt()>1_000_000))throw new IllegalArgumentException("Energy ratio must be 1..1000000");
+            return;
+        }
+        if(ItemComponents.supports(event)) {
+            ItemComponents.validate(data);return;
+        }
         var type=OBJECTIVES.get(event);
         if(type!=null)type.validator().accept(data);
         else if(!data.isEmpty())throw new IllegalArgumentException("Objective has no registered data validator: "+event);
     }
     public static boolean matchesObjective(QuestDefinition.Objective objective,QuestEvent event) {
+        if(!objective.data().equals("{}") && Set.of("item_craft","item_obtained","item_smelt","item_use","item_consume","fish_item","trade").contains(objective.event())) {
+            var data=JsonParser.parseString(objective.data()).getAsJsonObject();if(!data.has("matchComponents")||data.get("matchComponents").getAsString().equals("none"))return true;
+            var actual=event.context().get("itemComponents");
+            return actual instanceof JsonObject components && ItemComponents.matches(data,components);
+        }
         var type=OBJECTIVES.get(objective.event());
         return type==null || type.predicate().test(JsonParser.parseString(Objects.toString(objective.data(),"{}")).getAsJsonObject(),event);
     }
@@ -139,11 +163,15 @@ public final class QuestExtensions {
     public static void validateCondition(String id,JsonElement data) { var type=CONDITIONS.get(id); if (type==null) throw new IllegalArgumentException("Unknown condition " + id); type.validator().accept(data); }
     public static boolean testCondition(String id,String json,Map<String,Object> context) { return CONDITIONS.get(id).predicate().test(JsonParser.parseString(json),context); }
     public static void registerReward(String id,Consumer<JsonObject> validator) { namespaced(id); if (REWARDS.putIfAbsent(id,Objects.requireNonNull(validator))!=null) throw new IllegalArgumentException("Duplicate reward " + id); }
+    public static void allowPoolReward(String id){if(!REWARDS.containsKey(id)||id.equals("questplus:command")||Set.of("questplus:choice","questplus:random","questplus:loot","questplus:all").contains(id))throw new IllegalArgumentException("Reward cannot be used in pools");POOL_REWARDS.add(id);}
+    public static boolean allowsPoolReward(String id){return POOL_REWARDS.contains(id);}
     public static void validateReward(String id,JsonObject data) { var validator=REWARDS.get(id); if (validator==null) throw new IllegalArgumentException("Unknown reward " + id); validator.accept(data); }
     public static void validateSavedReward(QuestDefinition.Reward r) {
         if (r==null || r.type()==null) throw new IllegalArgumentException("Invalid reward");
         if (r.type().equals("item")) {
             if (r.item()==null || !r.item().matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || r.item().equals("minecraft:air") || r.count()<1 || r.count()>2304) throw new IllegalArgumentException("Invalid item reward");
+            var data=JsonParser.parseString(r.data()).getAsJsonObject();ItemComponents.validateReward(data);
+            if(data.has("randomBonus")&&r.count()+data.get("randomBonus").getAsInt()>2304)throw new IllegalArgumentException("Item bonus exceeds reward limit");
         } else if (r.type().equals("experience") || r.type().equals("experience_levels")) {
             if (r.amount()<1 || r.amount()>1_000_000) throw new IllegalArgumentException("Invalid experience reward");
         } else validateReward(r.type(),JsonParser.parseString(r.data()).getAsJsonObject());

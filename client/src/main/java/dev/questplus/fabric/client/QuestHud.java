@@ -92,7 +92,7 @@ final class QuestHud {
             var identifier=Identifier.tryParse(panel.quest.icon());
             ItemStack icon=identifier!=null&&BuiltInRegistries.ITEM.containsKey(identifier)
                 ?new ItemStack(BuiltInRegistries.ITEM.getValue(identifier)):new ItemStack(Items.BOOK);
-            g.item(icon,x+5,y+3);
+            if(!RichAnnotationRenderer.drawIcon(g,panel.quest.icon(),x+5,y+3,16))g.item(icon,x+5,y+3);
             String title=mc.font.plainSubstrByWidth(panel.name,Math.max(1,w-32));
             g.text(mc.font,title,x+25,y+3,0xfff0eae0,false);
             String caption=reward?QuestPlusClient.tr("hud.claim").getString()

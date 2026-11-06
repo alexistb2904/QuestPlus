@@ -9,7 +9,7 @@ import {descriptionParts} from '../core/description-format.js';
 import {localesOf,supportedLocales} from '../types';
 import {Field,Select,Translated,Disclosure,ConditionEditor} from './Inspector';
 import {GearEditor,updateGear,armorPreset} from './GearEditor';
-import {RewardEditor} from './RewardEditor';
+import {RewardEditor,ItemComponentField} from './RewardEditor';
 import {hubEditorDescriptors} from '../core/hub-registry.js';
 import type {Props} from './Inspector';
 import type {Reward,Project,Quest,Category,Objective} from '../types';
@@ -118,6 +118,12 @@ function ObjectiveInputs({objective:o,index:i,questId,onUpdate,onCondition,onBro
    {f.type==='boolean'?<label className="checkbox-row"><input type="checkbox" checked={!!o.data?.[f.key]} onChange={e=>onUpdate(path+'.data.'+f.key,e.target.checked)}/>{f.label}</label>:
     <div className="field-row"><Field label={f.label} type={f.type==='integer'?'number':'text'} value={o.data?.[f.key]??''} onChange={v=>onUpdate(path+'.data.'+f.key,v)}/>{!['string','integer'].includes(f.type)&&<button type="button" className="button secondary" onClick={()=>setFieldPicker({kind:f.type,key:f.key})}>{tUI('Browse')}</button>}</div>}
   </div>)}
+  {o.event==='energy_submit'&&<Field label="FE per Fabric energy unit" type="number" value={o.data?.fePerEnergy??1} onChange={v=>onUpdate(path+'.data',{...o.data,fePerEnergy:Math.max(1,Math.min(1000000,Math.floor(v)||1))})}/>}
+  {kind==='item'&&<Disclosure title="Item matching">
+   <Select label="Component matching" value={o.data?.matchComponents||'none'} options={['none','exact','partial'].map(v=>[v,v])} onChange={matchComponents=>onUpdate(path+'.data',{...o.data,matchComponents})}/>
+   {o.data?.matchComponents&&o.data.matchComponents!=='none'&&<ItemComponentField value={o.data?.components as Record<string,unknown>|undefined} onChange={components=>onUpdate(path+'.data',{...o.data,components:components||{}})}/>}
+   <Field label="Alternative item IDs or tags" value={Array.isArray(o.data?.targets)?o.data.targets.join(', '):''} onChange={value=>{const data={...o.data};if(value.trim())data.targets=value.split(',').map(v=>v.trim());else delete data.targets;onUpdate(path+'.data',data);}}/>
+  </Disclosure>}
   {fieldPicker&&<TargetPicker kind={fieldPicker.kind} onClose={()=>setFieldPicker(null)} onPick={id=>{onUpdate(path+'.data.'+fieldPicker.key,id);setFieldPicker(null)}}/>}
  </div>;
 }
@@ -136,7 +142,7 @@ export function QuestDetails({project,selection,language,onUpdate,onAction,onCon
  const quest=selection?.type==='quest'?project.quests.find(q=>q.id===selection.id):undefined;
  const category=selection?.type==='category'?project.categories.find(c=>c.id===selection.id):undefined;
  if(category)return <section className="quest-details" aria-label={tUI('Localization')}><div className="detail-tabs" role="tablist"><button type="button" role="tab" id="detail-tab-localization" aria-selected="true" className="active"><Globe size={16}/>{tUI('Localization')}</button></div><div className="detail-content" role="tabpanel"><LocalizationPanel key={category.id} project={project} category={category} onUpdate={onUpdate} onAddLocale={onAddLocale}/></div></section>;
- if(!quest)return <section className="quest-details"><div className="detail-heading"><strong>{tUI('Quest details')}</strong></div><div className="detail-content"><p>{tUI('Select a quest to edit its objectives and rewards.')}</p></div></section>;
+ if(!quest)return <section className="quest-details"><div className="detail-heading"><strong>{tUI('Quest details')}</strong></div><div className="detail-content"><div className="library-empty"><strong>{tUI('No quest selected')}</strong><span>{tUI('Choose a quest from the library or graph to edit its objectives and rewards.')}</span><button type="button" className="button primary" onClick={()=>onAction('create-quest')}><Plus size={15}/>{tUI('Create quest')}</button></div></div></section>;
  const info=quest.kind==='information';
  const changeProgression=(next:string)=>{
   if(quest.progression==='tiered'&&next!=='tiered'&&!window.confirm(tUI('Changing progression removes the tiers and their rewards. Continue?')))return;

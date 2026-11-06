@@ -180,6 +180,12 @@ final class RichAnnotationRenderer {
     }
 
     private static boolean bool(JsonObject obj,String key){return obj.has(key)&&obj.get(key).getAsBoolean();}
+    static boolean drawIcon(GuiGraphicsExtractor graphics,String data,int x,int y,int size) {
+        if(data==null||!data.startsWith("data:image/png;base64,"))return false;
+        AnimatedImage decoded=image(data);if(decoded==null)return false;
+        graphics.blit(decoded.current().getTextureView(),RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST),x,y,x+size,y+size,0,1,0,1);
+        return true;
+    }
     private static int hex(String value,int fallback){
         return value.matches("#[0-9a-fA-F]{6}")?0xff000000|Integer.parseInt(value.substring(1),16):fallback;
     }

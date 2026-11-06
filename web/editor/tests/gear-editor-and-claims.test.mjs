@@ -67,8 +67,9 @@ test('completion auto-unpins, unlock and completion alone trigger toasts',()=>{
 test('claim-all remains a single server-authorized action with durable sequential claims',()=>{
  const runtime=read('../../../server/src/main/java/dev/questplus/fabric/QuestRuntime.java');
  const network=read('../../../server/src/main/java/dev/questplus/fabric/QuestNetwork.java');
- assert.match(network,/case "claim_all" -> runtime\.claimAll\(player\)/);
- assert.match(runtime,/private void claimNext\(ServerPlayer player,List<String> ids,int index\)/);
+ assert.match(network,/case "claim_all" -> runtime\.claimAllFromTablet\(player\)/);
+ assert.match(runtime,/claimAllFromTablet\(ServerPlayer player\)[\s\S]*?claimAll\(player,/);
+ assert.match(runtime,/private void claimNext\(ServerPlayer player,List<String> ids,int index,Runnable onDelivered\)/);
  assert.match(runtime,/claim\(player,grant\.questId\(\),key,\(\) ->/);
  assert.match(runtime,/visibleQuests\(uuid\)/);
 });

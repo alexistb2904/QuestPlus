@@ -120,12 +120,18 @@ public final class ClientProjection {
 
     public static List<QuestDefinition> visible(Collection<QuestDefinition> quests,PlayerProgress state) {
         Set<String> completed=QuestEngine.prerequisiteState(state);
-        return quests.stream().filter(q -> {
+        var visible=new ArrayList<>(quests.stream().filter(q -> {
             var p=state.quests.get(q.id());var settings=q.presentation();
             if(settings.invisibleUntilCompleted() && (p==null||!p.completed))return false;
             if(settings.invisibleUntilTasks()>0 && (p==null||q.objectives().stream().filter(o->p.counters.getOrDefault(o.id(),0L)>=o.count()).count()<settings.invisibleUntilTasks()))return false;
             return !q.hidden() || p!=null || q.requires()==null || q.requires().matches(Map.of(),completed);
-        }).toList();
+        }).toList());
+        boolean changed;
+        do {
+            Set<String> ids=new HashSet<>();visible.forEach(q->ids.add(q.id()));
+            changed=visible.removeIf(q->{if(!q.presentation().hideUntilDependenciesVisible()||q.requires()==null)return false;Set<String> references=new HashSet<>();q.requires().questReferences(references);return !ids.containsAll(references);});
+        }while(changed);
+        return List.copyOf(visible);
     }
 
     public static JsonArray quests(Collection<QuestDefinition> quests) {return quests(quests,new PlayerProgress());}
@@ -162,13 +168,17 @@ public final class ClientProjection {
     }
 
     private static void stripRewards(JsonArray rewards) {
-        if (rewards!=null) for (JsonElement reward:rewards) reward.getAsJsonObject().remove("data");
+        if (rewards!=null) {
+            rewards.asList().removeIf(r->r.getAsJsonObject().getAsJsonObject("policy").get("autoClaim").getAsString().equals("invisible"));
+            for (JsonElement reward:rewards) {reward.getAsJsonObject().remove("data");reward.getAsJsonObject().remove("policy");}
+        }
     }
 
     /** Allowlisted presentation only: never copy an extension payload or a command. */
     public static JsonArray rewards(List<QuestDefinition.Reward> rewards) {
         JsonArray out=new JsonArray();
         for(var reward:rewards) {
+            if(reward.policy().autoClaim().equals("invisible"))continue;
             JsonObject value=new JsonObject();
             value.addProperty("type",reward.type());
             value.add("text",JSON.toJsonTree(reward.text()));
@@ -219,6 +229,7 @@ public final class ClientProjection {
         Set<String> claimableAny=new HashSet<>();
         Map<String,Map.Entry<String,PlayerProgress.RewardGrant>> pending=new HashMap<>(),receipts=new HashMap<>();
         personal.entitlements.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            if(!entry.getValue().rewards().isEmpty()&&entry.getValue().rewards().stream().allMatch(r->r.policy().autoClaim().equals("invisible")))return;
             String status=personal.claims.get(entry.getKey());
             if(status==null && !entry.getValue().rewards().isEmpty() && entry.getValue().rewards().stream().noneMatch(r->r.type().equals("questplus:choice")))claimableAny.add(entry.getValue().questId());
             if(status==null || status.equals("reserved")) {

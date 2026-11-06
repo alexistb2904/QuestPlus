@@ -28,7 +28,7 @@ public final class TabletNativeArms {
         var controller=animated.fpPal$getFpAnimationController();
         var id=controller==null ? null : controller.getCurrentFpAnimation();
         return id!=null && id.getNamespace().equals("questplus")
-            && (id.getPath().equals("questplus.open") || id.getPath().equals("questplus.idle") || id.getPath().equals("questplus.close"));
+            && (id.getPath().equals("questplus.open") || id.getPath().equals("questplus.idle") || id.getPath().equals("questplus.close") || id.getPath().startsWith("questplus.carry"));
     }
 
     public static void render(PoseStack pose,PlayerAnimBone bone,PlayerModel model,Identifier skin,int light,FpRenderBuffer buffer) {

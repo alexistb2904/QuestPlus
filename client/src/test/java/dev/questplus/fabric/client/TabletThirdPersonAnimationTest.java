@@ -7,6 +7,30 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TabletThirdPersonAnimationTest {
+    @Test void smallerTabletKeepsItsGripInsideThePalmThroughoutTheAnimation() {
+        assertEquals(.4f,TabletPoseClient.TABLET_SCALE);
+        for (double time:new double[]{0,.2167,.4,.7,1}) {
+            var frame=TabletThirdPersonAnimation.sample(false,time);
+            var arm=new net.minecraft.client.model.geom.ModelPart(java.util.List.of(),java.util.Map.of());
+            arm.x=-5;arm.y=2;
+            TabletPoseClient.arm(arm,frame.right(),frame.rightPosition(),1);
+            var hand=new com.mojang.blaze3d.vertex.PoseStack();arm.translateAndRotate(hand);
+            var expected=hand.last().pose().transformPosition(-1/16f,9/16f,0,new org.joml.Vector3f());
+            var tablet=new com.mojang.blaze3d.vertex.PoseStack();TabletPoseClient.tabletTransform(tablet,arm,frame);
+            var actual=tablet.last().pose().transformPosition(new org.joml.Vector3f(TabletPoseClient.TABLET_GRIP));
+            assertTrue(expected.distance(actual)<1e-6,"Grip separated from palm at "+time);
+        }
+    }
+    @Test void carryingStartsAndEndsAtTheVisibleSidePose() {
+        var carry=TabletThirdPersonAnimation.carry();
+        assertEquals(1,carry.scale().x());
+        assertEquals(0,carry.left().x());
+        assertTrue(carry.position().x()>9);
+        var clock=new TabletPoseClient.PoseTime();
+        clock.set(true,1_000_000_000L,true);
+        assertEquals(carry,clock.sample(1_000_000_000L,true,true).pose());
+        assertEquals(1,clock.sample(1_000_000_000L,true,true).weight());
+    }
     @Test void samplesTheBlockbenchPoseAndReversesWithoutJumping() {
         assertEquals(1.0,TabletThirdPersonAnimation.OPEN_SECONDS);
         var initial=TabletThirdPersonAnimation.sample(false,0);

@@ -28,7 +28,10 @@
       "$ref": "#/$defs/identifier"
     },
     "icon": {
-      "$ref": "#/$defs/identifier"
+      "anyOf": [
+        {"$ref": "#/$defs/identifier"},
+        {"type": "string", "maxLength": 21870, "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"}
+      ]
     },
     "title": {
       "$ref": "#/$defs/translations"
@@ -253,16 +256,23 @@
           }
         },
         "shape": {
-          "enum": [
-            "square",
-            "circle",
-            "rounded_square",
-            "diamond",
-            "pentagon",
-            "hexagon",
-            "octagon",
-            "heart",
-            "gear"
+          "anyOf": [
+            {
+              "enum": [
+                "square",
+                "circle",
+                "rounded_square",
+                "diamond",
+                "pentagon",
+                "hexagon",
+                "octagon",
+                "heart",
+                "gear"
+              ]
+            },
+            {
+              "$ref": "#/$defs/identifier"
+            }
           ]
         },
         "iconScale": {
@@ -294,6 +304,9 @@
           "type": "boolean"
         },
         "hideDependentLines": {
+          "type": "boolean"
+        },
+        "hideUntilDependenciesVisible": {
           "type": "boolean"
         }
       }
@@ -534,7 +547,12 @@
                 "observe_block",
                 "observe_entity",
                 "stage",
-                "equipment_check"
+                "equipment_check",
+                "xp_points",
+                "xp_submit_points",
+                "xp_submit_levels",
+                "fluid_submit",
+                "energy_submit"
               ]
             },
             {
@@ -866,6 +884,9 @@
         },
         "zMax": {
           "type": "number"
+        },
+        "blockCoordinates": {
+          "type": "boolean"
         }
       }
     },
@@ -1020,6 +1041,20 @@
             },
             "text": {
               "$ref": "#/$defs/translations"
+            },
+            "teamReward": {
+              "type": "boolean"
+            },
+            "autoClaim": {
+              "enum": [
+                "disabled",
+                "enabled",
+                "no_toast",
+                "invisible"
+              ]
+            },
+            "excludeFromClaimAll": {
+              "type": "boolean"
             }
           }
         },
@@ -1041,6 +1076,20 @@
             },
             "text": {
               "$ref": "#/$defs/translations"
+            },
+            "teamReward": {
+              "type": "boolean"
+            },
+            "autoClaim": {
+              "enum": [
+                "disabled",
+                "enabled",
+                "no_toast",
+                "invisible"
+              ]
+            },
+            "excludeFromClaimAll": {
+              "type": "boolean"
             }
           }
         },
@@ -1066,6 +1115,34 @@
             },
             "text": {
               "$ref": "#/$defs/translations"
+            },
+            "teamReward": {
+              "type": "boolean"
+            },
+            "autoClaim": {
+              "enum": [
+                "disabled",
+                "enabled",
+                "no_toast",
+                "invisible"
+              ]
+            },
+            "excludeFromClaimAll": {
+              "type": "boolean"
+            },
+            "components": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^!?[a-z0-9_.-]+:[a-z0-9_./-]+$"
+              }
+            },
+            "onlyOne": {
+              "type": "boolean"
+            },
+            "randomBonus": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2303
             }
           }
         },
@@ -1085,6 +1162,20 @@
             },
             "text": {
               "$ref": "#/$defs/translations"
+            },
+            "teamReward": {
+              "type": "boolean"
+            },
+            "autoClaim": {
+              "enum": [
+                "disabled",
+                "enabled",
+                "no_toast",
+                "invisible"
+              ]
+            },
+            "excludeFromClaimAll": {
+              "type": "boolean"
             }
           }
         }

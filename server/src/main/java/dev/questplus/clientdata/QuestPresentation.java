@@ -45,6 +45,8 @@ public final class QuestPresentation {
             case "npc_interact" -> new String[]{"Talk to","Parler à","Hablar con","交谈"};
             case "biome_visit","structure_visit" -> new String[]{"Visit","Visiter","Visitar","探索"};
             case "dimension_enter" -> new String[]{"Enter","Entrer dans","Entrar en","进入"};
+            case "fluid_submit" -> new String[]{"Submit fluid (mB)","Remettre du fluide (mB)","Entregar fluido (mB)","提交流体（毫桶）"};
+            case "energy_submit" -> new String[]{"Submit energy (FE)","Remettre de l’énergie (FE)","Entregar energía (FE)","提交能量（FE）"};
             case "fluid_transfer" -> new String[]{"Transfer fluid","Transférer le fluide","Transferir fluido","传输流体"};
             case "energy_transfer" -> new String[]{"Transfer FE","Transférer FE","Transferir FE","传输能量"};
             case "inventory_count" -> new String[]{"Hold","Posséder","Tener","持有"};
@@ -67,6 +69,8 @@ public final class QuestPresentation {
             return new String[]{"Complete advancement ","Compléter le progrès ","Completar progreso ","完成进度 "}[column]+objective.target();
         if (objective.event().equals("xp_levels"))
             return new String[]{"Reach XP level ","Atteindre le niveau XP ","Alcanzar nivel XP ","达到经验等级 "}[column]+objective.count();
+        if(objective.event().equals("xp_submit_levels"))return new String[]{"Submit XP levels: ","Remettre des niveaux XP : ","Entregar niveles XP: ","提交经验等级："}[column]+objective.count();
+        if(objective.event().equals("xp_submit_points"))return new String[]{"Submit XP points: ","Remettre des points XP : ","Entregar puntos XP: ","提交经验点数："}[column]+objective.count();
         if (objective.event().equals("location"))
             return new String[]{"Reach location","Atteindre la position","Llegar a la posición","到达指定位置"}[column];
         if(Set.of("observe_block","observe_entity").contains(objective.event()))

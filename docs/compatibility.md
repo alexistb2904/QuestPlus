@@ -60,7 +60,7 @@ Les GameTests serveur sont distincts des essais GPU. Les avatars distants simul�
 ## Modpacks et formats
 
 - IDs et tags des mods installés utilisables selon le type d'objectif ; les nouvelles mécaniques nécessitent un hook de jeu ou l'[API Java](../server/src/main/java/dev/questplus/fabric/api/QuestPlusApi.java).
-- Packs **QuestPlus JSON / ZIP** ; aucun import ou export **FTB Quests** fourni.
+- Packs **QuestPlus JSON / ZIP** ; l'éditeur propose aussi un import avec aperçu des éléments pris en charge.
 - Interfaces FR, EN, ES et chinois simplifié ; les textes de vos propres quêtes doivent être traduits dans le pack.
 - Éditeur local utilisable hors connexion après chargement ; les icônes externes peuvent nécessiter le réseau si elles ne sont pas en cache.
 - Édition connectée facultative, avec service web configuré et autorisation d'opérateur dans Minecraft.

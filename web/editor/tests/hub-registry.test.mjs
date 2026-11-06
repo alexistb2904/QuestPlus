@@ -1,7 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {setHubRegistry,hubTargets} from '../src/core/hub-registry.js';
+import {setHubRegistry,hubTargets,hubLabel,hubTexture} from '../src/core/hub-registry.js';
+import {resourceMatcher} from '../src/core/resource-search.js';
+
+test('server mod previews support localized search while rejecting unregistered or unsafe assets',()=>{
+ setHubRegistry({items:['example:gem'],assets:{names:{'example:gem':{en_us:'Blue Gem',fr_fr:'Gemme bleue'},'example:secret':{fr_fr:'Secret'}},textures:{'example:gem':'data:image/png;base64,iVBORw0KGgo=','example:secret':'data:image/png;base64,iVBORw0KGgo='}}});
+ assert.equal(hubLabel('example:gem','fr'),'Gemme bleue');
+ assert.equal(hubTexture('example:gem'),'data:image/png;base64,iVBORw0KGgo=');
+ assert.equal(hubTexture('example:secret'),'');
+ assert.ok(resourceMatcher('gemme bleue')('example:gem'));
+ setHubRegistry({});
+});
+
+test('does not truncate a large server registry',()=>{
+ const items=Array.from({length:30001},(_,i)=>`mod:item_${i}`);
+ setHubRegistry({items});
+ assert.equal(hubTargets('item').length,items.length);
+ setHubRegistry({});
+});
 const source=file=>fs.readFileSync(new URL(file,import.meta.url),'utf8');
 test('server registries filter unsafe entries and support modded targets',()=>{
  setHubRegistry({

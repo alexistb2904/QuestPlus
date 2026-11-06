@@ -48,7 +48,7 @@ export async function readZip(file){
     if(pos+46+n+extra+comment>bytes.length)throw Error('Fichier ZIP tronqué');
     const name=decoder.decode(bytes.subarray(pos+46,pos+46+n));
     pos+=46+n+extra+comment;
-    if(name.endsWith('/')||!/\.(?:json5?|snbt|txt)$/i.test(name))continue;
+    if(name.endsWith('/')||!/\.(?:json5?|snbt|txt|png|jpe?g|gif)$/i.test(name))continue;
     if(name.includes('..')||name.startsWith('/')||name.includes('\\'))throw Error('Chemin ZIP non autorisé : '+name);
     if((flag&1)!==0)throw Error('ZIP chiffré non pris en charge');
     if(![0,8].includes(method))throw Error('Compression ZIP non prise en charge : '+method);
@@ -64,7 +64,11 @@ export async function readZip(file){
       raw=new Uint8Array(await new Response(stream).arrayBuffer());
     }
     if(raw.length!==expanded||crc32(raw)!==crc)throw Error('Archive corrompue : '+name);
-    files.push({name,content:decoder.decode(raw)});
+    const extension=name.split('.').at(-1).toLowerCase();
+    if(['png','jpg','jpeg','gif'].includes(extension)){
+      let binary='';for(let offset=0;offset<raw.length;offset+=8192)binary+=String.fromCharCode(...raw.subarray(offset,offset+8192));
+      files.push({name,content:'data:image/'+(extension==='jpg'?'jpeg':extension)+';base64,'+btoa(binary)});
+    }else files.push({name,content:decoder.decode(raw)});
   }
   return files;
 }

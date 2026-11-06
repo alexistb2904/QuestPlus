@@ -262,3 +262,186 @@ AVERTISSEMENT: Unmatched cancel notification for request id 1
 2026.11.05 01:44:44 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\scripts\showcase\QuestShowcaseGameTest.java. Using fallback presentation compiler.
 nov. 05, 2026 1:45:03 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFOS: Unsupported notification method: $/setTrace
+2026.11.05 19:24:31 INFO  Started: Metals version 1.6.9 in folders 'C:\Users\alexi\Downloads\QuestPlus' for client Visual Studio Code 1.145.0.
+2026.11.05 19:24:31 INFO  Memory monitor started
+2026.11.05 19:24:35 WARN  Using H2 2.5.250 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.11.05 19:24:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 19:25:08 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java
+2026.11.05 19:25:08 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 19:35:11 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 19:35:11 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 19:35:11 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 19:35:11 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+nov. 05, 2026 8:17:15 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFOS: Unsupported notification method: $/setTrace
+2026.11.05 21:28:46 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 21:42:45 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 22:15:41 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\main\java\dev\questplus\fabric\AdvancedEvents.java. Using fallback presentation compiler.
+2026.11.05 22:15:41 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java
+C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java:989: error: unmappable character (0x8F) for encoding windows-1252
+            for (int i=start;i<Math.min(members.size(),start+capacity);i++) { var m=members.get(i).getAsJsonObject(); String name=m.has("name") ? m.get("name").getAsString() : m.get("id").getAsString(); QuestSkin.text(g,font,font.plainSubstrByWidth((QuestClientState.flag(m,"online") ? "â—? " : "â—‹ ")+name,Math.max(30,right-left-169)),x,top+104+(i-start)*23,0xffd8dccb,false); }
+                                                                                                                                                                                                                                                                                                 ^
+2026.11.05 22:15:41 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+nov. 05, 2026 10:15:42 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 11
+2026.11.05 22:15:42 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.05 22:15:42 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+nov. 05, 2026 10:15:42 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 15
+2026.11.05 22:15:42 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.05 22:15:42 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.05 22:15:43 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.05 22:15:55 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java
+2026.11.05 22:15:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+nov. 05, 2026 10:15:56 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 21
+2026.11.05 22:15:56 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:56 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:57 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:57 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:15:59 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java
+2026.11.05 22:15:59 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+nov. 05, 2026 10:15:59 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 34
+2026.11.05 22:15:59 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:15:59 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:15:59 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:16:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:18:41 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\fabric\client\QuestScreen.java. Using fallback presentation compiler.
+2026.11.05 22:18:55 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:19:16 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java
+2026.11.05 22:19:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+nov. 05, 2026 10:19:16 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 44
+2026.11.05 22:19:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:17 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:19 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java
+2026.11.05 22:19:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+nov. 05, 2026 10:19:19 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 52
+2026.11.05 22:19:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:21 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java
+2026.11.05 22:19:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+nov. 05, 2026 10:19:21 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 61
+2026.11.05 22:19:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+nov. 05, 2026 10:19:23 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 69
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:19:24 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+nov. 05, 2026 10:19:24 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 77
+2026.11.05 22:19:24 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:24 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:19:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:20:00 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java
+2026.11.05 22:20:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+nov. 05, 2026 10:20:00 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 85
+2026.11.05 22:20:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.05 22:20:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.05 22:20:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.05 22:20:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.05 22:20:01 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java
+2026.11.05 22:20:01 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 10:20:01 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 93
+2026.11.05 22:20:01 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 22:20:01 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 22:20:01 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 22:20:01 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 22:22:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\persistence\InventoryRecoveryTest.java. Using fallback presentation compiler.
+2026.11.05 22:22:18 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\fabric\QuestHubFilesTest.java. Using fallback presentation compiler.
+2026.11.05 22:22:19 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:22:21 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\test\java\dev\questplus\core\FtbParityTest.java. Using fallback presentation compiler.
+2026.11.05 22:22:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbTestItems.java. Using fallback presentation compiler.
+2026.11.05 22:22:23 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\server\src\gametest\java\dev\questplus\fabric\FtbParityIntegrationTest.java. Using fallback presentation compiler.
+2026.11.05 22:23:00 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestCamera.java. Using fallback presentation compiler.
+2026.11.05 23:05:28 INFO  Started: Metals version 1.6.9 in folders 'C:\Users\alexi\Downloads\QuestPlus' for client Visual Studio Code 1.145.0.
+2026.11.05 23:05:28 INFO  Memory monitor started
+2026.11.05 23:05:29 WARN  Using H2 2.5.250 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.11.05 23:05:29 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:31 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:05:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 1
+nov. 05, 2026 11:05:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 2
+2026.11.05 23:05:31 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:05:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 3
+nov. 05, 2026 11:05:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 7
+nov. 05, 2026 11:05:31 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 8
+2026.11.05 23:05:31 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:05:33 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 13
+nov. 05, 2026 11:05:33 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 9
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:05:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 12
+nov. 05, 2026 11:05:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 15
+nov. 05, 2026 11:05:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 14
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:05:35 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 18
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:35 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:36 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:05:42 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java
+2026.11.05 23:05:42 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:15:16 WARN  no build target for: C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java
+2026.11.05 23:15:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:15:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+nov. 05, 2026 11:15:16 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+AVERTISSEMENT: Unmatched cancel notification for request id 31
+2026.11.05 23:15:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:15:16 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.05 23:25:04 INFO  no build target found for C:\Users\alexi\Downloads\QuestPlus\client\src\main\java\dev\questplus\clientmodel\QuestLayout.java. Using fallback presentation compiler.
+2026.11.06 00:05:57 INFO  Started: Metals version 1.6.9 in folders 'C:\Users\alexi\Downloads\QuestPlus' for client Visual Studio Code 1.145.0.
+2026.11.06 00:05:57 INFO  Memory monitor started
+2026.11.06 00:06:01 WARN  Using H2 2.5.250 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.11.06 00:06:31 INFO  Shutting down server
+2026.11.06 00:06:31 INFO  Memory monitor stopped
+2026.11.06 00:06:31 INFO  shutting down Metals
+2026.11.06 00:06:31 INFO  Exiting server
+2026.11.06 00:06:31 ERROR Unexpected error initializing server: 
+org.eclipse.lsp4j.jsonrpc.ResponseErrorException: Request window/showMessageRequest failed with message: Canceled
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleResponse(RemoteEndpoint.java:214)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:198)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:189)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:97)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:97)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.11.06 01:04:38 INFO  Started: Metals version 1.6.9 in folders 'C:\Users\alexi\Downloads\QuestPlus' for client Visual Studio Code 1.145.1.
+2026.11.06 01:04:38 INFO  Memory monitor started
+2026.11.06 01:04:38 WARN  Using H2 2.5.250 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.

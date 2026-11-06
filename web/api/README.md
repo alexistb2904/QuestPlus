@@ -25,11 +25,11 @@ Requires Node 22 and Java 25 + Fabric 26.3.
    `cd web/editor && npm run dev`; set
    `STUDIO_ORIGIN=http://localhost:5173` on the API (restart it), and point
    the editor at `http://localhost:8787` using the Online / Server modal.
-5. Create the file `<world>/questplus-hub.json` on the Fabric server:
+5. The setup command creates `<world>/questplus-hub.json` for dedicated-server testing and `run/client/config/questplus-hub.json` for solo worlds. A world-specific file takes precedence. Both use this format:
 
        {"url":"http://localhost:8787","serverKey":"<same-64-hex-secret>"}
 
-   Restart Minecraft. HTTP is permitted for localhost development only.
+   Restart Minecraft. HTTP is permitted for localhost development only. The same `url` field can later use the production HTTPS domain instead.
 6. As an operator, run `/questplus editor`, open the received URL in a
    browser, request authorization and approve the matching six-digit
    code using `/questplus editor approve <code>`. Load server quests and
@@ -95,7 +95,7 @@ publication can be applied.
   URL supplied by a user.
 - Browsers cannot send executable commands or access the game filesystem.
 - Tokens are kept in browser memory, never in localStorage or share URLs.
-- Modded registry **IDs** are transmitted; proprietary textures and JARs are not.
+- Registry IDs and bounded previews of translations and PNG textures available in installed server-side mods are transmitted to the approved editor; mod JARs and player data are not. Client-only or complex model assets can be unavailable.
 - A production public service needs durable queues, more quotas, monitoring
   and anti-abuse enforcement before supporting multiple independent servers.
 

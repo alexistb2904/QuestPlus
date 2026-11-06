@@ -1,0 +1,18 @@
+// Run with: gradlew runClientGameTest -I scripts/recipe-viewer-test.gradle
+// Uses the JEI already installed in the development client; isolates the test world.
+allprojects {
+    afterEvaluate {
+        loom.runs.clientGameTest {
+            runDir file('build/recipe-return').absolutePath
+            vmArg '-Dquestplus.recipeReturn=true'
+            vmArg '-Xmx2G'
+        }
+        tasks.named('deleteGameTestRunDir') {
+            doLast {
+                def jei = fileTree('run/client/mods') { include '*jei*.jar' }
+                if (jei.empty) throw new GradleException('Install JEI in run/client/mods before running this test')
+                copy { from jei; into file('build/recipe-return/mods') }
+            }
+        }
+    }
+}

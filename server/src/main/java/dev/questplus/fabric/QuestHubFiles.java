@@ -61,6 +61,7 @@ final class QuestHubFiles {
     }
     static void apply(Path world,JsonArray documents,QuestRuntime runtime) throws IOException {
         validate(documents);
+        rejectRemoteCommands(documents);
         Path definitions=world.resolve("questplus");
         Path backups=world.resolve("questplus-hub-backups");
         Files.createDirectories(backups);
@@ -94,6 +95,24 @@ final class QuestHubFiles {
             if(Files.exists(stage))deleteTree(stage);
             if(!moved&&Files.exists(backup)&&!Files.exists(definitions))move(backup,definitions);
         }
+    }
+    static void rejectRemoteCommands(JsonArray documents) throws IOException {
+        for(var document:documents) {
+            var file=document.getAsJsonObject();String content=file.get("content").getAsString();
+            JsonElement value=file.get("name").getAsString().endsWith(".json5")?QuestJson5.parse(content):QuestRegistry.parseStrict(new StringReader(content));
+            if(hasCommand(value))throw new IOException("Command rewards can only be installed from trusted local files, not published from a browser or pack link");
+            if(file.get("name").getAsString().equals("config.json")&&value.getAsJsonObject().has("enableCommandRewards")&&value.getAsJsonObject().get("enableCommandRewards").getAsBoolean())
+                throw new IOException("Remote packs cannot enable server command rewards");
+        }
+    }
+    private static boolean hasCommand(JsonElement value) {
+        if(value.isJsonArray()){for(var child:value.getAsJsonArray())if(hasCommand(child))return true;}
+        if(value.isJsonObject()) {
+            var object=value.getAsJsonObject();
+            if(object.has("type")&&object.get("type").isJsonPrimitive()&&object.get("type").getAsString().equals("questplus:command"))return true;
+            for(var child:object.entrySet())if(hasCommand(child.getValue()))return true;
+        }
+        return false;
     }
     static void rollback(Path world,QuestRuntime runtime) throws IOException {
         Path root=world.resolve("questplus-hub-backups");

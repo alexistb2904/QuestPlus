@@ -38,6 +38,7 @@ final class TabletCompatibilityTest {
                     if (TabletShaderCompat.shadersActive()!=!pack.isEmpty())
                         throw new AssertionError("Shader failed to activate: "+pack);
                 });
+                carryTrial(context,world.getServer(),label);
                 for (boolean illuminated:List.of(true,false)) {
                     String trial=label+(illuminated ? "-lit" : "-unlit");
                     world.getServer().runCommand("item replace entity @p weapon.mainhand with minecraft:"+(illuminated ? "air" : "glass"));
@@ -97,6 +98,36 @@ final class TabletCompatibilityTest {
             QuestPlusMod.LOGGER.info("TABLET MOVEMENT AND REMOTE POSE PASS");
         }
     }
+    private static void carryTrial(ClientGameTestContext context,
+            net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext server,String label) {
+        server.runCommand("item replace entity @p weapon.mainhand with questplus:tablet");
+        context.waitFor(client -> QuestClientTabletFlow.carrying() && TabletNativeArms.active(),120);
+        context.waitTicks(5);
+        context.runOnClient(client -> {
+            if (client.gui.screen()!=null || TabletSurfaceRenderer.hidesHud() || TabletSurfaceRenderer.hasSurface())
+                throw new AssertionError("Carry pose opened the menu or retained its surface");
+            assertCameraOwnership(true);
+        });
+        context.takeScreenshot(label+"-item-carried");
+        server.runCommand("execute at @p run setblock ~ ~1 ~2 minecraft:chest");
+        context.runOnClient(client -> { client.player.setYRot(0);client.player.setXRot(0); });
+        context.waitTicks(3);
+        context.runOnClient(client -> {
+            if (client.hitResult==null || client.hitResult.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK)
+                throw new AssertionError("Tablet block-use fixture is not targeted");
+        });
+        context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+        context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+        context.waitFor(client -> TabletSurfaceRenderer.active(),120);
+        context.runOnClient(client -> client.gui.screen().onClose());
+        context.waitFor(client -> QuestClientTabletFlow.carrying(),120);
+        context.takeScreenshot(label+"-item-carried-after-close");
+        server.runCommand("execute at @p run setblock ~ ~1 ~2 minecraft:air");
+        server.runCommand("item replace entity @p weapon.mainhand with minecraft:air");
+        context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(),60);
+        context.runOnClient(client -> assertCameraOwnership(false));
+        QuestPlusMod.LOGGER.info("TABLET ITEM CARRY PASS {}",label);
+    }
     private static void rebindTrial(ClientGameTestContext context) {
         var old=context.computeOnClient(client -> {
             try {
@@ -149,7 +180,7 @@ final class TabletCompatibilityTest {
             if(dark<total/2)throw new AssertionError("Tablet display is missing or reflective: "+screenshot+" (dark pixels "+dark+"/"+total+")");
         } catch(java.io.IOException e) { throw new AssertionError(e); }
     }
-    private static void shader(String pack) {
+    static void shader(String pack) {
         try {
             var iris=Class.forName("net.irisshaders.iris.Iris");
             var config=iris.getMethod("getIrisConfig").invoke(null);

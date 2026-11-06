@@ -73,7 +73,7 @@ class RewardTablesTest {
         loot.addProperty("emptyWeight",-1);
         assertThrows(IllegalArgumentException.class,()->RewardTables.validateLoot(loot));
     }
-    @Test void choiceRequiresTwoSafeOptionsAndResolvesExactlyOne() {
+    @Test void choiceAcceptsOneSafeOptionAndResolvesExactlyOne() {
         var data=JsonParser.parseString("""
           {"options":[
              {"type":"item","item":"minecraft:diamond","count":2},
@@ -95,6 +95,8 @@ class RewardTablesTest {
         QuestExtensions.validateSavedReward(levels);
         assertThrows(IllegalArgumentException.class,()->RewardTables.choose(source,2));
         data.getAsJsonArray("options").remove(1);
+        RewardTables.validateChoice(data);
+        data.getAsJsonArray("options").remove(0);
         assertThrows(IllegalArgumentException.class,()->RewardTables.validateChoice(data));
     }
     @Test void choiceCannotGrantArbitraryCommands() {
@@ -108,7 +110,7 @@ class RewardTablesTest {
     }
     @Test void rejectsScriptsInvalidWeightsAndUnknownRewardTypes() {
         for(String json:List.of(
-          "{\"options\":[{\"weight\":0,\"type\":\"item\",\"item\":\"minecraft:diamond\",\"count\":1}]}",
+          "{\"options\":[{\"weight\":-1,\"type\":\"item\",\"item\":\"minecraft:diamond\",\"count\":1}]}",
           "{\"options\":[{\"weight\":1,\"type\":\"command\",\"command\":\"op @s\"}]}",
           "{\"rolls\":17,\"options\":[{\"weight\":1,\"type\":\"experience\",\"amount\":3}]}"
         )) assertThrows(RuntimeException.class,()->RewardTables.validate(JsonParser.parseString(json).getAsJsonObject()));

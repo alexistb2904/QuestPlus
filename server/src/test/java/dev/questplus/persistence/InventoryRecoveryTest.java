@@ -21,6 +21,25 @@ class InventoryRecoveryTest {
             }
         };
     }
+    @Test void experienceMustMatchBeforeCommitAndAfterRestart() throws Exception {
+        UUID player=UUID.randomUUID(),old=UUID.randomUUID(),operation=UUID.randomUUID();
+        var before=com.google.gson.JsonParser.parseString("{level:10,progress:0.5,total:150}").getAsJsonObject();
+        var after=com.google.gson.JsonParser.parseString("{level:8,progress:0.5,total:150}").getAsJsonObject();
+        class Evidence implements JsonProgressStore.SavedMarker {
+            String saved=old.toString();com.google.gson.JsonObject xp=before.deepCopy();
+            public String read(UUID id){return saved;}
+            public void verifyInventory(UUID id,JsonArray expected){}
+            public void verifyExperience(UUID id,com.google.gson.JsonObject expected)throws java.io.IOException{if(!xp.equals(expected))throw new java.io.IOException("XP mismatch");}
+        }
+        var evidence=new Evidence();
+        try(var store=JsonProgressStore.withSavedMarker(root,evidence)) {
+            store.prepareInventory(operation,player,old.toString(),inventory(),inventory(),Map.of(player,progress("delivered")),Map.of(),before,after).join();
+            evidence.saved=operation.toString();assertThrows(CompletionException.class,()->store.commitInventory(operation).join());
+        }
+        assertThrows(java.io.IOException.class,()->JsonProgressStore.withSavedMarker(root,evidence));
+        evidence.xp=after.deepCopy();
+        try(var recovered=JsonProgressStore.withSavedMarker(root,evidence)){assertEquals("delivered",recovered.load(player).claims.get("questplus:test"));}
+    }
     @Test void markerOnlyEvidenceCannotAuthorizeACommitOrRecovery() throws Exception {
         UUID player=UUID.randomUUID(),old=UUID.randomUUID(),operation=UUID.randomUUID();
         try(var store=JsonProgressStore.withSavedMarker(root,id->operation.toString())) {

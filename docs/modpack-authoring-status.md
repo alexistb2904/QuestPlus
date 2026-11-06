@@ -1,6 +1,6 @@
 # Quest Plus — Modpack authoring parity status (WIP)
 
-Scope: `feat/modpack-authoring-ftb-parity` / draft PR #27. This branch is **not a complete FTB Quests replacement** and is not certified for production servers.
+Scope: `feat/modpack-authoring-ftb-parity` / draft PR #27. This branch is not certified for production servers.
 
 ## Implemented on the branch
 
@@ -51,7 +51,7 @@ Test on a disposable Minecraft 26.3 world with two clients, modded registries, i
 ## Additional authored safety checks (2026-11-05)
 
 - Command reward Studio validation rejects newline, carriage return and NUL; command scripts cannot be executed through a client packet. The world config must enable trusted commands explicitly.
-- FTB ItemTask `only_from_crafting` uses the crafting event, `consume_items` uses the consuming hand-in, and normal nonconsuming items use live inventory checks. Task Screen-only tasks are not automatically converted to a different semantic event.
+- Imported ItemTask `only_from_crafting` uses the crafting event, `consume_items` uses the consuming hand-in, and normal nonconsuming items use live inventory checks. Task Screen-only tasks are not automatically converted to a different semantic event.
 - Personal templates are saved to localStorage and do not join exported ZIP packs. There is a 32-template and 500k-character storage limit; they do not copy old quest dependencies.
 - More comprehensive JUnit and Node tests are committed but still require execution. A real dedicated-server run and multiplayer smoke test remain blockers.
 
@@ -67,7 +67,7 @@ Test on a disposable Minecraft 26.3 world with two clients, modded registries, i
 This closes the interface gaps above, not the inventory/JSON crash-atomicity or reserved-claim recovery gaps. See the [updated backlog](CODEX_TODO_P0_P2.md) before production certification or merging a release.
 
 
-## Continuation FTB — 5 novembre 2026
+## Continuation — 5 novembre 2026
 
 Observation, stages/toasts, dépendances commencées/quorums, réglages de présentation, groupes de chapitres, tables nommées référencées et paramètres d’objectifs d’extension sont désormais raccordés au serveur et aux interfaces. L’import SNBT inclut les séparateurs multilignes FTB, une revue avant remplacement et l’undo ; les modèles peuvent voyager dans le projet.
 

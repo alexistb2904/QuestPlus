@@ -1,5 +1,26 @@
 # QuestPlus tablet — unified 2D/3D display
 
+## Physical tablet item
+
+The creative **Quest** tab contains the tablet and loot crate. You can also use
+`/give @s questplus:tablet` to obtain the non-stackable tablet. Holding it
+in the main hand keeps the visible side pose from closing on the right in first person;
+right-click (including on blocks) starts the existing opening animation.
+Closing the menu returns to the carry pose. Changing items, opening another
+screen, changing camera or disconnecting releases the first-person animation.
+The J shortcut and the reduced-motion/2D fallback remain available.
+In third person, simply holding the tablet applies the existing Blockbench
+side pose and physical tablet layer, including for other players. The ordinary
+held-item model is suppressed while that layer is visible; the left arm and
+head keep their normal animations in the carry pose.
+All third-person tablet poses use a 0.4 scale, with the tablet grip anchored
+inside the right palm. The two-handed pose brings the wrists inward for that
+smaller width. In first person, left-click plays the editable `questplus.carry_attack`
+clip without canceling the normal attack. Closing the menu switches directly
+back to `questplus.carry`, retaining FP PAL ownership throughout the transition.
+The editable carry clip lives in `questplus_first_person.bbmodel`; the existing
+exporter also generates the inventory/third-person item model from its geometry.
+
 ## Same screen UI in both modes
 
 The fallback 2D window and the first-person 3D tablet share the **same 500×300

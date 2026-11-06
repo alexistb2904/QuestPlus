@@ -57,7 +57,7 @@ public final class QuestNetwork {
         ServerPlayNetworking.registerGlobalReceiver(ChooseReward.TYPE,(payload,context)->context.server().execute(()->{
             var player=context.player();
             if(!allowRequest(player))return;
-            try { QuestPlusMod.runtime().chooseReward(player,payload.quest(),payload.token().toString(),payload.slot(),payload.option()); }
+            try { QuestPlusMod.runtime().chooseRewardFromTablet(player,payload.quest(),payload.token().toString(),payload.slot(),payload.option()); }
             catch(Exception rejected){error(player,"action_rejected",rejected.getMessage());}
         }));
         ServerPlayNetworking.registerGlobalReceiver(Action.TYPE,(payload,context) -> context.server().execute(() -> handle(context.player(),payload)));
@@ -157,7 +157,7 @@ public final class QuestNetwork {
         for (int i=0;i<parts.size();i++) ServerPlayNetworking.send(player,new State(id,i,parts.size(),parts.get(i)));
     }
     public static void notice(ServerPlayer player,String title,String description,String icon) {
-        if(!ServerPlayNetworking.canSend(player,State.TYPE))return;
+        if(!ServerPlayNetworking.canSend(player,State.TYPE)) { player.sendSystemMessage(net.minecraft.network.chat.Component.literal(title+(description.isBlank()?"":"\n"+description))); return; }
         var packet=new JsonObject();packet.addProperty("type","notice");packet.addProperty("title",title);
         packet.addProperty("description",description);packet.addProperty("icon",icon);send(player,packet);
     }
@@ -181,14 +181,14 @@ public final class QuestNetwork {
             QuestRuntime runtime=QuestPlusMod.runtime(); String value=request.argument();
             switch(request.action()) {
                 case "sync" -> sync(player,true);
-                case "claim" -> { runtime.visibleQuest(actor,value); runtime.claim(player,value); }
+                case "claim" -> { runtime.visibleQuest(actor,value); runtime.claimFromTablet(player,value); }
                 case "submit" -> {
                     String[] parts=value.split("\\|",2);
                     if(parts.length!=2 || parts[0].isBlank() || !parts[1].matches("[a-z0-9_.-]+"))
                         throw new IllegalArgumentException("Invalid submission selection");
                     runtime.submitItem(player,parts[0],parts[1]);
                 }
-                case "claim_all" -> runtime.claimAll(player);
+                case "claim_all" -> runtime.claimAllFromTablet(player);
                 case "interact" -> {
                     String[] parts=value.split("\\|",2);
                     if(parts.length!=2 || parts[0].isBlank() || !parts[1].matches("[a-z0-9_.-]+"))

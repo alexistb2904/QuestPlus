@@ -31,6 +31,10 @@ public final class TeamManager {
         if (team == null || team.disbanded) throw new IllegalArgumentException("Unknown/disbanded team: " + id);
         return team;
     }
+    /** Reward scopes outlive membership and disbanding, preventing a second shared claim. */
+    public TeamData rewardScope(UUID id) {
+        var team=teams.get(id);if(team==null)throw new IllegalArgumentException("Unknown reward team: "+id);return team;
+    }
     public Optional<TeamData> teamOf(UUID player) throws IOException {
         UUID id = personal(player).teamId;
         if (id == null) return Optional.empty();
@@ -136,9 +140,10 @@ public final class TeamManager {
         team.validate(); players.values().forEach(PlayerProgress::validate); return new Change(players,Map.of(team.id,team));
     }
     private static PlayerProgress copy(PlayerProgress progress) { return JsonProgressStore.detachedCopy(progress); }
-    private static TeamData copy(TeamData source) {
+    public static TeamData copy(TeamData source) {
         TeamData team = new TeamData(); team.id = source.id; team.name = source.name; team.owner = source.owner;
         team.members.addAll(source.members); team.invitations.putAll(source.invitations); team.progress = copy(source.progress); team.disbanded = source.disbanded;
+        team.rewardClaims.putAll(source.rewardClaims);
         return team;
     }
     private void merge(PlayerProgress destination,PlayerProgress source) {

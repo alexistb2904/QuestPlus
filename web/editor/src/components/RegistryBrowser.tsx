@@ -1,18 +1,21 @@
 import React,{useMemo,useState} from 'react';
 import {Dialog} from './Dialog';
 import {ItemIcon} from './IconPicker';
-import {hubRegistry,setHubRegistry} from '../core/hub-registry.js';
+import {hubRegistry,setHubRegistry,hubLabel} from '../core/hub-registry.js';
+import {ResourceGrid} from './ResourceGrid';
+import {resourceMatcher} from '../core/resource-search.js';
+import {tUI,getUiLocale} from '../ui/ui-i18n.js';
 
 /** Browser backed by the current approved server's registry snapshot, or by a local JSON export. */
 export function RegistryBrowser({onClose,onPick}:{onClose:()=>void;onPick?:(kind:string,id:string)=>void}){
- const [version,setVersion]=useState(0),[kind,setKind]=useState('items'),[query,setQuery]=useState(''),[limit,setLimit]=useState(120),[message,setMessage]=useState('');
+ const [version,setVersion]=useState(0),[kind,setKind]=useState('items'),[query,setQuery]=useState(''),[message,setMessage]=useState('');
  const data=hubRegistry() as Record<string,any>;
  const kinds=['items','blocks','fluids','entities','effects','enchantments','biomes','structures','dimensions','statistics','advancements'];
  const entries=useMemo(()=>{
    const values=Array.isArray(data[kind])?data[kind] as string[]:[];
    const tags=Array.isArray(data.tags?.[kind])?data.tags[kind] as string[]:[];
-   const key=query.trim().toLowerCase();
-   return [...values,...tags].filter(id=>id.toLowerCase().includes(key));
+   const matches=resourceMatcher(query);
+   return [...values,...tags].filter(id=>matches(id));
  },[data,kind,query,version]);
  const load=async(file:File)=>{
    try{
@@ -29,23 +32,20 @@ export function RegistryBrowser({onClose,onPick}:{onClose:()=>void;onPick?:(kind
  };
  return <Dialog title="Mod Registry Browser" onClose={onClose} className="icon-dialog">
   <p>Search items, blocks and other resources installed on the connected Minecraft server. A local export can also be opened without connecting.</p>
-  <label className="button secondary" style={{display:'inline-flex',cursor:'pointer'}}>Import registry JSON
+  <label className="button secondary" style={{display:'inline-flex',cursor:'pointer'}}>{tUI('Import registry JSON')}
    <input type="file" accept=".json" hidden onChange={e=>{const file=e.target.files?.[0];if(file)void load(file);e.target.value=''}}/>
   </label>
   <div className="picker-filters" style={{marginTop:12}}>
-   <select aria-label="Registry type" value={kind} onChange={e=>{setKind(e.target.value);setLimit(120)}}>
+   <select aria-label="Registry type" value={kind} onChange={e=>setKind(e.target.value)}>
     {kinds.map(k=><option key={k} value={k}>{k} ({Array.isArray(data[k])?data[k].length:0})</option>)}
    </select>
-   <input aria-label="Search registry resources" placeholder="Search modid, ID or tag…" value={query} onChange={e=>{setQuery(e.target.value);setLimit(120)}}/>
+   <input aria-label="Search registry resources" placeholder="Search modid, ID or tag…" value={query} onChange={e=>setQuery(e.target.value)}/>
   </div>
-  <div className="picker-count">{entries.length} entries {entries.length===0?'· Connect via Server Editor, or import a registry snapshot.':''}</div>
-  <div className="picker-grid">
-   {entries.slice(0,limit).map(id=><button key={id} type="button" className="picker-item" title={id} onClick={()=>{if(onPick)onPick(kind,id);else void copy(id)}}>
-    {(kind==='items'||kind==='blocks')&&<ItemIcon id={id.replace(/^#/,'')}/>}
-    <span>{id}</span>
-   </button>)}
-  </div>
-  {entries.length>limit&&<button className="button secondary" onClick={()=>setLimit(n=>n+120)}>Load more</button>}
-  <p role="status" className="picker-help">{message||'Click a resource to copy its ID, or insert it into the selected quest objective.'}</p>
+  <div className="picker-count">{entries.length} {tUI(entries.length===1?'entry':'entries')}</div>
+  {data.assetsLimited&&<p className="picker-help">{tUI('Some server previews exceed the session size limit; all registry IDs remain available.')}</p>}
+  <ResourceGrid key={kind+'\0'+query+'\0'+version} items={entries.map(id=>({id,label:!id.startsWith('minecraft:')&&!id.startsWith('#')?hubLabel(id,getUiLocale()):id}))} renderIcon={kind==='items'||kind==='blocks'?id=><ItemIcon id={id.replace(/^#/,'')}/>:undefined} onPick={id=>{if(onPick)onPick(kind,id);else void copy(id)}}/>
+  {!entries.length&&<div className="library-empty"><strong>{tUI(query?'No matching resources':'No registry data loaded')}</strong><span>{tUI(query?'Try another search.':'Connect through Server Editor to load the server registry, or import a registry JSON snapshot for this session.')}</span>
+  </div>}
+  <p role="status" className="picker-help">{message||tUI('Click a resource to copy its ID, or insert it into the selected quest objective.')}</p>
  </Dialog>;
 }

@@ -19,7 +19,7 @@ public final class QuestRegistry {
     private QuestRegistry(Map<String,QuestDefinition> quests) {
         this.quests = Map.copyOf(quests);
         Map<String,List<Candidate>> index = new HashMap<>();
-        quests.values().forEach(q -> q.objectives().forEach(o -> index.computeIfAbsent(o.event() + "\0" + o.target(), k -> new ArrayList<>()).add(new Candidate(q,o))));
+        quests.values().forEach(q -> q.objectives().forEach(o -> ItemComponents.targets(o).forEach(target->index.computeIfAbsent(o.event()+"\0"+target,k->new ArrayList<>()).add(new Candidate(q,o)))));
         index.replaceAll((k,v) -> List.copyOf(v)); this.index = Map.copyOf(index);
         Map<String,List<QuestDefinition.Objective>> grouped=new HashMap<>();
         quests.values().forEach(q -> q.objectives().forEach(o -> grouped.computeIfAbsent(o.event(),ignored -> new ArrayList<>()).add(o)));
@@ -35,7 +35,7 @@ public final class QuestRegistry {
     public List<Candidate> candidates(QuestEvent event) {
         List<Candidate> result = new ArrayList<>(index.getOrDefault(event.type() + "\0" + event.target(),List.of()));
         for (String tag : event.tags()) result.addAll(index.getOrDefault(event.type() + "\0#" + tag,List.of()));
-        return List.copyOf(result);
+        return result.stream().distinct().toList();
     }
     public static QuestRegistry load(Path dir, ValidationHook hook) throws IOException {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
@@ -105,7 +105,8 @@ public final class QuestRegistry {
         fields(o,"schemaVersion","id","category","icon","title","description","objectives","requires","rewards","progression","layout","narrative",
             "objectiveMode","objectiveThreshold","progressBeforeUnlock","tiers","afterLast","cooldownSeconds","timeLimitSeconds","noDeath","kind","acknowledgement","hidden","size","descriptionRich","presentation");
         long version = integer(o,"schemaVersion",1,2);
-        String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = identifier(string(o,"icon")); hook.validate("icon",icon);
+        String id = identifier(string(o,"id")), category = identifier(string(o,"category")), icon = string(o,"icon");
+        if(QuestIcon.isImage(icon))QuestIcon.validateImage(icon);else {identifier(icon);hook.validate("icon",icon);}
         var title = translations(object(o,"title")); var description = o.has("description") ? translations(object(o,"description")) : Map.<String,String>of();
         String progression=string(o,"progression");
         if (!Set.of("once","repeatable","infinite","tiered").contains(progression) || (version==1 && !progression.equals("once"))) throw new IllegalArgumentException("Invalid progression/schema version");
@@ -136,6 +137,8 @@ public final class QuestRegistry {
             QuestExtensions.event(event);
             identifier(target.startsWith("#") ? target.substring(1) : target); hook.validate(event,target);
             JsonObject data=v.has("data")?object(v,"data"):new JsonObject();QuestExtensions.validateObjective(event,data);
+            if(ItemComponents.supports(event)&&data.has("targets"))for(var alternative:data.getAsJsonArray("targets"))hook.validate(event,alternative.getAsString());
+            if(data.has("components")){var item=new JsonObject();item.addProperty("item",target);item.add("components",data.get("components"));if(!target.startsWith("#"))hook.validate("item_components",item.toString());}
             objectives.add(new QuestDefinition.Objective(oid,event,target,integer(v,"count",1,1_000_000_000L),v.has("text") ? translations(object(v,"text")) : Map.of(),v.has("conditions") ? condition(object(v,"conditions"),false,hook,0,new int[1]) : null,v.has("optional") && bool(v,"optional"),data.toString()));
         }
         if(kind.equals("standard")) {
@@ -185,7 +188,7 @@ public final class QuestRegistry {
     }
     private static QuestDefinition.Presentation presentation(JsonObject quest) {
         if(!quest.has("presentation"))return QuestDefinition.Presentation.DEFAULT;
-        var p=object(quest,"presentation");fields(p,"subtitle","tags","shape","iconScale","optional","disableCompletionToast","hideDetailsUntilUnlocked","hideTextUntilCompleted","invisibleUntilCompleted","invisibleUntilTasks","hideDependencyLines","hideDependentLines");
+        var p=object(quest,"presentation");fields(p,"subtitle","tags","shape","iconScale","optional","disableCompletionToast","hideDetailsUntilUnlocked","hideTextUntilCompleted","invisibleUntilCompleted","invisibleUntilTasks","hideDependencyLines","hideDependentLines","hideUntilDependenciesVisible");
         Map<String,String> subtitle=p.has("subtitle")?translations(object(p,"subtitle")):Map.of();
         List<String> tags=new ArrayList<>();
         if(p.has("tags"))for(var value:array(p,"tags")) {
@@ -193,14 +196,14 @@ public final class QuestRegistry {
             if(!tags.contains(value.getAsString()))tags.add(value.getAsString());
         }
         String shape=p.has("shape")?string(p,"shape"):"square";
-        if(!Set.of("square","circle","rounded_square","diamond","pentagon","hexagon","octagon","heart","gear").contains(shape))throw new IllegalArgumentException("Unknown quest shape");
+        if(!Set.of("square","circle","rounded_square","diamond","pentagon","hexagon","octagon","heart","gear").contains(shape)&&!shape.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))throw new IllegalArgumentException("Unknown quest shape");
         double scale=p.has("iconScale")?number(p,"iconScale"):1;
         if(scale<.25||scale>2)throw new IllegalArgumentException("Icon scale outside .25..2");
         return new QuestDefinition.Presentation(subtitle,List.copyOf(tags),shape,scale,
             p.has("optional")&&bool(p,"optional"),p.has("disableCompletionToast")&&bool(p,"disableCompletionToast"),
             p.has("hideDetailsUntilUnlocked")&&bool(p,"hideDetailsUntilUnlocked"),p.has("hideTextUntilCompleted")&&bool(p,"hideTextUntilCompleted"),
             p.has("invisibleUntilCompleted")&&bool(p,"invisibleUntilCompleted"),p.has("invisibleUntilTasks")?(int)integer(p,"invisibleUntilTasks",0,256):0,
-            p.has("hideDependencyLines")&&bool(p,"hideDependencyLines"),p.has("hideDependentLines")&&bool(p,"hideDependentLines"));
+            p.has("hideDependencyLines")&&bool(p,"hideDependencyLines"),p.has("hideDependentLines")&&bool(p,"hideDependentLines"),p.has("hideUntilDependenciesVisible")&&bool(p,"hideUntilDependenciesVisible"));
     }
     private static Map<String,JsonArray> descriptionRich(JsonObject locales) {
         Map<String,JsonArray> parsed=new HashMap<>();
@@ -237,32 +240,42 @@ public final class QuestRegistry {
         }
         return Map.copyOf(parsed);
     }
-    private static List<QuestDefinition.Reward> rewards(JsonArray array,ValidationHook hook) {
+    public static List<QuestDefinition.Reward> rewards(JsonArray array,ValidationHook hook) {
         if (array.size()>64) throw new IllegalArgumentException("Too many rewards");
         List<QuestDefinition.Reward> result=new ArrayList<>();
         for (var value:array) {
-            var v=value.getAsJsonObject(); String type=string(v,"type");
+            var v=value.getAsJsonObject().deepCopy(); String type=string(v,"type");
+            boolean teamReward=v.has("teamReward")&&bool(v,"teamReward");
+            String autoClaim=v.has("autoClaim")?string(v,"autoClaim"):"disabled";
+            boolean exclude=v.has("excludeFromClaimAll")&&bool(v,"excludeFromClaimAll");
+            var policy=new QuestDefinition.RewardPolicy(teamReward,autoClaim,exclude);
+            v.remove("teamReward");v.remove("autoClaim");v.remove("excludeFromClaimAll");
             Map<String,String> text=v.has("text") ? translations(object(v,"text")) : Map.of();
             QuestDefinition.Reward reward;
             if (type.equals("experience") || type.equals("experience_levels")) {
                 fields(v,"type","amount","text"); reward=new QuestDefinition.Reward(type,null,0,(int)integer(v,"amount",1,1_000_000),"{}",text);
             } else if (type.equals("item")) {
-                fields(v,"type","item","count","text"); String item=identifier(string(v,"item")); hook.validate("item",item);
-                reward=new QuestDefinition.Reward(type,item,(int)integer(v,"count",1,2304),0,"{}",text);
+                fields(v,"type","item","count","text","components","onlyOne","randomBonus"); String item=identifier(string(v,"item")); hook.validate("item",item);
+                var data=new JsonObject();if(v.has("components"))data.add("components",object(v,"components"));
+                if(v.has("onlyOne"))data.addProperty("onlyOne",bool(v,"onlyOne"));if(v.has("randomBonus"))data.addProperty("randomBonus",integer(v,"randomBonus",0,2303));
+                ItemComponents.validateReward(data);
+                if(v.has("components"))hook.validate("item_components",v.toString());
+                reward=new QuestDefinition.Reward(type,item,(int)integer(v,"count",1,2304),0,data.toString(),text);
             } else {
                 fields(v,"type","data","text"); var data=object(v,"data"); QuestExtensions.validateReward(type,data);
                 if(type.equals("questplus:advancement"))
-                    hook.validate("advancement_complete",data.get("advancement").getAsString());
+                    {hook.validate("advancement_complete",data.get("advancement").getAsString());if(data.has("criterion"))hook.validate("advancement_criterion",data.toString());}
                 if(Set.of("questplus:random","questplus:loot","questplus:all","questplus:choice").contains(type))
                     for(var option:data.getAsJsonArray("options")){
                         var entry=option.getAsJsonObject();
                         if(entry.get("type").getAsString().equals("item"))
-                            hook.validate("item",entry.get("item").getAsString());
+                            {hook.validate("item",entry.get("item").getAsString());if(entry.has("components"))hook.validate("item_components",entry.toString());}
                         else if(entry.get("type").getAsString().equals("questplus:advancement"))
-                            hook.validate("advancement_complete",entry.getAsJsonObject("data").get("advancement").getAsString());
+                            {hook.validate("advancement_complete",entry.getAsJsonObject("data").get("advancement").getAsString());if(entry.getAsJsonObject("data").has("criterion"))hook.validate("advancement_criterion",entry.getAsJsonObject("data").toString());}
                     }
                 reward=new QuestDefinition.Reward(type,null,0,0,data.toString(),text);
             }
+            reward=reward.withPolicy(policy);
             QuestExtensions.validateSavedReward(reward); result.add(reward);
         }
         int maximum=0;
@@ -270,7 +283,7 @@ public final class QuestRegistry {
             if(Set.of("questplus:random","questplus:loot","questplus:all").contains(reward.type())){
                 var data=JsonParser.parseString(reward.data()).getAsJsonObject();
                 maximum+=reward.type().equals("questplus:all") ? data.getAsJsonArray("options").size() :
-                    data.has("rolls")?data.get("rolls").getAsInt():1;
+                    (data.has("rolls")?data.get("rolls").getAsInt():1)+(int)data.getAsJsonArray("options").asList().stream().filter(v->v.getAsJsonObject().get("weight").getAsLong()==0).count();
             }else maximum++;
             if(maximum>64)throw new IllegalArgumentException("Expanded reward table may exceed 64 grants");
         }

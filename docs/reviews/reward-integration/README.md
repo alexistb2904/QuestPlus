@@ -21,4 +21,4 @@ Branch: `feat/p0-p2-player-integration`, based on main `1d6d238`. Original IDE c
 
 The server GameTests use simulated players. The native client uses a real integrated server and connection. This is not a dedicated server with two real clients, not a modded fluid/energy compatibility matrix, not an Iris/shader certification and not a proof of atomicity between vanilla inventories and JSON under abrupt crashes. Unit recovery tests exercise the JSON transaction journal, not that missing cross-storage transaction.
 
-The PR stays draft while inventory hand-in crash atomicity and audited reserved-claim recovery remain open. The [backlog](../../CODEX_TODO_P0_P2.md) and [FTB comparison](../../ftb-quests-gap-analysis.md) distinguish implemented behavior from remaining work.
+The PR stays draft while inventory hand-in crash atomicity and audited reserved-claim recovery remain open. The [backlog](../../CODEX_TODO_P0_P2.md) and [feature status](../../ftb-quests-gap-analysis.md) distinguish implemented behavior from remaining work.

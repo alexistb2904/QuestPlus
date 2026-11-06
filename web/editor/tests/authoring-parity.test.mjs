@@ -21,9 +21,9 @@ test('FTB preview imports only supported semantics and reports unsupported ones'
    ],rewards:[{type:'ftbquests:command',command:'give @p diamond'}]}
  ]}`;
  const report=inspectFtbPack([{name:'chapters/mobs.json5',content:input}]);
- assert.equal(report.questCount,0);
- assert.ok(report.warnings.some(w=>w.includes('skipped')));
- assert.ok(report.warnings.some(w=>w.includes('reward')));
+ assert.equal(report.questCount,1);
+ assert.equal(report.project.quests[0].rewards[0].type,'questplus:command');
+ assert.ok(report.warnings.some(w=>w.includes('trusted server approval')));
 });
 test('FTB importer rejects packs with no chapters',()=>{
  assert.throws(()=>inspectFtbPack([{name:'other.json5',content:'{}'}]),/No FTB chapters/);
@@ -54,7 +54,7 @@ test('FTB items, statistics, locations, rewards and dependencies preserve semant
 });
 test('FTB unknown task blocks import of that quest and its dependents',()=>{
  const report=inspectFtbPack([{name:'chapters/safety.json5',content:`{id:'safety',quests:[
-  {id:'A',tasks:[{type:'ftbquests:energy',value:500}]},
+  {id:'A',tasks:[{type:'thirdparty:energy',value:500}]},
   {id:'B',dependencies:['A'],tasks:[{type:'kill',entity:'minecraft:zombie',value:2}]},
   {id:'C',tasks:[{type:'checkmark'}]}
  ]}`}]);
@@ -74,7 +74,7 @@ test('FTB importer distinguishes automatic possession, crafting and player hand-
  ]}`;
  const report=inspectFtbPack([{name:'chapters/items.json5',content}]);
  const modes=report.project.quests.map(q=>q.objectives[0].event);
- assert.deepEqual(modes,['inventory_count','item_craft','item_turn_in','advancement_complete','xp_levels']);
+ assert.deepEqual(modes,['inventory_count','item_craft','item_turn_in','advancement_complete','xp_submit_levels']);
  assert.ok(report.warnings.some(w=>w.includes('Task Screen-only')));
  assert.equal(report.questCount,5);
  assert.deepEqual(validate(report.project),[]);
@@ -102,7 +102,7 @@ test('reward builder validates random tables, command opt-in and message',()=>{
    {weight:1,type:'experience_levels',amount:5},
  ]}},{type:'questplus:message',data:{message:'Congratulations!'}}];
  assert.deepEqual(validate(project),[]);
- q.rewards[0].data.options[0].weight=0;
+ q.rewards[0].data.options[0].weight=-1;
  assert.ok(validate(project).some(issue=>issue.message.includes('Poids')));
  q.rewards=[{type:'questplus:loot',data:{rolls:1,emptyWeight:2,options:[
   {weight:1,type:'item',item:'minecraft:iron_ingot',count:4}

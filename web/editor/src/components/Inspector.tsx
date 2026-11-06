@@ -1,4 +1,4 @@
-import React,{useId,useState} from 'react';
+import React,{useId,useRef,useState} from 'react';
 import {ChevronDown,SlidersHorizontal,PenLine,Copy,Check,Gift,Target,Info} from 'lucide-react';
 import {annotationText,annotationRich,text,selectedOwner} from '../core/project.js';
 import {gameLayout} from '../core/game-layout.js';
@@ -9,6 +9,7 @@ import {versionWarning} from '../ui/minecraft-icons.js';
 import {ItemIcon,TargetPicker} from './IconPicker';
 import {RichEditor,DescriptionEditor} from './RichEditor';
 import {tUI} from '../ui/ui-i18n.js';
+import {resourceMatcher} from '../core/resource-search.js';
 import type {Project,Selection} from '../types';
 
 export type Props={project:Project;categoryId?:string|null;selection:Selection|null;language:string;onUpdate:(path:string,value:any)=>void;onAction:(kind:string,index?:number)=>void;onChooseIcon:(path:string)=>void;onCondition:(scope:string,value:any)=>void;onAddLocale?:(id:string)=>void;onOpenTranslations?:()=>void;translationRequest?:number;};
@@ -20,7 +21,23 @@ export function Field({label,value,onChange,type='text',placeholder='',rows}:Fie
  </label>;
 }
 export function Select({label,value,options,onChange}:{label:string;value:any;options:[string,string][];onChange:(v:string)=>void}){
+ if(options.length>10)return <SearchableSelect label={label} value={value} options={options} onChange={onChange}/>;
  return <label className="field"><span>{tUI(label)}</span><select aria-label={tUI(label)} value={value??''} onChange={e=>onChange(e.target.value)}>{options.map(([id,name])=><option value={id} key={id}>{tUI(name)}</option>)}</select></label>;
+}
+function SearchableSelect({label,value,options,onChange}:{label:string;value:any;options:[string,string][];onChange:(v:string)=>void}){
+ const [open,setOpen]=useState(false),[query,setQuery]=useState(''),root=useRef<HTMLDivElement>(null),trigger=useRef<HTMLButtonElement>(null),listId=useId();
+ const match=resourceMatcher(query),visible=options.filter(([id,name])=>match(id,tUI(name)));
+ const close=()=>{setOpen(false);setQuery('')};
+ return <div className="field search-select" ref={root} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node))close()}} onKeyDown={e=>{
+  if(e.key==='Escape'&&open){e.stopPropagation();close();trigger.current?.focus()}
+  if(e.key==='ArrowDown'&&e.target instanceof HTMLInputElement){e.preventDefault();root.current?.querySelector<HTMLButtonElement>('[role=option]')?.focus()}
+  if((e.key==='ArrowDown'||e.key==='ArrowUp')&&e.target instanceof HTMLButtonElement&&e.target.getAttribute('role')==='option'){
+   e.preventDefault();const buttons=Array.from(root.current?.querySelectorAll<HTMLButtonElement>('[role=option]')||[]),index=buttons.indexOf(e.target);
+   buttons[Math.max(0,Math.min(buttons.length-1,index+(e.key==='ArrowDown'?1:-1)))]?.focus();
+  }
+ }}><span>{tUI(label)}</span><button ref={trigger} type="button" className="search-select-trigger" aria-label={tUI(label)} aria-haspopup="listbox" aria-expanded={open} aria-controls={listId} onClick={()=>{setOpen(!open);setQuery('')}}>{tUI(options.find(([id])=>id===value)?.[1]||String(value||''))}<ChevronDown size={14}/></button>
+ {open&&<div className="search-select-menu"><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder={tUI('Search…')} aria-label={tUI('Search…')}/><div id={listId} role="listbox" aria-label={tUI(label)}>{visible.map(([id,name])=><button type="button" role="option" aria-selected={id===value} key={id} onClick={()=>{onChange(id);close();trigger.current?.focus()}}>{tUI(name)}</button>)}{!visible.length&&<small>{tUI('No results')}</small>}</div></div>}
+ </div>;
 }
 export function Section({title,children}:{title:string;children:React.ReactNode}){return <section className="section"><div className="section-title">{tUI(title)}</div>{children}</section>;}
 export function Disclosure({title,children}:{title:string;children:React.ReactNode}){
@@ -33,7 +50,7 @@ export function Translated({value,prefix,label,onUpdate}:{value:any;prefix:strin
 function IconField({id,onUpdate,onChooseIcon,project}:{id:string;onUpdate:(v:string)=>void;onChooseIcon:()=>void;project:Project}){
  return <div className="field"><span>{tUI('Icon')}</span><div className="react-icon-field">
   <ItemIcon id={id}/>
-  <input aria-label={tUI('Icon')} spellCheck={false} value={id||''} onChange={e=>onUpdate(e.target.value)} placeholder="minecraft:book / mod:item"/>
+  <input aria-label={tUI('Icon')} spellCheck={false} value={id?.startsWith('data:')?'':id||''} onChange={e=>onUpdate(e.target.value)} placeholder={id?.startsWith('data:')?tUI('Custom image'):"minecraft:book / mod:item"}/>
   <button type="button" className="button secondary" onClick={onChooseIcon}>{tUI('Browse')}</button>
  </div>{versionWarning(project,id)&&<small className="version-alert">{versionWarning(project,id)}</small>}</div>;
 }
@@ -171,12 +188,16 @@ export function Inspector({project,categoryId,selection,language,onUpdate,onActi
       <Field label="Y" type="number" value={position?.y??0} onChange={v=>onUpdate('layout.y',v)}/>
      </div></Section>
      <Disclosure title="Presentation">
+      <div className="presentation-group"><strong>{tUI('Appearance')}</strong>
       <Translated label="Subtitle" value={quest.presentation?.subtitle||{}} prefix="presentation.subtitle" onUpdate={onUpdate}/>
       <Field label="Quest tags" value={(quest.presentation?.tags||[]).join(', ')} onChange={v=>onUpdate('presentation.tags',String(v).split(',').map(s=>s.trim()).filter(Boolean))}/>
-      <Select label="Node shape" value={quest.presentation?.shape||'square'} options={['square','circle','rounded_square','diamond','pentagon','hexagon','octagon','heart','gear'].map(s=>[s,s])} onChange={v=>onUpdate('presentation.shape',v)}/>
+      <Select label="Node shape" value={quest.presentation?.shape||'square'} options={['square','circle','rounded_square','diamond','pentagon','hexagon','octagon','heart','gear',...(quest.presentation?.shape?.includes(':')?[quest.presentation.shape]:[])].map(s=>[s,s])} onChange={v=>onUpdate('presentation.shape',v)}/>
+      <Field label="Custom shape resource ID" value={quest.presentation?.shape?.includes(':')?quest.presentation.shape:''} placeholder="modid:custom" onChange={v=>onUpdate('presentation.shape',v||'square')}/>
       <Field label="Icon scale" type="number" value={quest.presentation?.iconScale??1} onChange={v=>onUpdate('presentation.iconScale',v)}/>
-      {(['optional','disableCompletionToast','hideDetailsUntilUnlocked','hideTextUntilCompleted','invisibleUntilCompleted','hideDependencyLines','hideDependentLines'] as const).map((key,i)=><label className="checkbox-row" key={key}><input type="checkbox" checked={!!quest.presentation?.[key]} onChange={e=>onUpdate('presentation.'+key,e.target.checked)}/>{tUI(['Optional quest','Disable completion toast','Hide details until unlocked','Hide text until completed','Invisible until completed','Hide incoming links','Hide outgoing links'][i])}</label>)}
+      </div><div className="presentation-group"><strong>{tUI('Behavior and visibility')}</strong>
+      {(['optional','disableCompletionToast','hideDetailsUntilUnlocked','hideTextUntilCompleted','invisibleUntilCompleted','hideDependencyLines','hideDependentLines','hideUntilDependenciesVisible'] as const).map((key,i)=><label className="checkbox-row" key={key}><input type="checkbox" checked={!!quest.presentation?.[key]} onChange={e=>onUpdate('presentation.'+key,e.target.checked)}/>{tUI(['Optional quest','Disable completion toast','Hide details until unlocked','Hide text until completed','Invisible until completed','Hide incoming links','Hide outgoing links','Hide until dependencies visible'][i])}</label>)}
       <Field label="Completed objectives before visible" type="number" value={quest.presentation?.invisibleUntilTasks??0} onChange={v=>onUpdate('presentation.invisibleUntilTasks',v)}/>
+      </div>
      </Disclosure>
      <Section title="Visibility"><label className="checkbox-row"><input type="checkbox" checked={!!quest.hidden} onChange={e=>onUpdate('hidden',e.target.checked)}/> {tUI('Hidden until unlocked')}</label></Section>
     </>}

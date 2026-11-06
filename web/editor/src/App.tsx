@@ -67,6 +67,7 @@ export default function App() {
 		[issuesOpen, setIssuesOpen] = useState(false),
 		[previewOpen, setPreviewOpen] = useState(false);
 	const [registryOpen,setRegistryOpen]=useState(false);
+	const [importOpen,setImportOpen]=useState(false);
 	const [bulkOpen,setBulkOpen]=useState(false);
 	const [templatesOpen,setTemplatesOpen]=useState(false);
  const [tablesOpen,setTablesOpen]=useState(false);
@@ -278,7 +279,7 @@ export default function App() {
 				hidden
 				type="file"
 				multiple
-				accept=".json,.json5,.snbt,.txt,.zip"
+				accept=".json,.json5,.snbt,.txt,.zip,.png,.jpg,.jpeg,.gif"
 				onChange={(e) => {
 					void studio.importFiles(e.target.files);
 					e.target.value = "";
@@ -327,7 +328,7 @@ export default function App() {
 						search={search}
 						onSearch={setSearch}
 						onCollapse={() => setLibraryOpen(false)}
-						onImport={() => files.current?.click()}
+						onImport={() => setImportOpen(true)}
 						onImportFolder={() => folder.current?.click()}
 					/>
 				)}
@@ -488,6 +489,7 @@ export default function App() {
 						}
 					/>
 				</label>
+                <label className="checkbox-row"><input type="checkbox" checked={project.config?.dropLootCrates===true} onChange={e=>studio.mutate(state=>{state.project.config.dropLootCrates=e.target.checked;},'config:crateDrops')}/>{tUI('Enable loot crate drops')}</label>
 				<label className="checkbox-row" title="Trusted server administrators only. Commands are disabled by default.">
                     <input type="checkbox" checked={project.config?.enableCommandRewards===true}
                       onChange={e=>studio.mutate(state=>{state.project.config ||= {};state.project.config.enableCommandRewards=e.target.checked;},'config:commandRewards')}/>
@@ -503,11 +505,19 @@ export default function App() {
 				</button>
 			</footer>
 			{tablesOpen&&<RewardTableLibrary project={studio.state.project} language={language} onChange={tables=>studio.mutate(s=>{s.project.rewardTables=tables})} onClose={()=>setTablesOpen(false)}/>}
-			{templatesOpen&&<TemplateLibrary projectTemplates={studio.state.project.questTemplates} onSaveProject={studio.setProjectTemplates} onClose={()=>setTemplatesOpen(false)}/>}
+			{templatesOpen&&<TemplateLibrary projectTemplates={studio.state.project.questTemplates} onSaveProject={studio.setProjectTemplates} onSaveSelected={selected?()=>doAction('save-as-template'):undefined} onClose={()=>setTemplatesOpen(false)}/>}
 			{bulkOpen&&<BulkEditor project={project} onClose={()=>setBulkOpen(false)} onApply={(result,count)=>{
     studio.mutate(draft=>{draft.project=result},'bulk-edit');
     studio.toast('Updated '+count+' quests');
    }}/>}
+			{importOpen && <Dialog title={tUI('Import')} onClose={()=>setImportOpen(false)}>
+				<p>{tUI('Choose the format of your pack.')}</p>
+				<div className="import-choices">
+					<button className="button secondary" onClick={()=>{setImportOpen(false);files.current?.click()}}>QuestPlus · ZIP / JSON</button>
+					<button className="button secondary" onClick={()=>{setImportOpen(false);folder.current?.click()}}>FTB Quests · dossier</button>
+					<button className="button secondary" onClick={()=>{setImportOpen(false);files.current?.click()}}>FTB Quests · ZIP</button>
+				</div>
+			</Dialog>}
 			{registryOpen && <RegistryBrowser onClose={()=>setRegistryOpen(false)} onPick={(kind,id)=>{
         const matches:Record<string,string[]>={items:['item_obtained','item_craft','item_smelt','item_use','item_consume','fish_item','trade','inventory_count','item_submit','item_turn_in'],blocks:['block_break','block_place','block_interact'],fluids:['fluid_transfer'],entities:['entity_kill','fish_entity','tame_animal','breed_animal','npc_interact'],biomes:['biome_visit'],structures:['structure_visit'],dimensions:['dimension_enter'],statistics:['custom_stat'],advancements:['advancement_complete']};
         const index=selected?.objectives?.findIndex(o=>(matches[kind]||[]).includes(o.event))??-1;

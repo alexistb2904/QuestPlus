@@ -3,6 +3,7 @@ import {Dialog} from './Dialog';
 import {tUI} from '../ui/ui-i18n.js';
 import {availableEnchantments} from '../data/vanilla-enchantments-26.3.js';
 import {hubTargets} from '../core/hub-registry.js';
+import {resourceMatcher} from '../core/resource-search.js';
 
 /** The official 26.3 vanilla registry is searchable. Modded IDs remain editable inline. */
 export function EnchantmentPicker({taken,onPick,onClose,replaceId=''}:{
@@ -18,10 +19,9 @@ export function EnchantmentPicker({taken,onPick,onClose,replaceId=''}:{
     .map(id=>({id,name:id.split(':')[1].replace(/_/g,' '),maxLevel:0,group:'Modded'}));
   return [...vanilla,...modded];
  },[taken,replaceId]);
- const matches=useMemo(()=>available.filter(row=>{
-  const query=search.trim().toLowerCase();
-  return (group==='All'||row.group===group) && (!query||(`${row.id} ${row.name}`).toLowerCase().includes(query));
- }),[available,search,group]);
+ const matches=useMemo(()=>{const match=resourceMatcher(search);return available.filter(row=>
+  (group==='All'||row.group===group) && match(row.id,row.name)
+ )},[available,search,group]);
  return <Dialog title={tUI('Choose enchantment')} onClose={onClose} className="icon-dialog">
   <div className="picker-filters">
    <input autoFocus aria-label={tUI('Search enchantments…')} placeholder={tUI('Search enchantments…')}

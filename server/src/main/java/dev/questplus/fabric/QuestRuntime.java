@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.LevelResource;
@@ -41,10 +42,14 @@ public final class QuestRuntime implements AutoCloseable {
         TeamWrite(TeamManager.Change change,CompletableFuture<Void> io) { this.change=change; this.io=io; }
     }
     private TeamManager teams;
+    private final FtbMigrationService migrations;
     private boolean storageFailed;
     private String teamRewardPolicy="all_members";
     private boolean commandRewardsEnabled;
+    private boolean dropLootCrates;
+    private Map<String,Integer> crateNoDrop=Map.of("passive",4000,"monster",600,"boss",0);
     private QuestRegistry registry;
+    private NamedRewardTables rewardTables;
     private List<ClientProjection.Category> categories = List.of();
     private long catalogGeneration;
     private QuestEngine engine;
@@ -61,14 +66,16 @@ public final class QuestRuntime implements AutoCloseable {
         store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"),new JsonProgressStore.SavedMarker() {
             public String read(UUID id) throws IOException {return inventoryMarker.saved(id);}
             public void verifyInventory(UUID id,com.google.gson.JsonArray expected) throws IOException {inventoryMarker.verifySavedInventory(id,expected);}
+            public void verifyExperience(UUID id,com.google.gson.JsonObject expected) throws IOException {inventoryMarker.verifySavedExperience(id,expected);}
         });
-        try { reload(); teams=new TeamManager(store,registry,players); } catch (IOException | RuntimeException e) { store.close(); throw e; }
+        try { reload(); teams=new TeamManager(store,registry,players);migrations=new FtbMigrationService(this,server,world); } catch (IOException | RuntimeException e) { store.close(); throw e; }
     }
+    FtbMigrationService migrations(){return migrations;}
 
     public void reload() throws IOException {
         assertThread();
         var config = Defaults.readObject(definitions.resolve("config.json"));
-        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy","enableCommandRewards").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
+        if (!Set.of("schemaVersion","autosaveSeconds","teamRewardPolicy","enableCommandRewards","dropLootCrates","crateNoDrop").containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
                 || !config.get("schemaVersion").isJsonPrimitive() || !config.get("schemaVersion").getAsJsonPrimitive().isNumber()
                 || config.get("schemaVersion").getAsBigDecimal().intValueExact() != 1)
             throw new IllegalArgumentException("Unsupported config.json");
@@ -82,6 +89,12 @@ public final class QuestRuntime implements AutoCloseable {
             !config.get("enableCommandRewards").getAsJsonPrimitive().isBoolean()))
             throw new IllegalArgumentException("enableCommandRewards must be a boolean");
         boolean allowCommands=config.has("enableCommandRewards") && config.get("enableCommandRewards").getAsBoolean();
+        if(config.has("dropLootCrates")&&(!config.get("dropLootCrates").isJsonPrimitive()||!config.getAsJsonPrimitive("dropLootCrates").isBoolean()))throw new IllegalArgumentException("dropLootCrates must be boolean");
+        boolean candidateDrops=config.has("dropLootCrates")&&config.get("dropLootCrates").getAsBoolean();
+        Map<String,Integer> candidateNoDrop=new HashMap<>(Map.of("passive",4000,"monster",600,"boss",0));
+        if(config.has("crateNoDrop")){var weights=config.getAsJsonObject("crateNoDrop");NamedRewardTables.validateDropWeights(weights);weights.entrySet().forEach(e->candidateNoDrop.put(e.getKey(),e.getValue().getAsInt()));}
+        var candidateTables=NamedRewardTables.load(definitions.resolve("quests"));
+        for(var table:candidateTables.all().values()){var values=new JsonArray();values.add(table);QuestRegistry.rewards(values,this::validateRegistryReference);}
         QuestRegistry candidate = QuestRegistry.load(definitions.resolve("quests"), this::validateRegistryReference);
         if(!allowCommands && candidate.all().stream().anyMatch(q->
             q.rewards().stream().anyMatch(r->r.type().equals("questplus:command")) ||
@@ -118,7 +131,7 @@ public final class QuestRuntime implements AutoCloseable {
                     }
                 }
                 String icon=category.has("icon") ? category.get("icon").getAsString() : "minecraft:book";
-                validateRegistryReference("icon",icon);
+                if(dev.questplus.core.QuestIcon.isImage(icon))dev.questplus.core.QuestIcon.validateImage(icon);else validateRegistryReference("icon",icon);
                 Map<String,String> title=new HashMap<>(),description=new HashMap<>();
                 category.getAsJsonObject("title").entrySet().forEach(e -> title.put(e.getKey(),e.getValue().getAsString()));
                 category.getAsJsonObject("description").entrySet().forEach(e -> description.put(e.getKey(),e.getValue().getAsString()));
@@ -247,18 +260,24 @@ public final class QuestRuntime implements AutoCloseable {
             }
         }
         for (var quest : candidate.all()) if (!categoryIds.contains(quest.category())) throw new IllegalArgumentException("Unknown category: " + quest.category());
-        registry = candidate;
+        registry = candidate; rewardTables=candidateTables;
         categories = candidateCategories.stream().sorted(Comparator.comparingInt(ClientProjection.Category::order).thenComparing(ClientProjection.Category::id)).toList();
         catalogGeneration++;
         engine = new QuestEngine(candidate);
         if (teams!=null) teams.registry(candidate);
         teamRewardPolicy=policy;
         commandRewardsEnabled=allowCommands;
+        dropLootCrates=candidateDrops;crateNoDrop=Map.copyOf(candidateNoDrop);
         autosaveTicks = seconds * 20;
         QuestNetwork.invalidateAll(server);
     }
 
     private void validateRegistryReference(String kind, String target) {
+        if(kind.equals("item_components")){QuestItemStacks.decode(com.google.gson.JsonParser.parseString(target).getAsJsonObject(),server.registryAccess());return;}
+        if(kind.equals("advancement_criterion")) {
+            var data=com.google.gson.JsonParser.parseString(target).getAsJsonObject();var advancement=server.getAdvancements().get(Identifier.parse(data.get("advancement").getAsString()));
+            if(advancement==null||!advancement.value().criteria().containsKey(data.get("criterion").getAsString()))throw new IllegalArgumentException("Unknown advancement criterion");return;
+        }
         String registryKind=kind.equals("icon") || kind.equals("tool") || kind.equals("item") ? "item"
             : Set.of("dimension","biome","effect").contains(kind) ? kind : QuestExtensions.event(kind).registry();
         if (kind.equals("advancement_complete")) {
@@ -325,8 +344,15 @@ public final class QuestRuntime implements AutoCloseable {
             catch (IOException | RuntimeException e) { blocked.add(id); throw e; }
         }
         for (String quest:List.copyOf(value.legacyUnclaimed)) if (registry.find(quest).isPresent()) {
-            if (!value.claims.containsKey(quest)) value.entitlements.putIfAbsent(quest,new PlayerProgress.RewardGrant(quest,registry.get(quest).rewards()));
+            if (!value.claims.containsKey(quest)) value.entitlements.putIfAbsent(quest,new PlayerProgress.RewardGrant(quest,RewardTables.resolve(registry.get(quest).rewards())));
             value.legacyUnclaimed.remove(quest); dirty.add(id);
+        }
+        if(teams!=null)for(var entry:value.entitlements.entrySet()) {
+            UUID scope=entry.getValue().rewards().isEmpty()?null:entry.getValue().rewards().getFirst().policy().teamScope();
+            if(scope!=null) {
+                String status=teams.rewardScope(scope).rewardClaims.get(entry.getKey());
+                if(status!=null&&!status.equals(value.claims.get(entry.getKey()))){value.claims.put(entry.getKey(),status);dirty.add(id);}
+            }
         }
         return value;
     }
@@ -357,7 +383,9 @@ public final class QuestRuntime implements AutoCloseable {
         QuestDefinition quest=visibleQuest(uuid,questId);
         QuestDefinition.Objective objective=quest.objectives().stream()
             .filter(o->o.id().equals(objectiveId)).findFirst().orElseThrow(()->new IllegalArgumentException("Unknown objective"));
-        boolean consuming=objective.event().equals("item_turn_in");
+        boolean experience=Set.of("xp_submit_levels","xp_submit_points").contains(objective.event());
+        boolean resource=Set.of("fluid_submit","energy_submit").contains(objective.event());
+        boolean consuming=objective.event().equals("item_turn_in")||experience||resource;
         if(!consuming && !objective.event().equals("item_submit"))
             throw new IllegalArgumentException("Objective is not a submission task");
         PlayerProgress state=state(uuid);
@@ -391,11 +419,30 @@ public final class QuestRuntime implements AutoCloseable {
         long previous=progress==null?0:progress.counters.getOrDefault(objectiveId,0L);
         long remaining=maximum-previous;
         if(remaining<=0)throw new IllegalArgumentException("Objective already supplied");
+        if(resource) {
+            var inventory=new ArrayList<ItemStack>();for(int i=0;i<37;i++)inventory.add((i==36?actor.getOffhandItem():actor.getInventory().getItem(i)).copy());
+            var data=com.google.gson.JsonParser.parseString(objective.data()).getAsJsonObject();
+            var plan=QuestResourceContainers.extract(inventory,objective.event().equals("fluid_submit")?objective.target():null,remaining,data.has("fePerEnergy")?data.get("fePerEnergy").getAsInt():1);
+            ctx.put("submissionQuest",questId);ctx.put("submissionObjective",objectiveId);
+            durableSubmission(actor,new QuestEvent(objective.event(),objective.target(),Set.of(),plan.amount(),ctx),stack->false,plan.amount(),questId,objectiveId,previous,null,plan.stacks());
+            return plan.amount();
+        }
+        if(experience) {
+            boolean points=objective.event().equals("xp_submit_points");
+            int available=points?Experience.points(actor.experienceLevel,actor.experienceProgress):actor.experienceLevel;
+            int amount=(int)Math.min(remaining,available);if(amount<=0)throw new IllegalArgumentException("Not enough experience to submit");
+            var after=InventoryMarker.experience(actor);
+            if(points){int total=available-amount,level=Experience.level(total);after.addProperty("level",level);after.addProperty("progress",(float)(total-Experience.base(level))/Experience.capacity(level));after.addProperty("total",total);}
+            else after.addProperty("level",actor.experienceLevel-amount);
+            ctx.put("submissionQuest",questId);ctx.put("submissionObjective",objectiveId);
+            durableSubmission(actor,new QuestEvent(objective.event(),objective.target(),Set.of(),amount,ctx),stack->false,amount,questId,objectiveId,previous,after);
+            return amount;
+        }
         String target=objective.target();
         net.minecraft.tags.TagKey<net.minecraft.world.item.Item> tag=target.startsWith("#")
             ? net.minecraft.tags.TagKey.create(Registries.ITEM,Identifier.parse(target.substring(1))) : null;
         java.util.function.Predicate<ItemStack> matches=stack->!stack.isEmpty() &&
-            (tag==null?BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(target):stack.is(tag));
+            ItemComponents.targets(objective).stream().anyMatch(candidate->candidate.startsWith("#")?stack.is(TagKey.create(Registries.ITEM,Identifier.parse(candidate.substring(1)))):BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(candidate))&&QuestItemStacks.matches(objective,stack,actor);
         long available=0;
         for(int i=0;i<36;i++){ItemStack stack=actor.getInventory().getItem(i);if(matches.test(stack))available+=stack.getCount();}
         ItemStack offhand=actor.getOffhandItem();
@@ -418,6 +465,14 @@ public final class QuestRuntime implements AutoCloseable {
 
     private void durableSubmission(ServerPlayer actor,QuestEvent event,java.util.function.Predicate<ItemStack> matches,
             int amount,String questId,String objectiveId,long previous) throws IOException {
+        durableSubmission(actor,event,matches,amount,questId,objectiveId,previous,null);
+    }
+    private void durableSubmission(ServerPlayer actor,QuestEvent event,java.util.function.Predicate<ItemStack> matches,
+            int amount,String questId,String objectiveId,long previous,com.google.gson.JsonObject experienceAfter) throws IOException {
+        durableSubmission(actor,event,matches,amount,questId,objectiveId,previous,experienceAfter,null);
+    }
+    private void durableSubmission(ServerPlayer actor,QuestEvent event,java.util.function.Predicate<ItemStack> matches,
+            int amount,String questId,String objectiveId,long previous,com.google.gson.JsonObject experienceAfter,List<ItemStack> plannedInventory) throws IOException {
         UUID id=actor.getUUID(); Set<UUID> members=group(id);
         Map<UUID,PlayerProgress> personal=new HashMap<>();
         for(UUID member:members)personal.put(member,JsonProgressStore.detachedCopy(player(member)));
@@ -431,39 +486,73 @@ public final class QuestRuntime implements AutoCloseable {
             throw new IllegalArgumentException("Submission did not advance the objective");
         Set<UUID> recipients=teamRewardPolicy.equals("contributor")?Set.of(id):members;
         for(UUID recipient:recipients)for(var award:awards)
-            personal.get(recipient).entitle(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+            entitleAward(personal.get(recipient),award,teamId);
         List<ItemStack> before=new ArrayList<>(),after=new ArrayList<>();
         for(int i=0;i<37;i++) { var stack=(i==36?actor.getOffhandItem():actor.getInventory().getItem(i)).copy(); before.add(stack); after.add(stack.copy()); }
-        int left=amount;
+        if(plannedInventory!=null){if(plannedInventory.size()!=37)throw new IllegalArgumentException("Invalid inventory plan");after=new ArrayList<>(plannedInventory.stream().map(ItemStack::copy).toList());}
+        int left=experienceAfter==null&&plannedInventory==null?amount:0;
         for(var stack:after)if(left>0 && matches.test(stack)) { int remove=Math.min(left,stack.getCount()); stack.shrink(remove); left-=remove; }
         if(left!=0)throw new IllegalStateException("Inventory changed during submission");
-        var ops=net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,server.registryAccess());
-        var beforeJson=new com.google.gson.JsonArray(); var afterJson=new com.google.gson.JsonArray();
-        for(int i=0;i<37;i++) {
-            beforeJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,before.get(i)).getOrThrow());
-            afterJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,after.get(i)).getOrThrow());
-        }
-        try {
-            String old=inventoryMarker.live(actor); UUID baseline=UUID.randomUUID();
-            inventoryMarker.set(actor,old,baseline); inventoryMarker.save(actor,baseline.toString(),beforeJson);
-            UUID operation=UUID.randomUUID();
-            store.prepareInventory(operation,id,baseline.toString(),beforeJson,afterJson,personal,team==null?Map.of():Map.of(teamId,team)).join();
-            inventoryMarker.set(actor,baseline.toString(),operation);
-            for(int i=0;i<36;i++)actor.getInventory().setItem(i,after.get(i));
-            actor.getInventory().setItem(40,after.get(36)); actor.getInventory().setChanged();
-            inventoryMarker.save(actor,operation.toString(),afterJson);
-            store.commitInventory(operation).join();
-            personal.forEach(players::put);
-            if(team!=null)teams.get(teamId).progress=team.progress;
-            dirty.removeAll(members); if(teamId!=null)dirtyTeams.remove(teamId);
-            members.forEach(QuestNetwork::invalidate);
-        } catch(Exception error) { failStorage(error); throw new IOException("Item submission requires storage recovery",error); }
+        commitInventory(actor,before,after,personal,team==null?Map.of():Map.of(teamId,team),experienceAfter);
         for(var award:awards)for(UUID member:members) {
             var online=server.getPlayerList().getPlayer(member);
-            if(online!=null)online.sendSystemMessage(award.rewards().isEmpty()
+            if(online!=null&&!ServerPlayNetworking.canSend(online,QuestNetwork.State.TYPE))online.sendSystemMessage(award.rewards().isEmpty()
                 ? Messages.text(online,"questplus.completed_no_reward",title(online,registry.get(award.questId())))
                 : Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
         }
+    }
+
+    private void commitInventory(ServerPlayer actor,List<ItemStack> before,List<ItemStack> after,Map<UUID,PlayerProgress> personal,Map<UUID,TeamData> collective) throws IOException {
+        commitInventory(actor,before,after,personal,collective,null);
+    }
+    private void commitInventory(ServerPlayer actor,List<ItemStack> before,List<ItemStack> after,Map<UUID,PlayerProgress> personal,Map<UUID,TeamData> collective,com.google.gson.JsonObject experienceAfter) throws IOException {
+        var experienceBefore=experienceAfter==null?null:InventoryMarker.experience(actor);
+        var ops=RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,server.registryAccess());
+        var beforeJson=new JsonArray();var afterJson=new JsonArray();
+        for(int i=0;i<37;i++){beforeJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,before.get(i)).getOrThrow());afterJson.add(ItemStack.OPTIONAL_CODEC.encodeStart(ops,after.get(i)).getOrThrow());}
+        try {
+            String old=inventoryMarker.live(actor);UUID baseline=UUID.randomUUID();
+            inventoryMarker.set(actor,old,baseline);inventoryMarker.save(actor,baseline.toString(),beforeJson);
+            UUID operation=UUID.randomUUID();
+            if(experienceBefore!=null)inventoryMarker.verifySavedExperience(actor.getUUID(),experienceBefore);
+            store.prepareInventory(operation,actor.getUUID(),baseline.toString(),beforeJson,afterJson,personal,collective,experienceBefore,experienceAfter).join();
+            inventoryMarker.set(actor,baseline.toString(),operation);
+            for(int i=0;i<36;i++)actor.getInventory().setItem(i,after.get(i));
+            actor.getInventory().setItem(40,after.get(36));actor.getInventory().setChanged();
+            if(experienceAfter!=null)InventoryMarker.experience(actor,experienceAfter);
+            inventoryMarker.save(actor,operation.toString(),afterJson);store.commitInventory(operation).join();
+            personal.forEach(players::put);collective.forEach((id,team)->teams.get(id).progress=team.progress);
+            dirty.removeAll(personal.keySet());dirtyTeams.removeAll(collective.keySet());personal.keySet().forEach(QuestNetwork::invalidate);
+        }catch(Exception error){failStorage(error);throw new IOException("Inventory transaction requires storage recovery",error);}
+    }
+    public void openCrate(ServerPlayer actor,net.minecraft.world.InteractionHand hand) throws IOException {
+        assertThread();ensureFree(group(actor.getUUID()));
+        if(actor.isCreative()||actor.isSpectator())throw new IllegalArgumentException("Open crates in survival/adventure mode");
+        var stack=actor.getItemInHand(hand);
+        if(!BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals("questplus:loot_crate"))throw new IllegalArgumentException("Not a loot crate");
+        var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        String name=data.getString("questplus_table").orElseThrow(()->new IllegalArgumentException("Loot crate has no table"));
+        var list=new JsonArray();list.add(rewardTables.crate(name));
+        var rewards=RewardTables.resolve(QuestRegistry.rewards(list,this::validateRegistryReference)).stream()
+            .map(r->r.withPolicy(new QuestDefinition.RewardPolicy(false,"enabled",false))).toList();
+        var personal=JsonProgressStore.detachedCopy(player(actor.getUUID()));
+        personal.entitle("questplus:crate|"+UUID.randomUUID(),new PlayerProgress.RewardGrant("questplus:crate",rewards));
+        var before=new ArrayList<ItemStack>();var after=new ArrayList<ItemStack>();int selected=-1;
+        for(int i=0;i<37;i++) {
+            var item=i==36?actor.getOffhandItem():actor.getInventory().getItem(i);
+            if(item==stack)selected=i;before.add(item.copy());after.add(item.copy());
+        }
+        if(selected<0)throw new IllegalStateException("Crate moved before opening");after.get(selected).shrink(1);
+        commitInventory(actor,before,after,Map.of(actor.getUUID(),personal),Map.of());
+        actor.sendSystemMessage(net.minecraft.network.chat.Component.translatableWithFallback("questplus.crate.opened","Loot crate opened; rewards are saved and delivered when inventory space is available."));
+    }
+    void dropCrate(net.minecraft.world.entity.LivingEntity entity) {
+        assertThread();if(!dropLootCrates||storageFailed||entity instanceof ServerPlayer)return;
+        boolean boss=entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon||entity instanceof net.minecraft.world.entity.boss.wither.WitherBoss
+            ||entity.typeHolder().is(TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("c:bosses")));
+        String kind=boss?"boss":entity instanceof net.minecraft.world.entity.monster.Enemy?"monster":"passive";
+        var item=rewardTables.drop(kind,crateNoDrop.get(kind),java.util.concurrent.ThreadLocalRandom.current());
+        if(item!=null&&entity.level() instanceof net.minecraft.server.level.ServerLevel level)entity.spawnAtLocation(level,QuestItemStacks.decode(item,server.registryAccess()));
     }
 
     public void interactObjective(ServerPlayer actor,String questId,String objectiveId) throws IOException {
@@ -486,7 +575,7 @@ public final class QuestRuntime implements AutoCloseable {
         if (!event.type().equals("player_death") && registry.candidates(event).isEmpty()) return;
         if (busy.contains(player.getUUID())) {
             // Polls are sampled again; queued stale snapshots can overflow or complete a lost gaze.
-            if(Set.of("inventory_count","xp_levels","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(event.type()))return;
+            if(Set.of("inventory_count","xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(event.type()))return;
             if (deferred.size()>=4096) throw new IllegalStateException("Quest Plus deferred event capacity exceeded");
             deferred.addLast(new DeferredEvent(player,event)); return;
         }
@@ -499,7 +588,7 @@ public final class QuestRuntime implements AutoCloseable {
                 Set<UUID> recipients=teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
                 for (UUID recipient:recipients) for (var award:completed) {
                     var personal=player(recipient);
-                    if (!personal.claims.containsKey(award.key())) personal.entitle(award.key(),new PlayerProgress.RewardGrant(award.questId(),award.rewards()));
+                    if (!personal.claims.containsKey(award.key())) entitleAward(personal,award,player(uuid).teamId);
                     dirty.add(recipient);
                 }
                 Set<UUID> members=group(uuid); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
@@ -508,7 +597,7 @@ public final class QuestRuntime implements AutoCloseable {
                 persistCurrent(snapshots,team==null ? Map.of() : Map.of(team,teams.get(team)),members);
                 for (var award:completed) for (UUID member:members) {
                     var online=server.getPlayerList().getPlayer(member);
-                    if (online!=null) online.sendSystemMessage(award.rewards().isEmpty()
+                    if (online!=null&&!ServerPlayNetworking.canSend(online,QuestNetwork.State.TYPE)) online.sendSystemMessage(award.rewards().isEmpty()
                         ? Messages.text(online,"questplus.completed_no_reward",title(online,registry.get(award.questId())))
                         : Messages.text(online,"questplus.completed",title(online,registry.get(award.questId())),award.questId()));
                 }
@@ -532,6 +621,18 @@ public final class QuestRuntime implements AutoCloseable {
         int count=Math.min(512,deferred.size());
         for (int i=0;i<count;i++) { var item=deferred.removeFirst(); event(item.player(),item.event()); }
         if (++ticks % autosaveTicks == 0) flushDirty();
+        if(ticks%20==0)for(var actor:server.getPlayerList().getPlayers()) {
+            UUID id=actor.getUUID();if(busy.contains(id)||claiming.contains(id)||blocked.contains(id))continue;
+            try {
+                var personal=player(id);
+                var next=personal.entitlements.entrySet().stream().filter(e->!personal.claims.containsKey(e.getKey())&&!e.getValue().rewards().isEmpty()
+                    &&e.getValue().rewards().stream().allMatch(r->!r.policy().autoClaim().equals("disabled")&&!r.type().equals("questplus:choice"))).sorted(Map.Entry.comparingByKey()).findFirst();
+                if(next.isPresent()) {
+                    var entry=next.get();boolean toast=entry.getValue().rewards().stream().anyMatch(r->r.policy().autoClaim().equals("enabled"));
+                    claim(actor,entry.getValue().questId(),entry.getKey(),toast?null:()->{});
+                }
+            }catch(IOException|IllegalArgumentException|IllegalStateException unavailable) { /* Retry after inventory space or the current transaction changes. */ }
+        }
     }
     private void flushDirty() {
         Map<UUID,PlayerProgress> snapshots=new HashMap<>();
@@ -546,7 +647,7 @@ public final class QuestRuntime implements AutoCloseable {
             });
         }
         for (UUID id:List.copyOf(dirtyTeams)) {
-            TeamData team=teams.get(id);
+            TeamData team=teams.rewardScope(id);
             if (team.members.stream().anyMatch(busy::contains)) continue;
             dirtyTeams.remove(id);
             store.transaction(Map.of(),Map.of(id,team)).whenComplete((ok,error) -> {
@@ -603,13 +704,20 @@ public final class QuestRuntime implements AutoCloseable {
             Set<UUID> members=group(id); Map<UUID,PlayerProgress> snapshots=new HashMap<>();
             for (UUID recipient:members) {
                 var p=player(recipient);
-                if (!p.claims.containsKey(award.key())) p.entitle(award.key(),new PlayerProgress.RewardGrant(quest,award.rewards()));
+                if (!p.claims.containsKey(award.key())) entitleAward(p,award,player(id).teamId);
                 snapshots.put(recipient,p);
             }
             var team=player(id).teamId;
             persistCurrent(snapshots,team==null ? Map.of() : Map.of(team,teams.get(team)),members);
         }
         changed(id);
+    }
+    private static void entitleAward(PlayerProgress personal,QuestEngine.Completion award,UUID teamId) {
+        var rewards=award.rewards().stream().map(r->{
+            var policy=r.policy();
+            return policy.teamReward()&&teamId!=null?r.withPolicy(new QuestDefinition.RewardPolicy(true,policy.autoClaim(),policy.excludeFromClaimAll(),teamId)):r;
+        }).toList();
+        personal.entitle(award.key(),new PlayerProgress.RewardGrant(award.questId(),rewards));
     }
     private CompletableFuture<Void> save(UUID id) { return store.save(id,players.get(id)); }
     public void disconnect(UUID id) {
@@ -620,28 +728,32 @@ public final class QuestRuntime implements AutoCloseable {
 
     /** One client request, sequential durable reservations. No double claims and
      * no bypass of the existing free-inventory/storage safety checks. */
-    public void claimAll(ServerPlayer player) throws IOException {
+    public void claimAll(ServerPlayer player) throws IOException { claimAll(player,null); }
+    public void claimAllFromTablet(ServerPlayer player) throws IOException {
+        claimAll(player,()->QuestNetwork.notice(player,Messages.text(player,"questplus.client.toast.claim_all").getString(),"","minecraft:chest"));
+    }
+    private void claimAll(ServerPlayer player,Runnable onDelivered) throws IOException {
         assertThread();
         UUID uuid=player.getUUID();
         Set<String> visible=visibleQuests(uuid).stream().map(QuestDefinition::id).collect(java.util.stream.Collectors.toSet());
         var state=player(uuid);
         List<String> ids=state.entitlements.entrySet().stream()
             .filter(e->visible.contains(e.getValue().questId()) && !state.claims.containsKey(e.getKey())
-                && !e.getValue().rewards().isEmpty() && e.getValue().rewards().stream().noneMatch(r->r.type().equals("questplus:choice")))
+                && !e.getValue().rewards().isEmpty() && e.getValue().rewards().stream().noneMatch(r->r.type().equals("questplus:choice")||r.policy().excludeFromClaimAll()))
             .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getKey).toList();
-        if(ids.isEmpty()) { player.sendSystemMessage(Messages.text(player,"questplus.error","No rewards to claim")); return; }
-        claimNext(player,ids,0);
+        if(ids.isEmpty()) { if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.error","No rewards to claim"));else QuestNetwork.notice(player,Messages.text(player,"questplus.client.claim_all_empty").getString(),"","minecraft:chest"); return; }
+        claimNext(player,ids,0,onDelivered);
     }
-    private void claimNext(ServerPlayer player,List<String> ids,int index) throws IOException {
+    private void claimNext(ServerPlayer player,List<String> ids,int index,Runnable onDelivered) throws IOException {
         if(index>=ids.size()){
-            player.sendSystemMessage(Messages.text(player,"questplus.claimed",ids.size()+" rewards"));
+            if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.claimed",ids.size()+" rewards"));else onDelivered.run();
             return;
         }
         String key=ids.get(index);
         var grant=player(player.getUUID()).entitlements.get(key);
-        if(grant==null || player(player.getUUID()).claims.containsKey(key)){claimNext(player,ids,index+1);return;}
+        if(grant==null || player(player.getUUID()).claims.containsKey(key)){claimNext(player,ids,index+1,onDelivered);return;}
         claim(player,grant.questId(),key,() -> {
-            try { claimNext(player,ids,index+1); }
+            try { claimNext(player,ids,index+1,onDelivered); }
             catch(IOException | RuntimeException error) {
                 QuestPlusMod.LOGGER.warn("Claim all stopped at reward {}: {}",index,error.getMessage());
                 player.sendSystemMessage(Messages.text(player,"questplus.error","Claim all stopped: "+error.getMessage()));
@@ -665,6 +777,12 @@ public final class QuestRuntime implements AutoCloseable {
         chooseReward(actor,questId,ClientProjection.rewardToken(entry.getKey()),slot,zeroBasedOption);
     }
     public void chooseReward(ServerPlayer actor,String questId,String token,int slot,int option) throws IOException {
+        chooseReward(actor,questId,token,slot,option,true);
+    }
+    public void chooseRewardFromTablet(ServerPlayer actor,String questId,String token,int slot,int option) throws IOException {
+        chooseReward(actor,questId,token,slot,option,false);
+    }
+    private void chooseReward(ServerPlayer actor,String questId,String token,int slot,int option,boolean commandResponse) throws IOException {
         assertThread();
         UUID uuid=actor.getUUID();
         Set<UUID> affected=group(uuid);
@@ -679,7 +797,7 @@ public final class QuestRuntime implements AutoCloseable {
         selected.rewards().forEach(QuestExtensions::validateSavedReward);
         personal.entitlements.put(entry.getKey(),selected);
         persistCurrent(Map.of(uuid,personal),Map.of(),affected).whenComplete((ok,error)-> {
-            if(error==null)actor.sendSystemMessage(Messages.text(actor,"questplus.choice_saved"));
+            if(error==null){if(commandResponse)actor.sendSystemMessage(Messages.text(actor,"questplus.choice_saved"));else QuestNetwork.notice(actor,Messages.text(actor,"questplus.client.toast.choice_saved").getString(),"","minecraft:chest");}
             else QuestNetwork.error(actor,"choice_save_failed");
         });
         affected.forEach(QuestNetwork::invalidate);
@@ -699,33 +817,48 @@ public final class QuestRuntime implements AutoCloseable {
         var after=JsonProgressStore.detachedCopy(current);
         after.claims.put(key,"delivered");
         var audit=new JsonProgressStore.ClaimAudit(UUID.randomUUID(),id,key,operator,outcome,reason,System.currentTimeMillis());
-        try { store.resolveClaim(id,after,audit).join(); }
+        var grant=current.entitlements.get(key);
+        UUID scope=grant==null||grant.rewards().isEmpty()?null:grant.rewards().getFirst().policy().teamScope();
+        TeamData shared=scope==null?null:teams.rewardScope(scope);
+        TeamData sharedAfter=shared==null?null:TeamManager.copy(shared);
+        if(sharedAfter!=null)sharedAfter.rewardClaims.put(key,"delivered");
+        try { store.resolveClaim(id,after,audit,sharedAfter==null?Map.of():Map.of(scope,sharedAfter)).join(); }
         catch(java.util.concurrent.CompletionException error) { failStorage(error); throw new IOException("Claim resolution failed; storage frozen",error); }
-        current.claims.put(key,"delivered"); QuestNetwork.invalidate(id);
+        current.claims.put(key,"delivered"); if(shared!=null)shared.rewardClaims.put(key,"delivered"); QuestNetwork.invalidate(id);
         QuestPlusMod.LOGGER.warn("Quest Plus claim resolved: player={} claim={} outcome={} operator={} reason={}",id,key,outcome,operator,reason);
     }
     public void claim(ServerPlayer player, String id) throws IOException { claim(player,id,null,null); }
+    public void claimFromTablet(ServerPlayer player,String id) throws IOException {
+        var quest=registry.find(id).orElse(null);
+        claim(player,id,null,()->QuestNetwork.notice(player,Messages.text(player,"questplus.client.toast.claimed").getString(),quest==null?"Loot crate":title(player,quest),quest==null?"minecraft:chest":quest.icon()));
+    }
     private void claim(ServerPlayer player, String id,String requestedKey,Runnable onDelivered) throws IOException {
         assertThread();
         UUID uuid = player.getUUID();
         ensureFree(group(uuid)); var progress = player(uuid);
-        var quest = registry.get(id);
+        var quest = registry.find(id).orElse(null);
+        if(quest==null&&!id.equals("questplus:crate"))throw new IllegalArgumentException("Unknown quest "+id);
         String key=progress.entitlements.entrySet().stream().filter(e -> e.getValue().questId().equals(id) && (requestedKey==null || requestedKey.equals(e.getKey())) && !e.getValue().rewards().isEmpty() && !progress.claims.containsKey(e.getKey())).map(Map.Entry::getKey).sorted().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No unclaimed reward entitlement: " + id));
         var rewards=progress.entitlements.get(key).rewards();
         if(rewards.stream().anyMatch(r->r.type().equals("questplus:choice"))) throw new IllegalArgumentException("Choose your reward first: /questplus choose <quest> <option number>");
         if (claiming.contains(uuid)) throw new IllegalArgumentException("Reward already reserved; pending claims require administrator review");
         if (!fits(player,rewards)) throw new IllegalArgumentException("Inventory needs more free space");
+        UUID rewardScope=rewards.getFirst().policy().teamScope();
+        TeamData shared=rewardScope==null?null:teams.rewardScope(rewardScope);
+        if(shared!=null&&shared.rewardClaims.containsKey(key))throw new IllegalArgumentException("Team reward already reserved or claimed");
         progress.claims.put(key,"reserved");
+        if(shared!=null)shared.rewardClaims.put(key,"reserved");
         QuestNetwork.invalidate(uuid);
         Set<UUID> affected=group(uuid); busy.addAll(affected);
         claiming.add(uuid);
-        save(uuid).whenComplete((ok,error) -> server.execute(() -> {
+        store.transaction(Map.of(uuid,progress),shared==null?Map.of():Map.of(rewardScope,shared)).whenComplete((ok,error) -> server.execute(() -> {
             claiming.remove(uuid);
             release(affected);
             if (closing) return;
             if (error != null) {
                 dirty.add(uuid);
+                failStorage(error);
                 QuestPlusMod.LOGGER.error("Reward reservation failed for {} {}",uuid,id,error);
                 player.sendSystemMessage(Messages.text(player,"questplus.error","Reward reservation failed; administrator review required"));
                 return;
@@ -739,13 +872,13 @@ public final class QuestRuntime implements AutoCloseable {
                 for (var reward : rewards) {
                     if (reward.type().equals("experience")) player.giveExperiencePoints(reward.amount());
                     else if (reward.type().equals("experience_levels")) player.giveExperienceLevels(reward.amount());
-                    else if (reward.type().equals("item")) for (var stack : stacks(reward)) {
+                    else if (reward.type().equals("item")) for (var stack : QuestItemStacks.rewards(reward,server.registryAccess())) {
                         if (!player.getInventory().add(stack) || !stack.isEmpty()) throw new IllegalStateException("Inventory changed during reward delivery");
                     }
                     else if(reward.type().equals("questplus:message")) {
                         String message=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
                             .get("message").getAsString();
-                        player.sendSystemMessage(Component.literal(message));
+                        QuestNetwork.notice(player,quest==null?"QuestPlus":title(player,quest),message,quest==null?"minecraft:chest":quest.icon());
                     }
                     else if(reward.type().equals("questplus:advancement")) {
                         String advancementId=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
@@ -754,46 +887,38 @@ public final class QuestRuntime implements AutoCloseable {
                         if(holder==null)throw new IllegalStateException("Missing advancement for reserved reward "+advancementId);
                         var progressEntry=player.getAdvancements().getOrStartProgress(holder);
                         List<String> remaining=new ArrayList<>();
-                        progressEntry.getRemainingCriteria().forEach(remaining::add);
+                        var data=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject();
+                        if(data.has("criterion"))remaining.add(data.get("criterion").getAsString());else progressEntry.getRemainingCriteria().forEach(remaining::add);
                         for(String criterion:remaining)player.getAdvancements().award(holder,criterion);
                     }
                     else QuestRewardExtensions.deliver(player,reward);
                 }
                 progress.claims.put(key,"delivered");
+                if(shared!=null){shared.rewardClaims.put(key,"delivered");dirtyTeams.add(rewardScope);}
                 // Keep only the latest receipt per quest; the compact claims ledger prevents replay.
                 progress.entitlements.entrySet().removeIf(e->!e.getKey().equals(key) && e.getValue().questId().equals(id)
                     && "delivered".equals(progress.claims.get(e.getKey())));
                 QuestNetwork.invalidate(uuid);
                 dirty.add(uuid);
-                if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.claimed",title(player,quest)));
+                if(onDelivered==null)player.sendSystemMessage(Messages.text(player,"questplus.claimed",quest==null?"Loot crate":title(player,quest)));
                 else onDelivered.run();
             } catch (RuntimeException ex) { QuestPlusMod.LOGGER.error("Reserved reward requires manual recovery for {} {}",uuid,id,ex); }
         }));
     }
 
-    private static List<ItemStack> stacks(QuestDefinition.Reward reward) {
-        var item = BuiltInRegistries.ITEM.getValue(Identifier.parse(reward.item()));
-        List<ItemStack> stacks = new ArrayList<>();
-        int left = reward.count();
-        while (left > 0) {
-            ItemStack stack = new ItemStack(item);
-            int count = Math.min(left,stack.getMaxStackSize());
-            stack.setCount(count); stacks.add(stack); left -= count;
-        }
-        return stacks;
-    }
     private static boolean fits(ServerPlayer player,List<QuestDefinition.Reward> rewards) {
         for(var reward:rewards) {
             if(reward.type().equals("questplus:advancement")) {
-                String id=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject()
-                    .get("advancement").getAsString();
-                if(player.level().getServer().getAdvancements().get(Identifier.parse(id))==null)return false;
+                var data=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject();var advancement=player.level().getServer().getAdvancements().get(Identifier.parse(data.get("advancement").getAsString()));
+                if(advancement==null||data.has("criterion")&&!advancement.value().criteria().containsKey(data.get("criterion").getAsString()))return false;
             } else if(!Set.of("item","experience","experience_levels","questplus:message").contains(reward.type()) &&
                     !QuestRewardExtensions.fits(player,reward))return false;
         }
         List<ItemStack> slots = player.getInventory().getNonEquipmentItems().stream().map(ItemStack::copy).toList();
         var simulated = new ArrayList<>(slots);
-        for (var reward : rewards) if (reward.type().equals("item")) for (ItemStack input : stacks(reward)) {
+        for (var reward : rewards) if (reward.type().equals("item")) for (ItemStack input : QuestItemStacks.rewards(reward,player.registryAccess())) {
+            var data=com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject();
+            if(data.has("onlyOne")&&data.get("onlyOne").getAsBoolean()&&(slots.stream().anyMatch(stack->!stack.isEmpty()&&ItemStack.isSameItemSameComponents(stack,input))||ItemStack.isSameItemSameComponents(player.getOffhandItem(),input)))return false;
             int left = input.getCount();
             for (int i=0; i<simulated.size() && left>0; i++) {
                 ItemStack slot = simulated.get(i);
@@ -817,6 +942,7 @@ public final class QuestRuntime implements AutoCloseable {
         }
         try {
             Map<UUID,TeamData> snapshots=new HashMap<>(); teams.allTeams().forEach(t -> snapshots.put(t.id,t));
+            for(UUID id:dirtyTeams){var team=teams.rewardScope(id);if(team!=null)snapshots.put(id,team);}
             if (!snapshots.isEmpty()) store.transaction(Map.of(),snapshots).get(30,TimeUnit.SECONDS);
         } catch (Exception e) { if (error==null) error=new IOException("Final team save failed",e); else error.addSuppressed(e); }
         try { store.saveAndClose(players); } catch (IOException e) { if (error==null) error=e; else error.addSuppressed(e); }

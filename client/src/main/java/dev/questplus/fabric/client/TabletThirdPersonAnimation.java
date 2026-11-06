@@ -37,6 +37,9 @@ final class TabletThirdPersonAnimation {
     private static final Vector ZERO=new Vector(0,0,0), ONE=new Vector(1,1,1);
     private static final Map<String,Clip> CLIPS=load();
     static final double OPEN_SECONDS=CLIPS.get("questplus.third_person_open").length();
+    // First visible Blockbench frame: right hand at the hip, left arm still free.
+    static final double CARRY_SECONDS=.2167;
+    static Pose carry() { return sample(false,CARRY_SECONDS); }
     private TabletThirdPersonAnimation() {}
     static Pose sample(boolean idle,double seconds) {
         Clip clip=CLIPS.get(idle ? "questplus.third_person_idle" : "questplus.third_person_open");

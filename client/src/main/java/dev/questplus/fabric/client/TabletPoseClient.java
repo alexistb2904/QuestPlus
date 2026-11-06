@@ -17,6 +17,8 @@ import net.minecraft.util.Unit;
 import java.util.*;
 
 public final class TabletPoseClient {
+    static final float TABLET_SCALE=.4f;
+    static final org.joml.Vector3f TABLET_GRIP=new org.joml.Vector3f(-11.5f/16,0,.2f/16);
     private static final Map<UUID,PoseTime> POSES = new HashMap<>();
     private static boolean sent;
     private static int heartbeat;
@@ -55,20 +57,32 @@ public final class TabletPoseClient {
         if (!open && !POSES.containsKey(id)) return;
         POSES.computeIfAbsent(id,ignored -> new PoseTime()).set(open,System.nanoTime(),animated());
     }
-    record Frame(TabletThirdPersonAnimation.Pose pose,float weight) {}
+    record Frame(TabletThirdPersonAnimation.Pose pose,float weight,boolean carried) {
+        Frame(TabletThirdPersonAnimation.Pose pose,float weight) { this(pose,weight,false); }
+    }
     private static Frame sample(AvatarRenderState state) {
         var client=Minecraft.getInstance();
         var entity=client.level==null ? null : client.level.getEntity(state.id);
         if (entity==null || !entity.isAlive() || state.isSpectator) return null;
         var pose=POSES.get(entity.getUUID());
-        return pose==null ? null : pose.sample(System.nanoTime(),animated());
+        boolean carrying=entity instanceof net.minecraft.world.entity.player.Player player
+            && player.getMainHandItem().getItem() instanceof dev.questplus.fabric.QuestTabletItem;
+        var frame=pose==null ? null : pose.sample(System.nanoTime(),animated(),carrying);
+        return frame!=null ? frame : carrying ? new Frame(TabletThirdPersonAnimation.carry(),1,true) : null;
     }
     public static void apply(PlayerModel model,AvatarRenderState state) {
         var pose=sample(state);
         if (pose==null) return;
+        // The animated tablet layer replaces only this item, avoiding a second tablet in the wrist.
+        if (state.rightHandItemStack.getItem() instanceof dev.questplus.fabric.QuestTabletItem) state.rightHandItemState.clear();
+        if (state.leftHandItemStack.getItem() instanceof dev.questplus.fabric.QuestTabletItem) state.leftHandItemState.clear();
         var value=pose.pose(); float weight=pose.weight();
         arm(model.rightArm,value.right(),value.rightPosition(),weight);
+        if (pose.carried()) return;
         arm(model.leftArm,value.left(),value.leftPosition(),weight);
+        // Bring both wrists inward to match the smaller tablet during two-handed reading.
+        float inward=(float)Math.toRadians(20)*Math.clamp(-value.right().x()/53,0,1)*weight;
+        model.rightArm.zRot-=inward;model.leftArm.zRot+=inward;
         model.head.xRot=blend(model.head.xRot,(float)Math.toRadians(value.head().x()),weight);
         model.head.yRot=blend(model.head.yRot,(float)Math.toRadians(value.head().y()),weight);
         model.head.zRot=blend(model.head.zRot,(float)Math.toRadians(value.head().z()),weight);
@@ -79,6 +93,19 @@ public final class TabletPoseClient {
         arm.yRot=blend(arm.yRot,(float)Math.toRadians(rotation.y()),weight);
         arm.zRot=blend(arm.zRot,(float)Math.toRadians(rotation.z()),weight);
         arm.x+=position.x()*weight; arm.y-=position.y()*weight; arm.z+=position.z()*weight;
+    }
+    static void tabletTransform(PoseStack pose,net.minecraft.client.model.geom.ModelPart rightArm,TabletThirdPersonAnimation.Pose frame) {
+        var hand=new PoseStack();
+        rightArm.translateAndRotate(hand);
+        var palm=hand.last().pose().transformPosition(-1/16f,9/16f,0,new org.joml.Vector3f());
+        pose.translate(palm.x,palm.y,palm.z);
+        var rotation=frame.rotation();var scale=frame.scale();
+        pose.rotateDegrees(Axis.ZP,rotation.z());
+        pose.rotateDegrees(Axis.YP,-rotation.y());
+        pose.rotateDegrees(Axis.XP,-rotation.x());
+        pose.scale(-TABLET_SCALE*scale.x(),TABLET_SCALE*scale.y(),TABLET_SCALE*scale.z());
+        // Scale around the grip, so the tablet edge stays inside the player's palm in every pose.
+        pose.translate(-TABLET_GRIP.x,-TABLET_GRIP.y,-TABLET_GRIP.z);
     }
     static final class PoseTime {
         private static final double BLEND_SECONDS=TabletThirdPersonAnimation.OPEN_SECONDS/6;
@@ -99,16 +126,20 @@ public final class TabletPoseClient {
         }
         boolean finishedClosed(long now,boolean animate) { return !open && progress(now,animate)<=0; }
         Frame sample(long now,boolean animate) {
+            return sample(now,animate,false);
+        }
+        Frame sample(long now,boolean animate,boolean carrying) {
             double value=progress(now,animate);
             if (value<=0 && !open) return null;
             boolean idle=open && value>=1;
             double idleTime=animate ? Math.max(0,(now-started)/1_000_000_000.0-(1-from)*TabletThirdPersonAnimation.OPEN_SECONDS) : 0;
-            var pose=TabletThirdPersonAnimation.sample(idle,idle ? idleTime : value*TabletThirdPersonAnimation.OPEN_SECONDS);
+            double start=carrying ? TabletThirdPersonAnimation.CARRY_SECONDS : 0;
+            var pose=TabletThirdPersonAnimation.sample(idle,idle ? idleTime : start+value*(TabletThirdPersonAnimation.OPEN_SECONDS-start));
             if (transitionFrom!=null && animate) {
                 double t=Math.clamp((now-started)/1_000_000_000.0/BLEND_SECONDS,0,1);
                 pose=transitionFrom.blend(pose,t*t*(3-2*t));
             }
-            float weight=animate ? (float)Math.clamp(value*TabletThirdPersonAnimation.OPEN_SECONDS/BLEND_SECONDS,0,1) : 1;
+            float weight=animate && !carrying ? (float)Math.clamp(value*TabletThirdPersonAnimation.OPEN_SECONDS/BLEND_SECONDS,0,1) : 1;
             weight=weight*weight*(3-2*weight);
             return new Frame(pose,weight);
         }
@@ -121,16 +152,7 @@ public final class TabletPoseClient {
             if (state.isInvisible || sampled==null || sampled.pose().scale().x()<=0) return;
             var frame=sampled.pose();
             pose.pushPose();
-            // Blockbench's player origin is at the feet; Minecraft's model origin is at the head.
-            var position=frame.position(); var rotation=frame.rotation(); var scale=frame.scale();
-            // Align the tablet with the wrist during pocket retrieval/return.
-            // The exported Blockbench offset leaves the tablet slightly outside the right hand.
-            double pocket=Math.clamp((position.x()-6.0)/9.0,0.0,1.0);
-            pose.translate((-position.x()+3.0*pocket)/16.0,(24-18.8-position.y())/16.0,(-10.5+position.z())/16.0);
-            pose.rotateDegrees(Axis.ZP,rotation.z());
-            pose.rotateDegrees(Axis.YP,-rotation.y());
-            pose.rotateDegrees(Axis.XP,-rotation.x());
-            pose.scale(-.5f*scale.x(),.5f*scale.y(),.5f*scale.z());
+            tabletTransform(pose,getParentModel().rightArm,frame);
             nodes.submitModel(model,Unit.INSTANCE,pose,TabletRenderer.texture(),light,OverlayTexture.NO_OVERLAY,0);
             var effects=TabletIdleEffects.frame();
             pose.scale(1,-1,1);

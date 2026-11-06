@@ -31,4 +31,4 @@ No command runs while browsing a quest, importing a pack, or receiving a network
 
 ## Unsupported
 
-There is no FTB-style placeholder language or separate per-command permission escalation. Untrusted script support is intentionally excluded.
+There is no separate placeholder language or separate per-command permission escalation. Untrusted script support is intentionally excluded.

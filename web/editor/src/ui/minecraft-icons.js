@@ -1,4 +1,5 @@
 import {VERSION,ITEM_IDS,BLOCK_IDS} from '../data/vanilla-registry-26.3.js';
+import texturePaths from '../data/vanilla-textures-26.3.json' with {type:'json'};
 export const MC_VERSION=VERSION;
 export const COMMON_ITEMS=ITEM_IDS;
 const itemSet=new Set(ITEM_IDS),blockSet=new Set(BLOCK_IDS);
@@ -16,19 +17,17 @@ export const itemExists=id=>isVanilla(id)&&itemSet.has(id.slice('minecraft:'.len
 export const blockExists=id=>isVanilla(id)&&blockSet.has(id.slice('minecraft:'.length));
 export const inVanillaRegistry=id=>itemExists(id)||blockExists(id);
 export const knownVersion=id=>inVanillaRegistry(id)?VERSION:null;
-const textureName=id=>{const name=String(id).split(':').slice(1).join(':').split('/').pop();return encodeURIComponent(name==='compass'?'compass_16':name==='clock'?'clock_00':name)};
 export function iconUrl(id,version=VERSION){
  if(!isVanilla(id))return '';
- return 'https://assets.mcasset.cloud/'+encodeURIComponent(version)+'/assets/minecraft/textures/item/'+textureName(id)+'.png';
+ const path=texturePaths[id.slice('minecraft:'.length)];
+ return path?'https://assets.mcasset.cloud/'+encodeURIComponent(version)+'/assets/minecraft/textures/'+path+'.png':'';
 }
 export function blockIconUrl(id,version=VERSION){
- if(!isVanilla(id))return '';
- return 'https://assets.mcasset.cloud/'+encodeURIComponent(version)+'/assets/minecraft/textures/block/'+textureName(id)+'.png';
+ return iconUrl(id,version);
 }
 export function imageCandidates(id,version=VERSION){
  if(!isVanilla(id))return [];
- const block=blockIconUrl(id,version),item=iconUrl(id,version);
- return blockExists(id)&&!itemExists(id)?[block,item]:[item,block];
+ const url=iconUrl(id,version);return url?[url]:[];
 }
 export const versionCompare=(a,b)=>{
  const parse=s=>String(s||VERSION).split('.').map(n=>Number.parseInt(n,10)||0);
@@ -40,7 +39,7 @@ export const requiredMinecraftVersion=(project,id)=>project?.iconVersions?.[id]|
 export const versionWarning=(project,id)=>{
  const required=requiredMinecraftVersion(project,id),target=project?.targetMinecraftVersion||VERSION;
  if(required&&versionCompare(required,target)>0)return `⚠ ${id}: Minecraft ${required} required (pack: ${target})`;
- if(isVanilla(id)&&blockExists(id)&&!itemExists(id))return `⚠ ${id}: block without an item form — fallback icon in-game`;
- if(isVanilla(id)&&!inVanillaRegistry(id)&&!project?.iconVersions?.[id])return `⚠ ${id}: not in Minecraft ${VERSION} registry — icon may be missing`;
+ if(isVanilla(id)&&blockExists(id)&&!itemExists(id))return `⚠ ${id}: block without an item form. Fallback icon in-game`;
+ if(isVanilla(id)&&!inVanillaRegistry(id)&&!project?.iconVersions?.[id])return `⚠ ${id}: not in Minecraft ${VERSION} registry. Icon may be missing`;
  return null;
 };

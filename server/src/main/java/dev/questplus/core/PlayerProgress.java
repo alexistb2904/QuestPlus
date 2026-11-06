@@ -13,6 +13,10 @@ public final class PlayerProgress {
     public record RewardGrant(String questId,List<QuestDefinition.Reward> rewards) {}
     public void entitle(String key,RewardGrant grant) {
         if(claims.containsKey(key))return;
+        if(grant.rewards().size()>1 && grant.rewards().stream().anyMatch(r->!r.policy().equals(QuestDefinition.RewardPolicy.DEFAULT)||r.type().equals("item")&&com.google.gson.JsonParser.parseString(r.data()).getAsJsonObject().has("onlyOne") && com.google.gson.JsonParser.parseString(r.data()).getAsJsonObject().get("onlyOne").getAsBoolean())) {
+            for(int i=0;i<grant.rewards().size();i++)entitle(key+"|reward:"+i,new RewardGrant(grant.questId(),List.of(grant.rewards().get(i))));
+            return;
+        }
         // Empty outcomes are display receipts, not a growing queue of claimable rewards.
         entitlements.entrySet().removeIf(e->e.getValue().questId().equals(grant.questId())
             && e.getValue().rewards().isEmpty() && !claims.containsKey(e.getKey()));
