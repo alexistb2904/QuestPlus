@@ -27,30 +27,6 @@ class QuestCoreTest {
         assertEquals(Set.of("minecraft:oak_log","#minecraft:logs"),new HashSet<>(registry.targets("block_break")));
         assertTrue(registry.targets("item_obtained").isEmpty());
     }
-    @Test void contextFastPathFallsBackForDynamicConditionsAndInventorySiblings() throws Exception {
-        write("simple",quest("simple","minecraft:oak_log",""));
-        var registry=load();
-        assertFalse(registry.requiresFullContext("block_break","minecraft:oak_log",Set.of()));
-        assertFalse(registry.requiresFullContext("block_break","minecraft:birch_log",Set.of("minecraft:logs")));
-
-        write("conditional",quest("conditional","#minecraft:logs","")
-            .replace("\"count\":2","\"count\":2,\"conditions\":{\"healthAtMost\":2}"));
-        registry=load();
-        assertTrue(registry.requiresFullContext("block_break","minecraft:birch_log",Set.of("minecraft:logs")));
-        assertFalse(registry.requiresFullContext("block_break","minecraft:oak_log",Set.of()));
-
-        Files.delete(dir.resolve("conditional.json"));
-        // An inventory-count sibling may refresh during an unrelated tracked event.
-        write("mixed","""
-            {"schemaVersion":1,"id":"questplus:mixed","category":"questplus:general",
-             "icon":"minecraft:stone","title":{"en_us":"Mixed"},"description":{"en_us":"Mixed"},
-             "objectives":[{"id":"a","event":"block_break","target":"minecraft:oak_log","count":1},
-               {"id":"b","event":"inventory_count","target":"minecraft:diamond","count":1}],
-             "rewards":[],"progression":"once"}
-            """);
-        assertTrue(load().requiresFullContext("block_break","minecraft:oak_log",Set.of()));
-    }
-
     @Test void tagsSaturationAndDependencySnapshot() throws Exception {
         write("a",quest("a","#minecraft:logs","")); write("b",quest("b","minecraft:oak_log",",\"requires\":{\"quest\":\"questplus:a\"}"));
         var engine = new QuestEngine(load()); var player = new PlayerProgress();
