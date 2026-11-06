@@ -34,7 +34,7 @@ class QuestCoreTest {
         assertFalse(registry.requiresFullContext("block_break","minecraft:birch_log",Set.of("minecraft:logs")));
 
         write("conditional",quest("conditional","#minecraft:logs","")
-            .replace("\\"count\\":2","\\"count\\":2,\\"conditions\\":{\\"healthAtMost\\":2}"));
+            .replace("\"count\":2","\"count\":2,\"conditions\":{\"healthAtMost\":2}"));
         registry=load();
         assertTrue(registry.requiresFullContext("block_break","minecraft:birch_log",Set.of("minecraft:logs")));
         assertFalse(registry.requiresFullContext("block_break","minecraft:oak_log",Set.of()));
