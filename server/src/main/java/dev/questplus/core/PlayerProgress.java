@@ -35,6 +35,48 @@ public final class PlayerProgress {
         public boolean terminal;
         public Set<String> reachedTiers = new HashSet<>();
     }
+    /**
+     * Detach mutable state on the Minecraft thread without doing JSON serialization.
+     * The autosave worker may then serialize and validate this independent snapshot.
+     * Critical reward/team transactions deliberately keep their existing durable path.
+     */
+    public PlayerProgress copyForAutosave() {
+        PlayerProgress copy=new PlayerProgress();
+        copy.schemaVersion=schemaVersion;
+        copy.teamId=teamId;
+        copy.revision=revision;
+        copy.migratedFromV1=migratedFromV1;
+        copy.claims=new HashMap<>(claims);
+        copy.legacyUnclaimed=new HashSet<>(legacyUnclaimed);
+        copy.quests=new HashMap<>(quests.size());
+        for(var entry:quests.entrySet()){
+            QuestProgress source=entry.getValue(),target=new QuestProgress();
+            target.counters=new HashMap<>(source.counters);
+            target.cumulative=new HashMap<>(source.cumulative);
+            target.completed=source.completed;
+            target.fingerprint=source.fingerprint;
+            target.cycles=source.cycles;
+            target.tier=source.tier;
+            target.attemptId=source.attemptId;
+            target.startedAt=source.startedAt;
+            target.waitingRestart=source.waitingRestart;
+            target.terminal=source.terminal;
+            target.reachedTiers=new HashSet<>(source.reachedTiers);
+            copy.quests.put(entry.getKey(),target);
+        }
+        copy.entitlements=new HashMap<>(entitlements.size());
+        for(var entry:entitlements.entrySet()){
+            var source=entry.getValue();
+            List<QuestDefinition.Reward> rewards=new ArrayList<>(source.rewards().size());
+            for(var reward:source.rewards()){
+                rewards.add(new QuestDefinition.Reward(reward.type(),reward.item(),reward.count(),
+                    reward.amount(),reward.data(),new HashMap<>(reward.text()),reward.policy()));
+            }
+            copy.entitlements.put(entry.getKey(),new RewardGrant(source.questId(),List.copyOf(rewards)));
+        }
+        return copy;
+    }
+
     public void validate() {
         if (schemaVersion != 2 || quests == null || claims == null || entitlements == null || legacyUnclaimed == null) throw new IllegalArgumentException("Invalid player progress");
         quests.forEach((id,p) -> {
