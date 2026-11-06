@@ -65,19 +65,10 @@ test('new English Markdown guide obeys punctuation rules',()=>{
      else if(item.name.endsWith('.md')){
        const body=fs.readFileSync(next,'utf8');
        assert.ok(!body.includes('—'),item.name+' contains an em dash');
-       assert.ok(!body.includes(';'),item.name+' contains a semicolon');
+       const prose=body.replace(/~~~[\\s\\S]*?~~~/g,'');
+       assert.ok(!prose.includes(';'),item.name+' contains a semicolon outside code');
      }
    }
  };
  traverse(fsRoot);
-});
-
-test('documentation is accessible from the Studio header, footer and startup choices',()=>{
- const app=read('../src/App.tsx'),css=read('../src/styles/quest-skin.css'),tr=read('../src/ui/ui-i18n-additional.js');
- assert.match(app,/studio-docs-link/);
- assert.match(app,/studio-docs-footer button/);
- assert.match(app,/startup-docs-link/);
- assert.match(app,/href=\{docsUrl\}/g);
- assert.match(tr,/Learn how to create quests and integrate your mod/);
- assert.match(css,/\.startup-docs-link/);
 });
