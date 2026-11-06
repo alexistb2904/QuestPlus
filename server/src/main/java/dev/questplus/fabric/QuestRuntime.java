@@ -628,8 +628,8 @@ public final class QuestRuntime implements AutoCloseable {
         // Failed auto-claims are retried on the next round (including when inventory space becomes available).
         var online=server.getPlayerList().getPlayers();
         if (!online.isEmpty()) {
-            int count=Math.min(AUTO_CLAIM_PLAYERS_PER_TICK,online.size());
-            for (int i=0;i<count;i++) {
+            int autoChecks=Math.min(AUTO_CLAIM_PLAYERS_PER_TICK,online.size());
+            for (int i=0;i<autoChecks;i++) {
                 var actor=online.get(Math.floorMod(autoClaimCursor++,online.size()));
                 UUID id=actor.getUUID();
                 if(busy.contains(id)||claiming.contains(id)||blocked.contains(id))continue;
