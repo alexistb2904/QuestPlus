@@ -79,16 +79,20 @@ public final class QuestPlusMod implements ModInitializer {
             BREAK_TOOLS.remove(handler.player.getUUID());
         });
         PlayerBlockBreakEvents.BEFORE.register((world,player,pos,state,blockEntity) -> {
-            if (player instanceof ServerPlayer) BREAK_TOOLS.put(player.getUUID(),new BreakTool(pos.immutable(),BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString()));
+            if (runtime != null && runtime.registry().hasEvent("block_break") && player instanceof ServerPlayer)
+                BREAK_TOOLS.put(player.getUUID(),new BreakTool(pos.immutable(),BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString()));
             return true;
         });
         PlayerBlockBreakEvents.AFTER.register((world,player,pos,state,blockEntity) -> {
-            if (runtime != null && player instanceof ServerPlayer serverPlayer) {
-                var context = context(serverPlayer);
-                var tool = BREAK_TOOLS.remove(player.getUUID());
-                if (tool != null && tool.position().equals(pos)) context.put("tool",tool.tool());
-                runtime.event(serverPlayer,new QuestEvent("block_break",BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(),
-                    state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context));
+            var tool = BREAK_TOOLS.remove(player.getUUID());
+            if (runtime != null && runtime.registry().hasEvent("block_break") && player instanceof ServerPlayer serverPlayer) {
+                String target=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+                var tags=state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
+                if(runtime.registry().hasCandidate("block_break",target,tags)){
+                    var context=context(serverPlayer);
+                    if (tool != null && tool.position().equals(pos)) context.put("tool",tool.tool());
+                    runtime.event(serverPlayer,new QuestEvent("block_break",target,tags,1,context));
+                }
             }
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity,source) -> {
@@ -97,8 +101,12 @@ public final class QuestPlusMod implements ModInitializer {
             if (entity instanceof ServerPlayer dead) runtime.event(dead,new QuestEvent("player_death","questplus:death",Set.of(),1,context(dead)));
             var responsible = source.getEntity() instanceof ServerPlayer player ? player
                 : entity.getKillCredit() instanceof ServerPlayer player ? player : null;
-            if (responsible != null && responsible!=entity) runtime.event(responsible,new QuestEvent("entity_kill",BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(),
-                BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet()),1,context(responsible)));
+            if (responsible != null && responsible!=entity && runtime.registry().hasEvent("entity_kill")) {
+                String target=BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
+                var tags=BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet());
+                if(runtime.registry().hasCandidate("entity_kill",target,tags))
+                    runtime.event(responsible,new QuestEvent("entity_kill",target,tags,1,context(responsible)));
+            }
         });
     }
 
