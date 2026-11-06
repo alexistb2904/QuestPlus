@@ -52,8 +52,8 @@ final class ObservationEvents {
             var end=eye.add(view);
             var block=player.pick(6,1,false);
             double limit=block.getType()==HitResult.Type.MISS?36:eye.distanceToSqr(block.getLocation());
-            var entity=entities?ProjectileUtil.getEntityHitResult(player,eye,end,player.getBoundingBox().expandTowards(view).inflate(1),
-                candidate->!candidate.isSpectator()&&candidate.isPickable(),limit):null;
+            var entity=ProjectileUtil.getEntityHitResult(player,eye,end,player.getBoundingBox().expandTowards(view).inflate(1),
+                candidate->!candidate.isSpectator()&&candidate.isPickable(),limit);
             if(entity!=null) {
                 var found=entity.getEntity();type="observe_entity";target=BuiltInRegistries.ENTITY_TYPE.getKey(found.getType()).toString();
                 tags=found.getType().builtInRegistryHolder().tags().map(t->t.location().toString()).collect(java.util.stream.Collectors.toSet());
