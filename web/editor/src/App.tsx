@@ -50,6 +50,7 @@ import {RewardTableLibrary} from "./components/RewardTableLibrary";
 import {TemplateLibrary} from "./components/TemplateLibrary";
 import JSON5 from "json5";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
+const docsUrl = "https://alexistb2904.github.io/QuestPlus/docs/";
 
 export default function App() {
 	const studio = useStudio(),
@@ -193,7 +194,7 @@ export default function App() {
 				</div>
 				<div className="landscape-banner" role="img" aria-label={tUI("Minecraft landscape")} />
 				<div className="top-actions">
-					<a className="studio-docs-link" href="https://alexistb2904.github.io/QuestPlus/docs/" target="_blank" rel="noopener noreferrer" title={tUI("Documentation")} aria-label={tUI("Documentation")}><BookOpen size={16} aria-hidden="true" /><span>{tUI("Documentation")}</span></a>
+					<a className="studio-docs-link" href={docsUrl} target="_blank" rel="noopener noreferrer" title={tUI("Documentation")} aria-label={tUI("Documentation")}><BookOpen size={16} aria-hidden="true" /><span>{tUI("Documentation")}</span></a>
 					<label className="language-control">
 						<Globe size={15} />
 						<span className="sr-only">Interface</span>
@@ -498,6 +499,7 @@ export default function App() {
                       onChange={e=>studio.mutate(state=>{state.project.config ||= {};state.project.config.enableCommandRewards=e.target.checked;},'config:commandRewards')}/>
                     {tUI("Enable server command rewards (trusted packs)")}
                 </label>
+				<a className="studio-docs-footer button" href={docsUrl} target="_blank" rel="noopener noreferrer"><BookOpen size={16} aria-hidden="true" />{tUI("Documentation")}</a>
 				<button
 					className="button primary export-button"
 					onClick={() => {
@@ -546,6 +548,11 @@ export default function App() {
 							</>
 						)}
 						</div>
+						<a className="startup-docs-link" href={docsUrl} target="_blank" rel="noopener noreferrer">
+							<BookOpen size={19} aria-hidden="true" />
+							<span><strong>{tUI("Documentation")}</strong><small>{tUI("Learn how to create quests and integrate your mod.")}</small></span>
+							<ChevronRight size={17} aria-hidden="true" />
+						</a>
 						{startupStep === "create" && (
 							<div className="startup-footer">
 								<span>{tUI("Creating a project replaces the current browser draft. Export a ZIP first if you need a backup.")}</span>

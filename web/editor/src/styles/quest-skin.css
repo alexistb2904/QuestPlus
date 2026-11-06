@@ -364,3 +364,16 @@ body{font-size:13px}button,input,select,textarea{font:inherit;color:inherit}butt
 .studio-docs-link{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #695773;border-radius:4px;color:#e2caed;font-size:12px;font-weight:600;text-decoration:none;background:#302739}
 .studio-docs-link:hover,.studio-docs-link:focus-visible{color:#fff;border-color:#cc9be7;background:#4a3658}
 @media(max-width:600px){.studio-docs-link{padding:6px}.studio-docs-link span{display:none}}
+
+/* Docs are a first-class Studio action in every layout. */
+.project-bar .studio-docs-footer{margin-left:auto;color:#eddef8;border-color:#8d699d;background:linear-gradient(#594266,#392b43);text-decoration:none;min-height:34px}
+.project-bar .studio-docs-footer:hover,.project-bar .studio-docs-footer:focus-visible{border-color:#d0a6e7;color:#fff;background:#654778}
+.startup-docs-link{display:flex;align-items:center;gap:13px;padding:12px 14px;background:linear-gradient(#3a2d42,#2a222e);border:1px solid #8e6d9d;border-left:4px solid #a772d1;border-radius:4px;text-decoration:none;color:#eedff6;box-shadow:inset 0 1px #fff1}
+.startup-docs-link>svg:first-child{color:#dcb4fa}
+.startup-docs-link>svg:last-child{margin-left:auto;color:#ccb4da}
+.startup-docs-link>span{display:grid;gap:4px;min-width:0}
+.startup-docs-link strong{font-size:13px}
+.startup-docs-link small{font-size:11px;color:#cbbbd4;line-height:1.35}
+.startup-docs-link:hover,.startup-docs-link:focus-visible{border-color:#d3acec;background:#493454;color:#fff}
+@media(max-width:950px){.project-bar .studio-docs-footer{font-size:0;min-width:35px;padding:0 8px}.project-bar .studio-docs-footer svg{width:17px;height:17px}}
+@media(max-width:600px){.project-bar .studio-docs-footer{margin-left:0}}

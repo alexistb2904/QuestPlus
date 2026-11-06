@@ -71,3 +71,13 @@ test('new English Markdown guide obeys punctuation rules',()=>{
  };
  traverse(fsRoot);
 });
+
+test('documentation is accessible from the Studio header, footer and startup choices',()=>{
+ const app=read('../src/App.tsx'),css=read('../src/styles/quest-skin.css'),tr=read('../src/ui/ui-i18n-additional.js');
+ assert.match(app,/studio-docs-link/);
+ assert.match(app,/studio-docs-footer button/);
+ assert.match(app,/startup-docs-link/);
+ assert.match(app,/href=\{docsUrl\}/g);
+ assert.match(tr,/Learn how to create quests and integrate your mod/);
+ assert.match(css,/\.startup-docs-link/);
+});
