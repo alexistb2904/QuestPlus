@@ -11,7 +11,7 @@ public final class QuestClientState {
     public final Map<String,JsonArray> rewardPreviews=new HashMap<>(),tierRewardPreviews=new HashMap<>();
     public JsonObject team;
     public JsonArray invitations = new JsonArray();
-    public long generation = -1, sequence = -1, catalogueRevision;
+    public long generation = -1, sequence = -1, catalogueRevision, hudRevision;
     public String error, errorDetail;
     public boolean ready;
     private static final Gson JSON = new Gson();
@@ -46,10 +46,13 @@ public final class QuestClientState {
             for (var element:message.getAsJsonArray("categories")) { var category=element.getAsJsonObject(); groups.put(category.get("id").getAsString(),category); }
             quests.clear(); quests.putAll(definitions); categories.clear(); categories.putAll(groups); progress.clear(); catalogueRevision++;
         }
-        if (message.has("progress")) for (var entry:message.getAsJsonObject("progress").entrySet()) progress.put(entry.getKey(),entry.getValue().getAsJsonObject());
+        if (message.has("progress")) {
+            for (var entry:message.getAsJsonObject("progress").entrySet()) progress.put(entry.getKey(),entry.getValue().getAsJsonObject());
+            hudRevision++;
+        } else if (snapshot) hudRevision++;
         if (message.has("team")) team=message.get("team").isJsonNull() ? null : message.getAsJsonObject("team");
         if (message.has("invitations")) invitations=message.getAsJsonArray("invitations");
         generation=nextGeneration; sequence=nextSequence; ready=true; error=null; errorDetail=null; return true;
     }
-    public void clear() { rewardPreviews.clear();tierRewardPreviews.clear();quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; errorDetail=null; catalogueRevision++; }
+    public void clear() { rewardPreviews.clear();tierRewardPreviews.clear();quests.clear(); categories.clear(); progress.clear(); team=null; invitations=new JsonArray(); generation=-1; sequence=-1; ready=false; error=null; errorDetail=null; catalogueRevision++; hudRevision++; }
 }
