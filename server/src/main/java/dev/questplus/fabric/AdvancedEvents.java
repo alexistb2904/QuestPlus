@@ -202,35 +202,46 @@ public final class AdvancedEvents {
 
     public static void item(ServerPlayer player, String type, ItemStack stack, int count) {
         if (count <= 0 || stack.isEmpty()) return;
-        var context=QuestPlusMod.context(player);context.put("itemComponents",QuestItemStacks.components(stack,player.registryAccess()));
-        QuestPlusMod.runtime().event(player,new QuestEvent(type,BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),
-            stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()),count,context));
-        // Aggregate all four vanilla catches without accidentally counting treasure or junk.
+        var runtime=QuestPlusMod.runtime();
+        var registry=runtime.registry();
+        // No item-component serialization or inventory/gear snapshots for unrelated items.
+        if (!registry.hasEvent(type) && !(type.equals("fish_item") && registry.hasEvent("questplus:fish_any")))return;
+        String itemId=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        if (registry.hasEvent(type)) {
+            Set<String> tags=stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
+            if(registry.hasCandidate(type,itemId,tags)){
+                var context=QuestPlusMod.context(player);
+                context.put("itemComponents",QuestItemStacks.components(stack,player.registryAccess()));
+                runtime.event(player,new QuestEvent(type,itemId,tags,count,context));
+            }
+        }
+        // Aggregate the four vanilla catches, without examining any unrelated quest event.
         if (type.equals("fish_item") && Set.of(
-                "minecraft:cod","minecraft:salmon","minecraft:pufferfish","minecraft:tropical_fish")
-                .contains(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()))
+                "minecraft:cod","minecraft:salmon","minecraft:pufferfish","minecraft:tropical_fish").contains(itemId))
             emit(player,"questplus:fish_any","questplus:fish",Set.of(),count);
     }
 
     public static void block(ServerPlayer player, String type, BlockState state) {
+        if(!QuestPlusMod.runtime().registry().hasEvent(type))return;
         emit(player, type, BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(),
             state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
     }
 
     public static void entity(ServerPlayer player, String type, Entity entity) {
+        if(!QuestPlusMod.runtime().registry().hasEvent(type))return;
         emit(player, type, BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(),
             BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
     }
 
     private static void emit(ServerPlayer player, String type, String target, Set<String> tags, long count, SampleContext snapshot) {
         var runtime = QuestPlusMod.runtime();
-        if (runtime.registry().hasEvent(type))
+        if (runtime.registry().hasCandidate(type,target,tags))
             runtime.event(player, new QuestEvent(type,target,tags,count,snapshot.get()));
     }
     private static void emit(ServerPlayer player, String type, String target, Set<String> tags, long count) {
         QuestRuntime runtime;
         try { runtime = QuestPlusMod.runtime(); } catch (IllegalStateException unavailable) { return; }
-        if (!runtime.registry().hasEvent(type)) return;
+        if (!runtime.registry().hasCandidate(type,target,tags)) return;
         runtime.event(player, new QuestEvent(type, target, tags, count, QuestPlusMod.context(player)));
     }
 
