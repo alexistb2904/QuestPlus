@@ -83,7 +83,7 @@ test('docs cover every built-in objective and reward type',()=>{
  for(const type of types)assert.ok(objectives.includes('`'+type+'`'),'Undocumented objective: '+type);
  const rewards=read('../../../docs-site/content/guide/rewards.md');
  const editor=read('../src/components/RewardEditor.tsx');
- const names=editor.split('const types:')[1]?.split('const make(')[0];
+ const names=editor.split('const types:')[1]?.split('const make=')[0];
  assert.ok(names,'built-in rewards and pools are present');
  for(const [,type] of names.matchAll(/\['([^']+)','[^']+'\]/g))
    assert.ok(rewards.includes('`'+type+'`'),'Undocumented reward: '+type);
