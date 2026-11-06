@@ -53,6 +53,7 @@ jobs:
           test -d web/editor/dist/assets
           test -s web/editor/dist/questplus-logo.png
           test -s web/editor/dist/docs/index.html
+          test -s web/editor/dist/docs/questplus-mark.svg
           touch web/editor/dist/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
