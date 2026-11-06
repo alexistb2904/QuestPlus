@@ -16,12 +16,14 @@ async page => {
     assert(await page.getByRole('button',{name:/^Empty project$|^Projet vide$|^Proyecto vacío$|^空项目$/}).isVisible(),'empty option shown');
     await page.locator('.startup-dialog .startup-choice').nth(0).click();
     assert(await page.locator('.startup-dialog').count()===0,'new empty project opens');
+    await page.waitForFunction(key=>{const p=JSON.parse(localStorage.getItem(key)||'null');return p?.project?.categories?.length===0},storage);
     assert(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).project.categories.length===0,storage),'empty project persists');
     await page.reload();
     assert(await page.locator('.startup-dialog').isVisible(),'empty saved project remains resumable');
     await page.locator('.startup-dialog .startup-choice').nth(0).click();
     await page.locator('.startup-dialog .startup-choice').nth(1).click();
     assert(await page.locator('.startup-dialog').count()===0,'example-based project opens');
+    await page.waitForFunction(key=>JSON.parse(localStorage.getItem(key)||'null')?.project?.categories?.length>0,storage);
     assert((await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).project.categories.length,storage))>0,'example project persists');
     await page.reload();
     assert(await page.locator('.startup-dialog').isVisible(),'saved examples prompt');

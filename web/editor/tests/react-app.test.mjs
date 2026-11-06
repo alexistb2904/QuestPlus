@@ -53,3 +53,19 @@ test('Markdown documentation is deployed alongside React Quest Studio',()=>{
  assert.ok(site.includes("search: { provider: 'local' }"));
  assert.ok(workflow.includes('docs-site/dist/.'));
 });
+
+test('new English Markdown guide obeys punctuation rules',()=>{
+ const fsRoot=new URL('../../../docs-site/content/',import.meta.url);
+ const traverse=(url)=>{
+   for(const item of fs.readdirSync(url,{withFileTypes:true})){
+     const next=new URL(item.name+(item.isDirectory()?'/':''),url);
+     if(item.isDirectory())traverse(next);
+     else if(item.name.endsWith('.md')){
+       const body=fs.readFileSync(next,'utf8');
+       assert.ok(!body.includes('—'),item.name+' contains an em dash');
+       assert.ok(!body.includes(';'),item.name+' contains a semicolon');
+     }
+   }
+ };
+ traverse(fsRoot);
+});

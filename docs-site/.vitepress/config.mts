@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/QuestPlus/docs/',
   srcDir: 'content',
   outDir: 'dist',
-  cleanUrls: true,
+  cleanUrls: false,
   appearance: 'dark',
   lastUpdated: true,
   head: [
