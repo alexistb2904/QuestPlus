@@ -8,6 +8,7 @@ async page => {
  const choose=async name=>page.locator('.quest-item').filter({hasText:name}).click();
  await page.setViewportSize({width:1440,height:1000});
  await page.reload();
+  if(await page.locator('.startup-dialog').isVisible())await page.locator('.startup-dialog .startup-choice').nth(1).click();
  await page.locator('#ui-language').selectOption('fr');
  await page.locator('#preview-language').selectOption('fr_fr');
  await choose('Jalons de pierre');
@@ -77,7 +78,7 @@ async page => {
  await page.locator('#viewport').hover();await page.mouse.wheel(0,90);
  await page.waitForFunction(before=>document.querySelector('.zoom-reset').textContent!==before,zoomBefore,{timeout:3000});
  await page.getByRole('button',{name:'Recentrer',exact:true}).click();await save();
- await page.reload();assert((await read()).language==='fr_fr','saved locale survives reload');
+ await page.reload();if(await page.locator('.startup-dialog').isVisible())await page.locator('.startup-dialog .startup-choice').nth(1).click();assert((await read()).language==='fr_fr','saved locale survives reload');
  const errors=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,broken:[...document.images].filter(i=>!i.complete||!i.naturalWidth).map(i=>i.src)}));
  assert(!errors.overflow,'desktop horizontal overflow');
  const result={result:'passed',checks:['atomic undo/redo','conversion cancel/preservation','NPC objective','title undo','referenced deletion blocked','preview Escape','ZIP download/import','pointer drag with snapping and undo','wheel zoom','reload persistence'],images:errors.broken};

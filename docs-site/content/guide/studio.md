@@ -50,7 +50,7 @@ Personal or project templates speed up repetitive authoring. Saving a quest as a
 
 ## Saving
 
-Quest Studio autosaves browser drafts under `questplus.quest-studio.v1`. The browser draft is **not a cloud backup**. The Save action downloads the portable ZIP in addition to saving locally, while the dedicated Export ZIP control is available at the bottom.
+Quest Studio autosaves browser drafts under `questplus.quest-studio.v1`. The browser draft is **not a cloud backup**. In offline mode, **Save draft** saves browser data only. Use **Export ZIP** at the bottom for a portable backup. The connected editor can publish to an approved Minecraft server.
 
 Do not rely on browser storage for distribution or backup. Export the pack into version control.
 

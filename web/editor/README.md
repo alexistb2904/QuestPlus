@@ -79,7 +79,7 @@ labelled graph cards, violet selection, details tabs below the graph and persist
 properties on the right. At narrow widths these panels stack; tabs remain horizontally
 scrollable. The design contract is in `../../DESIGN.md`.
 
-- Save / Ctrl+S preserves the browser draft **and downloads `QuestPlus-quests.zip`**,
+- Save / Ctrl+S preserves the browser draft locally or publishes to an authorized connected server. Use **Export ZIP** to download `QuestPlus-quests.zip`,
   ready to import into the Minecraft mod. Automatic autosave remains local-only;
   the footer also provides a dedicated Export ZIP action. Invalid quest packs
   cannot be exported until validation issues are fixed.

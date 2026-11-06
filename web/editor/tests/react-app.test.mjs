@@ -32,3 +32,24 @@ test('JavaScript source files are organized inside src rather than the editor ro
  assert.ok(!root.includes('questplus-logo.svg'));
  assert.ok(!root.includes('questplus-logo.png'));
 });
+
+test('saved project startup choice uses the React modal and reset path',()=>{
+ const app=read('../src/App.tsx'),hook=read('../src/hooks/useStudio.ts');
+ const dialog=read('../src/components/Dialog.tsx'),tr=read('../src/ui/ui-i18n-additional.js');
+ for(const label of ['Resume current project','Create a new project','Empty project','Project with examples']) {
+   assert.ok(app.includes(label),label);
+   assert.ok(tr.includes(label),label);
+ }
+ assert.match(app,/studio\.startFresh\(false\)/);
+ assert.match(app,/studio\.startFresh\(true\)/);
+ assert.match(dialog,/dismissible\?:boolean/);
+ assert.match(hook,/history\.current = \[\]/);
+});
+
+test('Markdown documentation is deployed alongside React Quest Studio',()=>{
+ const site=read('../../../docs-site/.vitepress/config.mts');
+ const workflow=read('../../../.github/workflows/pages.yml');
+ assert.ok(site.includes("base: '/QuestPlus/docs/'"));
+ assert.ok(site.includes("search: { provider: 'local' }"));
+ assert.ok(workflow.includes('docs-site/dist/.'));
+});
