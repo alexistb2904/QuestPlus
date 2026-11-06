@@ -13,7 +13,7 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 | Sujet | Comportement | Justification |
 | --- | --- | --- |
 | Présence réseau | JOIN/DISCONNECT invalident le joueur et les membres de son équipe, **pas toute la population** | Évite un fan-out O(joueurs) à chaque connexion ; le chargement de la progression reste côté serveur |
-| Projections | Les snapshots complets sont conservés au premier sync/au changement de catalogue ou visibilité ; ensuite deltas | Pas de broadcast systématique des quêtes ou des récompenses |
+| Projections | Snapshots complets au premier sync/à la génération ou visibilité modifiée, puis deltas ; max **12 destinataires synchronisés par tick** | Coalescence équitable et traitement borné des vagues de connexions ; un full sync forcé par le client est mis en file et limité |
 | Récompenses automatiques | Maximum **16 joueurs vérifiés par tick** dans une rotation équitable ; retry sur passages suivants | Supprime le pic de scan de toute la population une fois par seconde ; le délai de traitement croît sous forte charge |
 | Événements avancés | Arrêt de l'échantillonneur si aucun objectif correspondant ; cache du contexte par échantillon, cible indexée au reload | Évite inventaire + équipements + effets recréés pour chaque cible et pour les mods sans objectifs avancés |
 | Événements instantanés | Test exact cible/tag avant de construire le contexte, y compris cassage de bloc et élimination | Aucun snapshot lourd pour un événement qui ne correspond à aucune quête |
@@ -47,4 +47,4 @@ Cette fonctionnalité **n'existe pas actuellement** et ne doit pas être simulé
 
 ## Validation
 
-Les modifications de cette branche doivent passer les tests Gradle/unitaires et GameTests (observations, équipes, récompenses et connexion/déconnexion), puis tests client + serveur dédiés. Les mesures « 3 000 joueurs / 500 mods » sont **à réaliser**, pas réputées passées. Les GitHub Actions du dépôt étaient désactivées lors de la précédente revue ; vérifier leur état avant de considérer l'absence de checks comme une validation.
+Les modifications de cette branche doivent passer les tests Gradle/unitaires et GameTests (observations, équipes, récompenses et connexion/déconnexion), puis tests client + serveur dédiés. Les mesures « 3 000 joueurs / 500 mods » sont **à réaliser**, pas réputées passées. Le workflow GitHub Actions de la branche principale a réussi le 6 novembre 2026 ; il ne constitue pas une mesure de charge ni une validation de cette branche. Vérifier les checks de la PR et compléter avec une mesure sur serveur dédié.
