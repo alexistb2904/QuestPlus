@@ -16,7 +16,7 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 | Projections | Snapshots complets au premier sync/à la génération ou visibilité modifiée, puis deltas ; max **12 destinataires synchronisés par tick** | Coalescence équitable et traitement borné des vagues de connexions ; un full sync forcé par le client est mis en file et limité |
 | Récompenses automatiques | Maximum **16 joueurs vérifiés par tick** dans une rotation équitable ; retry sur passages suivants | Supprime le pic de scan de toute la population une fois par seconde ; le délai de traitement croît sous forte charge |
 | Événements avancés | Arrêt de l'échantillonneur si aucun objectif correspondant ; cache du contexte par échantillon, cible indexée au reload | Évite inventaire + équipements + effets recréés pour chaque cible et pour les mods sans objectifs avancés |
-| Événements instantanés | Test exact cible/tag avant de construire le contexte, y compris cassage de bloc et élimination | Aucun snapshot lourd pour un événement qui ne correspond à aucune quête |
+| Événements instantanés | Test exact cible/tag avant de construire le contexte, y compris cassage de bloc et élimination | Aucun snapshot lourd pour un événement **sans objectif correspondant** ; le contexte reste complet pour les événements retenus |
 | Observation | Joueur inactif échantillonné tous les **3 ticks**, avec répartition par UUID ; observation d'un objectif reconnu contrôlée **à chaque tick** | Réduit les raycasts en l'absence d'observation active sans attribuer de durée sur des ticks non vérifiés |
 | États d'observation | Zéros inchangés non renvoyés dans le moteur ; remise à zéro après changement de catalogue, reconnexion/mode de jeu | Évite l'application répétée de valeurs identiques, en préservant la remise à zéro des compteurs |
 
@@ -31,6 +31,29 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 5. **Protocole réseau** : mutualiser la sérialisation des définitions identiques au niveau génération, plafonner octets/tick et envois/joueur, vérification de version/sequence et reconstitution des fragments, tests de reconnexion. Le delta reste privilégié.
 6. **Client moddé** : aucun scan permanent d'inventaire côté client, aucun layout ni recalcul de textures/annotations si tablette fermée, invalidation ciblée des caches de diagramme, rendu cullé, pas d'allocation superflue par frame. Mesurer avec Iris, shaders, 500 mods et petite configuration.
 7. **Tests de charge** : 100/300 joueurs par nœud puis 3 000 sur plusieurs nœuds ; reconnexions simultanées, équipes de 64, 1 000 objectifs, progression intensive, changement de catalogue, disque lent, crash/restart et trafic client hostile.
+
+## Audit communautaire et documentation (novembre 2026)
+
+La recherche a été comparée au code réel, et non interprétée comme des gains chiffrés garantis.
+
+- [spark, CPU/allocations et statistiques de tick](https://github.com/lucko/spark) : comparer un profil vanilla/modpack sans QuestPlus à **la même scène** avec QuestPlus, par captures CPU, `--alloc` et `--only-ticks-over`. Un TPS moyen de 20 ne suffit pas pour conclure que les pics ne sont pas perceptibles.
+- [Discussion r/feedthebeast : saccades avec ~400 mods](https://www.reddit.com/r/feedthebeast/comments/1jdwi3r/) : un micro-freeze périodique peut venir d'un mod individuel ; isoler la cause par profilage plutôt que d'attribuer les micro-freezes au nombre de mods seul.
+- [Discussion r/fabricmc : callbacks HUD enregistrés pendant le rendu](https://www.reddit.com/r/fabricmc/comments/vsgobw/) : ne jamais enregistrer un listener à chaque frame ; QuestPlus enregistre ses callbacks une seule fois à l'initialisation.
+- [Fabric : networking](https://docs.fabricmc.net/develop/networking) : transmettre aux seuls clients concernés et valider chaque action du serveur.
+- [Sodium 0.9.2](https://github.com/CaffeineMC/sodium/releases) : les allocations/tailles de buffers et le frame pacing peuvent dominer les ressentis avec shaders ; préserver la compatibilité avec le pipeline natif, pas de pipeline GL parallèle.
+
+## Optimisations client supplémentaires et sécurité
+
+- Le HUD épinglé conserve un modèle (textes déjà traduits, objectifs, icônes) entre deux révisions de progression. La taille d'affichage et les positions restent calculées à chaque frame pour suivre le viewport.
+- Les badges de catégories sont indexés **une fois par delta de progression** ou changement des nouvelles quêtes, au lieu de deux parcours du registre complet par catégorie visible et par frame.
+- Les notifications n'effectuent plus de copie de la carte entière de progression à chaque paquet ; seuls les identifiants modifiés sont comparés aux valeurs précédentes.
+- L'assemblage client de paquets d'état est borné (nombre de fragments et nombre de caractères). Ne pas s'appuyer sur ce plafond pour charger un contenu non testé en conditions réelles.
+
+**Expérience de sécurité invalidée :** une tentative pour omettre tout contexte d'inventaire/équipement sur certains objectifs *correspondants* a cassé le GameTest « casser du bois sans être accroupi ». Cette optimisation a été **retirée**, car le contexte de conditions et des quêtes multi-objectifs doit rester autoritatif. Les rejets d'événements *non correspondants* sont conservés. Toute nouvelle réduction du contexte devra compiler la dépendance de toutes les conditions et être validée par les GameTests.
+
+### Critères de validation recommandés
+
+Comparer la même version des mods, la même génération de monde et la même activité avec et sans QuestPlus. Conserver les courbes de **MSPT p50/p95/p99 et maximum**, les **allocations/sec client et serveur**, la **latence des paquets delta et snapshots**, le **p99 de frame time** (notamment pendant l'ouverture/fermeture de la tablette) et le **volume de sauvegarde/IOPS**. Au moins trois scénarios : tablette fermée (charge quasiment nulle), progression intensive, et 100 joueurs reconnectant simultanément. Des résultats avec 500 mods et 3 000 joueurs répartis restent à mesurer.
 
 ## Si la progression doit être partagée entre *plusieurs serveurs Minecraft*
 
