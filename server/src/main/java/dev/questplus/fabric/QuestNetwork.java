@@ -62,12 +62,23 @@ public final class QuestNetwork {
         }));
         ServerPlayNetworking.registerGlobalReceiver(Action.TYPE,(payload,context) -> context.server().execute(() -> handle(context.player(),payload)));
         ServerPlayConnectionEvents.JOIN.register((handler,sender,server) -> {
-            invalidateAll(server);
+            // Presence only affects the player's team, not every player on the server.
+            invalidatePresence(handler.player.getUUID());
             if (ServerPlayNetworking.canSend(handler.player,State.TYPE)) invalidate(handler.player.getUUID());
         });
     }
     public static void disconnect(UUID id,MinecraftServer server) {
-        SESSIONS.remove(id); DIRTY.remove(id); invalidateAll(server);
+        invalidatePresence(id);
+        SESSIONS.remove(id); DIRTY.remove(id);
+    }
+    /** Team presence is projected to the affected members only. Never fan out a join/quit globally. */
+    private static void invalidatePresence(UUID player) {
+        try {
+            var team=QuestPlusMod.runtime().teams().teamOf(player);
+            if(team.isPresent()) team.get().members.forEach(QuestNetwork::invalidate);
+        } catch (Exception unavailable) {
+            QuestPlusMod.LOGGER.debug("Quest Plus team presence invalidation skipped for {}",player,unavailable);
+        }
     }
     public static void clear() { SESSIONS.clear(); DIRTY.clear(); }
     public static void invalidate(UUID id) { DIRTY.add(id); }
