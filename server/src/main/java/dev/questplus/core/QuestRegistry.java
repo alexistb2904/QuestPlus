@@ -16,6 +16,7 @@ public final class QuestRegistry {
     private final Map<String,QuestDefinition> quests;
     private final Map<String,List<Candidate>> index;
     private final Map<String,List<QuestDefinition.Objective>> byEvent;
+    private final Map<String,List<String>> targetsByEvent;
     private QuestRegistry(Map<String,QuestDefinition> quests) {
         this.quests = Map.copyOf(quests);
         Map<String,List<Candidate>> index = new HashMap<>();
@@ -24,6 +25,11 @@ public final class QuestRegistry {
         Map<String,List<QuestDefinition.Objective>> grouped=new HashMap<>();
         quests.values().forEach(q -> q.objectives().forEach(o -> grouped.computeIfAbsent(o.event(),ignored -> new ArrayList<>()).add(o)));
         grouped.replaceAll((key,value) -> List.copyOf(value)); byEvent=Map.copyOf(grouped);
+        // Built once on catalog reload: avoid stream/distinct allocations for every sampled player.
+        Map<String,List<String>> targets=new HashMap<>();
+        grouped.forEach((event,objectives) -> targets.put(event,objectives.stream()
+            .map(QuestDefinition.Objective::target).distinct().toList()));
+        targetsByEvent=Map.copyOf(targets);
     }
     public Optional<QuestDefinition> find(String id) { return Optional.ofNullable(quests.get(id)); }
     public QuestDefinition get(String id) { var q = quests.get(id); if (q == null) throw new IllegalArgumentException("Unknown quest: " + id); return q; }
@@ -32,6 +38,7 @@ public final class QuestRegistry {
     public List<QuestDefinition.Objective> objectives(String event) {
         return byEvent.getOrDefault(event,List.of());
     }
+    public List<String> targets(String event) { return targetsByEvent.getOrDefault(event,List.of()); }
     public List<Candidate> candidates(QuestEvent event) {
         List<Candidate> result = new ArrayList<>(index.getOrDefault(event.type() + "\0" + event.target(),List.of()));
         for (String tag : event.tags()) result.addAll(index.getOrDefault(event.type() + "\0#" + tag,List.of()));
