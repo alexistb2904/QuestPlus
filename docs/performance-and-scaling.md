@@ -17,10 +17,10 @@ Objectif de dimensionnement : **3 000 joueurs simultanés au total**, répartis 
 | Récompenses automatiques | Maximum **16 joueurs vérifiés par tick** dans une rotation équitable ; retry sur passages suivants | Supprime le pic de scan de toute la population une fois par seconde ; le délai de traitement croît sous forte charge |
 | Événements avancés | Arrêt de l'échantillonneur si aucun objectif correspondant ; cache du contexte par échantillon, cible indexée au reload | Évite inventaire + équipements + effets recréés pour chaque cible et pour les mods sans objectifs avancés |
 | Événements instantanés | Test exact cible/tag avant de construire le contexte, y compris cassage de bloc et élimination | Aucun snapshot lourd pour un événement qui ne correspond à aucune quête |
-| Observation | Joueur inactif échantillonné tous les **8 ticks**, avec répartition par UUID ; observation d'un objectif reconnu contrôlée **à chaque tick** | Réduit les raycasts en l'absence d'observation active sans attribuer de durée sur des ticks non vérifiés |
+| Observation | Joueur inactif échantillonné tous les **3 ticks**, avec répartition par UUID ; observation d'un objectif reconnu contrôlée **à chaque tick** | Réduit les raycasts en l'absence d'observation active sans attribuer de durée sur des ticks non vérifiés |
 | États d'observation | Zéros inchangés non renvoyés dans le moteur ; remise à zéro après changement de catalogue, reconnexion/mode de jeu | Évite l'application répétée de valeurs identiques, en préservant la remise à zéro des compteurs |
 
-**Compromis intentionnel :** la détection du début d'observation peut prendre jusqu'à ~8 ticks (400 ms à 20 TPS). Après détection, chaque tick consécutif reste nécessaire pour compter la durée. Les objectifs de position/statistiques ont un échantillonnage plafonné à 8 joueurs/tick, donc leur latence peut être élevée si une seule JVM accepte des milliers de joueurs.
+**Compromis intentionnel :** la détection du début d'observation peut prendre jusqu'à ~3 ticks (150 ms à 20 TPS). Après détection, chaque tick consécutif reste nécessaire pour compter la durée. Les objectifs de position/statistiques ont un échantillonnage plafonné à 8 joueurs/tick, donc leur latence peut être élevée si une seule JVM accepte des milliers de joueurs.
 
 ## Nouvelles étapes P0/P1 à mesurer avant une affirmation « 3 000 joueurs »
 
