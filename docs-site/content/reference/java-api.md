@@ -7,18 +7,27 @@ Call `dev.questplus.fabric.api.QuestPlusApi` from your **server-side** Fabric mo
 Register on mod initialization:
 
 ~~~java
-QuestPlusApi.registerEvent("example:machine_complete", "block", false);
+QuestPlusApi.registerEvent(
+    "example:machine_complete",
+    "block",
+    false
+);
 ~~~
 
 After the machine actually completes a recipe, on the server thread:
 
 ~~~java
-Map<String, Object> context = new HashMap<>(QuestPlusMod.context(player));
+Map<String, Object> context =
+    new HashMap<>(QuestPlusMod.context(player));
 context.put("recipe", recipeId.toString());
-QuestPlusApi.submit(player, new QuestEvent(
-    "example:machine_complete", "example:machine",
-    Set.of(), 1, context
-));
+QuestPlusApi.submit(
+    player,
+    new QuestEvent(
+        "example:machine_complete",
+        "example:machine",
+        Set.of(), 1, context
+    )
+);
 ~~~
 
 Import `QuestPlusMod` from `dev.questplus.fabric` and `QuestEvent` from `dev.questplus.core`. Use a valid registered block ID as the target.
@@ -50,4 +59,4 @@ Quest authors can set `objective.data.recipe`. Expose an editor field with `regi
 
 Never trust client claims. Execute on the server thread, validate data and handle reward retries safely.
 
-[Create the matching quest](/guide/objectives)
+[All objectives](/guide/objectives) · [All rewards](/guide/rewards)
