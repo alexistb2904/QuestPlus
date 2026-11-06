@@ -45,7 +45,7 @@ public final class QuestRegistry {
                     && !inventorySibling && objective.data().equals("{}")
                     && !QuestExtensions.hasObjectiveHandler(objective.event()))continue;
                 for(String target:ItemComponents.targets(objective))
-                    contextual.add(objective.event()+"\\0"+target);
+                    contextual.add(objective.event()+"\0"+target);
             }
         }
         fullContextKeys=Set.copyOf(contextual);
@@ -73,7 +73,7 @@ public final class QuestRegistry {
      * prerequisites evaluated when a different quest completes.
      */
     public boolean requiresFullContext(String type,String target,Set<String> tags) {
-        if(cascadeRequiresContext||fullContextKeys.contains(type+"\\0"+target))return true;
+        if(cascadeRequiresContext||fullContextKeys.contains(type+"\0"+target))return true;
         for(String tag:tags)if(fullContextKeys.contains(type+"\\0#"+tag))return true;
         return false;
     }
