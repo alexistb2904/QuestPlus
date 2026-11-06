@@ -1,6 +1,7 @@
 package dev.questplus.fabric;
 
 import dev.questplus.core.QuestEvent;
+import dev.questplus.core.QuestRegistry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +28,11 @@ public final class AdvancedEvents {
         Stats.AVIATE_ONE_CM, Stats.STRIDER_ONE_CM, Stats.NAUTILUS_ONE_CM);
     private static long ticks;
     private static int cursor;
+    private static QuestRegistry sampledRegistry;
+    private static boolean samplingEnabled;
+    private static final Set<String> SAMPLED_EVENTS = Set.of("dimension_enter","biome_visit","structure_visit",
+        "travel_distance","location","inventory_count","advancement_complete","custom_stat","stage",
+        "xp_levels","xp_points","equipment_check");
     private static final class Sample {
         long last;
         String dimension = "", biome = "";
@@ -35,14 +41,21 @@ public final class AdvancedEvents {
     }
     public static void register() {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> SAMPLES.remove(handler.player.getUUID()));
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> { SAMPLES.clear(); cursor = 0; ticks = 0; });
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            SAMPLES.clear(); cursor = 0; ticks = 0; sampledRegistry = null; samplingEnabled = false;
+        });
     }
     public static void tick(MinecraftServer server) {
+        var registry = QuestPlusMod.runtime().registry();
+        if (registry != sampledRegistry) {
+            // A reload can introduce new state objectives; refresh every player's first sample.
+            sampledRegistry = registry; samplingEnabled = SAMPLED_EVENTS.stream().anyMatch(registry::hasEvent);
+            SAMPLES.clear(); cursor = 0;
+        }
+        if (!samplingEnabled) return;
         var players = server.getPlayerList().getPlayers();
         ticks++;
-        Set<UUID> online = new HashSet<>();
-        players.forEach(p -> online.add(p.getUUID()));
-        SAMPLES.keySet().retainAll(online);
+        // DISCONNECT already clears samples. Do not rebuild an O(players) UUID set every tick.
         if (players.isEmpty()) { cursor = 0; return; }
         int visited = 0, sampled = 0;
         while (visited++ < players.size() && sampled < 8) {
@@ -54,14 +67,30 @@ public final class AdvancedEvents {
             sampled++;
         }
     }
+    private static final class SampleContext {
+        private final ServerPlayer player;
+        private Map<String,Object> cached;
+        SampleContext(ServerPlayer player) { this.player = player; }
+        Map<String,Object> get() {
+            if (cached == null) cached = QuestPlusMod.context(player);
+            return cached;
+        }
+        Map<String,Object> states(Map<String,Long> values) {
+            var result = new HashMap<>(get());
+            result.put("stateValues",values);
+            return result;
+        }
+    }
     private static void sample(ServerPlayer player, Sample state) {
         var registry = QuestPlusMod.runtime().registry();
+        var snapshot = new SampleContext(player);
         String dimension = player.level().dimension().identifier().toString();
         var biomeHolder = player.level().getBiome(player.blockPosition());
         String biome = biomeHolder.unwrapKey().map(k -> k.identifier().toString()).orElse("");
-        if (!dimension.equals(state.dimension)) emit(player, "dimension_enter", dimension, Set.of(), 1);
-        if (!biome.equals(state.biome) || !dimension.equals(state.dimension))
-            emit(player, "biome_visit", biome, biomeHolder.tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
+        if (registry.hasEvent("dimension_enter") && !dimension.equals(state.dimension))
+            emit(player, "dimension_enter", dimension, Set.of(), 1, snapshot);
+        if (registry.hasEvent("biome_visit") && (!biome.equals(state.biome) || !dimension.equals(state.dimension)))
+            emit(player, "biome_visit", biome, biomeHolder.tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1, snapshot);
         if (registry.hasEvent("structure_visit")) {
             var structures = player.level().registryAccess().lookupOrThrow(Registries.STRUCTURE);
             Set<String> inside = new HashSet<>();
@@ -70,70 +99,68 @@ public final class AdvancedEvents {
                 String id = structures.getKey(structure).toString();
                 inside.add(id);
                 if (!state.structures.contains(id) || !dimension.equals(state.dimension))
-                    emit(player, "structure_visit", id, structures.wrapAsHolder(structure).tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
+                    emit(player, "structure_visit", id, structures.wrapAsHolder(structure).tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1, snapshot);
             }
             state.structures = inside;
         }
-        int[] distances = new int[DISTANCE_STATS.size()];
-        long traveled = 0;
-        for (int i = 0; i < distances.length; i++) {
-            distances[i] = player.getStats().getValue(Stats.CUSTOM.get(DISTANCE_STATS.get(i)));
-            if (state.distances != null && dimension.equals(state.dimension) && distances[i] >= state.distances[i])
-                traveled += (long) distances[i] - state.distances[i];
+        int[] distances = state.distances;
+        if (registry.hasEvent("travel_distance")) {
+            int[] previous = state.distances;
+            distances = new int[DISTANCE_STATS.size()];
+            long traveled = 0;
+            for (int i = 0; i < distances.length; i++) {
+                distances[i] = player.getStats().getValue(Stats.CUSTOM.get(DISTANCE_STATS.get(i)));
+                if (previous != null && dimension.equals(state.dimension) && distances[i] >= previous[i])
+                    traveled += (long) distances[i] - previous[i];
+            }
+            if (traveled > 0) emit(player, "travel_distance", "questplus:travel", Set.of(), traveled, snapshot);
         }
-        if (traveled > 0) emit(player, "travel_distance", "questplus:travel", Set.of(), traveled);
-        emit(player, "location", "questplus:position", Set.of(), 1);
+        if (registry.hasEvent("location"))
+            emit(player, "location", "questplus:position", Set.of(), 1, snapshot);
         if (registry.hasEvent("inventory_count")) {
-            @SuppressWarnings("unchecked") var inventory = (Map<String,Long>) context(player).get("inventory");
-            registry.objectives("inventory_count").stream().map(o -> o.target()).distinct().forEach(target ->
+            @SuppressWarnings("unchecked") var inventory = (Map<String,Long>) snapshot.get().get("inventory");
+            for (String target : registry.targets("inventory_count"))
                 emit(player, "inventory_count", target.startsWith("#") ? "minecraft:air" : target,
-                    target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L)));
+                    target.startsWith("#") ? Set.of(target.substring(1)) : Set.of(), inventory.getOrDefault(target, 0L), snapshot);
         }
         if (registry.hasEvent("advancement_complete")) {
-            for (String target:registry.objectives("advancement_complete").stream()
-                    .map(o->o.target()).distinct().toList()) {
+            for (String target:registry.targets("advancement_complete")) {
                 var advancement=player.level().getServer().getAdvancements().get(Identifier.parse(target));
                 if(advancement==null)continue;
                 boolean done=player.getAdvancements().getOrStartProgress(advancement).isDone();
-                var ctx=QuestPlusMod.context(player);
-                ctx.put("stateValues",Map.of(target,done?1L:0L));
+                var ctx=snapshot.states(Map.of(target,done?1L:0L));
                 QuestPlusMod.runtime().event(player,new QuestEvent("advancement_complete",target,Set.of(),1,ctx));
             }
         }
         if (registry.hasEvent("custom_stat")) {
             // Read only authored custom-stat IDs. This avoids scanning every stat for every player.
-            for (String target : registry.objectives("custom_stat").stream()
-                    .map(o -> o.target()).distinct().toList()) {
+            for (String target : registry.targets("custom_stat")) {
                 Identifier stat=Identifier.parse(target);
                 long value=Math.max(0,player.getStats().getValue(Stats.CUSTOM.get(stat)));
-                var ctx=QuestPlusMod.context(player);
-                ctx.put("stateValues",Map.of(target,value));
+                var ctx=snapshot.states(Map.of(target,value));
                 QuestPlusMod.runtime().event(player,new QuestEvent("custom_stat",target,Set.of(),1,ctx));
             }
         }
         if(registry.hasEvent("stage")) {
             var values=new HashMap<String,Long>();var stages=QuestStages.stages(player);
-            for(var objective:registry.objectives("stage"))values.put(objective.target(),stages.contains(objective.target())?1L:0L);
-            var context=QuestPlusMod.context(player);context.put("stateValues",values);
-            for(String target:values.keySet())QuestPlusMod.runtime().event(player,new QuestEvent("stage",target,Set.of(),1,context));
+            for(String target:registry.targets("stage"))values.put(target,stages.contains(target)?1L:0L);
+            var ctx=snapshot.states(values);
+            for(String target:values.keySet())QuestPlusMod.runtime().event(player,new QuestEvent("stage",target,Set.of(),1,ctx));
         }
         if(registry.hasEvent("xp_levels")) {
-            var ctx=QuestPlusMod.context(player);
-            ctx.put("stateValues",Map.of("questplus:levels",(long)player.experienceLevel));
+            var ctx=snapshot.states(Map.of("questplus:levels",(long)player.experienceLevel));
             QuestPlusMod.runtime().event(player,new QuestEvent("xp_levels","questplus:levels",Set.of(),1,ctx));
         }
         if(registry.hasEvent("xp_points")) {
             long level=player.experienceLevel;
             long total=level<=16?level*level+6*level:level<=31?(5*level*level-81*level+720)/2:(9*level*level-325*level+4440)/2;
-            var ctx=QuestPlusMod.context(player);ctx.put("stateValues",Map.of("questplus:points",Math.max(0,total+(long)(player.experienceProgress*player.getXpNeededForNextLevel()))));
+            var ctx=snapshot.states(Map.of("questplus:points",Math.max(0,total+(long)(player.experienceProgress*player.getXpNeededForNextLevel()))));
             QuestPlusMod.runtime().event(player,new QuestEvent("xp_points","questplus:points",Set.of(),1,ctx));
         }
         // A single authoritative snapshot per sampled player. Gear is never supplied by clients.
         if (registry.hasEvent("equipment_check")) {
-            var ctx = QuestPlusMod.context(player);
-            ctx.put("gear", gearSnapshot(player));
             QuestPlusMod.runtime().event(player, new QuestEvent(
-                "equipment_check", "questplus:gear", Set.of(), 1, ctx));
+                "equipment_check", "questplus:gear", Set.of(), 1, snapshot.get()));
         }
         state.dimension = dimension; state.biome = biome; state.distances = distances;
     }
@@ -195,6 +222,11 @@ public final class AdvancedEvents {
             BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1);
     }
 
+    private static void emit(ServerPlayer player, String type, String target, Set<String> tags, long count, SampleContext snapshot) {
+        var runtime = QuestPlusMod.runtime();
+        if (runtime.registry().hasEvent(type))
+            runtime.event(player, new QuestEvent(type,target,tags,count,snapshot.get()));
+    }
     private static void emit(ServerPlayer player, String type, String target, Set<String> tags, long count) {
         QuestRuntime runtime;
         try { runtime = QuestPlusMod.runtime(); } catch (IllegalStateException unavailable) { return; }
