@@ -147,8 +147,6 @@ public final class QuestExtensions {
         if(type!=null)type.validator().accept(data);
         else if(!data.isEmpty())throw new IllegalArgumentException("Objective has no registered data validator: "+event);
     }
-    /** Custom predicates may inspect any server context key, even when their data is empty. */
-    public static boolean hasObjectiveHandler(String event) { return OBJECTIVES.containsKey(event); }
     public static boolean matchesObjective(QuestDefinition.Objective objective,QuestEvent event) {
         if(!objective.data().equals("{}") && Set.of("item_craft","item_obtained","item_smelt","item_use","item_consume","fish_item","trade").contains(objective.event())) {
             var data=JsonParser.parseString(objective.data()).getAsJsonObject();if(!data.has("matchComponents")||data.get("matchComponents").getAsString().equals("none"))return true;
