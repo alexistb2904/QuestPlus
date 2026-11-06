@@ -20,12 +20,17 @@ class QuestVisibilitySettingsTest {
              "presentation":{"subtitle":{"en_us":"Subtitle"},"tags":["mining"],"shape":"hexagon","iconScale":1.2,"optional":true,"disableCompletionToast":true,"hideDetailsUntilUnlocked":true,"hideTextUntilCompleted":true}}
             """);
         var registry=QuestRegistry.load(root,(kind,id)->{});var state=new PlayerProgress();
+        var initialRedaction=ClientProjection.redactionFlags(registry.all(),state);
+        assertEquals(3,initialRedaction.get("test:b"));
         String locked=ClientProjection.quests(registry.all(),state).toString();
         assertFalse(locked.contains("Secret prose"));assertFalse(locked.contains("minecraft:diamond_ore"));
         var engine=new QuestEngine(registry);engine.grant(state,"test:a");
+        assertEquals(1,ClientProjection.redactionFlags(registry.all(),state).get("test:b"));
         String unlocked=ClientProjection.quests(registry.all(),state).toString();
         assertTrue(unlocked.contains("minecraft:diamond_ore"));assertFalse(unlocked.contains("Secret prose"));
-        engine.grant(state,"test:b");assertTrue(ClientProjection.quests(registry.all(),state).toString().contains("Secret prose"));
+        engine.grant(state,"test:b");
+        assertEquals(0,ClientProjection.redactionFlags(registry.all(),state).get("test:b"));
+        assertTrue(ClientProjection.quests(registry.all(),state).toString().contains("Secret prose"));
         assertTrue(registry.get("test:b").presentation().optional());
     }
 }
