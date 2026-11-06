@@ -46,9 +46,19 @@ public final class QuestRegistry {
         return false;
     }
     public List<Candidate> candidates(QuestEvent event) {
-        List<Candidate> result = new ArrayList<>(index.getOrDefault(event.type() + "\0" + event.target(),List.of()));
-        for (String tag : event.tags()) result.addAll(index.getOrDefault(event.type() + "\0#" + tag,List.of()));
-        return result.stream().distinct().toList();
+        List<Candidate> exact=index.getOrDefault(event.type()+"\0"+event.target(),List.of());
+        // Most events have a single exact match or no authored target. Return
+        // immutable registry lists directly; no per-block stream/distinct allocation.
+        List<Candidate> first=exact;
+        LinkedHashSet<Candidate> merged=null;
+        for(String tag:event.tags()){
+            List<Candidate> matches=index.getOrDefault(event.type()+"\0#"+tag,List.of());
+            if(matches.isEmpty())continue;
+            if(first.isEmpty()){first=matches;continue;}
+            if(merged==null)merged=new LinkedHashSet<>(first);
+            merged.addAll(matches);
+        }
+        return merged==null?first:List.copyOf(merged);
     }
     public static QuestRegistry load(Path dir, ValidationHook hook) throws IOException {
         Objects.requireNonNull(hook); Map<String,QuestDefinition> quests = new LinkedHashMap<>();
