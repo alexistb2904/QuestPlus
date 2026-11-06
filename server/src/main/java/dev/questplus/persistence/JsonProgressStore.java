@@ -90,6 +90,43 @@ public final class JsonProgressStore implements AutoCloseable {
         return future;
     }
 
+    /**
+     * Non-critical autosave only: snapshot mutable state on the server thread,
+     * then perform JSON serialization + strict decode on the single IO worker.
+     * The queue is bounded and ordered with reward transactions; callers
+     * must re-dirty the same player IDs if the returned future fails.
+     */
+    public CompletableFuture<Void> saveAutosaveBatch(Map<UUID,PlayerProgress> states) {
+        Map<UUID,PlayerProgress> detached;
+        try {
+            detached=new LinkedHashMap<>(states.size());
+            for(var entry:states.entrySet())
+                detached.put(entry.getKey(),entry.getValue().copyForAutosave());
+        } catch(Exception error) { return CompletableFuture.failedFuture(error); }
+        return queued(() -> {
+            checkPending();
+            IOException failures=null;
+            for(var entry:detached.entrySet()){
+                try {
+                    var state=entry.getValue();
+                    state.validate();
+                    byte[] bytes=GSON.toJson(state).getBytes(StandardCharsets.UTF_8);
+                    if(bytes.length>MAX_BYTES)throw new IOException("Progress exceeds 8 MiB");
+                    decode(bytes);
+                    write(file(entry.getKey()),bytes);
+                } catch(IOException error) {
+                    if(failures==null)failures=error;
+                    else failures.addSuppressed(error);
+                } catch(RuntimeException error) {
+                    var failure=new IOException("Autosave validation failed for "+entry.getKey(),error);
+                    if(failures==null)failures=failure;
+                    else failures.addSuppressed(failure);
+                }
+            }
+            if(failures!=null)throw failures;
+        });
+    }
+
     public static PlayerProgress detachedCopy(PlayerProgress source) {
         var copy = GSON.fromJson(GSON.toJson(source),PlayerProgress.class);
         copy.revision = source.revision;
