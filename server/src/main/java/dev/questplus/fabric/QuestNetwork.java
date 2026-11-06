@@ -46,7 +46,8 @@ public final class QuestNetwork {
         @Override public Type<ChooseReward> type(){return TYPE;}
     }
     private static final class Session {
-        long generation=-1, sequence, window, expiresAt=Long.MAX_VALUE;
+        long generation=-1, sequence, window, expiresAt=Long.MAX_VALUE, lastFullRequest;
+        boolean forceFull;
         int requests;
         JsonObject progress;
         JsonElement team, invitations;
@@ -102,7 +103,7 @@ public final class QuestNetwork {
             pending.remove();
             ServerPlayer player=server.getPlayerList().getPlayer(id);
             if (player==null || !ServerPlayNetworking.canSend(player,State.TYPE)) continue;
-            try { sync(player,false); }
+            try { sync(player,SESSIONS.get(id)!=null && SESSIONS.get(id).forceFull); }
             catch (Exception e) { QuestPlusMod.LOGGER.error("Quest Plus sync failed for {}",id,e); error(player,"sync_failed",e.getMessage()); }
         }
     }
@@ -143,7 +144,7 @@ public final class QuestNetwork {
         }
         packet.addProperty("generation",runtime.catalogGeneration()); packet.addProperty("sequence",session.sequence+1);
         send(player,packet);
-        session.sequence++; session.generation=runtime.catalogGeneration(); session.progress=progress; session.team=team; session.invitations=invitations; session.visible=visibleIds;
+        session.sequence++; session.generation=runtime.catalogGeneration(); session.progress=progress; session.team=team; session.invitations=invitations; session.visible=visibleIds; session.forceFull=false;
         session.expiresAt=Long.MAX_VALUE;
         for (JsonElement invite:invitations) session.expiresAt=Math.min(session.expiresAt,invite.getAsJsonObject().get("expiresAt").getAsLong());
         if (team.isJsonObject()) for (JsonElement invite:team.getAsJsonObject().getAsJsonArray("invitations"))
@@ -198,7 +199,14 @@ public final class QuestNetwork {
         try {
             QuestRuntime runtime=QuestPlusMod.runtime(); String value=request.argument();
             switch(request.action()) {
-                case "sync" -> sync(player,true);
+                case "sync" -> {
+                    // A client-triggered recovery requests a full snapshot, but never
+                    // serializes it synchronously inside a network receive callback.
+                    Session session=SESSIONS.computeIfAbsent(actor,k->new Session());
+                    if(now-session.lastFullRequest>=2000){
+                        session.lastFullRequest=now; session.forceFull=true; invalidate(actor);
+                    }
+                }
                 case "claim" -> { runtime.visibleQuest(actor,value); runtime.claimFromTablet(player,value); }
                 case "submit" -> {
                     String[] parts=value.split("\\|",2);
