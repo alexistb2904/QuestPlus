@@ -210,9 +210,10 @@ public final class AdvancedEvents {
         if (registry.hasEvent(type)) {
             Set<String> tags=stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
             if(registry.hasCandidate(type,itemId,tags)){
-                var context=QuestPlusMod.context(player);
-                context.put("itemComponents",QuestItemStacks.components(stack,player.registryAccess()));
-                runtime.event(player,new QuestEvent(type,itemId,tags,count,context));
+                boolean full=registry.requiresFullContext(type,itemId,tags);
+                var eventContext=full?QuestPlusMod.context(player):Map.<String,Object>of();
+                if(full)eventContext.put("itemComponents",QuestItemStacks.components(stack,player.registryAccess()));
+                runtime.event(player,new QuestEvent(type,itemId,tags,count,eventContext));
             }
         }
         // Aggregate the four vanilla catches, without examining any unrelated quest event.
@@ -242,7 +243,8 @@ public final class AdvancedEvents {
         QuestRuntime runtime;
         try { runtime = QuestPlusMod.runtime(); } catch (IllegalStateException unavailable) { return; }
         if (!runtime.registry().hasCandidate(type,target,tags)) return;
-        runtime.event(player, new QuestEvent(type, target, tags, count, QuestPlusMod.context(player)));
+        runtime.event(player, new QuestEvent(type, target, tags, count,
+            runtime.registry().requiresFullContext(type,target,tags)?QuestPlusMod.context(player):Map.of()));
     }
 
     public static Map<String,Object> context(ServerPlayer player) {
