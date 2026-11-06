@@ -4,6 +4,11 @@ import java.util.*;
 import java.util.function.LongSupplier;
 
 public final class QuestEngine {
+    private static final Set<String> SUBMISSION_EVENTS=Set.of(
+        "item_submit","item_turn_in","xp_submit_levels","xp_submit_points","fluid_submit","energy_submit");
+    private static final Set<String> CONTEXT_STATE_EVENTS=Set.of(
+        "xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage");
+
     public record Completion(String questId,String key,List<QuestDefinition.Reward> rewards) {
         public Completion { rewards=RewardTables.resolve(rewards); }
     }
@@ -29,7 +34,7 @@ public final class QuestEngine {
         for (var candidate:registry.candidates(event)) {
             var q=candidate.quest(); var objective=candidate.objective(); var p=player.quests.get(q.id());
             if(!QuestExtensions.matchesObjective(objective,event))continue;
-            if (Set.of("item_submit","item_turn_in","xp_submit_levels","xp_submit_points","fluid_submit","energy_submit").contains(event.type())) {
+            if (SUBMISSION_EVENTS.contains(event.type())) {
                 if (!q.id().equals(event.context().get("submissionQuest")) || !objective.id().equals(event.context().get("submissionObjective"))) continue;
             }
             if(event.type().equals("manual") && event.context().containsKey("manualQuest")
@@ -42,7 +47,7 @@ public final class QuestEngine {
             boolean state=QuestExtensions.event(objective.event()).state();
             long amount=event.amount();
             if (state) {
-                Object values=Set.of("xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
+                Object values=CONTEXT_STATE_EVENTS.contains(objective.event())?event.context().get("stateValues"):event.context().get("inventory");
                 amount=values instanceof Map<?,?> m && m.get(objective.target()) instanceof Number n ? Math.max(0,n.longValue()) : 0;
                 if(objective.event().equals("inventory_count"))amount=ItemComponents.inventoryCount(objective,event.context(),amount);
             }
@@ -74,9 +79,12 @@ public final class QuestEngine {
                 var q=registry.get(id);
                 var p=player.quests.get(id);
                 if(p==null || terminal(q,p) || p.waitingRestart)continue;
-                refreshStates(player,q,p,event,prerequisiteState(player),sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
+                // Evaluate the prerequisite state only once for this quest. refreshStates
+                // updates counters but cannot create/remove a started/completed marker.
+                Set<String> unlocks=prerequisiteState(player);
+                refreshStates(player,q,p,event,unlocks,sequenceSteps.getOrDefault(id,Integer.MAX_VALUE));
                 // Flexible quests can track progress while locked but never grant rewards early.
-                if(q.requires()!=null && !q.requires().matches(event.context(),prerequisiteState(player)))continue;
+                if(q.requires()!=null && !q.requires().matches(event.context(),unlocks))continue;
                 evaluated.add(id);
                 if(q.progression().equals("tiered")){
                     while(p.tier<q.tiers().size() && satisfied(q,p,q.tiers().get(p.tier).threshold())){
@@ -121,7 +129,7 @@ public final class QuestEngine {
         for (int index=0;index<q.objectives().size();index++) {
             var objective=q.objectives().get(index);
             boolean isInventory=objective.event().equals("inventory_count");
-            if ((!isInventory&&!Set.of("xp_levels","xp_points","custom_stat","advancement_complete","observe_block","observe_entity","stage").contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
+            if ((!isInventory&&!CONTEXT_STATE_EVENTS.contains(objective.event())) || (q.objectiveMode().equals("sequence") && !objective.optional() && index>accessibleStep)) continue;
             if(!isInventory&&!objective.event().equals(event.type()))continue;
             Map<?,?> values=isInventory?inventory:states;
             if(!values.containsKey(objective.target())&&!(isInventory&&!objective.data().equals("{}")&&context.get("itemStacks") instanceof List<?>))continue;
@@ -139,9 +147,12 @@ public final class QuestEngine {
         return satisfied(q,p,q.progression().equals("tiered") ? q.tiers().get(Math.min(p.tier,q.tiers().size()-1)).threshold() : 1);
     }
     private static boolean satisfied(QuestDefinition q,PlayerProgress.QuestProgress p,long factor) {
-        long successes=q.objectives().stream().filter(o->!o.optional())
-            .filter(o->p.counters.getOrDefault(o.id(),0L)>=o.count()*factor).count();
-        long required=q.objectives().stream().filter(o->!o.optional()).count();
+        int successes=0,required=0;
+        for(var objective:q.objectives()){
+            if(objective.optional())continue;
+            required++;
+            if(p.counters.getOrDefault(objective.id(),0L)>=objective.count()*factor)successes++;
+        }
         return switch(q.objectiveMode()){
             case "any" -> successes>=1;
             case "at_least" -> successes>=q.objectiveThreshold();
@@ -181,7 +192,12 @@ public final class QuestEngine {
     private static PlayerProgress.QuestProgress fresh(QuestDefinition q) { var p=new PlayerProgress.QuestProgress(); p.fingerprint=q.fingerprint(); return p; }
     public static Set<String> prerequisiteState(PlayerProgress player) {
         Set<String> result=new HashSet<>();
-        player.quests.forEach((id,p)->{if(p.completed)result.add(id);if(p.completed||p.attemptId!=null||p.startedAt>0||p.counters.values().stream().anyMatch(v->v>0))result.add("@started:"+id);});
+        player.quests.forEach((id,p)->{
+            if(p.completed)result.add(id);
+            boolean started=p.completed||p.attemptId!=null||p.startedAt>0;
+            if(!started)for(long count:p.counters.values())if(count>0){started=true;break;}
+            if(started)result.add("@started:"+id);
+        });
         return result;
     }
 }
