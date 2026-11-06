@@ -52,6 +52,7 @@ public final class QuestNetwork {
         JsonObject progress;
         JsonElement team, invitations;
         Set<String> visible=Set.of();
+        Map<String,Integer> redactions=Map.of();
     }
     public static void register() {
         PayloadTypeRegistry.clientboundPlay().register(State.TYPE,State.CODEC);
@@ -125,8 +126,11 @@ public final class QuestNetwork {
             JsonObject value=new JsonObject(); value.addProperty("id",invite.id.toString()); value.addProperty("name",invite.name);
             value.addProperty("owner",invite.owner.toString()); value.addProperty("expiresAt",invite.invitations.get(id)); invitations.add(value);
         }
-        boolean restricted=visible.stream().anyMatch(q->q.presentation().hideDetailsUntilUnlocked()||q.presentation().hideTextUntilCompleted());
-        boolean full=force || restricted&&!Objects.equals(progress,session.progress) || session.generation!=runtime.catalogGeneration() || session.progress==null || !session.visible.equals(visibleIds);
+        // Only a redaction/unredaction transition requires the entire quest definition.
+        // Changes to ordinary counters, cycles or claims always travel as progress deltas.
+        var redactions=ClientProjection.redactionFlags(visible,runtime.state(id));
+        boolean full=force || !Objects.equals(redactions,session.redactions)
+            || session.generation!=runtime.catalogGeneration() || session.progress==null || !session.visible.equals(visibleIds);
         JsonObject packet=new JsonObject();
         if (full) {
             packet.addProperty("type","snapshot");
@@ -144,7 +148,7 @@ public final class QuestNetwork {
         }
         packet.addProperty("generation",runtime.catalogGeneration()); packet.addProperty("sequence",session.sequence+1);
         send(player,packet);
-        session.sequence++; session.generation=runtime.catalogGeneration(); session.progress=progress; session.team=team; session.invitations=invitations; session.visible=visibleIds; session.forceFull=false;
+        session.sequence++; session.generation=runtime.catalogGeneration(); session.progress=progress; session.team=team; session.invitations=invitations; session.visible=visibleIds; session.redactions=redactions; session.forceFull=false;
         session.expiresAt=Long.MAX_VALUE;
         for (JsonElement invite:invitations) session.expiresAt=Math.min(session.expiresAt,invite.getAsJsonObject().get("expiresAt").getAsLong());
         if (team.isJsonObject()) for (JsonElement invite:team.getAsJsonObject().getAsJsonArray("invitations"))
