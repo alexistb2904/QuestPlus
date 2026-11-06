@@ -55,6 +55,12 @@ public final class QuestRuntime implements AutoCloseable {
     private QuestEngine engine;
     private int autosaveTicks;
     private int ticks;
+    /** Autosave is gradual and bounds BOTH the main-thread snapshot cost
+     * and the worker queue competing with durable claim transactions. */
+    private boolean autosaveDraining;
+    private int autosavesInFlight,teamAutosavesInFlight;
+    private static final int AUTOSAVE_PLAYERS_PER_BATCH=24;
+    private static final int AUTOSAVE_IN_FLIGHT_MAX=2;
     /** Bound automatic reward checks per tick instead of traversing every connected player at once. */
     private int autoClaimCursor;
     private static final int AUTO_CLAIM_PLAYERS_PER_TICK = 16;
@@ -623,7 +629,8 @@ public final class QuestRuntime implements AutoCloseable {
         if (storageFailed) return;
         int count=Math.min(512,deferred.size());
         for (int i=0;i<count;i++) { var item=deferred.removeFirst(); event(item.player(),item.event()); }
-        if (++ticks % autosaveTicks == 0) flushDirty();
+        if (++ticks % autosaveTicks == 0) autosaveDraining=true;
+        if (autosaveDraining && ticks % 2 == 0) flushDirty();
         // Keep the tick-time budget independent of the number of online players.
         // Failed auto-claims are retried on the next round (including when inventory space becomes available).
         var online=server.getPlayerList().getPlayers();
@@ -650,25 +657,43 @@ public final class QuestRuntime implements AutoCloseable {
         }
     }
     private void flushDirty() {
-        Map<UUID,PlayerProgress> snapshots=new HashMap<>();
-        for (UUID id:List.copyOf(dirty)) if (!busy.contains(id)) snapshots.put(id,players.get(id));
-        if (!snapshots.isEmpty()) {
-            dirty.removeAll(snapshots.keySet());
-            store.saveBatch(snapshots).whenComplete((ok,error) -> {
-                if (error != null) {
-                    QuestPlusMod.LOGGER.error("Quest save batch failed for {} UUIDs",snapshots.size(),error);
-                    if (!closing) server.execute(() -> dirty.addAll(snapshots.keySet()));
-                }
-            });
+        if(autosavesInFlight<AUTOSAVE_IN_FLIGHT_MAX && !dirty.isEmpty()){
+            Map<UUID,PlayerProgress> snapshots=new LinkedHashMap<>();
+            for(UUID id:dirty){
+                if(busy.contains(id))continue;
+                var current=players.get(id);
+                if(current!=null)snapshots.put(id,current);
+                if(snapshots.size()>=AUTOSAVE_PLAYERS_PER_BATCH)break;
+            }
+            if(!snapshots.isEmpty()){
+                dirty.removeAll(snapshots.keySet());
+                autosavesInFlight++;
+                store.saveAutosaveBatch(snapshots).whenComplete((ok,error) -> server.execute(() -> {
+                    autosavesInFlight--;
+                    if(error!=null){
+                        QuestPlusMod.LOGGER.error("Quest autosave batch failed for {} UUIDs",snapshots.size(),error);
+                        if(!closing)dirty.addAll(snapshots.keySet());
+                    }
+                }));
+            }
         }
-        for (UUID id:List.copyOf(dirtyTeams)) {
-            TeamData team=teams.rewardScope(id);
-            if (team.members.stream().anyMatch(busy::contains)) continue;
-            dirtyTeams.remove(id);
-            store.transaction(Map.of(),Map.of(id,team)).whenComplete((ok,error) -> {
-                if (error!=null) server.execute(() -> failStorage(error));
-            });
+        // One noncritical team autosave at a time. Transactional saves and
+        // reward claims use the same ordered writer and are never postponed here.
+        if(teamAutosavesInFlight==0 && !dirtyTeams.isEmpty()){
+            for(UUID id:dirtyTeams){
+                TeamData team=teams.rewardScope(id);
+                if(team.members.stream().anyMatch(busy::contains))continue;
+                dirtyTeams.remove(id);
+                teamAutosavesInFlight++;
+                store.transaction(Map.of(),Map.of(id,team)).whenComplete((ok,error) -> server.execute(() -> {
+                    teamAutosavesInFlight--;
+                    if(error!=null)failStorage(error);
+                }));
+                break;
+            }
         }
+        autosaveDraining=!dirty.isEmpty() || !dirtyTeams.isEmpty()
+            || autosavesInFlight>0 || teamAutosavesInFlight>0;
     }
     private void failStorage(Throwable error) { storageFailed=true; QuestPlusMod.LOGGER.error("Quest Plus storage transaction failed; progress is frozen until recovery",error); }
     private void release(Collection<UUID> ids) { busy.removeAll(ids); }
