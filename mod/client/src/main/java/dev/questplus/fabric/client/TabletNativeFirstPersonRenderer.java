@@ -25,6 +25,7 @@ public final class TabletNativeFirstPersonRenderer {
 			return false;
 		String clip = TabletNativeAnimation.clip();
 		if (clip == null) return false;
+		if (TabletShaderCompat.translucentHandPass()) return true;
 		double seconds = TabletNativeAnimation.seconds();
 		var frame = TabletFirstPersonAnimation.pose(clip, seconds);
 		int light = avatar.lightCoords;

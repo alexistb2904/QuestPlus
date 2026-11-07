@@ -12,6 +12,7 @@
 		"PunchyMovesKeyMixin",
 		"TabletHudMixin",
 		"TabletModelPartAccessor",
+		"TabletIrisHandMixin",
 		"TabletNativeFirstPersonMixin"
 	],
 	"injectors": {

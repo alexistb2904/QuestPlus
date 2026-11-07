@@ -214,8 +214,11 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 						if (!projected)
 							throw new AssertionError(
 									"No mouse coordinate projected onto the screen bone at cycle " + currentCycle);
-						screen.keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
-						screen.keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+					});
+					clickFace(context, 45, 13);
+					context.runOnClient(client -> {
+						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
+						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 					});
 					context.waitTicks(2);
 					context.takeScreenshot("questplus-native-" + cycle + "-quest-interaction");
@@ -560,7 +563,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					var field = QuestScreen.class.getDeclaredField("categoryScroll");
 					field.setAccessible(true);
 					if (field.getInt(client.gui.screen()) != 7)
-						throw new AssertionError("Category rail did not scroll through projected mouse input");
+						throw new AssertionError("Category rail did not scroll through projected mouse input: scroll="
+								+ field.getInt(client.gui.screen()) + ", target=" + point + ", pointer="
+								+ TabletFaceAnchor.pointer(client.mouseHandler.getScaledXPos(client.getWindow()),
+										client.mouseHandler.getScaledYPos(client.getWindow())));
 				} catch (ReflectiveOperationException failure) {
 					throw new AssertionError(failure);
 				}
