@@ -34,7 +34,7 @@ final class QuestHubService implements AutoCloseable {
 	private UUID owner;
 	private Path sessionDefinitions;
 	private long lastPoll;
-	private boolean inFlight, closed;
+	private boolean inFlight, creatingSession, closed;
 	private JsonObject pendingApproval, lastAck;
 	private final Map<UUID, PendingImport> imports = new HashMap<>();
 	private final Map<UUID, PendingRetrieve> retrieves = new HashMap<>();
@@ -200,9 +200,23 @@ final class QuestHubService implements AutoCloseable {
 		return path.startsWith("/api/server/") ? token : null;
 	}
 
+	static HttpRequest buildRequest(URI origin, String method, String path, JsonObject data, String sessionToken) {
+		HttpRequest.Builder builder = HttpRequest.newBuilder(origin.resolve(path)).timeout(Duration.ofSeconds(18))
+				.header("Accept", "application/json");
+		String credential = credentialFor(path, sessionToken);
+		if (credential != null && !credential.isBlank())
+			builder.header("Authorization", "Bearer " + credential);
+		if (data != null)
+			builder.header("Content-Type", "application/json; charset=utf-8");
+		return builder.method(method,
+				data == null ? HttpRequest.BodyPublishers.noBody()
+						: HttpRequest.BodyPublishers.ofString(JSON.toJson(data), StandardCharsets.UTF_8))
+				.build();
+	}
+
 	private void request(String method, String path, JsonObject data, Consumer<JsonObject> onSuccess,
 			Consumer<String> onError) {
-		request(method, path, data, credentialFor(path, sessionToken), onSuccess, onError);
+		request(method, path, data, sessionToken, onSuccess, onError);
 	}
 
 	private void request(String method, String path, JsonObject data, String credential, Consumer<JsonObject> onSuccess,
@@ -211,17 +225,7 @@ final class QuestHubService implements AutoCloseable {
 			onError.accept(configurationError);
 			return;
 		}
-		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(endpoint(path))).timeout(Duration.ofSeconds(18))
-				.header("Accept", "application/json");
-		if (credential != null && !credential.isBlank())
-			builder.header("Authorization", "Bearer " + credential);
-		if (data != null)
-			builder.header("Content-Type", "application/json; charset=utf-8");
-		HttpRequest req = builder
-				.method(method,
-						data == null ? HttpRequest.BodyPublishers.noBody()
-								: HttpRequest.BodyPublishers.ofString(JSON.toJson(data), StandardCharsets.UTF_8))
-				.build();
+		HttpRequest req = buildRequest(origin, method, path, data, credential);
 		http.sendAsync(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
 				.whenComplete((response, error) -> server.execute(() -> {
 					if (closed)
@@ -234,9 +238,9 @@ final class QuestHubService implements AutoCloseable {
 					try {
 						if (response.statusCode() / 100 != 2) {
 							if (response.statusCode() == 401 && path.equals("/api/server/sessions")) {
-								onError.accept("Quest Studio refused to create a session (HTTP 401). "
-										+ "Check that the Minecraft JAR uses session tokens and that the Hub "
-										+ "endpoint is not protected by proxy authentication.");
+								onError.accept("Quest Studio refused to create a session (HTTP 401) at " + origin
+										+ ". This mod sends no Authorization header when creating sessions. "
+										+ "Check the Hub deployment, Cloudflare Access and reverse-proxy authentication.");
 							} else {
 								onError.accept(responseError(response.statusCode(), response.body()));
 							}
