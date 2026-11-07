@@ -16,8 +16,7 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Native Blockbench renderer: no PAL/FP PAL distribution dependencies.
-    implementation 'de.marhali:json5-java:3.0.0'
-    include 'de.marhali:json5-java:3.0.0'
+    // JSON5 is parsed by QuestJson5 using the Gson provided by Minecraft.
     // Shared transactional item-energy API for Fabric batteries; shipped in the universal JAR.
     implementation 'teamreborn:energy:5.0.0'
     include 'teamreborn:energy:5.0.0'

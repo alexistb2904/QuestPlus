@@ -22,4 +22,20 @@ class QuestJson5Test {
 		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse("{x:Infinity}"));
 		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse(" ".repeat(2_000_001)));
 	}
+	@Test
+	void handlesEscapesExponentHexAndNestedTrailingCommas() {
+		var value=QuestJson5.parse("{name:'Quest\\'s',num:+.5e2,nested:{abc_1:true,},items:[0x10,],}");
+		assertEquals(50, value.getAsJsonObject().get("num").getAsInt());
+		assertEquals(16, value.getAsJsonObject().getAsJsonArray("items").get(0).getAsInt());
+		assertTrue(value.getAsJsonObject().getAsJsonObject("nested").get("abc_1").getAsBoolean());
+	}
+
+	@Test
+	void rejectsInvalidOrNonFiniteAndDeepData() {
+		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse("{foo:NaN}"));
+		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse("{x:0x}"));
+		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse("{x:'unterminated}"));
+		assertThrows(IllegalArgumentException.class, () -> QuestJson5.parse("[".repeat(66) + "1" + "]".repeat(66)));
+	}
 }
+
