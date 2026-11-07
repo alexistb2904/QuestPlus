@@ -15,12 +15,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    // Minecraft 26.3 uses Loom's non-remapping plugin: use standard 'implementation'
-    // for PAL and FP PAL (the legacy modImplementation configuration is absent).
-    implementation 'maven.modrinth:ha1mEyJS:xJ30QmpE'
-    include 'maven.modrinth:ha1mEyJS:xJ30QmpE'
-    implementation 'curse.maven:first-person-pal-expansion-1758160:9329319'
-    include 'curse.maven:first-person-pal-expansion-1758160:9329319'
+    // Native Blockbench renderer: no PAL/FP PAL distribution dependencies.
     implementation 'de.marhali:json5-java:3.0.0'
     include 'de.marhali:json5-java:3.0.0'
     // Shared transactional item-energy API for Fabric batteries; shipped in the universal JAR.
@@ -61,8 +56,6 @@ processResources {
     def resourceVersion = project.version
     inputs.property 'version', resourceVersion
     filesMatching('fabric.mod.json') { expand version: resourceVersion }
-    from('licenses/animations') { into 'META-INF/licenses' }
-    from('licenses/ANIMATION-NOTICES.md') { into 'META-INF' }
     from('server/src/legacy-defaults') { into 'defaults' }
     // Catalogue authored once for both the server JAR and Quest Studio.
     from('../web/editor/src/data') {
@@ -76,39 +69,21 @@ test {
     systemProperty 'joml.nounsafe', 'true'
 }
 
-tasks.register('verifyBundledAnimations') {
+// Animation libraries are intentionally not embedded in release artifacts.
+tasks.register('verifyNativeRenderer') {
     group = 'verification'
-    description = 'Verify the release JAR embeds intact animation libraries and their license notices.'
     dependsOn tasks.named('jar')
     doLast {
         new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
-            def metadata = new groovy.json.JsonSlurper().parse(jar.getInputStream(jar.getEntry('fabric.mod.json')))
-            [
-                'ha1mEyJS-xJ30QmpE.jar': 'player_animation_library',
-                'first-person-pal-expansion-1758160-9329319.jar': 'fp_pal'
-            ].each { filename, id ->
-                def nestedPath = "META-INF/jars/${filename}"
-                assert metadata.jars.any { it.file == nestedPath } : "Missing nested animation library: ${id}"
-                def original = configurations.runtimeClasspath.files.find { it.name == filename }
-                assert original != null : "Missing runtime dependency: ${id}"
-                assert jar.getInputStream(jar.getEntry(nestedPath)).bytes == original.bytes : "Changed upstream JAR: ${id}"
-            }
-            ['player-animation-library', 'first-person-pal-expansion', 'azurelib', 'mochafloats', 'geckolib'].each { name ->
-                def entry = jar.getEntry("META-INF/licenses/${name}.txt")
-                assert entry != null : "Missing license notice: ${name}"
-                def notice = jar.getInputStream(entry).getText('UTF-8')
-                assert notice.contains('Copyright') && notice.contains('Permission is hereby granted') : "Incomplete license: ${name}"
-            }
-            def commonUtils = jar.getEntry('META-INF/licenses/common-utils.txt')
-            assert commonUtils != null : 'Missing CommonUtils upstream notice'
-            assert jar.getInputStream(commonUtils).getText('UTF-8').contains('All Rights Reserved')
-            assert jar.getEntry('META-INF/ANIMATION-NOTICES.md') != null : 'Missing animation credits'
-            logger.lifecycle('Verified bundled PAL, FP PAL and animation license notices')
+            def entries = jar.entries().toList()*.name
+            assert !entries.any { it.startsWith('META-INF/jars/') && (it.contains('pal') || it.contains('geckolib') || it.contains('azurelib')) }
+            def content = jar.getInputStream(jar.getEntry('questplus.client.mixins.json')).getText('UTF-8')
+            assert content.contains('TabletNativeFirstPersonMixin')
+            assert !content.contains('TabletFaceCaptureMixin')
         }
     }
 }
-
-tasks.named('check') { dependsOn tasks.named('verifyBundledAnimations') }
+tasks.named('check') { dependsOn tasks.named('verifyNativeRenderer') }
 
 fabricApi {
     configureTests {
