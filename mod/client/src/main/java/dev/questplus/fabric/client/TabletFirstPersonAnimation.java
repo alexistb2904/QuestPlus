@@ -60,14 +60,43 @@ final class TabletFirstPersonAnimation {
 	private TabletFirstPersonAnimation() {
 	}
 
+	static boolean contains(String name) {
+		return CLIPS.containsKey(name);
+	}
+
+	static double duration(String name) {
+		Clip clip = CLIPS.get(name);
+		if (clip == null)
+			throw new IllegalArgumentException("Unknown Blockbench animation " + name);
+		return clip.duration();
+	}
+
+	static Vector boneValue(String clipName, double seconds, String boneName, String channelName) {
+		Clip clip = CLIPS.get(clipName);
+		if (clip == null)
+			throw new IllegalArgumentException("Unknown Blockbench animation " + clipName);
+		double time = sampleTime(clip, seconds);
+		Bone bone = clip.bone(boneName);
+		return switch (channelName) {
+			case "rotation" -> bone.rotation().sample(time);
+			case "position" -> bone.position().sample(time);
+			case "scale" -> bone.scale().sample(time);
+			default -> throw new IllegalArgumentException("Unknown bone channel " + channelName);
+		};
+	}
+
+	private static double sampleTime(Clip clip, double seconds) {
+		return clip.loop()
+				? Math.floorMod((long) (Math.max(0, seconds) * 1_000_000), (long) (clip.duration() * 1_000_000))
+						/ 1_000_000.0
+				: Math.clamp(seconds, 0, clip.duration());
+	}
+
 	static Pose pose(String clipName, double seconds) {
 		Clip clip = CLIPS.get(clipName);
 		if (clip == null)
 			throw new IllegalArgumentException("Unknown Blockbench animation " + clipName);
-		double t = clip.loop()
-				? Math.floorMod((long) (Math.max(0, seconds) * 1_000_000), (long) (clip.duration() * 1_000_000))
-						/ 1_000_000.0
-				: Math.clamp(seconds, 0, clip.duration());
+		double t = sampleTime(clip, seconds);
 		Bone right = clip.bone("rightArm"), left = clip.bone("leftArm"), tablet = clip.bone("tablet_root");
 		return new Pose(right.rotation().sample(t), right.position().sample(t), left.rotation().sample(t),
 				left.position().sample(t), tablet.rotation().sample(t), tablet.position().sample(t),
