@@ -54,6 +54,8 @@ processResources {
     def resourceVersion = project.version
     inputs.property 'version', resourceVersion
     filesMatching('fabric.mod.json') { expand version: resourceVersion }
+    // Text-only MIT attributions for adapted model geometry conventions (no library binaries).
+    from('licenses/native-tablet') { into 'META-INF/licenses/native-tablet' }
     from('server/src/legacy-defaults') { into 'defaults' }
     // Catalogue authored once for both the server JAR and Quest Studio.
     from('../web/editor/src/data') {
