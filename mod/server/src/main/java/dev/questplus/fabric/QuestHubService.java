@@ -34,7 +34,7 @@ final class QuestHubService implements AutoCloseable {
 	private final HttpClient http;
 	private URI origin = DEFAULT_ORIGIN;
 	private String configurationError;
-	private String apiKey, sessionToken, session, revisionSignature, lastPending, lastJobId;
+	private String sessionToken, session, revisionSignature, lastPending, lastJobId;
 	private UUID owner;
 	private Path sessionDefinitions;
 	private long lastPoll;
@@ -68,17 +68,9 @@ final class QuestHubService implements AutoCloseable {
 			}
 			JsonObject cfg = Defaults.readObject(config);
 			origin = configuredOrigin(cfg);
-			// Optional credential for older self-hosted Hubs; public instances use session tokens.
-			apiKey = cfg.has("serverKey") ? cfg.get("serverKey").getAsString() : null;
-			if (apiKey != null && !apiKey.isBlank()
-					&& (apiKey.length() < 32 || apiKey.chars().anyMatch(c -> c < 33 || c > 126)))
-				throw new IllegalArgumentException("Optional legacy serverKey must contain 32+ printable characters.");
-			if (apiKey != null && apiKey.isBlank())
-				apiKey = null;
 			QuestPlusMod.LOGGER.info("Quest Studio connected editing uses {}", origin);
 		} catch (Exception error) {
-			apiKey = null;
-			configurationError = "Invalid questplus-hub.json. Check the HTTPS url and any optional legacy serverKey, then restart Minecraft.";
+			configurationError = "Invalid questplus-hub.json. Check the HTTPS url, then restart Minecraft.";
 			QuestPlusMod.LOGGER.error("Invalid QuestPlus Hub configuration", error);
 		}
 	}
@@ -206,17 +198,15 @@ final class QuestHubService implements AutoCloseable {
 		output.add(name, a);
 	}
 
-	static String credentialFor(String path, String legacyKey, String token) {
+	static String credentialFor(String path, String token) {
 		if (path.equals("/api/server/sessions"))
-			return legacyKey;
-		if (path.startsWith("/api/server/"))
-			return token;
-		return null;
+			return null;
+		return path.startsWith("/api/server/") ? token : null;
 	}
 
 	private void request(String method, String path, JsonObject data, Consumer<JsonObject> onSuccess,
 			Consumer<String> onError) {
-		request(method, path, data, credentialFor(path, apiKey, sessionToken), onSuccess, onError);
+		request(method, path, data, credentialFor(path, sessionToken), onSuccess, onError);
 	}
 
 	private void request(String method, String path, JsonObject data, String credential,
