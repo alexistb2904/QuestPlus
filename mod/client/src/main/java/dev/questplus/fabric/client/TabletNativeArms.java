@@ -1,97 +1,63 @@
 package dev.questplus.fabric.client;
 
-import com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer;
-import com.github.razorplay01.fp_pal.firstperson.FpArmRenderUtil;
-import com.github.razorplay01.fp_pal.firstperson.FpRenderBuffer;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.entity.player.PlayerModelType;
 import dev.questplus.fabric.client.mixin.TabletModelPartAccessor;
+import org.joml.Quaternionf;
+import java.util.List;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-
+/** Vanilla skin and sleeves, posed using the local Blockbench rig. */
 public final class TabletNativeArms {
-	private static final float[] RIGHT = pivot("rightArm"), LEFT = pivot("leftArm");
-
 	private static final class Meshes {
 		static final PlayerModel WIDE = create(false), SLIM = create(true);
-
 		private static PlayerModel create(boolean slim) {
 			return new PlayerModel(
-					LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, slim), 64, 64).bakeRoot(),
-					slim);
+					LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, slim), 64, 64).bakeRoot(), slim);
 		}
 	}
-
-	private TabletNativeArms() {
-	}
+	private TabletNativeArms() {}
 
 	public static boolean active() {
+		return TabletNativeAnimation.active();
+	}
+
+	static void render(PoseStack pose, VertexConsumer vertices, int light, boolean right,
+			String clip, double seconds) {
 		var player = Minecraft.getInstance().player;
-		if (!QuestClientTabletFlow.nativeHandsActive() || !(player instanceof IFpAnimatedPlayer animated))
-			return false;
-		var controller = animated.fpPal$getFpAnimationController();
-		var id = controller == null ? null : controller.getCurrentFpAnimation();
-		return id != null && id.getNamespace().equals("questplus")
-				&& (id.getPath().equals("questplus.open") || id.getPath().equals("questplus.idle")
-						|| id.getPath().equals("questplus.close") || id.getPath().startsWith("questplus.carry"));
-	}
-
-	public static void render(PoseStack pose, PlayerAnimBone bone, PlayerModel model, Identifier skin, int light,
-			FpRenderBuffer buffer) {
-		boolean right = bone.getName().equals("rightArm");
-		float[] pivot = right ? RIGHT : LEFT;
-		var meshes = Minecraft.getInstance().player.getSkin().model() == PlayerModelType.SLIM ? Meshes.SLIM
-				: Meshes.WIDE;
-		ModelPart arm = right ? meshes.rightArm : meshes.leftArm;
-		ModelPart sleeve = right ? meshes.rightSleeve : meshes.leftSleeve;
-		var cubes = java.util.List.copyOf(((TabletModelPartAccessor) (Object) arm).questplus$cubes());
-		var sleeveCubes = (right ? model.rightSleeve : model.leftSleeve).visible
-				? java.util.List.copyOf(((TabletModelPartAccessor) (Object) sleeve).questplus$cubes())
-				: java.util.List.<ModelPart.Cube>of();
+		if (player == null) return;
+		var model = player.getSkin().model() == PlayerModelType.SLIM ? Meshes.SLIM : Meshes.WIDE;
+		String name = right ? "rightArm" : "leftArm";
+		float px = right ? 5f : -5f, py = 22f, pz = 0;
+		var pos = TabletFirstPersonAnimation.boneValue(clip, seconds, name, "position");
+		var rot = TabletFirstPersonAnimation.boneValue(clip, seconds, name, "rotation");
+		var scale = TabletFirstPersonAnimation.boneValue(clip, seconds, name, "scale");
 		pose.pushPose();
-		try {
-			FpArmRenderUtil.applyBoneTransform(pose, bone, pivot);
-			pose.translate(pivot[0] / 16f, pivot[1] / 16f, pivot[2] / 16f);
-			pose.scale(-1, -1, 1);
-			buffer.drawGeometry(pose, RenderTypes.entityCutout(skin), (matrix, vertices) -> {
-				for (var cube : cubes)
-					cube.compile(matrix.last(), vertices, light, OverlayTexture.NO_OVERLAY, -1);
-				for (var cube : sleeveCubes)
-					cube.compile(matrix.last(), vertices, light, OverlayTexture.NO_OVERLAY, -1);
-			});
-		} finally {
-			pose.popPose();
-		}
-	}
-
-	private static float[] pivot(String name) {
-		try (var stream = TabletNativeArms.class
-				.getResourceAsStream("/assets/questplus/fp_models/questplus_first_person.geo.json")) {
-			if (stream == null)
-				throw new IllegalStateException("Missing first-person geometry");
-			var bones = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject()
-					.getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject().getAsJsonArray("bones");
-			for (var element : bones) {
-				var bone = element.getAsJsonObject();
-				if (name.equals(bone.get("name").getAsString())) {
-					var p = bone.getAsJsonArray("pivot");
-					return new float[] { -p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat() };
-				}
-			}
-			throw new IllegalStateException("Missing first-person arm bone " + name);
-		} catch (Exception error) {
-			throw new IllegalStateException("Cannot read first-person arm pivot " + name, error);
-		}
+		pose.translate(-pos.x() / 16f, pos.y() / 16f, pos.z() / 16f);
+		pose.translate(px / 16f, py / 16f, pz / 16f);
+		pose.mulPose(new Quaternionf().rotationZYX((float)Math.toRadians(rot.z()),
+				(float)-Math.toRadians(rot.y()),(float)-Math.toRadians(rot.x())));
+		pose.scale(scale.x(),scale.y(),scale.z());
+		pose.translate(-px / 16f, -py / 16f, -pz / 16f);
+		pose.translate(px / 16f, py / 16f, pz / 16f);
+		pose.scale(-1, -1, 1);
+		// The existing rig's arm meshes use the vanilla skin UVs, not a baked arm texture.
+		var arm = right ? model.rightArm : model.leftArm;
+		var sleeve = right ? model.rightSleeve : model.leftSleeve;
+		for (var cube : ((TabletModelPartAccessor)(Object)arm).questplus$cubes())
+			cube.compile(pose.last(), vertices, light, OverlayTexture.NO_OVERLAY, -1);
+		boolean sleeveEnabled = player.isModelPartShown(right
+				? PlayerModelPart.RIGHT_SLEEVE : PlayerModelPart.LEFT_SLEEVE);
+		if (sleeveEnabled)
+			for (var cube : ((TabletModelPartAccessor)(Object)sleeve).questplus$cubes())
+				cube.compile(pose.last(), vertices, light, OverlayTexture.NO_OVERLAY, -1);
+		pose.popPose();
 	}
 }
