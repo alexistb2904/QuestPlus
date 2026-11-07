@@ -43,7 +43,7 @@ async function start(t, env = {}) {
 	return { api, create };
 }
 
-test("any server can create a private session without a shared key, but only its operator can authorize publication", async t => {
+test("any server can create a private session with its own token, but only its operator can authorize publication", async t => {
 	const { api, create } = await start(t);
 	const a = await create(), b = await create();
 	assert.equal(a.status, 201);
@@ -87,7 +87,7 @@ test("any server can create a private session without a shared key, but only its
 	assert.equal((await api("/api/server/poll?session=" + b.data.id, { auth: b.data.serverToken })).status, 200);
 });
 
-test("session creation rejects supplied credentials instead of authenticating a global key", async t => {
+test("session creation rejects supplied credentials to enforce token-only authentication", async t => {
 	const { api, create } = await start(t);
 	const created = await create();
 	assert.equal(created.status, 201);
