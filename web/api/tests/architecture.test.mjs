@@ -52,7 +52,7 @@ test("production web runtime has an explicit heap and container memory budget", 
 	assert.match(compose, /HUB_MAX_PACK_BYTES:/);
 });
 
-test("server alone is authorized to apply changes; browser is never given the server key", () => {
+test("server alone is authorized to apply changes; browser receives no server token", () => {
 	const java = file("mod/server/src/main/java/dev/questplus/fabric/QuestHubService.java");
 	const files = file("mod/server/src/main/java/dev/questplus/fabric/QuestHubFiles.java");
 	const client = file("web/editor/src/components/HubPanel.tsx");
@@ -60,6 +60,6 @@ test("server alone is authorized to apply changes; browser is never given the se
 	assert.match(java, /\/api\/server\/approve/);
 	assert.match(files, /runtime\.reload\(\)/);
 	assert.match(files, /previous definitions restored/);
-	assert.doesNotMatch(client, /HUB_SERVER_KEY|serverKey/);
+	assert.doesNotMatch(client, /serverToken|serverAuth/);
 	assert.doesNotMatch(client, /localStorage\.setItem|sessionStorage\.setItem/);
 });
