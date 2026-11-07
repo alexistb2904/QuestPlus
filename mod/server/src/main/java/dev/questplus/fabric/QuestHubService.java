@@ -402,13 +402,20 @@ final class QuestHubService implements AutoCloseable {
 		payload.addProperty("session", session);
 		payload.addProperty("id", pendingApproval.get("id").getAsString());
 		payload.addProperty("code", code);
-		request("POST", "/api/server/approve", payload, result -> {
+		String expectedSession = session;
+		String expectedToken = sessionToken;
+		request("POST", "/api/server/approve", payload, expectedToken, result -> {
+			if (!Objects.equals(expectedSession, session) || !Objects.equals(expectedToken, sessionToken))
+				return;
 			pendingApproval = null;
 			messageOwner(Component
 					.translatableWithFallback("questplus.hub.browser_approved",
 							"Browser approved. Load the server quests in Quest Studio, then use Save to server.")
 					.withStyle(ChatFormatting.GREEN));
-		}, e -> fail(source, "Approval denied: " + e));
+		}, e -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken))
+				fail(source, "Approval denied: " + e);
+		});
 	}
 
 	void revoke(CommandSourceStack source) {
@@ -426,10 +433,11 @@ final class QuestHubService implements AutoCloseable {
 		lastPoll = System.currentTimeMillis();
 		inFlight = true;
 		String id = session;
-		request("GET", "/api/server/poll?session=" + id, null, data -> {
-			inFlight = false;
-			if (!Objects.equals(id, session))
+		String token = sessionToken;
+		request("GET", "/api/server/poll?session=" + id, null, token, data -> {
+			if (!Objects.equals(id, session) || !Objects.equals(token, sessionToken))
 				return;
+			inFlight = false;
 			JsonElement approval = data.get("pending");
 			if (approval != null && approval.isJsonObject()) {
 				JsonObject p = approval.getAsJsonObject();
@@ -486,6 +494,8 @@ final class QuestHubService implements AutoCloseable {
 			if (lastAck != null)
 				sendAck();
 		}, e -> {
+			if (!Objects.equals(id, session) || !Objects.equals(token, sessionToken))
+				return;
 			inFlight = false;
 			if (e.contains("expired") || e.contains("HTTP 401")) {
 				messageOwner("Editor session expired or was revoked. Run /questplus editor to reconnect.");
@@ -596,6 +606,8 @@ final class QuestHubService implements AutoCloseable {
 	private void dropSession() {
 		String id = session;
 		String credential = sessionToken;
+		inFlight = false;
+		lastPoll = 0;
 		session = null;
 		sessionToken = null;
 		owner = null;
