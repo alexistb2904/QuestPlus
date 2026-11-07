@@ -1,6 +1,7 @@
 package dev.questplus.fabric;
 
 import dev.questplus.core.QuestEvent;
+import dev.questplus.fabric.api.QuestPlusAdapters;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -61,6 +62,7 @@ public final class QuestPlusMod implements ModInitializer {
 			try {
 				runtime = new QuestRuntime(server);
 				hub = new QuestHubService(server);
+				QuestPlusAdapters.serverStarted();
 				startupError = null;
 				LOGGER.info("Quest Plus ready: {} validated quests", runtime.registry().all().size());
 			} catch (Exception e) {
@@ -71,6 +73,7 @@ public final class QuestPlusMod implements ModInitializer {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			QuestPlusAdapters.serverStopped();
 			if (hub != null) {
 				hub.close();
 				hub = null;
