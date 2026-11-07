@@ -39,6 +39,37 @@ public final class QuestPlusApi {
 		return GSON.toJsonTree(QuestPlusMod.runtime().registry().get(questId)).getAsJsonObject();
 	}
 
+    /** Detached authoring snapshot of server-loaded categories. */
+    public static JsonArray getCategories(ServerPlayer player) {
+        requireServerThread(player);
+        return GSON.toJsonTree(QuestPlusMod.runtime().categories()).getAsJsonArray();
+    }
+
+    /** Detached metadata for one objective. */
+    public static JsonObject getObjective(ServerPlayer player, String questId, String objectiveId) {
+        requireServerThread(player);
+        var quest = QuestPlusMod.runtime().registry().get(questId);
+        var objective = quest.objectives().stream().filter(o -> o.id().equals(objectiveId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown objective: " + objectiveId));
+        return GSON.toJsonTree(objective).getAsJsonObject();
+    }
+
+    /** Whether the current trusted server context meets a quest's prerequisites. */
+    public static boolean isQuestUnlocked(ServerPlayer player, String questId) throws IOException {
+        requireServerThread(player);
+        var runtime = QuestPlusMod.runtime();
+        var quest = runtime.registry().get(questId);
+        var prerequisites = quest.requires();
+        return prerequisites == null || prerequisites.matches(QuestPlusMod.context(player),
+                dev.questplus.core.QuestEngine.prerequisiteState(runtime.state(player.getUUID())));
+    }
+
+    /** Team identity, or null for an individual player. */
+    public static java.util.UUID getTeamId(ServerPlayer player) throws IOException {
+        requireServerThread(player);
+        return QuestPlusMod.runtime().player(player.getUUID()).teamId;
+    }
+
 	/** Returns the currently loaded quest IDs in stable order. */
 	public static List<String> getQuests(ServerPlayer player) {
 		requireServerThread(player);
