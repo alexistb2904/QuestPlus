@@ -35,10 +35,4 @@ Readable JSON5 definitions, modded IDs and tags, reward tables and the Java API 
 | Host connected editing | [Web setup](web/api/README.md) |
 | Browse all guides | [English documentation](https://alexistb2904.github.io/QuestPlus/docs/) |
 
-## Repository
-
-`web/` owns authoring and the optional API. `mod/client/` owns Minecraft presentation. `mod/server/` owns validation, progression and rewards. The Gradle wrapper and editable mod assets are in `mod/`; run `cd mod && ./gradlew build` to build. Client and server compile into **one Fabric JAR**. Player saves remain on the Minecraft server. On Windows, run `dev.bat` for development commands. See [CONTRIBUTING.md](CONTRIBUTING.md) for a fresh checkout, prerequisites and checks.
-
-The documentation includes new Minecraft and Studio captures, expandable GIF demonstrations and a [capture manifest](web/docs-site/content/public/media/manifest.json). Technical investigation notes remain in `docs/`.
-
 [Report an issue](https://github.com/alexistb2904/QuestPlus/issues) · [Documentation source](web/docs-site/) · [Release description](docs/modrinth.md)
