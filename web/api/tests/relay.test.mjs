@@ -79,8 +79,8 @@ test(
 			assert.equal((await fetch(base + "/../hidden.txt")).status, 404);
 			assert.equal((await fetch(base + "/v1/notfound")).status, 404);
 			assert.equal((await fetch(base + "/api/notfound")).status, 404);
-			assert.equal((await api(base, "/api/server/sessions", { method: "POST", body: { serverName: "test", files } })).status, 401);
-			assert.equal((await api(base, "/api/server/sessions", { method: "POST", body: { serverName: "test", files } })).status, 401);
+			assert.equal((await api(base, "/api/server/poll?session=unknown")).status, 401);
+			assert.equal((await api(base, "/api/server/revoke", { method: "POST", body: { session: "unknown" } })).status, 401);
 			assert.equal((await api(base, "/api/packs", { method: "POST", origin: "https://evil.example", body: { files } })).status, 403);
 			const assets = { names: { "mymod:crystal": { fr_fr: "Cristal" } }, textures: { "mymod:crystal": "data:image/png;base64,iVBORw0KGgo=" } };
 			const start = await api(base, "/api/server/sessions", {

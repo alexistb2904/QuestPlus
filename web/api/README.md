@@ -35,9 +35,11 @@ Configure `questplus-hub.json` in the world or in the client configuration for a
 }
 ```
 
-A world configuration takes precedence over the client configuration. Restart Minecraft after changing it. For Windows development, `dev.bat setup` creates local configuration and a key without overwriting existing credentials. See [Windows testing](../../docs/windows-testing.md) for paths and details.
+A world configuration takes precedence over the instance configuration. If `url` is omitted, the mod uses `https://quest.alexistb.com/`. This default is compiled into the same JAR by both build options 5 and 10. An explicit URL, including localhost for development, is preserved. The private `serverKey` is required for connected editing and is never bundled in the JAR. Without it, `/questplus editor` provides the website link for ZIP authoring and explains the missing configuration. Restart Minecraft after configuration changes. For Windows development, `dev.bat setup` creates local configuration and a key without overwriting existing credentials. See [Windows testing](../../docs/windows-testing.md) for paths and details.
 
 An operator starts a session with `/questplus editor`. Open the link, request access and approve the matching code in Minecraft with `/questplus editor approve <code>`. The link alone does not grant access. Use `/questplus editor revoke` to end the session. Saving to the server waits for Minecraft to validate the pack before reporting success.
+
+On Windows, `dev.bat client` prepares the local configuration and starts the web API in the background before launching Minecraft, so connected editing also works in solo worlds. An already running service is reused. Startup output is written to `run/questplus-client-web.log`; the local API stays available after the game closes. If startup fails, Minecraft still launches and reports how to start the API manually with `dev.bat api`. Direct Gradle launches and installed mod JARs still require a separately configured, running web API, including in solo. The JAR does not embed Node.js or the web service.
 
 ## Make changes
 
@@ -55,6 +57,6 @@ For the complete site, copy `web/.env.example` to `web/.env`, generate a unique 
 
 The `compose.yml` in this folder is an alternative that serves the API and editor without the documentation. Copy [.env.example](.env.example) to `.env`, set the key and run `docker compose up -d --build` here. The container listens on `127.0.0.1:8787` and needs an HTTPS reverse proxy for public access.
 
-`HUB_PUBLIC_URL` and the Minecraft `url` must be the public origin, such as `https://quest.alexitb.com`, without `/api`. Use the same private key on the web service and Minecraft server. Never commit `.env` or `questplus-hub.json`. The `VITE_` settings are public build values. Rebuild the editor after changing them and never put secrets in them.
+`HUB_PUBLIC_URL` and the Minecraft `url` must be the public origin, such as `https://quest.alexistb.com`, without `/api`. Use the same private key on the web service and Minecraft server. Never commit `.env` or `questplus-hub.json`. The `VITE_` settings are public build values. Rebuild the editor after changing them and never put secrets in them.
 
 Shared packs are stored in the `questplus-packs` volume. Back it up before removing the deployment. Sessions and publication queues live in the API process, so do not run multiple independent API instances against the same storage expecting them to share session state.

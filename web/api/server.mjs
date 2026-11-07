@@ -3,6 +3,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { mkdir, open, opendir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
 import http from 'node:http';
+import { isIP } from 'node:net';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
@@ -28,10 +29,13 @@ const MAX_SESSIONS = limit("HUB_MAX_SESSIONS", 128),
 	MAX_STATE = limit("HUB_MAX_STATE_BYTES", 64 * 1024 * 1024);
 const MAX_PACKS = limit("HUB_MAX_PACKS", 256),
 	MAX_PACK_BYTES = limit("HUB_MAX_PACK_BYTES", 256 * 1024 * 1024);
+const MAX_SESSION_CREATES = limit("HUB_SESSION_CREATES_PER_MINUTE", 30);
+const PROXY_HOPS = Number(process.env.HUB_TRUST_PROXY_HOPS || 0);
+if (!Number.isSafeInteger(PROXY_HOPS) || PROXY_HOPS < 0 || PROXY_HOPS > 8) throw Error("Invalid HUB_TRUST_PROXY_HOPS");
 const MAX_BODY = MAX_BYTES + 1024 * 1024,
 	MAX_BODY_IN_FLIGHT = 16 * 1024 * 1024,
 	MAX_OUTPUT_IN_FLIGHT = 32 * 1024 * 1024;
-if (!SERVER_KEY || SERVER_KEY.length < 32) throw Error("Set HUB_SERVER_KEY to a unique random secret (32+ characters)");
+if (SERVER_KEY && SERVER_KEY.length < 32) throw Error("Legacy HUB_SERVER_KEY must contain at least 32 characters");
 if (!PUBLIC_URL.startsWith("https://") && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(PUBLIC_URL)) throw Error("HUB_PUBLIC_URL must use HTTPS except for local development");
 const sessions = new Map(),
 	rates = new Map();
@@ -145,8 +149,10 @@ async function expiredPack(file, bytes, now) {
 		bodyBytes -= bytes;
 	}
 }
-const requireServer = (req) => {
-	if (!equal(req.headers.authorization, "Bearer " + SERVER_KEY)) throw fail(401, "Invalid server credentials");
+const legacyServer = (req) => Boolean(SERVER_KEY && equal(req.headers.authorization, "Bearer " + SERVER_KEY));
+const requireServer = (req, s) => {
+	if (legacyServer(req) && (!s || s.legacy)) return;
+	if (!active(s) || !equal(req.headers.authorization, "Bearer " + s.serverAuth)) throw fail(401, "Invalid session credentials");
 };
 const bearer = (req) => String(req.headers.authorization || "").replace(/^Bearer /, "");
 function editor(s, req) {
@@ -185,7 +191,9 @@ const clean = async () => {
 	}
 };
 const rateLimit = (req, action, max, windowMs, subject) => {
-	const key = action + ":" + (subject || String(req.socket.remoteAddress || "local"));
+	const forwarded = PROXY_HOPS ? String(req.headers["x-forwarded-for"] || "").split(",").at(-PROXY_HOPS)?.trim() : "";
+	const address = isIP(forwarded || "") ? forwarded : req.socket.remoteAddress || "local";
+	const key = action + ":" + (subject || address);
 	const now = Date.now();
 	let entry = rates.get(key);
 	if (!entry || entry.until <= now) {
@@ -313,7 +321,7 @@ async function handler(req, res) {
 		}
 		const url = new URL(req.url, "http://localhost"),
 			p = url.pathname.startsWith("/api/") ? "/v1/" + url.pathname.slice(5) : url.pathname;
-		if (req.method === "GET" && p === "/health") return json(res, 200, { status: "ok", service: "QuestPlus Hub", version: 1 });
+		if (req.method === "GET" && p === "/health") return json(res, 200, { status: "ok", service: "QuestPlus Hub", version: 2, serverAuth: "session" });
 		if (requests >= 64) throw fail(503, "Request capacity reached; retry shortly");
 		requests++;
 		let released = false;
@@ -328,10 +336,12 @@ async function handler(req, res) {
 		};
 		res.once("finish", release);
 		res.once("close", release);
-		// Server -> hub: the API key is NEVER sent to a browser.
+		// Session credentials belong to the initiating Minecraft server, never to a browser.
 		if (p.startsWith("/v1/server/")) {
-			requireServer(req);
 			if (req.method === "POST" && p === "/v1/server/sessions") {
+				const legacy = legacyServer(req);
+				if (req.headers.authorization && !legacy) throw fail(401, "Invalid legacy server credentials");
+				rateLimit(req, "session-create", MAX_SESSION_CREATES, 60_000);
 				if (sessionCreates >= 2) throw fail(503, "Session upload capacity reached; retry shortly");
 				sessionCreates++;
 				try {
@@ -349,6 +359,8 @@ async function handler(req, res) {
 					if (sessions.size >= MAX_SESSIONS) throw fail(503, "Editor session capacity reached; retry after a session closes");
 					const s = {
 						id,
+						serverAuth: token(32),
+						legacy,
 						serverName: input.serverName,
 						files,
 						registry,
@@ -365,13 +377,14 @@ async function handler(req, res) {
 					sessionRoom(s.bytes);
 					reserveState(s.bytes);
 					sessions.set(id, s);
-					return json(res, 201, { id, url: STUDIO_URL + "?hub=" + encodeURIComponent(PUBLIC_URL) + "&session=" + encodeURIComponent(id), expires: s.expires });
+					return json(res, 201, { id, serverToken: s.serverAuth, url: STUDIO_URL + "?hub=" + encodeURIComponent(PUBLIC_URL) + "&session=" + encodeURIComponent(id), expires: s.expires });
 				} finally {
 					sessionCreates--;
 				}
 			}
 			if (req.method === "GET" && p === "/v1/server/poll") {
 				const s = sessions.get(url.searchParams.get("session"));
+				requireServer(req, s);
 				if (!active(s)) throw fail(404, "Session expired");
 				rateLimit(req, "session", 240, 60_000, s.id);
 				return json(res, 200, {
@@ -382,6 +395,7 @@ async function handler(req, res) {
 			if (req.method === "POST" && p === "/v1/server/approve") {
 				const { session, id, code } = await body(req),
 					s = sessions.get(session);
+				requireServer(req, s);
 				if (!active(s) || !s.pending || s.pending.id !== id || s.pending.code !== code || s.pending.approved) throw fail(409, "No pending approval");
 				s.pending.approved = true;
 				s.auth = token(32);
@@ -390,12 +404,14 @@ async function handler(req, res) {
 			if (req.method === "POST" && p === "/v1/server/revoke") {
 				const input = await body(req),
 					s = sessions.get(input.session);
+				requireServer(req, s);
 				if (s) removeSession(input.session);
 				return json(res, 200, { revoked: true });
 			}
 			if (req.method === "POST" && p === "/v1/server/ack") {
 				const { session, id, success, error } = await body(req),
 					s = sessions.get(session);
+				requireServer(req, s);
 				if (!active(s) || !s.job || s.job.id !== id) throw fail(409, "No matching publication");
 				if (s.jobStatus?.status !== "pending") throw fail(409, "Already acknowledged");
 				s.jobStatus = success ? { status: "applied", revision: s.job.revision } : { status: "failed", error: String(error || "Rejected").slice(0, 500) };
@@ -414,6 +430,7 @@ async function handler(req, res) {
 				return json(res, 200, s.jobStatus);
 			}
 			if (req.method === "GET" && p.startsWith("/v1/server/packs/")) {
+				if (!legacyServer(req)) throw fail(401, "Invalid legacy server credentials");
 				const pack = await readPack(p.split("/").pop());
 				return json(res, 200, { files: pack.files, sha256: pack.sha256 });
 			}

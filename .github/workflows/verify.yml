@@ -14,8 +14,12 @@ jobs:
         include:
           - profile: vanilla
             args: ''
+          - profile: fabric-0.164
+            args: '-Ploader_version=0.19.5 -Pfabric_version=0.164.0+26.3'
+          - profile: fabric-current
+            args: '-Ploader_version=0.20.1 -Pfabric_version=0.165.2+26.3'
           - profile: third-party
-            args: '-PobjectiveCompatibility'
+            args: '-PobjectiveCompatibility -Ploader_version=0.20.1 -Pfabric_version=0.165.2+26.3'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

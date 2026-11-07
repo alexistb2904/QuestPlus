@@ -14,7 +14,7 @@ For editor work, follow the [editor setup](editor/README.md). For a connected se
 
 ## Deploy the complete site
 
-Copy [.env.example](.env.example) to `.env` and set `HUB_SERVER_KEY` to a unique private value. You can generate one with `openssl rand -hex 32`. The example configures `https://quest.alexitb.com` as the public origin. Set the same origin and key in Minecraft's `questplus-hub.json`.
+Copy [.env.example](.env.example) to `.env` and set `HUB_SERVER_KEY` to a unique private value. You can generate one with `openssl rand -hex 32`. The example configures `https://quest.alexistb.com` as the public origin. Set the same origin and key in Minecraft's `questplus-hub.json`.
 
 From `web/`, run:
 

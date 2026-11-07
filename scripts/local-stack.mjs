@@ -55,6 +55,13 @@ async function main(){
  const command=process.argv[2];
  const root=path.resolve(process.argv[3]||path.join(path.dirname(fileURLToPath(import.meta.url)),'..'));
  switch(command){
+  case 'web-ready':
+   if(await httpWebReady())break;
+   if(await tcpReady(WEB_PORT)){
+    console.error('[QuestPlus] Port 8787 is in use but Quest Studio is not ready. Check the existing service.');
+    process.exitCode=2;
+   }else process.exitCode=1;
+   break;
   case 'preflight':
    await checkConfig(root);
    if(await tcpReady(WEB_PORT))throw Error('Port 8787 already in use. Stop the previous web service first.');
@@ -69,7 +76,7 @@ async function main(){
    await waitUntil(()=>tcpReady(GAME_PORT),{label:'Minecraft Fabric (25565)',timeoutMs:480000});
    console.log('[OK] Minecraft server listens on 127.0.0.1:25565');
    break;
-  default:throw Error('Usage: node scripts/local-stack.mjs preflight|wait-web|wait-minecraft <root>');
+  default:throw Error('Usage: node scripts/local-stack.mjs preflight|web-ready|wait-web|wait-minecraft <root>');
  }
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

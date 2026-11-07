@@ -27,7 +27,11 @@ cd mod
 
 In `mod/`, on other platforms use `./gradlew build` with Java 25 configured. The release artifact is written to `mod/build/libs/`.
 
+On Windows, `dev.bat` option **5** (`dev.bat build`) runs the full mod build, JUnit tests, server GameTests and JAR checks. Option **10** (`dev.bat compile`) only compiles and packages the mod: enter the desired mod version, or press Enter to keep the current `mod_version` from `mod/gradle.properties`. The selected version is saved to that file before compilation, so Gradle also writes it into the generated `fabric.mod.json` inside the JAR. The script copies `questplus-<version>.jar` into `output/` at the repository root. The selected version remains saved if compilation fails. An existing output JAR with the same version is replaced only after a successful build. The Minecraft version stays unchanged.
+
 ## Run the required checks
+
+Both build options compile `https://quest.alexistb.com/` as the default editor address. Existing `questplus-hub.json` URLs override that default. No server secret is embedded in the JAR. Connected editing still requires the web API's private key in the Minecraft configuration. Without it, the command provides the website link for ZIP authoring and explains how to enable connected editing.
 
 Run each block from the repository root or from the indicated folder.
 
@@ -68,6 +72,8 @@ When release requirements are satisfied, the animation libraries are embedded de
 ## Run locally
 
 From `mod/`, use `./gradlew runClient` or `./gradlew runServer` for the development game. Start Studio with `npm run dev` in `web/editor/`. It remains useful without the web API through local drafts and ZIP import or export.
+
+On Windows, `dev.bat client` also prepares and starts the local web API for solo editing, or reuses the running service. Run `/questplus editor` in your world, open the link and approve the browser code in Minecraft. Startup logs are in `run/questplus-client-web.log`. The API stays running after the game closes. If it cannot start, gameplay remains available and you can use `dev.bat api` before retrying. Direct Gradle launches and installed JARs still need a separately configured web API for connected editing in solo or multiplayer.
 
 For connected editing, build Studio and run the optional API as described in [Host the web service](/reference/hosting). Use a disposable world for publication and rollback tests.
 

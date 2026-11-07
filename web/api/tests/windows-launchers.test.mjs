@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -11,7 +11,7 @@ const read = (p) => readFileSync(path.join(root, p), "utf8");
 
 test("Windows developer entry point dispatches commands and rejects unknown actions", () => {
 	const dev = read("dev.bat");
-	for (const command of ["client", "server", "studio", "api", "build", "test", "server-test", "client-test", "doctor", "setup", "web-test", "stack"])
+	for (const command of ["client", "server", "studio", "api", "build", "compile", "test", "server-test", "client-test", "doctor", "setup", "web-test", "stack"])
 		assert.ok(dev.includes('"%~1"=="' + command + '"'), command + " missing");
 	if (process.platform === "win32") {
 		const result = spawnSync("cmd.exe", ["/d", "/c", path.join(root, "dev.bat"), "invalid"], { cwd: os.tmpdir(), encoding: "utf8" });
@@ -19,6 +19,48 @@ test("Windows developer entry point dispatches commands and rejects unknown acti
 		assert.match(result.stdout, /Usage: dev\.bat/);
 		const failed = spawnSync("cmd.exe", ["/d", "/c", path.join(root, "dev.bat"), "doctor"], { cwd: root, env: { ...process.env, PATH: "" }, encoding: "utf8" });
 		assert.notEqual(failed.status, 0, failed.stdout);
+	}
+});
+
+test("compile persists the selected version before Gradle and exports only a successful JAR", { skip: process.platform !== "win32" }, () => {
+	const temp = mkdtempSync(path.join(os.tmpdir(), "questplus compile "));
+	try {
+		mkdirSync(path.join(temp, "scripts"));
+		mkdirSync(path.join(temp, "mod/build/libs"), { recursive: true });
+		copyFileSync(path.join(root, "dev.bat"), path.join(temp, "dev.bat"));
+		copyFileSync(path.join(root, "scripts/Build-Mod.ps1"), path.join(temp, "scripts/Build-Mod.ps1"));
+		const properties = "# Project settings\r\nminecraft_version=26.3\r\nmod_version=0.2.0\r\nmaven_group=dev.questplus\r\n";
+		writeFileSync(path.join(temp, "mod/gradle.properties"), properties);
+		writeFileSync(path.join(temp, "scripts/_gradle.bat"), '@echo off\r\necho %* > "%~dp0..\\args.txt"\r\ncopy /y "%~dp0..\\mod\\gradle.properties" "%~dp0..\\build-properties.txt" >nul\r\nexit /b %BUILD_TEST_EXIT%\r\n');
+		const run = (input, code = "0") => spawnSync("cmd.exe", ["/d", "/c", "dev.bat compile"], {
+			cwd: temp, input: input + "\r\n", encoding: "utf8", timeout: 15000,
+			env: { ...process.env, BUILD_TEST_EXIT: code },
+		});
+		for (const [input, version] of [["", "0.2.0"], ["0.3.0-beta.1+test", "0.3.0-beta.1+test"], ["", "0.3.0-beta.1+test"]]) {
+			writeFileSync(path.join(temp, `mod/build/libs/questplus-${version}.jar`), version);
+			const result = run(input);
+			assert.equal(result.status, 0, result.stdout + result.stderr);
+			const expectedProperties = properties.replace("mod_version=0.2.0", `mod_version=${version}`);
+			assert.equal(readFileSync(path.join(temp, "mod/gradle.properties"), "utf8"), expectedProperties);
+			assert.equal(readFileSync(path.join(temp, "build-properties.txt"), "utf8"), expectedProperties);
+			assert.equal(readFileSync(path.join(temp, "args.txt"), "utf8").trim(), "jar");
+			assert.equal(readFileSync(path.join(temp, `output/questplus-${version}.jar`), "utf8"), version);
+		}
+		for (const invalid of ["../bad", '0.3.0" & echo injected', "0.3.0|bad"]) {
+			rmSync(path.join(temp, "args.txt"));
+			assert.notEqual(run(invalid).status, 0);
+			assert.equal(existsSync(path.join(temp, "args.txt")), false, "Invalid version must not reach Gradle");
+			assert.equal(readFileSync(path.join(temp, "mod/gradle.properties"), "utf8"), properties.replace("mod_version=0.2.0", "mod_version=0.3.0-beta.1+test"));
+			writeFileSync(path.join(temp, "args.txt"), "");
+		}
+		writeFileSync(path.join(temp, "mod/build/libs/questplus-0.4.0.jar"), "stale");
+		assert.notEqual(run("0.4.0", "7").status, 0);
+		assert.equal(existsSync(path.join(temp, "output/questplus-0.4.0.jar")), false);
+		assert.notEqual(run("0.5.0").status, 0, "Missing JAR must fail");
+		assert.equal(readFileSync(path.join(temp, "output/questplus-0.2.0.jar"), "utf8"), "0.2.0");
+		assert.equal(readFileSync(path.join(temp, "mod/gradle.properties"), "utf8"), properties.replace("mod_version=0.2.0", "mod_version=0.5.0"));
+	} finally {
+		rmSync(temp, { recursive: true, force: true });
 	}
 });
 

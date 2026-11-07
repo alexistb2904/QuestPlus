@@ -29,6 +29,8 @@ Create `<world>/questplus-hub.json`, or use `config/questplus-hub.json` as the i
 
 The world file takes precedence. Restart Minecraft after configuration. Plain HTTP is allowed for localhost development only.
 
+For the hosted service, the mod defaults to `https://quest.alexistb.com/` when `url` is absent. Set `serverKey` to that service's private key to enable connected editing. The key is never included in compiled JARs. Without a key, `/questplus editor` opens the website for ZIP authoring and reports the missing configuration. Connection failures explain whether the address, connection, HTTPS certificate, credentials or web service needs attention. Technical diagnostics remain in the game log.
+
 Open `http://localhost:8787/` and check `/health`. In Minecraft, run `/questplus editor`, open its link, request access and approve the matching code from the initiating operator. Do not copy the server secret into the browser.
 
 ## Production

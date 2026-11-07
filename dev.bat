@@ -23,11 +23,12 @@ echo   %GREEN%[1]%RST%  Run Minecraft client
 echo   %GREEN%[2]%RST%  Run Minecraft server
 echo   %GREEN%[3]%RST%  Run Quest Studio
 echo   %GREEN%[4]%RST%  Run local web API
-echo   %GREEN%[5]%RST%  Build mod
+echo   %GREEN%[5]%RST%  Full mod build + JUnit + server GameTests + JAR checks
 echo   %GREEN%[6]%RST%  Run all automated checks
 echo   %GREEN%[7]%RST%  Run server GameTests
 echo   %GREEN%[8]%RST%  Run client GameTests
 echo   %GREEN%[9]%RST%  Check prerequisites
+echo   %GREEN%[10]%RST% Compile mod to output (choose version)
 echo   %RED%[0]%RST%  Exit
 echo.
 set "CHOICE="
@@ -44,9 +45,10 @@ if "%CHOICE%"=="6" (set "COMMAND=test"        & goto RUN_MENU)
 if "%CHOICE%"=="7" (set "COMMAND=server-test" & goto RUN_MENU)
 if "%CHOICE%"=="8" (set "COMMAND=client-test" & goto RUN_MENU)
 if "%CHOICE%"=="9" (set "COMMAND=doctor"      & goto RUN_MENU)
+if "%CHOICE%"=="10" (set "COMMAND=compile"    & goto RUN_MENU)
 
 echo.
-echo  %RED%Choix invalide : "%CHOICE%"%RST%
+echo  %RED%Invalid selection: "%CHOICE%"%RST%
 timeout /t 2 >nul
 goto MENU
 
@@ -63,6 +65,7 @@ if /I "%~1"=="server"      (call "%~dp0scripts\dev-server.bat" --nopause & goto 
 if /I "%~1"=="studio"      (call "%~dp0scripts\_qa.bat" studio-dev   & goto RETURN)
 if /I "%~1"=="api"         (call "%~dp0scripts\_qa.bat" api-run      & goto RETURN)
 if /I "%~1"=="build"       (call "%~dp0scripts\_qa.bat" java-build   & goto RETURN)
+if /I "%~1"=="compile"     (powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\Build-Mod.ps1" & goto RETURN)
 if /I "%~1"=="test"        (call "%~dp0scripts\_qa.bat" all          & goto RETURN)
 if /I "%~1"=="server-test" (call "%~dp0scripts\_qa.bat" server-test  & goto RETURN)
 if /I "%~1"=="client-test" (call "%~dp0scripts\_qa.bat" client-test  & goto RETURN)
@@ -70,7 +73,7 @@ if /I "%~1"=="doctor"      (call "%~dp0scripts\_qa.bat" doctor       & goto RETU
 if /I "%~1"=="setup"       (call "%~dp0scripts\_qa.bat" setup        & goto RETURN)
 if /I "%~1"=="web-test"    (call "%~dp0scripts\_qa.bat" web-all      & goto RETURN)
 if /I "%~1"=="stack"       (call "%~dp0scripts\dev-stack.bat" --nopause & goto RETURN)
-echo Usage: dev.bat [client^|server^|studio^|api^|build^|test^|server-test^|client-test^|doctor^|setup^|web-test^|stack]
+echo Usage: dev.bat [client^|server^|studio^|api^|build^|compile^|test^|server-test^|client-test^|doctor^|setup^|web-test^|stack]
 exit /b 2
 
 :RETURN

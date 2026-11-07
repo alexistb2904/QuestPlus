@@ -20,7 +20,6 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 
 /**
@@ -29,10 +28,12 @@ import java.util.function.Consumer;
  */
 final class QuestHubService implements AutoCloseable {
 	private static final Gson JSON = new Gson();
+	private static final URI DEFAULT_ORIGIN = URI.create("https://quest.alexistb.com/");
 	private final MinecraftServer server;
 	private final Path world;
 	private final HttpClient http;
-	private URI origin;
+	private URI origin = DEFAULT_ORIGIN;
+	private String configurationError = "Connected editing needs a serverKey in world/questplus-hub.json or config/questplus-hub.json. The editor below remains available for ZIP import/export.";
 	private String apiKey, session, revisionSignature, lastPending, lastJobId;
 	private UUID owner;
 	private Path sessionDefinitions;
@@ -63,32 +64,42 @@ final class QuestHubService implements AutoCloseable {
 		try {
 			if (!Files.exists(config)) {
 				QuestPlusMod.LOGGER.info(
-						"QuestPlus Hub is disabled. Configure world/questplus-hub.json or config/questplus-hub.json to enable.");
+						"Quest Studio is available at {}. Configure questplus-hub.json to enable connected editing.", origin);
 				return;
 			}
 			JsonObject cfg = Defaults.readObject(config);
-			String url = cfg.get("url").getAsString();
-			apiKey = cfg.get("serverKey").getAsString();
-			if (apiKey.length() < 32)
-				throw new IllegalArgumentException("Hub key must contain at least 32 characters");
-			origin = URI.create(url);
-			if (origin.getUserInfo() != null || origin.getQuery() != null || origin.getFragment() != null
-					|| origin.getPath() != null && !origin.getPath().equals("") && !origin.getPath().equals("/"))
-				throw new IllegalArgumentException("Hub URL must be its origin only");
-			boolean local = origin.getHost() != null && Set.of("localhost", "127.0.0.1").contains(origin.getHost());
-			if (!"https".equalsIgnoreCase(origin.getScheme())
-					&& !(local && "http".equalsIgnoreCase(origin.getScheme())))
-				throw new IllegalArgumentException("QuestPlus Hub requires HTTPS (except localhost)");
+			origin = configuredOrigin(cfg);
+			apiKey = cfg.has("serverKey") ? cfg.get("serverKey").getAsString() : "";
+			if (apiKey.length() < 32 || apiKey.chars().anyMatch(c -> c < 33 || c > 126))
+				throw new IllegalArgumentException("Set serverKey to the web API's private key (32+ characters), then restart Minecraft.");
 			QuestPlusMod.LOGGER.info("QuestPlus Hub configured at {}", origin);
 		} catch (Exception error) {
-			origin = null;
 			apiKey = null;
+			configurationError = "Invalid questplus-hub.json. Check url (an HTTPS origin) and serverKey (the web API's private key, 32+ characters), then restart Minecraft.";
 			QuestPlusMod.LOGGER.error("Invalid QuestPlus Hub configuration", error);
 		}
 	}
 
+	static URI configuredOrigin(JsonObject config) {
+		URI target;
+		try {
+			target = config.has("url") ? URI.create(config.get("url").getAsString()) : DEFAULT_ORIGIN;
+		} catch (RuntimeException error) {
+			throw new IllegalArgumentException("Invalid editor URL. Use an HTTPS origin.", error);
+		}
+		if (target.getHost() == null || target.getUserInfo() != null || target.getQuery() != null
+				|| target.getFragment() != null || target.getPort() > 65535
+				|| target.getPath() != null && !target.getPath().isEmpty() && !target.getPath().equals("/"))
+			throw new IllegalArgumentException("Editor URL must be an origin without credentials, a path or query parameters.");
+		boolean local = Set.of("localhost", "127.0.0.1").contains(target.getHost());
+		if (!"https".equalsIgnoreCase(target.getScheme())
+				&& !(local && "http".equalsIgnoreCase(target.getScheme())))
+			throw new IllegalArgumentException("Quest Studio requires HTTPS (except localhost).");
+		return target;
+	}
+
 	boolean configured() {
-		return origin != null && !closed;
+		return apiKey != null && !closed;
 	}
 
 	private String endpoint(String p) {
@@ -195,7 +206,7 @@ final class QuestHubService implements AutoCloseable {
 	private void request(String method, String path, JsonObject data, Consumer<JsonObject> onSuccess,
 			Consumer<String> onError) {
 		if (!configured()) {
-			onError.accept("Hub not configured");
+			onError.accept(configurationError);
 			return;
 		}
 		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(endpoint(path))).timeout(Duration.ofSeconds(18))
@@ -212,21 +223,62 @@ final class QuestHubService implements AutoCloseable {
 					if (closed)
 						return;
 					if (error != null) {
-						onError.accept(error.getCause() == null ? error.toString() : error.getCause().toString());
+						QuestPlusMod.LOGGER.warn("Quest Studio request failed: {}", path, error);
+						onError.accept(requestError(origin, error));
 						return;
 					}
 					try {
-						JsonObject body = JsonParser.parseString(response.body()).getAsJsonObject();
 						if (response.statusCode() / 100 != 2) {
-							onError.accept(body.has("error") ? body.get("error").getAsString()
-									: "HTTP " + response.statusCode());
+							onError.accept(responseError(response.statusCode(), response.body()));
 							return;
 						}
+						JsonObject body = JsonParser.parseString(response.body()).getAsJsonObject();
 						onSuccess.accept(body);
 					} catch (Exception e) {
-						onError.accept("Invalid Hub response: " + e.getMessage());
+						QuestPlusMod.LOGGER.warn("Invalid Quest Studio response: {}", path, e);
+						onError.accept("Quest Studio returned an invalid response. Check the web API address and deployment, then retry. Details are in the game log.");
 					}
 				}));
+	}
+
+	static String requestError(URI origin, Throwable error) {
+		boolean connection = false;
+		for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+			if (cause instanceof java.net.UnknownHostException || cause instanceof java.nio.channels.UnresolvedAddressException)
+				return "Cannot find Quest Studio at " + origin + ". Check your Internet connection and the editor address (DNS).";
+			if (cause instanceof HttpTimeoutException || cause instanceof java.net.SocketTimeoutException)
+				return "Quest Studio timed out at " + origin + ". Check your connection or retry shortly.";
+			if (cause instanceof javax.net.ssl.SSLException)
+				return "Cannot establish a secure connection to Quest Studio at " + origin + ". Check the HTTPS certificate and your computer's clock.";
+			connection |= cause instanceof java.net.ConnectException;
+		}
+		if (connection) {
+			boolean local = Set.of("localhost", "127.0.0.1").contains(origin.getHost());
+			return "Quest Studio is unreachable at " + origin
+					+ ". Start the configured web API, then retry /questplus editor. Solo worlds also need the web API."
+					+ (local ? " For local development, run dev.bat api." : "");
+		}
+		return "Could not contact Quest Studio at " + origin + ". Retry shortly. Details are in the game log.";
+	}
+
+	static String responseError(int status, String response) {
+		return switch (status) {
+			case 401 -> "Server key rejected (HTTP 401). Set serverKey in questplus-hub.json to the web API's private key, then restart Minecraft.";
+			case 403 -> "Access denied by Quest Studio (HTTP 403). Check the server's permissions and web API configuration.";
+			case 413 -> "The quest pack is too large for Quest Studio (HTTP 413). Reduce its size before retrying.";
+			case 429 -> "Quest Studio is receiving too many requests (HTTP 429). Wait a moment, then retry.";
+			default -> {
+				if (status >= 500)
+					yield "Quest Studio is temporarily unavailable (HTTP " + status + "). Retry shortly or check the web service.";
+				try {
+					JsonElement detail = JsonParser.parseString(response).getAsJsonObject().get("error");
+					if (detail != null && detail.isJsonPrimitive() && detail.getAsJsonPrimitive().isString())
+						yield detail.getAsString();
+				} catch (RuntimeException ignored) {
+				}
+				yield "Quest Studio rejected the request (HTTP " + status + "). Check the web API address and configuration.";
+			}
+		};
 	}
 
 	void createSession(CommandSourceStack source) {
@@ -235,8 +287,8 @@ final class QuestHubService implements AutoCloseable {
 
 	void createSession(CommandSourceStack source, boolean defaultPack) {
 		if (!configured()) {
-			fail(source,
-					"Configure world/questplus-hub.json or config/questplus-hub.json (HTTPS URL and server key) first");
+			fail(source, configurationError);
+			source.sendSuccess(() -> chat(editorLink(origin.toString())), false);
 			return;
 		}
 		ServerPlayer player;
@@ -270,7 +322,9 @@ final class QuestHubService implements AutoCloseable {
 			}, e -> fail(source, "Could not create session: " + e));
 			notify(source, "Creating a secured editor session…");
 		} catch (Exception error) {
-			fail(source, error.getMessage());
+			QuestPlusMod.LOGGER.warn("Could not prepare a Quest Studio session", error);
+			fail(source, error.getMessage() != null && (error instanceof IllegalArgumentException || error instanceof IllegalStateException)
+					? error.getMessage() : "Could not read the quest pack. Check file permissions and the game log.");
 		}
 	}
 

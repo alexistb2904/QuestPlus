@@ -8,6 +8,56 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuestHubChatTest {
 	@Test
+	void unavailableLocalApiExplainsHowToEnableSoloEditing() {
+		var error = new java.util.concurrent.CompletionException(new java.net.ConnectException());
+		String message = QuestHubService.requestError(URI.create("http://localhost:8787"), error);
+		assertTrue(message.contains("http://localhost:8787"));
+		assertTrue(message.contains("dev.bat api"));
+		assertTrue(message.contains("Solo"));
+		assertFalse(message.contains("ConnectException"));
+		String remote = QuestHubService.requestError(URI.create("https://quests.example.com"), error);
+		assertTrue(remote.contains("https://quests.example.com"));
+		assertFalse(remote.contains("dev.bat"));
+		assertFalse(QuestHubService.requestError(URI.create("http://localhost:8787"),
+				new java.util.concurrent.CompletionException(new IllegalStateException("test"))).contains("IllegalStateException"));
+	}
+
+	@Test
+	void releaseDefaultUsesTheHostedEditorAndExplicitConfigurationStillWins() {
+		assertEquals(URI.create("https://quest.alexistb.com/"), QuestHubService.configuredOrigin(new com.google.gson.JsonObject()));
+		var config = new com.google.gson.JsonObject();
+		config.addProperty("url", "http://localhost:8787");
+		assertEquals(URI.create("http://localhost:8787"), QuestHubService.configuredOrigin(config));
+		for (String invalid : new String[] { "http://quests.example.com", "https://", "https://user:secret@example.com",
+				"https://example.com/api", "https://example.com?key=secret", "file:///tmp" }) {
+			config.addProperty("url", invalid);
+			assertThrows(IllegalArgumentException.class, () -> QuestHubService.configuredOrigin(config), invalid);
+		}
+	}
+
+	@Test
+	void networkErrorsExplainDnsTimeoutAndTlsWithoutJavaClassNames() {
+		URI origin = URI.create("https://quest.alexistb.com/");
+		assertTrue(QuestHubService.requestError(origin, new java.net.UnknownHostException()).contains("DNS"));
+		assertTrue(QuestHubService.requestError(origin, new java.nio.channels.UnresolvedAddressException()).contains("DNS"));
+		assertTrue(QuestHubService.requestError(origin, new java.net.http.HttpTimeoutException("test")).contains("timed out"));
+		assertTrue(QuestHubService.requestError(origin, new javax.net.ssl.SSLHandshakeException("test")).contains("certificate"));
+		assertFalse(QuestHubService.requestError(origin, new RuntimeException("sensitive details")).contains("sensitive details"));
+	}
+
+	@Test
+	void proxyAndAuthenticationFailuresStayReadableEvenWhenTheResponseIsHtml() {
+		assertTrue(QuestHubService.responseError(401, "<html>denied</html>").contains("serverKey"));
+		assertTrue(QuestHubService.responseError(403, "{}").contains("denied"));
+		assertTrue(QuestHubService.responseError(429, "{}").contains("retry"));
+		assertTrue(QuestHubService.responseError(503, "<html>offline</html>").contains("unavailable"));
+		assertTrue(QuestHubService.responseError(404, "{\"error\":\"Session expired\"}").contains("expired"));
+		assertEquals("Missing quests, categories or config", QuestHubService.responseError(400,
+				"{\"error\":\"Missing quests, categories or config\"}"));
+		assertFalse(QuestHubService.responseError(502, "<html>secret proxy details</html>").contains("secret"));
+	}
+
+	@Test
 	void editorLinkOpensTheWebsiteWithColorAndHoverText() {
 		String url = "https://quests.example.com/?session=abc";
 		var message = QuestHubService.editorLink(url);

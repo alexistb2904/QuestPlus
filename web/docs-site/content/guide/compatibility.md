@@ -4,6 +4,10 @@
 
 QuestPlus targets **Minecraft Java 26.3**, **Fabric** and **Java 25**. Install the same QuestPlus release and a compatible Fabric API on clients and the server. The project builds one universal Fabric JAR.
 
+The minimum versions are **Fabric Loader 0.19.5** and **Fabric API 0.161.0+26.3**. Newer versions for Minecraft 26.3 are accepted, including Fabric API 0.164.0+26.3. These minima come from the bundled animation libraries. Older 26.3 builds cannot load them. Minecraft versions other than 26.3 remain unsupported.
+
+Gradle compiles against these minimum versions. The verification workflow also runs server GameTests with Loader 0.19.5 / API 0.164.0+26.3 and Loader 0.20.1 / API 0.165.2+26.3.
+
 Player Animation Library 1.2.8 and First Person PAL Expansion 1.1.1 are bundled in the current artifact configuration. Fabric API is installed separately. Check the requirements of the release you download.
 
 There is no supported Forge, NeoForge or Bedrock build.
