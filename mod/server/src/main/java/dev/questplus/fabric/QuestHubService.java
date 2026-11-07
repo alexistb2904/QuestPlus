@@ -377,6 +377,7 @@ final class QuestHubService implements AutoCloseable {
 			});
 			notify(source, "Creating a secured editor session…");
 		} catch (Exception error) {
+			creatingSession = false;
 			QuestPlusMod.LOGGER.warn("Could not prepare a Quest Studio session", error);
 			fail(source,
 					error.getMessage() != null
@@ -501,10 +502,7 @@ final class QuestHubService implements AutoCloseable {
 			inFlight = false;
 			if (e.contains("expired") || e.contains("HTTP 401")) {
 				messageOwner("Editor session expired or was revoked. Run /questplus editor to reconnect.");
-				session = null;
-				sessionToken = null;
-				pendingApproval = null;
-				lastAck = null;
+				clearSession();
 			} else
 				QuestPlusMod.LOGGER.warn("QuestPlus Hub poll failed: {}", e);
 		});
@@ -608,6 +606,16 @@ final class QuestHubService implements AutoCloseable {
 	private void dropSession() {
 		String id = session;
 		String credential = sessionToken;
+		clearSession();
+		if (id != null && credential != null) {
+			JsonObject body = new JsonObject();
+			body.addProperty("session", id);
+			request("POST", "/api/server/revoke", body, credential, result -> {
+			}, e -> QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}", e));
+		}
+	}
+
+	private void clearSession() {
 		inFlight = false;
 		lastPoll = 0;
 		session = null;
@@ -619,12 +627,6 @@ final class QuestHubService implements AutoCloseable {
 		lastPending = null;
 		lastAck = null;
 		lastJobId = null;
-		if (id != null && credential != null) {
-			JsonObject body = new JsonObject();
-			body.addProperty("session", id);
-			request("POST", "/api/server/revoke", body, credential, result -> {
-			}, e -> QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}", e));
-		}
 	}
 
 	void disconnect(UUID player) {
