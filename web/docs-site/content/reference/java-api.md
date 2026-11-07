@@ -143,7 +143,7 @@ AutoCloseable subscription = QuestPlusApi.onQuestCompleted(change -> {
 subscription.close();
 ```
 
-Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`, `onQuestReset` and `onQuestEvent(type, listener)`. Objective events are in-memory notifications. Do not use them as an exactly-once external payment or reward ledger. The completion callback runs only after the completion transaction succeeds. Listener exceptions are logged and isolated.
+Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`, `onQuestReset`, `onTeamChanged` and `onQuestEvent(type, listener)`. Objective events are in-memory notifications. Do not use them as an exactly-once external payment or reward ledger. The completion callback runs only after the completion transaction succeeds. Listener exceptions are logged and isolated.
 
 ## Future KubeJS bridge
 
