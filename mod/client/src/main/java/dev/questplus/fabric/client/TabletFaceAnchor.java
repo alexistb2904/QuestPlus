@@ -73,8 +73,8 @@ public final class TabletFaceAnchor {
 		if (inverse == null || System.nanoTime() - captured > 300_000_000L)
 			return null;
 		var p = new Vector4f(
-				(-SCREEN.maxX() + (1 - x / TabletSurfaceRenderer.WIDTH) * SCREEN.width()) / 16f,
-				(SCREEN.minY() + (1 - y / TabletSurfaceRenderer.HEIGHT) * SCREEN.height()) / 16f,
+				(float) ((-SCREEN.maxX() + (1 - x / TabletSurfaceRenderer.WIDTH) * SCREEN.width()) / 16f),
+				(float) ((SCREEN.minY() + (1 - y / TabletSurfaceRenderer.HEIGHT) * SCREEN.height()) / 16f),
 				SCREEN.z() / 16f, 1).mul(new Matrix4f(inverse).invert());
 		if (!Float.isFinite(p.w) || p.w <= 0)
 			return null;

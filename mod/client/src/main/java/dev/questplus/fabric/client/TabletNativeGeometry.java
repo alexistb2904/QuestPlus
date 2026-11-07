@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.LightCoordsUtil;
-import org.joml.Quaternionf;
+import org.joml.Matrix4f;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -93,7 +93,7 @@ final class TabletNativeGeometry {
 				: TabletFirstPersonAnimation.boneValue(clip, seconds, bone.name, "scale");
 		pose.translate(-pos.x() / 16f, pos.y() / 16f, pos.z() / 16f);
 		pose.translate(bone.pivot[0] / 16f, bone.pivot[1] / 16f, bone.pivot[2] / 16f);
-		pose.mulPose(new Quaternionf().rotationZYX((float) Math.toRadians(rot.z() + bone.rotation[2]),
+		pose.mulPose(new Matrix4f().rotationZYX((float) Math.toRadians(rot.z() + bone.rotation[2]),
 				(float) -Math.toRadians(rot.y() + bone.rotation[1]),
 				(float) -Math.toRadians(rot.x() + bone.rotation[0])));
 		pose.scale(scale.x(), scale.y(), scale.z());
@@ -104,7 +104,7 @@ final class TabletNativeGeometry {
 		if (c.dx <= 0 || c.dy <= 0 || c.dz <= 0) return;
 		pose.pushPose();
 		pose.translate(c.px / 16f, c.py / 16f, c.pz / 16f);
-		pose.mulPose(new Quaternionf().rotationZYX(c.rz, c.ry, c.rx));
+		pose.mulPose(new Matrix4f().rotationZYX(c.rz, c.ry, c.rx));
 		pose.translate(-c.px / 16f, -c.py / 16f, -c.pz / 16f);
 		float x0 = (c.x - c.inflate) / 16f, y0 = (c.y - c.inflate) / 16f, z0 = (c.z - c.inflate) / 16f;
 		float x1 = (c.x + c.dx + c.inflate) / 16f;

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.entity.player.PlayerModelType;
 import dev.questplus.fabric.client.mixin.TabletModelPartAccessor;
-import org.joml.Quaternionf;
+import org.joml.Matrix4f;
 import java.util.List;
 
 /** Vanilla skin and sleeves, posed using the local Blockbench rig. */
@@ -42,7 +42,7 @@ public final class TabletNativeArms {
 		pose.pushPose();
 		pose.translate(-pos.x() / 16f, pos.y() / 16f, pos.z() / 16f);
 		pose.translate(px / 16f, py / 16f, pz / 16f);
-		pose.mulPose(new Quaternionf().rotationZYX((float)Math.toRadians(rot.z()),
+		pose.mulPose(new Matrix4f().rotationZYX((float)Math.toRadians(rot.z()),
 				(float)-Math.toRadians(rot.y()),(float)-Math.toRadians(rot.x())));
 		pose.scale(scale.x(),scale.y(),scale.z());
 		pose.translate(-px / 16f, -py / 16f, -pz / 16f);

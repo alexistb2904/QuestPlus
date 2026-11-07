@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import org.joml.Quaternionf;
+import org.joml.Matrix4f;
 
 /**
  * The first-person tablet is submitted to Minecraft's own render collector.
@@ -37,7 +37,7 @@ public final class TabletNativeFirstPersonRenderer {
 		var root = TabletFirstPersonAnimation.boneValue(clip, seconds, "fp_player_arms", "rotation");
 		var rootPosition = TabletFirstPersonAnimation.boneValue(clip, seconds, "fp_player_arms", "position");
 		base.translate(-rootPosition.x() / 16f, rootPosition.y() / 16f, rootPosition.z() / 16f);
-		base.mulPose(new Quaternionf().rotationZYX((float)Math.toRadians(root.z()),
+		base.mulPose(new Matrix4f().rotationZYX((float)Math.toRadians(root.z()),
 				(float)-Math.toRadians(root.y()), (float)-Math.toRadians(root.x())));
 
 		for (boolean right : new boolean[]{true, false}) {
