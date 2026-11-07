@@ -203,7 +203,7 @@
 	"questplus.client.choose": "选择奖励",
 	"questplus.client.confirm_choice": "确认选择",
 	"questplus.client.possible_rewards": "可能的奖励",
-	"questplus.client.actual_rewards": "服务器结果",
+	"questplus.client.actual_rewards": "已获得的奖励",
 	"questplus.client.toast.claimed": "奖励已领取",
 	"questplus.client.toast.claim_all": "奖励已全部领取",
 	"questplus.client.toast.choice_saved": "选择已保存",
