@@ -66,7 +66,7 @@ public final class QuestEngine {
 			return List.of();
 		if (player.recentEvents.size() > 256)
 			player.recentEvents.remove(player.recentEvents.iterator().next());
-		if (event.type().equals("player_death")) {
+		if (forced == null && event.type().equals("player_death")) {
 			player.quests.forEach((id, p) -> registry.find(id)
 					.filter(q -> q.noDeath() && !terminal(q, p) && !p.waitingRestart && p.attemptId != null)
 					.ifPresent(q -> {
