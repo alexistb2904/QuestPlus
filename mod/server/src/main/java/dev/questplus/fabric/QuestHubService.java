@@ -34,7 +34,7 @@ final class QuestHubService implements AutoCloseable {
 	private UUID owner;
 	private Path sessionDefinitions;
 	private long lastPoll;
-	private boolean inFlight, closed;
+	private boolean inFlight, creatingSession, closed;
 	private JsonObject pendingApproval, lastAck;
 	private final Map<UUID, PendingImport> imports = new HashMap<>();
 	private final Map<UUID, PendingRetrieve> retrieves = new HashMap<>();
@@ -91,10 +91,6 @@ final class QuestHubService implements AutoCloseable {
 
 	boolean configured() {
 		return configurationError == null && !closed;
-	}
-
-	private String endpoint(String p) {
-		return origin.toString().replaceAll("/$", "") + p;
 	}
 
 	private void notify(CommandSourceStack source, String message) {
@@ -194,15 +190,51 @@ final class QuestHubService implements AutoCloseable {
 		output.add(name, a);
 	}
 
+	static record HubSession(String id, String token, String url) {
+	}
+
+	static HubSession parseSession(JsonObject response) {
+		try {
+			String id = response.get("id").getAsString();
+			String token = response.get("serverToken").getAsString();
+			String url = response.get("url").getAsString();
+			URI target = URI.create(url);
+			if (!id.matches("[A-Za-z0-9_-]{32}") || !token.matches("[A-Za-z0-9_-]{43}")
+					|| target.getHost() == null || !Set.of("https", "http").contains(target.getScheme())
+					|| url.contains(token) || target.getRawQuery() == null
+					|| !Arrays.asList(target.getRawQuery().split("&")).contains("session=" + id))
+				throw new IllegalArgumentException("Invalid session response");
+			return new HubSession(id, token, url);
+		} catch (RuntimeException error) {
+			throw new IllegalArgumentException("Quest Studio returned an invalid session response. Check the web API version.", error);
+		}
+	}
+
 	static String credentialFor(String path, String token) {
 		if (path.equals("/api/server/sessions"))
 			return null;
 		return path.startsWith("/api/server/") ? token : null;
 	}
 
+	static HttpRequest buildRequest(URI origin, String method, String path, JsonObject data, String sessionToken) {
+		HttpRequest.Builder builder = HttpRequest.newBuilder(origin.resolve(path)).timeout(Duration.ofSeconds(18))
+				.header("Accept", "application/json");
+		String credential = credentialFor(path, sessionToken);
+		if (credential != null && !credential.isBlank())
+			builder.header("Authorization", "Bearer " + credential);
+		if (data != null)
+			builder.header("Content-Type", "application/json; charset=utf-8");
+		if (data == null && method.equals("GET"))
+			return builder.GET().build();
+		return builder.method(method,
+				data == null ? HttpRequest.BodyPublishers.noBody()
+						: HttpRequest.BodyPublishers.ofString(JSON.toJson(data), StandardCharsets.UTF_8))
+				.build();
+	}
+
 	private void request(String method, String path, JsonObject data, Consumer<JsonObject> onSuccess,
 			Consumer<String> onError) {
-		request(method, path, data, credentialFor(path, sessionToken), onSuccess, onError);
+		request(method, path, data, sessionToken, onSuccess, onError);
 	}
 
 	private void request(String method, String path, JsonObject data, String credential, Consumer<JsonObject> onSuccess,
@@ -211,17 +243,7 @@ final class QuestHubService implements AutoCloseable {
 			onError.accept(configurationError);
 			return;
 		}
-		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(endpoint(path))).timeout(Duration.ofSeconds(18))
-				.header("Accept", "application/json");
-		if (credential != null && !credential.isBlank())
-			builder.header("Authorization", "Bearer " + credential);
-		if (data != null)
-			builder.header("Content-Type", "application/json; charset=utf-8");
-		HttpRequest req = builder
-				.method(method,
-						data == null ? HttpRequest.BodyPublishers.noBody()
-								: HttpRequest.BodyPublishers.ofString(JSON.toJson(data), StandardCharsets.UTF_8))
-				.build();
+		HttpRequest req = buildRequest(origin, method, path, data, credential);
 		http.sendAsync(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
 				.whenComplete((response, error) -> server.execute(() -> {
 					if (closed)
@@ -234,9 +256,9 @@ final class QuestHubService implements AutoCloseable {
 					try {
 						if (response.statusCode() / 100 != 2) {
 							if (response.statusCode() == 401 && path.equals("/api/server/sessions")) {
-								onError.accept("Quest Studio refused to create a session (HTTP 401). "
-										+ "Check that the Minecraft JAR uses session tokens and that the Hub "
-										+ "endpoint is not protected by proxy authentication.");
+								onError.accept("Quest Studio refused to create a session (HTTP 401) at " + origin
+										+ ". This mod sends no Authorization header when creating sessions. "
+										+ "Check the Hub deployment, Cloudflare Access and reverse-proxy authentication.");
 							} else {
 								onError.accept(responseError(response.statusCode(), response.body()));
 							}
@@ -314,36 +336,51 @@ final class QuestHubService implements AutoCloseable {
 			fail(source, "Open the editor as an in-game operator");
 			return;
 		}
+		if (creatingSession) {
+			notify(source, "A Quest Studio session is already being created.");
+			return;
+		}
 		try {
 			Path target = defaultPack ? defaults() : world.resolve("questplus");
 			JsonArray files = QuestHubFiles.snapshot(target);
 			JsonObject payload = new JsonObject();
-			payload.addProperty("serverName", ChatFormatting.stripFormatting(server.getMotd()));
+			String serverName = ChatFormatting.stripFormatting(server.getMotd());
+			if (serverName == null || serverName.isBlank())
+				serverName = "Minecraft Server";
+			payload.addProperty("serverName", serverName.substring(0, Math.min(100, serverName.length())));
 			payload.add("files", files);
 			payload.add("registry", registry());
 			String localSignature = signature(files);
 			UUID actor = player.getUUID();
+			creatingSession = true;
 			request("POST", "/api/server/sessions", payload, result -> {
-				String credential = result.has("serverToken") ? result.get("serverToken").getAsString() : "";
-				if (!credential.matches("[A-Za-z0-9_-]{40,}"))
-					throw new IllegalStateException(
-							"Quest Studio did not return a valid session token. Update the web API.");
+				creatingSession = false;
+				HubSession created;
+				try {
+					created = parseSession(result);
+				} catch (IllegalArgumentException error) {
+					fail(source, error.getMessage());
+					return;
+				}
 				dropSession();
-				sessionToken = credential;
+				sessionToken = created.token();
 				owner = actor;
 				sessionDefinitions = target;
-				session = result.get("id").getAsString();
+				session = created.id();
 				lastPending = null;
 				pendingApproval = null;
 				lastJobId = null;
 				lastAck = null;
 				revisionSignature = localSignature;
 				lastPoll = 0;
-				String url = result.get("url").getAsString();
-				messageOwner(editorLink(url));
-			}, e -> fail(source, "Could not create session: " + e));
+				messageOwner(editorLink(created.url()));
+			}, e -> {
+				creatingSession = false;
+				fail(source, "Could not create session: " + e);
+			});
 			notify(source, "Creating a secured editor session…");
 		} catch (Exception error) {
+			creatingSession = false;
 			QuestPlusMod.LOGGER.warn("Could not prepare a Quest Studio session", error);
 			fail(source,
 					error.getMessage() != null
@@ -371,13 +408,20 @@ final class QuestHubService implements AutoCloseable {
 		payload.addProperty("session", session);
 		payload.addProperty("id", pendingApproval.get("id").getAsString());
 		payload.addProperty("code", code);
-		request("POST", "/api/server/approve", payload, result -> {
+		String expectedSession = session;
+		String expectedToken = sessionToken;
+		request("POST", "/api/server/approve", payload, expectedToken, result -> {
+			if (!Objects.equals(expectedSession, session) || !Objects.equals(expectedToken, sessionToken))
+				return;
 			pendingApproval = null;
 			messageOwner(Component
 					.translatableWithFallback("questplus.hub.browser_approved",
 							"Browser approved. Load the server quests in Quest Studio, then use Save to server.")
 					.withStyle(ChatFormatting.GREEN));
-		}, e -> fail(source, "Approval denied: " + e));
+		}, e -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken))
+				fail(source, "Approval denied: " + e);
+		});
 	}
 
 	void revoke(CommandSourceStack source) {
@@ -395,10 +439,11 @@ final class QuestHubService implements AutoCloseable {
 		lastPoll = System.currentTimeMillis();
 		inFlight = true;
 		String id = session;
-		request("GET", "/api/server/poll?session=" + id, null, data -> {
-			inFlight = false;
-			if (!Objects.equals(id, session))
+		String token = sessionToken;
+		request("GET", "/api/server/poll?session=" + id, null, token, data -> {
+			if (!Objects.equals(id, session) || !Objects.equals(token, sessionToken))
 				return;
+			inFlight = false;
 			JsonElement approval = data.get("pending");
 			if (approval != null && approval.isJsonObject()) {
 				JsonObject p = approval.getAsJsonObject();
@@ -455,13 +500,12 @@ final class QuestHubService implements AutoCloseable {
 			if (lastAck != null)
 				sendAck();
 		}, e -> {
+			if (!Objects.equals(id, session) || !Objects.equals(token, sessionToken))
+				return;
 			inFlight = false;
 			if (e.contains("expired") || e.contains("HTTP 401")) {
 				messageOwner("Editor session expired or was revoked. Run /questplus editor to reconnect.");
-				session = null;
-				sessionToken = null;
-				pendingApproval = null;
-				lastAck = null;
+				clearSession();
 			} else
 				QuestPlusMod.LOGGER.warn("QuestPlus Hub poll failed: {}", e);
 		});
@@ -471,10 +515,15 @@ final class QuestHubService implements AutoCloseable {
 		if (lastAck == null)
 			return;
 		JsonObject ack = lastAck.deepCopy();
-		request("POST", "/api/server/ack", ack, result -> {
-			if (lastAck != null && lastAck.get("id").getAsString().equals(ack.get("id").getAsString()))
+		String expectedSession = session, expectedToken = sessionToken;
+		request("POST", "/api/server/ack", ack, expectedToken, result -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken)
+					&& lastAck != null && lastAck.get("id").getAsString().equals(ack.get("id").getAsString()))
 				lastAck = null;
-		}, e -> QuestPlusMod.LOGGER.warn("QuestPlus Hub acknowledgement retry pending: {}", e));
+		}, e -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken))
+				QuestPlusMod.LOGGER.warn("QuestPlus Hub acknowledgement retry pending: {}", e);
+		});
 	}
 
 	void previewImport(CommandSourceStack source, String packId) {
@@ -565,6 +614,18 @@ final class QuestHubService implements AutoCloseable {
 	private void dropSession() {
 		String id = session;
 		String credential = sessionToken;
+		clearSession();
+		if (id != null && credential != null) {
+			JsonObject body = new JsonObject();
+			body.addProperty("session", id);
+			request("POST", "/api/server/revoke", body, credential, result -> {
+			}, e -> QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}", e));
+		}
+	}
+
+	private void clearSession() {
+		inFlight = false;
+		lastPoll = 0;
 		session = null;
 		sessionToken = null;
 		owner = null;
@@ -574,12 +635,6 @@ final class QuestHubService implements AutoCloseable {
 		lastPending = null;
 		lastAck = null;
 		lastJobId = null;
-		if (id != null && credential != null) {
-			JsonObject body = new JsonObject();
-			body.addProperty("session", id);
-			request("POST", "/api/server/revoke", body, credential, result -> {
-			}, e -> QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}", e));
-		}
 	}
 
 	void disconnect(UUID player) {
