@@ -10,7 +10,7 @@ public final class ClientSettings {
 	public static final int MAX_PINNED = 3;
 	private static final Gson JSON = new Gson();
 	private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
-	public boolean hud = false, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
+	public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
 	public boolean tabletTransitions = true;
 	public int treeResolution = 2;
 	public boolean stayOpenOnDamage = false;
@@ -34,7 +34,7 @@ public final class ClientSettings {
 				if (settings != null && (json == null || !json.has("notificationPosition")))
 					settings.notificationPosition = 1;
 				if (settings != null && (json == null || !json.has("hud")))
-					settings.hud = false;
+					settings.hud = true;
 				// Gson does not initialize newly-added instance fields for older configs.
 				if (settings != null && !json.has("tabletTransitions"))
 					settings.tabletTransitions = true;
