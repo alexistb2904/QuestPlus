@@ -408,7 +408,7 @@ export function ConditionEditor({
 							))}
 					</div>
 				) : typeof val === "object" ? (
-					<small>{tUI("Edit custom conditions in Advanced JSON.")}</small>
+                    <small role="status">{tUI("Unknown or unavailable condition extension. Data is preserved; edit in Advanced JSON.")}</small>
 				) : (
 					<input
 						aria-label={tUI("Condition value")}
