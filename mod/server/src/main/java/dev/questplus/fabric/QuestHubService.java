@@ -344,7 +344,10 @@ final class QuestHubService implements AutoCloseable {
 			Path target = defaultPack ? defaults() : world.resolve("questplus");
 			JsonArray files = QuestHubFiles.snapshot(target);
 			JsonObject payload = new JsonObject();
-			payload.addProperty("serverName", ChatFormatting.stripFormatting(server.getMotd()));
+			String serverName = ChatFormatting.stripFormatting(server.getMotd());
+			if (serverName == null || serverName.isBlank())
+				serverName = "Minecraft Server";
+			payload.addProperty("serverName", serverName.substring(0, Math.min(100, serverName.length())));
 			payload.add("files", files);
 			payload.add("registry", registry());
 			String localSignature = signature(files);
@@ -512,10 +515,15 @@ final class QuestHubService implements AutoCloseable {
 		if (lastAck == null)
 			return;
 		JsonObject ack = lastAck.deepCopy();
-		request("POST", "/api/server/ack", ack, result -> {
-			if (lastAck != null && lastAck.get("id").getAsString().equals(ack.get("id").getAsString()))
+		String expectedSession = session, expectedToken = sessionToken;
+		request("POST", "/api/server/ack", ack, expectedToken, result -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken)
+					&& lastAck != null && lastAck.get("id").getAsString().equals(ack.get("id").getAsString()))
 				lastAck = null;
-		}, e -> QuestPlusMod.LOGGER.warn("QuestPlus Hub acknowledgement retry pending: {}", e));
+		}, e -> {
+			if (Objects.equals(expectedSession, session) && Objects.equals(expectedToken, sessionToken))
+				QuestPlusMod.LOGGER.warn("QuestPlus Hub acknowledgement retry pending: {}", e);
+		});
 	}
 
 	void previewImport(CommandSourceStack source, String packId) {
