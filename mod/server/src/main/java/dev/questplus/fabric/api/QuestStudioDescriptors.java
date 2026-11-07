@@ -46,7 +46,7 @@ public final class QuestStudioDescriptors {
                 if (!field.get("options").isJsonArray())
                     throw new IllegalArgumentException("Choice options must be an array");
                 var options = field.getAsJsonArray("options");
-                if (options.isEmpty() || options.size() > 30)
+                if (options.size() == 0 || options.size() > 30)
                     throw new IllegalArgumentException("Choice requires 1..30 options");
                 var values = new HashSet<String>();
                 for (JsonElement option : options) {
