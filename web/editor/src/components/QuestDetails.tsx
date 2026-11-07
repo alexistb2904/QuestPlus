@@ -341,6 +341,10 @@ function ObjectiveInputs({
 					onUpdate(path, next);
 				}}
 			/>
+            {o.event.includes(":") && !EVENTS.some(([id]) => id === o.event)
+                && !hubEditorDescriptors("event").some((d) => d.id === o.event) && (
+                    <small role="status">This objective requires a server extension not currently available in Studio. Its data is preserved.</small>
+                )}
 			{field()}
 			{label && kind !== "distance" && <Field label={label} type="number" value={o.count} onChange={editCount} />}
 			{hubEditorDescriptors("event")
