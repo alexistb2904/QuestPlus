@@ -38,33 +38,47 @@ export function setHubRegistry(value) {
 			e.fields.length > 20
 		)
 			continue;
-		const fields = e.fields
-			.filter(
-				(f) =>
-					f &&
-					/^[a-z][a-zA-Z0-9_]{0,39}$/.test(f.key) &&
-					[
-						"string",
-						"integer",
-						"boolean",
-						"item",
-						"block",
-						"entity",
-						"biome",
-						"dimension",
-						"enchantment",
-						"fluid",
-						"structure",
-						"statistic",
-						"advancement",
-						"effect",
-					].includes(f.type) &&
-					typeof f.label === "string" &&
-					f.label.length <= 80
-			)
-			.map(({ key, type, label }) => ({ key, type, label }));
-		if (fields.length === e.fields.length && (e.pool === undefined || typeof e.pool === "boolean"))
-			output.extensions.push({ kind: e.kind, id: e.id, label: e.label, fields, ...(e.kind === "reward" && e.pool === true ? { pool: true } : {}) });
+	    const fields = e.fields.map((field) => {
+        if (!field || !/^[a-z][a-zA-Z0-9_]{0,39}$/.test(field.key)
+                || !["string", "integer", "number", "boolean", "choice", "item", "block", "entity",
+                    "biome", "dimension", "enchantment", "fluid", "structure", "statistic",
+                    "advancement", "effect"].includes(field.type)
+                || typeof field.label !== "string" || !field.label || field.label.length > 80)
+            return null;
+        const allowed = new Set(["key", "type", "label", "default", "min", "max", "options"]);
+        if (Object.keys(field).some((key) => !allowed.has(key)))
+            return null;
+        const numeric = field.type === "integer" || field.type === "number";
+        if ((field.min !== undefined || field.max !== undefined) && !numeric)
+            return null;
+        for (const bound of ["min", "max"])
+            if (field[bound] !== undefined && (!Number.isFinite(field[bound])
+                || (field.type === "integer" && !Number.isInteger(field[bound]))))
+                return null;
+        if (field.min !== undefined && field.max !== undefined && field.min > field.max)
+            return null;
+        const choice = field.type === "choice";
+        if (choice !== (field.options !== undefined)) return null;
+        if (choice && (!Array.isArray(field.options) || field.options.length < 1 || field.options.length > 30
+                || field.options.some((v) => typeof v !== "string" || !v || v.length > 120)
+                || new Set(field.options).size !== field.options.length)) return null;
+        const value = field.default;
+        if (value !== undefined) {
+            const validDefault = field.type === "boolean" ? typeof value === "boolean"
+                : numeric ? Number.isFinite(value) && (field.type !== "integer" || Number.isInteger(value))
+                    && (field.min === undefined || value >= field.min)
+                    && (field.max === undefined || value <= field.max)
+                : choice ? field.options.includes(value)
+                : field.type === "string" ? typeof value === "string" && value.length <= 256
+                : typeof value === "string" && valid(value);
+            if (!validDefault) return null;
+        }
+        return { ...field };
+    });
+    if (fields.every(Boolean) && new Set(fields.map((f) => f.key)).size === fields.length
+            && (e.pool === undefined || typeof e.pool === "boolean"))
+        output.extensions.push({ kind: e.kind, id: e.id, label: e.label, fields,
+            ...(e.kind === "reward" && e.pool === true ? { pool: true } : {}) });
 	}
 	current = output;
 	return output;
@@ -102,4 +116,14 @@ export function hubTargets(kind) {
 /** Authoring-only metadata; gameplay events and validation remain server-owned. */
 export function hubEditorDescriptors(kind) {
 	return (current.extensions || []).filter((d) => d.kind === kind);
+}
+
+/** Safe default values from server-provided data-only editor descriptors. */
+export function hubFieldDefault(field) {
+    if (field.default !== undefined) return field.default;
+    if (field.type === "boolean") return false;
+    if (field.type === "integer" || field.type === "number") return field.min ?? 0;
+    if (field.type === "choice") return field.options[0];
+    if (field.type === "string") return "";
+    return field.type === "dimension" ? "minecraft:overworld" : "minecraft:stone";
 }
