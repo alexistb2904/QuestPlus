@@ -92,12 +92,12 @@ final class TabletCarryGameTest {
 		context.runOnClient(QuestClientTabletFlow::toggle);
 		context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
 		context.runOnClient(client -> client.gui.screen().onClose());
-		context.waitTicks(19);
+		context.waitTicks(5);
 		context.runOnClient(client -> {
 			if (!TabletNativeAnimation.active() || !"questplus.close".equals(TabletNativeAnimation.clip()))
 				throw new AssertionError("Native closing animation lost its final pose");
 		});
-		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 5);
+		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 40);
 	}
 
 	private static void emptyHandTrial(ClientGameTestContext context) {

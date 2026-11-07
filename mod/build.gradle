@@ -70,9 +70,10 @@ test {
 // Animation libraries are intentionally not embedded in release artifacts.
 tasks.register('verifyNativeRenderer') {
     group = 'verification'
-    dependsOn tasks.named('jar')
+    // Inspect the actual artifact uploaded to Modrinth / CurseForge.
+    dependsOn tasks.named('remapJar')
     doLast {
-        new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
+        new java.util.zip.ZipFile(tasks.named('remapJar').get().archiveFile.get().asFile).withCloseable { jar ->
             def entries = jar.entries().toList()*.name
             assert !entries.any { it.startsWith('META-INF/jars/') } : 'Standalone release JAR must not embed any external library'
             def content = jar.getInputStream(jar.getEntry('questplus.client.mixins.json')).getText('UTF-8')
