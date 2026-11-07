@@ -991,6 +991,7 @@ public final class QuestRuntime implements AutoCloseable {
             changed(uuid);
         var after = progress.quests.get(questId);
         long current = after == null ? 0 : after.counters.getOrDefault(objectiveId, 0L);
+        settleCompletions(uuid, completed);
         if (before != current) {
             QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, uuid, questId, objectiveId,
                     before, current);
@@ -998,7 +999,6 @@ public final class QuestRuntime implements AutoCloseable {
                 QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, uuid, questId, objectiveId,
                         before, current);
         }
-        settleCompletions(uuid, completed);
     }
 
 	public void event(ServerPlayer player, QuestEvent event) {
