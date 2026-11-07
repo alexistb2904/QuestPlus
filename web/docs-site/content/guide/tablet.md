@@ -45,7 +45,7 @@ Completing objectives makes a quest eligible for its configured rewards. Use **C
 
 ## Track your next action
 
-You can pin up to three quests. Enable the HUD in tablet settings if it is hidden. Completed quests unpin automatically. The server validates progress even when the tablet is closed.
+You can pin up to three quests. The HUD is enabled by default and appears when a quest is pinned. Pinned quests stay on the HUD until you unpin them, even after completion or between repeatable quest cycles and tiers. The server validates progress even when the tablet is closed.
 
 ![A pinned equipment objective on the Minecraft HUD](/media/hud.webp)
 

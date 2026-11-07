@@ -203,7 +203,7 @@
 	"questplus.client.choose": "Choose reward",
 	"questplus.client.confirm_choice": "Confirm choice",
 	"questplus.client.possible_rewards": "Possible rewards",
-	"questplus.client.actual_rewards": "Server result",
+	"questplus.client.actual_rewards": "Rewards obtained",
 	"questplus.client.toast.claimed": "REWARD CLAIMED",
 	"questplus.client.toast.claim_all": "REWARDS CLAIMED",
 	"questplus.client.toast.choice_saved": "CHOICE SAVED",

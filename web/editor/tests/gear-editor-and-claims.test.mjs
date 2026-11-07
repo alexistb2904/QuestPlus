@@ -63,16 +63,38 @@ test("game presentation uses a gear-specific renderer instead of JSON fallback",
 	assert.match(context, /context\.put\("gear",\s*AdvancedEvents\.gearSnapshot\(player\)\)/);
 });
 
-test("completion auto-unpins, unlock and completion alone trigger toasts", () => {
-	const s = read("../../../mod/client/src/main/java/dev/questplus/fabric/client/QuestPlusClient.java");
-	assert.match(s, /settings\.pinned\.removeIf/);
-	assert.match(s, /QuestClientState\.flag\(next,\s*"unlocked"\)/);
-	assert.doesNotMatch(s, /QuestToast\.show\(b\s*>=\s*target/);
-	assert.doesNotMatch(s, /progress_notice/);
+test("completed and repeatable quests remain pinned until manually removed", () => {
+	const client = read("../../../mod/client/src/main/java/dev/questplus/fabric/client/QuestPlusClient.java");
+	assert.doesNotMatch(client, /settings\.pinned\.removeIf/);
+	assert.match(client, /QuestClientState\.flag\(next,\s*"unlocked"\)/);
+	assert.doesNotMatch(client, /QuestToast\.show\(b\s*>=\s*target/);
+	assert.doesNotMatch(client, /progress_notice/);
 	const screen = read("../../../mod/client/src/main/java/dev/questplus/fabric/client/QuestScreen.java");
+	const pinStart = screen.indexOf("var pinButton = button(");
+	const pinEnd = screen.indexOf("questAction = button(", pinStart);
+	assert.ok(pinStart >= 0 && pinEnd > pinStart);
+	const pinControl = screen.slice(pinStart, pinEnd);
+	assert.match(pinControl, /settings\.pinned\.remove\(selected\)/);
+	assert.match(pinControl, /settings\.pinned\.add\(selected\)/);
+	assert.match(pinControl, /settings\.pinned\.size\(\) < ClientSettings\.MAX_PINNED/);
+	assert.doesNotMatch(pinControl, /completed|terminal|waitingRestart/);
 	assert.match(screen, /claimAll\s*=\s*button\("claim_all"/);
 	assert.match(screen, /NEW_UNLOCKS\.contains\(q\.id\(\)\)/);
 	assert.match(screen, /treeLeft\s*=\s*left\s*\+\s*38/);
+});
+
+test("actual reward labels describe what was obtained in every Minecraft locale", () => {
+	const expected = {
+		en_us: "Rewards obtained",
+		fr_fr: "Récompenses obtenues",
+		es_es: "Recompensas obtenidas",
+		zh_cn: "已获得的奖励",
+	};
+	for (const [locale, label] of Object.entries(expected)) {
+		const lang = JSON.parse(read("../../../mod/client/src/main/resources/assets/questplus/lang/" + locale + ".json"));
+		assert.equal(lang["questplus.client.actual_rewards"], label);
+		assert.ok(lang["questplus.client.possible_rewards"]);
+	}
 });
 
 test("claim-all remains a single server-authorized action with durable sequential claims", () => {

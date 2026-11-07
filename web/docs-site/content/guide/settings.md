@@ -30,7 +30,7 @@ _Shaders are optional. This example shows the 3D display with its illuminated sc
 
 ## Keep the HUD useful
 
-Pin up to three quests from their details. Completed quests unpin automatically. The HUD is enabled by default for new configurations, and only appears when you have pinned quests. You can disable it in settings; existing saved preferences are preserved.
+Pin up to three quests from their details. They remain pinned until you explicitly unpin them, including completed quests and repeatable or tiered quests between cycles. The HUD is enabled by default for new configurations and only appears when you have pinned quests. You can disable it in settings; existing saved preferences are preserved.
 
 HUD position and notification position are separate preferences. Move either display if it overlaps another mod's interface. Turning off notifications does not stop quest progress.
 
