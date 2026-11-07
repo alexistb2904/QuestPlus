@@ -56,6 +56,6 @@ See [Settings and accessibility](/guide/settings) for the controls and defaults 
 
 ## Web connection
 
-`<world>/questplus-hub.json` stores the optional endpoint and server secret. A world file takes precedence over `config/questplus-hub.json`. Restart Minecraft after connection changes and keep the secret out of exported packs and screenshots.
+`<world>/questplus-hub.json` stores the optional Hub URL. A world file takes precedence over `config/questplus-hub.json`. Restart Minecraft after connection changes. Session credentials are generated automatically and must not be exposed in logs or screenshots.
 
 [Host the web service](/reference/hosting) · [Backups and updates](/guide/backups-and-updates)
