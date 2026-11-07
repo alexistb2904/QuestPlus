@@ -224,6 +224,8 @@ final class QuestHubService implements AutoCloseable {
 			builder.header("Authorization", "Bearer " + credential);
 		if (data != null)
 			builder.header("Content-Type", "application/json; charset=utf-8");
+		if (data == null && method.equals("GET"))
+			return builder.GET().build();
 		return builder.method(method,
 				data == null ? HttpRequest.BodyPublishers.noBody()
 						: HttpRequest.BodyPublishers.ofString(JSON.toJson(data), StandardCharsets.UTF_8))
