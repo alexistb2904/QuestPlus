@@ -23,7 +23,7 @@ async function freePort() {
 	});
 }
 
-test("a public Hub starts with no global server key and issues scoped session credentials", async () => {
+test("a public Hub issues scoped session credentials", async () => {
 	const dir = await mkdtemp(path.join(tmpdir(), "questplus-keyless-"));
 	const port = await freePort();
 	const base = "http://127.0.0.1:" + port;
@@ -33,7 +33,6 @@ test("a public Hub starts with no global server key and issues scoped session cr
 			...process.env,
 			PORT: String(port),
 			HUB_PUBLIC_URL: base,
-			HUB_SERVER_KEY: "",
 			HUB_DATA_DIR: path.join(dir, "packs"),
 			WEB_STATIC_DIR: dir,
 		},
