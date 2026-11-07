@@ -98,11 +98,9 @@ final class QuestHud {
 							? counters.get(objective.id()).getAsLong()
 							: 0;
 					String base = state.text(objective.text());
-					if (base.isBlank()) {
-						String target = objective.target().replace("#", "").replace("minecraft:", "").replace('_', ' ')
-								.replace('/', ' ');
-						base = QuestPresentation.objectiveText(objective, mc.options.languageCode, target);
-					}
+					if (base.isBlank())
+						base = QuestPresentation.objectiveText(objective, mc.options.languageCode,
+								QuestObjectiveNames.target(objective), QuestPresentation.target(q, objective, progress));
 					String modifier = objective.conditions() == null ? ""
 							: QuestConditionText.describe(objective.conditions(), qid -> {
 								var other = state.quests.get(qid);
