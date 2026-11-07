@@ -16,7 +16,7 @@ public final class QuestStudioDescriptors {
 	private static final Map<String, JsonObject> DEFINITIONS = new ConcurrentHashMap<>();
 	private static final Set<String> KINDS = Set.of("event", "condition", "reward");
 	private static final Set<String> TYPES = Set.of("string", "integer", "boolean", "item", "block", "entity", "biome",
-			"dimension", "enchantment", "fluid", "structure", "statistic", "advancement", "effect");
+			"dimension", "enchantment", "fluid", "structure", "statistic", "advancement", "effect", "number", "choice");
 	private static final String ID = "[a-z0-9_.-]+:[a-z0-9_./-]+";
 	private static final String KEY = "[a-z][a-zA-Z0-9_]{0,39}";
 
@@ -33,17 +33,61 @@ public final class QuestStudioDescriptors {
 			if (!value.isJsonObject())
 				throw new IllegalArgumentException("Invalid field descriptor");
 			var field = value.getAsJsonObject();
-			if (!field.keySet().equals(Set.of("key", "type", "label")))
-				throw new IllegalArgumentException("Unknown descriptor field attributes");
-			String key = field.get("key").getAsString(), type = field.get("type").getAsString(),
-					name = field.get("label").getAsString();
-			if (!key.matches(KEY) || !keys.add(key) || !TYPES.contains(type) || name.isBlank() || name.length() > 80)
-				throw new IllegalArgumentException("Invalid extension editor field");
-			var row = new JsonObject();
-			row.addProperty("key", key);
-			row.addProperty("type", type);
-			row.addProperty("label", name);
-			validated.add(row);
+            if (!Set.of("key", "type", "label", "default", "options", "min", "max").containsAll(field.keySet())
+                    || !field.keySet().containsAll(Set.of("key", "type", "label")))
+                throw new IllegalArgumentException("Unknown descriptor field attributes");
+            String key = field.get("key").getAsString(), type = field.get("type").getAsString(),
+                    name = field.get("label").getAsString();
+            if (!key.matches(KEY) || !keys.add(key) || !TYPES.contains(type) || name.isBlank() || name.length() > 80)
+                throw new IllegalArgumentException("Invalid extension editor field");
+            if (field.has("options") != type.equals("choice"))
+                throw new IllegalArgumentException("Only choice fields can define options");
+            if (type.equals("choice")) {
+                if (!field.get("options").isJsonArray())
+                    throw new IllegalArgumentException("Choice options must be an array");
+                var options = field.getAsJsonArray("options");
+                if (options.isEmpty() || options.size() > 30)
+                    throw new IllegalArgumentException("Choice requires 1..30 options");
+                var values = new HashSet<String>();
+                for (JsonElement option : options) {
+                    if (!option.isJsonPrimitive() || !option.getAsJsonPrimitive().isString()
+                            || option.getAsString().isBlank() || option.getAsString().length() > 120
+                            || !values.add(option.getAsString()))
+                        throw new IllegalArgumentException("Invalid choice option");
+                }
+            }
+            if ((field.has("min") || field.has("max")) && !Set.of("integer", "number").contains(type))
+                throw new IllegalArgumentException("Only numeric fields accept bounds");
+            for (String bound : List.of("min", "max")) {
+                if (field.has(bound) && (!field.get(bound).isJsonPrimitive()
+                        || !field.getAsJsonPrimitive(bound).isNumber()
+                        || !Double.isFinite(field.get(bound).getAsDouble())
+                        || (type.equals("integer") && field.get(bound).getAsDouble() % 1 != 0)))
+                    throw new IllegalArgumentException("Invalid numeric bound");
+            }
+            if (field.has("min") && field.has("max")
+                    && field.get("min").getAsDouble() > field.get("max").getAsDouble())
+                throw new IllegalArgumentException("Inverted numeric bounds");
+            if (field.has("default")) {
+                JsonElement def = field.get("default");
+                boolean valid = switch (type) {
+                    case "boolean" -> def.isJsonPrimitive() && def.getAsJsonPrimitive().isBoolean();
+                    case "integer", "number" -> def.isJsonPrimitive() && def.getAsJsonPrimitive().isNumber()
+                            && Double.isFinite(def.getAsDouble()) && (!type.equals("integer")
+                            || def.getAsDouble() % 1 == 0)
+                            && (!field.has("min") || def.getAsDouble() >= field.get("min").getAsDouble())
+                            && (!field.has("max") || def.getAsDouble() <= field.get("max").getAsDouble());
+                    case "choice" -> def.isJsonPrimitive() && def.getAsJsonPrimitive().isString()
+                            && field.getAsJsonArray("options").asList().contains(def);
+                    case "string" -> def.isJsonPrimitive() && def.getAsJsonPrimitive().isString()
+                            && def.getAsString().length() <= 256;
+                    default -> def.isJsonPrimitive() && def.getAsJsonPrimitive().isString()
+                            && def.getAsString().matches(ID);
+                };
+                if (!valid)
+                    throw new IllegalArgumentException("Invalid field default");
+            }
+            validated.add(field.deepCopy());
 		}
 		JsonObject descriptor = new JsonObject();
 		descriptor.addProperty("kind", kind);
