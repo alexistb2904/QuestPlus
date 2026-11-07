@@ -53,4 +53,4 @@ Use `/questplus rollback` to restore the latest definition backup when appropria
 
 Include Minecraft, Fabric Loader, Fabric API and QuestPlus versions, the smallest affected quest, the action you performed and the expected result. Add a screenshot and the relevant log excerpt. For rendering issues, include shader and animation mod versions.
 
-Remove API keys, editor tokens, private session links and unrelated player information before sharing files in [an issue](https://github.com/alexistb2904/QuestPlus/issues).
+Remove session credentials, editor tokens, private session links and unrelated player information before sharing files in [an issue](https://github.com/alexistb2904/QuestPlus/issues).
