@@ -20,7 +20,7 @@ async function start(t, env = {}) {
 	const base = "http://127.0.0.1:" + port;
 	const child = spawn(process.execPath, ["server.mjs"], {
 		cwd: new URL("..", import.meta.url), stdio: "ignore",
-		env: { ...process.env, PORT: String(port), HUB_PUBLIC_URL: base, HUB_DATA_DIR: dir, HUB_SERVER_KEY: "", ...env },
+		env: { ...process.env, PORT: String(port), HUB_PUBLIC_URL: base, HUB_DATA_DIR: dir, ...env },
 	});
 	t.after(async () => {
 		if (child.exitCode === null && !child.signalCode) { child.kill(); await new Promise(resolve => child.once("exit", resolve)); }
@@ -38,7 +38,7 @@ async function start(t, env = {}) {
 		try { if ((await api("/health")).status === 200) { ready = true; break; } } catch {}
 		await new Promise(resolve => setTimeout(resolve, 20));
 	}
-	assert.ok(ready, "Public API must start without HUB_SERVER_KEY");
+	assert.ok(ready, "Public API starts with session-scoped authentication");
 	const create = (options = {}) => api("/api/server/sessions", { ...options, body: { files, serverName: "Public Minecraft server" } });
 	return { api, create };
 }
@@ -87,15 +87,13 @@ test("any server can create a private session without a shared key, but only its
 	assert.equal((await api("/api/server/poll?session=" + b.data.id, { auth: b.data.serverToken })).status, 200);
 });
 
-test("a configured legacy key remains optional and cannot control new public sessions", async t => {
-	const key = "legacy-compatibility-only-32-characters-long";
-	const { api, create } = await start(t, { HUB_SERVER_KEY: key });
-	const publicSession = await create(), legacySession = await create({ auth: key });
-	assert.equal(publicSession.status, 201);
-	assert.equal(legacySession.status, 201);
-	assert.equal((await api("/api/server/poll?session=" + publicSession.data.id, { auth: key })).status, 401);
-	assert.equal((await api("/api/server/poll?session=" + legacySession.data.id, { auth: key })).status, 200);
-	assert.equal((await create({ auth: "wrong-key" })).status, 401);
+test("session creation rejects supplied credentials instead of authenticating a global key", async t => {
+	const { api, create } = await start(t);
+	const created = await create();
+	assert.equal(created.status, 201);
+	assert.equal((await create({ auth: "unexpected-authentication-header" })).status, 401);
+	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: created.data.serverToken })).status, 200);
+	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: "unrelated-token" })).status, 401);
 });
 
 test("public session creation is limited before upload and forwarded addresses are trusted only for configured proxy hops", async t => {
