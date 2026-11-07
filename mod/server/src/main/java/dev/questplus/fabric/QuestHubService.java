@@ -93,10 +93,6 @@ final class QuestHubService implements AutoCloseable {
 		return configurationError == null && !closed;
 	}
 
-	private String endpoint(String p) {
-		return origin.toString().replaceAll("/$", "") + p;
-	}
-
 	private void notify(CommandSourceStack source, String message) {
 		source.sendSuccess(() -> chat(Component.literal(message).withStyle(ChatFormatting.GRAY)), false);
 	}
@@ -192,6 +188,26 @@ final class QuestHubService implements AutoCloseable {
 		JsonArray a = new JsonArray();
 		registry.getTags().map(tag -> "#" + tag.key().location().toString()).sorted().forEach(a::add);
 		output.add(name, a);
+	}
+
+	static record HubSession(String id, String token, String url) {
+	}
+
+	static HubSession parseSession(JsonObject response) {
+		try {
+			String id = response.get("id").getAsString();
+			String token = response.get("serverToken").getAsString();
+			String url = response.get("url").getAsString();
+			URI target = URI.create(url);
+			if (!id.matches("[A-Za-z0-9_-]{32}") || !token.matches("[A-Za-z0-9_-]{43}")
+					|| target.getHost() == null || !Set.of("https", "http").contains(target.getScheme())
+					|| url.contains(token) || target.getRawQuery() == null
+					|| !Arrays.asList(target.getRawQuery().split("&")).contains("session=" + id))
+				throw new IllegalArgumentException("Invalid session response");
+			return new HubSession(id, token, url);
+		} catch (RuntimeException error) {
+			throw new IllegalArgumentException("Quest Studio returned an invalid session response. Check the web API version.", error);
+		}
 	}
 
 	static String credentialFor(String path, String token) {
@@ -318,6 +334,10 @@ final class QuestHubService implements AutoCloseable {
 			fail(source, "Open the editor as an in-game operator");
 			return;
 		}
+		if (creatingSession) {
+			notify(source, "A Quest Studio session is already being created.");
+			return;
+		}
 		try {
 			Path target = defaultPack ? defaults() : world.resolve("questplus");
 			JsonArray files = QuestHubFiles.snapshot(target);
@@ -327,25 +347,32 @@ final class QuestHubService implements AutoCloseable {
 			payload.add("registry", registry());
 			String localSignature = signature(files);
 			UUID actor = player.getUUID();
+			creatingSession = true;
 			request("POST", "/api/server/sessions", payload, result -> {
-				String credential = result.has("serverToken") ? result.get("serverToken").getAsString() : "";
-				if (!credential.matches("[A-Za-z0-9_-]{40,}"))
-					throw new IllegalStateException(
-							"Quest Studio did not return a valid session token. Update the web API.");
+				creatingSession = false;
+				HubSession created;
+				try {
+					created = parseSession(result);
+				} catch (IllegalArgumentException error) {
+					fail(source, error.getMessage());
+					return;
+				}
 				dropSession();
-				sessionToken = credential;
+				sessionToken = created.token();
 				owner = actor;
 				sessionDefinitions = target;
-				session = result.get("id").getAsString();
+				session = created.id();
 				lastPending = null;
 				pendingApproval = null;
 				lastJobId = null;
 				lastAck = null;
 				revisionSignature = localSignature;
 				lastPoll = 0;
-				String url = result.get("url").getAsString();
-				messageOwner(editorLink(url));
-			}, e -> fail(source, "Could not create session: " + e));
+				messageOwner(editorLink(created.url()));
+			}, e -> {
+				creatingSession = false;
+				fail(source, "Could not create session: " + e);
+			});
 			notify(source, "Creating a secured editor session…");
 		} catch (Exception error) {
 			QuestPlusMod.LOGGER.warn("Could not prepare a Quest Studio session", error);
