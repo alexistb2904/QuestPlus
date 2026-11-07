@@ -72,6 +72,55 @@ class QuestHubChatTest {
 	}
 
 	@Test
+	void httpRequestsMatchTheTokenOnlyHubProtocol() {
+		URI hub = URI.create("https://quest.alexistb.com/");
+		var data = new com.google.gson.JsonObject();
+		data.addProperty("serverName", "Test");
+		String token = "s".repeat(43);
+
+		var create = QuestHubService.buildRequest(hub, "POST", "/api/server/sessions", data, token);
+		assertEquals("POST", create.method());
+		assertEquals(URI.create("https://quest.alexistb.com/api/server/sessions"), create.uri());
+		assertTrue(create.headers().firstValue("Authorization").isEmpty());
+		assertEquals("application/json; charset=utf-8", create.headers().firstValue("Content-Type").orElseThrow());
+		assertTrue(create.bodyPublisher().isPresent());
+
+		var poll = QuestHubService.buildRequest(hub, "GET", "/api/server/poll?session=" + "a".repeat(32), null, token);
+		assertEquals("GET", poll.method());
+		assertTrue(poll.bodyPublisher().isEmpty());
+		assertEquals("Bearer " + token, poll.headers().firstValue("Authorization").orElseThrow());
+
+		for (String endpoint : new String[] { "/api/server/approve", "/api/server/ack", "/api/server/revoke" }) {
+			var request = QuestHubService.buildRequest(hub, "POST", endpoint, data, token);
+			assertEquals("Bearer " + token, request.headers().firstValue("Authorization").orElseThrow());
+		}
+		assertTrue(QuestHubService.buildRequest(hub, "GET", "/api/packs/" + "a".repeat(32), null, token)
+				.headers().firstValue("Authorization").isEmpty());
+	}
+
+	@Test
+	void sessionCreationOnlyAcceptsTheCurrentApiResponse() {
+		String id = "i".repeat(32), token = "t".repeat(43);
+		var response = new com.google.gson.JsonObject();
+		response.addProperty("id", id);
+		response.addProperty("serverToken", token);
+		response.addProperty("url", "https://quest.alexistb.com/?hub=https%3A%2F%2Fquest.alexistb.com&session=" + id);
+		var parsed = QuestHubService.parseSession(response);
+		assertEquals(id, parsed.id());
+		assertEquals(token, parsed.token());
+
+		var oldApi = response.deepCopy();
+		oldApi.remove("serverToken");
+		assertThrows(IllegalArgumentException.class, () -> QuestHubService.parseSession(oldApi));
+		var invalidToken = response.deepCopy();
+		invalidToken.addProperty("serverToken", "not-a-session-token");
+		assertThrows(IllegalArgumentException.class, () -> QuestHubService.parseSession(invalidToken));
+		var mismatchedUrl = response.deepCopy();
+		mismatchedUrl.addProperty("url", "https://quest.alexistb.com/?session=" + "x".repeat(32));
+		assertThrows(IllegalArgumentException.class, () -> QuestHubService.parseSession(mismatchedUrl));
+	}
+
+	@Test
 	void editorLinkOpensTheWebsiteWithColorAndHoverText() {
 		String url = "https://quests.example.com/?session=abc";
 		var message = QuestHubService.editorLink(url);
