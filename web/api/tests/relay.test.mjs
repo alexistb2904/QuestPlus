@@ -90,6 +90,51 @@ test(
 			});
 			assert.equal(start.status, 201);
 			const id = start.data.id;
+
+			// Any Minecraft server can create its own session without knowing HUB_SERVER_KEY.
+			const publicStart = await api(base, "/api/server/sessions", {
+				method: "POST",
+				body: { serverName: "Independent public server", files },
+			});
+			assert.equal(publicStart.status, 201);
+			const publicId = publicStart.data.id;
+			const publicToken = publicStart.data.serverToken;
+			assert.match(publicToken, /^[A-Za-z0-9_-]{40,}$/);
+			assert.notEqual(publicId, id);
+			assert.equal((await api(base, "/api/server/poll?session=" + publicId)).status, 401);
+			assert.equal((await api(base, "/api/server/poll?session=" + publicId, { key })).status, 401);
+			assert.equal((await api(base, "/api/server/poll?session=" + publicId, { key: publicToken })).status, 200);
+			assert.equal((await api(base, "/api/server/poll?session=" + id, { key: publicToken })).status, 401);
+			const publicPending = await api(base, "/api/editor/sessions/" + publicId + "/request", { method: "POST", body: {} });
+			assert.equal(publicPending.status, 201);
+			assert.equal((await api(base, "/api/server/poll?session=" + publicId, { key: publicToken })).data.pending.code, publicPending.data.code);
+			const approveBody = { session: publicId, id: publicPending.data.requestId, code: publicPending.data.code };
+			assert.equal((await api(base, "/api/server/approve", { method: "POST", key, body: approveBody })).status, 401);
+			assert.equal((await api(base, "/api/server/approve", { method: "POST", key: publicToken, body: approveBody })).status, 200);
+			const publicStatus = await api(base, "/api/editor/sessions/" + publicId + "/status", {
+				method: "POST",
+				body: { requestId: publicPending.data.requestId, requestSecret: publicPending.data.requestSecret },
+			});
+			assert.ok(publicStatus.data.editorToken);
+			const browserToken = publicStatus.data.editorToken;
+			const publicData = await api(base, "/api/editor/sessions/" + publicId + "/data", { key: browserToken });
+			assert.equal(publicData.status, 200);
+			const publicPublish = await api(base, "/api/editor/sessions/" + publicId + "/publish", {
+				method: "POST",
+				key: browserToken,
+				body: { files, baseRevision: publicData.data.revision },
+			});
+			assert.equal(publicPublish.status, 202);
+			const publicJob = (await api(base, "/api/server/poll?session=" + publicId, { key: publicToken })).data.job;
+			assert.equal(publicJob.id, publicPublish.data.id);
+			assert.equal((await api(base, "/api/server/ack", {
+				method: "POST", key: publicToken, body: { session: publicId, id: publicJob.id, success: true },
+			})).status, 200);
+			assert.equal((await api(base, "/api/editor/sessions/" + publicId + "/jobs/" + publicJob.id, { key: browserToken })).data.status, "applied");
+			assert.equal((await api(base, "/api/server/revoke", {
+				method: "POST", key: publicToken, body: { session: publicId },
+			})).status, 200);
+			assert.equal((await api(base, "/api/editor/sessions/" + publicId + "/data", { key: browserToken })).status, 404);
 			assert.equal(new URL(start.data.url).origin, base);
 			assert.equal(new URL(start.data.url).searchParams.get("hub"), base);
 			assert.ok(start.data.url.includes("session=" + id));

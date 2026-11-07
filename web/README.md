@@ -14,7 +14,7 @@ For editor work, follow the [editor setup](editor/README.md). For a connected se
 
 ## Deploy the complete site
 
-Copy [.env.example](.env.example) to `.env` and set `HUB_SERVER_KEY` to a unique private value. You can generate one with `openssl rand -hex 32`. The example configures `https://quest.alexistb.com` as the public origin. Set the same origin and key in Minecraft's `questplus-hub.json`.
+Copy [.env.example](.env.example) to `.env` and configure `HUB_PUBLIC_URL` with your public HTTPS origin. `HUB_SERVER_KEY` is optional and exists only for legacy self-hosted clients. Modern Minecraft servers receive a distinct short-lived session credential automatically. No shared owner key is needed.
 
 From `web/`, run:
 
@@ -24,7 +24,7 @@ docker compose up -d --build
 
 The web service routes the editor at `/`, the documentation at `/docs/` and the API at `/api/`. Put HTTPS in front of the `web` service. The API should remain private behind the proxy. Back up the `questplus-packs` volume before removing or recreating the deployment.
 
-For Coolify, create a Docker Compose application from Git using `web/compose.yml`. Set `HUB_PUBLIC_URL` and `HUB_SERVER_KEY` in Coolify. Assign the HTTPS domain to the `web` service on internal port 80. Set `VITE_QUESTPLUS_HUB_URL` and `VITE_QUESTPLUS_DOCS_URL` if the editor build needs explicit API or documentation addresses.
+For Coolify, create a Docker Compose application from Git using `web/compose.yml`. Set `HUB_PUBLIC_URL` in Coolify. Assign the HTTPS domain to the `web` service on internal port 80. Set `VITE_QUESTPLUS_HUB_URL` and `VITE_QUESTPLUS_DOCS_URL` if the editor build needs explicit API or documentation addresses.
 
 `HUB_PUBLIC_URL` and `VITE_QUESTPLUS_HUB_URL` use the origin without `/api`. The frontend adds API paths itself. Vite embeds `VITE_` values in public JavaScript, so never put secrets in them. Rebuild after changing these values. Check `/health` and `/docs/`, then test an operator approval session in Minecraft.
 

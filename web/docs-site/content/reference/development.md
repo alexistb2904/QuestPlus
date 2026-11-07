@@ -81,7 +81,7 @@ For connected editing, build Studio and run the optional API as described in [Ho
 
 Keep mutable gameplay state on the Minecraft server thread. The browser sends authored definitions, and the server validates the complete pack before applying it. Client rendering classes must not be loaded by dedicated server code.
 
-Never expose player saves, claim records or the server API key to the browser. Keep editor tokens in memory. A session URL is not authorization.
+Never expose player saves, claim records or per-session server credentials to the browser. Keep editor tokens in memory. A session URL is not authorization.
 
 Before changing a protocol, read `docs/architecture.md` and `web/api/README.md`. Add tests for changes to protocol, registry validation, permissions, rollback or release packaging.
 

@@ -1,52 +1,37 @@
 # Host the web service
 
-The optional web service serves the built Quest Studio editor and `/api/` API from one origin. It handles temporary approval sessions, immutable shared packs and queued publications. Minecraft still validates and applies the pack.
+Quest Studio's optional Hub serves the editor and `/api/` from the same origin. It relays temporary editing sessions and stores immutable shared packs. Minecraft performs all quest validation and changes. A static editor supports offline ZIP editing but not connected publishing.
 
-The static GitHub Pages editor supports offline authoring but does not host API endpoints.
+## Public hosted editor
 
-## Local setup
+With the standard mod, no configuration is needed. The Hub defaults to `https://quest.alexistb.com/`.
 
-Use Node.js 22 and first build `web/editor/` with `npm ci` and `npm run build`. Install API dependencies with `npm ci` in `web/api/`.
+An in-game operator runs `/questplus editor`, opens the link, requests browser access, then approves the matching code with `/questplus editor approve <code>`. Changes are only applied after the Minecraft server has validated and acknowledged them. Use `/questplus editor revoke` to end the session.
 
-Generate a strong random secret, for example with `openssl rand -hex 32`. Keep it private. Set `HUB_SERVER_KEY` to this value and `HUB_PUBLIC_URL` to `http://localhost:8787`, then start `node server.mjs` from `web/api/`.
+The old shared `serverKey` is **not needed**. Each server receives a unique, temporary server token when creating a session. The browser never receives this token and still needs explicit in-game approval.
 
-For PowerShell, the environment setup has this form. Replace the placeholder before starting the service.
+## Self-hosted Hub
 
-```powershell
-$env:HUB_SERVER_KEY = '<your-random-secret>'
-$env:HUB_PUBLIC_URL = 'http://localhost:8787'
-node server.mjs
-```
+Build the editor with Node.js 22+ using `npm ci && npm run build` in `web/editor/`. Then in `web/api/` install dependencies with `npm ci`, set `HUB_PUBLIC_URL` to your HTTPS origin and start `node server.mjs`. For Docker and Coolify, use `web/compose.yml` or `web/api/compose.yml`, and configure `HUB_PUBLIC_URL`. `HUB_SERVER_KEY` is optional for legacy self-hosted clients.
 
-Create `<world>/questplus-hub.json`, or use `config/questplus-hub.json` as the instance fallback for solo development.
+To connect a Minecraft server to another Hub, create `<world>/questplus-hub.json` or `config/questplus-hub.json`:
 
 ```json
 {
-	"url": "http://localhost:8787",
-	"serverKey": "<the-same-random-secret>"
+  "url": "https://your-hub.example"
 }
 ```
 
-The world file takes precedence. Restart Minecraft after configuration. Plain HTTP is allowed for localhost development only.
+The world file takes precedence. The URL must be an origin without paths or credentials. Plain HTTP is only supported on localhost for development. Restart Minecraft after changing the config.
 
-For the hosted service, the mod defaults to `https://quest.alexistb.com/` when `url` is absent. Set `serverKey` to that service's private key to enable connected editing. The key is never included in compiled JARs. Without a key, `/questplus editor` opens the website for ZIP authoring and reports the missing configuration. Connection failures explain whether the address, connection, HTTPS certificate, credentials or web service needs attention. Technical diagnostics remain in the game log.
-
-Open `http://localhost:8787/` and check `/health`. In Minecraft, run `/questplus editor`, open its link, request access and approve the matching code from the initiating operator. Do not copy the server secret into the browser.
-
-## Production
-
-`web/api/Dockerfile` builds the editor and packages it with the API. From `web/api/`, configure `HUB_PUBLIC_URL` with the public HTTPS origin and `HUB_SERVER_KEY` with the private secret, then run `docker compose up -d --build`.
-
-Put an HTTPS reverse proxy in front of the service. Compose binds the internal port to localhost by default. Use that same public HTTPS origin in `questplus-hub.json`.
-
-Minecraft opens outbound requests to the configured endpoint. No additional inbound Minecraft port is needed. Serve the editor and API from the same origin to avoid a separate cross origin setup.
+Open `https://your-hub.example/health` to check the service. Minecraft makes outbound HTTPS requests, so no inbound Minecraft API port is required. Keep the editor and API on the same origin to avoid cross-origin issues.
 
 ## Sessions and recovery
 
-Approval belongs to the operator who started the session. Disconnecting that operator revokes access. Sessions expire after inactivity. Closing the browser does not immediately revoke them, so use `/questplus editor revoke` when finished.
+A new session is created without prior approval from the Hub owner. The Hub returns a secret `serverToken` only to the initiating Minecraft server. It authenticates polling, operator approval, acknowledgments and revocation for that session, never for another server. An unrelated browser cannot edit from the session URL alone.
 
-Keep the pack storage directory and server configuration in your backup plan. Sessions and publication queues are process local. Do not run independent writers against one directory as if it were a shared durable queue.
+Only the original in-game operator can approve browser access. Their disconnect revokes the session. Sessions also expire after inactivity. Closing the browser tab does not revoke a session: use `/questplus editor revoke`.
 
-The API bounds sessions, bytes, request concurrency and stored packs. Busy requests can return `429` or `503` with a retry delay. Do not raise limits without measuring actual payload size and memory use.
+The API limits sessions, memory, concurrent requests and stored packs; busy requests may return HTTP `429` or `503`. Keep backups of the pack storage. The session queue is process-local and multiple API instances do not share state.
 
 [Publish from Studio](/guide/import-and-publish) · [HTTP reference](/reference/web-api)
