@@ -95,6 +95,11 @@ public final class QuestPlusApi {
 		QuestPlusMod.runtime().mutate(player.getUUID(), questId, "reset");
 	}
 
+	/** Register an optional server integration before Minecraft starts. */
+	public static AutoCloseable registerAdapter(String id, QuestPlusAdapters.Adapter adapter) {
+		return QuestPlusAdapters.register(id, adapter);
+	}
+
 	public static void submit(ServerPlayer responsible, QuestEvent event) {
 		QuestPlusMod.runtime().event(responsible, event);
 	}
