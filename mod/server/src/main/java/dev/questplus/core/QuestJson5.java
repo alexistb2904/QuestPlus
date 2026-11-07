@@ -25,12 +25,12 @@ public final class QuestJson5 {
 		JsonElement parse() {
 			JsonElement result = value(0);
 			space();
-			if (pos != source.length()) error("Unexpected trailing content");
+			if (pos != source.length()) throw error("Unexpected trailing content");
 			return result;
 		}
 
 		private JsonElement value(int depth) {
-			if (depth > 64) error("JSON5 nesting exceeds limit");
+			if (depth > 64) throw error("JSON5 nesting exceeds limit");
 			space();
 			if (pos >= source.length()) throw error("Missing value");
 			char c = source.charAt(pos);
