@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { hubLabel, hubTargets, hubTexture, setHubRegistry } from "../src/core/hub-registry.js";
+import { hubFieldDefault, hubLabel, hubTargets, hubTexture, setHubRegistry } from "../src/core/hub-registry.js";
 import { resourceMatcher } from "../src/core/resource-search.js";
 
 test("server mod previews support localized search while rejecting unregistered or unsafe assets", () => {
@@ -64,4 +64,24 @@ test("extension forms retain supported registry field descriptors and reject cod
 	});
 	assert.equal(value.extensions.length, 1);
 	assert.deepEqual(value.extensions[0].fields, fields);
+});
+
+test("extension descriptors validate choices and numeric defaults without scripts", () => {
+    const fields = [
+        { key: "rate", type: "number", label: "Rate", min: 0, max: 10, default: 2.5 },
+        { key: "mode", type: "choice", label: "Mode", options: ["press", "crusher"], default: "press" },
+    ];
+    const value = setHubRegistry({
+        extensions: [
+            { kind: "event", id: "test:machine", label: "Machine", fields },
+            { kind: "reward", id: "test:unsafe", label: "Unsafe", fields: [{ key: "run", type: "string", label: "Run", javascript: "alert(1)" }] },
+            { kind: "condition", id: "test:bad", label: "Bad", fields: [{ key: "mode", type: "choice", label: "Mode", options: [], default: "x" }] },
+        ],
+    });
+    assert.equal(value.extensions.length, 1);
+    assert.deepEqual(value.extensions[0].fields, fields);
+    assert.equal(hubFieldDefault(fields[0]), 2.5);
+    assert.equal(hubFieldDefault(fields[1]), "press");
+    assert.equal(hubFieldDefault({ type: "boolean" }), false);
+    setHubRegistry({});
 });
