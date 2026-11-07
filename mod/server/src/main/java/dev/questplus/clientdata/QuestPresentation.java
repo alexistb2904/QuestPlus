@@ -36,6 +36,11 @@ public final class QuestPresentation {
 
 	/** Fallback objective text for quests without a localized custom label. */
 	public static String objectiveText(QuestDefinition.Objective objective, String locale, String targetName) {
+		return objectiveText(objective, locale, targetName, objective.count());
+	}
+
+	/** Use the current tier's target, not the base count from the authored objective. */
+	public static String objectiveText(QuestDefinition.Objective objective, String locale, String targetName, long targetCount) {
 		String lang = locale == null ? "en" : locale.toLowerCase(java.util.Locale.ROOT);
 		int column = lang.startsWith("fr") ? 1 : lang.startsWith("es") ? 2 : lang.startsWith("zh") ? 3 : 0;
 		String[] verbs = switch (objective.event()) {
@@ -71,30 +76,30 @@ public final class QuestPresentation {
 		default -> new String[] { "Complete", "Accomplir", "Completar", "完成" };
 		};
 		if (objective.event().equals("travel_distance")) {
-			String meters = java.math.BigDecimal.valueOf(objective.count() / 100.0).stripTrailingZeros()
+			String meters = java.math.BigDecimal.valueOf(targetCount / 100.0).stripTrailingZeros()
 					.toPlainString();
 			return new String[] { "Travel ", "Parcourir ", "Recorrer ", "行进 " }[column] + meters + " m";
 		}
 		if (objective.event().equals("custom_stat"))
 			return new String[] { "Reach stat ", "Atteindre la statistique ", "Alcanzar estadística ",
-					"达到统计值 " }[column] + objective.target() + " ≥ " + objective.count();
+					"达到统计值 " }[column] + objective.target() + " ≥ " + targetCount;
 		if (objective.event().equals("advancement_complete"))
 			return new String[] { "Complete advancement ", "Compléter le progrès ", "Completar progreso ",
 					"完成进度 " }[column] + objective.target();
 		if (objective.event().equals("xp_levels"))
 			return new String[] { "Reach XP level ", "Atteindre le niveau XP ", "Alcanzar nivel XP ",
-					"达到经验等级 " }[column] + objective.count();
+					"达到经验等级 " }[column] + targetCount;
 		if (objective.event().equals("xp_submit_levels"))
 			return new String[] { "Submit XP levels: ", "Remettre des niveaux XP : ", "Entregar niveles XP: ",
-					"提交经验等级：" }[column] + objective.count();
+					"提交经验等级：" }[column] + targetCount;
 		if (objective.event().equals("xp_submit_points"))
 			return new String[] { "Submit XP points: ", "Remettre des points XP : ", "Entregar puntos XP: ",
-					"提交经验点数：" }[column] + objective.count();
+					"提交经验点数：" }[column] + targetCount;
 		if (objective.event().equals("location"))
 			return new String[] { "Reach location", "Atteindre la position", "Llegar a la posición", "到达指定位置" }[column];
 		if (Set.of("observe_block", "observe_entity").contains(objective.event()))
 			return new String[] { "Observe ", "Observer ", "Observar ", "观察 " }[column] + targetName + " · "
-					+ (objective.count() / 20.0) + " s";
+					+ (targetCount / 20.0) + " s";
 		if (objective.event().equals("stage"))
 			return new String[] { "Have stage ", "Posséder le stage ", "Tener etapa ", "拥有阶段 " }[column]
 					+ objective.target();
@@ -103,7 +108,41 @@ public final class QuestPresentation {
 		if (objective.event().equals("player_death"))
 			return new String[] { "Die", "Mourir", "Morir", "死亡" }[column];
 		String target = targetName == null || targetName.isBlank() ? objective.target() : targetName;
-		return verbs[column] + " " + objective.count() + " " + target;
+		if (Set.of("block_break", "block_place", "block_interact", "item_obtained", "item_craft",
+				"item_smelt", "item_use", "item_consume", "inventory_count", "item_submit", "item_turn_in",
+				"entity_kill", "tame_animal", "breed_animal", "fish_item", "fish_entity").contains(objective.event()))
+			target = countedTarget(target, lang, targetCount);
+		return verbs[column] + " " + targetCount + " " + target;
+	}
+
+	private static String countedTarget(String name, String locale, long count) {
+		if (count <= 1 || locale.startsWith("zh") || name.isBlank())
+			return name;
+		String lower = name.substring(0, 1).toLowerCase(java.util.Locale.ROOT) + name.substring(1);
+		if (locale.startsWith("en")) {
+			if (Set.of("stone", "cobblestone", "deepslate").contains(lower.toLowerCase(java.util.Locale.ROOT)))
+				return lower + " blocks";
+			int space = lower.lastIndexOf(' ');
+			String stem = lower.substring(0, space + 1), word = lower.substring(space + 1);
+			if (word.endsWith("s"))
+				return lower;
+			if (word.endsWith("y") && word.length() > 1 && !"aeiou".contains(word.substring(word.length() - 2, word.length() - 1)))
+				return stem + word.substring(0, word.length() - 1) + "ies";
+			if (word.endsWith("ch") || word.endsWith("sh") || word.endsWith("x") || word.endsWith("z"))
+				return lower + "es";
+			return lower + "s";
+		}
+		int space = lower.indexOf(' ');
+		String word = space < 0 ? lower : lower.substring(0, space);
+		String suffix = space < 0 ? "" : lower.substring(space);
+		if (locale.startsWith("fr"))
+			return (word.endsWith("s") || word.endsWith("x") || word.endsWith("z") ? word : word + "s") + suffix;
+		if (locale.startsWith("es")) {
+			if (word.endsWith("s"))
+				return lower;
+			return word + ("aeiouáéíóú".indexOf(word.charAt(word.length() - 1)) >= 0 ? "s" : "es") + suffix;
+		}
+		return name;
 	}
 
 	/** Do not display the same sentence twice for a single-objective quest. */
