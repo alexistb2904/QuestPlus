@@ -8,23 +8,18 @@ de production. Le banc lance lui-même des processus isolés, avec un tas plafon
 scénario. Les 1 000 demandes utilisent de vraies connexions HTTP et adresses
 sources distinctes dans le loopback, ce ne sont pas 1 000 navigateurs.
 
+Les mesures du Hub utilisent uniquement le protocole actuel à jetons par session.
+
 ```powershell
-node scripts/benchmark/studio-load.mjs baseline small trial1
-node scripts/benchmark/studio-load.mjs baseline large trial1
 node scripts/benchmark/studio-load.mjs current small trial1
 node scripts/benchmark/studio-load.mjs current large trial1
 node scripts/benchmark/studio-search.mjs
 ```
 
-Répéter avec `trial2` et `trial3`, en alternant l'ordre avant/après. Ne pas lancer
-d'autres builds ou benchmarks pendant les mesures. Les résultats sont sous
-`build/benchmark/studio/<version>-<scenario>/results-trialN.json`.
-La source `baseline` provient du commit `2702882`, conservé dans l'historique Git.
-`STUDIO_BENCHMARK_BASELINE` permet de choisir une autre référence pour une nouvelle
-expérience. Le runtime et les dépendances restent ceux du checkout courant.
-Le benchmark de recherche utilise la même référence. Les références exactes de
-l'expérience du 6 novembre sont décrites dans le rapport. Les artefacts privés
-et traces sont ignorés par Git.
+Répéter avec `trial2` et `trial3` sur chaque version déployée à mesurer.
+Les résultats sont sous `build/benchmark/studio/<version>-<scenario>/results-trialN.json`.
+Les anciennes implémentations du protocole Hub ne sont plus prises en charge
+par ce banc. Les artefacts et traces restent ignorés par Git.
 
 Le cas lourd représente 500 namespaces de mods, 50 000 items, 25 000 blocks,
 2 500 tags, 1 000 noms traduits et 1 000 quêtes en grille. Il ne charge pas de
@@ -37,8 +32,7 @@ banc, pas les refus de charge attendus.
 
 Pour le navigateur, lancer Vite sur 5199, puis l'API sur 5201 avec
 `HUB_PUBLIC_URL=http://127.0.0.1:5201`, `STUDIO_ORIGIN=http://127.0.0.1:5199`,
-`STUDIO_URL=http://127.0.0.1:5199/`, un `HUB_DATA_DIR` isolé sous `build/` et la
-clé **factice** `synthetic-studio-browser-key-not-a-real-secret`.
+`STUDIO_URL=http://127.0.0.1:5199/` et un `HUB_DATA_DIR` isolé sous `build/`. Le pair Minecraft simulé utilise le jeton renvoyé à la création de sa session.
 `studio-browser-bridge.mjs create` fournit l'URL. Après « Connect this browser »,
 `studio-browser-bridge.mjs approve` simule le pair Minecraft approuvant la demande.
 Charger les quêtes et revenir à l'éditeur. Les fonctions Playwright CLI
