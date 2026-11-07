@@ -47,7 +47,7 @@ class QuestHubChatTest {
 
 	@Test
 	void proxyAndAuthenticationFailuresStayReadableEvenWhenTheResponseIsHtml() {
-		assertTrue(QuestHubService.responseError(401, "<html>denied</html>").contains("serverKey"));
+		assertTrue(QuestHubService.responseError(401, "<html>denied</html>").contains("session credentials"));
 		assertTrue(QuestHubService.responseError(403, "{}").contains("denied"));
 		assertTrue(QuestHubService.responseError(429, "{}").contains("retry"));
 		assertTrue(QuestHubService.responseError(503, "<html>offline</html>").contains("unavailable"));
@@ -55,6 +55,22 @@ class QuestHubChatTest {
 		assertEquals("Missing quests, categories or config", QuestHubService.responseError(400,
 				"{\"error\":\"Missing quests, categories or config\"}"));
 		assertFalse(QuestHubService.responseError(502, "<html>secret proxy details</html>").contains("secret"));
+	}
+
+
+	@Test
+	void authenticationIsScopedToAnIndividualSession() {
+		String legacy = "optional-self-hosted-legacy-key-of-32-characters";
+		String session = "session-owned-token-not-visible-in-the-browser";
+		assertNull(QuestHubService.credentialFor("/api/server/sessions", null, null));
+		assertEquals(legacy, QuestHubService.credentialFor("/api/server/sessions", legacy, null));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/poll", legacy, session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/approve", legacy, session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/revoke", legacy, session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/ack", legacy, session));
+		assertNull(QuestHubService.credentialFor("/api/packs/example", legacy, session));
+		assertNull(QuestHubService.credentialFor("/api/editor/sessions/example", legacy, session));
+		assertNull(QuestHubService.credentialFor("/api/server/poll", legacy, null));
 	}
 
 	@Test
