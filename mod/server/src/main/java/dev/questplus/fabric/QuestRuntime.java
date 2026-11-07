@@ -929,6 +929,78 @@ public final class QuestRuntime implements AutoCloseable {
         }
     }
 
+    private void settleCompletions(UUID uuid, List<QuestEngine.Completion> completed) throws IOException {
+        if (!completed.isEmpty()) {
+				Set<UUID> recipients = teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
+				for (UUID recipient : recipients)
+					for (var award : completed) {
+						var personal = player(recipient);
+						if (!personal.claims.containsKey(award.key()))
+							entitleAward(personal, award, player(uuid).teamId);
+						dirty.add(recipient);
+					}
+				Set<UUID> members = group(uuid);
+				Map<UUID, PlayerProgress> snapshots = new HashMap<>();
+				for (UUID member : members)
+					snapshots.put(member, player(member));
+				var team = player(uuid).teamId;
+				var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
+                if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
+                    persisted.thenRun(() -> server.execute(() -> {
+                        if (!closing)
+                            for (var award : completed)
+                                QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_COMPLETED, uuid,
+                                        award.questId(), null, 0, 0);
+                    }));
+				for (var award : completed)
+					for (UUID member : members) {
+						var online = server.getPlayerList().getPlayer(member);
+						if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
+							online.sendSystemMessage(award.rewards().isEmpty()
+									? Messages.text(online, "questplus.completed_no_reward",
+											title(online, registry.get(award.questId())))
+									: Messages.text(online, "questplus.completed",
+											title(online, registry.get(award.questId())), award.questId()));
+					}
+			}
+    }
+
+    /**
+     * Trusted administrative mutation: only the chosen objective is affected.
+     * All normal prerequisites, team state, entitlement and persistence paths remain active.
+     */
+    public void setObjectiveProgress(ServerPlayer actor, String questId, String objectiveId, long value)
+            throws IOException {
+        assertThread();
+        Objects.requireNonNull(actor, "actor");
+        UUID uuid = actor.getUUID();
+        ensureFree(group(uuid));
+        var quest = registry.get(questId);
+        var objective = quest.objectives().stream().filter(o -> o.id().equals(objectiveId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown objective: " + objectiveId));
+        PlayerProgress progress = state(uuid);
+        var oldProgress = progress.quests.get(questId);
+        if (oldProgress != null && (oldProgress.terminal || oldProgress.waitingRestart))
+            throw new IllegalStateException("Quest has finished this attempt");
+        long before = oldProgress == null ? 0 : oldProgress.counters.getOrDefault(objectiveId, 0L);
+        long revision = progress.revision;
+        var updated = new HashSet<String>();
+        var completed = engine.setObjectiveProgress(progress, questId, objectiveId, value,
+                QuestPlusMod.context(actor), updated);
+        if (progress.revision != revision)
+            changed(uuid);
+        var after = progress.quests.get(questId);
+        long current = after == null ? 0 : after.counters.getOrDefault(objectiveId, 0L);
+        if (before != current) {
+            QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, uuid, questId, objectiveId,
+                    before, current);
+            if (before < objective.count() && current >= objective.count())
+                QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, uuid, questId, objectiveId,
+                        before, current);
+        }
+        settleCompletions(uuid, completed);
+    }
+
 	public void event(ServerPlayer player, QuestEvent event) {
 		assertThread();
 		// Manual acknowledgements are valid even in creative/spectator; only gameplay
@@ -965,39 +1037,7 @@ public final class QuestRuntime implements AutoCloseable {
 				group(uuid).forEach(member -> QuestNetwork.invalidateProgress(member, updated));
 			}
 			publishObjectiveProgress(uuid, progress, event, before);
-			if (!completed.isEmpty()) {
-				Set<UUID> recipients = teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
-				for (UUID recipient : recipients)
-					for (var award : completed) {
-						var personal = player(recipient);
-						if (!personal.claims.containsKey(award.key()))
-							entitleAward(personal, award, player(uuid).teamId);
-						dirty.add(recipient);
-					}
-				Set<UUID> members = group(uuid);
-				Map<UUID, PlayerProgress> snapshots = new HashMap<>();
-				for (UUID member : members)
-					snapshots.put(member, player(member));
-				var team = player(uuid).teamId;
-				var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
-                if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
-                    persisted.thenRun(() -> server.execute(() -> {
-                        if (!closing)
-                            for (var award : completed)
-                                QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_COMPLETED, uuid,
-                                        award.questId(), null, 0, 0);
-                    }));
-				for (var award : completed)
-					for (UUID member : members) {
-						var online = server.getPlayerList().getPlayer(member);
-						if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
-							online.sendSystemMessage(award.rewards().isEmpty()
-									? Messages.text(online, "questplus.completed_no_reward",
-											title(online, registry.get(award.questId())))
-									: Messages.text(online, "questplus.completed",
-											title(online, registry.get(award.questId())), award.questId()));
-					}
-			}
+			settleCompletions(uuid, completed);
 		} catch (IOException | RuntimeException e) {
 			QuestPlusMod.LOGGER.error("Quest event rejected for {}", player.getUUID(), e);
 		}
