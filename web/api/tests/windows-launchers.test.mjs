@@ -72,23 +72,21 @@ test("development launchers point to the relocated mod and web services", () => 
 	assert.match(read("scripts/_gradle.bat"), /mod\\gradlew\.bat/);
 });
 
-test("local setup creates an untracked key, reuses it, and never overwrites an existing server config", () => {
+test("local setup creates URL-only config without overwriting an existing server config", () => {
 	const temp = mkdtempSync(path.join(os.tmpdir(), "questplus-windows-qa-"));
 	try {
 		const script = path.join(root, "web/api/tools/setup-local.mjs");
 		const run = () => spawnSync(process.execPath, [script, temp], { encoding: "utf8", timeout: 10000 });
 		const first = run();
 		assert.equal(first.status, 0, first.stderr);
-		const secret = readFileSync(path.join(temp, "run/questplus-web-local.key"), "utf8").trim();
-		assert.match(secret, /^[0-9a-f]{64}$/);
-		assert.ok(!first.stdout.includes(secret), "Secret must not be printed");
 		const config = path.join(temp, "run/server/world/questplus-hub.json");
-		assert.deepEqual(JSON.parse(readFileSync(config, "utf8")), { url: "http://localhost:8787", serverKey: secret });
+		const clientConfig = path.join(temp, "run/client/config/questplus-hub.json");
+		assert.deepEqual(JSON.parse(readFileSync(config, "utf8")), { url: "http://localhost:8787" });
+		assert.deepEqual(JSON.parse(readFileSync(clientConfig, "utf8")), { url: "http://localhost:8787" });
 		assert.equal(run().status, 0);
-		assert.equal(readFileSync(path.join(temp, "run/questplus-web-local.key"), "utf8").trim(), secret);
-		writeFileSync(config, '{"url":"https://private.example","serverKey":"user-owned"}');
+		writeFileSync(config, '{"url":"https://private.example"}');
 		assert.equal(run().status, 0);
-		assert.equal(readFileSync(config, "utf8"), '{"url":"https://private.example","serverKey":"user-owned"}');
+		assert.equal(readFileSync(config, "utf8"), '{"url":"https://private.example"}');
 	} finally {
 		rmSync(temp, { recursive: true, force: true });
 	}

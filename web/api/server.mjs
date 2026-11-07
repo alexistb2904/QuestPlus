@@ -15,7 +15,6 @@ const PUBLIC_URL = (process.env.HUB_PUBLIC_URL || "http://localhost:" + PORT).re
 const ALLOWED_ORIGIN = process.env.STUDIO_ORIGIN || new URL(PUBLIC_URL).origin;
 const STUDIO_URL = (process.env.STUDIO_URL || PUBLIC_URL + "/").replace(/\/$/, "/");
 const STATIC_DIR = path.resolve(process.env.WEB_STATIC_DIR || path.join(path.dirname(fileURLToPath(import.meta.url)), "../editor/dist"));
-const SERVER_KEY = process.env.HUB_SERVER_KEY || "";
 const DATA_DIR = path.resolve(process.env.HUB_DATA_DIR || "./data/packs");
 const MAX_BYTES = 12 * 1024 * 1024,
 	SESSION_MS = 30 * 60 * 1000,
@@ -35,7 +34,6 @@ if (!Number.isSafeInteger(PROXY_HOPS) || PROXY_HOPS < 0 || PROXY_HOPS > 8) throw
 const MAX_BODY = MAX_BYTES + 1024 * 1024,
 	MAX_BODY_IN_FLIGHT = 16 * 1024 * 1024,
 	MAX_OUTPUT_IN_FLIGHT = 32 * 1024 * 1024;
-if (SERVER_KEY && SERVER_KEY.length < 32) throw Error("Legacy HUB_SERVER_KEY must contain at least 32 characters");
 if (!PUBLIC_URL.startsWith("https://") && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(PUBLIC_URL)) throw Error("HUB_PUBLIC_URL must use HTTPS except for local development");
 const sessions = new Map(),
 	rates = new Map();
@@ -149,9 +147,7 @@ async function expiredPack(file, bytes, now) {
 		bodyBytes -= bytes;
 	}
 }
-const legacyServer = (req) => Boolean(SERVER_KEY && equal(req.headers.authorization, "Bearer " + SERVER_KEY));
 const requireServer = (req, s) => {
-	if (legacyServer(req) && (!s || s.legacy)) return;
 	if (!active(s) || !equal(req.headers.authorization, "Bearer " + s.serverAuth)) throw fail(401, "Invalid session credentials");
 };
 const bearer = (req) => String(req.headers.authorization || "").replace(/^Bearer /, "");
@@ -339,8 +335,7 @@ async function handler(req, res) {
 		// Session credentials belong to the initiating Minecraft server, never to a browser.
 		if (p.startsWith("/v1/server/")) {
 			if (req.method === "POST" && p === "/v1/server/sessions") {
-				const legacy = legacyServer(req);
-				if (req.headers.authorization && !legacy) throw fail(401, "Invalid legacy server credentials");
+				if (req.headers.authorization) throw fail(401, "Session creation does not accept credentials");
 				rateLimit(req, "session-create", MAX_SESSION_CREATES, 60_000);
 				if (sessionCreates >= 2) throw fail(503, "Session upload capacity reached; retry shortly");
 				sessionCreates++;
@@ -360,7 +355,6 @@ async function handler(req, res) {
 					const s = {
 						id,
 						serverAuth: token(32),
-						legacy,
 						serverName: input.serverName,
 						files,
 						registry,
@@ -428,11 +422,6 @@ async function handler(req, res) {
 				delete s.job.revision;
 				s.job.taken = true;
 				return json(res, 200, s.jobStatus);
-			}
-			if (req.method === "GET" && p.startsWith("/v1/server/packs/")) {
-				if (!legacyServer(req)) throw fail(401, "Invalid legacy server credentials");
-				const pack = await readPack(p.split("/").pop());
-				return json(res, 200, { files: pack.files, sha256: pack.sha256 });
 			}
 			throw fail(404, "Unknown server endpoint");
 		}

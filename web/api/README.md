@@ -4,7 +4,7 @@ The web API connects Quest Studio to Minecraft servers. It hosts the React edito
 
 ## Connect any Minecraft server
 
-No account, registration or shared server key is required.
+No account or registration is required. Connected editing uses temporary session credentials.
 
 1. Install QuestPlus on the Minecraft server and ensure it can reach `https://quest.alexistb.com`.
 2. As an in-game operator, run `/questplus editor`.
@@ -21,7 +21,7 @@ The mod uses the public hosted Hub by default. No `questplus-hub.json` is requir
 
 The world config takes precedence over the instance config. URLs must be HTTPS origins, except localhost development. Restart Minecraft after changing the configuration.
 
-A server creates a new editing session without a global key. The Hub returns a random `serverToken` used only by that Minecraft server for polling, approval, publication acknowledgments and revocation. Browser approval is separate and must come from the operator who started the session. Neither the server token nor player progress is sent to the browser. The server validates full packs and rolls back failed updates.
+A server creates a new editing session without a preconfigured credential. The Hub returns a random `serverToken` used only by that Minecraft server for polling, approval, publication acknowledgments and revocation. Browser approval is separate and must come from the operator who started the session. Neither the server token nor player progress is sent to the browser. The server validates full packs and rolls back failed updates.
 
 Use `/questplus editor revoke` to end a session. The server revokes its previous session when a new one is created.
 
@@ -48,7 +48,7 @@ Set `HUB_PUBLIC_URL=http://localhost:8787` in your environment and run `npm star
 }
 ```
 
-For Vite development, run `npm run dev` in `web/editor/`, set `STUDIO_ORIGIN=http://localhost:5173` on the API and use `http://localhost:8787` as the Hub address. The Windows `dev.bat setup` helper still generates a local legacy key for compatibility testing; normal deployments do not need it. `dev.bat client` also prepares the local web API for solo testing. A standard JAR does not embed Node.js.
+For Vite development, run `npm run dev` in `web/editor/`, set `STUDIO_ORIGIN=http://localhost:5173` on the API and use `http://localhost:8787` as the Hub address. The Windows `dev.bat setup` helper creates local URL-only configurations. `dev.bat client` also prepares the local web API for solo testing. A standard JAR does not embed Node.js.
 
 Run `npm test` from `web/api/` for API tests.
 
@@ -62,6 +62,6 @@ docker compose up -d --build
 
 This deploys the editor, API and documentation. The alternative `web/api/compose.yml` serves the editor and API without documentation. Keep the API behind an HTTPS reverse proxy, allow outbound requests from Minecraft servers, and protect the shared pack volume with backups. Sessions are process-local and must use a single API instance.
 
-`HUB_SERVER_KEY` is **optional** for existing self-hosted legacy clients. Only use a 32+ character random secret when intentionally supporting clients that send that key. It is not an allowlist and is not required on public Hub deployments. Never put secrets in `VITE_` variables or commit credentials.
+The Hub authenticates each server independently with the credential returned by its session creation request. Never put tokens in `VITE_` variables or commit credentials.
 
-See the [HTTP API reference](../docs-site/content/reference/web-api.md) and [architecture rules](../../AGENTS.md). The existing server validation, revision checks, and in-game operator approval are required regardless of authentication mode.
+See the [HTTP API reference](../docs-site/content/reference/web-api.md) and [architecture rules](../../AGENTS.md). The existing server validation, revision checks, and in-game operator approval are required for every session.

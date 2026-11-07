@@ -14,7 +14,7 @@ For editor work, follow the [editor setup](editor/README.md). For a connected se
 
 ## Deploy the complete site
 
-Copy [.env.example](.env.example) to `.env` and configure `HUB_PUBLIC_URL` with your public HTTPS origin. `HUB_SERVER_KEY` is optional and exists only for legacy self-hosted clients. Modern Minecraft servers receive a distinct short-lived session credential automatically. No shared owner key is needed.
+Copy [.env.example](.env.example) to `.env` and configure `HUB_PUBLIC_URL` with your public HTTPS origin. Each Minecraft server receives its own temporary session credential automatically.
 
 From `web/`, run:
 

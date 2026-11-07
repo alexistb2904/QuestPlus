@@ -6,7 +6,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-const key = "capacity-tests-only-not-a-real-secret-123456789";
 const files = [
 	{ name: "config.json", content: '{"schemaVersion":1}' },
 	{ name: "categories/demo.json", content: "{}" },
@@ -24,7 +23,7 @@ async function start(t, env = {}, directory) {
 	const base = "http://127.0.0.1:" + port;
 	const child = spawn(process.execPath, ["server.mjs"], {
 		cwd: new URL("..", import.meta.url),
-		env: { ...process.env, PORT: String(port), HUB_PUBLIC_URL: base, HUB_SERVER_KEY: key, HUB_DATA_DIR: dir, ...env },
+		env: { ...process.env, PORT: String(port), HUB_PUBLIC_URL: base, HUB_DATA_DIR: dir, ...env },
 		stdio: "ignore",
 	});
 	const stop = async () => {
@@ -39,10 +38,13 @@ async function start(t, env = {}, directory) {
 			await rm(dir, { recursive: true, force: true });
 		}
 	});
-	async function api(route, { body, auth = key, method = body ? "POST" : "GET" } = {}) {
+	const tokens = new Map();
+	async function api(route, { body, auth, method = body ? "POST" : "GET" } = {}) {
+		const sessionId = body?.session || new URL(route, base).searchParams.get("session");
+		const credential = auth === undefined ? tokens.get(sessionId) : auth;
 		const response = await fetch(base + route, {
 			method,
-			headers: { authorization: "Bearer " + auth, ...(body ? { "content-type": "application/json" } : {}) },
+			headers: { ...(credential ? { authorization: "Bearer " + credential } : {}), ...(body ? { "content-type": "application/json" } : {}) },
 			body: body ? JSON.stringify(body) : undefined,
 		});
 		return { status: response.status, retry: response.headers.get("retry-after"), data: await response.json() };
@@ -58,7 +60,11 @@ async function start(t, env = {}, directory) {
 		await new Promise((r) => setTimeout(r, 20));
 	}
 	assert.ok(ready);
-	const create = (registry) => api("/v1/server/sessions", { body: { serverName: "Test", files, registry: registry || { items: ["mod:gem"] } } });
+	const create = async (registry) => {
+		const created = await api("/v1/server/sessions", { body: { serverName: "Test", files, registry: registry || { items: ["mod:gem"] } } });
+		if (created.status === 201) tokens.set(created.data.id, created.data.serverToken);
+		return created;
+	};
 	async function approve(id) {
 		const pending = await api(`/v1/editor/sessions/${id}/request`, { body: {}, auth: "" });
 		assert.equal(pending.status, 201);
@@ -236,7 +242,7 @@ test("request admission rejects excess incomplete bodies while health remains av
 		pending = [];
 	t.after(() => pending.forEach((req) => req.destroy()));
 	for (let i = 0; i < 64; i++) {
-		const req = http.request({ host: "127.0.0.1", port: s.port, path: "/v1/server/revoke", method: "POST", headers: { authorization: "Bearer " + key } }, (res) =>
+		const req = http.request({ host: "127.0.0.1", port: s.port, path: "/v1/server/revoke", method: "POST", headers: {} }, (res) =>
 			res.resume()
 		);
 		req.on("error", () => {});
@@ -253,7 +259,7 @@ test("request admission rejects excess incomplete bodies while health remains av
 test("pending uploads cannot monopolize aggregate body capacity and abort releases it", async (t) => {
 	const s = await start(t);
 	const req = http.request(
-		{ host: "127.0.0.1", port: s.port, path: "/v1/server/sessions", method: "POST", headers: { authorization: "Bearer " + key, "content-length": 10 * 1024 * 1024 } },
+		{ host: "127.0.0.1", port: s.port, path: "/v1/server/sessions", method: "POST", headers: { "content-length": 10 * 1024 * 1024 } },
 		(res) => res.resume()
 	);
 	req.on("error", () => {});
@@ -262,7 +268,7 @@ test("pending uploads cannot monopolize aggregate body capacity and abort releas
 	await new Promise((r) => setTimeout(r, 80));
 	const response = await new Promise((resolve) => {
 		const other = http.request(
-			{ host: "127.0.0.1", port: s.port, path: "/v1/server/sessions", method: "POST", headers: { authorization: "Bearer " + key, "content-length": 10 * 1024 * 1024 } },
+			{ host: "127.0.0.1", port: s.port, path: "/v1/server/sessions", method: "POST", headers: { "content-length": 10 * 1024 * 1024 } },
 			(res) => {
 				res.resume();
 				res.on("end", () => resolve(res.statusCode));

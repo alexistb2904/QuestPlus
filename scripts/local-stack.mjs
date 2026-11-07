@@ -34,11 +34,9 @@ export async function httpWebReady(){
  }catch{return false}finally{clearTimeout(timer)}
 }
 export async function checkConfig(root){
- const key=(await readFile(path.join(root,'run/questplus-web-local.key'),'utf8')).trim();
- if(!/^[a-f0-9]{64}$/.test(key))throw Error('Local API key missing or invalid');
  const conf=JSON.parse(await readFile(path.join(root,'run/server/world/questplus-hub.json'),'utf8'));
- if(conf.url!=='http://localhost:8787'||conf.serverKey!==key)
-  throw Error('Minecraft world config differs from the generated API credentials. Fix it manually; nothing was overwritten.');
+ if(conf.url!=='http://localhost:8787')
+  throw Error('Minecraft world config does not use the local Hub URL. Fix it manually; nothing was overwritten.');
  return true;
 }
 export async function waitUntil(probe,{label,timeoutMs,intervalMs=1200}){
@@ -66,7 +64,7 @@ async function main(){
    await checkConfig(root);
    if(await tcpReady(WEB_PORT))throw Error('Port 8787 already in use. Stop the previous web service first.');
    if(await tcpReady(GAME_PORT))throw Error('Port 25565 already in use. Stop the previous Minecraft server first.');
-   console.log('[QuestPlus] Local credentials match; ports 8787 and 25565 are free.');
+   console.log('[QuestPlus] Local Hub URL verified; ports 8787 and 25565 are free.');
    break;
   case 'wait-web':
    await waitUntil(httpWebReady,{label:'React + API (8787)',timeoutMs:180000});

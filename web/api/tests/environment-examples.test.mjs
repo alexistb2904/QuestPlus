@@ -10,6 +10,5 @@ test("deployment examples use the shared origin and public build URLs", () => {
 		assert.equal(env.HUB_PUBLIC_URL, "https://quest.alexistb.com");
 		assert.equal(env.VITE_QUESTPLUS_HUB_URL, env.HUB_PUBLIC_URL);
 		assert.equal(env.VITE_QUESTPLUS_DOCS_URL, env.HUB_PUBLIC_URL + "/docs/");
-		assert.equal(env.HUB_SERVER_KEY, "");
 	}
 });

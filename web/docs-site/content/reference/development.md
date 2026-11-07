@@ -31,7 +31,7 @@ On Windows, `dev.bat` option **5** (`dev.bat build`) runs the full mod build, JU
 
 ## Run the required checks
 
-Both build options compile `https://quest.alexistb.com/` as the default editor address. Existing `questplus-hub.json` URLs override that default. No server secret is embedded in the JAR. Connected editing still requires the web API's private key in the Minecraft configuration. Without it, the command provides the website link for ZIP authoring and explains how to enable connected editing.
+Both build options compile `https://quest.alexistb.com/` as the default editor address. Existing `questplus-hub.json` URLs override that default. Connected editing uses per-session credentials issued automatically by the Hub. No credentials need to be configured or embedded in the JAR.
 
 Run each block from the repository root or from the indicated folder.
 
