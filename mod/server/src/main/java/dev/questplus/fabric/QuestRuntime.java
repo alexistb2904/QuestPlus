@@ -3,6 +3,7 @@ package dev.questplus.fabric;
 import com.google.gson.JsonArray;
 
 import dev.questplus.core.*;
+import dev.questplus.fabric.api.QuestPlusAdapters;
 import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.persistence.JsonProgressStore;
 import dev.questplus.team.*;
@@ -409,6 +410,7 @@ public final class QuestRuntime implements AutoCloseable {
 		crateNoDrop = Map.copyOf(candidateNoDrop);
 		autosaveTicks = seconds * 20;
 		QuestNetwork.invalidateAll(server);
+		QuestPlusAdapters.definitionsReloaded();
 	}
 
 	private void validateRegistryReference(String kind, String target) {
