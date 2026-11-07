@@ -8,11 +8,11 @@ With the standard mod, no configuration is needed. The Hub defaults to `https://
 
 An in-game operator runs `/questplus editor`, opens the link, requests browser access, then approves the matching code with `/questplus editor approve <code>`. Changes are only applied after the Minecraft server has validated and acknowledged them. Use `/questplus editor revoke` to end the session.
 
-The old shared `serverKey` is **not needed**. Each server receives a unique, temporary server token when creating a session. The browser never receives this token and still needs explicit in-game approval.
+Each server receives a unique, temporary server token when creating a session. The browser never receives this token and still needs explicit in-game approval.
 
 ## Self-hosted Hub
 
-Build the editor with Node.js 22+ using `npm ci && npm run build` in `web/editor/`. Then in `web/api/` install dependencies with `npm ci`, set `HUB_PUBLIC_URL` to your HTTPS origin and start `node server.mjs`. For Docker and Coolify, use `web/compose.yml` or `web/api/compose.yml`, and configure `HUB_PUBLIC_URL`. `HUB_SERVER_KEY` is optional for legacy self-hosted clients.
+Build the editor with Node.js 22+ using `npm ci && npm run build` in `web/editor/`. Then in `web/api/` install dependencies with `npm ci`, set `HUB_PUBLIC_URL` to your HTTPS origin and start `node server.mjs`. For Docker and Coolify, use `web/compose.yml` or `web/api/compose.yml`, and configure `HUB_PUBLIC_URL`.
 
 To connect a Minecraft server to another Hub, create `<world>/questplus-hub.json` or `config/questplus-hub.json`:
 
