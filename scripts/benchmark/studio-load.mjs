@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import {spawn,execFileSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import {writeFile,mkdir} from 'node:fs/promises';
-import {createRequire} from 'node:module';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 import {performance} from 'node:perf_hooks';
@@ -11,8 +10,6 @@ import {emptyProject,category,quest,fileMap} from '../../web/editor/src/core/pro
 const root=path.resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const label=process.argv[2]||'current',scenario=process.argv[3]||'large',run=process.argv[4]||'run';
 const out=path.join(root,'build/benchmark/studio',label+'-'+scenario);await mkdir(out,{recursive:true});
-const key='synthetic-studio-load-key-not-a-real-server-secret';
-const baselineRef=process.env.STUDIO_BENCHMARK_BASELINE||'2702882';
 function registry(mods=500,itemsPerMod=100){
  const items=Array.from({length:mods*itemsPerMod},(_,i)=>`benchmod${Math.floor(i/itemsPerMod)}:resource_${i%itemsPerMod}`);
  return {items,blocks:items.filter((_,i)=>i%2===0),tags:{items:items.filter((_,i)=>i%20===0).map(id=>'#'+id)},assets:{names:Object.fromEntries(items.slice(0,1000).map(id=>[id,{en_us:'Benchmark resource '+id,fr_fr:'Ressource '+id}])),textures:{},limited:true}};
@@ -23,17 +20,12 @@ const files=[...fileMap(project)].filter(([name])=>/\.json5?$/.test(name)).map((
 const catalogue=registry(scenario==='small'?2:500,scenario==='small'?20:100);
 const payload=JSON.stringify({serverName:'Synthetic 500-mod server',files,registry:catalogue});
 await writeFile(path.join(out,'fixture.json'),JSON.stringify({files,registry:catalogue}));
-let serverFile=path.join(root,'web/api/server.mjs');
-if(label==='baseline'){
- const require=createRequire(path.join(root,'web/api/server.mjs'));
- const source=execFileSync('git',['show',baselineRef+':web/api/server.mjs'],{cwd:root,encoding:'utf8'}).replace("from 'json5'",`from '${pathToFileURL(require.resolve('json5')).href}'`);
- serverFile=path.join(root,'build/benchmark/studio/baseline-server.mjs');
- await writeFile(serverFile,source);
-}
+if(label==='baseline')throw Error('The historic Hub protocol is unsupported. Compare new session-based runs instead.');
+const serverFile=path.join(root,'web/api/server.mjs');
 const port=await new Promise(resolve=>{const s=http.createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>resolve(p))})});
 let last={},peakRss=0,peakHeap=0,loopMax=0,childExit=null,stderr='';
 const child=spawn(process.execPath,['--max-old-space-size=384','--import',pathToFileURL(path.join(root,'scripts/benchmark/studio-metrics.mjs')).href,serverFile],{
- cwd:path.join(root,'web/api'),env:{...process.env,PORT:String(port),HUB_PUBLIC_URL:`http://127.0.0.1:${port}`,STUDIO_ORIGIN:`http://127.0.0.1:${port}`,HUB_SERVER_KEY:key,HUB_DATA_DIR:path.join(out,'packs-'+run),WEB_STATIC_DIR:path.join(root,'web/editor/dist')},stdio:['ignore','ignore','pipe','ipc']});
+ cwd:path.join(root,'web/api'),env:{...process.env,PORT:String(port),HUB_PUBLIC_URL:`http://127.0.0.1:${port}`,STUDIO_ORIGIN:`http://127.0.0.1:${port}`,HUB_DATA_DIR:path.join(out,'packs-'+run),WEB_STATIC_DIR:path.join(root,'web/editor/dist')},stdio:['ignore','ignore','pipe','ipc']});
 child.on('message',m=>{if(m.type==='metrics'){last=m;peakRss=Math.max(peakRss,m.rss);peakHeap=Math.max(peakHeap,m.heap);loopMax=Math.max(loopMax,m.max)}});
 child.stderr.on('data',b=>{stderr=(stderr+b.toString()).slice(-30000)});child.on('exit',(code,signal)=>{childExit={code,signal}});
 const agent=new http.Agent({keepAlive:true,maxSockets:128});
@@ -51,7 +43,7 @@ function request(route,{method='GET',body,auth,actor=0,collect=true}={}){
 const rows=[],sessions=[],healthSamples=[];let healthTimer;
 async function authorize(session){
  const pending=await request(`/v1/editor/sessions/${session.id}/request`,{method:'POST',body:'{}',actor:session.actor});assert.equal(pending.status,201);
- const a=await request('/v1/server/approve',{method:'POST',auth:key,actor:session.actor,body:JSON.stringify({session:session.id,id:pending.data.requestId,code:pending.data.code})});assert.equal(a.status,200);
+ const a=await request('/v1/server/approve',{method:'POST',auth:session.serverToken,actor:session.actor,body:JSON.stringify({session:session.id,id:pending.data.requestId,code:pending.data.code})});assert.equal(a.status,200);
  const auth=await request(`/v1/editor/sessions/${session.id}/status`,{method:'POST',body:JSON.stringify(pending.data),actor:session.actor});assert.equal(auth.status,200);
  return {...session,token:auth.data.editorToken,revision:auth.data.revision};
 }
@@ -68,7 +60,7 @@ try{
  let probing=false;healthTimer=setInterval(async()=>{if(probing)return;probing=true;try{healthSamples.push(await request('/health'))}finally{probing=false}},100);
  for(let start=0;start<1000;start+=20){
   await phase('sessions-'+(start+20),20,8,async i=>{
-   const actor=start+i,r=await request('/v1/server/sessions',{method:'POST',body:payload,auth:key,actor});
+   const actor=start+i,r=await request('/v1/server/sessions',{method:'POST',body:payload,actor});
    if(r.status===201)sessions.push({...r.data,actor});return r;
   });
   if(start===0&&sessions.length){
@@ -94,7 +86,7 @@ finally{
  if(healthSamples.length){const times=healthSamples.map(r=>r.ms).sort((a,b)=>a-b);rows.push({phase:'health-during-load',requests:times.length,successes:healthSamples.filter(r=>r.status===200).length,p95:times[Math.ceil(times.length*.95)-1],p99:times[Math.ceil(times.length*.99)-1]})}
  agent.destroy();child.kill();await new Promise(resolve=>childExit?resolve():child.once('exit',resolve));
  const completed=!rows.some(r=>r.phase==='failure');
- const report={label,scenario,baselineRef,node:process.version,payloadBytes:Buffer.byteLength(payload),mods:scenario==='small'?2:500,registryItems:catalogue.items.length,quests:project.quests.length,accepted:sessions.length,peakRss,peakHeap,loopMax,childExit,completed,rows};
+ const report={label,scenario,node:process.version,payloadBytes:Buffer.byteLength(payload),mods:scenario==='small'?2:500,registryItems:catalogue.items.length,quests:project.quests.length,accepted:sessions.length,peakRss,peakHeap,loopMax,childExit,completed,rows};
  await writeFile(path.join(out,'results.json'),JSON.stringify(report,null,2));await writeFile(path.join(out,'results-'+run+'.json'),JSON.stringify(report,null,2));await writeFile(path.join(out,'server-'+run+'.log'),stderr);
  console.log('RESULT '+JSON.stringify({accepted:sessions.length,peakRss,peakHeap,loopMax,childExit}));
  if(!completed)process.exitCode=1;
