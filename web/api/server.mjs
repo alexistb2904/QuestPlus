@@ -337,7 +337,8 @@ async function handler(req, res) {
 		res.once("close", release);
 		if (p.startsWith("/v1/server/")) {
 			if (req.method === "POST" && p === "/v1/server/sessions") {
-				if (req.headers.authorization) throw fail(401, "Session creation does not accept credentials");
+				// This route is public. Any forwarded Authorization header is ignored,
+				// never treated as a server credential or proof of authority.
 				rateLimit(req, "session-create", MAX_SESSION_CREATES, 60_000);
 				if (sessionCreates >= 2) throw fail(503, "Session upload capacity reached; retry shortly");
 				sessionCreates++;
