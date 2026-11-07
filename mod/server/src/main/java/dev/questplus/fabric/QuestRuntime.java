@@ -1248,6 +1248,9 @@ public final class QuestRuntime implements AutoCloseable {
 				teams.apply(change);
 				write.applied = true;
 				notify.forEach(QuestNetwork::invalidate);
+                if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.TEAM_CHANGED))
+                    for (UUID member : affected)
+                        QuestPlusEvents.publish(QuestPlusEvents.Type.TEAM_CHANGED, member, null, null, 0, 0);
 				dirty.removeAll(change.players().keySet());
 				dirtyTeams.removeAll(change.teams().keySet());
 			}
