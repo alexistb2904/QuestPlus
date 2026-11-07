@@ -8,10 +8,12 @@ export const PROFILES=Object.freeze({
  baseline:['sodium','iris'],
  punchy:['sodium','iris','punchy-fpa','punchymoves','fluid-foolish','3dskinlayers'],
  nea:['sodium','iris','not-enough-animations','3dskinlayers'],
- firstperson:['sodium','iris','not-enough-animations','first-person-model','3dskinlayers']
+ firstperson:['sodium','iris','not-enough-animations','first-person-model','3dskinlayers'],
+ fresh:['sodium','iris','entity-model-features','entitytexturefeatures','fresh-animations','fa-player-extension']
 });
 export const COMPAT_ASSETS=Object.freeze([...ASSETS,
- ...['not-enough-animations','first-person-model','3dskinlayers'].map(id=>({id,type:'mod',loader:'fabric',ext:'.jar'})),
+ ...['not-enough-animations','first-person-model','3dskinlayers','entity-model-features','entitytexturefeatures'].map(id=>({id,type:'mod',loader:'fabric',ext:'.jar'})),
+ ...['fresh-animations','fa-player-extension'].map(id=>({id,type:'resourcepack',ext:'.zip'})),
  ...['complementary-unbound','photon-shader','bsl-shaders','sildurs-vibrant-shaders'].map(id=>({id,type:'shader',ext:'.zip'}))
 ]);
 

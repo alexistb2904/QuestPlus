@@ -10,7 +10,10 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.storage.LevelResource;
 import team.reborn.energy.api.EnergyStorage;
 
-/** Actual rendered tablet actions, network requests and server-side Tech Reborn withdrawals. */
+/**
+ * Actual rendered tablet actions, network requests and server-side Tech Reborn
+ * withdrawals.
+ */
 final class ResourceClientGameTest {
 	static void run(ClientGameTestContext context, TestServerContext server) {
 		String quest = "questplus:client_tech_resources";
@@ -19,17 +22,21 @@ final class ResourceClientGameTest {
 			try {
 				var runtime = dev.questplus.fabric.QuestPlusMod.runtime();
 				category[0] = runtime.categories().getFirst().id();
-				Files.writeString(instance.getWorldPath(LevelResource.ROOT).resolve("questplus/quests/client-tech.json5"), """
-						{schemaVersion:2,id:'questplus:client_tech_resources',category:'%s',icon:'techreborn:red_cell_battery',
-						 title:{en_us:'Tech Reborn resources'},description:{en_us:'Submit battery energy, then an oil cell.'},
-						 progression:'once',objectiveMode:'sequence',objectives:[
-						  {id:'energy',event:'energy_submit',target:'questplus:fe',count:200,data:{fePerEnergy:10}},
-						  {id:'oil',event:'fluid_submit',target:'techreborn:oil',count:1000}],rewards:[]}
-						""".formatted(category[0]));
+				Files.writeString(
+						instance.getWorldPath(LevelResource.ROOT).resolve("questplus/quests/client-tech.json5"),
+						"""
+								{schemaVersion:2,id:'questplus:client_tech_resources',category:'%s',icon:'techreborn:red_cell_battery',
+								 title:{en_us:'Tech Reborn resources'},description:{en_us:'Submit battery energy, then an oil cell.'},
+								 progression:'once',objectiveMode:'sequence',objectives:[
+								  {id:'energy',event:'energy_submit',target:'questplus:fe',count:200,data:{fePerEnergy:10}},
+								  {id:'oil',event:'fluid_submit',target:'techreborn:oil',count:1000}],rewards:[]}
+								"""
+								.formatted(category[0]));
 				runtime.reload();
 				var player = instance.getPlayerList().getPlayers().getFirst();
 				player.setGameMode(GameType.SURVIVAL);
-				var battery = new ItemStack(BuiltInRegistries.ITEM.getOptional(Identifier.parse("techreborn:red_cell_battery")).orElseThrow());
+				var battery = new ItemStack(BuiltInRegistries.ITEM
+						.getOptional(Identifier.parse("techreborn:red_cell_battery")).orElseThrow());
 				battery.set(EnergyStorage.ENERGY_COMPONENT, 100L);
 				player.getInventory().setItem(5, battery);
 				player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(
@@ -61,7 +68,9 @@ final class ResourceClientGameTest {
 				var p = instance.getPlayerList().getPlayers().getFirst();
 				var state = dev.questplus.fabric.QuestPlusMod.runtime().state(p.getUUID()).quests.get(quest);
 				return state != null && state.counters.getOrDefault("energy", 0L) == 200;
-			} catch (java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
+			} catch (java.io.IOException e) {
+				throw new java.io.UncheckedIOException(e);
+			}
 		}, 300);
 		context.waitFor(client -> !QuestClientState.flag(QuestPlusClient.STATE.progress(quest), "saving"), 300);
 		context.waitTicks(5);
@@ -71,7 +80,8 @@ final class ResourceClientGameTest {
 		server.runOnServer(instance -> {
 			var player = instance.getPlayerList().getPlayers().getFirst();
 			if (player.getInventory().getItem(5).getOrDefault(EnergyStorage.ENERGY_COMPONENT, 0L) != 80
-					|| !player.getOffhandItem().is(BuiltInRegistries.ITEM.getOptional(Identifier.parse("techreborn:cell")).orElseThrow()))
+					|| !player.getOffhandItem()
+							.is(BuiltInRegistries.ITEM.getOptional(Identifier.parse("techreborn:cell")).orElseThrow()))
 				throw new AssertionError("Tablet resource actions did not preserve battery excess and empty cell");
 		});
 		context.waitTicks(8);

@@ -90,6 +90,7 @@ public final class QuestPlusClient implements ClientModInitializer {
 	}
 
 	private static void clear() {
+		QuestScreen.clearSavedView();
 		NEW_UNLOCKS.clear();
 		STATE.clear();
 		fragments = null;

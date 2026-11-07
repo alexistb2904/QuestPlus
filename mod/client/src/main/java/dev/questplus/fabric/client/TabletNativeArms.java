@@ -9,20 +9,29 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.PlayerModelType;
 import dev.questplus.fabric.client.mixin.TabletModelPartAccessor;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Draws the player's real skin parts in the same bone frame as the Blockbench
- * model.
- */
 public final class TabletNativeArms {
 	private static final float[] RIGHT = pivot("rightArm"), LEFT = pivot("leftArm");
+
+	private static final class Meshes {
+		static final PlayerModel WIDE = create(false), SLIM = create(true);
+
+		private static PlayerModel create(boolean slim) {
+			return new PlayerModel(
+					LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, slim), 64, 64).bakeRoot(),
+					slim);
+		}
+	}
 
 	private TabletNativeArms() {
 	}
@@ -42,20 +51,20 @@ public final class TabletNativeArms {
 			FpRenderBuffer buffer) {
 		boolean right = bone.getName().equals("rightArm");
 		float[] pivot = right ? RIGHT : LEFT;
-		ModelPart arm = right ? model.rightArm : model.leftArm;
-		ModelPart sleeve = right ? model.rightSleeve : model.leftSleeve;
+		var meshes = Minecraft.getInstance().player.getSkin().model() == PlayerModelType.SLIM ? Meshes.SLIM
+				: Meshes.WIDE;
+		ModelPart arm = right ? meshes.rightArm : meshes.leftArm;
+		ModelPart sleeve = right ? meshes.rightSleeve : meshes.leftSleeve;
 		var cubes = java.util.List.copyOf(((TabletModelPartAccessor) (Object) arm).questplus$cubes());
-		var sleeveCubes = sleeve.visible
+		var sleeveCubes = (right ? model.rightSleeve : model.leftSleeve).visible
 				? java.util.List.copyOf(((TabletModelPartAccessor) (Object) sleeve).questplus$cubes())
 				: java.util.List.<ModelPart.Cube>of();
 		pose.pushPose();
 		try {
 			FpArmRenderUtil.applyBoneTransform(pose, bone, pivot);
 			pose.translate(pivot[0] / 16f, pivot[1] / 16f, pivot[2] / 16f);
-			// Vanilla player parts use the mirrored X/downward Y frame of AvatarRenderer.
 			pose.scale(-1, -1, 1);
 			buffer.drawGeometry(pose, RenderTypes.entityCutout(skin), (matrix, vertices) -> {
-				// Immutable meshes only: vanilla sleeves are children of the arms in 26.3.
 				for (var cube : cubes)
 					cube.compile(matrix.last(), vertices, light, OverlayTexture.NO_OVERLAY, -1);
 				for (var cube : sleeveCubes)

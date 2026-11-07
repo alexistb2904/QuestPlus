@@ -56,7 +56,8 @@ final class TabletOptionsGameTest {
 					QuestClientTabletFlow.toggle(client);
 					if (!(client.gui.screen() instanceof QuestScreen) || TabletSurfaceRenderer.active() != tablet)
 						throw new AssertionError("Animations disabled changed 3D selection: " + tablet);
-					if (client.options.getCameraType() != (tablet ? CameraType.FIRST_PERSON : CameraType.THIRD_PERSON_BACK))
+					if (client.options
+							.getCameraType() != (tablet ? CameraType.FIRST_PERSON : CameraType.THIRD_PERSON_BACK))
 						throw new AssertionError("Incorrect camera for tablet mode " + tablet);
 				});
 				context.waitTicks(5);
@@ -101,7 +102,8 @@ final class TabletOptionsGameTest {
 				QuestClientGameTest.clickButton(context, "tree_resolution", resolution);
 				context.runOnClient(client -> {
 					int expected = resolution == 8 ? 1 : resolution + 1;
-					if (QuestPlusClient.settings.treeResolution != expected || ClientSettings.load().treeResolution != expected)
+					if (QuestPlusClient.settings.treeResolution != expected
+							|| ClientSettings.load().treeResolution != expected)
 						throw new AssertionError("Resolution button or persistence failed");
 				});
 				context.runOnClient(client -> QuestPlusClient.settings.treeResolution = resolution);

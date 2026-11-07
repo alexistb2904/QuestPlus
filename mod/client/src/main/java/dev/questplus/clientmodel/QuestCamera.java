@@ -48,10 +48,33 @@ public final class QuestCamera {
 		if (!Double.isFinite(factor) || factor <= 0 || !Double.isFinite(screenX) || !Double.isFinite(screenY))
 			return;
 		double wx = worldX(screenX), wy = worldY(screenY);
-		double next = Math.clamp(zoom * factor, minZoom, maxZoom);
+		double next = Math.clamp(zoom * factor, Math.min(minZoom, zoom), maxZoom);
 		zoom = next;
 		x = screenX - wx * zoom;
 		y = screenY - wy * zoom;
+	}
+
+	public void fitAll(java.util.Collection<QuestLayout.Point> points, double left, double top, double width,
+			double height, double paddingX, double paddingY) {
+		if (points.isEmpty() || width <= 0 || height <= 0)
+			return;
+		double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+		double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+		for (var point : points) {
+			if (!Double.isFinite(point.x()) || !Double.isFinite(point.y()))
+				continue;
+			minX = Math.min(minX, point.x());
+			minY = Math.min(minY, point.y());
+			maxX = Math.max(maxX, point.x());
+			maxY = Math.max(maxY, point.y());
+		}
+		if (!Double.isFinite(minX))
+			return;
+		double next = Math.min(1, Math.min(width / (maxX - minX + 2 * paddingX),
+				height / (maxY - minY + 2 * paddingY)) * .92);
+		if (Double.isFinite(next) && next > 0)
+			zoom = next;
+		fitBounds(points, left, top, width, height, paddingX, paddingY);
 	}
 
 	/** Fit centers all authored world anchors without changing the current zoom. */

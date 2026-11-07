@@ -20,6 +20,8 @@ QuestPlus detects an active shader pack and suppresses its own background blur. 
 
 The mod has been tested with the following animation mods: Punchy, Punchy Moves, Not Enough Animations.
 
+The first-person tablet hand rendering has also been checked with Fresh Animations 1.11.2, Player Extension 1.1, EMF 3.3.12 and ETF 7.2.7, alongside Punchy. While the tablet is active, it draws the player's skin on its own vanilla arm meshes and suppresses normal first-person hands. Custom player arm geometry from resource packs is not used for the tablet. This check does not cover every shader or resource-pack combination.
+
 ## Modded content
 
 Supported objectives can target installed mod items, blocks, entities and tags. Registry previews help select IDs. They do not install missing mods or add hooks for custom gameplay.

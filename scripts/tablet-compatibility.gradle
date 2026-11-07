@@ -1,12 +1,14 @@
 // Test-only launch configuration. All downloads and worlds stay under build/.
 allprojects {
     afterEvaluate {
+        loom.mods { questplus { sourceSet sourceSets.main } }
         def profile = providers.gradleProperty('tabletCompatibility').get()
         def profiles = [
             baseline: ['sodium', 'iris'],
             punchy: ['sodium', 'iris', 'punchy-fpa', 'punchymoves', 'fluid-foolish', '3dskinlayers'],
             nea: ['sodium', 'iris', 'not-enough-animations', '3dskinlayers'],
-            firstperson: ['sodium', 'iris', 'not-enough-animations', 'first-person-model', '3dskinlayers']
+            firstperson: ['sodium', 'iris', 'not-enough-animations', 'first-person-model', '3dskinlayers'],
+            fresh: ['sodium', 'iris', 'entity-model-features', 'entitytexturefeatures', 'fresh-animations', 'fa-player-extension']
         ]
         if (!profiles.containsKey(profile)) throw new GradleException('Unknown tablet profile: ' + profile)
         def testDir = file("build/tablet-compat/${profile}")
@@ -16,6 +18,7 @@ allprojects {
             vmArg '-Xmx2G'
         }
         tasks.named('deleteGameTestRunDir') {
+            setDelete([testDir])
             doLast {
                 def cache = file('build/tablet-assets')
                 def manifest = new groovy.json.JsonSlurper().parse(new File(cache, 'manifest.json'))
@@ -31,6 +34,10 @@ allprojects {
                 if (profile == 'punchy') {
                     new File(testDir, 'options.txt').text = 'resourcePacks:' + groovy.json.JsonOutput.toJson(
                         ['vanilla', 'punchy:punchy', 'file/' + manifest['fluid-foolish'].file]) + '\n'
+                }
+                if (profile == 'fresh') {
+                    new File(testDir, 'options.txt').text = 'resourcePacks:' + groovy.json.JsonOutput.toJson(
+                        ['vanilla', 'file/' + manifest['fresh-animations'].file, 'file/' + manifest['fa-player-extension'].file]) + '\n'
                 }
                 new File(testDir, 'assets.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifest))
             }

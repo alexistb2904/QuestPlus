@@ -21,6 +21,12 @@ import java.util.*;
 import static dev.questplus.fabric.client.QuestPlusClient.*;
 
 public final class QuestScreen extends Screen {
+	private record ViewState(Map<String, QuestCamera> cameras, String category, String selected, String tab,
+			String filter, String query, int detailsScroll, int categoryScroll, int teamPage,
+			Set<String> collapsedGroups) {
+	}
+
+	private static ViewState savedView;
 	private final QuestClientState state = STATE;
 	private final Map<String, QuestCamera> cameras = new HashMap<>();
 	private final Map<String, QuestLayout> layouts = new HashMap<>();
@@ -169,6 +175,30 @@ public final class QuestScreen extends Screen {
 
 	public QuestScreen() {
 		super(Component.literal("Quest Plus"));
+		if (savedView != null) {
+			cameras.putAll(savedView.cameras());
+			category = savedView.category();
+			selected = savedView.selected();
+			tab = savedView.tab();
+			filter = savedView.filter();
+			query = savedView.query();
+			detailsScroll = savedView.detailsScroll();
+			categoryScroll = savedView.categoryScroll();
+			teamPage = savedView.teamPage();
+			collapsedGroups.addAll(savedView.collapsedGroups());
+		}
+	}
+
+	@Override
+	public void removed() {
+		if (state.ready)
+			savedView = new ViewState(new HashMap<>(cameras), category, selected, tab, filter, query, detailsScroll,
+					categoryScroll, teamPage, Set.copyOf(collapsedGroups));
+		super.removed();
+	}
+
+	static void clearSavedView() {
+		savedView = null;
 	}
 
 	private Component t(String key, Object... args) {
@@ -313,10 +343,14 @@ public final class QuestScreen extends Screen {
 		boolean fresh = !cameras.containsKey(id);
 		camera = cameras.computeIfAbsent(id, ignored -> new QuestCamera(QuestCamera.MIN_ZOOM, QuestCamera.MAX_ZOOM));
 		if (fresh)
-			fit();
+			fit(true);
 	}
 
 	private void fit() {
+		fit(false);
+	}
+
+	private void fit(boolean initial) {
 		List<QuestLayout.Point> points = new ArrayList<>(layout.points().values());
 		double padX = 24, padY = 24;
 		for (var quest : state.quests.values())
@@ -337,7 +371,10 @@ public final class QuestScreen extends Screen {
 				padY = Math.max(padY, (note.has("height") ? note.get("height").getAsDouble() : 100) / 2);
 			}
 		}
-		camera.fitBounds(points, treeLeft, treeTop, treeRight - treeLeft, treeBottom - treeTop, padX, padY);
+		if (initial)
+			camera.fitAll(points, treeLeft, treeTop, treeRight - treeLeft, treeBottom - treeTop, padX, padY);
+		else
+			camera.fitBounds(points, treeLeft, treeTop, treeRight - treeLeft, treeBottom - treeTop, padX, padY);
 	}
 
 	@Override
@@ -977,8 +1014,7 @@ public final class QuestScreen extends Screen {
 			settings.save();
 			init();
 		});
-		pinButton.active = settings.pinned.contains(selected)
-				|| settings.pinned.size() < ClientSettings.MAX_PINNED;
+		pinButton.active = settings.pinned.contains(selected) || settings.pinned.size() < ClientSettings.MAX_PINNED;
 		questAction = button("claim", x, treeTop + 36, w, () -> {
 			if (currentAction == null)
 				return;
@@ -1361,10 +1397,8 @@ public final class QuestScreen extends Screen {
 				return gear;
 		}
 		String custom = state.text(o.text());
-		String label = custom.isBlank()
-				? QuestPresentation.objectiveText(o, minecraft.options.languageCode,
-						QuestObjectiveNames.target(o), QuestPresentation.target(quest, o, progress))
-				: custom;
+		String label = custom.isBlank() ? QuestPresentation.objectiveText(o, minecraft.options.languageCode,
+				QuestObjectiveNames.target(o), QuestPresentation.target(quest, o, progress)) : custom;
 		return QuestConditionText.withConditions(label, o.conditions(), this::questName);
 	}
 

@@ -79,7 +79,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					var profile = new com.mojang.authlib.GameProfile(new java.util.UUID(42, i + 1), "Picker" + i);
 					var player = new net.minecraft.server.level.ServerPlayer(server, server.overworld(), profile,
 							net.minecraft.server.level.ClientInformation.createDefault());
-					var connection = new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+					var connection = new net.minecraft.network.Connection(
+							net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
 					new io.netty.channel.embedded.EmbeddedChannel(connection);
 					server.getPlayerList().placeNewPlayer(connection, player,
 							net.minecraft.server.network.CommonListenerCookie.createInitial(profile, false));
@@ -88,7 +89,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			context.waitFor(client -> client.getConnection().getPlayerInfo("Picker11") != null, 100);
 			context.runOnClient(client -> {
 				var screen = (QuestScreen) client.gui.screen();
-				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).findFirst().orElseThrow();
+				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+						.findFirst().orElseThrow();
 				input.setValue("Picker1");
 				if (screen.matchingPlayers().size() != 3)
 					throw new AssertionError("Online player autocomplete did not filter names");
@@ -96,14 +98,16 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			context.takeScreenshot("questplus-team-online-picker");
 			context.runOnClient(client -> {
 				var screen = (QuestScreen) client.gui.screen();
-				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).findFirst().orElseThrow();
+				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+						.findFirst().orElseThrow();
 				input.setValue("");
 				var viewport = dev.questplus.clientmodel.TabletUiViewport.fit(client.getWindow().getGuiScaledWidth(),
 						client.getWindow().getGuiScaledHeight(), QuestPlusClient.settings.scale);
 				double x = viewport.offsetX() + 25 * viewport.scale(), y = viewport.offsetY() + 95 * viewport.scale();
 				for (int i = 0; i < 6; i++)
 					screen.mouseScrolled(x, y, 0, -1);
-				screen.mouseClicked(new MouseButtonEvent(x, y, new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false);
+				screen.mouseClicked(
+						new MouseButtonEvent(x, y, new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false);
 				if (!input.getValue().equals("Picker4"))
 					throw new AssertionError("Scrolling and selecting an online player failed: " + input.getValue());
 			});
@@ -189,6 +193,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 							120);
 					context.waitTicks(3);
 					context.takeScreenshot("questplus-native-" + cycle + "-idle");
+					context.runOnClient(client -> TabletArmRenderingTest.verify(client, true));
 					if (cycle == 1) {
 						context.waitTicks(18);
 						context.takeScreenshot("questplus-native-idle-effects-later");

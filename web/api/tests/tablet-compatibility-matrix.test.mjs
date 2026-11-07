@@ -26,4 +26,7 @@ test("GPU profiles cover popular hand/body mods independently and seven shader f
 	}
 	assert.ok(PROFILES.firstperson.includes("not-enough-animations"));
 	assert.ok(PROFILES.punchy.includes("fluid-foolish"));
+	assert.deepEqual(PROFILES.fresh.slice(2), ["entity-model-features", "entitytexturefeatures", "fresh-animations", "fa-player-extension"]);
+	for (const id of ["fresh-animations", "fa-player-extension"])
+		assert.equal(COMPAT_ASSETS.find((asset) => asset.id === id).type, "resourcepack");
 });

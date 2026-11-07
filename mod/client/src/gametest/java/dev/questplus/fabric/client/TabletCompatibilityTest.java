@@ -61,6 +61,7 @@ final class TabletCompatibilityTest {
 					context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 					context.waitTicks(4);
 					context.runOnClient(client -> assertCameraOwnership(true));
+					context.runOnClient(client -> TabletArmRenderingTest.verify(client, true));
 					assertMatteScreen(context.takeScreenshot(trial + "-held"));
 					context.runOnClient(client -> client.gui.screen().onClose());
 					context.waitTicks(5);
@@ -89,6 +90,7 @@ final class TabletCompatibilityTest {
 						if (client.gui.screen() != null || TabletSurfaceRenderer.hidesHud())
 							throw new AssertionError("HUD or screen retained after close: " + trial);
 						assertCameraOwnership(false);
+						TabletArmRenderingTest.verify(client, false);
 					});
 					context.takeScreenshot(trial + "-closed");
 					QuestPlusMod.LOGGER.info("TABLET COMPAT PASS {}", trial);

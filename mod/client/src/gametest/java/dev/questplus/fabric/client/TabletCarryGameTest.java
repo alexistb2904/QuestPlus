@@ -48,7 +48,8 @@ final class TabletCarryGameTest {
 			context.runOnClient(client -> client.options.setCameraType(CameraType.FIRST_PERSON));
 			carryResetTrial(context);
 			firstPersonItemTrial(context);
-			world.getServer().runCommand("execute at @p run summon minecraft:villager ~ ~ ~2 {NoAI:1b,Invulnerable:1b,Tags:[\"tablet_test\"],VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"}}");
+			world.getServer().runCommand(
+					"execute at @p run summon minecraft:villager ~ ~ ~2 {NoAI:1b,Invulnerable:1b,Tags:[\"tablet_test\"],VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"}}");
 			context.getInput().lookAt(0, 0);
 			context.waitFor(client -> client.hitResult instanceof net.minecraft.world.phys.EntityHitResult, 60);
 			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
@@ -100,7 +101,8 @@ final class TabletCarryGameTest {
 			controller.setupAnim(frame);
 			controller.setupAnim(frame);
 			com.github.razorplay01.fp_pal.firstperson.FpAnimationSystem.updateRenderState(client.player);
-			if (!controller.isRunning() || controller.getAnimationState() != com.zigythebird.playeranimcore.enums.State.PAUSED
+			if (!controller.isRunning()
+					|| controller.getAnimationState() != com.zigythebird.playeranimcore.enums.State.PAUSED
 					|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
 				throw new AssertionError("Repeated render frames discarded the held tablet pose: "
 						+ controller.getAnimationState() + " ticks=" + controller.getAnimationTicks());
@@ -112,6 +114,7 @@ final class TabletCarryGameTest {
 		for (int cycle = 0; cycle < 4; cycle++) {
 			context.runOnClient(QuestClientTabletFlow::toggle);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
+			context.runOnClient(client -> TabletArmRenderingTest.verify(client, true));
 			context.runOnClient(client -> client.gui.screen().onClose());
 			if (cycle == 0) {
 				context.waitTicks(5);
@@ -132,14 +135,17 @@ final class TabletCarryGameTest {
 				context.runOnClient(client -> {
 					var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
 							.fpPal$getFpAnimationController();
-					dev.questplus.fabric.QuestPlusMod.LOGGER.error("STUCK CLOSE id={} ticks={} state={} pending={} running={} instance={} finished={} fp={}",
-							controller.getCurrentFpAnimation(), controller.getAnimationTicks(), controller.getAnimationState(),
-							controller.isPendingPlay(), controller.isRunning(), controller.getCurrentAnimationInstance(),
-							controller.hasAnimationFinished(), com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive);
+					dev.questplus.fabric.QuestPlusMod.LOGGER.error(
+							"STUCK CLOSE id={} ticks={} state={} pending={} running={} instance={} finished={} fp={}",
+							controller.getCurrentFpAnimation(), controller.getAnimationTicks(),
+							controller.getAnimationState(), controller.isPendingPlay(), controller.isRunning(),
+							controller.getCurrentAnimationInstance(), controller.hasAnimationFinished(),
+							com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive);
 				});
 				context.takeScreenshot("tablet-stuck-close");
 				throw error;
 			}
+			context.runOnClient(client -> TabletArmRenderingTest.verify(client, false));
 		}
 	}
 
@@ -163,8 +169,9 @@ final class TabletCarryGameTest {
 			context.waitFor(client -> QuestClientTabletFlow.carrying(), 30);
 			context.waitTicks(5);
 			context.runOnClient(client -> {
-				if (!TabletNativeArms.active() || expected.distanceSquared(
-						com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position) > 1e-5)
+				if (!TabletNativeArms.active()
+						|| expected.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
+								.getExtraBone("tablet_root").position) > 1e-5)
 					throw new AssertionError("Picking up the tablet changed its carry pose");
 			});
 		}

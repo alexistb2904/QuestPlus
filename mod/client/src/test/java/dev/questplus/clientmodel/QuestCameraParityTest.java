@@ -6,6 +6,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class QuestCameraParityTest {
 	@Test
+	void initialFitContainsLargeCategoryIncludingNodePadding() {
+		QuestCamera camera = new QuestCamera(.2, 5);
+		camera.fitAll(List.of(new QuestLayout.Point(-900, -400), new QuestLayout.Point(900, 400)),
+				40, 50, 450, 230, 24, 24);
+		assertTrue(camera.screenX(-924) >= 40);
+		assertTrue(camera.screenX(924) <= 490);
+		assertTrue(camera.screenY(-424) >= 50);
+		assertTrue(camera.screenY(424) <= 280);
+	}
+	@Test
 	void anchorCoordinatesRemainInvertibleWithPointerAnchoredZoom() {
 		QuestCamera camera = new QuestCamera(.25, 2.5);
 		camera.fitBounds(List.of(new QuestLayout.Point(-60, 40), new QuestLayout.Point(140, 100)), 0, 0, 680, 390, 85,
