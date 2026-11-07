@@ -12,6 +12,66 @@ import net.minecraft.world.level.block.Blocks;
 
 public final class ObjectiveActionsGameTest {
 	@GameTest(maxTicks = 300)
+	public void javaExtensionSurvivesReloadAndValidatesItsData(GameTestHelper helper) throws Exception {
+		String event = "questplus_test:machine";
+		QuestPlusApi.registerEvent(event, "marker", false);
+		QuestPlusApi.registerObjectiveData(event, data -> {
+			if (!data.keySet().equals(java.util.Set.of("mode")) || !data.get("mode").isJsonPrimitive()
+					|| !data.getAsJsonPrimitive("mode").isString())
+				throw new IllegalArgumentException("Expected a machine mode");
+		}, (data, submitted) -> data.get("mode").getAsString().equals(submitted.context().get("mode")));
+		QuestPlusApi.registerEditorDescriptor("event", event, "Machine", com.google.gson.JsonParser.parseString(
+				"[{key:'mode',type:'string',label:'Mode'}]").getAsJsonArray());
+		var f = new ObjectiveTestFixture(helper, "java_extension", """
+				[{id:'machine',event:'questplus_test:machine',target:'questplus_test:machine',count:4,data:{mode:'press'}}]
+				""");
+		try (f) {
+			helper.assertTrue(dev.questplus.fabric.api.QuestStudioDescriptors.snapshot().asList().stream()
+					.anyMatch(value -> value.getAsJsonObject().get("id").getAsString().equals(event)),
+					"Extension descriptor is available to Studio");
+			QuestPlusApi.submit(f.player, new dev.questplus.core.QuestEvent(event, event, java.util.Set.of(), 2,
+					java.util.Map.of("mode", "wrong")));
+			f.expect("machine", 0);
+			QuestPlusApi.submit(f.player, new dev.questplus.core.QuestEvent(event, event, java.util.Set.of(), 2,
+					java.util.Map.of("mode", "press")));
+			f.expect("machine", 2);
+			f.runtime.reload();
+			QuestPlusApi.submit(f.player, new dev.questplus.core.QuestEvent(event, event, java.util.Set.of(), 1,
+					java.util.Map.of("mode", "press")));
+			f.expect("machine", 3);
+			boolean rejected = false;
+			try {
+				dev.questplus.core.QuestExtensions.validateObjective(event, new com.google.gson.JsonObject());
+			} catch (IllegalArgumentException expected) {
+				rejected = true;
+			}
+			helper.assertTrue(rejected, "Invalid extension data is rejected");
+			var path = helper.getLevel().getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+					.resolve("questplus/quests/java_extension-battery.json");
+			String valid = java.nio.file.Files.readString(path);
+			var invalid = com.google.gson.JsonParser.parseString(valid).getAsJsonObject();
+			invalid.getAsJsonArray("objectives").get(0).getAsJsonObject().add("data", new com.google.gson.JsonObject());
+			java.nio.file.Files.writeString(path, invalid.toString());
+			try {
+				rejected = false;
+				try {
+					f.runtime.reload();
+				} catch (IllegalArgumentException expected) {
+					rejected = true;
+				}
+				helper.assertTrue(rejected, "Reload rejects invalid extension data");
+				f.expect("machine", 3);
+				QuestPlusApi.submit(f.player, new dev.questplus.core.QuestEvent(event, event, java.util.Set.of(), 1,
+						java.util.Map.of("mode", "press")));
+				f.expect("machine", 4);
+			} finally {
+				java.nio.file.Files.writeString(path, valid);
+			}
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 300)
 	public void trustedApiCompletionAndResetUseServerProgress(GameTestHelper helper) throws Exception {
 		var f = new ObjectiveTestFixture(helper, "api_mutation", """
 				[{id:'mine',event:'block_break',target:'minecraft:stone',count:2}]
