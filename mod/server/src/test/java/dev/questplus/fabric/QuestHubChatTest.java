@@ -57,20 +57,18 @@ class QuestHubChatTest {
 		assertFalse(QuestHubService.responseError(502, "<html>secret proxy details</html>").contains("secret"));
 	}
 
-
 	@Test
 	void authenticationIsScopedToAnIndividualSession() {
-		String legacy = "optional-self-hosted-legacy-key-of-32-characters";
 		String session = "session-owned-token-not-visible-in-the-browser";
-		assertNull(QuestHubService.credentialFor("/api/server/sessions", null, null));
-		assertEquals(legacy, QuestHubService.credentialFor("/api/server/sessions", legacy, null));
-		assertEquals(session, QuestHubService.credentialFor("/api/server/poll", legacy, session));
-		assertEquals(session, QuestHubService.credentialFor("/api/server/approve", legacy, session));
-		assertEquals(session, QuestHubService.credentialFor("/api/server/revoke", legacy, session));
-		assertEquals(session, QuestHubService.credentialFor("/api/server/ack", legacy, session));
-		assertNull(QuestHubService.credentialFor("/api/packs/example", legacy, session));
-		assertNull(QuestHubService.credentialFor("/api/editor/sessions/example", legacy, session));
-		assertNull(QuestHubService.credentialFor("/api/server/poll", legacy, null));
+		assertNull(QuestHubService.credentialFor("/api/server/sessions", null));
+		assertNull(QuestHubService.credentialFor("/api/server/sessions", session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/poll", session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/approve", session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/revoke", session));
+		assertEquals(session, QuestHubService.credentialFor("/api/server/ack", session));
+		assertNull(QuestHubService.credentialFor("/api/packs/example", session));
+		assertNull(QuestHubService.credentialFor("/api/editor/sessions/example", session));
+		assertNull(QuestHubService.credentialFor("/api/server/poll", null));
 	}
 
 	@Test
