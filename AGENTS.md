@@ -17,7 +17,7 @@ Minecraft entrypoints and mixin package names are unchanged.
   server must validate the complete pack and perform an atomic reload or rollback.
 - A Hub session URL is not an authorization token. Confirmation requires the
   initiating operator in Minecraft; keep publish tokens in memory.
-- No player saves, reward ledgers, or server API keys may be sent to the browser.
+- No player saves, reward ledgers, or server session credentials may be sent to the browser.
 - Browser data/pack links must never permit remote console commands.
 - Keep all mutable game state on the Minecraft server thread.
 - Keep client rendering code out of the dedicated-server execution path.
