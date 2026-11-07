@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * Opt-in outbound-only integration with a self-hosted QuestPlus Hub.
+ * Outbound-only connection to Quest Studio. Each editing session owns its server credential.
  * Credentials never enter the Minecraft play packets or browser.
  */
 final class QuestHubService implements AutoCloseable {
@@ -33,8 +33,8 @@ final class QuestHubService implements AutoCloseable {
 	private final Path world;
 	private final HttpClient http;
 	private URI origin = DEFAULT_ORIGIN;
-	private String configurationError = "Connected editing needs a serverKey in world/questplus-hub.json or config/questplus-hub.json. The editor below remains available for ZIP import/export.";
-	private String apiKey, session, revisionSignature, lastPending, lastJobId;
+	private String configurationError;
+	private String apiKey, sessionToken, session, revisionSignature, lastPending, lastJobId;
 	private UUID owner;
 	private Path sessionDefinitions;
 	private long lastPoll;
@@ -63,19 +63,22 @@ final class QuestHubService implements AutoCloseable {
 			config = FabricLoader.getInstance().getConfigDir().resolve("questplus-hub.json");
 		try {
 			if (!Files.exists(config)) {
-				QuestPlusMod.LOGGER.info(
-						"Quest Studio is available at {}. Configure questplus-hub.json to enable connected editing.", origin);
+				QuestPlusMod.LOGGER.info("Quest Studio connected editing uses {} by default.", origin);
 				return;
 			}
 			JsonObject cfg = Defaults.readObject(config);
 			origin = configuredOrigin(cfg);
-			apiKey = cfg.has("serverKey") ? cfg.get("serverKey").getAsString() : "";
-			if (apiKey.length() < 32 || apiKey.chars().anyMatch(c -> c < 33 || c > 126))
-				throw new IllegalArgumentException("Set serverKey to the web API's private key (32+ characters), then restart Minecraft.");
-			QuestPlusMod.LOGGER.info("QuestPlus Hub configured at {}", origin);
+			// Optional credential for older self-hosted Hubs; public instances use session tokens.
+			apiKey = cfg.has("serverKey") ? cfg.get("serverKey").getAsString() : null;
+			if (apiKey != null && !apiKey.isBlank()
+					&& (apiKey.length() < 32 || apiKey.chars().anyMatch(c -> c < 33 || c > 126)))
+				throw new IllegalArgumentException("Optional legacy serverKey must contain 32+ printable characters.");
+			if (apiKey != null && apiKey.isBlank())
+				apiKey = null;
+			QuestPlusMod.LOGGER.info("Quest Studio connected editing uses {}", origin);
 		} catch (Exception error) {
 			apiKey = null;
-			configurationError = "Invalid questplus-hub.json. Check url (an HTTPS origin) and serverKey (the web API's private key, 32+ characters), then restart Minecraft.";
+			configurationError = "Invalid questplus-hub.json. Check the HTTPS url and any optional legacy serverKey, then restart Minecraft.";
 			QuestPlusMod.LOGGER.error("Invalid QuestPlus Hub configuration", error);
 		}
 	}
@@ -99,7 +102,7 @@ final class QuestHubService implements AutoCloseable {
 	}
 
 	boolean configured() {
-		return apiKey != null && !closed;
+		return configurationError == null && !closed;
 	}
 
 	private String endpoint(String p) {
@@ -203,14 +206,29 @@ final class QuestHubService implements AutoCloseable {
 		output.add(name, a);
 	}
 
+	static String credentialFor(String path, String legacyKey, String token) {
+		if (path.equals("/api/server/sessions"))
+			return legacyKey;
+		if (path.startsWith("/api/server/"))
+			return token;
+		return null;
+	}
+
 	private void request(String method, String path, JsonObject data, Consumer<JsonObject> onSuccess,
 			Consumer<String> onError) {
+		request(method, path, data, credentialFor(path, apiKey, sessionToken), onSuccess, onError);
+	}
+
+	private void request(String method, String path, JsonObject data, String credential,
+			Consumer<JsonObject> onSuccess, Consumer<String> onError) {
 		if (!configured()) {
 			onError.accept(configurationError);
 			return;
 		}
 		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(endpoint(path))).timeout(Duration.ofSeconds(18))
-				.header("Authorization", "Bearer " + apiKey).header("Accept", "application/json");
+				.header("Accept", "application/json");
+		if (credential != null && !credential.isBlank())
+			builder.header("Authorization", "Bearer " + credential);
 		if (data != null)
 			builder.header("Content-Type", "application/json; charset=utf-8");
 		HttpRequest req = builder
@@ -263,7 +281,7 @@ final class QuestHubService implements AutoCloseable {
 
 	static String responseError(int status, String response) {
 		return switch (status) {
-			case 401 -> "Server key rejected (HTTP 401). Set serverKey in questplus-hub.json to the web API's private key, then restart Minecraft.";
+			case 401 -> "Quest Studio rejected the session credentials (HTTP 401). Start a new editor session or check the web API version.";
 			case 403 -> "Access denied by Quest Studio (HTTP 403). Check the server's permissions and web API configuration.";
 			case 413 -> "The quest pack is too large for Quest Studio (HTTP 413). Reduce its size before retrying.";
 			case 429 -> "Quest Studio is receiving too many requests (HTTP 429). Wait a moment, then retry.";
@@ -308,6 +326,11 @@ final class QuestHubService implements AutoCloseable {
 			String localSignature = signature(files);
 			UUID actor = player.getUUID();
 			request("POST", "/api/server/sessions", payload, result -> {
+				String credential = result.has("serverToken") ? result.get("serverToken").getAsString() : "";
+				if (!credential.matches("[A-Za-z0-9_-]{40,}"))
+					throw new IllegalStateException("Quest Studio did not return a valid session token. Update the web API.");
+				dropSession();
+				sessionToken = credential;
 				owner = actor;
 				sessionDefinitions = target;
 				session = result.get("id").getAsString();
@@ -431,9 +454,12 @@ final class QuestHubService implements AutoCloseable {
 				sendAck();
 		}, e -> {
 			inFlight = false;
-			if (e.contains("expired")) {
+			if (e.contains("expired") || e.contains("HTTP 401")) {
+				messageOwner("Editor session expired or was revoked. Run /questplus editor to reconnect.");
 				session = null;
-				messageOwner("Editor session expired");
+				sessionToken = null;
+				pendingApproval = null;
+				lastAck = null;
 			} else
 				QuestPlusMod.LOGGER.warn("QuestPlus Hub poll failed: {}", e);
 		});
@@ -465,7 +491,7 @@ final class QuestHubService implements AutoCloseable {
 			fail(source, "Import requires an in-game operator");
 			return;
 		}
-		request("GET", "/api/server/packs/" + packId, null, result -> {
+		request("GET", "/api/packs/" + packId, null, result -> {
 			try {
 				JsonArray files = result.getAsJsonArray("files");
 				QuestHubFiles.validate(files);
@@ -536,14 +562,20 @@ final class QuestHubService implements AutoCloseable {
 
 	private void dropSession() {
 		String id = session;
+		String credential = sessionToken;
 		session = null;
+		sessionToken = null;
+		owner = null;
+		sessionDefinitions = null;
+		revisionSignature = null;
 		pendingApproval = null;
+		lastPending = null;
 		lastAck = null;
 		lastJobId = null;
-		if (id != null) {
+		if (id != null && credential != null) {
 			JsonObject body = new JsonObject();
 			body.addProperty("session", id);
-			request("POST", "/api/server/revoke", body, result -> {
+			request("POST", "/api/server/revoke", body, credential, result -> {
 			}, e -> QuestPlusMod.LOGGER.warn("Could not revoke old Hub session: {}", e));
 		}
 	}
@@ -579,8 +611,8 @@ final class QuestHubService implements AutoCloseable {
 
 	@Override
 	public void close() {
+		dropSession();
 		closed = true;
-		session = null;
 		imports.clear();
 		retrieves.clear();
 		pendingApproval = null;
