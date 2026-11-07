@@ -236,6 +236,6 @@
 	"questplus.client.reward_type.questplus:toast": "通知",
 	"item.questplus.loot_crate": "战利品箱",
 	"questplus.crate.opened": "箱子已开启。奖励已保存，将在背包有空间时发放。",
-	"item.questplus.tablet": "任务平板",
-	"itemGroup.questplus.quest": "Quest"
+	"item.questplus.tablet": "Quest Plus 任务平板",
+	"itemGroup.questplus.quest": "Quest Plus"
 }
