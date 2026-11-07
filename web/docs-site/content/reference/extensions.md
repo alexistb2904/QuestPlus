@@ -60,4 +60,4 @@ var fields = JsonParser.parseString("""
 QuestPlusApi.registerEditorDescriptor("event", "example:machine", "Machine", fields);
 ```
 
-Unknown custom objective/condition/reward IDs remain editable as data offline, with an unavailable-extension warning; the server must have the corresponding handler before publishing. An optional Java adapter lifecycle and quest progress/events API are ready for a future KubeJS bridge, but there is no KubeJS integration or JavaScript execution today.
+Unknown custom objective/condition/reward IDs remain editable as data offline, with an unavailable-extension warning. The server must have the corresponding handler before publishing. An optional Java adapter lifecycle and quest progress/events API are ready for a future KubeJS bridge, but there is no KubeJS integration or JavaScript execution today.
