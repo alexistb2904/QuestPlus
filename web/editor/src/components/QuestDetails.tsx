@@ -1,7 +1,7 @@
 import { Check, Gift, GitBranch, Globe, MessageCircle, Plus, Repeat2, Search, Target, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { descriptionParts } from "../core/description-format.js";
-import { hubEditorDescriptors } from "../core/hub-registry.js";
+import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
 import {
 	changeObjectiveEvent,
 	DIMENSIONS,
@@ -335,7 +335,7 @@ function ObjectiveInputs({
 					const descriptor = hubEditorDescriptors("event").find((d) => d.id === event);
 					if (descriptor)
 						next.data = Object.fromEntries(
-							descriptor.fields.map((f) => [f.key, f.type === "boolean" ? false : f.type === "integer" ? 1 : f.type === "string" ? "" : "minecraft:stone"])
+							descriptor.fields.map((f) => [f.key, hubFieldDefault(f)])
 						);
 					else delete next.data;
 					onUpdate(path, next);
@@ -348,19 +348,26 @@ function ObjectiveInputs({
 				?.fields.map((f) => (
 					<div key={f.key}>
 						{f.type === "boolean" ? (
-							<label className="checkbox-row">
-								<input type="checkbox" checked={!!o.data?.[f.key]} onChange={(e) => onUpdate(path + ".data." + f.key, e.target.checked)} />
-								{f.label}
-							</label>
-						) : (
+                            <label className="checkbox-row">
+                                <input type="checkbox" checked={!!o.data?.[f.key]} onChange={(e) => onUpdate(path + ".data." + f.key, e.target.checked)} />
+                                {f.label}
+                            </label>
+                        ) : f.type === "choice" ? (
+                            <label className="field">
+                                <span>{f.label}</span>
+                                <select value={o.data?.[f.key] ?? hubFieldDefault(f)} onChange={(e) => onUpdate(path + ".data." + f.key, e.target.value)}>
+                                    {f.options.map((option: string) => <option key={option} value={option}>{option}</option>)}
+                                </select>
+                            </label>
+                        ) : (
 							<div className="field-row">
 								<Field
 									label={f.label}
-									type={f.type === "integer" ? "number" : "text"}
+									type={["integer", "number"].includes(f.type) ? "number" : "text"}
 									value={o.data?.[f.key] ?? ""}
 									onChange={(v) => onUpdate(path + ".data." + f.key, v)}
 								/>
-								{!["string", "integer"].includes(f.type) && (
+								{!["string", "integer", "number"].includes(f.type) && (
 									<button type="button" className="button secondary" onClick={() => setFieldPicker({ kind: f.type, key: f.key })}>
 										{tUI("Browse")}
 									</button>
