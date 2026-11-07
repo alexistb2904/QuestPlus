@@ -35,7 +35,31 @@ public final class QuestEngine {
 		return applyDetailed(player, event, null);
 	}
 
+
+    /**
+     * Trusted server-side absolute progression. Uses the normal completion and
+     * prerequisite engine, but bypasses event matching for this one objective.
+     */
+    public List<Completion> setObjectiveProgress(PlayerProgress player, String questId, String objectiveId,
+            long value, Map<String, Object> context, Set<String> changed) {
+        var quest = registry.get(questId);
+        var objective = quest.objectives().stream().filter(o -> o.id().equals(objectiveId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown objective: " + objectiveId));
+        long multiplier = quest.progression().equals("tiered") ? quest.tiers().getLast().threshold() : 1;
+        long maximum = Math.multiplyExact(objective.count(), multiplier);
+        if (value < 0 || value > maximum || value > 1_000_000_000L)
+            throw new IllegalArgumentException("Objective progress must be within 0.." + Math.min(maximum, 1_000_000_000L));
+        String target = objective.target().startsWith("#") ? objective.target().substring(1) : objective.target();
+        QuestEvent synthetic = new QuestEvent(objective.event(), target, Set.of(), 1, context);
+        return applyInternal(player, synthetic, changed, new QuestRegistry.Candidate(quest, objective), value);
+    }
+
 	public List<Completion> applyDetailed(PlayerProgress player, QuestEvent event, Set<String> changed) {
+        return applyInternal(player, event, changed, null, 0);
+    }
+
+    private List<Completion> applyInternal(PlayerProgress player, QuestEvent event, Set<String> changed,
+            QuestRegistry.Candidate forced, long forcedValue) {
 		if (player.recentEvents == null)
 			player.recentEvents = new LinkedHashSet<>();
 		if (!player.recentEvents.add(event.eventId()))
@@ -59,18 +83,18 @@ public final class QuestEngine {
 		Set<String> completed = needsPrerequisites ? prerequisiteState(player) : Set.of();
 		Map<String, Integer> sequenceSteps = new HashMap<>();
 		Set<String> touched = new LinkedHashSet<>();
-		for (var candidate : registry.candidates(event)) {
+		for (var candidate : forced == null ? registry.candidates(event) : List.of(forced)) {
 			var q = candidate.quest();
 			var objective = candidate.objective();
 			var p = player.quests.get(q.id());
-			if (!QuestExtensions.matchesObjective(objective, event))
+			if (forced == null && !QuestExtensions.matchesObjective(objective, event))
 				continue;
-			if (SUBMISSION_EVENTS.contains(event.type())) {
+			if (forced == null && SUBMISSION_EVENTS.contains(event.type())) {
 				if (!q.id().equals(event.context().get("submissionQuest"))
 						|| !objective.id().equals(event.context().get("submissionObjective")))
 					continue;
 			}
-			if (event.type().equals("manual") && event.context().containsKey("manualQuest")
+			if (forced == null && event.type().equals("manual") && event.context().containsKey("manualQuest")
 					&& (!q.id().equals(event.context().get("manualQuest"))
 							|| !objective.id().equals(event.context().get("manualObjective"))))
 				continue;
@@ -87,12 +111,14 @@ public final class QuestEngine {
 				if (changed != null)
 					changed.add(q.id());
 			}
-			boolean state = QuestExtensions.event(objective.event()).state();
-			boolean conditionsMatch = objective.conditions() == null || objective.conditions().matches(event.context(), completed);
+
+            boolean state = forced != null || QuestExtensions.event(objective.event()).state();
+            boolean conditionsMatch = forced != null || objective.conditions() == null
+                    || objective.conditions().matches(event.context(), completed);
 			if (!conditionsMatch && !state)
 				continue;
-			long amount = event.amount();
-			if (state) {
+			long amount = forced == null ? event.amount() : forcedValue;
+			if (state && forced == null) {
 				Object values = CONTEXT_STATE_EVENTS.contains(objective.event()) ? event.context().get("stateValues")
 						: event.context().get("inventory");
 				amount = values instanceof Map<?, ?>m && m.get(objective.target()) instanceof Number n
