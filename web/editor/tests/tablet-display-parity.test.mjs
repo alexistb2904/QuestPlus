@@ -25,7 +25,7 @@ test("2D fallback reuses exact native 500x300 3D layout and transforms mouse inp
 test("3D lighting is self-illuminated by default, brightness only affects 3D atlas", () => {
 	const settings = source("../../../mod/client/src/main/java/dev/questplus/fabric/client/ClientSettings.java");
 	const surface = source("../../../mod/client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java");
-	const shader = source("../../../mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java");
+	const shader = source("../../../mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
 	const screen = source("../../../mod/client/src/main/java/dev/questplus/fabric/client/QuestScreen.java");
 	assert.match(settings, /boolean screenEmissive = true/);
 	assert.match(settings, /double screenBrightness = 1\.0/);
