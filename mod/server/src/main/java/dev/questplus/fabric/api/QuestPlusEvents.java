@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  */
 public final class QuestPlusEvents {
     public enum Type {
-        OBJECTIVE_PROGRESS, OBJECTIVE_COMPLETED, QUEST_COMPLETED, QUEST_RESET, REWARD_CLAIMED
+        OBJECTIVE_PROGRESS, OBJECTIVE_COMPLETED, QUEST_COMPLETED, QUEST_RESET, REWARD_CLAIMED, TEAM_CHANGED
     }
 
     public record Change(Type type, UUID playerId, String questId, String objectiveId,
