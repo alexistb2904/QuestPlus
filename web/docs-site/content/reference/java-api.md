@@ -117,6 +117,10 @@ Create a minimal pack with your event and data, verify its load, then exercise s
 
 [All objectives](/guide/objectives) · [All rewards](/guide/rewards)
 
+## Read-only inspection
+
+`getQuest(player, id)`, `getObjective(player, questId, objectiveId)` and `getCategories(player)` return detached JSON metadata. `getQuests(player)` returns sorted IDs, `isQuestUnlocked(player, questId)` evaluates server-side prerequisites, and `getTeamId(player)` returns an optional team UUID. `getProgress(player, questId)` and `getObjectiveProgress(player, questId, objectiveId)` expose server-authoritative counters without reward claims or internal mutable state.
+
 ## Trusted progress mutations
 
 Use these operations only for server-authorized integrations, never for client-provided claims:
