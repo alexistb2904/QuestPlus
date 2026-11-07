@@ -236,6 +236,6 @@
 	"questplus.client.reward_type.questplus:toast": "Notification",
 	"item.questplus.loot_crate": "Loot crate",
 	"questplus.crate.opened": "Loot crate opened. Rewards are saved and delivered when inventory space is available.",
-	"item.questplus.tablet": "Quest Plus Tablet",
+	"item.questplus.tablet": "Quest Tablet",
 	"itemGroup.questplus.quest": "Quest Plus"
 }

@@ -236,6 +236,6 @@
 	"questplus.client.reward_type.questplus:toast": "Notification",
 	"item.questplus.loot_crate": "Caisse de butin",
 	"questplus.crate.opened": "Caisse ouverte. Les récompenses seront livrées dès qu’une place sera disponible.",
-	"item.questplus.tablet": "Tablette Quest Plus",
+	"item.questplus.tablet": "Tablette Quest",
 	"itemGroup.questplus.quest": "Quest Plus"
 }

@@ -236,6 +236,6 @@
 	"questplus.client.reward_type.questplus:toast": "Notificación",
 	"item.questplus.loot_crate": "Caja de botín",
 	"questplus.crate.opened": "Caja abierta. Las recompensas se guardarán y entregarán cuando haya espacio.",
-	"item.questplus.tablet": "Tableta Quest Plus",
+	"item.questplus.tablet": "Tableta Quest",
 	"itemGroup.questplus.quest": "Quest Plus"
 }

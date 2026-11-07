@@ -40,10 +40,10 @@ class ClientLanguageTest {
 	@Test
 	void creativeTabAndTabletUseQuestPlusBrandInEveryLanguage() throws Exception {
 		var tablets = java.util.Map.of(
-				"en_us", "Quest Plus Tablet",
-				"fr_fr", "Tablette Quest Plus",
-				"es_es", "Tableta Quest Plus",
-				"zh_cn", "Quest Plus 任务平板");
+				"en_us", "Quest Tablet",
+				"fr_fr", "Tablette Quest",
+				"es_es", "Tableta Quest",
+				"zh_cn", "Quest 任务平板");
 		for (var entry : tablets.entrySet()) {
 			var translations = read(entry.getKey());
 			assertEquals("Quest Plus", translations.get("itemGroup.questplus.quest").getAsString(), entry.getKey());
