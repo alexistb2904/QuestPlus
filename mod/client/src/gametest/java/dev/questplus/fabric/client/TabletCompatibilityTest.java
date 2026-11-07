@@ -1,7 +1,5 @@
 package dev.questplus.fabric.client;
 
-import com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer;
-import com.github.razorplay01.fp_pal.firstperson.FpRenderState;
 import dev.questplus.fabric.QuestPlusMod;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.loader.api.FabricLoader;
@@ -66,23 +64,17 @@ final class TabletCompatibilityTest {
 					context.runOnClient(client -> client.gui.screen().onClose());
 					context.waitTicks(5);
 					var before = context.computeOnClient(client -> {
-						var ctrl = ((IFpAnimatedPlayer) client.player).fpPal$getFpAnimationController();
-						QuestPlusMod.LOGGER.info("TABLET CLOSE {} tick={} running={} fp={}", trial,
-								ctrl.getAnimationTicks(), ctrl.isRunning(), FpRenderState.isFpActive);
 						if (!QuestClientTabletFlow.nativeHandsActive() || !TabletSurfaceRenderer.hasSurface()
-								|| !FpRenderState.isFpActive || !ctrl.isRunning())
-							throw new AssertionError("Close pose disappeared: " + trial);
-						return new org.joml.Vector3f(FpRenderState.getExtraBone("tablet_root").position);
+								|| !"questplus.close".equals(TabletNativeAnimation.clip()))
+							throw new AssertionError("Native close pose disappeared: " + trial);
+						return TabletNativeAnimation.bone("tablet_root", "position");
 					});
 					context.takeScreenshot(trial + "-closing-5");
 					context.waitTicks(6);
 					context.runOnClient(client -> {
-						var ctrl = ((IFpAnimatedPlayer) client.player).fpPal$getFpAnimationController();
-						QuestPlusMod.LOGGER.info("TABLET CLOSE {} tick={} running={} fp={}", trial,
-								ctrl.getAnimationTicks(), ctrl.isRunning(), FpRenderState.isFpActive);
 						if (!QuestClientTabletFlow.nativeHandsActive()
-								|| before.distanceSquared(FpRenderState.getExtraBone("tablet_root").position) < 1e-7)
-							throw new AssertionError("Close pose did not advance: " + trial);
+								|| before.equals(TabletNativeAnimation.bone("tablet_root", "position")))
+							throw new AssertionError("Native close pose did not advance: " + trial);
 					});
 					context.takeScreenshot(trial + "-closing-11");
 					context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 35);

@@ -128,8 +128,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					throw new AssertionError("Screen did not close");
 			});
 
-			if (FabricLoader.getInstance().isModLoaded("fp_pal")
-					&& FabricLoader.getInstance().isModLoaded("player_animation_library")) {
+			if (QuestPlusClient.settings.tablet) {
 				context.runOnClient(client -> {
 					QuestPlusClient.settings.tabletTransitions = false;
 					QuestClientTabletFlow.toggle(client);
@@ -169,22 +168,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					context.waitTicks(8);
 					context.takeScreenshot("questplus-native-" + cycle + "-opening");
 					context.runOnClient(client -> {
-						var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
-								.fpPal$getFpAnimationController();
-						double ticks = controller.getAnimationTicks();
-						FirstPersonPalBridge.prepareFrame(.1f);
-						var arm = new org.joml.Vector3f(
-								com.github.razorplay01.fp_pal.firstperson.FpRenderState.fpRightArm.rotation);
-						var tablet = new org.joml.Vector3f(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-								.getExtraBone("tablet_root").position);
-						FirstPersonPalBridge.prepareFrame(.9f);
-						if (arm.distanceSquared(
-								com.github.razorplay01.fp_pal.firstperson.FpRenderState.fpRightArm.rotation) < 1e-9
-								|| tablet.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-										.getExtraBone("tablet_root").position) < 1e-9)
-							throw new AssertionError("The arm and tablet did not move between sub-tick render samples");
-						if (controller.getAnimationTicks() != ticks)
-							throw new AssertionError("Rendering advanced the PAL animation clock");
+						var startPose = TabletFirstPersonAnimation.pose("questplus.open", .1);
+						var endPose = TabletFirstPersonAnimation.pose("questplus.open", .9);
+						if (startPose.rightRotation().equals(endPose.rightRotation())
+								|| startPose.tabletPosition().equals(endPose.tabletPosition()))
+							throw new AssertionError("Native Blockbench frames did not interpolate");
+						if (!"questplus.open".equals(TabletNativeAnimation.clip()))
+							throw new AssertionError("Unexpected native opening clip");
 					});
 					context.waitTicks(8);
 					context.takeScreenshot("questplus-native-" + cycle + "-settling");
@@ -330,7 +320,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			}
 			world.getServer().runCommand("questplus reload");
 			context.waitFor(client -> QuestPlusClient.STATE.generation >= 2, 300);
-			if (FabricLoader.getInstance().isModLoaded("fp_pal")) {
+			if (QuestPlusClient.settings.tablet) {
 				context.getInput().pressKey(InputConstants.KEY_J);
 				context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 				context.waitTicks(3);
@@ -341,9 +331,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				throw new AssertionError("Disconnected data retained");
 			if (QuestClientTabletFlow.nativeHandsActive())
 				throw new AssertionError("Disconnected tablet pose retained");
-			if (FabricLoader.getInstance().isModLoaded("fp_pal") && TabletFrameInterpolation
-					.settled(net.minecraft.resources.Identifier.parse("questplus:questplus.idle"), 0))
-				throw new AssertionError("Disconnected interpolation snapshots retained");
+			if (TabletNativeAnimation.active())
+				throw new AssertionError("Disconnected native tablet timeline retained");
 		});
 	}
 
@@ -389,8 +378,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			if (!QuestPlusClient.STATE.quests.get(id).icon().startsWith("data:image/png;base64,"))
 				throw new AssertionError("Custom quest icon was not projected");
 		});
-		boolean nativeTablet = FabricLoader.getInstance().isModLoaded("fp_pal")
-				&& FabricLoader.getInstance().isModLoaded("player_animation_library");
+		boolean nativeTablet = QuestPlusClient.settings.tablet;
 		if (nativeTablet) {
 			context.setScreen(() -> null);
 			context.getInput().pressKey(InputConstants.KEY_J);

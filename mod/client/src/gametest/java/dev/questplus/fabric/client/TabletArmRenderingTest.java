@@ -1,9 +1,7 @@
 package dev.questplus.fabric.client;
 
-import com.github.razorplay01.fp_pal.firstperson.FpRenderBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -47,8 +45,8 @@ final class TabletArmRenderingTest {
 			if (tablet) {
 				for (String name : new String[] { "rightArm", "leftArm" }) {
 					counts[0] = 0;
-					TabletNativeArms.render(new PoseStack(), new PlayerAnimBone(name), model, skin,
-							LightCoordsUtil.FULL_BRIGHT, new FpRenderBuffer(nodes));
+					TabletNativeArms.render(new PoseStack(), vertices, LightCoordsUtil.FULL_BRIGHT,
+							name.equals("rightArm"), "questplus.idle", 0);
 					boolean sleeve = name.equals("rightArm") ? model.rightSleeve.visible : model.leftSleeve.visible;
 					if (counts[0] != (sleeve ? 48 : 24))
 						throw new AssertionError(
