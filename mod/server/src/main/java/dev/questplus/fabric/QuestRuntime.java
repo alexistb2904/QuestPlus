@@ -3,6 +3,8 @@ package dev.questplus.fabric;
 import com.google.gson.JsonArray;
 
 import dev.questplus.core.*;
+import dev.questplus.fabric.api.QuestPlusAdapters;
+import dev.questplus.fabric.api.QuestPlusEvents;
 import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.persistence.JsonProgressStore;
 import dev.questplus.team.*;
@@ -409,6 +411,7 @@ public final class QuestRuntime implements AutoCloseable {
 		crateNoDrop = Map.copyOf(candidateNoDrop);
 		autosaveTicks = seconds * 20;
 		QuestNetwork.invalidateAll(server);
+		QuestPlusAdapters.definitionsReloaded();
 	}
 
 	private void validateRegistryReference(String kind, String target) {
@@ -890,6 +893,114 @@ public final class QuestRuntime implements AutoCloseable {
 		event(actor, new QuestEvent("manual", objective.target(), Set.of(), 1, context));
 	}
 
+    private Map<String, Map<String, Long>> captureObjectiveProgress(PlayerProgress progress, QuestEvent event) {
+        if (!QuestPlusEvents.hasProgressListeners())
+            return Map.of();
+        Map<String, Map<String, Long>> before = new HashMap<>();
+        for (var candidate : registry.candidates(event)) {
+            String id = candidate.quest().id();
+            before.computeIfAbsent(id, ignored -> {
+                var quest = progress.quests.get(id);
+                return quest == null ? Map.of() : Map.copyOf(quest.counters);
+            });
+        }
+        return before;
+    }
+
+    private void publishObjectiveProgress(UUID actor, PlayerProgress progress, QuestEvent event,
+                                          Map<String, Map<String, Long>> before) {
+        if (before.isEmpty())
+            return;
+        for (var candidate : registry.candidates(event)) {
+            var previous = before.get(candidate.quest().id());
+            if (previous == null)
+                continue;
+            var updated = progress.quests.get(candidate.quest().id());
+            String objective = candidate.objective().id();
+            long old = previous.getOrDefault(objective, 0L);
+            long next = updated == null ? 0 : updated.counters.getOrDefault(objective, 0L);
+            if (old == next)
+                continue;
+            QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, actor, candidate.quest().id(),
+                    objective, old, next);
+            if (old < candidate.objective().count() && next >= candidate.objective().count())
+                QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, actor, candidate.quest().id(),
+                        objective, old, next);
+        }
+    }
+
+    private void settleCompletions(UUID uuid, List<QuestEngine.Completion> completed) throws IOException {
+        if (!completed.isEmpty()) {
+				Set<UUID> recipients = teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
+				for (UUID recipient : recipients)
+					for (var award : completed) {
+						var personal = player(recipient);
+						if (!personal.claims.containsKey(award.key()))
+							entitleAward(personal, award, player(uuid).teamId);
+						dirty.add(recipient);
+					}
+				Set<UUID> members = group(uuid);
+				Map<UUID, PlayerProgress> snapshots = new HashMap<>();
+				for (UUID member : members)
+					snapshots.put(member, player(member));
+				var team = player(uuid).teamId;
+				var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
+                if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
+                    persisted.thenRun(() -> server.execute(() -> {
+                        if (!closing)
+                            for (var award : completed)
+                                QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_COMPLETED, uuid,
+                                        award.questId(), null, 0, 0);
+                    }));
+				for (var award : completed)
+					for (UUID member : members) {
+						var online = server.getPlayerList().getPlayer(member);
+						if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
+							online.sendSystemMessage(award.rewards().isEmpty()
+									? Messages.text(online, "questplus.completed_no_reward",
+											title(online, registry.get(award.questId())))
+									: Messages.text(online, "questplus.completed",
+											title(online, registry.get(award.questId())), award.questId()));
+					}
+			}
+    }
+
+    /**
+     * Trusted administrative mutation: only the chosen objective is affected.
+     * All normal prerequisites, team state, entitlement and persistence paths remain active.
+     */
+    public void setObjectiveProgress(ServerPlayer actor, String questId, String objectiveId, long value)
+            throws IOException {
+        assertThread();
+        Objects.requireNonNull(actor, "actor");
+        UUID uuid = actor.getUUID();
+        ensureFree(group(uuid));
+        var quest = registry.get(questId);
+        var objective = quest.objectives().stream().filter(o -> o.id().equals(objectiveId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown objective: " + objectiveId));
+        PlayerProgress progress = state(uuid);
+        var oldProgress = progress.quests.get(questId);
+        if (oldProgress != null && (oldProgress.terminal || oldProgress.waitingRestart))
+            throw new IllegalStateException("Quest has finished this attempt");
+        long before = oldProgress == null ? 0 : oldProgress.counters.getOrDefault(objectiveId, 0L);
+        long revision = progress.revision;
+        var updated = new HashSet<String>();
+        var completed = engine.setObjectiveProgress(progress, questId, objectiveId, value,
+                QuestPlusMod.context(actor), updated);
+        if (progress.revision != revision)
+            changed(uuid);
+        var after = progress.quests.get(questId);
+        long current = after == null ? 0 : after.counters.getOrDefault(objectiveId, 0L);
+        settleCompletions(uuid, completed);
+        if (before != current) {
+            QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, uuid, questId, objectiveId,
+                    before, current);
+            if (before < objective.count() && current >= objective.count())
+                QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, uuid, questId, objectiveId,
+                        before, current);
+        }
+    }
+
 	public void event(ServerPlayer player, QuestEvent event) {
 		assertThread();
 		// Manual acknowledgements are valid even in creative/spectator; only gameplay
@@ -914,6 +1025,7 @@ public final class QuestRuntime implements AutoCloseable {
 		try {
 			UUID uuid = player.getUUID();
 			PlayerProgress progress = state(uuid);
+			Map<String, Map<String, Long>> before = captureObjectiveProgress(progress, event);
 			long revision = progress.revision;
 			Set<String> updated = new HashSet<>();
 			var completed = engine.applyDetailed(progress, event, updated);
@@ -924,32 +1036,8 @@ public final class QuestRuntime implements AutoCloseable {
 					dirtyTeams.add(player(uuid).teamId);
 				group(uuid).forEach(member -> QuestNetwork.invalidateProgress(member, updated));
 			}
-			if (!completed.isEmpty()) {
-				Set<UUID> recipients = teamRewardPolicy.equals("contributor") ? Set.of(uuid) : group(uuid);
-				for (UUID recipient : recipients)
-					for (var award : completed) {
-						var personal = player(recipient);
-						if (!personal.claims.containsKey(award.key()))
-							entitleAward(personal, award, player(uuid).teamId);
-						dirty.add(recipient);
-					}
-				Set<UUID> members = group(uuid);
-				Map<UUID, PlayerProgress> snapshots = new HashMap<>();
-				for (UUID member : members)
-					snapshots.put(member, player(member));
-				var team = player(uuid).teamId;
-				persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
-				for (var award : completed)
-					for (UUID member : members) {
-						var online = server.getPlayerList().getPlayer(member);
-						if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
-							online.sendSystemMessage(award.rewards().isEmpty()
-									? Messages.text(online, "questplus.completed_no_reward",
-											title(online, registry.get(award.questId())))
-									: Messages.text(online, "questplus.completed",
-											title(online, registry.get(award.questId())), award.questId()));
-					}
-			}
+			publishObjectiveProgress(uuid, progress, event, before);
+			settleCompletions(uuid, completed);
 		} catch (IOException | RuntimeException e) {
 			QuestPlusMod.LOGGER.error("Quest event rejected for {}", player.getUUID(), e);
 		}
@@ -1160,6 +1248,9 @@ public final class QuestRuntime implements AutoCloseable {
 				teams.apply(change);
 				write.applied = true;
 				notify.forEach(QuestNetwork::invalidate);
+                if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.TEAM_CHANGED))
+                    for (UUID member : affected)
+                        QuestPlusEvents.publish(QuestPlusEvents.Type.TEAM_CHANGED, member, null, null, 0, 0);
 				dirty.removeAll(change.players().keySet());
 				dirtyTeams.removeAll(change.teams().keySet());
 			}
@@ -1177,8 +1268,10 @@ public final class QuestRuntime implements AutoCloseable {
 	public void mutate(UUID id, String quest, String action) throws IOException {
 		ensureFree(group(id));
 		var progress = state(id);
-		if (action.equals("reset"))
+		if (action.equals("reset")) {
 			engine.reset(progress, quest);
+			QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_RESET, id, quest, null, 0, 0);
+		}
 		else if (action.equals("restart"))
 			engine.restart(progress, quest);
 		else {
@@ -1192,7 +1285,12 @@ public final class QuestRuntime implements AutoCloseable {
 				snapshots.put(recipient, p);
 			}
 			var team = player(id).teamId;
-			persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
+			var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
+            if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
+                persisted.thenRun(() -> server.execute(() -> {
+                    if (!closing)
+                        QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_COMPLETED, id, quest, null, 0, 0);
+                }));
 		}
 		changed(id);
 	}
@@ -1485,6 +1583,7 @@ public final class QuestRuntime implements AutoCloseable {
 								QuestRewardExtensions.deliver(player, reward);
 						}
 						progress.claims.put(key, "delivered");
+                        QuestPlusEvents.publish(QuestPlusEvents.Type.REWARD_CLAIMED, uuid, id, null, 0, 0);
 						if (shared != null) {
 							shared.rewardClaims.put(key, "delivered");
 							dirtyTeams.add(rewardScope);

@@ -71,6 +71,36 @@ public final class ObjectiveActionsGameTest {
 		helper.succeed();
 	}
 
+    @GameTest(maxTicks = 300)
+    public void targetedApiProgressOnlyChangesTheSelectedObjective(GameTestHelper helper) throws Exception {
+        var f = new ObjectiveTestFixture(helper, "api_targeted", """
+                [{id:'first',event:'block_break',target:'minecraft:stone',count:5},
+                 {id:'second',event:'block_break',target:'minecraft:stone',count:5}]
+                """);
+        var changes = new java.util.ArrayList<String>();
+        var watch = QuestPlusApi.onObjectiveProgress(e -> changes.add(e.objectiveId()));
+        try {
+            QuestPlusApi.setObjectiveProgress(f.player, f.quest, "first", 2);
+            f.expect("first", 2);
+            f.expect("second", 0);
+            QuestPlusApi.incrementObjectiveProgress(f.player, f.quest, "first", 2);
+            f.expect("first", 4);
+            boolean rejected = false;
+            try {
+                QuestPlusApi.setObjectiveProgress(f.player, f.quest, "second", -1);
+            } catch (IllegalArgumentException expected) {
+                rejected = true;
+            }
+            helper.assertTrue(rejected, "Negative progress must be rejected");
+            helper.assertTrue(changes.equals(java.util.List.of("first", "first")),
+                    "Only the selected objective emits events");
+        } finally {
+            watch.close();
+        }
+        f.close();
+        helper.succeed();
+    }
+
 	@GameTest(maxTicks = 300)
 	public void trustedApiCompletionAndResetUseServerProgress(GameTestHelper helper) throws Exception {
 		var f = new ObjectiveTestFixture(helper, "api_mutation", """

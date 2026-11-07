@@ -2,7 +2,7 @@ import { Check, ChevronDown, Copy, Gift, Info, PenLine, SlidersHorizontal, Targe
 import React, { useId, useRef, useState } from "react";
 import { OBJECTIVE_KINDS, addChild, childrenOf, setAt, wrap } from "../core/conditions.js";
 import { gameLayout } from "../core/game-layout.js";
-import { hubEditorDescriptors } from "../core/hub-registry.js";
+import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
 import { annotationRich, annotationText, selectedOwner, text } from "../core/project.js";
 import { resourceMatcher } from "../core/resource-search.js";
 import type { Project, Selection } from "../types";
@@ -299,7 +299,7 @@ export function ConditionEditor({
 			mutate((root) => {
 				const descriptor = extensions.find((d) => d.id === next);
 				const initial = descriptor
-					? Object.fromEntries(descriptor.fields.map((field: any) => [field.key, field.type === "boolean" ? false : field.type === "integer" ? 0 : "minecraft:stone"]))
+					? Object.fromEntries(descriptor.fields.map((field: any) => [field.key, hubFieldDefault(field)]))
 					: undefined;
 				return setAt(root, path, { [next]: initial ?? defaults[next] ?? (next.startsWith("health") ? 2 : "minecraft:overworld") });
 			});
@@ -375,19 +375,26 @@ export function ConditionEditor({
 							.fields.map((field: any) => (
 								<div key={field.key} className="field-row">
 									{field.type === "boolean" ? (
-										<label className="checkbox-row">
-											<input type="checkbox" checked={!!val[field.key]} onChange={(e) => setMember(field.key, e.target.checked)} />
-											{field.label}
-										</label>
-									) : (
+                                        <label className="checkbox-row">
+                                            <input type="checkbox" checked={!!val[field.key]} onChange={(e) => setMember(field.key, e.target.checked)} />
+                                            {field.label}
+                                        </label>
+                                    ) : field.type === "choice" ? (
+                                        <label className="field">
+                                            <span>{field.label}</span>
+                                            <select value={val[field.key] ?? hubFieldDefault(field)} onChange={(e) => setMember(field.key, e.target.value)}>
+                                                {field.options.map((option: string) => <option key={option} value={option}>{option}</option>)}
+                                            </select>
+                                        </label>
+                                    ) : (
 										<>
 											<Field
 												label={field.label}
-												type={field.type === "integer" ? "number" : "text"}
+												type={["integer", "number"].includes(field.type) ? "number" : "text"}
 												value={val[field.key] ?? ""}
 												onChange={(v) => setMember(field.key, v)}
 											/>
-											{!["string", "integer"].includes(field.type) && (
+											{!["string", "integer", "number"].includes(field.type) && (
 												<button
 													type="button"
 													className="button secondary"
@@ -401,7 +408,7 @@ export function ConditionEditor({
 							))}
 					</div>
 				) : typeof val === "object" ? (
-					<small>{tUI("Edit custom conditions in Advanced JSON.")}</small>
+                    <small role="status">{tUI("Unknown or unavailable condition extension. Data is preserved; edit in Advanced JSON.")}</small>
 				) : (
 					<input
 						aria-label={tUI("Condition value")}

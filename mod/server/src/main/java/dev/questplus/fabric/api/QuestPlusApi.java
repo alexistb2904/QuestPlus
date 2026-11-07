@@ -39,6 +39,37 @@ public final class QuestPlusApi {
 		return GSON.toJsonTree(QuestPlusMod.runtime().registry().get(questId)).getAsJsonObject();
 	}
 
+    /** Detached authoring snapshot of server-loaded categories. */
+    public static JsonArray getCategories(ServerPlayer player) {
+        requireServerThread(player);
+        return GSON.toJsonTree(QuestPlusMod.runtime().categories()).getAsJsonArray();
+    }
+
+    /** Detached metadata for one objective. */
+    public static JsonObject getObjective(ServerPlayer player, String questId, String objectiveId) {
+        requireServerThread(player);
+        var quest = QuestPlusMod.runtime().registry().get(questId);
+        var objective = quest.objectives().stream().filter(o -> o.id().equals(objectiveId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown objective: " + objectiveId));
+        return GSON.toJsonTree(objective).getAsJsonObject();
+    }
+
+    /** Whether the current trusted server context meets a quest's prerequisites. */
+    public static boolean isQuestUnlocked(ServerPlayer player, String questId) throws IOException {
+        requireServerThread(player);
+        var runtime = QuestPlusMod.runtime();
+        var quest = runtime.registry().get(questId);
+        var prerequisites = quest.requires();
+        return prerequisites == null || prerequisites.matches(QuestPlusMod.context(player),
+                dev.questplus.core.QuestEngine.prerequisiteState(runtime.state(player.getUUID())));
+    }
+
+    /** Team identity, or null for an individual player. */
+    public static java.util.UUID getTeamId(ServerPlayer player) throws IOException {
+        requireServerThread(player);
+        return QuestPlusMod.runtime().player(player.getUUID()).teamId;
+    }
+
 	/** Returns the currently loaded quest IDs in stable order. */
 	public static List<String> getQuests(ServerPlayer player) {
 		requireServerThread(player);
@@ -94,6 +125,57 @@ public final class QuestPlusApi {
 		requireServerThread(player);
 		QuestPlusMod.runtime().mutate(player.getUUID(), questId, "reset");
 	}
+
+	/** Register an optional server integration before Minecraft starts. */
+	public static AutoCloseable registerAdapter(String id, QuestPlusAdapters.Adapter adapter) {
+		return QuestPlusAdapters.register(id, adapter);
+	}
+
+    /** Script/Java bridge: progress a single objective without spoofing gameplay actions. */
+    public static void setObjectiveProgress(ServerPlayer player, String questId, String objectiveId, long value)
+            throws IOException {
+        requireServerThread(player);
+        QuestPlusMod.runtime().setObjectiveProgress(player, questId, objectiveId, value);
+    }
+
+    public static void incrementObjectiveProgress(ServerPlayer player, String questId, String objectiveId, long amount)
+            throws IOException {
+        requireServerThread(player);
+        if (amount <= 0)
+            throw new IllegalArgumentException("Increment must be positive");
+        long current = getObjectiveProgress(player, questId, objectiveId);
+        setObjectiveProgress(player, questId, objectiveId, Math.addExact(current, amount));
+    }
+
+    /** Subscribe to server-side changes; close the handle when the integration unloads. */
+    public static AutoCloseable onQuestEvent(QuestPlusEvents.Type type,
+            java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return QuestPlusEvents.subscribe(type, listener);
+    }
+
+    public static AutoCloseable onQuestCompleted(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.QUEST_COMPLETED, listener);
+    }
+
+    public static AutoCloseable onObjectiveProgress(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, listener);
+    }
+
+    public static AutoCloseable onObjectiveCompleted(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, listener);
+    }
+
+    public static AutoCloseable onRewardClaimed(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.REWARD_CLAIMED, listener);
+    }
+
+    public static AutoCloseable onTeamChanged(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.TEAM_CHANGED, listener);
+    }
+
+    public static AutoCloseable onQuestReset(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.QUEST_RESET, listener);
+    }
 
 	public static void submit(ServerPlayer responsible, QuestEvent event) {
 		QuestPlusMod.runtime().event(responsible, event);

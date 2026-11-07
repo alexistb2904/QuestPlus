@@ -33,6 +33,28 @@ class QuestStudioDescriptorsTest {
 		}
 	}
 
+    @Test
+    void acceptsBoundedNumbersAndChoicesButNoExecutableDescriptors() {
+        var fields = JsonParser.parseString("""
+                [{"key":"rate","type":"number","label":"Rate","min":0.25,"max":5.5,"default":1.5},
+                 {"key":"mode","type":"choice","label":"Mode","options":["press","crusher"],"default":"press"}]
+                """).getAsJsonArray();
+        QuestStudioDescriptors.register("event", "questplus_test:typed", "Typed fields", fields);
+        var descriptor = QuestStudioDescriptors.snapshot().asList().stream()
+                .map(JsonElement::getAsJsonObject)
+                .filter(v -> v.get("id").getAsString().equals("questplus_test:typed")).findFirst().orElseThrow();
+        assertEquals(fields, descriptor.getAsJsonArray("fields"));
+
+        for (String invalid : java.util.List.of(
+                "[{key:'mode',type:'choice',label:'Mode',options:[]}]",
+                "[{key:'mode',type:'choice',label:'Mode',options:['a'],default:'b'}]",
+                "[{key:'rate',type:'integer',label:'Rate',min:1,max:2,default:1.5}]",
+                "[{key:'run',type:'string',label:'Run',script:'alert(1)'}]")) {
+            assertThrows(IllegalArgumentException.class, () -> QuestStudioDescriptors.register("event",
+                    "questplus_test:invalid", "Invalid", JsonParser.parseString(invalid).getAsJsonArray()));
+        }
+    }
+
 	@Test
 	void rejectsExecutableOrAmbiguousEditorFields() {
 		JsonArray fields = new JsonArray();

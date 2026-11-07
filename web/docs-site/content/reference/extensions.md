@@ -45,3 +45,19 @@ A stage provider bridges external progression through `QuestStages.Provider`. Re
 Named reward tables let multiple quests reuse a pool. Studio stores them in `queststudio-compatibility.json`. The candidate registry checks references and cycles before activation. Existing granted entitlements retain their concrete outcomes when a table changes.
 
 Need HTTP requests instead? See [Quest Hub API](/reference/web-api).
+
+## Dynamic forms and compatibility
+
+Descriptor fields support `key`, `type` and `label`, plus optional data-only metadata: `default`, numeric `min`/`max`, and `options` (1–30 distinct strings) for `choice` fields. `number` supports finite decimal values alongside `integer`. These hints are validated on the server and in Studio but are **not** a replacement for `registerObjectiveData`, `registerCondition` or `registerReward` validators. Studio never evaluates scripts or trusts values from a browser.
+
+Example:
+
+```java
+var fields = JsonParser.parseString("""
+    [{"key":"rate","type":"number","label":"Rate","min":0,"max":4,"default":1.5},
+     {"key":"mode","type":"choice","label":"Mode","options":["press","crusher"],"default":"press"}]
+    """).getAsJsonArray();
+QuestPlusApi.registerEditorDescriptor("event", "example:machine", "Machine", fields);
+```
+
+Unknown custom objective/condition/reward IDs remain editable as data offline, with an unavailable-extension warning. The server must have the corresponding handler before publishing. An optional Java adapter lifecycle and quest progress/events API are ready for a future KubeJS bridge, but there is no KubeJS integration or JavaScript execution today.
