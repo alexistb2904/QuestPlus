@@ -37,6 +37,20 @@ class ClientLanguageTest {
 		}
 	}
 
+	@Test
+	void creativeTabAndTabletUseQuestPlusBrandInEveryLanguage() throws Exception {
+		var tablets = java.util.Map.of(
+				"en_us", "Quest Plus Tablet",
+				"fr_fr", "Tablette Quest Plus",
+				"es_es", "Tableta Quest Plus",
+				"zh_cn", "Quest Plus 任务平板");
+		for (var entry : tablets.entrySet()) {
+			var translations = read(entry.getKey());
+			assertEquals("Quest Plus", translations.get("itemGroup.questplus.quest").getAsString(), entry.getKey());
+			assertEquals(entry.getValue(), translations.get("item.questplus.tablet").getAsString(), entry.getKey());
+		}
+	}
+
 	private static long arguments(String value) {
 		return java.util.regex.Pattern.compile("%s").matcher(value).results().count();
 	}
