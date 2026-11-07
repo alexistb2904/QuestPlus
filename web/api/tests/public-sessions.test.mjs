@@ -87,13 +87,20 @@ test("any server can create a private session with its own token, but only its o
 	assert.equal((await api("/api/server/poll?session=" + b.data.id, { auth: b.data.serverToken })).status, 200);
 });
 
-test("session creation rejects supplied credentials to enforce token-only authentication", async t => {
+test("forwarded Authorization cannot block public session creation or grant server privileges", async t => {
 	const { api, create } = await start(t);
-	const created = await create();
+	const unrelated = "unexpected-proxy-authorization-value";
+	const original = await create();
+	const created = await create({ auth: unrelated });
+	assert.equal(original.status, 201);
 	assert.equal(created.status, 201);
-	assert.equal((await create({ auth: "unexpected-authentication-header" })).status, 401);
+	assert.notEqual(created.data.serverToken, original.data.serverToken);
+	assert.notEqual(created.data.serverToken, unrelated);
+	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: unrelated })).status, 401);
+	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: original.data.serverToken })).status, 401);
 	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: created.data.serverToken })).status, 200);
-	assert.equal((await api("/api/server/poll?session=" + created.data.id, { auth: "unrelated-token" })).status, 401);
+	assert.equal((await api("/api/server/revoke", { auth: unrelated, body: { session: created.data.id } })).status, 401);
+	assert.equal((await api("/api/server/revoke", { auth: created.data.serverToken, body: { session: created.data.id } })).status, 200);
 });
 
 test("public session creation is limited before upload and forwarded addresses are trusted only for configured proxy hops", async t => {
