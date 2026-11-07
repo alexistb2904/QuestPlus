@@ -12,12 +12,12 @@ abstract class TabletGuiExtractorMixin {
 	@Inject(method = "guiWidth", at = @At("HEAD"), cancellable = true)
 	private void questplus$width(CallbackInfoReturnable<Integer> result) {
 		if (TabletSurfaceRenderer.target() != null)
-			result.setReturnValue(TabletSurfaceRenderer.ATLAS_WIDTH);
+			result.setReturnValue(TabletSurfaceRenderer.atlasWidth());
 	}
 
 	@Inject(method = "guiHeight", at = @At("HEAD"), cancellable = true)
 	private void questplus$height(CallbackInfoReturnable<Integer> result) {
 		if (TabletSurfaceRenderer.target() != null)
-			result.setReturnValue(TabletSurfaceRenderer.ATLAS_HEIGHT);
+			result.setReturnValue(TabletSurfaceRenderer.atlasHeight());
 	}
 }

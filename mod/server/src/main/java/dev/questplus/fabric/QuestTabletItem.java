@@ -1,6 +1,7 @@
 package dev.questplus.fabric;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.*;
 import net.minecraft.resources.*;
@@ -22,6 +23,10 @@ public final class QuestTabletItem extends Item {
 		Registry.register(BuiltInRegistries.ITEM, key,
 				new QuestTabletItem(new Item.Properties().setId(key).stacksTo(1)));
 		UseBlockCallback.EVENT.register((player, level, hand,
+				hit) -> !level.isClientSide() && player.getItemInHand(hand).getItem() instanceof QuestTabletItem
+						? InteractionResult.SUCCESS
+						: InteractionResult.PASS);
+		UseEntityCallback.EVENT.register((player, level, hand, entity,
 				hit) -> !level.isClientSide() && player.getItemInHand(hand).getItem() instanceof QuestTabletItem
 						? InteractionResult.SUCCESS
 						: InteractionResult.PASS);

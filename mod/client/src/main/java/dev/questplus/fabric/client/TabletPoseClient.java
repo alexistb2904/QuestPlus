@@ -73,7 +73,7 @@ public final class TabletPoseClient {
 
 	private static boolean animated() {
 		var settings = QuestPlusClient.settings;
-		return settings != null && settings.animations && !settings.reducedMotion;
+		return settings != null && settings.animatedTabletTransitions();
 	}
 
 	private static void transition(UUID id, boolean open) {

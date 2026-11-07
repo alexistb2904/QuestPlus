@@ -1,0 +1,28 @@
+// Exercise the physical tablet with the development client's installed mods and shaders.
+allprojects {
+    afterEvaluate {
+        def testDir = file('build/tablet-item-test')
+        loom.runs.clientGameTest {
+            runDir testDir.absolutePath
+            vmArg '-Dquestplus.tabletCarryOnly=true'
+            vmArg '-Xmx2G'
+        }
+        tasks.named('deleteGameTestRunDir') {
+            setDelete([testDir])
+            doLast {
+                ['mods', 'resourcepacks', 'shaderpacks'].each { folder ->
+                    copy {
+                        from file("../run/client/${folder}")
+                        into new File(testDir, folder)
+                    }
+                }
+                def marker = new File(testDir, 'config/punchy_moves/tutorial_seen_v1')
+                marker.parentFile.mkdirs()
+                marker.text = 'seen\n'
+                def packs = fileTree('../run/client/resourcepacks').files.collect { 'file/' + it.name }
+                new File(testDir, 'options.txt').text = 'resourcePacks:' +
+                    groovy.json.JsonOutput.toJson(['vanilla', 'punchy:punchy'] + packs) + '\n'
+            }
+        }
+    }
+}

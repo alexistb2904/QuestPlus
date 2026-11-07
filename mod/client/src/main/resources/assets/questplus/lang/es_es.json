@@ -92,6 +92,8 @@
 	"questplus.client.previous": "Anterior",
 	"questplus.client.next": "Siguiente",
 	"questplus.client.tablet_transitions": "Transición de tableta",
+	"questplus.client.tree_resolution": "Resolución del árbol: %s×",
+	"questplus.client.tree_resolution_hint": "%s × %s px. Los valores altos mejoran la nitidez de la pantalla 3D, pero consumen más memoria gráfica. No cambia el tamaño de la interfaz.",
 	"questplus.client.player_name": "Nombre del jugador",
 	"questplus.client.player_uuid": "UUID del jugador",
 	"questplus.client.no_invitations": "No se han recibido invitaciones.",

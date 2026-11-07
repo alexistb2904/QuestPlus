@@ -15,6 +15,7 @@ final class TabletCarryGameTest {
 				client.gui.setScreen(null);
 				QuestPlusClient.settings.animations = true;
 				QuestPlusClient.settings.tablet = true;
+				QuestPlusClient.settings.tabletTransitions = true;
 				QuestPlusClient.settings.reducedMotion = false;
 				QuestPlusClient.settings.blur = false;
 				client.options.fov().set(70);
@@ -37,24 +38,43 @@ final class TabletCarryGameTest {
 			context.waitTicks(4);
 			context.takeScreenshot("questplus-creative-quest");
 			context.runOnClient(client -> client.gui.setScreen(null));
+			terminalFrameTrial(context);
+			emptyHandTrial(context);
 			world.getServer().runCommand("item replace entity @p weapon.mainhand with questplus:tablet");
 			context.waitTicks(5);
 			context.runOnClient(client -> client.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(5);
 			context.takeScreenshot("questplus-local-carried-third-person");
 			context.runOnClient(client -> client.options.setCameraType(CameraType.FIRST_PERSON));
+			carryResetTrial(context);
 			firstPersonItemTrial(context);
+			world.getServer().runCommand("execute at @p run summon minecraft:villager ~ ~ ~2 {NoAI:1b,Invulnerable:1b,Tags:[\"tablet_test\"],VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"}}");
+			context.getInput().lookAt(0, 0);
+			context.waitFor(client -> client.hitResult instanceof net.minecraft.world.phys.EntityHitResult, 60);
+			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+			context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+			context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
+			context.runOnClient(client -> client.gui.screen().onClose());
+			context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
+			world.getServer().runCommand("kill @e[tag=tablet_test]");
 			try (var files = java.nio.file.Files
 					.list(net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("shaderpacks"))) {
-				var bliss = files.map(path -> path.getFileName().toString())
-						.filter(name -> name.contains("bliss-shader")).findFirst().orElseThrow();
-				context.runOnClient(client -> TabletCompatibilityTest.shader(bliss));
-				context.waitTicks(30);
-				context.runOnClient(client -> {
-					if (!TabletShaderCompat.shadersActive())
-						throw new AssertionError("Bliss did not activate");
-				});
-				firstPersonItemTrial(context);
+				for (String shader : files.map(path -> path.getFileName().toString())
+						.filter(name -> name.endsWith(".zip")).sorted().toList()) {
+					context.runOnClient(client -> TabletCompatibilityTest.shader(shader));
+					context.waitTicks(30);
+					context.runOnClient(client -> {
+						if (!TabletShaderCompat.shadersActive())
+							throw new AssertionError("Shader did not activate: " + shader);
+					});
+					world.getServer().runCommand("item replace entity @p weapon.mainhand with minecraft:air");
+					context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 60);
+					emptyHandTrial(context);
+					world.getServer().runCommand("item replace entity @p weapon.mainhand with questplus:tablet");
+					carryResetTrial(context);
+					firstPersonItemTrial(context);
+					dev.questplus.fabric.QuestPlusMod.LOGGER.info("TABLET ITEM SHADER PASS {}", shader);
+				}
 				context.runOnClient(client -> TabletCompatibilityTest.shader(""));
 				context.waitTicks(5);
 			} catch (java.io.IOException error) {
@@ -65,6 +85,90 @@ final class TabletCarryGameTest {
 			QuestClientGameTest.remotePoseTrial(context, world.getServer());
 			dev.questplus.fabric.QuestPlusMod.LOGGER.info("TABLET THIRD PERSON CARRY AND CREATIVE TAB PASS");
 		}
+	}
+
+	private static void terminalFrameTrial(ClientGameTestContext context) {
+		context.runOnClient(QuestClientTabletFlow::toggle);
+		context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
+		context.runOnClient(client -> client.gui.screen().onClose());
+		context.waitTicks(19);
+		context.runOnClient(client -> {
+			var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
+					.fpPal$getFpAnimationController();
+			// Several render frames can sample the held end pose before the next game tick.
+			var frame = new com.zigythebird.playeranimcore.animation.AnimationData(0, 1, true);
+			controller.setupAnim(frame);
+			controller.setupAnim(frame);
+			com.github.razorplay01.fp_pal.firstperson.FpAnimationSystem.updateRenderState(client.player);
+			if (!controller.isRunning() || controller.getAnimationState() != com.zigythebird.playeranimcore.enums.State.PAUSED
+					|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
+				throw new AssertionError("Repeated render frames discarded the held tablet pose: "
+						+ controller.getAnimationState() + " ticks=" + controller.getAnimationTicks());
+		});
+		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 5);
+	}
+
+	private static void emptyHandTrial(ClientGameTestContext context) {
+		for (int cycle = 0; cycle < 4; cycle++) {
+			context.runOnClient(QuestClientTabletFlow::toggle);
+			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
+			context.runOnClient(client -> client.gui.screen().onClose());
+			if (cycle == 0) {
+				context.waitTicks(5);
+				var before = context.computeOnClient(client -> new org.joml.Vector3f(
+						com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position));
+				context.waitTicks(6);
+				context.runOnClient(client -> {
+					if (!QuestClientTabletFlow.closing() || !TabletSurfaceRenderer.hasSurface()
+							|| before.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
+									.getExtraBone("tablet_root").position) < 1e-7)
+						throw new AssertionError("Empty-hand close animation did not advance");
+				});
+				context.takeScreenshot("tablet-empty-hand-closing");
+			}
+			try {
+				context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 35);
+			} catch (AssertionError error) {
+				context.runOnClient(client -> {
+					var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
+							.fpPal$getFpAnimationController();
+					dev.questplus.fabric.QuestPlusMod.LOGGER.error("STUCK CLOSE id={} ticks={} state={} pending={} running={} instance={} finished={} fp={}",
+							controller.getCurrentFpAnimation(), controller.getAnimationTicks(), controller.getAnimationState(),
+							controller.isPendingPlay(), controller.isRunning(), controller.getCurrentAnimationInstance(),
+							controller.hasAnimationFinished(), com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive);
+				});
+				context.takeScreenshot("tablet-stuck-close");
+				throw error;
+			}
+		}
+	}
+
+	private static void carryResetTrial(ClientGameTestContext context) {
+		context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
+		context.waitTicks(5);
+		var expected = context.computeOnClient(client -> new org.joml.Vector3f(
+				com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position));
+		for (int cycle = 0; cycle < 3; cycle++) {
+			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_2);
+			context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 30);
+			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_1);
+			context.waitFor(client -> QuestClientTabletFlow.carrying(), 30);
+			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_E);
+			context.waitTicks(3);
+			context.runOnClient(client -> {
+				if (QuestClientTabletFlow.nativeHandsActive())
+					throw new AssertionError("Inventory retained the carry animation");
+			});
+			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE);
+			context.waitFor(client -> QuestClientTabletFlow.carrying(), 30);
+			context.waitTicks(5);
+			context.runOnClient(client -> {
+				if (!TabletNativeArms.active() || expected.distanceSquared(
+						com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position) > 1e-5)
+					throw new AssertionError("Picking up the tablet changed its carry pose");
+			});
+		}
+		context.takeScreenshot("tablet-carried-after-slot-and-inventory");
 	}
 
 	private static void firstPersonItemTrial(ClientGameTestContext context) {
@@ -109,6 +213,26 @@ final class TabletCarryGameTest {
 			}
 			if (!context.computeOnClient(client -> QuestClientTabletFlow.carrying()))
 				throw new AssertionError("Close did not return to the carry pose");
+		}
+		for (boolean useItem : new boolean[] { true, false }) {
+			context.runOnClient(QuestClientTabletFlow::toggle);
+			context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
+			context.runOnClient(client -> client.gui.screen().onClose());
+			context.waitTicks(2);
+			if (useItem) {
+				context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+				context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+			} else
+				context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_J);
+			context.waitFor(client -> {
+				if (!QuestClientTabletFlow.nativeHandsActive()
+						|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
+					throw new AssertionError("Reopening released the native tablet pose");
+				return TabletSurfaceRenderer.active();
+			}, 60);
+			context.takeScreenshot("tablet-reopened-" + (useItem ? "click" : "key"));
+			context.runOnClient(client -> client.gui.screen().onClose());
+			context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
 		}
 		context.getInput().lookAt(0, 0);
 		dev.questplus.fabric.QuestPlusMod.LOGGER.info("TABLET STRIKE AND SEAMLESS CLOSE PASS");

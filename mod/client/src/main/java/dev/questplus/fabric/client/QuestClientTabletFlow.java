@@ -4,6 +4,7 @@ import dev.questplus.fabric.QuestPlusMod;
 import dev.questplus.fabric.QuestTabletItem;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.minecraft.world.InteractionResult;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,7 +21,7 @@ final class QuestClientTabletFlow {
 
 	private static Stage stage = Stage.CLOSED;
 	private static boolean nativeHands;
-	private static boolean closeRequested;
+	private static boolean closeRequested, reopenRequested;
 	private static long openingSince, closingSince;
 	private static long strikingSince;
 	private static String openingClip = "questplus.open", closingClip = "questplus.close";
@@ -50,6 +51,8 @@ final class QuestClientTabletFlow {
 				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> useTablet(
 				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
+		UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> useTablet(
+				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
 		ClientTickEvents.END_CLIENT_TICK.register(QuestClientTabletFlow::tick);
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			stop();
@@ -63,9 +66,12 @@ final class QuestClientTabletFlow {
 			return InteractionResult.PASS;
 		if (clientSide) {
 			var client = Minecraft.getInstance();
-			if (client.gui.screen() == null
-					&& (stage == Stage.CLOSED || stage == Stage.CARRIED || stage == Stage.STRIKING))
-				open(client);
+			if (client.gui.screen() == null) {
+				if (stage == Stage.CLOSING)
+					reopenRequested = true;
+				else if (stage == Stage.CLOSED || stage == Stage.CARRIED || stage == Stage.STRIKING)
+					open(client);
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -83,7 +89,7 @@ final class QuestClientTabletFlow {
 				&& (client.gui.screen() == null
 						|| client.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen)
 				&& client.options.getCameraType() == CameraType.FIRST_PERSON
-				&& client.player.getMainHandItem().getItem() instanceof QuestTabletItem && animationAvailable();
+				&& client.player.getMainHandItem().getItem() instanceof QuestTabletItem && tabletAvailable();
 	}
 
 	private static void carry(Minecraft client) {
@@ -124,25 +130,29 @@ final class QuestClientTabletFlow {
 			close();
 			return;
 		}
-		if (stage == Stage.CLOSING || client.gui.screen() != null)
+		if (client.gui.screen() != null)
 			return;
+		if (stage == Stage.CLOSING) {
+			reopenRequested = true;
+			return;
+		}
 		open(client);
 	}
 
-	private static boolean animationAvailable() {
+	private static boolean tabletAvailable() {
 		var s = QuestPlusClient.settings;
-		return s != null && s.tablet && s.animations && !s.reducedMotion
+		return s != null && s.tablet
 				&& FabricLoader.getInstance().isModLoaded("fp_pal")
 				&& FabricLoader.getInstance().isModLoaded("player_animation_library");
 	}
 
 	private static void open(Minecraft client) {
 		// Switch to first person before opening; FP PAL cannot draw the tablet in third person.
-		if (client.options.getCameraType() != CameraType.FIRST_PERSON) {
+		if (tabletAvailable() && client.options.getCameraType() != CameraType.FIRST_PERSON) {
 			previousCamera = client.options.getCameraType();
 			client.options.setCameraType(CameraType.FIRST_PERSON);
 		}
-		if (animationAvailable()) {
+		if (tabletAvailable()) {
 			boolean carried = shouldCarry(client);
 			openingClip = carried ? "questplus.carry_open" : "questplus.open";
 			closingClip = carried ? "questplus.carry_close" : "questplus.close";
@@ -150,7 +160,7 @@ final class QuestClientTabletFlow {
 			// is evaluated by Punchy's renderer during the same frame and
 			// must already see this state (including the opening animation).
 			nativeHands = true;
-			if (!QuestPlusClient.settings.tabletTransitions) {
+			if (!QuestPlusClient.settings.animatedTabletTransitions()) {
 				try {
 					if (FirstPersonPalBridge.play("questplus.idle")) {
 						stage = Stage.HELD;
@@ -187,8 +197,7 @@ final class QuestClientTabletFlow {
 			client.options.setCameraType(previousCamera);
 			previousCamera = null;
 		}
-		if (QuestPlusClient.settings.animations && QuestPlusClient.settings.tablet
-				&& !QuestPlusClient.settings.reducedMotion) {
+		if (QuestPlusClient.settings.tablet) {
 			QuestPlusMod.LOGGER.warn(
 					"Quest Plus has fallen back to legacy GUI: fp_pal={}, player_animation_library={}.",
 					FabricLoader.getInstance().isModLoaded("fp_pal"),
@@ -200,7 +209,7 @@ final class QuestClientTabletFlow {
 	static void close() {
 		if (!nativeHands || stage == Stage.CLOSED)
 			return;
-		if (!QuestPlusClient.settings.tabletTransitions) {
+		if (!QuestPlusClient.settings.animatedTabletTransitions()) {
 			stop();
 			reset();
 			return;
@@ -324,7 +333,10 @@ final class QuestClientTabletFlow {
 				stage = Stage.HELD;
 				client.gui.setScreen(new QuestScreen());
 			} else if (stage == Stage.CLOSING && FirstPersonPalBridge.finished(closingClip)) {
-				if (previousCamera == null && shouldCarry(client)) {
+				if (reopenRequested) {
+					reset();
+					open(client);
+				} else if (previousCamera == null && shouldCarry(client)) {
 					closeRequested = false;
 					QuestRecipeViewer.clear();
 					TabletFaceAnchor.reset();
@@ -360,6 +372,7 @@ final class QuestClientTabletFlow {
 		stage = Stage.CLOSED;
 		nativeHands = false;
 		closeRequested = false;
+		reopenRequested = false;
 		openingSince = closingSince = 0;
 		TabletFaceAnchor.reset();
 		DAMAGE.reset();

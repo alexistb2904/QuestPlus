@@ -1732,10 +1732,9 @@ public final class QuestScreen extends Screen {
 
 	private void settingsWidgets() {
 		int x = left + 14, y = top + 28, w = (right - left - 36) / 2;
-		// Six compact rows remain usable on the 500x300 in-world tablet as
-		// well as smaller Minecraft GUI scales.
+		// Leave room for all eight rows at the largest interface scale.
 		int available = bottom - y - 32;
-		int row = Math.max(16, Math.min(20, (available - 15) / 5));
+		int row = Math.max(16, Math.min(20, (available - 15) / 7));
 		String[] names = { "tablet", "blur", "animations", "reduced_motion", "notifications", "hud" };
 		boolean[] values = { settings.tablet, TabletShaderCompat.backgroundBlurEnabled(), settings.animations,
 				settings.reducedMotion, settings.notifications, settings.hud };
@@ -1816,6 +1815,14 @@ public final class QuestScreen extends Screen {
 			Component brightnessLabel = t("screen_brightness", Math.round(settings.screenBrightness * 100));
 			brightness.setMessage(brightnessLabel);
 			brightness.hoverText(brightnessLabel);
+			QuestButton resolution = button("tree_resolution", x, y + 7 * row, w, () -> {
+				settings.treeResolution = settings.treeResolution >= 8 ? 1 : settings.treeResolution + 1;
+				settings.save();
+				init();
+			});
+			resolution.setMessage(t("tree_resolution", settings.treeResolution));
+			resolution.hoverText(t("tree_resolution_hint", TabletSurfaceRenderer.WIDTH * settings.treeResolution,
+					TabletSurfaceRenderer.HEIGHT * settings.treeResolution));
 		}
 	}
 

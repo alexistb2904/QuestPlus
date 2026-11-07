@@ -1,0 +1,10 @@
+// Isolated GPU regression for tablet options; does not touch run/client.
+allprojects {
+    afterEvaluate {
+        loom.runs.clientGameTest {
+            runDir file('build/tablet-options').absolutePath
+            vmArg '-Dquestplus.tabletOptions=true'
+            vmArg '-Xmx2G'
+        }
+    }
+}

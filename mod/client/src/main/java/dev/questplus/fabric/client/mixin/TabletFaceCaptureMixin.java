@@ -132,14 +132,14 @@ abstract class TabletFaceCaptureMixin {
 	@Redirect(method = "renderCube", at = @At(value = "INVOKE", target = "Lcom/github/razorplay01/fp_pal/firstperson/FpGeoModel;textureWidth()I"), remap = false)
 	private static int questplus$width(FpGeoModel model) {
 		return questplus$usesAtlas() && !(questplus$pass == 1 && TabletShaderCompat.shadersActive())
-				? TabletSurfaceRenderer.ATLAS_WIDTH
+				? TabletSurfaceRenderer.atlasWidth()
 				: model.textureWidth();
 	}
 
 	@Redirect(method = "renderCube", at = @At(value = "INVOKE", target = "Lcom/github/razorplay01/fp_pal/firstperson/FpGeoModel;textureHeight()I"), remap = false)
 	private static int questplus$height(FpGeoModel model) {
 		return questplus$usesAtlas() && !(questplus$pass == 1 && TabletShaderCompat.shadersActive())
-				? TabletSurfaceRenderer.ATLAS_HEIGHT
+				? TabletSurfaceRenderer.atlasHeight()
 				: model.textureHeight();
 	}
 
@@ -149,9 +149,9 @@ abstract class TabletFaceCaptureMixin {
 		var screen = model.bone("screen");
 		if (questplus$usesAtlas() && questplus$pass == 2 && face == FpGeoModel.FACE_NORTH && screen != null
 				&& screen.cubes().contains(cube))
-			cir.setReturnValue(new float[] { TabletSurfaceRenderer.SCREEN_X + TabletSurfaceRenderer.SCREEN_WIDTH,
-					TabletSurfaceRenderer.ATLAS_HEIGHT - TabletSurfaceRenderer.SCREEN_HEIGHT,
-					-TabletSurfaceRenderer.SCREEN_WIDTH, TabletSurfaceRenderer.SCREEN_HEIGHT });
+			cir.setReturnValue(new float[] { TabletSurfaceRenderer.SCREEN_X + TabletSurfaceRenderer.screenWidth(),
+					TabletSurfaceRenderer.atlasHeight() - TabletSurfaceRenderer.screenHeight(),
+					-TabletSurfaceRenderer.screenWidth(), TabletSurfaceRenderer.screenHeight() });
 	}
 
 	@Inject(method = "uv", at = @At("RETURN"), cancellable = true, remap = false)
@@ -163,6 +163,6 @@ abstract class TabletFaceCaptureMixin {
 		if (face == FpGeoModel.FACE_NORTH && screen != null && screen.cubes().contains(cube))
 			return;
 		var uv = cir.getReturnValue();
-		cir.setReturnValue(new float[] { uv[0], TabletSurfaceRenderer.ATLAS_HEIGHT - uv[1], uv[2], -uv[3] });
+		cir.setReturnValue(new float[] { uv[0], TabletSurfaceRenderer.atlasHeight() - uv[1], uv[2], -uv[3] });
 	}
 }

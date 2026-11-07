@@ -19,8 +19,7 @@ import java.util.List;
  * Persistent GUI atlas drawn by Minecraft's own backend-independent renderer.
  */
 public final class TabletSurfaceRenderer {
-	public static final int WIDTH = 500, HEIGHT = 300, PIXEL_SCALE = 3, SCREEN_WIDTH = WIDTH * PIXEL_SCALE,
-			SCREEN_HEIGHT = HEIGHT * PIXEL_SCALE, ATLAS_WIDTH = 2048, ATLAS_HEIGHT = 1024, SCREEN_X = 256;
+	public static final int WIDTH = 500, HEIGHT = 300, SCREEN_X = 256;
 	public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("questplus", "dynamic/tablet_surface");
 	private static final Identifier BODY = Identifier.fromNamespaceAndPath("questplus",
 			"textures/fp/questplus_first_person.png");
@@ -28,8 +27,25 @@ public final class TabletSurfaceRenderer {
 	private static RenderTarget target;
 	private static GuiRenderer renderer;
 	private static boolean rendering;
+	private static int pixelScale = 6;
 
 	private TabletSurfaceRenderer() {
+	}
+
+	public static int screenWidth() {
+		return WIDTH * pixelScale;
+	}
+
+	public static int screenHeight() {
+		return HEIGHT * pixelScale;
+	}
+
+	public static int atlasWidth() {
+		return SCREEN_X + screenWidth();
+	}
+
+	public static int atlasHeight() {
+		return Math.max(256, screenHeight());
 	}
 
 	/**
@@ -80,8 +96,13 @@ public final class TabletSurfaceRenderer {
 		if (!active())
 			return;
 		var mc = Minecraft.getInstance();
+		int requestedScale = Math.clamp(QuestPlusClient.settings.treeResolution, 1, 8);
+		if (pixelScale != requestedScale) {
+			close();
+			pixelScale = requestedScale;
+		}
 		if (target == null) {
-			target = new TextureTarget("Quest Plus tablet", ATLAS_WIDTH, ATLAS_HEIGHT, GpuFormat.RGBA8_UNORM,
+			target = new TextureTarget("Quest Plus tablet", atlasWidth(), atlasHeight(), GpuFormat.RGBA8_UNORM,
 					GpuFormat.D32_FLOAT);
 			renderer = new GuiRenderer(STATE, mc.gameRenderer.featureRenderDispatcher(), List.of());
 			mc.getTextureManager().register(TEXTURE, new AtlasTexture(target));
@@ -104,7 +125,7 @@ public final class TabletSurfaceRenderer {
 			graphics.nextStratum();
 			graphics.pose().pushMatrix();
 			graphics.pose().translate(SCREEN_X, 0);
-			graphics.pose().scale(PIXEL_SCALE * uiScale());
+			graphics.pose().scale(pixelScale * uiScale());
 			graphics.enableScissor(0, 0, logicalWidth(), logicalHeight());
 			screen().extractTablet(graphics, x, y, mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
 			// Dim only the 3D atlas, not the 2D fallback. Applied in a separate
@@ -119,8 +140,8 @@ public final class TabletSurfaceRenderer {
 			graphics.extractDeferredElements(x, y, mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
 			graphics.disableScissor();
 			graphics.pose().popMatrix();
-			window.width = ATLAS_WIDTH;
-			window.height = ATLAS_HEIGHT;
+			window.width = atlasWidth();
+			window.height = atlasHeight();
 			window.guiScale = 1;
 			RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(target.getColorTexture(),
 					new Vector4f(0, 0, 0, 0), target.getDepthTexture(), 0);

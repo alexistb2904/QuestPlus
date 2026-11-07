@@ -18,6 +18,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if (Boolean.getBoolean("questplus.tabletOptions")) {
+			TabletOptionsGameTest.run(context);
+			return;
+		}
 		if (Boolean.getBoolean("questplus.recipeReturn")) {
 			RecipeReturnGameTest.run(context);
 			return;

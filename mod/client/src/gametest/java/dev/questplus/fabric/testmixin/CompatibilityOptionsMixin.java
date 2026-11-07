@@ -18,7 +18,7 @@ abstract class CompatibilityOptionsMixin {
 
 	@Inject(method = "restoreDefaultGameOptions", at = @At("HEAD"), remap = false)
 	private void questplus$captureModOptions(CallbackInfo ci) {
-		if (!Boolean.getBoolean("questplus.tabletCompatibility") || questplus$captured)
+		if (questplus$captured)
 			return;
 		questplus$captured = true;
 		((ClientGameTestContextImpl) (Object) this)
