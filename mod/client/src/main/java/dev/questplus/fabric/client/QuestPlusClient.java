@@ -138,10 +138,6 @@ public final class QuestPlusClient implements ClientModInitializer {
 				sync();
 				return;
 			}
-			// Completed quests leave the HUD immediately, even with notifications off.
-			boolean pinChanged = settings.pinned.removeIf(id -> QuestClientState.flag(STATE.progress(id), "completed"));
-			if (pinChanged)
-				settings.save();
 			if (!initial && message.has("progress")) {
 				for (var entry : message.getAsJsonObject("progress").entrySet()) {
 					var old = previous.getOrDefault(entry.getKey(), new JsonObject());
