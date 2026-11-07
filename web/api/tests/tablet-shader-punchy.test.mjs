@@ -65,7 +65,7 @@ test("active shaders always bypass global menu blur regardless of self illuminat
 test("tablet body and interactive screen use separate native render passes", () => {
 	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
 	const geo = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeGeometry.java");
-	assert.match(renderer, /RenderTypes\.entityCutout\(BODY\)/);
+	assert.match(renderer, /surface\s*\?\s*TabletRenderer\.texture\(\)\s*:\s*BODY/);
 	assert.match(renderer, /TabletNativeGeometry\.Pass\.BODY/);
 	assert.match(renderer, /TabletNativeGeometry\.Pass\.SCREEN/);
 	assert.match(geo, /TabletFaceAnchor\.capture\(pose\)/);

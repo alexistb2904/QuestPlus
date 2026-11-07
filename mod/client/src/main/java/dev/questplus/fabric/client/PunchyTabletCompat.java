@@ -6,9 +6,8 @@ import java.lang.reflect.Method;
 import java.util.function.BooleanSupplier;
 
 /**
- * Optional Punchy! 3.1+ API bridge, isolated from its jar and classes. FP PAL
- * owns the tablet opening / idle / closing arms; Punchy! should animate all
- * other first-person interactions normally.
+ * Optional Punchy! 3.1+ API bridge, isolated from its jar and classes. The
+ * QuestPlus native renderer owns the hands only while the tablet is active.
  */
 final class PunchyTabletCompat {
 	private PunchyTabletCompat() {
