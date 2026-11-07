@@ -274,7 +274,7 @@ export function RewardEditor({
 						</div>
 					)) || (
 					<button className="button secondary" type="button" onClick={onAdvanced}>
-						{t("Edit custom rewards in Advanced JSON.")}
+{t("Extension unavailable in Studio. Its parameters are preserved; edit in Advanced JSON.")}
 					</button>
 				)}
 			</>
