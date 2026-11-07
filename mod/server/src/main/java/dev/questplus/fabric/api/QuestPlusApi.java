@@ -169,6 +169,10 @@ public final class QuestPlusApi {
         return onQuestEvent(QuestPlusEvents.Type.REWARD_CLAIMED, listener);
     }
 
+    public static AutoCloseable onTeamChanged(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.TEAM_CHANGED, listener);
+    }
+
     public static AutoCloseable onQuestReset(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
         return onQuestEvent(QuestPlusEvents.Type.QUEST_RESET, listener);
     }
