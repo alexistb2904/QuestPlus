@@ -71,6 +71,30 @@ public final class QuestPlusApi {
 		return getProgress(player, questId).objectives().getOrDefault(objectiveId, 0L);
 	}
 
+	/** Administrative grant through the same team and reward path as the server command. */
+	public static void completeQuest(ServerPlayer player, String questId) throws IOException {
+		requireServerThread(player);
+		var runtime = QuestPlusMod.runtime();
+		var quest = runtime.registry().get(questId);
+		validateCompletionType(quest.progression());
+		var progress = runtime.state(player.getUUID()).quests.get(questId);
+		if (progress != null && (progress.terminal || progress.waitingRestart
+				|| (quest.progression().equals("once") && progress.completed)))
+			throw new IllegalStateException("Quest is already complete or awaiting restart");
+		runtime.mutate(player.getUUID(), questId, "grant");
+	}
+
+	static void validateCompletionType(String progression) {
+		if (!progression.equals("once") && !progression.equals("repeatable"))
+			throw new IllegalArgumentException("Administrative completion does not support this progression type");
+	}
+
+	/** Reset shared team progress, preserving the existing reward claim ledger. */
+	public static void resetQuest(ServerPlayer player, String questId) throws IOException {
+		requireServerThread(player);
+		QuestPlusMod.runtime().mutate(player.getUUID(), questId, "reset");
+	}
+
 	public static void submit(ServerPlayer responsible, QuestEvent event) {
 		QuestPlusMod.runtime().event(responsible, event);
 	}

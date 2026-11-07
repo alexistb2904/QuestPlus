@@ -11,6 +11,30 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
 
 public final class ObjectiveActionsGameTest {
+	@GameTest(maxTicks = 300)
+	public void trustedApiCompletionAndResetUseServerProgress(GameTestHelper helper) throws Exception {
+		var f = new ObjectiveTestFixture(helper, "api_mutation", """
+				[{id:'mine',event:'block_break',target:'minecraft:stone',count:2}]
+				""");
+		QuestPlusApi.completeQuest(f.player, f.quest);
+		helper.assertTrue(QuestPlusApi.getProgress(f.player, f.quest).completed(), "Grant completes the quest");
+		boolean rejected = false;
+		try {
+			QuestPlusApi.completeQuest(f.player, f.quest);
+		} catch (IllegalStateException expected) {
+			rejected = true;
+		}
+		helper.assertTrue(rejected, "A completed quest cannot be granted twice");
+		helper.startSequence().thenWaitUntil(f::idle).thenExecute(() -> {
+			try {
+				QuestPlusApi.resetQuest(f.player, f.quest);
+				helper.assertTrue(!QuestPlusApi.getProgress(f.player, f.quest).started(), "Reset clears progress");
+			} catch (java.io.IOException e) {
+				throw new java.io.UncheckedIOException(e);
+			}
+		}).thenExecute(f::close).thenSucceed();
+	}
+
 	@GameTest(maxTicks = 100)
 	public void realDeathsAdvanceAuthoredObjectives(GameTestHelper helper) throws Exception {
 		var f = new ObjectiveTestFixture(helper, "death_counter", """

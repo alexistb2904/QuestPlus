@@ -12,6 +12,19 @@ Unknown quest and objective IDs are rejected. Progress reads can throw
 `IOException` when saved player data cannot be loaded. These methods are for
 trusted server-side integrations, not browser authorization or pack editing.
 
+`completeQuest(player, id)` grants a quest using the same team and reward
+entitlement path as the operator grant command. It rejects a completed
+one-time quest or a repeatable quest awaiting restart. `resetQuest(player, id)`
+resets the player's or team's quest progress and retains reward claims. Both
+are trusted administrative operations on the server thread. Completion queues
+a durable transaction and can fail if the affected players are busy or storage
+is unavailable. Reset uses the normal progress autosave path.
+The completion method returns before the transaction finishes and does not
+report a later storage failure to its caller.
+Administrative completion currently accepts only `once` and `repeatable`
+progression. It rejects tiered and infinite quests rather than bypassing their
+cycle and tier rules.
+
 Register extensions during mod initialization before packs load. Report events only after the real server action succeeds. Keep all mutable gameplay state on the Minecraft server thread.
 
 ## Imports

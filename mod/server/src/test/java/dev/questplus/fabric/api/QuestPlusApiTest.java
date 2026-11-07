@@ -6,6 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuestPlusApiTest {
 	@Test
+	void completionRejectsUnsupportedProgressions() {
+		assertDoesNotThrow(() -> QuestPlusApi.validateCompletionType("once"));
+		assertDoesNotThrow(() -> QuestPlusApi.validateCompletionType("repeatable"));
+		assertThrows(IllegalArgumentException.class, () -> QuestPlusApi.validateCompletionType("tiered"));
+		assertThrows(IllegalArgumentException.class, () -> QuestPlusApi.validateCompletionType("infinite"));
+	}
+
+	@Test
 	void progressIsDetachedAndDoesNotExposeTheRewardLedger() {
 		var source = new PlayerProgress.QuestProgress();
 		source.counters.put("goal", 2L);
