@@ -1,0 +1,1204 @@
+/* Quest Studio documentation. Shared visual language: stone, oak, grass and amethyst. */
+@font-face {
+	font-family: "Pixelify Sans";
+	src: url("/QuestPlus/docs/fonts/pixelify-bold.ttf") format("truetype");
+	font-weight: 700;
+	font-display: swap;
+}
+:root {
+	color-scheme: dark;
+	--vp-font-family-base: "Segoe UI", Arial, sans-serif;
+	--vp-font-family-mono: Consolas, "Courier New", monospace;
+	--vp-layout-max-width: 1540px;
+	--vp-nav-height: 62px;
+	--vp-c-bg: #111214;
+	--vp-c-bg-alt: #19191d;
+	--vp-c-bg-elv: #29272c;
+	--vp-c-bg-soft: #242327;
+	--vp-c-gutter: #111214;
+	--vp-c-divider: #4b494f;
+	--vp-c-border: #67616c;
+	--vp-c-text-1: #f1eee9;
+	--vp-c-text-2: #c1b9b1;
+	--vp-c-text-3: #aca39a;
+	--vp-c-brand-1: #d9a9ff;
+	--vp-c-brand-2: #ae73e8;
+	--vp-c-brand-3: #7943a4;
+	--vp-c-brand-soft: #7943a439;
+	--vp-code-block-bg: #151418;
+	--vp-code-copy-code-bg: #343036;
+	--vp-home-hero-name-color: #f2ddad;
+	--vp-home-hero-name-background: none;
+	--qp-stone: linear-gradient(#232226e8, #19191def), url("/QuestPlus/docs/textures/stone.png");
+	--qp-oak: linear-gradient(#221912bf, #211b17c7), url("/QuestPlus/docs/textures/dark-oak.png");
+	--qp-gold: #e9bc73;
+	--qp-violet: #ae73e8;
+	--qp-grass: #568833;
+}
+html,
+body,
+#app {
+	background: #111214;
+	color: #f1eee9;
+}
+body {
+	background-image: radial-gradient(ellipse at 50% 0, #38274636, transparent 60%);
+}
+::selection {
+	background: #765294;
+	color: #fff;
+}
+* {
+	scrollbar-color: #69616c #1c1a1e;
+	scrollbar-width: thin;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+	outline: 2px solid #dec2ff;
+	outline-offset: 3px;
+}
+
+/* Header: the same stone workspace bar and oak title plaque as Quest Studio. */
+.VPNav,
+.VPNavBar,
+.VPNavBar .content,
+.VPNavBar .content-body {
+	background-color: #28272b !important;
+	background-image: var(--qp-stone) !important;
+	background-size: auto, 64px !important;
+}
+.VPNavBar {
+	border-bottom: 2px solid #655850 !important;
+	box-shadow:
+		0 4px 10px #0008,
+		inset 0 1px #ffffff17;
+}
+.VPNavBar .divider,
+.VPNavBar .divider-line {
+	background: #62544b !important;
+}
+.VPNavBarTitle .title {
+	background-image: linear-gradient(#52331bae, #392414c9), url("/QuestPlus/docs/textures/dark-oak.png");
+	background-size: auto, 128px;
+	border: 2px solid #946234;
+	border-radius: 4px;
+	box-shadow:
+		inset 0 1px #dca76b66,
+		0 3px 7px #0009;
+	padding: 5px 15px !important;
+	color: #f6e5be !important;
+	font:
+		700 22px/1.3 "Pixelify Sans",
+		sans-serif;
+	letter-spacing: 0.02em;
+	text-shadow: 0 2px 2px #000;
+}
+.VPNavBarTitle .logo {
+	width: 30px;
+	height: 30px;
+	object-fit: contain;
+	image-rendering: pixelated;
+	filter: drop-shadow(0 2px 1px #000);
+}
+.VPNavBarTitle.has-sidebar .title {
+	border-bottom: none !important;
+}
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .text {
+	color: #ddd1c3 !important;
+	font-size: 12px;
+	font-weight: 700;
+	text-shadow: 0 1px 1px #0008;
+}
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuLink.active,
+.VPNavBarMenuGroup:hover .text {
+	color: #e3bbff !important;
+}
+.VPNavBarMenuLink.active {
+	box-shadow: inset 0 -3px #ae73e8;
+}
+.VPNavBarSearch .DocSearch-Button,
+.VPNavBarSearch .button,
+.VPNavBarSearch button {
+	border: 1px solid #6b616c !important;
+	background: linear-gradient(#36343b, #242329) !important;
+	box-shadow:
+		inset 0 1px #ffffff1c,
+		0 2px 3px #0006;
+	border-radius: 4px !important;
+}
+.VPNavScreen {
+	background-image: var(--qp-stone);
+	background-size: auto, 64px;
+}
+
+/* Sidebar resembles the Studio category tree on dark oak. */
+.VPSidebar {
+	background-color: #292018 !important;
+	background-image: var(--qp-oak) !important;
+	background-size: auto, 160px !important;
+	border-right: 1px solid #68533b;
+	box-shadow: inset -3px 0 #0004;
+}
+.VPSidebar .curtain {
+	background: transparent !important;
+}
+.VPSidebarItem.level-0 {
+	padding-top: 10px;
+	margin-bottom: 14px;
+}
+.VPSidebarItem.level-0 > .item {
+	background-image: var(--qp-stone);
+	background-size: auto, 64px;
+	border: 1px solid #655b59;
+	border-top: 4px solid var(--qp-grass);
+	border-radius: 3px;
+	padding: 5px 11px 7px;
+	box-shadow:
+		0 2px 4px #0008,
+		inset 0 1px #ffffff16;
+}
+.VPSidebarItem.level-0 > .item .text {
+	font:
+		700 17px/1.25 "Pixelify Sans",
+		sans-serif;
+	color: #f0d3a0;
+	letter-spacing: 0.02em;
+	text-shadow: 0 2px #000;
+}
+.VPSidebarItem.level-1 .item {
+	min-height: 33px;
+	padding: 3px 8px;
+	border: 1px solid transparent;
+	border-radius: 3px;
+	margin: 2px 0;
+}
+.VPSidebarItem.level-1 .text {
+	font-size: 12px;
+	color: #d5c6b7;
+}
+.VPSidebarItem.level-1 .item:hover {
+	background: #4a3830a9;
+	border-color: #6c5542;
+}
+.VPSidebarItem.level-1.is-active .item,
+.VPSidebarItem.level-1 .item:has(.is-active) {
+	background: linear-gradient(#684191, #482a6a);
+	border-color: #9970ba;
+	box-shadow: inset 0 1px #dcc3f229;
+}
+.VPSidebarItem.level-1.is-active .text,
+.VPSidebarItem .is-active .text {
+	color: #fff !important;
+}
+
+/* Each guide is a textured stone panel, not a generic white documentation page. */
+.VPContent {
+	background-color: #141418;
+}
+.VPDoc .content-container {
+	max-width: 920px !important;
+}
+.VPDoc .content .vp-doc {
+	padding: 27px 30px 33px;
+	background-color: #242327;
+	background-image: var(--qp-stone);
+	background-size: auto, 64px;
+	border: 1px solid #645d68;
+	border-top: 4px solid var(--qp-grass);
+	border-radius: 4px;
+	box-shadow:
+		inset 1px 1px #ffffff1c,
+		0 5px 15px #0008;
+}
+.vp-doc h1,
+.VPHomeHero .name,
+.VPHomeHero .text {
+	color: #f2dfb0;
+	font-family: "Pixelify Sans", sans-serif;
+	font-weight: 700;
+	text-shadow: 0 2px 2px #000a;
+}
+.vp-doc h1 {
+	font-size: 33px;
+	line-height: 1.2;
+	letter-spacing: 0.01em;
+}
+.vp-doc h2 {
+	margin-top: 27px;
+	border-bottom: 1px solid #66546c;
+	font:
+		700 24px/1.35 "Pixelify Sans",
+		sans-serif;
+	color: #e6c5ff;
+}
+.vp-doc h3 {
+	font:
+		700 18px/1.4 "Pixelify Sans",
+		sans-serif;
+	color: #edc888;
+}
+.vp-doc p,
+.vp-doc li,
+.vp-doc td {
+	color: #ded6db;
+	line-height: 1.65;
+}
+.vp-doc a {
+	color: #dab0fa;
+	text-underline-offset: 3px;
+}
+.vp-doc a:hover {
+	color: #f2d3ff;
+}
+.vp-doc code:not(pre code) {
+	background: #44334e;
+	border: 1px solid #70517c;
+	color: #f8d7aa;
+	border-radius: 3px;
+	padding: 2px 5px;
+}
+.vp-doc div[class*="language-"] {
+	background: #151418;
+	border: 1px solid #65596c;
+	border-radius: 3px;
+	box-shadow:
+		inset 0 1px 3px #0009,
+		0 2px 5px #0005;
+}
+.vp-doc table {
+	display: block;
+	width: max-content;
+	max-width: 100%;
+	overflow-x: auto;
+	border: 1px solid #695c67;
+	border-radius: 3px;
+}
+.vp-doc th {
+	background: #48334e;
+	color: #f3ddff;
+	font-weight: 700;
+}
+.vp-doc td {
+	background: #242128;
+}
+.vp-doc tr:nth-child(even) td {
+	background: #302936;
+}
+.vp-doc tr:hover td {
+	background: #3c3145;
+}
+.vp-doc .custom-block {
+	background: #302739;
+	border: 1px solid #725d7d;
+	border-left: 4px solid #af83d3;
+	border-radius: 3px;
+	padding: 13px 17px;
+}
+.vp-doc .custom-block.tip {
+	border-left-color: #77af51;
+	background: #253322;
+}
+.vp-doc .custom-block.warning {
+	border-left-color: #e9bc73;
+	background: #382d21;
+}
+.vp-doc .custom-block .custom-block-title {
+	color: #f0d6a8;
+	font-weight: 700;
+}
+.vp-doc blockquote {
+	border-left-color: #ae73e8;
+	background: #2e2635;
+	padding: 9px 15px;
+}
+.VPDocAsideOutline .outline-title {
+	color: #e9bc73;
+	font:
+		700 16px "Pixelify Sans",
+		sans-serif;
+}
+.VPDocAsideOutline a:hover,
+.VPDocAsideOutline .active {
+	color: #debaff !important;
+}
+.VPDocFooter .pager-link {
+	border: 1px solid #73616f;
+	background: var(--qp-stone);
+	background-size: auto, 64px;
+	border-radius: 3px;
+	box-shadow:
+		inset 0 1px #ffffff16,
+		0 3px 5px #0006;
+}
+.VPDocFooter .pager-link:hover {
+	border-color: #ae73e8;
+}
+
+/* Home uses the Studio's large wooden plaque, beveled controls and quest-node tiles. */
+.VPHome {
+	background: transparent;
+}
+.VPHomeHero {
+	position: relative;
+	padding-top: calc(var(--vp-nav-height) + 48px) !important;
+	padding-bottom: 25px !important;
+}
+.VPHomeHero::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 8px;
+	transform: translateX(-50%);
+	width: min(1120px, 92vw);
+	height: 100%;
+	pointer-events: none;
+	background: radial-gradient(ellipse at 60% 45%, #71468e41, transparent 66%);
+}
+.VPHomeHero .name {
+	font-size: clamp(42px, 6vw, 68px);
+	letter-spacing: 0.02em;
+	color: #f1d9a0;
+}
+.VPHomeHero .text {
+	color: #c99aeb !important;
+	font-size: clamp(27px, 4vw, 43px);
+}
+.VPHomeHero .tagline {
+	color: #d6ccd8;
+	max-width: 620px;
+	font-size: 16px;
+}
+.VPHomeHero .image-src {
+	image-rendering: pixelated;
+	filter: drop-shadow(0 9px 4px #0008);
+}
+.VPHomeHero .image-container {
+	transform: scale(0.92);
+}
+.VPButton {
+	border-radius: 4px !important;
+	box-shadow:
+		inset 0 1px 1px #ffffff25,
+		0 3px 5px #000a;
+	text-shadow: 0 1px 1px #0009;
+	font-weight: 700 !important;
+}
+.VPButton.brand {
+	border: 2px solid #73b548 !important;
+	color: #fff !important;
+	background: linear-gradient(#3d8d20, #21600e) !important;
+}
+.VPButton.brand:hover {
+	border-color: #a0dc72 !important;
+	background: linear-gradient(#4caa2d, #286d11) !important;
+}
+.VPButton.alt {
+	color: #f2e5fb !important;
+	border: 2px solid #b48acb !important;
+	background: linear-gradient(#7943a4, #4a276b) !important;
+}
+.VPButton.alt:hover {
+	border-color: #d9b4ea !important;
+}
+.VPFeatures {
+	padding-top: 16px !important;
+}
+.VPFeature {
+	background-color: #28272b !important;
+	background-image: var(--qp-stone) !important;
+	background-size: auto, 64px !important;
+	border: 2px solid #726779 !important;
+	border-top: 4px solid var(--qp-grass) !important;
+	border-radius: 4px !important;
+	box-shadow:
+		inset 1px 1px 1px #e1dce63b,
+		inset -2px -2px 1px #0b0c10,
+		0 5px 8px #0009;
+}
+.VPFeature:hover {
+	border-color: #b576f0 !important;
+	transform: translateY(-2px);
+}
+.VPFeature .title {
+	color: #f0d7a9;
+	font:
+		700 22px "Pixelify Sans",
+		sans-serif;
+}
+.VPFeature .details {
+	color: #d3c8d7;
+	font-size: 13px;
+}
+.VPHomeContent .vp-doc {
+	max-width: 960px;
+	margin: 25px auto 45px;
+	padding: 18px 24px;
+	background-image: var(--qp-oak);
+	background-size: auto, 160px;
+	border: 1px solid #725a40;
+	border-top: 4px solid var(--qp-grass);
+	border-radius: 4px;
+	box-shadow: 0 5px 15px #0006;
+}
+.VPHomeContent .vp-doc h2 {
+	color: #f1d9a0;
+	margin-top: 0;
+}
+.VPFooter {
+	background-image: var(--qp-oak) !important;
+	background-size: auto, 160px !important;
+	border-top: 3px solid #568833 !important;
+}
+.VPFooter .message {
+	color: #debd88 !important;
+	font:
+		700 14px "Pixelify Sans",
+		sans-serif;
+	letter-spacing: 0.05em;
+}
+.QPFooter {
+	position: relative;
+	z-index: var(--vp-z-index-footer);
+	padding: 38px max(24px, calc((100vw - 1152px) / 2)) 16px;
+	background-color: #211a16;
+	background-image: linear-gradient(#211a16d9, #211a16ed), url("/QuestPlus/docs/textures/dark-oak.png");
+	background-size: auto, 160px;
+	border-top: 4px solid #568833;
+	box-shadow: inset 0 1px #e9bc7333;
+}
+.QPFooter__inner {
+	display: grid;
+	grid-template-columns: minmax(220px, 1fr) auto auto;
+	align-items: center;
+	gap: 34px;
+	max-width: 1152px;
+	margin: auto;
+}
+.QPFooter__brand {
+	display: flex;
+	align-items: center;
+	gap: 13px;
+	color: #f2dfb0;
+}
+.QPFooter__brand img {
+	object-fit: contain;
+	image-rendering: pixelated;
+	filter: drop-shadow(0 3px 2px #0009);
+}
+.QPFooter__brand strong {
+	font:
+		700 22px/1.2 "Pixelify Sans",
+		sans-serif;
+	text-shadow: 0 2px #000;
+}
+.QPFooter__brand p {
+	margin: 4px 0 0;
+	color: #c9bfba;
+	font-size: 13px;
+}
+.QPFooter__studio,
+.QPFooter__links a {
+	color: #ead5b3;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 700;
+	transition:
+		color 0.16s,
+		border-color 0.16s,
+		transform 0.16s;
+}
+.QPFooter__studio {
+	padding: 12px 16px;
+	border: 1px solid #946234;
+	border-radius: 3px;
+	background: linear-gradient(#52331b99, #392414c9), url("/QuestPlus/docs/textures/dark-oak.png");
+	box-shadow:
+		inset 0 1px #dca76b33,
+		0 3px 6px #0008;
+}
+.QPFooter__links {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+.QPFooter__links a {
+	color: #cfc2b6;
+}
+.QPFooter__studio:hover,
+.QPFooter__links a:hover {
+	color: #e3bbff;
+	border-color: #ae73e8;
+}
+.QPFooter__base {
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+	max-width: 1152px;
+	margin: 28px auto 0;
+	padding-top: 13px;
+	border-top: 1px solid #635043;
+	color: #a99b90;
+	font-size: 11px;
+}
+.QPFooter__base span:first-child {
+	color: #d9a65d;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+}
+.QPFooter__base i {
+	padding: 0 4px;
+	color: #ae73e8;
+	font-style: normal;
+}
+
+/* The landing page pairs real gameplay with practical routes into the guides. */
+.VPHomeHero .image-container {
+	width: min(48vw, 560px);
+	height: auto;
+	transform: none;
+}
+.VPHomeHero .image-src {
+	position: static;
+	max-width: 100%;
+	max-height: none;
+	border: 2px solid #8d6848;
+	border-radius: 4px;
+	image-rendering: auto;
+	box-shadow: 0 14px 35px #000a;
+}
+.VPHomeContent .vp-doc {
+	max-width: 1152px;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+.home-intro {
+	max-width: 750px;
+	padding: 46px 0 32px;
+}
+.home-eyebrow,
+.home-story span,
+.home-paths span {
+	color: #d9a65d !important;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.15em;
+}
+.home-intro h2,
+.home-paths h2 {
+	border: 0;
+	margin: 8px 0 12px !important;
+	font-size: clamp(28px, 4vw, 40px);
+	color: #f2dfb0;
+}
+.home-intro p,
+.home-paths p {
+	color: #c9bfba;
+}
+.home-showcase {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+.home-story {
+	overflow: hidden;
+	background: #211d20;
+	border: 1px solid #6b5545;
+	box-shadow: 0 6px 18px #0007;
+}
+.home-story img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16/9;
+	object-fit: cover;
+}
+.home-story div {
+	padding: 22px 24px 26px;
+}
+.home-story h3 {
+	margin: 7px 0;
+	color: #f4d8a1;
+	font-size: 24px;
+}
+.home-story p {
+	margin: 0 0 14px;
+	color: #d3c7c2;
+	font-size: 14px;
+}
+.home-story a {
+	font-weight: 700;
+}
+.home-paths {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	padding: 55px 0 25px;
+}
+.home-paths > div {
+	grid-column: 1/-1;
+	margin-bottom: 12px;
+}
+.home-paths > div p {
+	margin: 0;
+}
+.home-paths > a {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 108px;
+	padding: 18px;
+	background: var(--qp-oak);
+	background-size: auto, 160px;
+	border: 1px solid #725a40;
+	color: #f2dfb0;
+	text-decoration: none;
+}
+.home-paths > a:hover {
+	border-color: #e9bc73;
+	color: #fff;
+}
+.home-paths strong {
+	font:
+		700 20px "Pixelify Sans",
+		sans-serif;
+}
+.home-paths small {
+	margin-top: 5px;
+	padding-right: 12px;
+	color: #cabcb0;
+	line-height: 1.4;
+}
+.home-paths b {
+	position: absolute;
+	right: 14px;
+	top: 14px;
+	color: #e9bc73;
+}
+@media (max-width: 767px) {
+	.QPFooter {
+		padding: 30px 20px 14px;
+	}
+	.QPFooter__inner {
+		grid-template-columns: 1fr auto;
+		gap: 22px 14px;
+	}
+	.QPFooter__brand {
+		grid-column: 1/-1;
+	}
+	.QPFooter__links {
+		align-items: flex-end;
+	}
+	.QPFooter__base {
+		flex-direction: column;
+		gap: 5px;
+		margin-top: 22px;
+	}
+	.VPHomeHero .image-container {
+		width: min(80vw, 480px);
+	}
+	.home-showcase {
+		grid-template-columns: 1fr;
+	}
+	.home-paths {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		padding-top: 38px;
+	}
+	.home-intro {
+		padding-top: 28px;
+	}
+}
+@media (max-width: 960px) {
+	.VPDoc .content .vp-doc {
+		padding: 20px 18px;
+	}
+	.VPNavBarTitle .title {
+		font-size: 18px;
+		padding: 3px 9px !important;
+	}
+	.VPHomeHero {
+		padding-top: calc(var(--vp-nav-height) + 32px) !important;
+	}
+}
+@media (max-width: 640px) {
+	.VPHomeHero {
+		padding-top: calc(var(--vp-nav-height) + 20px) !important;
+	}
+	.VPNavBarTitle .title {
+		border-width: 1px;
+		font-size: 17px;
+	}
+	.VPHomeHero .image-container {
+		transform: scale(0.72);
+	}
+	.VPHomeContent .vp-doc {
+		margin-inline: 12px;
+		padding: 15px 16px;
+	}
+	.vp-doc h1 {
+		font-size: 28px;
+	}
+	.vp-doc h2 {
+		font-size: 22px;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.VPFeature {
+		transition: none !important;
+	}
+}
+
+/* Mobile usability: keep the Quest Studio plaque away from screen edges. */
+.VPNavBarTitle {
+	min-width: 0;
+	display: flex;
+	align-items: center;
+}
+.VPNavBarTitle .title {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 10px;
+	height: auto !important;
+	min-height: 44px;
+	max-height: 50px;
+	max-width: 100%;
+	margin-block: 7px;
+	box-sizing: border-box;
+	white-space: nowrap;
+}
+.VPNavBarTitle .logo {
+	display: block;
+	flex: none;
+	width: 30px;
+	height: 30px;
+	margin: 0;
+}
+.VPNavBarTitle .logo {
+	width: 54px;
+	object-fit: contain;
+	image-rendering: auto;
+}
+.VPNavBarTitle .title span {
+	min-width: 0;
+}
+.VPNavBarTitle .title:focus-visible {
+	outline-offset: 2px;
+}
+
+/* Code panels use the real dark Shiki palette and scroll inside the stone card. */
+.VPDoc .content,
+.VPDoc .content-container,
+.VPDoc .content .vp-doc,
+.vp-doc .custom-block {
+	min-width: 0;
+	max-width: 100%;
+}
+.vp-doc div[class*="language-"] {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	margin: 18px 0 !important;
+	overflow: hidden;
+	isolation: isolate;
+	background-color: #151418 !important;
+}
+.vp-doc div[class*="language-"] pre {
+	box-sizing: border-box;
+	display: block;
+	max-width: 100%;
+	overflow-x: auto !important;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
+	scrollbar-color: #84619f #201c25;
+	color: #e8e1ed;
+}
+.vp-doc div[class*="language-"] code {
+	display: block;
+	width: max-content;
+	min-width: 100%;
+	box-sizing: border-box;
+	white-space: pre;
+	overflow-wrap: normal;
+	color: #e8e1ed;
+}
+.vp-doc div[class*="language-"] .lang {
+	color: #c8b6d0 !important;
+}
+.vp-doc div[class*="language-"] .copy {
+	background-color: #343036 !important;
+}
+.vp-doc div[class*="language-"] code span {
+	background-color: transparent;
+}
+.vp-doc :where(p, li, td) {
+	overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+	:root {
+		--vp-nav-height: 68px;
+	}
+	.VPNavBar {
+		min-height: var(--vp-nav-height);
+	}
+	.VPNavBarTitle .title {
+		height: 46px !important;
+		min-height: 46px;
+		margin-block: 10px;
+		padding: 5px 9px !important;
+		border-width: 2px !important;
+		font-size: clamp(13px, 3.8vw, 17px) !important;
+		line-height: 1.1;
+		gap: 7px;
+		letter-spacing: 0;
+	}
+	.VPNavBarTitle .logo {
+		width: 26px;
+		height: 26px;
+	}
+	.VPNavBarTitle {
+		max-width: calc(100vw - 151px);
+	}
+	.VPDoc .content .vp-doc {
+		padding: 18px 14px 24px;
+	}
+	.VPDoc .container {
+		padding-inline: 12px !important;
+	}
+	.vp-doc div[class*="language-"] {
+		border-radius: 4px !important;
+		margin: 15px 0 !important;
+		box-shadow: inset 0 1px 3px #0009;
+	}
+	.vp-doc div[class*="language-"] pre {
+		font-size: 12px;
+		line-height: 1.6;
+	}
+	.vp-doc div[class*="language-"] code {
+		font-size: 12px;
+	}
+	.vp-doc h2 {
+		overflow-wrap: break-word;
+	}
+	.vp-doc table {
+		width: 100%;
+		max-width: 100%;
+	}
+	.VPNavScreenMenuLink .link {
+		min-height: 44px;
+	}
+}
+
+/* Landing: gameplay leads, with the same stone, oak and grass as the editor. */
+.VPHomeHero {
+	padding-bottom: 54px !important;
+}
+.VPHomeHero::before,
+.VPHomeHero .image-bg {
+	display: none;
+}
+.VPHomeHero .name {
+	color: #f4dfa9;
+}
+.VPHomeHero .text {
+	max-width: 540px;
+	color: #eee5d4 !important;
+	line-height: 1.08;
+}
+.VPHomeHero .tagline {
+	max-width: 480px;
+	line-height: 1.65;
+}
+.VPHomeHero .image-container {
+	width: min(47vw, 570px);
+}
+.VPHomeHero .image-src {
+	border: 5px solid #554334;
+	outline: 1px solid #a5855b;
+	box-shadow: 0 18px 40px #000a;
+}
+.VPHomeContent .vp-doc {
+	margin-top: 0;
+}
+.home-intro {
+	max-width: 760px;
+	padding: 32px 0 28px;
+	border-top: 3px solid var(--qp-grass);
+}
+.home-intro h2,
+.home-paths h2 {
+	text-wrap: balance;
+}
+.home-intro p {
+	max-width: 68ch;
+	font-size: 16px;
+	line-height: 1.7;
+}
+.home-showcase {
+	gap: 24px;
+}
+.home-story {
+	background: #242327;
+	background-image: var(--qp-stone);
+	background-size: auto, 64px;
+	border: 1px solid #675e5d;
+	border-top: 3px solid #568833;
+}
+.home-story img {
+	margin: 0;
+}
+.home-story div {
+	padding: 24px 26px 28px;
+}
+.home-story h3 {
+	font:
+		700 25px/1.2 "Pixelify Sans",
+		sans-serif;
+}
+.home-story p {
+	max-width: 52ch;
+	line-height: 1.65;
+}
+.home-story a {
+	display: inline-block;
+	padding: 5px 0;
+	text-underline-offset: 4px;
+}
+.home-paths {
+	gap: 0;
+	padding-top: 70px;
+}
+.home-paths > div {
+	margin-bottom: 18px;
+}
+.home-paths > a {
+	min-height: 122px;
+	border-right: 0;
+}
+.home-paths > a:last-child {
+	border-right: 1px solid #725a40;
+}
+.QPFooter {
+	padding-top: 48px;
+}
+.QPFooter__inner {
+	grid-template-columns: minmax(240px, 1fr) minmax(170px, auto) minmax(120px, auto);
+	align-items: start;
+	gap: 48px;
+}
+.QPFooter__brand img {
+	width: 64px;
+	height: 64px;
+}
+.QPFooter__brand strong {
+	font-size: 26px;
+}
+.QPFooter__explore,
+.QPFooter__links {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+}
+.QPFooter__explore strong,
+.QPFooter__links strong {
+	margin-bottom: 4px;
+	color: #f2dfb0;
+	font:
+		700 18px "Pixelify Sans",
+		sans-serif;
+}
+.QPFooter__explore a,
+.QPFooter__links a {
+	color: #ded1c5;
+	font-size: 13px;
+	text-decoration: none;
+}
+.QPFooter__explore a:hover,
+.QPFooter__links a:hover {
+	color: #e3bbff;
+	text-decoration: underline;
+}
+.QPFooter__explore .QPFooter__studio {
+	margin-top: 5px;
+	color: #fff;
+}
+.QPFooter__base {
+	margin-top: 36px;
+}
+@media (max-width: 767px) {
+	.VPHomeHero {
+		padding-bottom: 28px !important;
+	}
+	.VPHomeHero .image-container {
+		width: min(85vw, 520px);
+		transform: none;
+	}
+	.home-intro {
+		padding-top: 25px;
+	}
+	.home-paths {
+		padding-top: 48px;
+	}
+	.home-paths > a {
+		border-right: 1px solid #725a40;
+	}
+	.QPFooter__inner {
+		grid-template-columns: 1fr 1fr;
+		gap: 28px 20px;
+	}
+	.QPFooter__brand {
+		grid-column: 1 / -1;
+	}
+	.QPFooter__links {
+		align-items: flex-start;
+	}
+}
+@media (max-width: 640px) {
+	.VPHomeHero .image-container {
+		transform: none;
+	}
+	.VPHomeContent .vp-doc {
+		margin-inline: 0;
+		padding: 0 12px;
+	}
+	.VPNavBarTitle {
+		max-width: none;
+	}
+	.VPNavBarTitle .title {
+		max-width: calc(100vw - 140px);
+	}
+	.VPNavBarTitle .title span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+/* Keep the gameplay image in the hero layout at every viewport size. */
+.VPHomeHero .image {
+	margin: 0 0 32px;
+}
+.VPHomeHero .image-container {
+	width: 100%;
+	max-width: 570px;
+	height: auto;
+	transform: none;
+}
+.VPHomeHero .image-src {
+	display: block;
+	width: 100%;
+	height: auto;
+	transform: none !important;
+}
+@media (min-width: 960px) {
+	.VPHomeHero .container {
+		align-items: center;
+		gap: 48px;
+	}
+	.VPHomeHero.has-image .main {
+		flex: 1 1 0;
+		width: auto !important;
+		min-width: 0;
+	}
+	.VPHomeHero .image {
+		flex: 1 1 0;
+		min-width: 0;
+		margin: 0;
+	}
+}
+
+/* Keep the documentation title and navigation inside their allotted column. */
+.VPNavBarTitle .title {
+	min-width: 0;
+	overflow: hidden;
+}
+.VPNavBarTitle .title span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+@media (min-width: 960px) {
+	.VPNavBarTitle.has-sidebar .title {
+		gap: 6px;
+		padding-inline: 8px !important;
+		font-size: 17px;
+		letter-spacing: 0;
+	}
+	.VPNavBarTitle.has-sidebar .logo {
+		width: 32px;
+		height: 30px;
+	}
+}
+.VPSidebarItem.level-0 > .items {
+	padding-top: 6px;
+}
+.VPSidebarItem.level-1 .item {
+	box-sizing: border-box;
+}
+.VPSidebarItem.level-1 .link {
+	min-height: 36px;
+	min-width: 0;
+}
+.VPSidebarItem.level-1 .text {
+	overflow-wrap: anywhere;
+}
+
+/* Align the footer with the documentation content beside the fixed sidebar. */
+.vp-doc img {
+	height: auto;
+	max-width: 100%;
+	border-radius: 3px;
+}
+.vp-doc p:has(> img) {
+	margin-block: 24px 8px;
+}
+.vp-doc p:has(> img) + p:has(> em:only-child) {
+	margin-top: 0;
+	color: var(--vp-c-text-2);
+	font-size: 13px;
+}
+.doc-clip {
+	margin-block: 24px;
+	padding: 12px 16px;
+	background: #1b1c20;
+	border: 1px solid #6b616c;
+	border-radius: 3px;
+}
+.doc-clip summary {
+	cursor: pointer;
+	color: #e6c5ff;
+	font-weight: 600;
+}
+.doc-clip summary:focus-visible {
+	outline: 2px solid #dec2ff;
+	outline-offset: 4px;
+}
+.vp-doc h2,
+.vp-doc h3 {
+	scroll-margin-top: 100px;
+}
+.VPSidebarItem.level-0 > .item .text {
+	white-space: normal;
+}
+.VPDoc .vp-doc > p {
+	max-width: 75ch;
+}
+@media (min-width: 960px) {
+	.VPContent.has-sidebar ~ .QPFooter {
+		margin-left: var(--vp-sidebar-width);
+		padding-inline: 32px;
+	}
+	.VPContent.has-sidebar ~ .QPFooter .QPFooter__inner {
+		grid-template-columns: minmax(0, 1fr) auto auto;
+		gap: 32px;
+	}
+}
+@media (min-width: 1440px) {
+	.VPContent.has-sidebar ~ .QPFooter {
+		margin-left: calc((100vw - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width));
+	}
+}

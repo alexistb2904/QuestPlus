@@ -1,0 +1,39 @@
+// Test-only launch configuration. All downloads and worlds stay under build/.
+allprojects {
+    afterEvaluate {
+        def profile = providers.gradleProperty('tabletCompatibility').get()
+        def profiles = [
+            baseline: ['sodium', 'iris'],
+            punchy: ['sodium', 'iris', 'punchy-fpa', 'punchymoves', 'fluid-foolish', '3dskinlayers'],
+            nea: ['sodium', 'iris', 'not-enough-animations', '3dskinlayers'],
+            firstperson: ['sodium', 'iris', 'not-enough-animations', 'first-person-model', '3dskinlayers']
+        ]
+        if (!profiles.containsKey(profile)) throw new GradleException('Unknown tablet profile: ' + profile)
+        def testDir = file("build/tablet-compat/${profile}")
+        loom.runs.clientGameTest {
+            runDir testDir.absolutePath
+            vmArg '-Dquestplus.tabletCompatibility=true'
+            vmArg '-Xmx2G'
+        }
+        tasks.named('deleteGameTestRunDir') {
+            doLast {
+                def cache = file('build/tablet-assets')
+                def manifest = new groovy.json.JsonSlurper().parse(new File(cache, 'manifest.json'))
+                profiles[profile].each { id ->
+                    def asset = manifest[id]
+                    if (!asset) throw new GradleException('Missing tablet test asset: ' + id)
+                    copy { from new File(cache, "run/client/${asset.folder}/${asset.file}"); into new File(testDir, asset.folder) }
+                }
+                copy { from new File(cache, 'run/client/shaderpacks'); into new File(testDir, 'shaderpacks') }
+                def marker = new File(testDir, 'config/punchy_moves/tutorial_seen_v1')
+                marker.parentFile.mkdirs()
+                marker.text = 'seen\n'
+                if (profile == 'punchy') {
+                    new File(testDir, 'options.txt').text = 'resourcePacks:' + groovy.json.JsonOutput.toJson(
+                        ['vanilla', 'punchy:punchy', 'file/' + manifest['fluid-foolish'].file]) + '\n'
+                }
+                new File(testDir, 'assets.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifest))
+            }
+        }
+    }
+}

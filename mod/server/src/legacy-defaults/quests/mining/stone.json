@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "questplus:mining/stone",
+	"category": "questplus:mining",
+	"icon": "minecraft:stone",
+	"title": { "en_us": "Solid Foundations", "fr_fr": "Des bases solides" },
+	"description": { "en_us": "Gather enough stone to build a lasting base.", "fr_fr": "Rassemblez assez de pierre pour bâtir une base durable." },
+	"objectives": [
+		{
+			"id": "stone",
+			"event": "block_break",
+			"target": "minecraft:stone",
+			"count": 64,
+			"text": { "en_us": "Break 64 stone", "fr_fr": "Cassez 64 blocs de pierre" }
+		}
+	],
+	"rewards": [
+		{ "type": "experience", "amount": 80 },
+		{ "type": "item", "item": "minecraft:iron_pickaxe", "count": 1 }
+	],
+	"progression": "once"
+}

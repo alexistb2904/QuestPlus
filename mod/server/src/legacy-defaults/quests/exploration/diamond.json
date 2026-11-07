@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "questplus:exploration/diamond",
+	"category": "questplus:exploration",
+	"icon": "minecraft:diamond",
+	"title": { "en_us": "A Bright Find", "fr_fr": "Une trouvaille brillante" },
+	"description": { "en_us": "Bring a diamond home from your travels underground.", "fr_fr": "Rapportez un diamant de votre expédition souterraine." },
+	"objectives": [
+		{
+			"id": "diamond",
+			"event": "item_obtained",
+			"target": "minecraft:diamond",
+			"count": 1,
+			"text": { "en_us": "Obtain 1 diamond", "fr_fr": "Obtenez 1 diamant" }
+		}
+	],
+	"requires": {
+		"or": [{ "quest": "questplus:mining/iron_ore" }, { "quest": "questplus:combat/skeletons" }]
+	},
+	"rewards": [
+		{ "type": "experience", "amount": 150 },
+		{ "type": "item", "item": "minecraft:torch", "count": 16 }
+	],
+	"progression": "once"
+}

@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 2,
+	"id": "questplus:exploration/three_realms",
+	"category": "questplus:exploration",
+	"icon": "minecraft:compass",
+	"title": { "en_us": "Three Realms", "fr_fr": "Trois dimensions" },
+	"description": {
+		"en_us": "Visit a plains biome, enter the Nether, then travel 1,000 blocks.",
+		"fr_fr": "Visitez une plaine, entrez dans le Nether, puis parcourez 1 000 blocs."
+	},
+	"objectives": [
+		{ "id": "plains", "event": "biome_visit", "target": "minecraft:plains", "count": 1 },
+		{ "id": "nether", "event": "dimension_enter", "target": "minecraft:the_nether", "count": 1 },
+		{ "id": "travel", "event": "travel_distance", "target": "questplus:travel", "count": 1000 }
+	],
+	"rewards": [{ "type": "item", "item": "minecraft:compass", "count": 1 }],
+	"progression": "once",
+	"objectiveMode": "all"
+}

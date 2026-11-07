@@ -1,0 +1,91 @@
+name: Java 25 / Fabric compile
+on:
+  push:
+    branches: [main, 'fix/native-first-person-tablet', 'feat/**']
+  pull_request:
+jobs:
+  objective-game-tests:
+    name: In-game objectives (${{ matrix.profile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: vanilla
+            args: ''
+          - profile: third-party
+            args: '-PobjectiveCompatibility'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run dedicated-server objective and persistence tests
+        working-directory: mod
+        run: |
+          chmod +x gradlew
+          ./gradlew integrationTest ${{ matrix.args }} --no-daemon --console plain
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: questplus-objectives-${{ matrix.profile }}
+          path: |
+            mod/build/gametest-results.xml
+            mod/build/gametest/logs/
+            mod/build/integration-saves.json
+            mod/build/integration-teams.json
+          if-no-files-found: warn
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compile mod and execute unit tests
+        working-directory: mod
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon --console plain
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install React and Vite
+        working-directory: web/editor
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck, build and test React Quest Studio
+        working-directory: web/editor
+        run: |
+          npm run typecheck
+          npm run build
+          npm test
+      - name: Build Markdown documentation
+        working-directory: web/docs-site
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Exercise QuestPlus Hub security and publishing protocol
+        working-directory: web/api
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+      - name: Confirm no legacy Hub or source tree
+        run: |
+          test ! -d hub
+          test ! -d src
+          test -f mod/client/src/main/resources/questplus.client.mixins.json
+          test -f mod/server/src/main/resources/fabric.mod.json
+          test -f web/api/server.mjs
+      - name: Upload test reports when failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: questplus-test-reports
+          path: mod/build/reports/tests/
+          if-no-files-found: ignore

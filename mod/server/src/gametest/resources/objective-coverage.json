@@ -1,0 +1,11 @@
+{
+  "AdvancedEventsTest.hooks": ["block_place", "block_interact", "item_craft", "item_smelt", "item_consume", "item_use", "tame_animal", "breed_animal", "trade", "fish_entity", "npc_interact"],
+  "QuestIntegrationTest.verticalSlice": ["block_break", "entity_kill", "item_obtained"],
+  "ObjectiveSamplingGameTest.inventoryXpStatsAdvancementsGearAndVisits": ["inventory_count", "xp_levels", "xp_points", "custom_stat", "advancement_complete", "biome_visit", "structure_visit", "dimension_enter", "travel_distance", "location", "equipment_check"],
+  "ObjectiveActionsGameTest.realFishingLootAndTrustedTransfers": ["fish_item", "questplus:fish_any", "fluid_transfer", "energy_transfer"],
+  "ObjectiveActionsGameTest.realDeathsAdvanceAuthoredObjectives": ["player_death"],
+  "ObjectiveObservationGameTest.realEntityRaycastResetsOnOcclusionAndTargetChanges": ["observe_block", "observe_entity"],
+  "RewardIntegrationTest.observationAndStageRewardsUseServerState": ["stage"],
+  "RewardIntegrationTest.submissionsRespectOptionalStepsTagsAndTierRequirements": ["item_submit", "item_turn_in", "manual"],
+  "FtbParityIntegrationTest.realContainersXpComponentsAndCratesUseDurablePlans": ["xp_submit_levels", "xp_submit_points", "fluid_submit", "energy_submit"]
+}

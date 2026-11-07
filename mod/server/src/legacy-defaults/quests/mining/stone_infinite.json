@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 2,
+	"id": "questplus:mining/stone_infinite",
+	"category": "questplus:mining",
+	"icon": "minecraft:stone",
+	"title": { "en_us": "Stone Hauler", "fr_fr": "Transporteur de pierre" },
+	"description": { "en_us": "Mine 64 stone for each reward cycle.", "fr_fr": "Minez 64 pierres à chaque cycle de récompense." },
+	"objectives": [{ "id": "stone", "event": "block_break", "target": "minecraft:stone", "count": 64 }],
+	"rewards": [{ "type": "item", "item": "minecraft:torch", "count": 16 }],
+	"progression": "infinite"
+}

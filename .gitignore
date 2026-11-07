@@ -1,0 +1,45 @@
+.gradle/
+build/
+run/
+run-gametest/
+.tools/
+.idea/
+*.iml
+web/editor/node_modules/
+web/api/node_modules/
+web/editor/dist/
+web/editor/.vite/
+output/
+logs/
+docs/
+.metals/
+.impeccable/
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/
+.impeccable/review/
+
+# Private web API persistence and deployment secrets
+web/api/data/
+web/api/.env
+web/api/.env.*
+.env
+.env.*
+!*.env.example
+
+# World owner secrets (do not commit local server credentials)
+**/questplus-hub.json
+
+# Static Markdown documentation
+web/docs-site/node_modules/
+web/docs-site/dist/
+web/docs-site/.vitepress/cache/
+docs-site/node_modules/
+docs-site/dist/
+docs-site/.vitepress/cache/
+docs-site/.vitepress/.temp/
+
+# Local JVM performance traces (may include game/world identifiers)
+profiles/
+*.jfr
+web/docs-site/.vitepress/.temp/

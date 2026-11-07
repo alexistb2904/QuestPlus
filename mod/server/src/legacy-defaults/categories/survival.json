@@ -1,0 +1,6 @@
+{
+	"id": "questplus:survival",
+	"icon": "minecraft:oak_log",
+	"title": { "en_us": "Survival", "fr_fr": "Survie" },
+	"description": { "en_us": "Practical work for life in the Overworld.", "fr_fr": "Des travaux pratiques pour vivre dans la Surface." }
+}

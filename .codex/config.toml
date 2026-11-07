@@ -1,0 +1,7 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 2
+max_depth = 1
+default_subagent_model = "gpt-6.1-terra"
+default_subagent_reasoning_effort = "medium"

@@ -1,0 +1,219 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.18.4'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://api.modrinth.com/maven' }
+    maven { url = 'https://www.cursemaven.com' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Minecraft 26.3 uses Loom's non-remapping plugin: use standard 'implementation'
+    // for PAL and FP PAL (the legacy modImplementation configuration is absent).
+    implementation 'maven.modrinth:ha1mEyJS:xJ30QmpE'
+    include 'maven.modrinth:ha1mEyJS:xJ30QmpE'
+    implementation 'curse.maven:first-person-pal-expansion-1758160:9329319'
+    include 'curse.maven:first-person-pal-expansion-1758160:9329319'
+    implementation 'de.marhali:json5-java:3.0.0'
+    include 'de.marhali:json5-java:3.0.0'
+    // Shared transactional item-energy API for Fabric batteries; shipped in the universal JAR.
+    implementation 'teamreborn:energy:5.0.0'
+    include 'teamreborn:energy:5.0.0'
+    compileOnly 'com.google.j2objc:j2objc-annotations:3.0.0'
+    // Optional client recipe viewers: compile against their APIs without bundling either mod.
+    compileOnly('maven.modrinth:rei:rKsAE6bX') { transitive = false }
+    compileOnly('maven.modrinth:jei:hif1VmML') { transitive = false }
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+// ONE universal Fabric JAR compiled from the client and server trees.
+// Package names stay unchanged for Fabric entrypoints, mixins and saved data.
+sourceSets {
+    main {
+        java.setSrcDirs(['server/src/main/java', 'client/src/main/java'])
+        resources.setSrcDirs(['server/src/main/resources', 'client/src/main/resources'])
+    }
+    test {
+        java.setSrcDirs(['server/src/test/java', 'client/src/test/java'])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+processResources {
+    def resourceVersion = project.version
+    inputs.property 'version', resourceVersion
+    filesMatching('fabric.mod.json') { expand version: resourceVersion }
+    from('licenses/animations') { into 'META-INF/licenses' }
+    from('licenses/ANIMATION-NOTICES.md') { into 'META-INF' }
+    from('server/src/legacy-defaults') { into 'defaults' }
+    // Catalogue authored once for both the server JAR and Quest Studio.
+    from('../web/editor/src/data') {
+        include 'challenge-catalogue.json', 'equipment-catalogue.json'
+        into 'defaults/catalogue'
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'joml.nounsafe', 'true'
+}
+
+tasks.register('verifyBundledAnimations') {
+    group = 'verification'
+    description = 'Verify the release JAR embeds intact animation libraries and their license notices.'
+    dependsOn tasks.named('jar')
+    doLast {
+        new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
+            def metadata = new groovy.json.JsonSlurper().parse(jar.getInputStream(jar.getEntry('fabric.mod.json')))
+            [
+                'ha1mEyJS-xJ30QmpE.jar': 'player_animation_library',
+                'first-person-pal-expansion-1758160-9329319.jar': 'fp_pal'
+            ].each { filename, id ->
+                def nestedPath = "META-INF/jars/${filename}"
+                assert metadata.jars.any { it.file == nestedPath } : "Missing nested animation library: ${id}"
+                def original = configurations.runtimeClasspath.files.find { it.name == filename }
+                assert original != null : "Missing runtime dependency: ${id}"
+                assert jar.getInputStream(jar.getEntry(nestedPath)).bytes == original.bytes : "Changed upstream JAR: ${id}"
+            }
+            ['player-animation-library', 'first-person-pal-expansion', 'azurelib', 'mochafloats', 'geckolib'].each { name ->
+                def entry = jar.getEntry("META-INF/licenses/${name}.txt")
+                assert entry != null : "Missing license notice: ${name}"
+                def notice = jar.getInputStream(entry).getText('UTF-8')
+                assert notice.contains('Copyright') && notice.contains('Permission is hereby granted') : "Incomplete license: ${name}"
+            }
+            def commonUtils = jar.getEntry('META-INF/licenses/common-utils.txt')
+            assert commonUtils != null : 'Missing CommonUtils upstream notice'
+            assert jar.getInputStream(commonUtils).getText('UTF-8').contains('All Rights Reserved')
+            assert jar.getEntry('META-INF/ANIMATION-NOTICES.md') != null : 'Missing animation credits'
+            logger.lifecycle('Verified bundled PAL, FP PAL and animation license notices')
+        }
+    }
+}
+
+tasks.named('check') { dependsOn tasks.named('verifyBundledAnimations') }
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'questplus-test'
+        enableGameTests = true
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+// Fabric API creates the gametest source set above. Use split source folders
+// without creating a second mod or duplicating entrypoints.
+sourceSets.named('gametest') {
+    java.setSrcDirs(['server/src/gametest/java', 'client/src/gametest/java'])
+    resources.setSrcDirs(['server/src/gametest/resources', 'client/src/gametest/resources'])
+}
+
+// Loom cleans its default directory; our overridden test world needs cleaning too.
+tasks.named('deleteGameTestRunDir', Delete) {
+    delete layout.buildDirectory.dir('gametest')
+}
+
+dependencies {
+    gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
+    gametestImplementation fabricApi.module('fabric-client-gametest-api-v1', project.fabric_version)
+    // Opt-in real content mods; never part of the release or ordinary client runs.
+    if (providers.gradleProperty('objectiveCompatibility').isPresent()) {
+        gametestRuntimeOnly 'maven.modrinth:7vxePowz:dRScyUeE' // Farmer's Delight Refabricated
+        gametestRuntimeOnly 'maven.modrinth:QivVPB8W:yeFv1Dnk' // The Graveyard
+        gametestRuntimeOnly 'maven.modrinth:DhOXUfnP:uut3GStm' // Villagers Trading Plus
+        gametestRuntimeOnly 'maven.modrinth:8BmcQJ2H:kSxHvs99' // GeckoLib
+        gametestRuntimeOnly 'maven.modrinth:L6jvzao4:isnpTNbP' // Epic Knights
+        gametestRuntimeOnly 'maven.modrinth:lhGA9TYQ:1pMaB6So' // Architectury
+        gametestRuntimeOnly 'maven.modrinth:9s6osm5g:fg2uyxOW' // Cloth Config
+        gametestRuntimeOnly 'maven.modrinth:3eMENr4V:QexrQWIs' // Tech Reborn (includes Reborn Core)
+    }
+}
+
+processGametestResources {
+    def compatibility = providers.gradleProperty('objectiveCompatibility').isPresent()
+    inputs.property 'objectiveCompatibility', compatibility
+    doLast {
+        def metadata = destinationDir.toPath().resolve('fabric.mod.json').toFile()
+        def data = new groovy.json.JsonSlurper().parse(metadata)
+        if (compatibility) data.entrypoints['fabric-gametest'].addAll([
+            'dev.questplus.fabric.ThirdPartyObjectivesGameTest',
+            'dev.questplus.fabric.ResourceCompatibilityGameTest'
+        ])
+        metadata.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data))
+    }
+}
+
+loom {
+    runs {
+        client {
+            runDir '../run/client'
+        }
+        server {
+            runDir '../run/server'
+        }
+        gameTest {
+            runDir 'build/gametest'
+            vmArg '-Xmx1G'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.output=${layout.buildDirectory.file('integration-saves.json').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.teams=${layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath}"
+        }
+    }
+}
+
+tasks.register('integrationTest') {
+    group = 'verification'
+    description = 'Run real dedicated-server gameplay tests and verify final JSON saves after shutdown.'
+    dependsOn tasks.named('runGameTest')
+    doLast {
+        def coverage = new groovy.json.JsonSlurper().parse(file('server/src/gametest/resources/objective-coverage.json'))
+        def report = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(layout.buildDirectory.file('gametest-results.xml').get().asFile)
+        def cases = report.getElementsByTagName('testcase')
+        coverage.keySet().each { scenario ->
+            def testName = 'questplus-test:' + scenario.replace('.', '_')
+                .replaceAll('([a-z0-9])([A-Z])', '$1_$2').toLowerCase(Locale.ROOT)
+            def test = (0..<cases.length).collect { cases.item(it) }.find { it.getAttribute('name') == testName }
+            assert test != null && test.getElementsByTagName('failure').length == 0 : "Missing or failed objective scenario: ${scenario}"
+        }
+        logger.lifecycle("Verified in-game coverage for ${coverage.values().sum { it.size() }} shipped triggers")
+        def expected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-saves.json').get().asFile)
+        assert expected.players.size() >= 140
+        expected.players.each { uuid ->
+            def saved = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${uuid}.json"))
+            assert saved.schemaVersion == 2
+            assert saved.quests['questplus:survival/logs'].completed
+        }
+        def recipient = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${expected.recipient}.json"))
+        assert recipient.claims['questplus:survival/logs'] == 'delivered'
+        def teamExpected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-teams.json').get().asFile)
+        def memberA = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.a}.json"))
+        def memberB = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.b}.json"))
+        def team = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "teams/${teamExpected.team}.json"))
+        assert memberA.teamId == null && memberB.teamId == null
+        assert memberA.quests['questplus:team_integration'].completed && memberB.quests['questplus:team_integration'].completed
+        assert memberA.claims['questplus:team_integration'] == 'delivered'
+        assert memberB.entitlements['questplus:team_integration'] != null
+        assert team.disbanded && team.members.empty
+        logger.lifecycle("Quest Plus shutdown saves verified: ${expected.players.size()} UUIDs and durable reward ledger")
+    }
+}

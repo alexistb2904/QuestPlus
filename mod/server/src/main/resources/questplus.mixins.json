@@ -1,0 +1,20 @@
+{
+	"required": true,
+	"package": "dev.questplus.fabric.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"PlayerListSaveInvoker",
+		"ItemEntityMixin",
+		"CraftResultMixin",
+		"FurnaceResultMixin",
+		"ItemConsumeMixin",
+		"BlockPlaceMixin",
+		"InteractionMixin",
+		"TameMixin",
+		"BreedMixin",
+		"TradeMixin",
+		"EntityInteractMixin",
+		"FishingMixin"
+	],
+	"injectors": { "defaultRequire": 1 }
+}

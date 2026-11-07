@@ -1,0 +1,82 @@
+package dev.questplus.fabric;
+
+import com.google.gson.*;
+import org.junit.jupiter.api.Test;
+import java.nio.file.*;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class QuestHubFilesTest {
+	private JsonArray valid() {
+		JsonArray docs = new JsonArray();
+		for (String[] row : new String[][] { { "config.json", "{\"schemaVersion\":1,\"autosaveSeconds\":5}" },
+				{ "categories/a.json", "{\"id\":\"questplus:a\"}" },
+				{ "quests/a.json", "{\"id\":\"questplus:a\"}" } }) {
+			JsonObject file = new JsonObject();
+			file.addProperty("name", row[0]);
+			file.addProperty("content", row[1]);
+			docs.add(file);
+		}
+		return docs;
+	}
+
+	@Test
+	void acceptsAndRejectsUntrustedDocuments() throws Exception {
+		JsonArray good = valid();
+		assertDoesNotThrow(() -> QuestHubFiles.validate(good));
+		JsonArray duplicate = good.deepCopy();
+		duplicate.add(good.get(1));
+		assertThrows(Exception.class, () -> QuestHubFiles.validate(duplicate));
+		JsonArray traversal = good.deepCopy();
+		traversal.get(1).getAsJsonObject().addProperty("name", "quests/../evil.json");
+		assertThrows(Exception.class, () -> QuestHubFiles.validate(traversal));
+		JsonArray malformed = good.deepCopy();
+		malformed.get(0).getAsJsonObject().addProperty("content", "{");
+		assertThrows(Exception.class, () -> QuestHubFiles.validate(malformed));
+		JsonArray incomplete = good.deepCopy();
+		incomplete.remove(0);
+		assertThrows(Exception.class, () -> QuestHubFiles.validate(incomplete));
+	}
+
+	@Test
+	void browserAndPackLinksCannotEnableOrDeliverCommands() {
+		var documents = valid();
+		assertDoesNotThrow(() -> QuestHubFiles.rejectRemoteCommands(documents));
+		documents.get(2).getAsJsonObject().addProperty("content",
+				"{\"rewards\":[{\"type\":\"questplus:command\",\"data\":{\"command\":\"say remote\"}}]}");
+		assertThrows(java.io.IOException.class, () -> QuestHubFiles.rejectRemoteCommands(documents));
+		var enabled = valid();
+		enabled.get(0).getAsJsonObject().addProperty("content", "{\"enableCommandRewards\":true}");
+		assertThrows(java.io.IOException.class, () -> QuestHubFiles.rejectRemoteCommands(enabled));
+	}
+
+	@Test
+	void snapshotsOnlyDefinitionsAndNeverPlayerProgress() throws Exception {
+		Path temp = Files.createTempDirectory("questhub-test");
+		try {
+			Path def = temp.resolve("questplus");
+			for (var el : valid()) {
+				var doc = el.getAsJsonObject();
+				Path file = def.resolve(doc.get("name").getAsString());
+				Files.createDirectories(file.getParent());
+				Files.writeString(file, doc.get("content").getAsString());
+			}
+			Path player = temp.resolve("data/questplus/players/test.json");
+			Files.createDirectories(player.getParent());
+			Files.writeString(player, "{}");
+			Files.writeString(def.resolve("queststudio-compatibility.json"),
+					"{\"format\":1,\"rewardTables\":[{\"name\":\"Miner loot\"}]}");
+			JsonArray snapshot = QuestHubFiles.snapshot(def);
+			assertEquals(4, snapshot.size());
+			assertTrue(snapshot.asList().stream()
+					.anyMatch(el -> el.getAsJsonObject().get("content").getAsString().contains("Miner loot")));
+			for (var el : snapshot)
+				assertFalse(el.getAsJsonObject().get("name").getAsString().contains("players"));
+		} finally {
+			try (var walk = Files.walk(temp)) {
+				for (Path file : walk.sorted(Comparator.reverseOrder()).toList())
+					Files.delete(file);
+			}
+		}
+	}
+}

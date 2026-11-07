@@ -1,0 +1,23 @@
+{
+	"schemaVersion": 2,
+	"kind": "information",
+	"acknowledgement": "manual",
+	"id": "questplus:survival/welcome",
+	"category": "questplus:survival",
+	"icon": "minecraft:book",
+	"title": {
+		"en_us": "Welcome to Quest Plus",
+		"fr_fr": "Bienvenue sur Quest Plus"
+	},
+	"description": {
+		"en_us": "Learn how the quest system works before starting your adventure.",
+		"fr_fr": "Découvrez le fonctionnement des quêtes avant de commencer votre aventure."
+	},
+	"narrative": {
+		"en_us": "Some quests are independent, others need prerequisites. Complete objectives to earn rewards. Teams share progress retroactively. Acknowledge this page to mark it as read.",
+		"fr_fr": "Certaines quêtes sont indépendantes, d'autres nécessitent des prérequis. Terminez les objectifs pour obtenir des récompenses. Les équipes partagent rétroactivement leur progression. Validez cette page pour indiquer sa lecture."
+	},
+	"objectives": [],
+	"rewards": [],
+	"progression": "once"
+}

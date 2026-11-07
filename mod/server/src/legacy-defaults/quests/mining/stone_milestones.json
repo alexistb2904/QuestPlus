@@ -1,0 +1,16 @@
+{
+	"schemaVersion": 2,
+	"id": "questplus:mining/stone_milestones",
+	"category": "questplus:mining",
+	"icon": "minecraft:stone_pickaxe",
+	"title": { "en_us": "Stone Milestones", "fr_fr": "Jalons de pierre" },
+	"description": { "en_us": "Reach 100, 1,000 and 10,000 stone mined.", "fr_fr": "Atteignez 100, 1 000 et 10 000 pierres minées." },
+	"objectives": [{ "id": "stone", "event": "block_break", "target": "minecraft:stone", "count": 100 }],
+	"rewards": [],
+	"progression": "tiered",
+	"tiers": [
+		{ "id": "hundred", "threshold": 1, "rewards": [{ "type": "experience", "amount": 10 }] },
+		{ "id": "thousand", "threshold": 10, "rewards": [{ "type": "experience", "amount": 50 }] },
+		{ "id": "ten_thousand", "threshold": 100, "rewards": [{ "type": "experience", "amount": 200 }] }
+	]
+}

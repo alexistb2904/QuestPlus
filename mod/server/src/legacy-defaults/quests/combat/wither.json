@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "questplus:combat/wither",
+	"category": "questplus:combat",
+	"icon": "minecraft:nether_star",
+	"title": { "en_us": "A Narrow Victory", "fr_fr": "Une victoire de justesse" },
+	"description": {
+		"en_us": "Defeat the Wither while you are down to two health points or less.",
+		"fr_fr": "Vainquez le Wither alors qu'il ne vous reste que deux points de vie ou moins."
+	},
+	"objectives": [
+		{
+			"id": "wither",
+			"event": "entity_kill",
+			"target": "minecraft:wither",
+			"count": 1,
+			"text": { "en_us": "Defeat the Wither at 2 health or less", "fr_fr": "Vainquez le Wither avec 2 points de vie ou moins" },
+			"conditions": { "healthAtMost": 2 }
+		}
+	],
+	"requires": {
+		"and": [{ "quest": "questplus:combat/skeletons" }, { "not": { "quest": "questplus:mining/iron_ore" } }]
+	},
+	"rewards": [
+		{ "type": "experience", "amount": 500 },
+		{ "type": "item", "item": "minecraft:nether_star", "count": 1 }
+	],
+	"progression": "once",
+	"narrative": { "en_us": "Sometimes survival is measured by a single heart.", "fr_fr": "Parfois, la survie se joue à un seul cœur." }
+}

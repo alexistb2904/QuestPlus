@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "questplus:survival/logs",
+	"category": "questplus:survival",
+	"icon": "minecraft:oak_log",
+	"title": { "en_us": "First Timber", "fr_fr": "Premières bûches" },
+	"description": { "en_us": "Collect wood for your first camp.", "fr_fr": "Récoltez du bois pour votre premier camp." },
+	"objectives": [
+		{
+			"id": "logs",
+			"event": "block_break",
+			"target": "#minecraft:logs",
+			"count": 16,
+			"text": { "en_us": "Break 16 logs", "fr_fr": "Cassez 16 bûches" },
+			"conditions": { "not": { "sneaking": true } }
+		}
+	],
+	"rewards": [
+		{ "type": "experience", "amount": 40 },
+		{ "type": "item", "item": "minecraft:bread", "count": 4 }
+	],
+	"progression": "once",
+	"narrative": { "en_us": "A sturdy shelter begins with a handful of logs.", "fr_fr": "Un abri solide commence par quelques bûches." }
+}

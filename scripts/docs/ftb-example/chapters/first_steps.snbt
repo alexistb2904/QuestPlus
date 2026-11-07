@@ -1,0 +1,30 @@
+{
+  id: "first_steps"
+  title: "First Steps"
+  icon: "minecraft:oak_log"
+  quests: [
+    {
+      id: "gather_logs"
+      title: "Gather oak logs"
+      x: 0.0d
+      y: 0.0d
+      tasks: [{id:"logs",type:"item",item:"minecraft:oak_log",count:8L}]
+      rewards: [{id:"xp",type:"xp",xp:25}]
+    }
+    {
+      id: "crafting_table"
+      title: "Build a crafting table"
+      dependencies: ["gather_logs"]
+      x: 2.0d
+      y: 0.0d
+      tasks: [{id:"table",type:"item",item:"minecraft:crafting_table",count:1L}]
+    }
+    {
+      id: "custom_machine"
+      title: "A task that needs an integration"
+      x: 4.0d
+      y: 0.0d
+      tasks: [{id:"machine",type:"example:machine_task"}]
+    }
+  ]
+}
