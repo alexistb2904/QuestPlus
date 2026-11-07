@@ -22,11 +22,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * Outbound-only connection to Quest Studio. Each editing session owns its
- * server credential. Credentials never enter the Minecraft play packets or
- * browser.
- */
 final class QuestHubService implements AutoCloseable {
 	private static final Gson JSON = new Gson();
 	private static final URI DEFAULT_ORIGIN = URI.create("https://quest.alexistb.com/");
