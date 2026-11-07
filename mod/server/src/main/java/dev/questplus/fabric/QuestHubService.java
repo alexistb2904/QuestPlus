@@ -233,7 +233,13 @@ final class QuestHubService implements AutoCloseable {
 					}
 					try {
 						if (response.statusCode() / 100 != 2) {
-							onError.accept(responseError(response.statusCode(), response.body()));
+							if (response.statusCode() == 401 && path.equals("/api/server/sessions")) {
+								onError.accept("Quest Studio refused to create a session (HTTP 401). "
+										+ "Check that the Minecraft JAR uses session tokens and that the Hub "
+										+ "endpoint is not protected by proxy authentication.");
+							} else {
+								onError.accept(responseError(response.statusCode(), response.body()));
+							}
 							return;
 						}
 						JsonObject body = JsonParser.parseString(response.body()).getAsJsonObject();
