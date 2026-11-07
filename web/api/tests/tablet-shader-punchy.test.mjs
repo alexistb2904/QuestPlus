@@ -13,14 +13,15 @@ test("First Person Model yields through its activation API without changing play
 	assert.doesNotMatch(compat, /setEnabled/);
 });
 
-test("only tablet hands skip the second Iris pass before FP PAL submits geometry", () => {
-	const shader = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletShaderCompat.java");
-	const hands = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletNativeArmsMixin.java");
-	const face = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java");
-	assert.match(shader, /getMethod\("isRenderingSolid"\)/);
-	assert.match(shader, /HANDS\s*==\s*null\s*\|\|\s*!shadersActive\(\)/);
-	assert.match(hands, /!TabletShaderCompat.translucentHandPass\(\)/);
-	assert.match(face, /TabletNativeArms.active\(\) && TabletShaderCompat.translucentHandPass\(\)/);
+test("native first-person renderer claims only QuestPlus tablet frames", () => {
+	const hands = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletNativeFirstPersonMixin.java");
+	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
+	assert.match(hands, /FirstPersonHandsAndItemsRenderer\.class/);
+	assert.match(hands, /submitHandsWithItems/);
+	assert.match(hands, /TabletNativeFirstPersonRenderer\.submit/);
+	assert.match(hands, /ci\.cancel\(\)/);
+	assert.match(renderer, /TabletNativeArms\.active\(\)/);
+	assert.match(renderer, /RenderTypes\.entityCutout/);
 });
 
 test("Iris presence alone does not activate shader behavior: actual pack state is checked", () => {
@@ -36,19 +37,17 @@ test("Iris presence alone does not activate shader behavior: actual pack state i
 	assert.doesNotMatch(options, /shaderSafeMode/);
 });
 
-test("self illumination ON/OFF uses shader matte material and no shader uses classic materials", () => {
+test("native screen materials preserve matte and emissive shader behavior", () => {
 	const shader = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletShaderCompat.java");
-	const face = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java");
+	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
+	const geometry = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeGeometry.java");
 	const atlas = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java");
 	assert.match(shader, /return shaderActive && selfIlluminated;/);
-	assert.match(shader, /Matte|matteIllumination/);
-	assert.match(face, /var screenType\s*=\s*shaders\s*\?\s*RenderTypes\.entityCutout\(TabletSurfaceRenderer\.TEXTURE\)/);
-	assert.match(face, /settings\.screenEmissive\s*\? RenderTypes\.entityTranslucentEmissive/);
-	assert.match(face, /RenderTypes\.entityTranslucent\(TabletSurfaceRenderer\.TEXTURE\)/);
-	assert.match(face, /LightCoordsUtil\.FULL_BRIGHT/);
-	assert.match(face, /TabletShaderCompat\.illuminatedScreen\(\)/);
+	assert.match(renderer, /RenderTypes\.entityCutout\(TabletSurfaceRenderer\.TEXTURE\)/);
+	assert.match(renderer, /RenderTypes\.entityTranslucentEmissive\(TabletSurfaceRenderer\.TEXTURE\)/);
+	assert.match(renderer, /RenderTypes\.entityTranslucent\(TabletSurfaceRenderer\.TEXTURE\)/);
+	assert.match(geometry, /LightCoordsUtil\.FULL_BRIGHT/);
 	assert.match(atlas, /TabletShaderCompat\.illuminatedScreen\(\)/);
-	assert.match(shader, /Math\.clamp\(requested,\s*0,\s*matteIllumination\s*\?\s*0\.78\s*:\s*1\)/);
 });
 
 test("active shaders always bypass global menu blur regardless of self illumination", () => {
@@ -63,13 +62,14 @@ test("active shaders always bypass global menu blur regardless of self illuminat
 	assert.doesNotMatch(screen, /button\("shader_safe_mode"/);
 });
 
-test("Bliss: static body texture is separate from the dynamic screen atlas under shaders", () => {
-	const face = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletFaceCaptureMixin.java");
-	assert.match(face, /TABLET_BODY\s*=\s*Identifier\.fromNamespaceAndPath/);
-	assert.match(face, /RenderTypes\.entityCutout\(TABLET_BODY\)/);
-	assert.match(face, /questplus\$pass\s*==\s*1\s*&&\s*TabletShaderCompat\.shadersActive\(\)/);
-	assert.match(face, /questplus\$pass\s*==\s*2\s*&&\s*face\s*==\s*FpGeoModel\.FACE_NORTH/);
-	assert.match(face, /TextureRenderer\.TEXTURE|TabletSurfaceRenderer\.TEXTURE/);
+test("tablet body and interactive screen use separate native render passes", () => {
+	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
+	const geo = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeGeometry.java");
+	assert.match(renderer, /RenderTypes\.entityCutout\(BODY\)/);
+	assert.match(renderer, /TabletNativeGeometry\.Pass\.BODY/);
+	assert.match(renderer, /TabletNativeGeometry\.Pass\.SCREEN/);
+	assert.match(geo, /TabletFaceAnchor\.capture\(pose\)/);
+	assert.match(geo, /TabletSurfaceRenderer\.SCREEN_X/);
 });
 
 test("Esc and stalled animation cannot indefinitely hide hotbar and first-person state", () => {
@@ -94,8 +94,8 @@ test("Punchy remains disabled while native tablet hands own animation", () => {
 	const opening = flow.slice(flow.indexOf("private static void open(Minecraft client)"), flow.indexOf("static void close()"));
 	const claimHands = opening.search(/nativeHands\s*=\s*true;/);
 	const openingStage = opening.search(/stage\s*=\s*Stage\.OPENING;/);
-	const play = opening.indexOf("FirstPersonPalBridge.play(openingClip)");
-	const idle = opening.indexOf('FirstPersonPalBridge.play("questplus.idle")');
+	const play = opening.indexOf("TabletNativeAnimation.play(openingClip)");
+	const idle = opening.indexOf('TabletNativeAnimation.play("questplus.idle")');
 	assert.ok(claimHands >= 0 && idle > claimHands, "hands are claimed before idle starts when transitions are disabled");
 	assert.ok(openingStage > claimHands && play > openingStage, "hands and opening stage are set before the opening animation starts");
 });
@@ -107,4 +107,12 @@ test("removed independent shader-safe toggle and translated automatic blur expla
 		assert.ok(json["questplus.client.blur_shader_disabled"].length > 10, locale);
 		assert.ok(!("questplus.client.shader_safe_mode" in json), locale);
 	}
+});
+
+test("the release builds use only native runtime components", () => {
+	const build = read("mod/build.gradle");
+	const mixins = read("mod/client/src/main/resources/questplus.client.mixins.json");
+	assert.doesNotMatch(build, /include ['"](?:maven\.modrinth|curse\.maven|de\.marhali|teamreborn)/);
+	assert.match(build, /verifyNativeRenderer/);
+	assert.doesNotMatch(mixins, /TabletFpInterpolationMixin|TabletFaceCaptureMixin|TabletNativeArmsMixin/);
 });

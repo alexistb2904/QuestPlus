@@ -17,9 +17,8 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Native Blockbench renderer: no PAL/FP PAL distribution dependencies.
     // JSON5 is parsed by QuestJson5 using the Gson provided by Minecraft.
-    // Shared transactional item-energy API for Fabric batteries; shipped in the universal JAR.
-    implementation 'teamreborn:energy:5.0.0'
-    include 'teamreborn:energy:5.0.0'
+    // Optional item energy API; never embedded in the universal QuestPlus JAR.
+    compileOnly 'teamreborn:energy:5.0.0'
     compileOnly 'com.google.j2objc:j2objc-annotations:3.0.0'
     // Optional client recipe viewers: compile against their APIs without bundling either mod.
     compileOnly('maven.modrinth:rei:rKsAE6bX') { transitive = false }
@@ -75,7 +74,7 @@ tasks.register('verifyNativeRenderer') {
     doLast {
         new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
             def entries = jar.entries().toList()*.name
-            assert !entries.any { it.startsWith('META-INF/jars/') && (it.contains('pal') || it.contains('geckolib') || it.contains('azurelib')) }
+            assert !entries.any { it.startsWith('META-INF/jars/') } : 'Standalone release JAR must not embed any external library'
             def content = jar.getInputStream(jar.getEntry('questplus.client.mixins.json')).getText('UTF-8')
             assert content.contains('TabletNativeFirstPersonMixin')
             assert !content.contains('TabletFaceCaptureMixin')
@@ -109,6 +108,9 @@ tasks.named('deleteGameTestRunDir', Delete) {
 dependencies {
     gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
     gametestImplementation fabricApi.module('fabric-client-gametest-api-v1', project.fabric_version)
+    // External energy runtime exists only in GameTests exercising modded battery targets.
+    gametestImplementation 'teamreborn:energy:5.0.0'
+    gametestRuntimeOnly 'teamreborn:energy:5.0.0'
     // Opt-in real content mods; never part of the release or ordinary client runs.
     if (providers.gradleProperty('objectiveCompatibility').isPresent()) {
         gametestRuntimeOnly 'maven.modrinth:7vxePowz:dRScyUeE' // Farmer's Delight Refabricated

@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import java.util.*;
-import team.reborn.energy.api.EnergyStorage;
+import net.fabricmc.loader.api.FabricLoader;
 
 /**
  * Transactions operate exclusively on detached item stacks; the inventory
@@ -59,9 +59,8 @@ final class QuestResourceContainers {
 					}
 				};
 				if (fluid == null) {
-					var storage = context.find(EnergyStorage.ITEM);
-					if (storage != null)
-						extracted += storage.extract(target - extracted, transaction);
+					if (FabricLoader.getInstance().isModLoaded("team_reborn_energy"))
+						extracted += QuestEnergyBridge.extract(context, target - extracted, transaction);
 				} else {
 					var storage = context.find(FluidStorage.ITEM);
 					if (storage == null)
