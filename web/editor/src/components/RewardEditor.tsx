@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { hubEditorDescriptors } from "../core/hub-registry.js";
+import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
 import { text } from "../core/project.js";
 import { POOL_TYPES, poolError, poolProbabilities, simulatePool } from "../core/reward-tables.js";
 import type { LocaleMap, Project, Reward } from "../types";
@@ -53,7 +53,7 @@ const make = (type: string): Reward =>
 										data: Object.fromEntries(
 											(hubEditorDescriptors("reward").find((d) => d.id === type)?.fields || []).map((f) => [
 												f.key,
-												f.type === "boolean" ? false : f.type === "integer" ? 1 : "",
+												hubFieldDefault(f),
 											])
 										),
 									};
@@ -241,19 +241,27 @@ export function RewardEditor({
 					?.fields.map((f) => (
 						<div key={f.key}>
 							{f.type === "boolean" ? (
-								<label className="checkbox-row">
-									<input type="checkbox" checked={!!r.data?.[f.key]} onChange={(e) => edit({ ...r, data: { ...r.data, [f.key]: e.target.checked } })} />
-									{f.label}
-								</label>
-							) : (
+                                <label className="checkbox-row">
+                                    <input type="checkbox" checked={!!r.data?.[f.key]} onChange={(e) => edit({ ...r, data: { ...r.data, [f.key]: e.target.checked } })} />
+                                    {f.label}
+                                </label>
+                            ) : f.type === "choice" ? (
+                                <label className="field">
+                                    <span>{f.label}</span>
+                                    <select value={r.data?.[f.key] ?? hubFieldDefault(f)}
+                                        onChange={(e) => edit({ ...r, data: { ...r.data, [f.key]: e.target.value } })}>
+                                        {f.options.map((option: string) => <option key={option} value={option}>{option}</option>)}
+                                    </select>
+                                </label>
+                            ) : (
 								<div className="field-row">
 									<Field
 										label={f.label}
-										type={f.type === "integer" ? "number" : "text"}
+										type={["integer", "number"].includes(f.type) ? "number" : "text"}
 										value={r.data?.[f.key]}
 										onChange={(value) => edit({ ...r, data: { ...r.data, [f.key]: value } })}
 									/>
-									{!["string", "integer"].includes(f.type) && (
+									{!["string", "integer", "number"].includes(f.type) && (
 										<button
 											className="button secondary"
 											type="button"
