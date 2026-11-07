@@ -51,7 +51,10 @@ public final class TabletNativeFirstPersonRenderer {
 
 		if (frame.tabletVisible()) {
 			boolean surface = TabletSurfaceRenderer.hasSurface();
-			collector.submitCustomGeometry(base, RenderTypes.entityCutout(BODY), (framePose, vertices) ->
+			// The interactive atlas previously held this exact static body texture.
+			// Keep the original skin when rendering only the carried item.
+			collector.submitCustomGeometry(base, RenderTypes.entityCutout(
+					surface ? TabletRenderer.texture() : BODY), (framePose, vertices) ->
 					TabletNativeGeometry.render(restore(framePose), vertices, light,
 							TabletNativeGeometry.Pass.BODY, clip, seconds, surface));
 			if (surface) {
