@@ -23,8 +23,9 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * Outbound-only connection to Quest Studio. Each editing session owns its server credential.
- * Credentials never enter the Minecraft play packets or browser.
+ * Outbound-only connection to Quest Studio. Each editing session owns its
+ * server credential. Credentials never enter the Minecraft play packets or
+ * browser.
  */
 final class QuestHubService implements AutoCloseable {
 	private static final Gson JSON = new Gson();
@@ -85,10 +86,10 @@ final class QuestHubService implements AutoCloseable {
 		if (target.getHost() == null || target.getUserInfo() != null || target.getQuery() != null
 				|| target.getFragment() != null || target.getPort() > 65535
 				|| target.getPath() != null && !target.getPath().isEmpty() && !target.getPath().equals("/"))
-			throw new IllegalArgumentException("Editor URL must be an origin without credentials, a path or query parameters.");
+			throw new IllegalArgumentException(
+					"Editor URL must be an origin without credentials, a path or query parameters.");
 		boolean local = Set.of("localhost", "127.0.0.1").contains(target.getHost());
-		if (!"https".equalsIgnoreCase(target.getScheme())
-				&& !(local && "http".equalsIgnoreCase(target.getScheme())))
+		if (!"https".equalsIgnoreCase(target.getScheme()) && !(local && "http".equalsIgnoreCase(target.getScheme())))
 			throw new IllegalArgumentException("Quest Studio requires HTTPS (except localhost).");
 		return target;
 	}
@@ -209,8 +210,8 @@ final class QuestHubService implements AutoCloseable {
 		request(method, path, data, credentialFor(path, sessionToken), onSuccess, onError);
 	}
 
-	private void request(String method, String path, JsonObject data, String credential,
-			Consumer<JsonObject> onSuccess, Consumer<String> onError) {
+	private void request(String method, String path, JsonObject data, String credential, Consumer<JsonObject> onSuccess,
+			Consumer<String> onError) {
 		if (!configured()) {
 			onError.accept(configurationError);
 			return;
@@ -244,7 +245,8 @@ final class QuestHubService implements AutoCloseable {
 						onSuccess.accept(body);
 					} catch (Exception e) {
 						QuestPlusMod.LOGGER.warn("Invalid Quest Studio response: {}", path, e);
-						onError.accept("Quest Studio returned an invalid response. Check the web API address and deployment, then retry. Details are in the game log.");
+						onError.accept(
+								"Quest Studio returned an invalid response. Check the web API address and deployment, then retry. Details are in the game log.");
 					}
 				}));
 	}
@@ -252,12 +254,15 @@ final class QuestHubService implements AutoCloseable {
 	static String requestError(URI origin, Throwable error) {
 		boolean connection = false;
 		for (Throwable cause = error; cause != null; cause = cause.getCause()) {
-			if (cause instanceof java.net.UnknownHostException || cause instanceof java.nio.channels.UnresolvedAddressException)
-				return "Cannot find Quest Studio at " + origin + ". Check your Internet connection and the editor address (DNS).";
+			if (cause instanceof java.net.UnknownHostException
+					|| cause instanceof java.nio.channels.UnresolvedAddressException)
+				return "Cannot find Quest Studio at " + origin
+						+ ". Check your Internet connection and the editor address (DNS).";
 			if (cause instanceof HttpTimeoutException || cause instanceof java.net.SocketTimeoutException)
 				return "Quest Studio timed out at " + origin + ". Check your connection or retry shortly.";
 			if (cause instanceof javax.net.ssl.SSLException)
-				return "Cannot establish a secure connection to Quest Studio at " + origin + ". Check the HTTPS certificate and your computer's clock.";
+				return "Cannot establish a secure connection to Quest Studio at " + origin
+						+ ". Check the HTTPS certificate and your computer's clock.";
 			connection |= cause instanceof java.net.ConnectException;
 		}
 		if (connection) {
@@ -271,21 +276,23 @@ final class QuestHubService implements AutoCloseable {
 
 	static String responseError(int status, String response) {
 		return switch (status) {
-			case 401 -> "Quest Studio rejected the session credentials (HTTP 401). Start a new editor session or check the web API version.";
-			case 403 -> "Access denied by Quest Studio (HTTP 403). Check the server's permissions and web API configuration.";
-			case 413 -> "The quest pack is too large for Quest Studio (HTTP 413). Reduce its size before retrying.";
-			case 429 -> "Quest Studio is receiving too many requests (HTTP 429). Wait a moment, then retry.";
-			default -> {
-				if (status >= 500)
-					yield "Quest Studio is temporarily unavailable (HTTP " + status + "). Retry shortly or check the web service.";
-				try {
-					JsonElement detail = JsonParser.parseString(response).getAsJsonObject().get("error");
-					if (detail != null && detail.isJsonPrimitive() && detail.getAsJsonPrimitive().isString())
-						yield detail.getAsString();
-				} catch (RuntimeException ignored) {
-				}
-				yield "Quest Studio rejected the request (HTTP " + status + "). Check the web API address and configuration.";
+		case 401 -> "Quest Studio rejected the session credentials (HTTP 401). Start a new editor session or check the web API version.";
+		case 403 -> "Access denied by Quest Studio (HTTP 403). Check the server's permissions and web API configuration.";
+		case 413 -> "The quest pack is too large for Quest Studio (HTTP 413). Reduce its size before retrying.";
+		case 429 -> "Quest Studio is receiving too many requests (HTTP 429). Wait a moment, then retry.";
+		default -> {
+			if (status >= 500)
+				yield "Quest Studio is temporarily unavailable (HTTP " + status
+						+ "). Retry shortly or check the web service.";
+			try {
+				JsonElement detail = JsonParser.parseString(response).getAsJsonObject().get("error");
+				if (detail != null && detail.isJsonPrimitive() && detail.getAsJsonPrimitive().isString())
+					yield detail.getAsString();
+			} catch (RuntimeException ignored) {
 			}
+			yield "Quest Studio rejected the request (HTTP " + status
+					+ "). Check the web API address and configuration.";
+		}
 		};
 	}
 
@@ -318,7 +325,8 @@ final class QuestHubService implements AutoCloseable {
 			request("POST", "/api/server/sessions", payload, result -> {
 				String credential = result.has("serverToken") ? result.get("serverToken").getAsString() : "";
 				if (!credential.matches("[A-Za-z0-9_-]{40,}"))
-					throw new IllegalStateException("Quest Studio did not return a valid session token. Update the web API.");
+					throw new IllegalStateException(
+							"Quest Studio did not return a valid session token. Update the web API.");
 				dropSession();
 				sessionToken = credential;
 				owner = actor;
@@ -336,8 +344,11 @@ final class QuestHubService implements AutoCloseable {
 			notify(source, "Creating a secured editor session…");
 		} catch (Exception error) {
 			QuestPlusMod.LOGGER.warn("Could not prepare a Quest Studio session", error);
-			fail(source, error.getMessage() != null && (error instanceof IllegalArgumentException || error instanceof IllegalStateException)
-					? error.getMessage() : "Could not read the quest pack. Check file permissions and the game log.");
+			fail(source,
+					error.getMessage() != null
+							&& (error instanceof IllegalArgumentException || error instanceof IllegalStateException)
+									? error.getMessage()
+									: "Could not read the quest pack. Check file permissions and the game log.");
 		}
 	}
 

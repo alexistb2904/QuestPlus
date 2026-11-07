@@ -1,17 +1,16 @@
-import JSON5 from 'json5';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { createReadStream } from 'node:fs';
-import { mkdir, open, opendir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
-import http from 'node:http';
-import { isIP } from 'node:net';
-import path from 'node:path';
-import { pipeline } from 'node:stream/promises';
-import { fileURLToPath } from 'node:url';
+import JSON5 from "json5";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { mkdir, open, opendir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import http from "node:http";
+import { isIP } from "node:net";
+import path from "node:path";
+import { pipeline } from "node:stream/promises";
+import { fileURLToPath } from "node:url";
 
 const PORT = Number(process.env.PORT || 8787);
 const BIND = process.env.HUB_BIND || "127.0.0.1";
 const PUBLIC_URL = (process.env.HUB_PUBLIC_URL || "http://localhost:" + PORT).replace(/\/$/, "");
-// React and the API are served from the SAME origin in production.
 const ALLOWED_ORIGIN = process.env.STUDIO_ORIGIN || new URL(PUBLIC_URL).origin;
 const STUDIO_URL = (process.env.STUDIO_URL || PUBLIC_URL + "/").replace(/\/$/, "/");
 const STATIC_DIR = path.resolve(process.env.WEB_STATIC_DIR || path.join(path.dirname(fileURLToPath(import.meta.url)), "../editor/dist"));
@@ -135,7 +134,6 @@ async function expiredPack(file, bytes, now) {
 	}
 	const match = prefix.match(/^\{"expires":(\d+),"sha256":"[a-f0-9]{64}","files":/);
 	if (match) return Number(match[1]) <= now;
-	// Legacy records put expiry after the files. Only read an old candidate, within the shared I/O budget.
 	if (bytes > MAX_BODY || bodyBytes + bytes > MAX_BODY_IN_FLIGHT) return false;
 	bodyBytes += bytes;
 	try {
@@ -187,7 +185,12 @@ const clean = async () => {
 	}
 };
 const rateLimit = (req, action, max, windowMs, subject) => {
-	const forwarded = PROXY_HOPS ? String(req.headers["x-forwarded-for"] || "").split(",").at(-PROXY_HOPS)?.trim() : "";
+	const forwarded = PROXY_HOPS
+		? String(req.headers["x-forwarded-for"] || "")
+				.split(",")
+				.at(-PROXY_HOPS)
+				?.trim()
+		: "";
 	const address = isIP(forwarded || "") ? forwarded : req.socket.remoteAddress || "local";
 	const key = action + ":" + (subject || address);
 	const now = Date.now();
@@ -332,7 +335,6 @@ async function handler(req, res) {
 		};
 		res.once("finish", release);
 		res.once("close", release);
-		// Session credentials belong to the initiating Minecraft server, never to a browser.
 		if (p.startsWith("/v1/server/")) {
 			if (req.method === "POST" && p === "/v1/server/sessions") {
 				if (req.headers.authorization) throw fail(401, "Session creation does not accept credentials");
@@ -371,7 +373,12 @@ async function handler(req, res) {
 					sessionRoom(s.bytes);
 					reserveState(s.bytes);
 					sessions.set(id, s);
-					return json(res, 201, { id, serverToken: s.serverAuth, url: STUDIO_URL + "?hub=" + encodeURIComponent(PUBLIC_URL) + "&session=" + encodeURIComponent(id), expires: s.expires });
+					return json(res, 201, {
+						id,
+						serverToken: s.serverAuth,
+						url: STUDIO_URL + "?hub=" + encodeURIComponent(PUBLIC_URL) + "&session=" + encodeURIComponent(id),
+						expires: s.expires,
+					});
 				} finally {
 					sessionCreates--;
 				}
