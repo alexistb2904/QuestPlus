@@ -26,9 +26,8 @@ abstract class TabletFpInterpolationMixin {
 			AnimationController.AnimationSetter setter, CallbackInfoReturnable<PlayState> ci) {
 		if (Minecraft.getInstance().player instanceof IFpAnimatedPlayer player
 				&& player.fpPal$getFpAnimationController() == controller
-				&& controller instanceof FpAnimationController fp && fp.isRunning()
-				&& !fp.isStopRequested() && !fp.isPendingPlay()
-				&& fp.getAnimationState() == State.PAUSED && TabletNativeArms.active())
+				&& controller instanceof FpAnimationController fp && fp.isRunning() && !fp.isStopRequested()
+				&& !fp.isPendingPlay() && fp.getAnimationState() == State.PAUSED && TabletNativeArms.active())
 			ci.setReturnValue(PlayState.CONTINUE);
 	}
 

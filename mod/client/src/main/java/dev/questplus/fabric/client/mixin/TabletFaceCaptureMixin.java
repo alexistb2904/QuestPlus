@@ -57,7 +57,8 @@ abstract class TabletFaceCaptureMixin {
 					geometry);
 			return;
 		}
-		// Use the static body texture with shaders; the live atlas can appear reflective.
+		// Use the static body texture with shaders; the live atlas can appear
+		// reflective.
 		boolean shaders = TabletShaderCompat.shadersActive();
 		var bodyType = shaders ? RenderTypes.entityCutout(TABLET_BODY) : type;
 		buffer.drawGeometry(pose, bodyType, (p, c) -> {
@@ -69,7 +70,8 @@ abstract class TabletFaceCaptureMixin {
 			}
 		});
 		var settings = QuestPlusClient.settings;
-		// Iris: always use matte cutout to prevent glass/bloom artifacts; brightness is separate.
+		// Iris: always use matte cutout to prevent glass/bloom artifacts; brightness is
+		// separate.
 		// Without shaders, honor the emissive/translucent material setting.
 		var screenType = shaders ? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
 				: settings.screenEmissive ? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
@@ -95,7 +97,8 @@ abstract class TabletFaceCaptureMixin {
 		});
 	}
 
-	// Apply full-bright only to the screen pass; arms and frame retain world lighting.
+	// Apply full-bright only to the screen pass; arms and frame retain world
+	// lighting.
 	@ModifyVariable(method = "renderCube", at = @At("HEAD"), argsOnly = true, ordinal = 0, remap = false)
 	private static int questplus$matteScreenLight(int light) {
 		return questplus$pass == 2 && TabletShaderCompat.illuminatedScreen() ? LightCoordsUtil.FULL_BRIGHT : light;

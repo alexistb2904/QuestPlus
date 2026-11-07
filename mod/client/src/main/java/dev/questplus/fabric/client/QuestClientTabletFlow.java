@@ -58,7 +58,8 @@ final class QuestClientTabletFlow {
 			stop();
 			reset();
 		});
-		// FP PAL draws the Blockbench tablet and arms; avoid rendering a second HUD model.
+		// FP PAL draws the Blockbench tablet and arms; avoid rendering a second HUD
+		// model.
 	}
 
 	private static InteractionResult useTablet(boolean tablet, boolean clientSide) {
@@ -141,13 +142,13 @@ final class QuestClientTabletFlow {
 
 	private static boolean tabletAvailable() {
 		var s = QuestPlusClient.settings;
-		return s != null && s.tablet
-				&& FabricLoader.getInstance().isModLoaded("fp_pal")
+		return s != null && s.tablet && FabricLoader.getInstance().isModLoaded("fp_pal")
 				&& FabricLoader.getInstance().isModLoaded("player_animation_library");
 	}
 
 	private static void open(Minecraft client) {
-		// Switch to first person before opening; FP PAL cannot draw the tablet in third person.
+		// Switch to first person before opening; FP PAL cannot draw the tablet in third
+		// person.
 		if (tabletAvailable() && client.options.getCameraType() != CameraType.FIRST_PERSON) {
 			previousCamera = client.options.getCameraType();
 			client.options.setCameraType(CameraType.FIRST_PERSON);

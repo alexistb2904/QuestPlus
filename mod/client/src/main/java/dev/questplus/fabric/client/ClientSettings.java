@@ -12,14 +12,9 @@ public final class ClientSettings {
 	private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
 	public boolean hud = false, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
 	public boolean tabletTransitions = true;
-	/** Pixels per logical tablet pixel; bounded to keep framebuffer memory predictable. */
-	public int treeResolution = 6;
-	/** Off by default: damage closes the tablet and plays its close animation. */
+	public int treeResolution = 2;
 	public boolean stayOpenOnDamage = false;
 	public int hudPosition = 2, notificationPosition = 1, detail = 1;
-	/**
-	 * First-person screen emits its own light by default; backlight can be dimmed.
-	 */
 	public boolean screenEmissive = true;
 	public double screenBrightness = 1.0;
 	public double scale = 1, blurIntensity = 0.4;
@@ -48,7 +43,8 @@ public final class ClientSettings {
 				if (settings != null && !json.has("screenBrightness"))
 					settings.screenBrightness = 1.0;
 				if (settings != null)
-					settings.treeResolution = json.has("treeResolution") ? Math.clamp(settings.treeResolution, 1, 8) : 6;
+					settings.treeResolution = json.has("treeResolution") ? Math.clamp(settings.treeResolution, 1, 8)
+							: 2;
 				if (settings == null || settings.pinned == null || settings.pinned.size() > 1024
 						|| settings.hudPosition < 0 || settings.hudPosition > 8 || settings.notificationPosition < 0
 						|| settings.notificationPosition > 8 || !Double.isFinite(settings.scale) || settings.scale < 0.7

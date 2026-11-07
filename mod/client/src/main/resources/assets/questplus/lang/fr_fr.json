@@ -93,7 +93,7 @@
 	"questplus.client.next": "Suivant",
 	"questplus.client.tablet_transitions": "Transition tablette",
 	"questplus.client.tree_resolution": "Résolution arbre : %s×",
-	"questplus.client.tree_resolution_hint": "%s × %s px. Une valeur élevée améliore la netteté de l'écran 3D mais consomme plus de mémoire graphique. La taille de l'interface reste identique.",
+	"questplus.client.tree_resolution_hint": "%s × %s px. Une valeur élevée améliore la netteté de l'écran 3D mais consomme plus de mémoire graphique. La taille de l'interface reste identique. Recommandé : 2×.",
 	"questplus.client.player_name": "Pseudo du joueur",
 	"questplus.client.player_uuid": "UUID du joueur",
 	"questplus.client.no_invitations": "Aucune invitation reçue.",

@@ -1603,7 +1603,10 @@ public final class QuestScreen extends Screen {
 				input = addRenderableWidget(new QuestTextField(font, x, top + 69, w - 85, 18, t("player_name")));
 				input.setMaxLength(36);
 				input.setHint(t("player_name"));
-				input.setResponder(value -> { playerScroll = 0; playerPicker = true; });
+				input.setResponder(value -> {
+					playerScroll = 0;
+					playerPicker = true;
+				});
 				button("invite", right - 90, top + 69, 76, () -> {
 					String value = input.getValue();
 					var player = minecraft.getConnection().getPlayerInfoIgnoreCase(value);
@@ -1691,11 +1694,10 @@ public final class QuestScreen extends Screen {
 				var player = minecraft.getConnection().getPlayerInfo(UUID.fromString(m.get("id").getAsString()));
 				if (player != null)
 					PlayerFaceExtractor.extractRenderState(g, player.getSkin(), x, top + 100 + (i - start) * 23, 16);
-				QuestSkin
-						.text(g, font,
-								font.plainSubstrByWidth((QuestClientState.flag(m, "online") ? "● " : "○ ") + name,
-										Math.max(30, right - left - 169)),
-								x + 20, top + 104 + (i - start) * 23, 0xffd8dccb, false);
+				QuestSkin.text(g, font,
+						font.plainSubstrByWidth((QuestClientState.flag(m, "online") ? "● " : "○ ") + name,
+								Math.max(30, right - left - 169)),
+						x + 20, top + 104 + (i - start) * 23, 0xffd8dccb, false);
 			}
 		}
 		if (confirmation != null)
@@ -1709,7 +1711,8 @@ public final class QuestScreen extends Screen {
 		return minecraft.getConnection().getListedOnlinePlayers().stream()
 				.filter(player -> !player.getProfile().id().equals(minecraft.player.getUUID()))
 				.filter(player -> player.getProfile().name().toLowerCase(Locale.ROOT).contains(query))
-				.sorted(Comparator.comparing(player -> player.getProfile().name(), String.CASE_INSENSITIVE_ORDER)).toList();
+				.sorted(Comparator.comparing(player -> player.getProfile().name(), String.CASE_INSENSITIVE_ORDER))
+				.toList();
 	}
 
 	private int playerPickerRows() {
@@ -1833,9 +1836,11 @@ public final class QuestScreen extends Screen {
 		else
 			event = new MouseButtonEvent(twoDX(event.x()), twoDY(event.y()), event.buttonInfo());
 		event = new MouseButtonEvent(event.x(), event.y() - visualOffset, event.buttonInfo());
-		if (tab.equals("team") && state.team != null && input != null && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+		if (tab.equals("team") && state.team != null && input != null
+				&& event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			double x = event.x(), y = event.y();
-			if (playerPicker && x >= left + 14 && x < right - 99 && y >= top + 88 && y < top + 88 + playerPickerRows() * 20) {
+			if (playerPicker && x >= left + 14 && x < right - 99 && y >= top + 88
+					&& y < top + 88 + playerPickerRows() * 20) {
 				var players = matchingPlayers();
 				int index = playerScroll + (int) ((y - top - 88) / 20);
 				if (index < players.size()) {
@@ -1976,8 +1981,10 @@ public final class QuestScreen extends Screen {
 			y = twoDY(y);
 		}
 		y -= visualOffset;
-		if (tab.equals("team") && playerPicker && x >= left + 14 && x < right - 99 && y >= top + 88 && y < top + 88 + playerPickerRows() * 20) {
-			playerScroll = Math.clamp(playerScroll - (int) Math.signum(vertical), 0, Math.max(0, matchingPlayers().size() - playerPickerRows()));
+		if (tab.equals("team") && playerPicker && x >= left + 14 && x < right - 99 && y >= top + 88
+				&& y < top + 88 + playerPickerRows() * 20) {
+			playerScroll = Math.clamp(playerScroll - (int) Math.signum(vertical), 0,
+					Math.max(0, matchingPlayers().size() - playerPickerRows()));
 			return true;
 		}
 		if (tab.equals("quests")) {

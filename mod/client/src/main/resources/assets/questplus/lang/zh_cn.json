@@ -93,7 +93,7 @@
 	"questplus.client.next": "下一页",
 	"questplus.client.tablet_transitions": "平板过渡动画",
 	"questplus.client.tree_resolution": "任务树分辨率：%s×",
-	"questplus.client.tree_resolution_hint": "%s × %s 像素。更高的值可提高3D屏幕清晰度，但会占用更多显存。不会改变界面大小。",
+	"questplus.client.tree_resolution_hint": "%s × %s 像素。更高的值可提高3D屏幕清晰度，但会占用更多显存。不会改变界面大小。建议：2×。",
 	"questplus.client.player_name": "玩家名称",
 	"questplus.client.player_uuid": "玩家 UUID",
 	"questplus.client.no_invitations": "没有收到邀请。",
