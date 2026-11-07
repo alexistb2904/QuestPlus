@@ -5,7 +5,7 @@ hero:
     text: Your adventure, your quests.
     tagline: A Minecraft quest system for players, pack creators and server communities.
     image:
-        src: /media/tablet.webp
+        src: /media/tablet.gif
         alt: The Quest Plus tablet open in Minecraft
     actions:
         - theme: brand
