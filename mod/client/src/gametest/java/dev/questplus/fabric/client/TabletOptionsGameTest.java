@@ -19,6 +19,17 @@ final class TabletOptionsGameTest {
 					var file = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
 					QuestPlusClient.settings.save();
 					var json = com.google.gson.JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+					if (!new ClientSettings().hud)
+						throw new AssertionError("Pinned quest HUD must be enabled for new clients");
+					json.remove("hud");
+					Files.writeString(file, json.toString());
+					if (!ClientSettings.load().hud)
+						throw new AssertionError("Existing config without HUD preference must default to enabled");
+					json.addProperty("hud", false);
+					Files.writeString(file, json.toString());
+					if (ClientSettings.load().hud)
+						throw new AssertionError("Explicitly disabled HUD preference must be preserved");
+					json.addProperty("hud", true);
 					json.remove("treeResolution");
 					json.addProperty("scale", 1.25);
 					Files.writeString(file, json.toString());
