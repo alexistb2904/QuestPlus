@@ -77,7 +77,7 @@ public final class QuestEngine {
 					}));
 		}
 		long now = clock.getAsLong();
-		boolean needsPrerequisites = registry.needsPrerequisiteState(event.type());
+		boolean needsPrerequisites = forced != null || registry.needsPrerequisiteState(event.type());
 		// Candidate checks share the pre-event snapshot, including started/not
 		// conditions.
 		Set<String> completed = needsPrerequisites ? prerequisiteState(player) : Set.of();
