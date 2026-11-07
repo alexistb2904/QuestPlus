@@ -1084,8 +1084,9 @@ public final class QuestScreen extends Screen {
 			append(lines,
 					t("status." + status(q.id())).getString() + " · " + t("progression." + q.progression()).getString(),
 					w);
+			var p = state.progress(q.id());
 			String description = state.text(q.description());
-			List<String> labels = q.objectives().stream().map(this::objectiveLabelForDisplay).toList();
+			List<String> labels = q.objectives().stream().map(o -> objectiveLabelForDisplay(q, o, p)).toList();
 			var richDescription = q.descriptionRich() == null ? null
 					: selectRichDescription(q.descriptionRich(), minecraft.options.languageCode);
 			if (richDescription != null && !richDescription.isEmpty()) {
@@ -1120,14 +1121,13 @@ public final class QuestScreen extends Screen {
 			}
 			if (!q.narrative().isEmpty())
 				append(lines, state.text(q.narrative()), w);
-			var p = state.progress(q.id());
 			var counters = p.getAsJsonObject("counters");
 			if (!q.kind().equals("information")) {
 				append(lines, t("objectives").getString() + " · " + t("mode." + q.objectiveMode()).getString()
 						+ (q.objectiveMode().equals("at_least") ? " " + q.objectiveThreshold() : ""), w);
 				for (var o : q.objectives()) {
 					long value = counters != null && counters.has(o.id()) ? counters.get(o.id()).getAsLong() : 0;
-					String label = objectiveLabelForDisplay(o)
+					String label = objectiveLabelForDisplay(q, o, p)
 							+ (o.optional() ? " · " + t("optional").getString() : "");
 					if (Set.of("fluid_transfer", "energy_transfer").contains(o.event()))
 						label += " · " + t("external_integration").getString();
@@ -1351,7 +1351,7 @@ public final class QuestScreen extends Screen {
 		return ItemStack.EMPTY;
 	}
 
-	private String objectiveLabelForDisplay(QuestDefinition.Objective o) {
+	private String objectiveLabelForDisplay(QuestDefinition quest, QuestDefinition.Objective o, JsonObject progress) {
 		// The equipment marker describes itself via the condition. Old worlds
 		// may still contain generated four-slot text: prefer the short, current
 		// requirement instead of stacking it with a second gear description.
@@ -1361,20 +1361,11 @@ public final class QuestScreen extends Screen {
 				return gear;
 		}
 		String custom = state.text(o.text());
-		return QuestConditionText.withConditions(custom.isBlank() ? objectiveLabel(o) : custom, o.conditions(),
-				this::questName);
-	}
-
-	private String objectiveLabel(QuestDefinition.Objective o) {
-		var id = Identifier.tryParse(o.target().startsWith("#") ? o.target().substring(1) : o.target());
-		String target = id == null ? o.target() : id.getPath().replace('_', ' ').replace('/', ' ');
-		if (id != null && o.event().equals("entity_kill")) {
-			var entity = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
-			if (entity.isPresent())
-				target = entity.get().getDescription().getString();
-		} else if (id != null && !o.target().startsWith("#") && BuiltInRegistries.ITEM.containsKey(id))
-			target = icon(o.target()).getHoverName().getString();
-		return QuestPresentation.objectiveText(o, minecraft.options.languageCode, target);
+		String label = custom.isBlank()
+				? QuestPresentation.objectiveText(o, minecraft.options.languageCode,
+						QuestObjectiveNames.target(o), QuestPresentation.target(quest, o, progress))
+				: custom;
+		return QuestConditionText.withConditions(label, o.conditions(), this::questName);
 	}
 
 	private ItemStack previewIcon(JsonObject reward) {
