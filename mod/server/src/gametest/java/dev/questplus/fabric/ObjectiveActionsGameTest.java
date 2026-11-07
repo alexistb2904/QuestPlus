@@ -102,6 +102,14 @@ public final class ObjectiveActionsGameTest {
 			QuestPlusApi.reportEnergyTransferred(f.player, 1200);
 			f.expect("fluid", 1000);
 			f.expect("energy", 1200);
+			helper.assertTrue(QuestPlusApi.getQuests(f.player).contains(f.quest), "Quest is discoverable");
+			var definition = QuestPlusApi.getQuest(f.player, f.quest);
+			definition.addProperty("id", "test:modified_copy");
+			helper.assertTrue(QuestPlusApi.getQuest(f.player, f.quest).get("id").getAsString().equals(f.quest),
+					"Definition is detached");
+			helper.assertTrue(QuestPlusApi.getObjectiveProgress(f.player, f.quest, "energy") == 1200,
+					"Progress reflects the authoritative counter");
+			helper.assertTrue(QuestPlusApi.getProgress(f.player, f.quest).started(), "Progress is started");
 			boolean rejected = false;
 			try {
 				QuestPlusApi.reportEnergyTransferred(f.player, 0);

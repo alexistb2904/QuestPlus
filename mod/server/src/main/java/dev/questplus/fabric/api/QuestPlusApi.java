@@ -3,16 +3,72 @@ package dev.questplus.fabric.api;
 import dev.questplus.core.QuestEvent;
 import dev.questplus.core.QuestExtensions;
 import dev.questplus.core.QuestDefinition;
+import dev.questplus.core.PlayerProgress;
 import dev.questplus.fabric.QuestRewardExtensions;
 import com.google.gson.*;
+import java.io.IOException;
 import java.util.Map;
+import java.util.List;
 import java.util.function.*;
 import dev.questplus.fabric.QuestPlusMod;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Server-thread entry point for trusted mods that supply normalized events. */
 public final class QuestPlusApi {
+	private static final Gson GSON = new Gson();
+
+	/** A detached view of collective quest progress; it contains no reward ledger. */
+	public record Progress(boolean started, boolean completed, boolean terminal, long cycles, int tier,
+			Map<String, Long> objectives) {
+		public Progress {
+			objectives = Map.copyOf(objectives);
+		}
+	}
+
 	private QuestPlusApi() {
+	}
+
+	private static void requireServerThread(ServerPlayer player) {
+		if (player == null || !player.level().getServer().isSameThread())
+			throw new IllegalStateException("Quest Plus requires a player on the server thread");
+	}
+
+	/** Returns a detached representation of the currently loaded definition. */
+	public static JsonObject getQuest(ServerPlayer player, String questId) {
+		requireServerThread(player);
+		return GSON.toJsonTree(QuestPlusMod.runtime().registry().get(questId)).getAsJsonObject();
+	}
+
+	/** Returns the currently loaded quest IDs in stable order. */
+	public static List<String> getQuests(ServerPlayer player) {
+		requireServerThread(player);
+		return QuestPlusMod.runtime().registry().all().stream().map(QuestDefinition::id).sorted().toList();
+	}
+
+	/** Returns a snapshot of the player's own or team's progress. */
+	public static Progress getProgress(ServerPlayer player, String questId) throws IOException {
+		requireServerThread(player);
+		var runtime = QuestPlusMod.runtime();
+		runtime.registry().get(questId);
+		return snapshot(runtime.state(player.getUUID()).quests.get(questId));
+	}
+
+	static Progress snapshot(PlayerProgress.QuestProgress progress) {
+		if (progress == null)
+			return new Progress(false, false, false, 0, 0, Map.of());
+		boolean started = progress.completed || progress.attemptId != null || progress.startedAt > 0
+				|| progress.counters.values().stream().anyMatch(value -> value > 0);
+		return new Progress(started, progress.completed, progress.terminal, progress.cycles, progress.tier,
+				progress.counters);
+	}
+
+	/** Returns zero for an unstarted objective and rejects unknown objective IDs. */
+	public static long getObjectiveProgress(ServerPlayer player, String questId, String objectiveId) throws IOException {
+		requireServerThread(player);
+		var quest = QuestPlusMod.runtime().registry().get(questId);
+		if (quest.objectives().stream().noneMatch(objective -> objective.id().equals(objectiveId)))
+			throw new IllegalArgumentException("Unknown objective: " + objectiveId);
+		return getProgress(player, questId).objectives().getOrDefault(objectiveId, 0L);
 	}
 
 	public static void submit(ServerPlayer responsible, QuestEvent event) {

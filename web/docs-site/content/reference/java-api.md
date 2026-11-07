@@ -2,6 +2,16 @@
 
 Call `dev.questplus.fabric.api.QuestPlusApi` from your **server side** Fabric mod.
 
+On the Minecraft server thread, `getQuests(player)` lists loaded IDs and
+`getQuest(player, id)` returns a detached JSON representation of the loaded
+definition. `getProgress(player, id)` returns a snapshot of the player's
+progress, or their team's shared progress when applicable. Its objective map
+is immutable and contains no reward claims or entitlements. Use
+`getObjectiveProgress(player, questId, objectiveId)` for a single counter.
+Unknown quest and objective IDs are rejected. Progress reads can throw
+`IOException` when saved player data cannot be loaded. These methods are for
+trusted server-side integrations, not browser authorization or pack editing.
+
 Register extensions during mod initialization before packs load. Report events only after the real server action succeeds. Keep all mutable gameplay state on the Minecraft server thread.
 
 ## Imports
