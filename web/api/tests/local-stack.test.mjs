@@ -22,20 +22,16 @@ test("stack readiness detects available and unavailable ports without binding th
 		if (server.listening) await new Promise((resolve) => server.close(resolve));
 	}
 });
-test("stack preflight never rewrites a mismatched local server key", async () => {
+test("stack preflight checks the local Hub address without modifying the file", async () => {
 	const root = await mkdtemp(path.join(os.tmpdir(), "questplus-stack-check-"));
 	try {
 		await mkdir(path.join(root, "run/server/world"), { recursive: true });
-		const secret = "a".repeat(64),
-			key = path.join(root, "run/questplus-web-local.key");
 		const config = path.join(root, "run/server/world/questplus-hub.json");
-		await writeFile(key, secret + "\n");
-		await writeFile(config, JSON.stringify({ url: "http://localhost:8787", serverKey: secret }));
+		await writeFile(config, JSON.stringify({ url: "http://localhost:8787" }));
 		assert.equal(await checkConfig(root), true);
-		await writeFile(config, JSON.stringify({ url: "https://different.example", serverKey: secret }));
-		await assert.rejects(() => checkConfig(root), /differs/);
-		await writeFile(config, JSON.stringify({ url: "http://localhost:8787", serverKey: "b".repeat(64) }));
-		await assert.rejects(() => checkConfig(root), /differs/);
+		await writeFile(config, JSON.stringify({ url: "https://different.example" }));
+		await assert.rejects(() => checkConfig(root), /does not use/);
+		assert.equal(JSON.parse(await readFile(config, "utf8")).url, "https://different.example");
 	} finally {
 		await rm(root, { recursive: true, force: true });
 	}
