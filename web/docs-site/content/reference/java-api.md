@@ -116,3 +116,43 @@ Create a minimal pack with your event and data, verify its load, then exercise s
 [Editor descriptors](/reference/extensions) · [Build and contribute](/reference/development)
 
 [All objectives](/guide/objectives) · [All rewards](/guide/rewards)
+
+## Trusted progress mutations
+
+Use these operations only for server-authorized integrations, never for client-provided claims:
+
+```java
+QuestPlusApi.setObjectiveProgress(player, "example:automation", "energy", 150);
+QuestPlusApi.incrementObjectiveProgress(player, "example:automation", "energy", 10);
+```
+
+Both operations target a single objective, enforce its configured maximum, and reuse normal prerequisites, completion, team and reward-entitlement paths. They run synchronously on the Minecraft server thread and may raise `IOException`, `IllegalArgumentException` or `IllegalStateException`. Mutations cannot update a terminal attempt or bypass an in-progress save. An override is **administrative**: it does not prove that a real Minecraft interaction happened.
+
+Subscribe to lifecycle events with a closeable handle:
+
+```java
+AutoCloseable subscription = QuestPlusApi.onQuestCompleted(change -> {
+    // Executed on the server thread after durable completion/entitlement saving.
+    String questId = change.questId();
+});
+// Close the subscription when the integration unloads:
+subscription.close();
+```
+
+Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`, `onQuestReset` and `onQuestEvent(type, listener)`. Objective events are in-memory notifications; do not use them as an exactly-once external payment or reward ledger. The completion callback runs only after the completion transaction succeeds. Listener exceptions are logged and isolated.
+
+## Future KubeJS bridge
+
+KubeJS is **not** a QuestPlus dependency. Trusted Fabric mods can register a lifecycle adapter at initialization:
+
+```java
+QuestPlusApi.registerAdapter("example:bridge", new QuestPlusAdapters.Adapter() {
+    public void started() { /* attach to the scripting runtime */ }
+    public void definitionsReloaded() { /* refresh script-defined registrations */ }
+    public void stopped() { /* release subscriptions and script resources */ }
+});
+```
+
+Import `dev.questplus.fabric.api.QuestPlusAdapters`. Register before the server starts; the adapter is called only when installed. Use closeable event subscriptions and release them on script reload to avoid duplicate handlers. Loading scripts, exposing KubeJS events and scripting-language-specific conversion are **not implemented**; the eventual bridge must use the real compatible KubeJS API, not placeholder classes.
+
+Mod-defined callbacks should verify gameplay server-side and take care not to recursively issue the same quest mutation.
