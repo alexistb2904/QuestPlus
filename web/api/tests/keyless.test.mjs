@@ -60,7 +60,7 @@ test("a public Hub issues scoped session credentials", async () => {
 			} catch {}
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
-		assert.ok(ready, "API starts with no global key");
+		assert.ok(ready, "API starts with session authentication enabled");
 		const created = await api("/api/server/sessions", "POST", { serverName: "Independent server", files });
 		assert.equal(created.status, 201);
 		assert.match(created.data.serverToken, /^[A-Za-z0-9_-]{40,}$/);
