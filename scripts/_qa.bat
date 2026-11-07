@@ -186,12 +186,6 @@ call :STUDIO_BUILD
 if errorlevel 1 exit /b 1
 call :SETUP
 if errorlevel 1 exit /b 1
-set "HUB_SERVER_KEY="
-set /p "HUB_SERVER_KEY=" < "%ROOT%\run\questplus-web-local.key"
-if not defined HUB_SERVER_KEY (
- echo [ERROR] Local secret is missing.
- exit /b 1
-)
 set "HUB_PUBLIC_URL=http://localhost:8787"
 set "STUDIO_ORIGIN=http://localhost:8787"
 set "STUDIO_URL=http://localhost:8787/"
@@ -308,7 +302,6 @@ if errorlevel 1 (
 )
 call :SETUP
 if errorlevel 1 exit /b 1
-set /p "HUB_SERVER_KEY=" < "%ROOT%\run\questplus-web-local.key"
 set "HUB_PUBLIC_URL=http://localhost:8787"
 set "STUDIO_ORIGIN=http://localhost:8787"
 set "STUDIO_URL=http://localhost:8787/"
