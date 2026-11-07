@@ -139,7 +139,7 @@ AutoCloseable subscription = QuestPlusApi.onQuestCompleted(change -> {
 subscription.close();
 ```
 
-Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`, `onQuestReset` and `onQuestEvent(type, listener)`. Objective events are in-memory notifications; do not use them as an exactly-once external payment or reward ledger. The completion callback runs only after the completion transaction succeeds. Listener exceptions are logged and isolated.
+Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`, `onQuestReset` and `onQuestEvent(type, listener)`. Objective events are in-memory notifications. Do not use them as an exactly-once external payment or reward ledger. The completion callback runs only after the completion transaction succeeds. Listener exceptions are logged and isolated.
 
 ## Future KubeJS bridge
 
@@ -153,6 +153,6 @@ QuestPlusApi.registerAdapter("example:bridge", new QuestPlusAdapters.Adapter() {
 });
 ```
 
-Import `dev.questplus.fabric.api.QuestPlusAdapters`. Register before the server starts; the adapter is called only when installed. Use closeable event subscriptions and release them on script reload to avoid duplicate handlers. Loading scripts, exposing KubeJS events and scripting-language-specific conversion are **not implemented**; the eventual bridge must use the real compatible KubeJS API, not placeholder classes.
+Import `dev.questplus.fabric.api.QuestPlusAdapters`. Register before the server starts. The adapter is called only when installed. Use closeable event subscriptions and release them on script reload to avoid duplicate handlers. Loading scripts, exposing KubeJS events and scripting-language-specific conversion are **not implemented**. The eventual bridge must use the real compatible KubeJS API, not placeholder classes.
 
 Mod-defined callbacks should verify gameplay server-side and take care not to recursively issue the same quest mutation.
