@@ -57,7 +57,7 @@ Do not resubmit a pending publication just because a job poll was delayed. On a 
 
 The `/api/server/sessions` route creates sessions without a global shared secret and returns a random `serverToken` only to the initiating Minecraft server. Use `Authorization: Bearer <serverToken>` for subsequent `/api/server/poll`, `/api/server/approve`, `/api/server/revoke` and `/api/server/ack` requests. Tokens are scoped to their session and never sent to the browser. Browser access still requires approval from the operator who started the session.
 
-An optional `HUB_SERVER_KEY` is supported for compatibility with legacy self-hosted clients but is not needed for public deployment. Shared packs can be fetched from the public `GET /api/packs/<id>` route and still require in-game confirmation before importing.
+Shared packs can be fetched from the public `GET /api/packs/<id>` route and still require in-game confirmation before importing.
 
 These routes are a publication relay. Public pack links cannot invoke remote console commands, grant rewards or fetch player saves.
 
