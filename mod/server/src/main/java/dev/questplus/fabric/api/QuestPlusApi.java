@@ -100,6 +100,48 @@ public final class QuestPlusApi {
 		return QuestPlusAdapters.register(id, adapter);
 	}
 
+    /** Script/Java bridge: progress a single objective without spoofing gameplay actions. */
+    public static void setObjectiveProgress(ServerPlayer player, String questId, String objectiveId, long value)
+            throws IOException {
+        requireServerThread(player);
+        QuestPlusMod.runtime().setObjectiveProgress(player, questId, objectiveId, value);
+    }
+
+    public static void incrementObjectiveProgress(ServerPlayer player, String questId, String objectiveId, long amount)
+            throws IOException {
+        requireServerThread(player);
+        if (amount <= 0)
+            throw new IllegalArgumentException("Increment must be positive");
+        long current = getObjectiveProgress(player, questId, objectiveId);
+        setObjectiveProgress(player, questId, objectiveId, Math.addExact(current, amount));
+    }
+
+    /** Subscribe to server-side changes; close the handle when the integration unloads. */
+    public static AutoCloseable onQuestEvent(QuestPlusEvents.Type type,
+            java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return QuestPlusEvents.subscribe(type, listener);
+    }
+
+    public static AutoCloseable onQuestCompleted(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.QUEST_COMPLETED, listener);
+    }
+
+    public static AutoCloseable onObjectiveProgress(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, listener);
+    }
+
+    public static AutoCloseable onObjectiveCompleted(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.OBJECTIVE_COMPLETED, listener);
+    }
+
+    public static AutoCloseable onRewardClaimed(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.REWARD_CLAIMED, listener);
+    }
+
+    public static AutoCloseable onQuestReset(java.util.function.Consumer<QuestPlusEvents.Change> listener) {
+        return onQuestEvent(QuestPlusEvents.Type.QUEST_RESET, listener);
+    }
+
 	public static void submit(ServerPlayer responsible, QuestEvent event) {
 		QuestPlusMod.runtime().event(responsible, event);
 	}
