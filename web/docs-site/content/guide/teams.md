@@ -46,7 +46,7 @@ Quest completion and reward payment are different states. A pack can configure t
 
 Claim history stays attached to its beneficiary. Leaving and joining teams is not a way to reset paid rewards. If a reward is unavailable, inspect the quest and the pack's reward settings before asking an operator to reset anything.
 
-Personal stage conditions are checked against each recipient through the registered stage provider. A teammate's stages do not authorize your rewards. For stage-gated objectives, a disconnected recipient cannot be verified and receives no new entitlement; unconditional collective rewards still support offline members. Changing sharing never grants a missing entitlement retroactively.
+Personal stage conditions are checked against each recipient through the registered stage provider. A teammate's stages do not authorize your rewards. For stage-gated objectives, a disconnected recipient cannot be verified and receives no new entitlement. Unconditional collective rewards still support offline members. Changing sharing never grants a missing entitlement retroactively.
 
 ## Leave or change ownership
 
