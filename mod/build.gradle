@@ -108,6 +108,33 @@ tasks.named('deleteGameTestRunDir', Delete) {
     delete layout.buildDirectory.dir('gametest')
 }
 
+// Fabric's shared launch setup must not clean a running GameTest world for normal clients.
+afterEvaluate {
+    def acceptEula = tasks.named('acceptGameTestEula')
+    tasks.named('configureLaunch') {
+        setDependsOn(dependsOn.findAll { it != acceptEula })
+    }
+    tasks.named('runGameTest') { dependsOn acceptEula }
+    tasks.named('runClientGameTest') { dependsOn acceptEula }
+}
+
+tasks.register('verifyGameTestLaunchIsolation') {
+    group = 'verification'
+    doLast {
+        def containsTask
+        containsTask = { task, target, seen ->
+            if (!seen.add(task)) return false
+            task == target || task.taskDependencies.getDependencies(task).any { containsTask(it, target, seen) }
+        }
+        def cleanup = tasks.named('deleteGameTestRunDir').get()
+        assert !containsTask(tasks.named('runClient').get(), cleanup, [] as Set) : 'Normal client must not delete GameTest worlds'
+        ['runGameTest', 'runClientGameTest'].each { name ->
+            assert containsTask(tasks.named(name).get(), cleanup, [] as Set) : "${name} must clean its test world"
+        }
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyGameTestLaunchIsolation') }
+
 dependencies {
     gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
     gametestImplementation fabricApi.module('fabric-client-gametest-api-v1', project.fabric_version)
