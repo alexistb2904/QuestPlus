@@ -26,6 +26,11 @@ Use namespaced quest IDs such as `questplus:survival/logs`. **OP** commands requ
 | `/questplus team decline <team>`    | Decline            |
 | `/questplus team leave`             | Leave              |
 | `/questplus team kick <player>`     | Remove a player    |
+| `/questplus team promote <player>`  | Owner: make a member a manager |
+| `/questplus team demote <player>`   | Owner: make a manager a member |
+| `/questplus team revoke <player>`   | Manager/owner: cancel an invitation |
+| `/questplus team rename <name>`     | Manager/owner: rename the team |
+| `/questplus team sharing <true\|false>` | Manager/owner: enable or disable collective quest progress |
 | `/questplus team transfer <player>` | Transfer ownership |
 | `/questplus team disband`           | Disband            |
 | `/questplus team info`              | Show membership    |
