@@ -19,6 +19,9 @@ import java.util.*;
 public final class TabletPoseClient {
 	static final float TABLET_SCALE = .4f;
 	static final org.joml.Vector3f TABLET_GRIP = new org.joml.Vector3f(-11.5f / 16, 0, .2f / 16);
+	static float gripY(TabletThirdPersonAnimation.Pose frame) {
+		return 3.5f / 16 * Math.clamp(-frame.right().x() / 53, 0, 1);
+	}
 	private static final Map<UUID, PoseTime> POSES = new HashMap<>();
 	private static boolean sent;
 	private static int heartbeat;
@@ -28,6 +31,7 @@ public final class TabletPoseClient {
 	}
 
 	public static void register() {
+		registerModelCompatibility();
 		ClientPlayNetworking.registerGlobalReceiver(TabletPoseNetwork.State.TYPE,
 				(packet, ctx) -> ctx.client().execute(() -> {
 					changeLevel(ctx.client().level);
@@ -60,6 +64,29 @@ public final class TabletPoseClient {
 			if (renderer instanceof AvatarRenderer<?>avatar)
 				helper.register(new Layer(avatar));
 		});
+	}
+
+	private static void registerModelCompatibility() {
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("entity_model_features")) return;
+		try {
+			var api = Class.forName("traben.entity_model_features.EMFAnimationApi");
+			var entity = Class.forName("traben.entity_texture_features.utils.ETFEntity");
+			var uuid = entity.getMethod("etf$getUuid");
+			java.util.function.Function<Object, Boolean> holding = value -> {
+				try {
+					var id = (UUID) uuid.invoke(value);
+					if (POSES.containsKey(id)) return true;
+					var client = Minecraft.getInstance();
+					var player = client.level == null ? null : client.level.getPlayerByUUID(id);
+					return player != null && player.getMainHandItem().getItem() instanceof dev.questplus.fabric.QuestTabletItem;
+				} catch (ReflectiveOperationException error) {
+					return false;
+				}
+			};
+			api.getMethod("registerVanillaModelCondition", java.util.function.Function.class).invoke(null, holding);
+		} catch (ReflectiveOperationException | LinkageError error) {
+			dev.questplus.fabric.QuestPlusMod.LOGGER.warn("Entity Model Features tablet compatibility unavailable", error);
+		}
 	}
 
 	private static void changeLevel(Object current) {
@@ -154,7 +181,7 @@ public final class TabletPoseClient {
 		pose.scale(-TABLET_SCALE * scale.x(), TABLET_SCALE * scale.y(), TABLET_SCALE * scale.z());
 		// Scale around the grip, so the tablet edge stays inside the player's palm in
 		// every pose.
-		pose.translate(-TABLET_GRIP.x, -TABLET_GRIP.y, -TABLET_GRIP.z);
+		pose.translate(-TABLET_GRIP.x, -gripY(frame), -TABLET_GRIP.z);
 	}
 
 	static final class PoseTime {

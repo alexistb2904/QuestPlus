@@ -5,18 +5,15 @@
 	"client": [
 		"TabletPlayerPoseMixin",
 		"TabletBlurMixin",
-		"TabletFaceCaptureMixin",
 		"GameRendererAccessor",
 		"TabletGameRendererMixin",
 		"TabletGuiRendererMixin",
 		"TabletGuiExtractorMixin",
-		"TabletNativeArmsMixin",
-		"TabletVanillaHandsMixin",
-		"TabletIrisHandMixin",
 		"PunchyMovesKeyMixin",
-		"TabletFpInterpolationMixin",
 		"TabletHudMixin",
-		"TabletModelPartAccessor"
+		"TabletModelPartAccessor",
+		"TabletIrisHandMixin",
+		"TabletNativeFirstPersonMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

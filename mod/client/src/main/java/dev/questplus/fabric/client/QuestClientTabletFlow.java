@@ -7,13 +7,12 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.minecraft.world.InteractionResult;
-import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.CameraType;
 
-/** Opens the surface UI only after PAL reaches the final two-handed pose. */
+/** Opens the interactive surface after the native two-handed Blockbench animation. */
 final class QuestClientTabletFlow {
 	private enum Stage {
 		CLOSED, CARRIED, STRIKING, OPENING, HELD, CLOSING
@@ -37,7 +36,7 @@ final class QuestClientTabletFlow {
 		ClientPreAttackCallback.EVENT.register((client, player, clicks) -> {
 			if (clicks > 0 && stage == Stage.CARRIED && shouldCarry(client)) {
 				try {
-					if (FirstPersonPalBridge.play("questplus.carry_attack")) {
+					if (TabletNativeAnimation.play("questplus.carry_attack")) {
 						stage = Stage.STRIKING;
 						strikingSince = System.nanoTime();
 					}
@@ -58,8 +57,6 @@ final class QuestClientTabletFlow {
 			stop();
 			reset();
 		});
-		// FP PAL draws the Blockbench tablet and arms; avoid rendering a second HUD
-		// model.
 	}
 
 	private static InteractionResult useTablet(boolean tablet, boolean clientSide) {
@@ -99,7 +96,7 @@ final class QuestClientTabletFlow {
 		nativeHands = true;
 		stage = Stage.CARRIED;
 		try {
-			if (!FirstPersonPalBridge.play("questplus.carry")) {
+			if (!TabletNativeAnimation.play("questplus.carry")) {
 				stop();
 				reset();
 			}
@@ -142,12 +139,11 @@ final class QuestClientTabletFlow {
 
 	private static boolean tabletAvailable() {
 		var s = QuestPlusClient.settings;
-		return s != null && s.tablet && FabricLoader.getInstance().isModLoaded("fp_pal")
-				&& FabricLoader.getInstance().isModLoaded("player_animation_library");
+		return s != null && s.tablet && TabletNativeGeometry.hasScreen();
 	}
 
 	private static void open(Minecraft client) {
-		// Switch to first person before opening; FP PAL cannot draw the tablet in third
+		// Switch to first person before opening; native cannot draw the tablet in third
 		// person.
 		if (tabletAvailable() && client.options.getCameraType() != CameraType.FIRST_PERSON) {
 			previousCamera = client.options.getCameraType();
@@ -157,19 +153,19 @@ final class QuestClientTabletFlow {
 			boolean carried = shouldCarry(client);
 			openingClip = carried ? "questplus.carry_open" : "questplus.open";
 			closingClip = carried ? "questplus.carry_close" : "questplus.close";
-			// Claim first-person hands BEFORE starting FP PAL. PunchyApi.disable
+			// Claim first-person hands BEFORE starting native. PunchyApi.disable
 			// is evaluated by Punchy's renderer during the same frame and
 			// must already see this state (including the opening animation).
 			nativeHands = true;
 			if (!QuestPlusClient.settings.animatedTabletTransitions()) {
 				try {
-					if (FirstPersonPalBridge.play("questplus.idle")) {
+					if (TabletNativeAnimation.play("questplus.idle")) {
 						stage = Stage.HELD;
 						client.gui.setScreen(new QuestScreen());
 						return;
 					}
 				} catch (LinkageError | RuntimeException error) {
-					QuestPlusMod.LOGGER.warn("Cannot start FP PAL tablet idle", error);
+					QuestPlusMod.LOGGER.warn("Cannot start native tablet idle", error);
 				}
 				stop();
 				reset();
@@ -179,31 +175,26 @@ final class QuestClientTabletFlow {
 			stage = Stage.OPENING;
 			openingSince = System.nanoTime();
 			try {
-				if (FirstPersonPalBridge.play(openingClip)) {
+				if (TabletNativeAnimation.play(openingClip)) {
 					QuestPlusMod.LOGGER.info("Playing Blockbench first-person {}", openingClip);
 					return;
 				}
-				QuestPlusMod.LOGGER.warn("FP PAL could not play {}. Loaded asset: {}", openingClip,
-						FirstPersonPalBridge.loaded(openingClip));
+				QuestPlusMod.LOGGER.warn("native could not play {}. Loaded asset: {}", openingClip,
+						TabletNativeAnimation.loaded(openingClip));
 			} catch (LinkageError | RuntimeException error) {
-				QuestPlusMod.LOGGER.warn("Cannot start FP PAL animation; standard UI fallback", error);
+				QuestPlusMod.LOGGER.warn("Cannot start native animation; standard UI fallback", error);
 			}
 			nativeHands = false;
 			stage = Stage.CLOSED;
 		}
 		nativeHands = false;
 		stage = Stage.CLOSED;
-		// No PAL animation is running, so do not leave the camera overridden.
+		// No native animation is running, so do not leave the camera overridden.
 		if (previousCamera != null) {
 			client.options.setCameraType(previousCamera);
 			previousCamera = null;
 		}
-		if (QuestPlusClient.settings.tablet) {
-			QuestPlusMod.LOGGER.warn(
-					"Quest Plus has fallen back to legacy GUI: fp_pal={}, player_animation_library={}.",
-					FabricLoader.getInstance().isModLoaded("fp_pal"),
-					FabricLoader.getInstance().isModLoaded("player_animation_library"));
-		}
+		QuestPlusMod.LOGGER.warn("Quest Plus native tablet unavailable; using flat GUI fallback");
 		client.gui.setScreen(new QuestScreen());
 	}
 
@@ -224,13 +215,13 @@ final class QuestClientTabletFlow {
 		stage = Stage.CLOSING;
 		closingSince = System.nanoTime();
 		try {
-			if (!FirstPersonPalBridge.play(closingClip)) {
+			if (!TabletNativeAnimation.play(closingClip)) {
 				stop();
 				reset();
 				return;
 			}
 		} catch (LinkageError | RuntimeException error) {
-			QuestPlusMod.LOGGER.warn("Cannot play FP PAL close animation", error);
+			QuestPlusMod.LOGGER.warn("Cannot play native close animation", error);
 			stop();
 			reset();
 			return;
@@ -263,7 +254,7 @@ final class QuestClientTabletFlow {
 				reset();
 			} else if (stage == Stage.STRIKING)
 				try {
-					if (FirstPersonPalBridge.finished("questplus.carry_attack")
+					if (TabletNativeAnimation.finished("questplus.carry_attack")
 							|| System.nanoTime() - strikingSince > 1_000_000_000L)
 						carry(client);
 				} catch (LinkageError | RuntimeException error) {
@@ -277,7 +268,7 @@ final class QuestClientTabletFlow {
 			carry(client);
 			return;
 		}
-		// Recover even if a shader/FP PAL fails to supply any final frame.
+		// Recover even if a shader/native fails to supply any final frame.
 		if (stage == Stage.OPENING && System.nanoTime() - openingSince > OPEN_WATCHDOG_NANOS) {
 			QuestPlusMod.LOGGER.warn("Tablet opening animation timed out; recovering the normal GUI");
 			stop();
@@ -293,7 +284,7 @@ final class QuestClientTabletFlow {
 			reset();
 			return;
 		}
-		// Shaders can interrupt FP PAL's last frame or its callback. Never
+		// Shaders can interrupt native's last frame or its callback. Never
 		// retain the CLOSING pose indefinitely: it previously hid all HUD
 		// and inventory elements until the player reconnected.
 		if (stage == Stage.CLOSING && System.nanoTime() - closingSince > CLOSE_WATCHDOG_NANOS) {
@@ -308,7 +299,7 @@ final class QuestClientTabletFlow {
 			return;
 		}
 		try {
-			if (stage == Stage.OPENING && FirstPersonPalBridge.finished(openingClip)) {
+			if (stage == Stage.OPENING && TabletNativeAnimation.finished(openingClip)) {
 				if (client.gui.screen() != null) {
 					stop();
 					reset();
@@ -320,20 +311,20 @@ final class QuestClientTabletFlow {
 					return;
 				}
 				try {
-					if (!FirstPersonPalBridge.play("questplus.idle")) {
+					if (!TabletNativeAnimation.play("questplus.idle")) {
 						stop();
 						reset();
 						return;
 					}
 				} catch (LinkageError | RuntimeException error) {
-					QuestPlusMod.LOGGER.warn("Cannot start FP PAL tablet idle", error);
+					QuestPlusMod.LOGGER.warn("Cannot start native tablet idle", error);
 					stop();
 					reset();
 					return;
 				}
 				stage = Stage.HELD;
 				client.gui.setScreen(new QuestScreen());
-			} else if (stage == Stage.CLOSING && FirstPersonPalBridge.finished(closingClip)) {
+			} else if (stage == Stage.CLOSING && TabletNativeAnimation.finished(closingClip)) {
 				if (reopenRequested) {
 					reset();
 					open(client);
@@ -362,9 +353,9 @@ final class QuestClientTabletFlow {
 	private static void stop() {
 		if (nativeHands)
 			try {
-				FirstPersonPalBridge.stop();
+				TabletNativeAnimation.stop();
 			} catch (LinkageError | RuntimeException error) {
-				QuestPlusMod.LOGGER.warn("Cannot stop FP PAL animation", error);
+				QuestPlusMod.LOGGER.warn("Cannot stop native animation", error);
 			}
 	}
 

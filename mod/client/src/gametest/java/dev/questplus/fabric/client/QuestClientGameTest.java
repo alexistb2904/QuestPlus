@@ -18,6 +18,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if (Boolean.getBoolean("questplus.tabletThirdPersonOnly")) {
+			try (var world = context.worldBuilder().create()) {
+				context.waitFor(client -> QuestPlusClient.STATE.ready, 600);
+				remotePoseTrial(context, world.getServer());
+			}
+			return;
+		}
 		if (Boolean.getBoolean("questplus.tabletOptions")) {
 			TabletOptionsGameTest.run(context);
 			return;
@@ -128,8 +135,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					throw new AssertionError("Screen did not close");
 			});
 
-			if (FabricLoader.getInstance().isModLoaded("fp_pal")
-					&& FabricLoader.getInstance().isModLoaded("player_animation_library")) {
+			if (QuestPlusClient.settings.tablet) {
 				context.runOnClient(client -> {
 					QuestPlusClient.settings.tabletTransitions = false;
 					QuestClientTabletFlow.toggle(client);
@@ -169,22 +175,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					context.waitTicks(8);
 					context.takeScreenshot("questplus-native-" + cycle + "-opening");
 					context.runOnClient(client -> {
-						var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
-								.fpPal$getFpAnimationController();
-						double ticks = controller.getAnimationTicks();
-						FirstPersonPalBridge.prepareFrame(.1f);
-						var arm = new org.joml.Vector3f(
-								com.github.razorplay01.fp_pal.firstperson.FpRenderState.fpRightArm.rotation);
-						var tablet = new org.joml.Vector3f(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-								.getExtraBone("tablet_root").position);
-						FirstPersonPalBridge.prepareFrame(.9f);
-						if (arm.distanceSquared(
-								com.github.razorplay01.fp_pal.firstperson.FpRenderState.fpRightArm.rotation) < 1e-9
-								|| tablet.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-										.getExtraBone("tablet_root").position) < 1e-9)
-							throw new AssertionError("The arm and tablet did not move between sub-tick render samples");
-						if (controller.getAnimationTicks() != ticks)
-							throw new AssertionError("Rendering advanced the PAL animation clock");
+						var startPose = TabletFirstPersonAnimation.pose("questplus.open", .1);
+						var endPose = TabletFirstPersonAnimation.pose("questplus.open", .9);
+						if (startPose.rightRotation().equals(endPose.rightRotation())
+								|| startPose.tabletPosition().equals(endPose.tabletPosition()))
+							throw new AssertionError("Native Blockbench frames did not interpolate");
+						if (!"questplus.open".equals(TabletNativeAnimation.clip()))
+							throw new AssertionError("Unexpected native opening clip");
 					});
 					context.waitTicks(8);
 					context.takeScreenshot("questplus-native-" + cycle + "-settling");
@@ -224,8 +221,11 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 						if (!projected)
 							throw new AssertionError(
 									"No mouse coordinate projected onto the screen bone at cycle " + currentCycle);
-						screen.keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
-						screen.keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+					});
+					clickFace(context, 45, 13);
+					context.runOnClient(client -> {
+						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
+						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 					});
 					context.waitTicks(2);
 					context.takeScreenshot("questplus-native-" + cycle + "-quest-interaction");
@@ -330,7 +330,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			}
 			world.getServer().runCommand("questplus reload");
 			context.waitFor(client -> QuestPlusClient.STATE.generation >= 2, 300);
-			if (FabricLoader.getInstance().isModLoaded("fp_pal")) {
+			if (QuestPlusClient.settings.tablet) {
 				context.getInput().pressKey(InputConstants.KEY_J);
 				context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 				context.waitTicks(3);
@@ -341,9 +341,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				throw new AssertionError("Disconnected data retained");
 			if (QuestClientTabletFlow.nativeHandsActive())
 				throw new AssertionError("Disconnected tablet pose retained");
-			if (FabricLoader.getInstance().isModLoaded("fp_pal") && TabletFrameInterpolation
-					.settled(net.minecraft.resources.Identifier.parse("questplus:questplus.idle"), 0))
-				throw new AssertionError("Disconnected interpolation snapshots retained");
+			if (TabletNativeAnimation.active())
+				throw new AssertionError("Disconnected native tablet timeline retained");
 		});
 	}
 
@@ -389,8 +388,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			if (!QuestPlusClient.STATE.quests.get(id).icon().startsWith("data:image/png;base64,"))
 				throw new AssertionError("Custom quest icon was not projected");
 		});
-		boolean nativeTablet = FabricLoader.getInstance().isModLoaded("fp_pal")
-				&& FabricLoader.getInstance().isModLoaded("player_animation_library");
+		boolean nativeTablet = QuestPlusClient.settings.tablet;
 		if (nativeTablet) {
 			context.setScreen(() -> null);
 			context.getInput().pressKey(InputConstants.KEY_J);
@@ -572,7 +570,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					var field = QuestScreen.class.getDeclaredField("categoryScroll");
 					field.setAccessible(true);
 					if (field.getInt(client.gui.screen()) != 7)
-						throw new AssertionError("Category rail did not scroll through projected mouse input");
+						throw new AssertionError("Category rail did not scroll through projected mouse input: scroll="
+								+ field.getInt(client.gui.screen()) + ", target=" + point + ", pointer="
+								+ TabletFaceAnchor.pointer(client.mouseHandler.getScaledXPos(client.getWindow()),
+										client.mouseHandler.getScaledYPos(client.getWindow())));
 				} catch (ReflectiveOperationException failure) {
 					throw new AssertionError(failure);
 				}
@@ -653,6 +654,22 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.waitTicks(18);
 		context.takeScreenshot("questplus-remote-idle");
 		assertRemoteArms(context);
+		context.runOnClient(client -> {
+			var witness = client.level.getEntity(9001);
+			witness.setPos(carryView.add(8, 0, 3.2));
+			witness.setOldPosAndRot();
+			client.player.setPos(carryView.add(-.85, 0, 1.3));
+			client.player.setOldPosAndRot();
+		});
+		context.waitTicks(3);
+		context.takeScreenshot("questplus-remote-grip-front");
+		context.runOnClient(client -> {
+			client.player.setPos(carryView.add(1.15, 0, 3.2));
+			client.player.setOldPosAndRot();
+		});
+		context.getInput().lookAt(90, 0);
+		context.waitTicks(3);
+		context.takeScreenshot("questplus-remote-grip-side");
 		var side = context.computeOnClient(client -> client.player.position().add(3, 0, 3.2));
 		context.runOnClient(client -> {
 			client.player.setPos(side);
@@ -679,6 +696,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.waitTicks(18);
 		context.takeScreenshot("questplus-remote-closed");
 		assertRemoteCarry(context);
+		context.runOnClient(client -> ((net.minecraft.client.player.RemotePlayer) client.level.getEntity(9000))
+				.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY));
+		context.waitTicks(8);
+		context.takeScreenshot("questplus-remote-model-restored");
 		context.runOnClient(client -> {
 			client.level.removeEntity(9000, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 			client.level.removeEntity(9001, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);

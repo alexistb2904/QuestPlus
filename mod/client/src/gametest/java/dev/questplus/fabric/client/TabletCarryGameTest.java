@@ -92,22 +92,12 @@ final class TabletCarryGameTest {
 		context.runOnClient(QuestClientTabletFlow::toggle);
 		context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
 		context.runOnClient(client -> client.gui.screen().onClose());
-		context.waitTicks(19);
+		context.waitTicks(5);
 		context.runOnClient(client -> {
-			var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
-					.fpPal$getFpAnimationController();
-			// Several render frames can sample the held end pose before the next game tick.
-			var frame = new com.zigythebird.playeranimcore.animation.AnimationData(0, 1, true);
-			controller.setupAnim(frame);
-			controller.setupAnim(frame);
-			com.github.razorplay01.fp_pal.firstperson.FpAnimationSystem.updateRenderState(client.player);
-			if (!controller.isRunning()
-					|| controller.getAnimationState() != com.zigythebird.playeranimcore.enums.State.PAUSED
-					|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
-				throw new AssertionError("Repeated render frames discarded the held tablet pose: "
-						+ controller.getAnimationState() + " ticks=" + controller.getAnimationTicks());
+			if (!TabletNativeAnimation.active() || !"questplus.close".equals(TabletNativeAnimation.clip()))
+				throw new AssertionError("Native closing animation lost its final pose");
 		});
-		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 5);
+		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 40);
 	}
 
 	private static void emptyHandTrial(ClientGameTestContext context) {
@@ -118,13 +108,11 @@ final class TabletCarryGameTest {
 			context.runOnClient(client -> client.gui.screen().onClose());
 			if (cycle == 0) {
 				context.waitTicks(5);
-				var before = context.computeOnClient(client -> new org.joml.Vector3f(
-						com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position));
+				var before = context.computeOnClient(client -> TabletNativeAnimation.bone("tablet_root", "position"));
 				context.waitTicks(6);
 				context.runOnClient(client -> {
 					if (!QuestClientTabletFlow.closing() || !TabletSurfaceRenderer.hasSurface()
-							|| before.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-									.getExtraBone("tablet_root").position) < 1e-7)
+							|| distanceSquared(before, TabletNativeAnimation.bone("tablet_root", "position")) < 1e-7)
 						throw new AssertionError("Empty-hand close animation did not advance");
 				});
 				context.takeScreenshot("tablet-empty-hand-closing");
@@ -132,16 +120,9 @@ final class TabletCarryGameTest {
 			try {
 				context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 35);
 			} catch (AssertionError error) {
-				context.runOnClient(client -> {
-					var controller = ((com.github.razorplay01.fp_pal.accessors.IFpAnimatedPlayer) client.player)
-							.fpPal$getFpAnimationController();
-					dev.questplus.fabric.QuestPlusMod.LOGGER.error(
-							"STUCK CLOSE id={} ticks={} state={} pending={} running={} instance={} finished={} fp={}",
-							controller.getCurrentFpAnimation(), controller.getAnimationTicks(),
-							controller.getAnimationState(), controller.isPendingPlay(), controller.isRunning(),
-							controller.getCurrentAnimationInstance(), controller.hasAnimationFinished(),
-							com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive);
-				});
+				context.runOnClient(client -> dev.questplus.fabric.QuestPlusMod.LOGGER.error(
+						"STUCK NATIVE CLOSE clip={} seconds={} active={}", TabletNativeAnimation.clip(),
+						TabletNativeAnimation.seconds(), TabletNativeAnimation.active()));
 				context.takeScreenshot("tablet-stuck-close");
 				throw error;
 			}
@@ -152,8 +133,7 @@ final class TabletCarryGameTest {
 	private static void carryResetTrial(ClientGameTestContext context) {
 		context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
 		context.waitTicks(5);
-		var expected = context.computeOnClient(client -> new org.joml.Vector3f(
-				com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position));
+		var expected = context.computeOnClient(client -> TabletNativeAnimation.bone("tablet_root", "position"));
 		for (int cycle = 0; cycle < 3; cycle++) {
 			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_2);
 			context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 30);
@@ -170,19 +150,24 @@ final class TabletCarryGameTest {
 			context.waitTicks(5);
 			context.runOnClient(client -> {
 				if (!TabletNativeArms.active()
-						|| expected.distanceSquared(com.github.razorplay01.fp_pal.firstperson.FpRenderState
-								.getExtraBone("tablet_root").position) > 1e-5)
+						|| distanceSquared(expected, TabletNativeAnimation.bone("tablet_root", "position")) > 1e-5)
 					throw new AssertionError("Picking up the tablet changed its carry pose");
 			});
 		}
 		context.takeScreenshot("tablet-carried-after-slot-and-inventory");
 	}
 
+	private static double distanceSquared(TabletFirstPersonAnimation.Vector a, TabletFirstPersonAnimation.Vector b) {
+		double x = a.x() - b.x(), y = a.y() - b.y(), z = a.z() - b.z();
+		return x * x + y * y + z * z;
+	}
+
+
 	private static void firstPersonItemTrial(ClientGameTestContext context) {
 		context.getInput().lookAt(0, -45);
 		context.waitFor(
 				client -> QuestClientTabletFlow.carrying() && TabletNativeArms.active()
-						&& com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root") != null,
+						&& TabletNativeAnimation.bone("tablet_root", "position") != null,
 				120);
 		context.runOnClient(client -> client.gui.setScreen(new net.minecraft.client.gui.screens.ChatScreen("", false)));
 		context.waitTicks(5);
@@ -192,16 +177,14 @@ final class TabletCarryGameTest {
 			client.gui.setScreen(null);
 		});
 		context.waitTicks(2);
-		var before = context.computeOnClient(client -> new org.joml.Vector3f(
-				com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position));
+		var before = context.computeOnClient(client -> TabletNativeAnimation.bone("tablet_root", "position"));
 		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
 		context.waitTicks(1);
 		context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
 		context.waitFor(client -> QuestClientTabletFlow.striking(), 30);
 		context.waitTicks(2);
 		context.runOnClient(client -> {
-			if (before.distanceSquared(
-					com.github.razorplay01.fp_pal.firstperson.FpRenderState.getExtraBone("tablet_root").position) < .1)
+			if (distanceSquared(before, TabletNativeAnimation.bone("tablet_root", "position")) < .1)
 				throw new AssertionError("Left click did not move the custom tablet");
 		});
 		context.takeScreenshot("questplus-tablet-attack");
@@ -214,7 +197,7 @@ final class TabletCarryGameTest {
 				context.waitTicks(1);
 				context.runOnClient(client -> {
 					if (!QuestClientTabletFlow.nativeHandsActive() || !TabletNativeArms.active()
-							|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
+							|| !TabletNativeAnimation.active())
 						throw new AssertionError("Closing exposed a generic item frame");
 				});
 			}
@@ -233,7 +216,7 @@ final class TabletCarryGameTest {
 				context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_J);
 			context.waitFor(client -> {
 				if (!QuestClientTabletFlow.nativeHandsActive()
-						|| !com.github.razorplay01.fp_pal.firstperson.FpRenderState.isFpActive)
+						|| !TabletNativeAnimation.active())
 					throw new AssertionError("Reopening released the native tablet pose");
 				return TabletSurfaceRenderer.active();
 			}, 60);

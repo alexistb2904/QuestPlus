@@ -90,9 +90,6 @@ public final class TabletSurfaceRenderer {
 	}
 
 	public static void render() {
-		if (QuestClientTabletFlow.nativeHandsActive())
-			FirstPersonPalBridge
-					.prepareFrame(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
 		if (!active())
 			return;
 		var mc = Minecraft.getInstance();

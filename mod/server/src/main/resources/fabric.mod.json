@@ -7,9 +7,15 @@
 	"description": "Server-authoritative JSON quest engine. Independent backend preview.",
 	"environment": "*",
 	"entrypoints": {
-		"main": ["dev.questplus.fabric.QuestPlusMod"],
-		"client": ["dev.questplus.fabric.client.QuestPlusClient"],
-		"jei_mod_plugin": ["dev.questplus.fabric.client.QuestJeiPlugin"]
+		"main": [
+			"dev.questplus.fabric.QuestPlusMod"
+		],
+		"client": [
+			"dev.questplus.fabric.client.QuestPlusClient"
+		],
+		"jei_mod_plugin": [
+			"dev.questplus.fabric.client.QuestJeiPlugin"
+		]
 	},
 	"mixins": [
 		"questplus.mixins.json",
@@ -22,7 +28,9 @@
 		"fabricloader": ">=0.19.5",
 		"minecraft": "26.3",
 		"java": ">=25",
-		"fabric-api": ">=0.161.0+26.3",
+		"fabric-api": ">=0.161.0+26.3"
+	},
+	"suggests": {
 		"team_reborn_energy": ">=5.0.0"
 	}
 }

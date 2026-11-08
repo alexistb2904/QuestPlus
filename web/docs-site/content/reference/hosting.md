@@ -32,6 +32,6 @@ A new session is created without prior approval from the Hub owner. The Hub retu
 
 Only the original in-game operator can approve browser access. Their disconnect revokes the session. Sessions also expire after inactivity. Closing the browser tab does not revoke a session: use `/questplus editor revoke`.
 
-The API limits sessions, memory, concurrent requests and stored packs; busy requests may return HTTP `429` or `503`. Keep backups of the pack storage. The session queue is process-local and multiple API instances do not share state.
+The API limits sessions, memory, concurrent requests and stored packs. Busy requests may return HTTP `429` or `503`. Keep backups of the pack storage. The session queue is process-local and multiple API instances do not share state.
 
 [Publish from Studio](/guide/import-and-publish) · [HTTP reference](/reference/web-api)

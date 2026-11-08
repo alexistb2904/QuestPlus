@@ -1,9 +1,7 @@
 package dev.questplus.fabric.client;
 
-import com.github.razorplay01.fp_pal.firstperson.FpRenderBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -12,7 +10,7 @@ import net.minecraft.util.LightCoordsUtil;
 import java.lang.reflect.Proxy;
 
 /**
- * Checks actual submissions, including calls below FP PAL's public-hand guards.
+ * Checks vanilla hand submissions and the native renderer's own geometry.
  */
 final class TabletArmRenderingTest {
 
@@ -42,13 +40,18 @@ final class TabletArmRenderingTest {
 			hand.setAccessible(true);
 			hand.invoke(renderer, new PoseStack(), nodes, LightCoordsUtil.FULL_BRIGHT, skin, model.rightArm, true);
 			hand.invoke(renderer, new PoseStack(), nodes, LightCoordsUtil.FULL_BRIGHT, skin, model.leftArm, true);
-			if (tablet ? counts[1] != 0 : counts[1] != 2)
-				throw new AssertionError("Vanilla hand ownership: tablet=" + tablet + ", submissions=" + counts[1]);
+			if (counts[1] != 2)
+				throw new AssertionError("Vanilla hand submissions=" + counts[1]);
+			counts[0] = 0;
+			boolean submitted = TabletNativeFirstPersonRenderer.submit(new PoseStack(), nodes,
+					new net.minecraft.client.renderer.entity.state.AvatarRenderState());
+			if (submitted != tablet || tablet && counts[0] == 0)
+				throw new AssertionError("Native hand submissions: tablet=" + tablet + ", vertices=" + counts[0]);
 			if (tablet) {
 				for (String name : new String[] { "rightArm", "leftArm" }) {
 					counts[0] = 0;
-					TabletNativeArms.render(new PoseStack(), new PlayerAnimBone(name), model, skin,
-							LightCoordsUtil.FULL_BRIGHT, new FpRenderBuffer(nodes));
+					TabletNativeArms.render(new PoseStack(), vertices, LightCoordsUtil.FULL_BRIGHT,
+							name.equals("rightArm"), "questplus.idle", 0);
 					boolean sleeve = name.equals("rightArm") ? model.rightSleeve.visible : model.leftSleeve.visible;
 					if (counts[0] != (sleeve ? 48 : 24))
 						throw new AssertionError(

@@ -14,19 +14,16 @@ public final class TabletShaderCompat {
 	}
 
 	private static final IrisAccess IRIS = findIris();
-
-	private record HandAccess(Object instance, Method active, Method solid) {
-	}
-
+	private record HandAccess(Object instance, Method active, Method solid) {}
 	private static final HandAccess HANDS = findHands();
+
 	private static boolean warned;
 
 	private TabletShaderCompat() {
 	}
 
 	private static HandAccess findHands() {
-		if (IRIS == null)
-			return null;
+		if (IRIS == null) return null;
 		try {
 			var type = Class.forName("net.irisshaders.iris.pathways.HandRenderer", false,
 					TabletShaderCompat.class.getClassLoader());
@@ -38,13 +35,8 @@ public final class TabletShaderCompat {
 		}
 	}
 
-	/**
-	 * FP PAL submits custom geometry in both Iris hand passes; the tablet belongs
-	 * to the solid pass.
-	 */
 	public static boolean translucentHandPass() {
-		if (HANDS == null || !shadersActive())
-			return false;
+		if (HANDS == null || !shadersActive()) return false;
 		try {
 			return Boolean.TRUE.equals(HANDS.active().invoke(HANDS.instance()))
 					&& Boolean.FALSE.equals(HANDS.solid().invoke(HANDS.instance()));
@@ -56,6 +48,7 @@ public final class TabletShaderCompat {
 			return false;
 		}
 	}
+
 
 	private static IrisAccess findIris() {
 		if (!FabricLoader.getInstance().isModLoaded("iris"))

@@ -1,6 +1,5 @@
 package dev.questplus.fabric.client;
 
-import com.github.razorplay01.fp_pal.firstperson.FpGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.google.gson.JsonParser;
@@ -28,7 +27,6 @@ public final class TabletFaceAnchor {
 
 	private static final Surface SCREEN = loadScreen();
 	private static Matrix4f inverse;
-	private static FpGeoModel.Cube screenCube;
 	private static long captured;
 
 	private TabletFaceAnchor() {
@@ -40,23 +38,17 @@ public final class TabletFaceAnchor {
 
 	static void reset() {
 		inverse = null;
-		screenCube = null;
 		captured = 0;
 	}
 
-	public static void capture(PoseStack pose, FpGeoModel.Bone bone) {
-		if (!TabletSurfaceRenderer.active() || !bone.name().equals("screen") || bone.cubes().size() != 1)
-			return;
-		var cube = bone.cubes().getFirst();
+	public static void capture(PoseStack pose) {
+		if (!TabletSurfaceRenderer.active()) return;
 		var projection = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).questplus$hudProjection();
 		var matrix = projection.getMatrix(new Matrix4f()).mul(RenderSystem.getModelViewMatrixCopy())
-				.mul(pose.last().pose()).translate(cube.pivotX() / 16f, cube.pivotY() / 16f, cube.pivotZ() / 16f)
-				.rotateZ(cube.rotationZ()).rotateY(cube.rotationY()).rotateX(cube.rotationX())
-				.translate(-cube.pivotX() / 16f, -cube.pivotY() / 16f, -cube.pivotZ() / 16f);
+				.mul(pose.last().pose());
 		if (!Float.isFinite(matrix.determinant()) || Math.abs(matrix.determinant()) < 1e-9f)
 			return;
 		inverse = matrix.invert();
-		screenCube = cube;
 		captured = System.nanoTime();
 	}
 
@@ -64,15 +56,13 @@ public final class TabletFaceAnchor {
 	 * Mouse coordinates are Minecraft GUI coordinates, independent of GUI scale.
 	 */
 	public static Point pointer(double x, double y) {
-		if (inverse == null || screenCube == null || System.nanoTime() - captured > 300_000_000L)
+		if (inverse == null || System.nanoTime() - captured > 300_000_000L)
 			return null;
 		var window = Minecraft.getInstance().getWindow();
 		float nx = (float) (2 * x / window.getGuiScaledWidth() - 1),
 				ny = (float) (1 - 2 * y / window.getGuiScaledHeight());
-		float inflate = screenCube.inflate();
-		return intersect(inverse, nx, ny, (screenCube.x0() - inflate) / 16f, (screenCube.y0() - inflate) / 16f,
-				(screenCube.z0() - inflate) / 16f, (screenCube.sizeX() + 2 * inflate) / 16f,
-				(screenCube.sizeY() + 2 * inflate) / 16f);
+		return intersect(inverse, nx, ny, -SCREEN.maxX() / 16f, SCREEN.minY() / 16f,
+				SCREEN.z() / 16f, SCREEN.width() / 16f, SCREEN.height() / 16f);
 	}
 
 	/**
@@ -80,15 +70,12 @@ public final class TabletFaceAnchor {
 	 * tests.
 	 */
 	static Point windowPoint(double x, double y) {
-		if (inverse == null || screenCube == null || System.nanoTime() - captured > 300_000_000L)
+		if (inverse == null || System.nanoTime() - captured > 300_000_000L)
 			return null;
-		float inflate = screenCube.inflate();
 		var p = new Vector4f(
-				(float) (screenCube.x0() - inflate
-						+ (1 - x / TabletSurfaceRenderer.WIDTH) * (screenCube.sizeX() + 2 * inflate)) / 16f,
-				(float) (screenCube.y0() - inflate
-						+ (1 - y / TabletSurfaceRenderer.HEIGHT) * (screenCube.sizeY() + 2 * inflate)) / 16f,
-				(screenCube.z0() - inflate) / 16f, 1).mul(new Matrix4f(inverse).invert());
+				(float) ((-SCREEN.maxX() + (1 - x / TabletSurfaceRenderer.WIDTH) * SCREEN.width()) / 16f),
+				(float) ((SCREEN.minY() + (1 - y / TabletSurfaceRenderer.HEIGHT) * SCREEN.height()) / 16f),
+				SCREEN.z() / 16f, 1).mul(new Matrix4f(inverse).invert());
 		if (!Float.isFinite(p.w) || p.w <= 0)
 			return null;
 		var window = Minecraft.getInstance().getWindow();
