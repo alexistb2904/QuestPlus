@@ -5,6 +5,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TabletFirstPersonAnimationTest {
 	@Test
+	void proximityFollowsOpenAndCloseButNeverChangesCarry() {
+		assertEquals(0, TabletFirstPersonAnimation.proximityOffset("questplus.idle", 0, 100));
+		assertEquals(.18, TabletFirstPersonAnimation.proximityOffset("questplus.idle", 0, 130), 1e-6);
+		assertEquals(-.12, TabletFirstPersonAnimation.proximityOffset("questplus.idle", 0, 80), 1e-6);
+		for (String clip : new String[] { "questplus.open", "questplus.carry_open" }) {
+			assertEquals(0, TabletFirstPersonAnimation.proximityOffset(clip, 0, 130));
+			assertEquals(.18, TabletFirstPersonAnimation.proximityOffset(clip, 5, 130), 1e-6);
+		}
+		for (String clip : new String[] { "questplus.close", "questplus.carry_close" }) {
+			assertEquals(.18, TabletFirstPersonAnimation.proximityOffset(clip, 0, 130), 1e-6);
+			assertEquals(0, TabletFirstPersonAnimation.proximityOffset(clip, 5, 130));
+		}
+		assertEquals(.09, TabletFirstPersonAnimation.proximityOffset("questplus.open", .5, 130), 1e-6);
+		assertEquals(0, TabletFirstPersonAnimation.proximityOffset("questplus.carry", 0, 130));
+		assertEquals(0, TabletFirstPersonAnimation.proximityOffset("questplus.carry_attack", .1, 130));
+	}
+	@Test
 	void strikeMovesTheTabletWithTheHandAndReturnsToCarry() {
 		var carry = TabletFirstPersonAnimation.pose("questplus.carry", 0);
 		assertEquals(carry, TabletFirstPersonAnimation.pose("questplus.carry_attack", 0));

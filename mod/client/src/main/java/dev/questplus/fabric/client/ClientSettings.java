@@ -13,6 +13,7 @@ public final class ClientSettings {
 	public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
 	public boolean tabletTransitions = true;
 	public int treeResolution = 2;
+	public int tabletProximity = 100;
 	public boolean stayOpenOnDamage = false;
 	public int hudPosition = 2, notificationPosition = 1, detail = 1;
 	public boolean screenEmissive = true;
@@ -45,6 +46,9 @@ public final class ClientSettings {
 				if (settings != null)
 					settings.treeResolution = json.has("treeResolution") ? Math.clamp(settings.treeResolution, 1, 8)
 							: 2;
+				if (settings != null)
+					settings.tabletProximity = json.has("tabletProximity") ? Math.clamp(settings.tabletProximity, 80, 130)
+							: 100;
 				if (settings == null || settings.pinned == null || settings.pinned.size() > 1024
 						|| settings.hudPosition < 0 || settings.hudPosition > 8 || settings.notificationPosition < 0
 						|| settings.notificationPosition > 8 || !Double.isFinite(settings.scale) || settings.scale < 0.7

@@ -1934,6 +1934,13 @@ public final class QuestScreen extends Screen {
 			resolution.setMessage(t("tree_resolution", settings.treeResolution));
 			resolution.hoverText(t("tree_resolution_hint", TabletSurfaceRenderer.WIDTH * settings.treeResolution,
 					TabletSurfaceRenderer.HEIGHT * settings.treeResolution));
+			QuestButton proximity = button("tablet_proximity", x + w + 8, y + 7 * row, w, () -> {
+				settings.tabletProximity = settings.tabletProximity >= 130 ? 80 : settings.tabletProximity + 10;
+				settings.save();
+				init();
+			});
+			proximity.setMessage(t("tablet_proximity", settings.tabletProximity));
+			proximity.hoverText(t("tablet_proximity_hint"));
 		}
 	}
 

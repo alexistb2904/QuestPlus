@@ -93,6 +93,8 @@
 	"questplus.client.next": "Siguiente",
 	"questplus.client.tablet_transitions": "Transición de tableta",
 	"questplus.client.tree_resolution": "Resolución del árbol: %s×",
+	"questplus.client.tablet_proximity": "Proximidad de tableta: %s %%",
+	"questplus.client.tablet_proximity_hint": "Aumenta para acercar la tableta abierta y ver mejor su pantalla. 100 %%: distancia habitual.",
 	"questplus.client.tree_resolution_hint": "%s × %s px. Los valores altos mejoran la nitidez de la pantalla 3D, pero consumen más memoria gráfica. No cambia el tamaño de la interfaz. Recomendado: 2×.",
 	"questplus.client.player_name": "Nombre del jugador",
 	"questplus.client.player_uuid": "UUID del jugador",

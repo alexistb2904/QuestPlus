@@ -64,6 +64,16 @@ final class TabletFirstPersonAnimation {
 		return CLIPS.containsKey(name);
 	}
 
+	static double proximityOffset(String clip, double seconds, int proximity) {
+		double progress = switch (clip) {
+			case "questplus.idle" -> 1;
+			case "questplus.open", "questplus.carry_open" -> Math.clamp(seconds / duration(clip), 0, 1);
+			case "questplus.close", "questplus.carry_close" -> 1 - Math.clamp(seconds / duration(clip), 0, 1);
+			default -> 0;
+		};
+		return (Math.clamp(proximity, 80, 130) - 100) * .006 * progress * progress * (3 - 2 * progress);
+	}
+
 	static double duration(String name) {
 		Clip clip = CLIPS.get(name);
 		if (clip == null)

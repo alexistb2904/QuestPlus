@@ -32,6 +32,9 @@ public final class TabletNativeFirstPersonRenderer {
 		var skin = mc.player.getSkin().body().texturePath();
 
 		base.pushPose();
+		// Move the whole rig so the hands, screen and captured pointer plane stay aligned.
+		base.translate(0, 0, TabletFirstPersonAnimation.proximityOffset(clip, seconds,
+				QuestPlusClient.settings.tabletProximity));
 		// Camera-centred Blockbench rig, in the same camera frame in which vanilla submits hands.
 		base.translate(0, -.52f, -.72f);
 		base.translate(0, -9.230422f / 16f, 12.931625f / 16f);

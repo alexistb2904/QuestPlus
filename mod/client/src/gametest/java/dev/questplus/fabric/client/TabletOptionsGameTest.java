@@ -19,6 +19,17 @@ final class TabletOptionsGameTest {
 					var file = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
 					QuestPlusClient.settings.save();
 					var json = com.google.gson.JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+					json.remove("tabletProximity");
+					Files.writeString(file, json.toString());
+					if (ClientSettings.load().tabletProximity != 100)
+						throw new AssertionError("Old config must retain the original tablet distance");
+					for (int proximity : new int[] { -1, 80, 100, 130, 999 }) {
+						json.addProperty("tabletProximity", proximity);
+						Files.writeString(file, json.toString());
+						if (ClientSettings.load().tabletProximity != Math.clamp(proximity, 80, 130))
+							throw new AssertionError("Tablet proximity was not clamped");
+					}
+					json.remove("tabletProximity");
 					if (!new ClientSettings().hud)
 						throw new AssertionError("Pinned quest HUD must be enabled for new clients");
 					json.remove("hud");
@@ -33,7 +44,7 @@ final class TabletOptionsGameTest {
 					json.remove("treeResolution");
 					json.addProperty("scale", 1.25);
 					Files.writeString(file, json.toString());
-					if (ClientSettings.load().treeResolution != 6 || ClientSettings.load().scale != 1.25)
+					if (ClientSettings.load().treeResolution != new ClientSettings().treeResolution || ClientSettings.load().scale != 1.25)
 						throw new AssertionError("Old config lost preferences or new resolution default");
 					for (int value : new int[] { 0, 99 }) {
 						json.addProperty("treeResolution", value);
@@ -88,6 +99,30 @@ final class TabletOptionsGameTest {
 					throw new AssertionError("Disabling transitions removed the 3D tablet");
 			});
 			context.waitTicks(5);
+			QuestClientGameTest.clickButton(context, "settings");
+			double previousWidth = 0;
+			for (int proximity : new int[] { 80, 90, 100, 110, 120, 130 }) {
+				context.runOnClient(client -> {
+					QuestPlusClient.settings.tabletProximity = proximity;
+					((QuestScreen) client.gui.screen()).init();
+				});
+				context.waitTicks(5);
+				var left = context.computeOnClient(client -> TabletFaceAnchor.windowPoint(0, 150));
+				var right = context.computeOnClient(client -> TabletFaceAnchor.windowPoint(500, 150));
+				double screenWidth = Math.abs(right.x() - left.x());
+				if (screenWidth <= previousWidth)
+					throw new AssertionError("Increasing proximity must enlarge the projected screen");
+				previousWidth = screenWidth;
+				context.takeScreenshot("tablet-proximity-" + proximity);
+				QuestClientGameTest.clickButton(context, "tablet_proximity", proximity);
+				context.runOnClient(client -> {
+					int expected = proximity == 130 ? 80 : proximity + 10;
+					if (QuestPlusClient.settings.tabletProximity != expected || ClientSettings.load().tabletProximity != expected)
+						throw new AssertionError("Proximity button or persistence failed");
+				});
+			}
+			context.runOnClient(client -> QuestPlusClient.settings.tabletProximity = 100);
+			QuestClientGameTest.clickButton(context, "quests");
 			for (int resolution : new int[] { 1, 3, 6, 8, 2 }) {
 				context.runOnClient(client -> QuestPlusClient.settings.treeResolution = resolution);
 				context.waitTicks(3);
