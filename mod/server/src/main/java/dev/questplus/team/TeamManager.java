@@ -84,6 +84,21 @@ public final class TeamManager {
 		return teams.values().stream().filter(t -> !t.disbanded).toList();
 	}
 
+	public ProgressScope scope(UUID player) throws IOException {
+		return teamOf(player).filter(team -> team.sharedQuestProgress).isPresent()
+				? ProgressScope.TEAM : ProgressScope.PERSONAL;
+	}
+
+	public PlayerProgress progress(UUID player, ProgressScope scope) throws IOException {
+		Objects.requireNonNull(scope);
+		if (scope == ProgressScope.PERSONAL)
+			return personal(player);
+		TeamData team = requiredTeam(player);
+		if (!team.sharedQuestProgress)
+			throw new IllegalArgumentException("Shared quest progress is disabled");
+		return team.progress;
+	}
+
 	/**
 	 * Read-only view of valid invitations for one player. Expired invitations are
 	 * never advertised.
@@ -104,10 +119,7 @@ public final class TeamManager {
 
 	public Change create(UUID actor, String name) throws IOException {
 		unteamed(actor);
-		if (name == null || name.isBlank() || name.length() > 64)
-			throw new IllegalArgumentException("Team name must contain 1..64 characters");
-		if (!allowDuplicateNames && allTeams().stream().anyMatch(team -> team.name.equalsIgnoreCase(name)))
-			throw new IllegalArgumentException("A team with that name already exists");
+		validateName(name, null);
 		TeamData team = new TeamData();
 		team.id = UUID.randomUUID();
 		team.owner = actor;
@@ -120,7 +132,7 @@ public final class TeamManager {
 	}
 
 	public Change invite(UUID owner, UUID target, long now) throws IOException {
-		TeamData team = copy(owned(owner));
+		TeamData team = copy(managed(owner));
 		unteamed(target);
 		checkTime(now);
 		team.invitations.entrySet().removeIf(e -> e.getValue() <= now);
@@ -144,7 +156,8 @@ public final class TeamManager {
 		if (team.members.size() >= 64)
 			throw new IllegalArgumentException("Team member limit reached");
 		PlayerProgress player = copy(personal(actor));
-		merge(team.progress, player);
+		if (team.sharedQuestProgress)
+			merge(team.progress, player);
 		team.members.add(actor);
 		team.invitations.remove(actor);
 		player.teamId = team.id;
@@ -158,6 +171,37 @@ public final class TeamManager {
 		return change(Map.of(), team);
 	}
 
+	public Change revoke(UUID actor, UUID target) throws IOException {
+		TeamData team = copy(managed(actor));
+		if (team.invitations.remove(target) == null)
+			throw new IllegalArgumentException("Invitation missing");
+		return change(Map.of(), team);
+	}
+
+	public Change rename(UUID actor, String name) throws IOException {
+		TeamData team = copy(managed(actor));
+		validateName(name, team.id);
+		team.name = name;
+		return change(Map.of(), team);
+	}
+
+	public Change sharedQuestProgress(UUID actor, boolean enabled) throws IOException {
+		TeamData team = copy(managed(actor));
+		Map<UUID, PlayerProgress> players = new HashMap<>();
+		if (team.sharedQuestProgress != enabled)
+			for (UUID member : team.members) {
+				if (enabled)
+					merge(team.progress, personal(member));
+				else {
+					PlayerProgress progress = copy(personal(member));
+					merge(progress, team.progress, false);
+					players.put(member, progress);
+				}
+			}
+		team.sharedQuestProgress = enabled;
+		return change(players, team);
+	}
+
 	public Change leave(UUID actor) throws IOException {
 		TeamData team = copy(requiredTeam(actor));
 		if (team.owner.equals(actor))
@@ -166,19 +210,32 @@ public final class TeamManager {
 	}
 
 	public Change kick(UUID owner, UUID target) throws IOException {
-		TeamData team = copy(owned(owner));
-		if (owner.equals(target))
-			throw new IllegalArgumentException("Owner cannot kick themselves");
+		TeamData team = copy(managed(owner));
+		if (!team.role(owner).canKick(team.role(target)))
+			throw new IllegalArgumentException("Cannot kick this team member");
 		if (!team.members.contains(target))
 			throw new IllegalArgumentException("Player is not a team member");
 		return separate(team, target);
+	}
+
+	public Change setManager(UUID owner, UUID target, boolean enabled) throws IOException {
+		TeamData team = copy(owned(owner));
+		if (team.owner.equals(target) || !team.members.contains(target))
+			throw new IllegalArgumentException("Choose another team member");
+		if (enabled)
+			team.managers.add(target);
+		else
+			team.managers.remove(target);
+		return change(Map.of(), team);
 	}
 
 	public Change transfer(UUID owner, UUID target) throws IOException {
 		TeamData team = copy(owned(owner));
 		if (owner.equals(target) || !team.members.contains(target))
 			throw new IllegalArgumentException("Choose another team member as owner");
+		team.managers.add(owner);
 		team.owner = target;
+		team.managers.remove(target);
 		return change(Map.of(), team);
 	}
 
@@ -188,6 +245,7 @@ public final class TeamManager {
 		for (UUID member : team.members)
 			players.put(member, separated(team, personal(member)));
 		team.members.clear();
+		team.managers.clear();
 		team.invitations.clear();
 		team.disbanded = true;
 		return change(players, team);
@@ -196,12 +254,14 @@ public final class TeamManager {
 	private Change separate(TeamData team, UUID actor) throws IOException {
 		PlayerProgress player = separated(team, personal(actor));
 		team.members.remove(actor);
+		team.managers.remove(actor);
 		return change(Map.of(actor, player), team);
 	}
 
-	private static PlayerProgress separated(TeamData team, PlayerProgress personal) {
+	private PlayerProgress separated(TeamData team, PlayerProgress personal) {
 		PlayerProgress copy = copy(personal);
-		copy.quests = copy(team.progress).quests;
+		if (team.sharedQuestProgress)
+			merge(copy, team.progress, false);
 		copy.teamId = null;
 		return copy;
 	}
@@ -240,6 +300,21 @@ public final class TeamManager {
 		return team;
 	}
 
+	private TeamData managed(UUID actor) throws IOException {
+		TeamData team = requiredTeam(actor);
+		if (!team.role(actor).canManage())
+			throw new IllegalArgumentException("Only a team manager or owner may do this");
+		return team;
+	}
+
+	private void validateName(String name, UUID except) {
+		if (name == null || name.isBlank() || name.length() > 64 || name.chars().anyMatch(Character::isISOControl))
+			throw new IllegalArgumentException("Team name must contain 1..64 printable characters");
+		if (!allowDuplicateNames && allTeams().stream()
+				.anyMatch(team -> !team.id.equals(except) && team.name.equalsIgnoreCase(name)))
+			throw new IllegalArgumentException("A team with that name already exists");
+	}
+
 	private static void checkTime(long now) {
 		if (now < 0 || now > Long.MAX_VALUE - 300_000L)
 			throw new IllegalArgumentException("Invalid server time");
@@ -261,14 +336,20 @@ public final class TeamManager {
 		team.name = source.name;
 		team.owner = source.owner;
 		team.members.addAll(source.members);
+		team.managers.addAll(source.managers);
 		team.invitations.putAll(source.invitations);
 		team.progress = copy(source.progress);
 		team.disbanded = source.disbanded;
+		team.sharedQuestProgress = source.sharedQuestProgress;
 		team.rewardClaims.putAll(source.rewardClaims);
 		return team;
 	}
 
 	private void merge(PlayerProgress destination, PlayerProgress source) {
+		merge(destination, source, true);
+	}
+
+	private void merge(PlayerProgress destination, PlayerProgress source, boolean historical) {
 		for (var entry : source.quests.entrySet()) {
 			String id = entry.getKey();
 			var incoming = entry.getValue();
@@ -278,7 +359,7 @@ public final class TeamManager {
 				PlayerProgress temporary = new PlayerProgress();
 				temporary.quests.put(id, incoming);
 				var selected = copy(temporary).quests.get(id);
-				if (definition != null && !incoming.terminal
+				if (historical && definition != null && !incoming.terminal
 						&& !(definition.progression().equals("once") && incoming.completed) && complex(definition)) {
 					selected.counters.clear();
 					selected.tier = 0;
@@ -292,6 +373,19 @@ public final class TeamManager {
 			if (!Objects.equals(existing.fingerprint, incoming.fingerprint))
 				throw new IllegalArgumentException(
 						"Cannot merge incompatible quest progress: " + id + "; progress retained");
+			// Keep a whole attempt: counters from separate sequences must never be combined.
+			if (definition != null && complex(definition) && (incoming.cycles > existing.cycles
+					|| incoming.cycles == existing.cycles && (incoming.tier > existing.tier || !historical))) {
+				PlayerProgress temporary = new PlayerProgress();
+				temporary.quests.put(id, incoming);
+				var checkpoint = copy(temporary).quests.get(id);
+				existing.cumulative.forEach((key, value) -> checkpoint.cumulative.merge(key, value, Math::max));
+				checkpoint.reachedTiers.addAll(existing.reachedTiers);
+				checkpoint.completed |= existing.completed;
+				checkpoint.terminal |= existing.terminal;
+				destination.quests.put(id, checkpoint);
+				continue;
+			}
 			incoming.cumulative.forEach((key, value) -> existing.cumulative.merge(key, value, Math::max));
 			existing.cycles = Math.max(existing.cycles, incoming.cycles);
 			existing.tier = Math.max(existing.tier, incoming.tier);

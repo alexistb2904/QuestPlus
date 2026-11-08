@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["IAI", "PBP", "IRI"],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:amethyst_shard",
+    "P": "#minecraft:planks",
+    "B": "minecraft:book",
+    "R": "minecraft:redstone"
+  },
+  "result": { "id": "questplus:tablet", "count": 1 }
+}

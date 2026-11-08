@@ -9,6 +9,8 @@ public final class PlayerProgress {
 	public transient long revision;
 	public Map<String, String> claims = new HashMap<>();
 	public UUID teamId;
+	public long blockContributions;
+	public String lastKnownName = "";
 	public Map<String, RewardGrant> entitlements = new HashMap<>();
 	public Set<String> legacyUnclaimed = new HashSet<>();
 	public transient boolean migratedFromV1;
@@ -59,6 +61,8 @@ public final class PlayerProgress {
 		PlayerProgress copy = new PlayerProgress();
 		copy.schemaVersion = schemaVersion;
 		copy.teamId = teamId;
+		copy.blockContributions = blockContributions;
+		copy.lastKnownName = lastKnownName;
 		copy.revision = revision;
 		copy.migratedFromV1 = migratedFromV1;
 		copy.claims = new HashMap<>(claims);
@@ -93,6 +97,8 @@ public final class PlayerProgress {
 	}
 
 	public void validate() {
+		if (blockContributions < 0) throw new IllegalArgumentException("Invalid block contributions");
+		if (lastKnownName == null || lastKnownName.length() > 64) throw new IllegalArgumentException("Invalid player name");
 		if (schemaVersion != 2 || quests == null || claims == null || entitlements == null || legacyUnclaimed == null)
 			throw new IllegalArgumentException("Invalid player progress");
 		quests.forEach((id, p) -> {

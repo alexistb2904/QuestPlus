@@ -51,7 +51,7 @@ final class FtbMigrationService {
 					"Import the FTB definitions in Studio first; their source-ID mappings are required");
 		var mappings = authored.getAsJsonArray("ftbMappings");
 		var targetPlayer = runtime.player(target);
-		UUID teamId = targetPlayer.teamId;
+		UUID teamId = runtime.progressScope(target) == ProgressScope.TEAM ? targetPlayer.teamId : null;
 		var members = teamId == null ? Set.of(target) : Set.copyOf(runtime.teams().get(teamId).members);
 		Map<UUID, PlayerProgress> beforePlayers = new HashMap<>(), afterPlayers = new HashMap<>();
 		Map<UUID, TeamData> beforeTeams = new HashMap<>(), afterTeams = new HashMap<>();

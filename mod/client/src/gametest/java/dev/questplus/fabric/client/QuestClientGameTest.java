@@ -18,6 +18,17 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if(Boolean.getBoolean("questplus.boardClientTest")){dev.questplus.fabric.QuestBoardClientGameTest.run(context);return;}
+		if (Boolean.getBoolean("questplus.relayClientTest")) {
+			dev.questplus.fabric.QuestRelayClientGameTest.run(context); return;
+		}
+		if (Boolean.getBoolean("questplus.worldBlocksClientTest")) {
+			dev.questplus.fabric.QuestBlocksClientGameTest.run(context); return;
+		}
+		if (Boolean.getBoolean("questplus.teamClientTest")) {
+			TeamClientGameTest.run(context);
+			return;
+		}
 		if (Boolean.getBoolean("questplus.tabletThirdPersonOnly")) {
 			try (var world = context.worldBuilder().create()) {
 				context.waitFor(client -> QuestPlusClient.STATE.ready, 600);

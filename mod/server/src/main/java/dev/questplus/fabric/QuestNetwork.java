@@ -142,6 +142,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidate(UUID id) {
+		QuestWorldBlocks.invalidate(id);
 		DIRTY.add(id);
 		var session = SESSIONS.get(id);
 		if (session != null)
@@ -149,6 +150,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidateProgress(UUID id, Set<String> quests) {
+		QuestWorldBlocks.invalidate(id);
 		var session = SESSIONS.get(id);
 		if (session != null && session.progressDirty != null)
 			session.progressDirty.addAll(quests);
@@ -156,6 +158,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidateAll(MinecraftServer server) {
+		QuestWorldBlocks.invalidateAll();
 		server.getPlayerList().getPlayers().forEach(p -> invalidate(p.getUUID()));
 	}
 
@@ -278,7 +281,8 @@ public final class QuestNetwork {
 		}
 		packet.addProperty("generation", runtime.catalogGeneration());
 		packet.addProperty("sequence", session.sequence + 1);
-		String data = JSON.toJson(packet);
+		// Explicit null clears a departed player's team on the client.
+		String data = packet.toString();
 		if (definitions != null)
 			data = definitions + "," + data.substring(1);
 		if (data.length() > StateTransfers.MAX_MESSAGE_CHARS)
@@ -314,10 +318,15 @@ public final class QuestNetwork {
 		out.addProperty("id", team.id.toString());
 		out.addProperty("name", team.name);
 		out.addProperty("owner", team.owner.toString());
+		out.addProperty("role", team.role(viewer.getUUID()).name());
+		out.addProperty("sharedQuestProgress", team.sharedQuestProgress);
+		out.addProperty("progressScope", team.sharedQuestProgress ? "TEAM" : "PERSONAL");
+		out.addProperty("saving", QuestPlusMod.runtime().isBusy(viewer.getUUID()));
 		JsonArray members = new JsonArray();
 		team.members.stream().sorted().forEach(id -> {
 			JsonObject value = new JsonObject();
 			value.addProperty("id", id.toString());
+			value.addProperty("role", team.role(id).name());
 			ServerPlayer online = server.getPlayerList().getPlayer(id);
 			value.addProperty("online", online != null);
 			if (online != null)
@@ -328,11 +337,16 @@ public final class QuestNetwork {
 		});
 		out.add("members", members);
 		JsonArray sent = new JsonArray();
-		if (team.owner.equals(viewer.getUUID()))
+		if (team.role(viewer.getUUID()).canManage())
 			team.invitations.entrySet().stream().filter(e -> e.getValue() > System.currentTimeMillis())
 					.sorted(Map.Entry.comparingByKey()).forEach(e -> {
 						JsonObject value = new JsonObject();
 						value.addProperty("id", e.getKey().toString());
+						server.services().nameToIdCache().get(e.getKey())
+								.ifPresent(profile -> value.addProperty("name", profile.name()));
+						var online = server.getPlayerList().getPlayer(e.getKey());
+						if (online != null)
+							value.addProperty("name", online.getGameProfile().name());
 						value.addProperty("expiresAt", e.getValue());
 						sent.add(value);
 					});
@@ -430,7 +444,8 @@ public final class QuestNetwork {
 				runtime.mutate(actor, value, "restart");
 			}
 			case "trigger" -> runtime.interactObjective(player, value, null);
-			case "create", "invite", "join", "decline", "leave", "kick", "transfer", "disband" -> {
+			case "create", "invite", "join", "decline", "leave", "kick", "promote", "demote", "transfer", "disband",
+					"revoke", "rename", "share_on", "share_off" -> {
 				runtime.changeTeam(m -> switch (request.action()) {
 				case "create" -> m.create(actor, value);
 				case "invite" -> m.invite(actor, QuestCommands.resolvePlayer(player.level().getServer(), value), now);
@@ -438,6 +453,12 @@ public final class QuestNetwork {
 				case "decline" -> m.decline(actor, UUID.fromString(value));
 				case "leave" -> m.leave(actor);
 				case "kick" -> m.kick(actor, UUID.fromString(value));
+				case "promote" -> m.setManager(actor, UUID.fromString(value), true);
+				case "demote" -> m.setManager(actor, UUID.fromString(value), false);
+				case "revoke" -> m.revoke(actor, UUID.fromString(value));
+				case "rename" -> m.rename(actor, value);
+				case "share_on" -> m.sharedQuestProgress(actor, true);
+				case "share_off" -> m.sharedQuestProgress(actor, false);
 				case "transfer" -> m.transfer(actor, UUID.fromString(value));
 				default -> m.disband(actor);
 				}).whenComplete((ok, ex) -> {

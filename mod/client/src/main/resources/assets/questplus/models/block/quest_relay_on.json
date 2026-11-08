@@ -1,0 +1,2837 @@
+{
+  "textures": {
+    "utility": "questplus:block/quest_relay",
+    "particle": "questplus:block/quest_relay"
+  },
+  "elements": [
+    {
+      "name": "stone_base",
+      "from": [
+        1,
+        0.1,
+        1
+      ],
+      "to": [
+        15,
+        2.2,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            4.525
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            4.525
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            4.525
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            4.525
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            7.5
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            3.5,
+            7.5
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "dark_iron_chassis",
+      "from": [
+        1.2,
+        2,
+        1.2
+      ],
+      "to": [
+        14.8,
+        6.45,
+        14.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            1.1125
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            1.1125
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            1.1125
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            1.1125
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            3.4
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            11.4,
+            3.4
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "timber_lid",
+      "from": [
+        1,
+        6.3,
+        1
+      ],
+      "to": [
+        15,
+        7.8,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            0.375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            0.375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            0.375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            0.375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            3.5
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            3.5,
+            3.5
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "slate_top_inset",
+      "from": [
+        3.3,
+        7.85,
+        3.3
+      ],
+      "to": [
+        12.7,
+        7.98,
+        12.7
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            4.0325
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            4.0325
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            4.0325
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            4.0325
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            6.35
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            4.0,
+            10.35,
+            6.35
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "inlay_frame_north",
+      "from": [
+        3,
+        7.8,
+        2.5
+      ],
+      "to": [
+        13,
+        8,
+        3.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.175
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.175
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "inlay_frame_south",
+      "from": [
+        3,
+        7.8,
+        12.8
+      ],
+      "to": [
+        13,
+        8,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.175
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            6.5,
+            4.175
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "inlay_frame_west",
+      "from": [
+        2.5,
+        7.8,
+        3.2
+      ],
+      "to": [
+        3.2,
+        8,
+        12.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            6.4,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            6.4,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            6.4
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            6.4
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "inlay_frame_east",
+      "from": [
+        12.8,
+        7.8,
+        3.2
+      ],
+      "to": [
+        13.5,
+        8,
+        12.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            6.4,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            6.4,
+            4.05
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            6.4
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.175,
+            6.4
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_foot_0.5_0.5",
+      "from": [
+        0.5,
+        0,
+        0.5
+      ],
+      "to": [
+        3.5,
+        2.6,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_cap_0.5_0.5",
+      "from": [
+        0.5,
+        6,
+        0.5
+      ],
+      "to": [
+        3.5,
+        8.25,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "corner_dark_band_0.5_0.5",
+      "from": [
+        0.6,
+        2.6,
+        0.6
+      ],
+      "to": [
+        3.4,
+        6,
+        3.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_corner_inlay_0.5_0.5",
+      "from": [
+        1.4,
+        8.25,
+        1.4
+      ],
+      "to": [
+        2.6,
+        8.4,
+        2.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_foot_0.5_12.5",
+      "from": [
+        0.5,
+        0,
+        12.5
+      ],
+      "to": [
+        3.5,
+        2.6,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_cap_0.5_12.5",
+      "from": [
+        0.5,
+        6,
+        12.5
+      ],
+      "to": [
+        3.5,
+        8.25,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "corner_dark_band_0.5_12.5",
+      "from": [
+        0.6,
+        2.6,
+        12.6
+      ],
+      "to": [
+        3.4,
+        6,
+        15.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_corner_inlay_0.5_12.5",
+      "from": [
+        1.4,
+        8.25,
+        13.4
+      ],
+      "to": [
+        2.6,
+        8.4,
+        14.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_foot_12.5_0.5",
+      "from": [
+        12.5,
+        0,
+        0.5
+      ],
+      "to": [
+        15.5,
+        2.6,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_cap_12.5_0.5",
+      "from": [
+        12.5,
+        6,
+        0.5
+      ],
+      "to": [
+        15.5,
+        8.25,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "corner_dark_band_12.5_0.5",
+      "from": [
+        12.6,
+        2.6,
+        0.6
+      ],
+      "to": [
+        15.4,
+        6,
+        3.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_corner_inlay_12.5_0.5",
+      "from": [
+        13.4,
+        8.25,
+        1.4
+      ],
+      "to": [
+        14.6,
+        8.4,
+        2.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_foot_12.5_12.5",
+      "from": [
+        12.5,
+        0,
+        12.5
+      ],
+      "to": [
+        15.5,
+        2.6,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.65
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_corner_cap_12.5_12.5",
+      "from": [
+        12.5,
+        6,
+        12.5
+      ],
+      "to": [
+        15.5,
+        8.25,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.5625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "corner_dark_band_12.5_12.5",
+      "from": [
+        12.6,
+        2.6,
+        12.6
+      ],
+      "to": [
+        15.4,
+        6,
+        15.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.85
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.7,
+            0.7
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_corner_inlay_12.5_12.5",
+      "from": [
+        13.4,
+        8.25,
+        13.4
+      ],
+      "to": [
+        14.6,
+        8.4,
+        14.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.0375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            12.0,
+            0.3,
+            12.3
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "front_lamp_bezel",
+      "from": [
+        5,
+        1,
+        0.6
+      ],
+      "to": [
+        11,
+        6.15,
+        1.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            5.5,
+            5.2875
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.15,
+            5.2875
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            5.5,
+            5.2875
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.15,
+            5.2875
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            5.5,
+            4.15
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            5.5,
+            4.15
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "front_lamp_recess",
+      "from": [
+        5.6,
+        1.6,
+        0.35
+      ],
+      "to": [
+        10.4,
+        5.6,
+        0.65
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            4.0,
+            13.2,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            4.0,
+            12.075,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            4.0,
+            13.2,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            4.0,
+            12.075,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            4.0,
+            13.2,
+            4.075
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            4.0,
+            13.2,
+            4.075
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "front_signal_lens",
+      "from": [
+        6,
+        2,
+        0.18
+      ],
+      "to": [
+        10,
+        5.2,
+        0.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "back_socket_bezel",
+      "from": [
+        5,
+        2.15,
+        14.65
+      ],
+      "to": [
+        11,
+        5.8,
+        15.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            1.5,
+            4.9125
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            0.1375,
+            4.9125
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            1.5,
+            4.9125
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            0.1375,
+            4.9125
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            1.5,
+            4.1375
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            1.5,
+            4.1375
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "back_socket",
+      "from": [
+        6,
+        3,
+        15.2
+      ],
+      "to": [
+        10,
+        4.8,
+        15.35
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            4.45
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            4.0,
+            12.0375,
+            4.45
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            4.45
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            4.0,
+            12.0375,
+            4.45
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            4.0375
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            4.0,
+            13.0,
+            4.0375
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_stone_west",
+      "from": [
+        0.55,
+        1,
+        3.5
+      ],
+      "to": [
+        1.25,
+        2.5,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            2.25,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            2.25,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            6.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            6.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_iron_band_west",
+      "from": [
+        0.45,
+        3.1,
+        3.2
+      ],
+      "to": [
+        1.35,
+        4.4,
+        12.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            10.4,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            10.4,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            2.4
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            2.4
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_redstone_west",
+      "from": [
+        0.4,
+        2.1,
+        7.2
+      ],
+      "to": [
+        1.4,
+        5.9,
+        8.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "redstone_trace_west",
+      "from": [
+        0.35,
+        2.2,
+        7.5
+      ],
+      "to": [
+        1.45,
+        2.9,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            8.0,
+            4.875,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            8.0,
+            4.875,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.875
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.875
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "contact_bezel_west",
+      "from": [
+        0.3,
+        1.65,
+        10.1
+      ],
+      "to": [
+        1.5,
+        3.5,
+        12.1
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.5,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.5,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.5
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.5
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "contact_lens_west",
+      "from": [
+        0.25,
+        2.05,
+        10.5
+      ],
+      "to": [
+        1.55,
+        3.1,
+        11.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_stone_east",
+      "from": [
+        14.75,
+        1,
+        3.5
+      ],
+      "to": [
+        15.45,
+        2.5,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            2.25,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            2.25,
+            4.375
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            6.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            0.175,
+            6.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_iron_band_east",
+      "from": [
+        14.65,
+        3.1,
+        3.2
+      ],
+      "to": [
+        15.55,
+        4.4,
+        12.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            0.0,
+            10.4,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            0.0,
+            10.4,
+            0.325
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            2.4
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            8.225,
+            2.4
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "side_redstone_east",
+      "from": [
+        14.6,
+        2.1,
+        7.2
+      ],
+      "to": [
+        15.6,
+        5.9,
+        8.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.95
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            8.0,
+            4.25,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "redstone_trace_east",
+      "from": [
+        14.55,
+        2.2,
+        7.5
+      ],
+      "to": [
+        15.65,
+        2.9,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            8.0,
+            4.875,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            8.0,
+            4.875,
+            8.175
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.875
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            8.0,
+            4.275,
+            8.875
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "contact_bezel_east",
+      "from": [
+        14.5,
+        1.65,
+        10.1
+      ],
+      "to": [
+        15.7,
+        3.5,
+        12.1
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.5,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.5,
+            4.4625
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.5
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.3,
+            4.5
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "contact_lens_east",
+      "from": [
+        14.45,
+        2.05,
+        10.5
+      ],
+      "to": [
+        15.75,
+        3.1,
+        11.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#utility"
+        }
+      }
+    }
+  ]
+}

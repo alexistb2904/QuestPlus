@@ -57,6 +57,188 @@ class TeamManagerTest {
 	}
 
 	@Test
+	void gradePermissionsCoverEveryActorAndTarget() {
+		assertFalse(TeamRole.MEMBER.canManage());
+		assertTrue(TeamRole.MANAGER.canManage());
+		assertTrue(TeamRole.OWNER.canManage());
+		for (TeamRole actor : TeamRole.values()) {
+			assertFalse(actor.canKick(TeamRole.OWNER));
+			assertEquals(actor == TeamRole.OWNER, actor.canKick(TeamRole.MANAGER));
+			assertEquals(actor != TeamRole.MEMBER, actor.canKick(TeamRole.MEMBER));
+		}
+	}
+
+	@Test
+	void sharingToggleCheckpointsPersonalStateAndMergesWithoutRewards() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var registry = registry();
+			Map<UUID, PlayerProgress> cache = new HashMap<>();
+			cache.put(a, progress(registry, 1, 0));
+			cache.put(b, progress(registry, 0, 1));
+			cache.get(b).claims.put(QUEST, "delivered");
+			var manager = new TeamManager(store, registry, cache);
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			assertEquals(ProgressScope.TEAM, manager.scope(a));
+			assertSame(manager.progress(a, ProgressScope.TEAM), manager.progress(b, ProgressScope.TEAM));
+			assertThrows(IllegalArgumentException.class, () -> manager.sharedQuestProgress(b, false));
+			var disable = manager.sharedQuestProgress(a, false);
+			assertTrue(manager.get(team).sharedQuestProgress);
+			assertEquals(0L, cache.get(b).quests.get(QUEST).counters.get("stone"));
+			commit(store, manager, disable);
+			assertEquals(ProgressScope.PERSONAL, manager.scope(b));
+			assertEquals(team, cache.get(b).teamId);
+			assertThrows(IllegalArgumentException.class, () -> manager.progress(b, ProgressScope.TEAM));
+			cache.get(a).quests.get(QUEST).counters.put("stone", 2L);
+			cache.get(b).quests.get(QUEST).counters.put("logs", 2L);
+			assertEquals(1L, cache.get(b).quests.get(QUEST).counters.get("stone"));
+			assertEquals(1L, manager.get(team).progress.quests.get(QUEST).counters.get("stone"));
+			commit(store, manager, manager.sharedQuestProgress(a, true));
+			assertTrue(manager.get(team).progress.quests.get(QUEST).completed);
+			assertTrue(manager.get(team).progress.entitlements.isEmpty());
+			assertTrue(cache.get(a).entitlements.isEmpty());
+			assertEquals("delivered", cache.get(b).claims.get(QUEST));
+			for (int i = 0; i < 3; i++) {
+				commit(store, manager, manager.sharedQuestProgress(a, false));
+				commit(store, manager, manager.sharedQuestProgress(a, true));
+			}
+			assertTrue(cache.get(a).entitlements.isEmpty());
+			assertEquals("delivered", cache.get(b).claims.get(QUEST));
+		}
+	}
+
+	@Test
+	void joiningLeavingAndDisbandingAnUnsharedTeamPreserveIndependentQuests() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var registry = registry();
+			Map<UUID, PlayerProgress> cache = new HashMap<>();
+			cache.put(a, progress(registry, 2, 0));
+			cache.put(b, progress(registry, 0, 1));
+			var manager = new TeamManager(store, registry, cache);
+			UUID team = create(store, manager);
+			commit(store, manager, manager.sharedQuestProgress(a, false));
+			join(store, manager, team, b);
+			assertEquals(Map.of("stone", 0L, "logs", 1L), cache.get(b).quests.get(QUEST).counters);
+			assertEquals(0L, manager.get(team).progress.quests.get(QUEST).counters.get("logs"));
+			commit(store, manager, manager.kick(a, b));
+			assertEquals(Map.of("stone", 0L, "logs", 1L), cache.get(b).quests.get(QUEST).counters);
+			join(store, manager, team, b);
+			commit(store, manager, manager.disband(a));
+			assertNull(cache.get(a).teamId);
+			assertNull(cache.get(b).teamId);
+			assertEquals(0L, cache.get(b).quests.get(QUEST).counters.get("stone"));
+		}
+	}
+
+	@Test
+	void managersManageSettingsAndInvitesButOwnerAloneChangesGrades() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var manager = new TeamManager(store, registry(), new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+			commit(store, manager, manager.rename(b, "Renamed"));
+			commit(store, manager, manager.sharedQuestProgress(b, false));
+			commit(store, manager, manager.invite(b, c, 1_000));
+			commit(store, manager, manager.revoke(b, c));
+			assertTrue(manager.invitationsFor(c, 1_001).isEmpty());
+			assertThrows(IllegalArgumentException.class, () -> manager.join(c, team, 1_001));
+			assertThrows(IllegalArgumentException.class, () -> manager.rename(c, "Intruder"));
+			assertThrows(IllegalArgumentException.class, () -> manager.sharedQuestProgress(c, true));
+			assertThrows(IllegalArgumentException.class, () -> manager.setManager(b, a, false));
+			commit(store, manager, manager.setManager(a, b, false));
+			assertThrows(IllegalArgumentException.class, () -> manager.invite(b, c, 1_000));
+			assertEquals(TeamRole.MEMBER, manager.get(team).role(b));
+			commit(store, manager, manager.transfer(a, b));
+			assertEquals(TeamRole.OWNER, manager.get(team).role(b));
+			assertEquals(TeamRole.MANAGER, manager.get(team).role(a));
+			assertThrows(IllegalArgumentException.class, () -> manager.setManager(b, b, false));
+		}
+	}
+
+	@Test
+	void settingsAndGradesRoundTripAndRejectMalformedSavedOptions() throws Exception {
+		Path data = root.resolve("data");
+		var registry = registry();
+		UUID team;
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, registry, new HashMap<>());
+			team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+			commit(store, manager, manager.sharedQuestProgress(b, false));
+			commit(store, manager, manager.rename(b, "Saved"));
+		}
+		Path file = data.resolve("teams/" + team + ".json");
+		String valid = Files.readString(file);
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, registry, new HashMap<>());
+			assertEquals(ProgressScope.PERSONAL, manager.scope(b));
+			assertEquals("Saved", manager.get(team).name);
+			assertEquals(TeamRole.MANAGER, manager.get(team).role(b));
+		}
+		var json = com.google.gson.JsonParser.parseString(valid).getAsJsonObject();
+		json.addProperty("sharedQuestProgress", "false");
+		Files.writeString(file, json.toString());
+		try (var store = new JsonProgressStore(data)) {
+			assertThrows(java.io.IOException.class, store::loadTeams);
+		}
+	}
+
+	@Test
+	void failedSharingMergeLeavesBothHistoriesAndModeUnchanged() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var registry = registry();
+			Map<UUID, PlayerProgress> cache = new HashMap<>();
+			cache.put(a, progress(registry, 1, 0));
+			var manager = new TeamManager(store, registry, cache);
+			UUID team = create(store, manager);
+			commit(store, manager, manager.sharedQuestProgress(a, false));
+			cache.get(a).quests.get(QUEST).fingerprint = "different";
+			assertThrows(IllegalArgumentException.class, () -> manager.sharedQuestProgress(a, true));
+			assertFalse(manager.get(team).sharedQuestProgress);
+			assertEquals("different", cache.get(a).quests.get(QUEST).fingerprint);
+			assertEquals(registry.get(QUEST).fingerprint(), manager.get(team).progress.quests.get(QUEST).fingerprint);
+		}
+	}
+
+	@Test
+	void managersCanInviteAndKickMembersButNotManagersOrOwner() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var manager = new TeamManager(store, registry(), new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+			commit(store, manager, manager.invite(b, c, 1_000));
+			commit(store, manager, manager.join(c, team, 1_001));
+			assertThrows(IllegalArgumentException.class, () -> manager.kick(b, a));
+			assertThrows(IllegalArgumentException.class, () -> manager.transfer(b, c));
+			assertThrows(IllegalArgumentException.class, () -> manager.disband(b));
+			assertThrows(IllegalArgumentException.class, () -> manager.setManager(b, c, true));
+			commit(store, manager, manager.kick(b, c));
+			assertTrue(manager.teamOf(c).isEmpty());
+		}
+	}
+
+	@Test
+	void managerRoleSurvivesRestartAndIsRemovedWhenMemberLeaves() throws Exception {
+		Path data = root.resolve("data");
+		var definitions = registry();
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, definitions, new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+		}
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, definitions, new HashMap<>());
+			commit(store, manager, manager.invite(b, c, 5_000));
+			commit(store, manager, manager.leave(b));
+			assertFalse(manager.teamOf(a).orElseThrow().managers.contains(b));
+		}
+	}
+
+	@Test
 	void duplicateNamesRespectPolicyAndIgnoreDisbandedTeams() throws Exception {
 		try (var store = new JsonProgressStore(root.resolve("data"))) {
 			var manager = new TeamManager(store, registry(), new HashMap<>());
@@ -224,6 +406,99 @@ class TeamManagerTest {
 		}
 		try (var store = new JsonProgressStore(data)) {
 			assertThrows(java.io.IOException.class, () -> new TeamManager(store, registry, new HashMap<>()));
+		}
+	}
+
+	@Test
+	void disablingSharingKeepsTheCurrentSequenceAttemptForEveryMember() throws Exception {
+		registry();
+		Path definition = root.resolve("definitions/work.json");
+		Files.writeString(definition, Files.readString(definition).replace("\"schemaVersion\":1",
+				"\"schemaVersion\":2,\"objectiveMode\":\"sequence\""));
+		var registry = QuestRegistry.load(definition.getParent(), (kind, id) -> {});
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			Map<UUID, PlayerProgress> cache = new HashMap<>();
+			cache.put(a, progress(registry, 0, 0));
+			var manager = new TeamManager(store, registry, cache);
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			var shared = manager.get(team).progress.quests.get(QUEST);
+			shared.counters.put("stone", 2L);
+			shared.counters.put("logs", 1L);
+			String attempt = UUID.randomUUID().toString();
+			shared.attemptId = attempt;
+			shared.startedAt = 5_000;
+			commit(store, manager, manager.sharedQuestProgress(a, false));
+			for (UUID member : List.of(a, b)) {
+				var checkpoint = cache.get(member).quests.get(QUEST);
+				assertEquals(Map.of("stone", 2L, "logs", 1L), checkpoint.counters);
+				assertEquals(attempt, checkpoint.attemptId);
+				assertEquals(5_000, checkpoint.startedAt);
+				assertNotSame(shared.counters, checkpoint.counters);
+			}
+			commit(store, manager, manager.sharedQuestProgress(a, true));
+			assertEquals(attempt, manager.get(team).progress.quests.get(QUEST).attemptId);
+			assertTrue(cache.get(a).entitlements.isEmpty());
+			assertTrue(cache.get(b).entitlements.isEmpty());
+		}
+	}
+
+	@Test
+	void tierCheckpointAndReenableKeepMilestonesWithoutReissuingEarlierAwards() throws Exception {
+		registry();
+		Path definition = root.resolve("definitions/work.json");
+		Files.writeString(definition, """
+				{"schemaVersion":2,"id":"questplus:work","category":"questplus:general","icon":"minecraft:stone",
+				 "title":{"en_us":"Tiers"},"progression":"tiered","objectives":[{"id":"stone","event":"block_break","target":"minecraft:stone","count":1}],
+				 "rewards":[],"tiers":[{"id":"first","threshold":1,"rewards":[]},{"id":"second","threshold":3,"rewards":[]},
+				 {"id":"last","threshold":5,"rewards":[]}]}
+				""");
+		var registry = QuestRegistry.load(definition.getParent(), (kind, id) -> {});
+		var engine = new QuestEngine(registry);
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			Map<UUID, PlayerProgress> cache = new HashMap<>();
+			var manager = new TeamManager(store, registry, cache);
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			var event = new QuestEvent("block_break", "minecraft:stone", Set.of(), 2, Map.of("time", 1_000L));
+			assertEquals(1, engine.applyDetailed(manager.get(team).progress, event).size());
+			String attempt = manager.get(team).progress.quests.get(QUEST).attemptId;
+			commit(store, manager, manager.sharedQuestProgress(a, false));
+			for (UUID member : List.of(a, b)) {
+				var checkpoint = cache.get(member).quests.get(QUEST);
+				assertEquals(1, checkpoint.tier);
+				assertEquals(2L, checkpoint.counters.get("stone"));
+				assertEquals(attempt, checkpoint.attemptId);
+			}
+			var next = engine.applyDetailed(cache.get(b), new QuestEvent("block_break", "minecraft:stone", Set.of(), 1,
+					Map.of("time", 2_000L)));
+			assertEquals(List.of(QUEST + "|" + attempt + "|second"), next.stream().map(QuestEngine.Completion::key).toList());
+			commit(store, manager, manager.sharedQuestProgress(a, true));
+			assertEquals(2, manager.get(team).progress.quests.get(QUEST).tier);
+			assertEquals(3L, manager.get(team).progress.quests.get(QUEST).counters.get("stone"));
+			var finalAwards = engine.applyDetailed(manager.get(team).progress,
+					new QuestEvent("block_break", "minecraft:stone", Set.of(), 2, Map.of("time", 3_000L)));
+			assertEquals(List.of(QUEST + "|" + attempt + "|last"), finalAwards.stream().map(QuestEngine.Completion::key).toList());
+			assertTrue(manager.get(team).progress.quests.get(QUEST).terminal);
+		}
+	}
+
+	@Test
+	void failedWriteNeverAppliesSharingOrRoleChanges() throws Exception {
+		var store = new JsonProgressStore(root.resolve("data"));
+		try (store) {
+			var manager = new TeamManager(store, registry(), new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			var sharing = manager.sharedQuestProgress(a, false);
+			var promotion = manager.setManager(a, b, true);
+			store.close();
+			assertThrows(java.util.concurrent.CompletionException.class,
+					() -> store.transaction(sharing.players(), sharing.teams()).join());
+			assertThrows(java.util.concurrent.CompletionException.class,
+					() -> store.transaction(promotion.players(), promotion.teams()).join());
+			assertTrue(manager.get(team).sharedQuestProgress);
+			assertEquals(TeamRole.MEMBER, manager.get(team).role(b));
 		}
 	}
 

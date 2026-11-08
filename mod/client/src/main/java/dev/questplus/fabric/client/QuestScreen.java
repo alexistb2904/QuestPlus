@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.questplus.clientmodel.*;
 import dev.questplus.core.QuestDefinition;
 import dev.questplus.clientdata.QuestPresentation;
+import dev.questplus.team.TeamRole;
 import dev.questplus.fabric.client.ui.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
@@ -39,6 +40,7 @@ public final class QuestScreen extends Screen {
 	private boolean rewardView, potentialRewards;
 	private int rewardPage, selectedOption = -1, choiceSlot = -1, playerScroll;
 	private boolean playerPicker;
+	private boolean teamOptions;
 	private String choiceToken;
 	private long pendingChoiceAt, rewardRevealAt;
 	private String rewardRevealKey;
@@ -397,8 +399,11 @@ public final class QuestScreen extends Screen {
 			sequence = state.sequence;
 			updateClaimAll();
 			if (tab.equals("team")
-					&& (!Objects.equals(lastTeam, state.team) || !Objects.equals(lastInvitations, state.invitations)))
+					&& (!Objects.equals(lastTeam, state.team) || !Objects.equals(lastInvitations, state.invitations))) {
+				confirmation = null;
+				playerPicker = false;
 				init();
+			}
 			else if (tab.equals("quests") && selected != null) {
 				if (rewardView)
 					init();
@@ -1601,16 +1606,33 @@ public final class QuestScreen extends Screen {
 	}
 
 	private void teamWidgets() {
+		input = null;
 		lastTeam = state.team;
 		lastInvitations = state.invitations;
 		int x = left + 14, y = top + 40, w = right - left - 28;
+		if (confirmation != null) {
+			String[] parts = confirmation.split("\n", 2);
+			button("confirm", right - 170, top + 90, 74, () -> {
+				action(parts[0], parts[1]);
+				confirmation = null;
+				init();
+			});
+			button("cancel", right - 90, top + 90, 76, () -> {
+				confirmation = null;
+				init();
+			});
+			return;
+		}
 		if (state.team == null) {
+			teamOptions = false;
 			input = addRenderableWidget(new QuestTextField(font, x, y, w - 85, 18, t("team_name")));
 			input.setMaxLength(64);
 			input.setHint(t("team_name"));
 			button("create", right - 90, y, 76, () -> action("create", input.getValue()));
 			y += 30;
 			int capacity = Math.max(1, (bottom - y - 38) / 25), start = teamPage * capacity;
+			teamPage = Math.clamp(teamPage, 0, Math.max(0, (state.invitations.size() - 1) / capacity));
+			start = teamPage * capacity;
 			for (int i = start; i < Math.min(state.invitations.size(), start + capacity); i++) {
 				var invitation = state.invitations.get(i).getAsJsonObject();
 				String id = invitation.get("id").getAsString();
@@ -1621,8 +1643,35 @@ public final class QuestScreen extends Screen {
 			if (state.invitations.size() > capacity)
 				pages(capacity, state.invitations.size());
 		} else {
-			boolean owner = state.team.get("owner").getAsString().equals(minecraft.player.getUUID().toString());
-			if (owner) {
+			TeamRole role = teamRole();
+			boolean owner = role == TeamRole.OWNER;
+			teamOptions &= role.canManage();
+			if (role.canManage())
+				button(teamOptions ? "back" : "team_options", x, top + 24, 112, () -> {
+					teamOptions = !teamOptions;
+					teamPage = 0;
+					playerPicker = false;
+					init();
+				});
+			if (teamOptions) {
+				input = addRenderableWidget(new QuestTextField(font, x, top + 69, w - 85, 18, t("team_name")));
+				input.setMaxLength(64);
+				input.setValue(state.team.get("name").getAsString());
+				button("rename", right - 90, top + 69, 76, () -> action("rename", input.getValue()));
+				boolean shared = QuestClientState.flag(state.team, "sharedQuestProgress");
+				button(shared ? "sharing_on" : "sharing_off", x, top + 98, w,
+						() -> confirm(shared ? "share_off" : "share_on", ""));
+				var invitations = state.team.getAsJsonArray("invitations");
+				int capacity = Math.max(1, (bottom - top - 175) / 23);
+				teamPage = Math.clamp(teamPage, 0, Math.max(0, (invitations.size() - 1) / capacity));
+				int start = teamPage * capacity;
+				for (int i = start; i < Math.min(invitations.size(), start + capacity); i++) {
+					String id = invitations.get(i).getAsJsonObject().get("id").getAsString();
+					button("revoke", right - 104, top + 151 + (i - start) * 23, 90, () -> action("revoke", id));
+				}
+				if (invitations.size() > capacity)
+					pages(capacity, invitations.size());
+			} else if (role.canManage()) {
 				input = addRenderableWidget(new QuestTextField(font, x, top + 69, w - 85, 18, t("player_name")));
 				input.setMaxLength(36);
 				input.setHint(t("player_name"));
@@ -1638,43 +1687,50 @@ public final class QuestScreen extends Screen {
 				});
 			}
 			var members = state.team.getAsJsonArray("members");
-			int capacity = Math.max(1, (bottom - top - 143) / 23), start = teamPage * capacity;
-			if (owner)
+			int capacity = teamMemberCapacity();
+			if (!teamOptions)
+				teamPage = Math.clamp(teamPage, 0, Math.max(0, (members.size() - 1) / capacity));
+			int start = teamPage * capacity;
+			if (!teamOptions)
 				for (int i = start; i < Math.min(members.size(), start + capacity); i++) {
-					String id = members.get(i).getAsJsonObject().get("id").getAsString();
-					int yy = top + 99 + (i - start) * 23;
-					if (!id.equals(state.team.get("owner").getAsString())) {
+					var member = members.get(i).getAsJsonObject();
+					String id = member.get("id").getAsString();
+					TeamRole target = TeamRole.valueOf(member.get("role").getAsString());
+					int yy = top + 102 + (i - start) * 32;
+					if (role.canKick(target))
 						button("kick", right - 143, yy, 58, () -> confirm("kick", id));
+					if (owner && target != TeamRole.OWNER) {
+						String change = target == TeamRole.MANAGER ? "demote" : "promote";
+						button(change, right - 225, yy, 78, () -> confirm(change, id));
 						button("transfer", right - 81, yy, 67, () -> confirm("transfer", id));
 					}
 				}
-			if (members.size() > capacity)
+			if (!teamOptions && members.size() > capacity)
 				pages(capacity, members.size());
 			button(owner ? "disband" : "leave", right - 126, top + 24, 112,
 					() -> confirm(owner ? "disband" : "leave", ""));
-		}
-		if (confirmation != null) {
-			String[] parts = confirmation.split("\n", 2);
-			int confirmY = top + 90;
-			button("confirm", right - 170, confirmY, 74, () -> {
-				action(parts[0], parts[1]);
-				confirmation = null;
-				init();
-			});
-			button("cancel", right - 90, confirmY, 76, () -> {
-				confirmation = null;
-				init();
-			});
+			if (QuestClientState.flag(state.team, "saving"))
+				for (var widget : children())
+					if (widget instanceof AbstractWidget control && control.getY() >= top + 24)
+						control.active = false;
 		}
 	}
 
+	private TeamRole teamRole() {
+		return TeamRole.valueOf(state.team.get("role").getAsString());
+	}
+
+	private int teamMemberCapacity() {
+		return Math.max(1, (bottom - top - 124) / 32);
+	}
+
 	private void pages(int capacity, int total) {
-		int y = top + 24;
-		button("previous", right - 240, y, 52, () -> {
+		int y = bottom - 22;
+		button("previous", right - 126, y, 52, () -> {
 			teamPage = Math.max(0, teamPage - 1);
 			init();
 		});
-		button("next", right - 184, y, 52, () -> {
+		button("next", right - 70, y, 56, () -> {
 			teamPage = Math.min((total - 1) / capacity, teamPage + 1);
 			init();
 		});
@@ -1687,6 +1743,20 @@ public final class QuestScreen extends Screen {
 
 	private void drawTeam(GuiGraphicsExtractor g) {
 		int x = left + 14;
+		if (confirmation != null) {
+			String[] parts = confirmation.split("\n", 2);
+			QuestSkin.text(g, font, t("confirm_hint"), x, top + 44, QuestSkin.DIM, false);
+			String target = parts[1];
+			if (state.team != null)
+				for (var entry : state.team.getAsJsonArray("members")) {
+					var member = entry.getAsJsonObject();
+					if (member.get("id").getAsString().equals(target) && member.has("name"))
+						target = member.get("name").getAsString();
+				}
+			QuestSkin.text(g, font, t(parts[0]).getString() + (target.isBlank() ? "" : ": " + target), x,
+					top + 62, 0xffe3b991, false);
+			return;
+		}
 		if (state.team == null) {
 			int capacity = Math.max(1, (bottom - (top + 70) - 38) / 25), start = teamPage * capacity;
 			for (int i = start; i < Math.min(state.invitations.size(), start + capacity); i++) {
@@ -1709,22 +1779,37 @@ public final class QuestScreen extends Screen {
 				}
 			}
 			QuestSkin.text(g, font, t("owner", ownerName), x, top + 53, 0xffa9b3a5, false);
+			QuestSkin.text(g, font, t(QuestClientState.flag(state.team, "sharedQuestProgress") ? "scope_team" : "scope_personal"),
+					right - 170, top + 53, QuestSkin.DIM, false);
+			if (teamOptions) {
+				QuestSkin.text(g, font, t("sharing_hint"), x, top + 120, QuestSkin.DIM, false);
+				QuestSkin.text(g, font, t("sent_invitations"), x, top + 136, 0xffe4d6b1, false);
+				var invitations = state.team.getAsJsonArray("invitations");
+				int capacity = Math.max(1, (bottom - top - 175) / 23), start = teamPage * capacity;
+				for (int i = start; i < Math.min(invitations.size(), start + capacity); i++) {
+					var invite = invitations.get(i).getAsJsonObject();
+					String name = invite.has("name") ? invite.get("name").getAsString() : invite.get("id").getAsString();
+					QuestSkin.text(g, font, font.plainSubstrByWidth(name, right - left - 125), x,
+							top + 155 + (i - start) * 23, 0xffd8dccb, false);
+				}
+				return;
+			}
 			var members = state.team.getAsJsonArray("members");
-			int capacity = Math.max(1, (bottom - top - 143) / 23), start = teamPage * capacity;
+			int capacity = teamMemberCapacity(), start = teamPage * capacity;
 			for (int i = start; i < Math.min(members.size(), start + capacity); i++) {
 				var m = members.get(i).getAsJsonObject();
 				String name = m.has("name") ? m.get("name").getAsString() : m.get("id").getAsString();
 				var player = minecraft.getConnection().getPlayerInfo(UUID.fromString(m.get("id").getAsString()));
 				if (player != null)
-					PlayerFaceExtractor.extractRenderState(g, player.getSkin(), x, top + 100 + (i - start) * 23, 16);
+					PlayerFaceExtractor.extractRenderState(g, player.getSkin(), x, top + 100 + (i - start) * 32, 16);
 				QuestSkin.text(g, font,
 						font.plainSubstrByWidth((QuestClientState.flag(m, "online") ? "● " : "○ ") + name,
-								Math.max(30, right - left - 169)),
-						x + 20, top + 104 + (i - start) * 23, 0xffd8dccb, false);
+								Math.max(30, right - left - (teamRole() == TeamRole.OWNER ? 259 : 177))),
+						x + 20, top + 100 + (i - start) * 32, 0xffd8dccb, false);
+				QuestSkin.text(g, font, t("role_" + m.get("role").getAsString().toLowerCase(Locale.ROOT)),
+						x + 20, top + 111 + (i - start) * 32, QuestSkin.DIM, false);
 			}
 		}
-		if (confirmation != null)
-			QuestSkin.text(g, font, t("confirm_hint"), x, top + 92, 0xffe3b991, false);
 	}
 
 	List<net.minecraft.client.multiplayer.PlayerInfo> matchingPlayers() {

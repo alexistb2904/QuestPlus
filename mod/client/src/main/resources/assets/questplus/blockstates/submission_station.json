@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "questplus:block/submission_station",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "questplus:block/submission_station",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "questplus:block/submission_station",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "questplus:block/submission_station",
+      "y": 270
+    }
+  }
+}

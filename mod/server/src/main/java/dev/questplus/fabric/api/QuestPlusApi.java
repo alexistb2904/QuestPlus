@@ -70,6 +70,19 @@ public final class QuestPlusApi {
         return QuestPlusMod.runtime().player(player.getUUID()).teamId;
     }
 
+	/** The active progress authority; team membership alone does not imply sharing. */
+	public static dev.questplus.team.ProgressScope getProgressScope(ServerPlayer player) throws IOException {
+		requireServerThread(player);
+		return QuestPlusMod.runtime().progressScope(player.getUUID());
+	}
+
+	/** Null when unteamed, otherwise the player's current team permissions. */
+	public static dev.questplus.team.TeamRole getTeamRole(ServerPlayer player) throws IOException {
+		requireServerThread(player);
+		return QuestPlusMod.runtime().teams().teamOf(player.getUUID())
+				.map(team -> team.role(player.getUUID())).orElse(null);
+	}
+
 	/** Returns the currently loaded quest IDs in stable order. */
 	public static List<String> getQuests(ServerPlayer player) {
 		requireServerThread(player);
@@ -82,6 +95,14 @@ public final class QuestPlusApi {
 		var runtime = QuestPlusMod.runtime();
 		runtime.registry().get(questId);
 		return snapshot(runtime.state(player.getUUID()).quests.get(questId));
+	}
+
+	public static Progress getProgress(ServerPlayer player, String questId, dev.questplus.team.ProgressScope scope)
+			throws IOException {
+		requireServerThread(player);
+		var runtime = QuestPlusMod.runtime();
+		runtime.registry().get(questId);
+		return snapshot(runtime.state(player.getUUID(), scope).quests.get(questId));
 	}
 
 	static Progress snapshot(PlayerProgress.QuestProgress progress) {

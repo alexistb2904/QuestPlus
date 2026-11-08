@@ -51,8 +51,18 @@ You can pin up to three quests. The HUD is enabled by default and appears when a
 
 ## Hold a physical tablet
 
-The creative Quest tab includes `questplus:tablet`. Holding it shows its carry pose. Right click to open it, then close the menu to return to carrying it. The **J** shortcut and the flat interface remain available.
+Craft `questplus:tablet` at a crafting table, or find it in the creative Quest tab. The recipe produces **one tablet**:
+
+| | | |
+| --- | --- | --- |
+| Iron ingot | Amethyst shard | Iron ingot |
+| Planks | Book | Planks |
+| Iron ingot | Redstone dust | Iron ingot |
+
+Use **4 iron ingots, 2 planks (any wood), 1 book, 1 amethyst shard and 1 redstone dust**. The arrangement above is a 3×3 crafting grid.
+
+Holding it shows its carry pose. Right click to open it, then close the menu to return to carrying it. The **J** shortcut and the flat interface remain available, even before you craft the item.
 
 By default, taking damage closes the tablet. The setting to keep it open on damage is local to your client.
 
-[Display and accessibility settings](/guide/settings) · [Play with a team](/guide/teams) · [Player commands](/reference/commands)
+[Quest blocks](/guide/world-blocks) · [Display and accessibility settings](/guide/settings) · [Play with a team](/guide/teams) · [Player commands](/reference/commands)

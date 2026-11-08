@@ -35,6 +35,7 @@ export default defineConfig({
 				items: [
 					{ text: "Install Quest Plus", link: "/guide/install" },
 					{ text: "Use the tablet", link: "/guide/tablet" },
+					{ text: "Quest blocks", link: "/guide/world-blocks" },
 					{ text: "Teams", link: "/guide/teams" },
 					{ text: "Settings and accessibility", link: "/guide/settings" },
 					{ text: "Compatibility", link: "/guide/compatibility" },

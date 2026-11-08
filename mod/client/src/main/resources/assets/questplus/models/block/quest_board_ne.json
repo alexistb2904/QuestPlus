@@ -1,0 +1,560 @@
+{
+  "textures": {
+    "utility": "questplus:block/questplus_utility",
+    "particle": "questplus:block/questplus_utility"
+  },
+  "elements": [
+    {
+      "name": "walnut_back",
+      "from": [
+        0,
+        0,
+        13.2
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            0.75,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            0.75,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            0.75
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            0.75
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "slate_surface",
+      "from": [
+        0,
+        0,
+        12.6
+      ],
+      "to": [
+        14,
+        14,
+        13.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            4.0,
+            12.0,
+            8.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            4.0,
+            8.25,
+            8.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            4.0,
+            12.0,
+            8.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            4.0,
+            8.25,
+            8.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            4.0,
+            12.0,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            4.0,
+            12.0,
+            4.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "carved_frame_n",
+      "from": [
+        0,
+        14,
+        11
+      ],
+      "to": [
+        16,
+        16,
+        13.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            1.2,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            1.2,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            1.2
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            1.2
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_inner_bead_n",
+      "from": [
+        0.15,
+        14.1,
+        10.7
+      ],
+      "to": [
+        15.85,
+        14.5,
+        11.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            8.0,
+            12.0,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            8.0,
+            12.0,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            8.0,
+            12.0,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            8.0,
+            12.0,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "carved_frame_e",
+      "from": [
+        14,
+        0,
+        11
+      ],
+      "to": [
+        16,
+        14,
+        13.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            3.5
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            1.2,
+            3.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            3.5
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            1.2,
+            3.5
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            1.2
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            1.2
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_inner_bead_e",
+      "from": [
+        14.1,
+        0.15,
+        10.7
+      ],
+      "to": [
+        14.5,
+        13.85,
+        11.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            11.5
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            11.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            11.5
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            11.5
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "corner_stone_cap",
+      "from": [
+        13.8,
+        13.8,
+        10.3
+      ],
+      "to": [
+        15.8,
+        15.8,
+        11.3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12.0,
+            0.0,
+            12.5,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            12.0,
+            0.0,
+            12.25,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            12.5,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            12.0,
+            0.0,
+            12.25,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            0.0,
+            12.5,
+            0.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            0.0,
+            12.5,
+            0.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_corner_rivet",
+      "from": [
+        14.5,
+        14.5,
+        10.1
+      ],
+      "to": [
+        15.1,
+        15.1,
+        10.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            0.25,
+            4.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    }
+  ]
+}

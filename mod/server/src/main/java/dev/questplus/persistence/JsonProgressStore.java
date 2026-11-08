@@ -237,9 +237,44 @@ public final class JsonProgressStore implements AutoCloseable {
 	 * ordinary save queue.
 	 */
 	public CompletableFuture<Void> transaction(Map<UUID, PlayerProgress> states, Map<UUID, TeamData> teams) {
+		return transaction(states, teams, Map.of());
+	}
+
+	public BlockAccount loadBlock(UUID id) throws IOException {
+		Path path = root.resolve("blocks/" + id + ".json");
+		if (Files.notExists(path)) {
+			rejectLeftovers(path);
+			return null;
+		}
+		byte[] bytes = read(path);
+		validateImage(path, bytes);
+		return GSON.fromJson(new String(bytes, StandardCharsets.UTF_8), BlockAccount.class);
+	}
+
+	public Set<UUID> playerIds() throws IOException {
+		if (Files.notExists(players)) return Set.of();
+		try (var files = Files.list(players)) {
+			var result = new HashSet<UUID>();
+			for (Path path : files.filter(p -> p.getFileName().toString().matches("[a-fA-F0-9-]{36}\\.json")).toList())
+				result.add(UUID.fromString(path.getFileName().toString().substring(0,36)));
+			return result;
+		}
+	}
+
+	public CompletableFuture<Void> transaction(Map<UUID, PlayerProgress> states, Map<UUID, TeamData> teams,
+			Map<UUID, BlockAccount> blocks) {
 		CompletableFuture<Void> future = new CompletableFuture<>();
 		try {
-			Map<Path, byte[]> snapshots = snapshots(states, teams);
+			Map<Path, byte[]> snapshots = states.isEmpty() && teams.isEmpty() ? new LinkedHashMap<>() : snapshots(states, teams);
+			for (var entry : blocks.entrySet()) {
+				if (!entry.getKey().equals(entry.getValue().id()))
+					throw new IllegalArgumentException("Block account ID mismatch");
+				var path = root.resolve("blocks/" + entry.getKey() + ".json");
+				byte[] bytes = GSON.toJson(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+				validateImage(path, bytes);
+				snapshots.put(path, bytes);
+			}
+			if (snapshots.isEmpty()) throw new IllegalArgumentException("Empty transaction");
 			writer.execute(() -> {
 				try {
 					checkPending();
@@ -597,7 +632,7 @@ public final class JsonProgressStore implements AutoCloseable {
 	}
 
 	private Path resolveImage(String path) throws IOException {
-		if (!path.matches("(?:players|teams|audit)/[a-fA-F0-9-]{36}\\.json"))
+		if (!path.matches("(?:players|teams|audit|blocks)/[a-fA-F0-9-]{36}\\.json"))
 			throw new IOException("Invalid transaction path " + path);
 		UUID.fromString(path.substring(path.indexOf('/') + 1, path.length() - 5));
 		Path target = root.resolve(path).normalize();
@@ -615,7 +650,17 @@ public final class JsonProgressStore implements AutoCloseable {
 	}
 
 	private void validateImage(Path path, byte[] bytes) throws IOException {
-		if (path.getParent().equals(root.resolve("audit"))) {
+		if (path.getParent().equals(root.resolve("blocks"))) {
+			try {
+				var value = object(QuestRegistry.parseStrict(new StringReader(new String(bytes, StandardCharsets.UTF_8))));
+				fields(value, "schemaVersion", "id", "dimension", "position", "data");
+				var account = GSON.fromJson(value, BlockAccount.class);
+				if (!path.getFileName().toString().equals(account.id() + ".json"))
+					throw new IllegalArgumentException("Block account filename mismatch");
+			} catch (RuntimeException error) {
+				throw new IOException("Invalid block account", error);
+			}
+		} else if (path.getParent().equals(root.resolve("audit"))) {
 			try {
 				JsonObject value = object(
 						QuestRegistry.parseStrict(new StringReader(new String(bytes, StandardCharsets.UTF_8))));
@@ -714,10 +759,14 @@ public final class JsonProgressStore implements AutoCloseable {
 							.onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)));
 			JsonObject root = object(parsed);
 			long version = integer(root.get("schemaVersion"));
+			if (version == 2) {
+				if (!root.has("blockContributions")) root.addProperty("blockContributions", 0);
+				if (!root.has("lastKnownName")) root.addProperty("lastKnownName", "");
+			}
 			if (version == 1)
 				fields(root, "schemaVersion", "quests", "claims");
 			else if (version == 2)
-				fields(root, "schemaVersion", "quests", "claims", "entitlements", "teamId", "legacyUnclaimed");
+				fields(root, "schemaVersion", "quests", "claims", "entitlements", "teamId", "legacyUnclaimed", "blockContributions", "lastKnownName");
 			else
 				throw new IllegalArgumentException("Unsupported schemaVersion " + version);
 			JsonObject quests = object(root.get("quests"));
@@ -752,6 +801,8 @@ public final class JsonProgressStore implements AutoCloseable {
 			for (var claim : claims.entrySet())
 				string(claim.getValue());
 			if (version == 2) {
+				if (root.has("blockContributions")) integer(root.get("blockContributions"));
+				if (root.has("lastKnownName")) string(root.get("lastKnownName"));
 				if (!root.get("teamId").isJsonNull())
 					UUID.fromString(text(root.get("teamId")));
 				strings(root.get("legacyUnclaimed"));
@@ -810,14 +861,25 @@ public final class JsonProgressStore implements AutoCloseable {
 							.onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT))));
 			if (!root.has("rewardClaims"))
 				root.add("rewardClaims", new JsonObject());
+			if (!root.has("managers"))
+				root.add("managers", new JsonArray());
+			if (!root.has("sharedQuestProgress"))
+				root.addProperty("sharedQuestProgress", true);
 			fields(root, "schemaVersion", "id", "name", "owner", "members", "invitations", "progress", "disbanded",
-					"rewardClaims");
+					"rewardClaims", "managers", "sharedQuestProgress");
 			if (integer(root.get("schemaVersion")) != 1)
 				throw new IllegalArgumentException("Unsupported team version");
 			UUID.fromString(text(root.get("id")));
 			UUID.fromString(text(root.get("owner")));
 			string(root.get("name"));
 			bool(root.get("disbanded"));
+			bool(root.get("sharedQuestProgress"));
+			if (!root.get("managers").isJsonArray())
+				throw new IllegalArgumentException("Invalid team managers");
+			Set<UUID> managers = new HashSet<>();
+			for (JsonElement manager : root.getAsJsonArray("managers"))
+				if (!managers.add(UUID.fromString(text(manager))))
+					throw new IllegalArgumentException("Duplicate team manager");
 			if (!root.get("members").isJsonArray())
 				throw new IllegalArgumentException("Invalid team members");
 			Set<UUID> members = new HashSet<>();

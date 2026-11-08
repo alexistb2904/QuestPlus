@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "questplus:block/quest_relay"
+    },
+    "powered=true": {
+      "model": "questplus:block/quest_relay_on"
+    }
+  }
+}
