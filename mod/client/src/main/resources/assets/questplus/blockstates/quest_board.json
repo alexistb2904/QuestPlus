@@ -1,1540 +1,5700 @@
 {
-  "variants": {
-    "facing=north,size=0,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 0
-    },
-    "facing=north,size=0,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 0
-    },
-    "facing=north,size=0,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=0,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=0,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=0,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=0,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=2,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 0
-    },
-    "facing=north,size=0,column=2,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 0
-    },
-    "facing=north,size=0,column=2,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=0,column=2,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=0,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=0,column=3,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=0,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=3,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=0,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=0,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=0,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=0,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=0,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 0
-    },
-    "facing=north,size=1,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 0
-    },
-    "facing=north,size=1,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=1,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=1,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=1,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=1,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=1,column=2,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=1,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 0
-    },
-    "facing=north,size=1,column=3,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 0
-    },
-    "facing=north,size=1,column=3,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=1,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=1,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=1,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=1,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=1,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=1,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=1,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 0
-    },
-    "facing=north,size=2,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=2,column=0,row=2": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 0
-    },
-    "facing=north,size=2,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=2,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=2,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=1,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=2,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=2,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=2,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=2,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 0
-    },
-    "facing=north,size=2,column=3,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=2,column=3,row=2": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 0
-    },
-    "facing=north,size=2,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=2,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=2,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=4,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=2,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=2,column=5,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=2,column=5,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=2,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 0
-    },
-    "facing=north,size=3,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=3,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 0
-    },
-    "facing=north,size=3,column=0,row=3": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 0
-    },
-    "facing=north,size=3,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=3,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=1,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=3,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=3,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=2,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=3,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=3,column=3,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=3,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=3,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 0
-    },
-    "facing=north,size=3,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 0
-    },
-    "facing=north,size=3,column=4,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 0
-    },
-    "facing=north,size=3,column=5,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 0
-    },
-    "facing=north,size=3,column=5,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=3,column=5,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 0
-    },
-    "facing=north,size=3,column=5,row=3": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 0
-    },
-    "facing=east,size=0,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 90
-    },
-    "facing=east,size=0,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 90
-    },
-    "facing=east,size=0,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=0,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=0,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=0,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=0,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=2,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 90
-    },
-    "facing=east,size=0,column=2,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 90
-    },
-    "facing=east,size=0,column=2,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=0,column=2,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=0,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=0,column=3,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=0,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=3,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=0,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=0,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=0,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=0,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=0,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 90
-    },
-    "facing=east,size=1,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 90
-    },
-    "facing=east,size=1,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=1,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=1,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=1,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=1,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=1,column=2,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=1,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 90
-    },
-    "facing=east,size=1,column=3,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 90
-    },
-    "facing=east,size=1,column=3,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=1,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=1,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=1,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=1,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=1,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=1,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=1,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 90
-    },
-    "facing=east,size=2,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=2,column=0,row=2": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 90
-    },
-    "facing=east,size=2,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=2,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=2,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=1,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=2,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=2,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=2,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=2,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 90
-    },
-    "facing=east,size=2,column=3,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=2,column=3,row=2": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 90
-    },
-    "facing=east,size=2,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=2,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=2,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=4,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=2,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=2,column=5,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=2,column=5,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=2,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 90
-    },
-    "facing=east,size=3,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=3,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 90
-    },
-    "facing=east,size=3,column=0,row=3": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 90
-    },
-    "facing=east,size=3,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=3,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=1,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=3,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=3,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=2,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=3,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=3,column=3,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=3,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=3,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 90
-    },
-    "facing=east,size=3,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 90
-    },
-    "facing=east,size=3,column=4,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 90
-    },
-    "facing=east,size=3,column=5,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 90
-    },
-    "facing=east,size=3,column=5,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=3,column=5,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 90
-    },
-    "facing=east,size=3,column=5,row=3": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 90
-    },
-    "facing=south,size=0,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 180
-    },
-    "facing=south,size=0,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 180
-    },
-    "facing=south,size=0,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=0,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=0,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=0,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=0,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=2,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 180
-    },
-    "facing=south,size=0,column=2,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 180
-    },
-    "facing=south,size=0,column=2,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=0,column=2,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=0,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=0,column=3,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=0,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=3,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=0,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=0,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=0,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=0,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=0,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 180
-    },
-    "facing=south,size=1,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 180
-    },
-    "facing=south,size=1,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=1,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=1,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=1,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=1,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=1,column=2,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=1,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 180
-    },
-    "facing=south,size=1,column=3,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 180
-    },
-    "facing=south,size=1,column=3,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=1,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=1,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=1,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=1,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=1,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=1,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=1,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 180
-    },
-    "facing=south,size=2,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=2,column=0,row=2": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 180
-    },
-    "facing=south,size=2,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=2,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=2,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=1,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=2,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=2,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=2,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=2,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 180
-    },
-    "facing=south,size=2,column=3,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=2,column=3,row=2": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 180
-    },
-    "facing=south,size=2,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=2,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=2,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=4,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=2,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=2,column=5,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=2,column=5,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=2,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 180
-    },
-    "facing=south,size=3,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=3,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 180
-    },
-    "facing=south,size=3,column=0,row=3": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 180
-    },
-    "facing=south,size=3,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=3,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=1,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=3,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=3,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=2,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=3,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=3,column=3,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=3,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=3,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 180
-    },
-    "facing=south,size=3,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 180
-    },
-    "facing=south,size=3,column=4,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 180
-    },
-    "facing=south,size=3,column=5,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 180
-    },
-    "facing=south,size=3,column=5,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=3,column=5,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 180
-    },
-    "facing=south,size=3,column=5,row=3": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 180
-    },
-    "facing=west,size=0,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 270
-    },
-    "facing=west,size=0,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 270
-    },
-    "facing=west,size=0,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=0,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=0,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=0,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=0,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=2,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 270
-    },
-    "facing=west,size=0,column=2,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 270
-    },
-    "facing=west,size=0,column=2,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=0,column=2,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=0,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=0,column=3,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=0,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=3,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=0,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=0,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=0,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=0,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=0,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 270
-    },
-    "facing=west,size=1,column=0,row=1": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 270
-    },
-    "facing=west,size=1,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=1,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=1,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=1,column=1,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=1,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=1,column=2,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=1,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 270
-    },
-    "facing=west,size=1,column=3,row=1": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 270
-    },
-    "facing=west,size=1,column=3,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=1,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=1,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=1,column=4,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=1,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=1,column=5,row=1": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=1,column=5,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=1,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 270
-    },
-    "facing=west,size=2,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=2,column=0,row=2": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 270
-    },
-    "facing=west,size=2,column=0,row=3": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=2,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=2,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=1,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=2,column=1,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=2,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=2,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=2,column=2,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=3,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 270
-    },
-    "facing=west,size=2,column=3,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=2,column=3,row=2": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 270
-    },
-    "facing=west,size=2,column=3,row=3": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=2,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=2,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=4,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=2,column=4,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=5,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=2,column=5,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=2,column=5,row=2": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=2,column=5,row=3": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=0,row=0": {
-      "model": "questplus:block/quest_board_sw",
-      "y": 270
-    },
-    "facing=west,size=3,column=0,row=1": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=3,column=0,row=2": {
-      "model": "questplus:block/quest_board_w",
-      "y": 270
-    },
-    "facing=west,size=3,column=0,row=3": {
-      "model": "questplus:block/quest_board_nw",
-      "y": 270
-    },
-    "facing=west,size=3,column=1,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=3,column=1,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=1,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=1,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=3,column=2,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=3,column=2,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=2,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=2,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=3,column=3,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=3,column=3,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=3,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=3,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=3,column=4,row=0": {
-      "model": "questplus:block/quest_board_s",
-      "y": 270
-    },
-    "facing=west,size=3,column=4,row=1": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=4,row=2": {
-      "model": "questplus:block/quest_board_c",
-      "y": 270
-    },
-    "facing=west,size=3,column=4,row=3": {
-      "model": "questplus:block/quest_board_n",
-      "y": 270
-    },
-    "facing=west,size=3,column=5,row=0": {
-      "model": "questplus:block/quest_board_se",
-      "y": 270
-    },
-    "facing=west,size=3,column=5,row=1": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=3,column=5,row=2": {
-      "model": "questplus:block/quest_board_e",
-      "y": 270
-    },
-    "facing=west,size=3,column=5,row=3": {
-      "model": "questplus:block/quest_board_ne",
-      "y": 270
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "0",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "1",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "2",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "size": "3",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "0",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "1",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "2",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "size": "3",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "0",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "1",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "2",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "size": "3",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "0",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "1",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "2",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "0",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_sw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "0",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "0",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_w",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "0",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_nw",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "1",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "1",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "1",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "1",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "2",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "2",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "2",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "2",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "3",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "3",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "3",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "3",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "4",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_s",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "4",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "4",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_c",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "4",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_n",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "5",
+        "row": "0",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_se",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "5",
+        "row": "1",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "5",
+        "row": "2",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_e",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "size": "3",
+        "column": "5",
+        "row": "3",
+        "modular": "false"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_ne",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "0",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_0",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "0",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_0",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "0",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_0",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "0",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_0",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "1",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_1",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "1",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "1",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "1",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "2",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_2",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "2",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "2",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "2",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "3",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_3",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "3",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "3",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "3",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "4",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_4",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "4",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_4",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "4",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_4",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "4",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_4",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "5",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_5",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "5",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_5",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "5",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_5",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "5",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_5",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "6",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_6",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "6",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_6",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "6",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_6",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "6",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_6",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "7",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_7",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "7",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_7",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "7",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_7",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "7",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_7",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "8",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_8",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "8",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_8",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "8",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_8",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "8",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_8",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "9",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_9",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "9",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_9",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "9",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_9",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "9",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_9",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "10",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_10",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "10",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_10",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "10",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_10",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "10",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_10",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "11",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_11",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "11",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_11",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "11",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_11",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "11",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_11",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "12",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_12",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "12",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_12",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "12",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_12",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "12",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_12",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "13",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_13",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "13",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_13",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "13",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_13",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "13",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_13",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "14",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_14",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "14",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_14",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "14",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_14",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "14",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_14",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "15",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_15",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "15",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_15",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "15",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_15",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "modular": "true",
+        "edges": "15",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "questplus:block/quest_board_module_15",
+        "y": 270
+      }
     }
-  }
+  ]
 }

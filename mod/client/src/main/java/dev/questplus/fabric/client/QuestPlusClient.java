@@ -63,8 +63,16 @@ public final class QuestPlusClient implements ClientModInitializer {
 		QuestWorldBlockRenderer.register();
 		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE,
 				(packet, context) -> context.client().execute(() -> {
-					if (context.client().gui.screen() instanceof QuestBlockScreen screen) screen.receive(packet);
-					else context.client().gui.setScreen(new QuestBlockScreen(packet));
+					if (context.client().gui.screen() instanceof QuestStationScreen screen) screen.receive(packet);
+					else if (context.client().gui.screen() instanceof QuestRelayScreen screen) screen.receive(packet);
+					else if (context.client().gui.screen() instanceof QuestBlockScreen screen) screen.receive(packet);
+					else if(context.client().gui.screen() instanceof QuestBoardScreen screen)screen.receive(packet);
+					else if(context.client().gui.screen() instanceof QuestBlockPicker picker)picker.receive(packet);
+					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==0)
+						context.client().gui.setScreen(new QuestBoardScreen(packet));
+					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==2)
+						context.client().gui.setScreen(new QuestRelayScreen(packet));
+					else context.client().gui.setScreen(new QuestStationScreen(packet));
 				}));
 		TabletPoseClient.register();
 		QuestClientTabletFlow.register();

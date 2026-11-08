@@ -5,38 +5,63 @@ amethyst runes, sampled from the tablet's material language. No glass neon panel
 All geometry is baked Minecraft JSON; no per-frame geometry construction.
 
 * Quest Board: wall mounted slate writing surface, thick timber frame and corner
-  straps. Sizes are height × width: 2×3, 2×4, 3×4 and 4×6. Each tile is within its
-  block bounds; only the lower-left tile owns an entity. Content sits in front of
-  the slate, inside the frame.
+  straps. Place individual modules to build rectangles, strips, columns or irregular
+  outlines, up to 256 connected modules. Sixteen border combinations join in all four
+  horizontal orientations. Each module retains its own settings; connected modules
+  belonging to the same owner share configuration. Text stays inside filled rectangles.
+  Legacy fixed-size boards remain compatible.
 * Submission Station: wooden cabinet, iron foot/rim, top hatch with copper handle,
-  front insertion slot and a small recessed amethyst status strip.
-* Quest Relay: low slate plinth, copper contacts and a cross-shaped amethyst rune.
-  Its on/off baked models show the output state.
+  front insertion slot and a copper-framed slate screen showing the linked quest,
+  its percentage and an amethyst progress bar. Server updates drive the display.
+* Quest Relay: low wooden cabinet, iron corner caps, slate lid inset, recessed
+  orange front lens and side redstone traces. Its on/off baked models show the
+  output state. Its nine-pixel collision height follows the cabinet.
 
 Editable sources are in `blockbench/world/`. These models were authored through
-the running Blockbench MCP. Each Java-block model embeds the original 64×64 atlas,
-containing twelve 16px material tiles. The four assembled board projects are
+the running Blockbench MCP. The board and station embed the original 64×64 material
+atlas; the relay has its own 64×64 pixel atlas for the cabinet and signal states.
+The four assembled board projects are
 Generic Models for editing the complete silhouette. They are not oversized block
 models in Minecraft.
 
 Regenerate the runtime JSON and PNG files with
 `python mod/questplus-assets/tools/export_world_blocks.py`. The exporter validates
-the source geometry, atlas consistency, UV bounds and all 384 board states. It
+the source geometry, atlas consistency, UV bounds, 384 legacy board rules and 64
+modular border/orientation rules. The editable `quest_board_module.bbmodel` contains
+the independently selectable border and corner pieces. It
 does not require a running Blockbench instance. Runtime geometry and UVs were
 compared with Blockbench's native Java exporter, ignoring zero-angle transforms.
+
+The module source also stores the board item's display transforms. Dropped items
+use quarter scale; both third-person hands use 0.4 scale with the wall-offset depth
+recentered around the grip. The exporter preserves these transforms in the item
+model without changing the placed board or its inventory presentation.
 
 ## In-game use
 
 Craft the blocks or find them in the QuestPlus creative tab. Place a board by
-clicking a wall. Its default size is 2×3. Right-click to select its size and mode.
-Growing a board requires a supported, clear, loaded area. Shrinking keeps the
-master and its configuration. Breaking any part removes the whole board and
-produces one board item in survival. Piston movement is disabled.
+clicking a wall. Each click consumes one module; place neighbors to extend the
+surface in either direction. Hold another board module to build directly against
+an existing module. Every module requires wall support. Breaking a module returns
+one item in survival and leaves the neighbors and their settings intact. Legacy
+fixed-size boards still break as a whole and return exactly one item. Piston
+movement is disabled.
+
+Right-click to open the copper-and-timber configuration screen. Choose personal
+or shared team progress, pinned/automatic/mixed display, category filtering and
+whether completed quests appear. Add up to 32 pinned quests, reorder with the arrow
+buttons, remove individual entries or clear the list, then Apply. The leaderboard
+tab selects player, team or contribution ranking. Larger wall boards also show
+the leaderboard alongside their quest rows. Small screens scroll vertically.
 
 Right-click a station to select a consuming objective, personal or shared team
 progress, automation, allowed world-facing input sides and optional next-tier
-continuation. The quest and objective pickers are searchable. Players can also
-enter IDs directly. The owner picker lists up to 64 online players and the UUID
+continuation. Its dedicated screen separates the linked quest/objective, exact
+objective progress, stored resources and highlighted input sides. The searchable
+quest picker lists all visible quests and selects the first compatible deposit
+objective when one exists. Quests without a deposit objective remain browsable,
+with an explicit explanation and Apply disabled; possession and gameplay objectives
+keep their original behavior. Ownership settings list up to 64 online players; their UUID
 field also supports an offline owner. Owner/operator permissions protect ownership
 transfer. Team owners and managers can configure a station bound to their team.
 
@@ -57,9 +82,16 @@ with the station. An interrupted removal retains the account for recovery at the
 original location. Do not delete `world/data/questplus/blocks` during world moves.
 
 Relays select quests or a category, personal/team progress, a condition, ANY/ALL,
-and binary, four-tick pulse or analog output. For a stage condition, enter the
-stage ID in the group/stage field. For a tier condition, the threshold controls
+and binary, four-tick pulse or analog output. The two target modes switch inline:
+choose individual quests through a category-first catalogue, or select one entire
+category and preview its monitored quests without individual removals. The screen
+uses the available window area, clips its scrolling body and keeps Apply/Close
+fixed. For a stage condition, enter the stage ID in Advanced. For a tier condition, the threshold controls
 which reached tier maps to output 15. A pulse fires on either edge of a condition.
+
+Item display transforms live in the editable Blockbench projects. Dropped utility
+items use a quarter-size model, with separate first-person and third-person poses
+for both hands. The exporter preserves those transforms.
 
 Boards display quest icons, titles, percentages and state, or rank, player heads,
 names and scores. The contributions ranking counts resources submitted through
@@ -98,7 +130,23 @@ an integrated server. The team tests use two server-side player connections.
 Two independent interactive clients and third-party pipe mods require a separate
 compatibility run. Fabric item/fluid/energy API transfers are covered directly.
 
-Verified on 2026-11-08: Java build and 349 unit tests passed, 31 dedicated-server
+Run `gradlew.bat runClientGameTest -PrelayClientTest` for relay target-mode separation,
+category previews, live snapshots, C2S Apply, abandoned drafts, tier input, compact
+control bounds and overlap checks, the two rendered model states and held/dropped
+item views. This scenario uses one real client and an integrated server.
+
+Run `gradlew.bat runClientGameTest -PboardClientTest` for module-by-module 4×2
+placement, the dedicated board screen, offline-owner input, pinned order/C2S Apply,
+leaderboard, long titles/player names, night readability, small-screen scrolling
+and close/reopen persistence, plus front/back main-hand, off-hand and ground-item
+presentation beside a vanilla stone item. Board lettering uses full-bright light with a shadow,
+and player heads face outward with a 180-degree rotation. It also verifies
+that live snapshots leave an open quest picker in place. Server board tests cover
+9×3 boards in all four orientations, irregular outlines after removing a middle
+piece, the 256-module limit, ownership separation, transfer validation, legacy
+single-item drops and the expanded snapshot codec. Asset tests cover all 16 borders.
+
+Verified on 2026-11-08: Java build and 353 unit tests passed, 36 dedicated-server
 GameTests passed, and the rendered client scenario passed with searchable quest
 and objective selection, C2S settings, completion and compact-screen scrolling.
 Quest Studio passed 165 tests, typecheck and production build. The web API passed

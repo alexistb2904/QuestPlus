@@ -22,8 +22,8 @@ public final class QuestBlockNetwork {
     public record Snapshot(BlockPos pos,UUID token,String data) implements CustomPacketPayload {
         public static final Type<Snapshot> TYPE=new Type<>(Identifier.parse("questplus:block_state"));
         public static final StreamCodec<RegistryFriendlyByteBuf,Snapshot> CODEC=StreamCodec.of((b,v)->{
-            b.writeBlockPos(v.pos);b.writeUUID(v.token);b.writeUtf(v.data,16384);
-        },b->new Snapshot(b.readBlockPos(),b.readUUID(),b.readUtf(16384)));
+            b.writeBlockPos(v.pos);b.writeUUID(v.token);b.writeUtf(v.data,131072);
+        },b->new Snapshot(b.readBlockPos(),b.readUUID(),b.readUtf(131072)));
         public Type<Snapshot> type(){return TYPE;}
     }
     private record Session(QuestUtilityEntity block,UUID token,long expires){}
@@ -91,9 +91,16 @@ public final class QuestBlockNetwork {
         json.addProperty("kind",be.kind());json.addProperty("size",be.kind()==0?be.getBlockState().getValue(QuestUtilityBlock.SIZE):0);
         json.addProperty("status",be.status);json.addProperty("signal",be.signal);json.addProperty("error",error);
         json.addProperty("items",be.getItem(0).getCount());json.addProperty("fluid",be.fluids.amount/81);json.addProperty("energy",be.energy);
+        json.add("rows",QuestBlockConfig.JSON.toJsonTree(be.rows));json.add("leaders",QuestBlockConfig.JSON.toJsonTree(be.leaders));
+        json.addProperty("modular",be.kind()==0&&QuestBoardParts.modular(be.getBlockState()));
+        json.addProperty("boardWidth",be.boardWidth);json.addProperty("boardHeight",be.boardHeight);
+        var pins=new JsonObject();json.add("pins",pins);
         var choices=new JsonArray();
         try{
             var rt=QuestPlusMod.runtime();
+            if(be.kind()==0&&be.owner!=null)for(String id:be.config.quests()) {
+                var q=rt.registry().find(id);if(q.isPresent())pins.add(id,QuestBlockConfig.JSON.toJsonTree(be.boardRow(q.get(),rt.state(be.owner,be.config.scope()))));
+            }
             if(be.owner!=null)json.addProperty("ownerName",rt.player(be.owner).lastKnownName);
             json.addProperty("teamName",be.boundTeam==null?"":rt.teams().get(be.boundTeam).name);
             for(String id:be.config.quests()){

@@ -22,6 +22,93 @@ import java.nio.file.*;
 import java.util.*;
 
 public final class QuestWorldBlocksGameTest {
+    @GameTest(maxTicks=1200)
+    public void modularBoardsConnectInEveryDirectionAndDropOnce(GameTestHelper h)throws Exception {
+        var path=fixture(h,"modules","{id:'items',event:'item_turn_in',target:'minecraft:stone',count:4}");
+        var level=h.getLevel();var actor=player(h);var origin=h.absolutePos(new BlockPos(4,10,4));
+        for(var facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)) {
+            actor.setPos(origin.getX()+facing.getStepX()*4,origin.getY(),origin.getZ()+facing.getStepZ()*4);
+            for(int y=0;y<3;y++)for(int x=0;x<9;x++) {
+                var pos=QuestUtilityBlock.at(origin,facing,x,y);var wall=pos.relative(facing.getOpposite());
+                level.setBlock(wall,Blocks.STONE.defaultBlockState(),3);
+                var stack=new ItemStack(QuestWorldBlocks.BOARD,2);actor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,stack);
+                var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(wall),facing,wall,false);
+                ((BlockItem)QuestWorldBlocks.BOARD.asItem())
+                        .place(new net.minecraft.world.item.context.BlockPlaceContext(actor,net.minecraft.world.InteractionHand.MAIN_HAND,stack,hit));
+                h.assertTrue(level.getBlockState(pos).is(QuestWorldBlocks.BOARD),"One module placed: "+facing+" "+x+","+y);
+                h.assertTrue(stack.getCount()==1,"Each placement consumes exactly one item");
+                if(x==0&&y==0)((QuestUtilityEntity)level.getBlockEntity(pos)).configure(actor,config("questplus:blocks_modules","items"),null,0);
+            }
+            var board=(QuestUtilityEntity)level.getBlockEntity(origin);
+            h.assertTrue(board.boardWidth==9&&board.boardHeight==3,"Free-size 9 by 3 assembly: "+facing);
+            board.configure(actor,config("questplus:blocks_modules","items"),null,0);
+            var middle=QuestUtilityBlock.at(origin,facing,2,1);
+            h.assertTrue(level.getBlockState(middle).getValue(QuestUtilityBlock.EDGES)==0,"Interior has no frame");
+            var center=(QuestUtilityEntity)level.getBlockEntity(middle);
+            h.assertTrue(center.config.quests().contains("questplus:blocks_modules"),"New parts inherit settings");
+            var area=new net.minecraft.world.phys.AABB(origin).inflate(13);
+            for(var entity:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area))entity.discard();
+            level.destroyBlock(middle,true);
+            var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area);
+            h.assertTrue(drops.stream().filter(e->e.getItem().is(QuestWorldBlocks.BOARD.asItem())).mapToInt(e->e.getItem().getCount()).sum()==1,"Breaking one module drops exactly one board");
+            h.assertTrue(level.getBlockState(origin).is(QuestWorldBlocks.BOARD),"Breaking the middle leaves other modules intact");
+            level.destroyBlock(origin,true);
+            var survivor=(QuestUtilityEntity)level.getBlockEntity(origin.above());
+            h.assertTrue(survivor!=null&&survivor.config.equals(board.config),"Breaking anchor preserves other settings");
+            for(int y=0;y<3;y++)for(int x=0;x<9;x++) {
+                var pos=QuestUtilityBlock.at(origin,facing,x,y);level.removeBlock(pos,false);level.removeBlock(pos.relative(facing.getOpposite()),false);
+            }
+            for(var entity:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area))entity.discard();
+        }
+        Files.delete(path);QuestPlusMod.runtime().reload();h.succeed();
+    }
+    @GameTest(maxTicks=1200)
+    public void modularBoardLimitAndOwnershipAreValidatedBeforeMutation(GameTestHelper h)throws Exception {
+        var level=h.getLevel();var actor=player(h);var other=player(h);var origin=h.absolutePos(new BlockPos(2,15,2));
+        var state=QuestWorldBlocks.BOARD.defaultBlockState().setValue(QuestUtilityBlock.MODULAR,true);
+        for(int y=0;y<16;y++)for(int x=0;x<16;x++){
+            var pos=origin.offset(x,y,0);level.setBlock(pos.south(),Blocks.STONE.defaultBlockState(),3);level.setBlock(pos,state,3);
+            ((QuestUtilityEntity)level.getBlockEntity(pos)).claim(actor.getUUID());
+        }
+        var board=(QuestUtilityEntity)level.getBlockEntity(origin);QuestBoardParts.rebuild(board);
+        h.assertTrue(board.boardWidth==16&&board.boardHeight==16,"256 modules form a complete board");
+        var extra=origin.east(16);level.setBlock(extra.south(),Blocks.STONE.defaultBlockState(),3);
+        var stack=new ItemStack(QuestWorldBlocks.BOARD);actor.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,stack);
+        var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(extra.south()),Direction.NORTH,extra.south(),false);
+        var context=new net.minecraft.world.item.context.BlockPlaceContext(actor,net.minecraft.world.InteractionHand.MAIN_HAND,stack,hit);
+        h.assertTrue(QuestWorldBlocks.BOARD.getStateForPlacement(context)==null,"257th same-owner module is rejected");
+        level.setBlock(extra,state,3);var separate=(QuestUtilityEntity)level.getBlockEntity(extra);separate.claim(other.getUUID());
+        QuestBoardParts.rebuild(separate);h.assertTrue(QuestBoardParts.connected(separate).size()==1,"Different owners do not merge");
+        other.setPos(extra.getX(),extra.getY(),extra.getZ()-2);
+        boolean rejected=false;try{separate.configure(other,QuestBlockConfig.DEFAULT,actor.getUUID(),0);}catch(IllegalArgumentException expected){rejected=true;}
+        h.assertTrue(rejected&&separate.owner.equals(other.getUUID()),"Oversized ownership transfer changes nothing");
+        h.succeed();
+    }
+    @GameTest(maxTicks=1200)
+    public void legacyBoardBreaksWithoutDuplicateDrops(GameTestHelper h) {
+        var level=h.getLevel();var origin=h.absolutePos(new BlockPos(0,1,4));
+        for(int y=0;y<2;y++)for(int x=0;x<3;x++)level.setBlock(origin.offset(x,y,1),Blocks.STONE.defaultBlockState(),3);
+        var area=new net.minecraft.world.phys.AABB(origin).inflate(5);
+        for(int broken=0;broken<6;broken++) {
+            for(var item:level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area))item.discard();
+            QuestUtilityBlock.assemble(level,origin,Direction.NORTH,0);
+            level.destroyBlock(origin.offset(broken%3,broken/3,0),true);
+            int count=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area).stream()
+                    .filter(e->e.getItem().is(QuestWorldBlocks.BOARD.asItem())).mapToInt(e->e.getItem().getCount()).sum();
+            h.assertTrue(count==1,"Legacy piece "+broken+" must drop exactly one board, got "+count);
+        }
+        h.succeed();
+    }
+    @GameTest(maxTicks=1200)
+    public void boardSnapshotCodecKeepsLargePinnedPayload(GameTestHelper h) {
+        var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),h.getLevel().registryAccess());
+        try {
+            var packet=new QuestBlockNetwork.Snapshot(BlockPos.ZERO,UUID.randomUUID(),"x".repeat(80000));
+            QuestBlockNetwork.Snapshot.CODEC.encode(buffer,packet);
+            h.assertTrue(packet.equals(QuestBlockNetwork.Snapshot.CODEC.decode(buffer)),"Expanded board snapshot round trip");
+        }finally{buffer.release();}
+        h.succeed();
+    }
     @FunctionalInterface private interface Step {void run()throws Exception;}
     private static Runnable step(Step action){return ()->{try{action.run();}catch(RuntimeException e){throw e;}catch(Exception e){throw new RuntimeException(e);}};}
     @GameTest(maxTicks=5000)

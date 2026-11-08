@@ -39,9 +39,12 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     private QuestDefinition.Objective cachedObjective;
     private String moveToken;
     public String status="unconfigured";
-    public record Row(String title, String icon, String progress, String state, String player) {}
+    public record Row(String title, String icon, String progress, String state, String player, String detail, double fraction, String count) {}
     public List<Row> rows=List.of();
+    public List<Row> leaders=List.of();
     public long contentRevision;
+    public int boardWidth=1,boardHeight=1;
+    public BlockPos boardAnchor;
     final SingleStackStorage items=new SingleStackStorage() {
         protected ItemStack getStack() { return stack; }
         protected void setStack(ItemStack value) { stack=value; }
@@ -62,8 +65,10 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         protected boolean canExtract(FluidVariant v) {return input(null);}
         protected void onFinalCommit() { resourcesChanged(); }
     };
-    public QuestUtilityEntity(BlockPos pos, BlockState state) { super(QuestWorldBlocks.ENTITY,pos,state); }
+    public QuestUtilityEntity(BlockPos pos, BlockState state) { super(QuestWorldBlocks.ENTITY,pos,state);boardAnchor=pos; }
     int kind() { return ((QuestUtilityBlock)getBlockState().getBlock()).kind; }
+    public String stationQuestId() { return kind()==1 && config.quests().size()==1 ? config.quests().getFirst() : ""; }
+    public boolean boardLeaderboard(){return config.boardMode().equals("leaderboard");}
     private UUID accountId() {
         return UUID.nameUUIDFromBytes((level.dimension().identifier()+"/"+worldPosition.asLong()).getBytes(StandardCharsets.UTF_8));
     }
@@ -237,13 +242,13 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             var rt=QuestPlusMod.runtime();
             if(config.scope()==ProgressScope.TEAM && (!Objects.equals(boundTeam,rt.player(owner).teamId)
                     || !rt.teams().get(boundTeam).sharedQuestProgress)) throw new IllegalArgumentException("team_unavailable");
-            if(kind()==1) process();
+            if(kind()==1) { process(); updateStationDisplay(); }
             else if(kind()==0) updateBoard();
             else updateRelay();
         } catch(Exception error) {
             status=error instanceof IOException ? "storage_error" : "blocked";
             if(kind()==2) setSignal(0);
-            if(kind()==0) publishRows(List.of());
+            if(kind()==0 || kind()==1) publishRows(List.of());
         }
     }
     private void process() throws IOException {
@@ -275,8 +280,22 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         status="active"; nextRetry=level.getGameTime()+5; super.setChanged();
         setSignal((int)Math.min(15,Math.max(1,15-remaining(o.event())*15/Math.max(1,o.count()))));
     }
+    private void updateStationDisplay() throws IOException {
+        var o=objective();
+        if(o==null) { publishRows(List.of()); return; }
+        var rt=QuestPlusMod.runtime();var q=rt.registry().get(config.quests().getFirst());var p=rt.state(owner,config.scope());
+        var v=p.quests.get(q.id());int tier=v==null?0:v.tier;
+        long factor=q.progression().equals("tiered")?q.tiers().get(Math.min(tier,q.tiers().size()-1)).threshold():1;
+        long target=Math.multiplyExact(o.count(),factor);
+        long current=v!=null&&(v.completed||v.terminal)?target:Math.min(target,v==null?0:v.counters.getOrDefault(o.id(),0L));
+        publishRows(List.of(boardRow(q,p),new Row(Localization.text(o.text(),"en_us",Map.of()),o.target(),
+                Math.round(100.0*current/target)+"%",status,"",o.event(),(double)current/target,current+" / "+target)));
+    }
     public boolean canConfigure(ServerPlayer actor) {
         if(actor.isSpectator() || actor.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(worldPosition))>64 || !level.mayInteract(actor,worldPosition)) return false;
+        return canManage(actor);
+    }
+    private boolean canManage(ServerPlayer actor) {
         if(actor.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || Objects.equals(owner,actor.getUUID())) return true;
         if(config.scope()!=ProgressScope.TEAM || boundTeam==null) return false;
         try { return QuestPlusMod.runtime().teams().get(boundTeam).role(actor.getUUID())!=TeamRole.MEMBER; }
@@ -298,7 +317,10 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(kind()==1 && (value.quests().size()!=1 || rt.registry().get(value.quests().getFirst()).objectives().stream()
                 .noneMatch(o->o.id().equals(value.objective()) && Set.of("item_turn_in","fluid_submit","energy_submit").contains(o.event()))))
             throw new IllegalArgumentException("Select one consuming objective");
-        if(kind()==0 && size!=getBlockState().getValue(QuestUtilityBlock.SIZE)) resize(size);
+        var parts=kind()==0&&QuestBoardParts.modular(getBlockState())?QuestBoardParts.connected(this):List.of(this);
+        for(var part:parts)if(!part.canManage(actor)||!level.mayInteract(actor,part.worldPosition))throw new IllegalArgumentException("Connected board configuration denied");
+        if(kind()==0&&QuestBoardParts.modular(getBlockState())&&!Objects.equals(owner,newOwner))QuestBoardParts.validateTransfer(parts,newOwner);
+        if(kind()==0 && !QuestBoardParts.modular(getBlockState()) && size!=getBlockState().getValue(QuestUtilityBlock.SIZE)) resize(size);
         var old=config; UUID oldOwner=owner,oldTeam=boundTeam;
         QuestWorldBlocks.unloaded(this); config=value; owner=newOwner; boundTeam=team; generation=-1;
         var p=value.quests().isEmpty()?null:rt.state(owner,value.scope()).quests.get(value.quests().getFirst());
@@ -307,6 +329,13 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         catch(IOException error) { config=old;owner=oldOwner;boundTeam=oldTeam;QuestWorldBlocks.loaded(this);throw error; }
         if(kind()==2 && !old.output().equals(value.output())) {lastCondition=false;setSignal(0);}
         QuestWorldBlocks.loaded(this); super.setChanged(); refresh();
+        if(kind()==0&&QuestBoardParts.modular(getBlockState())) {
+            for(var part:parts)if(part!=this) {
+                QuestWorldBlocks.unloaded(part);part.config=value;part.owner=newOwner;part.boundTeam=team;
+                QuestWorldBlocks.loaded(part);part.setChanged();part.refresh();
+            }
+            QuestBoardParts.rebuild(this);
+        }
     }
     private void resize(int size) {
         if(size<0 || size>3) throw new IllegalArgumentException("Invalid board size");
@@ -362,8 +391,9 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         return q.objectives().stream().filter(o->!o.optional()).mapToDouble(o->Math.min(1,(double)v.counters.getOrDefault(o.id(),0L)/(o.count()*factor))).average().orElse(0);
     }
     private void updateBoard() throws IOException {
+        if(QuestBoardParts.modular(getBlockState())&&boardWidth==0)return;
         var rt=QuestPlusMod.runtime(); var p=rt.state(owner,config.scope()); var result=new ArrayList<Row>();
-        if(config.boardMode().equals("leaderboard")) {
+        {
             record Score(UUID id,String name,long score){}
             var scores=new ArrayList<Score>();
             if(config.leaderboard().equals("teams")) for(var t:rt.teams().allTeams())
@@ -377,22 +407,42 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             }
             scores.sort(Comparator.comparingLong(Score::score).reversed().thenComparing(s->s.id().toString()));
             int rank=1;for(var score:scores.subList(0,Math.min(12,scores.size())))
-                result.add(new Row(rank+++". "+score.name(),"minecraft:player_head",Long.toString(score.score()),"",score.id().toString()));
-        } else {
+                result.add(new Row(rank+++". "+score.name(),"minecraft:player_head",Long.toString(score.score()),"",score.id().toString(),"",0,Long.toString(score.score())));
+        }
+        boolean leadersChanged=!leaders.equals(result);leaders=List.copyOf(result);
+        if(!config.boardMode().equals("leaderboard")) {
+            result.clear();
             var visible=dev.questplus.clientdata.ClientProjection.visible(rt.registry().all(),p);
             var order=new LinkedHashSet<QuestDefinition>();
-            if(!config.boardMode().equals("automatic")) order.addAll(selected(p));
+            if(!config.boardMode().equals("automatic"))for(String id:config.quests())
+                visible.stream().filter(q->q.id().equals(id)).findFirst().ifPresent(order::add);
             if(!config.boardMode().equals("pinned")) for(var q:visible) {
                 var v=p.quests.get(q.id()); if(v!=null && v.attemptId!=null && !v.terminal && !v.completed) order.add(q);
             }
             for(var q:order) {
                 var v=p.quests.get(q.id()); double f=fraction(q,p);
-                result.add(new Row(Localization.text(q.title(),"en_us",Map.of()),q.icon(),Math.round(f*100)+"%",
-                        v!=null&&(v.completed||v.terminal)?"completed":f>0?"started":"available",""));
-                if(result.size()==12)break;
+                if(!config.category().isEmpty()&&!config.category().equals(q.category()))continue;
+                if(!config.all()&&v!=null&&(v.completed||v.terminal))continue;
+                result.add(boardRow(q,p));
+                if(result.size()==32)break;
             }
         }
-        publishRows(result);status="ready";
+        publishRows(result);
+        if(leadersChanged) {contentRevision++;level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),2);}
+        status="ready";
+    }
+    Row boardRow(QuestDefinition q,PlayerProgress p) {
+        var v=p.quests.get(q.id());double f=fraction(q,p);
+        int tier=v==null?0:v.tier;
+        long factor=q.progression().equals("tiered")?q.tiers().get(Math.min(tier,q.tiers().size()-1)).threshold():1;
+        long target=q.objectives().stream().filter(o->!o.optional()).mapToLong(o->o.count()*factor).sum();
+        long current=v!=null&&(v.completed||v.terminal)?target:q.objectives().stream().filter(o->!o.optional())
+                .mapToLong(o->Math.min(o.count()*factor,v==null?0:v.counters.getOrDefault(o.id(),0L))).sum();
+        var category=QuestPlusMod.runtime().categories().stream().filter(c->c.id().equals(q.category())).findFirst();
+        String detail=category.map(c->Localization.text(c.title(),"en_us",Map.of())).orElse(q.category())+" · Tier "+(tier+1);
+        String title=Localization.text(q.title(),"en_us",Map.of());
+        return new Row(title.substring(0,Math.min(128,title.length())),q.icon(),Math.round(f*100)+"%",
+                v!=null&&(v.completed||v.terminal)?"completed":f>0?"started":"available","",detail.substring(0,Math.min(96,detail.length())),f,current+" / "+target);
     }
     private void publishRows(List<Row> value) {
         if(rows.equals(value))return; rows=List.copyOf(value);contentRevision++;
@@ -409,6 +459,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(owner!=null)out.putString("owner",owner.toString());
         if(boundTeam!=null)out.putString("team",boundTeam.toString());
         out.putString("config",config.encode());out.putInt("signal",signal);out.putBoolean("last",lastCondition);
+        if(kind()==0) {out.putInt("boardWidth",boardWidth);out.putInt("boardHeight",boardHeight);out.putLong("boardAnchor",boardAnchor.asLong());}
     }
     @Override protected void loadAdditional(ValueInput in) {
         super.loadAdditional(in);
@@ -417,10 +468,16 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         signal=Math.max(0,Math.min(15,in.getIntOr("signal",0)));lastCondition=in.getBooleanOr("last",false);
         String encoded=in.getStringOr("boardRows","[]");
         if(encoded.length()<=524288) rows=List.of(QuestBlockConfig.JSON.fromJson(encoded,Row[].class));
+        String ranking=in.getStringOr("boardLeaders","[]");
+        if(ranking.length()<=524288)leaders=List.of(QuestBlockConfig.JSON.fromJson(ranking,Row[].class));
         contentRevision++;
+        boardWidth=in.getIntOr("boardWidth",1);boardHeight=in.getIntOr("boardHeight",1);
+        boardAnchor=BlockPos.of(in.getLongOr("boardAnchor",worldPosition.asLong()));
     }
     @Override public net.minecraft.nbt.CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=new net.minecraft.nbt.CompoundTag();tag.putString("boardRows",QuestBlockConfig.JSON.toJson(rows));return tag;
+        var tag=new net.minecraft.nbt.CompoundTag();tag.putString("boardRows",QuestBlockConfig.JSON.toJson(rows));
+        tag.putInt("boardWidth",boardWidth);tag.putInt("boardHeight",boardHeight);tag.putLong("boardAnchor",boardAnchor.asLong());
+        tag.putString("boardLeaders",QuestBlockConfig.JSON.toJson(leaders));tag.putString("config",config.encode());return tag;
     }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
     @Override public void preRemoveSideEffects(BlockPos pos,BlockState next) {

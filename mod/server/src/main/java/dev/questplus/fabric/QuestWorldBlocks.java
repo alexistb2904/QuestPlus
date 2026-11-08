@@ -22,6 +22,7 @@ public final class QuestWorldBlocks {
     static final int[] WIDTH = {3,4,4,6}, HEIGHT = {2,2,3,4};
     private static final Set<QuestUtilityEntity> LOADED = new HashSet<>();
     private static final LinkedHashSet<QuestUtilityEntity> DIRTY = new LinkedHashSet<>();
+    private static final Set<QuestUtilityEntity> BOARD_GEOMETRY = new HashSet<>();
     private static final Map<UUID, Set<QuestUtilityEntity>> OWNERS = new HashMap<>();
     private static final Set<QuestUtilityEntity> LEADERBOARDS = new HashSet<>();
     private QuestWorldBlocks() {}
@@ -46,12 +47,18 @@ public final class QuestWorldBlocks {
             long deadline=System.nanoTime()+2_000_000;
             while (budget-- > 0 && !DIRTY.isEmpty() && System.nanoTime()<deadline) {
                 var be = DIRTY.iterator().next(); DIRTY.remove(be);
-                if (!be.isRemoved() && be.getLevel() != null && be.getLevel().hasChunkAt(be.getBlockPos())) be.refresh();
+                if (!be.isRemoved() && be.getLevel() != null && be.getLevel().hasChunkAt(be.getBlockPos())) {
+                    if(BOARD_GEOMETRY.remove(be)) {
+                        BOARD_GEOMETRY.removeAll(QuestBoardParts.connected(be));
+                        QuestBoardParts.rebuild(be);
+                    }
+                    be.refresh();
+                }
             }
             QuestBlockNetwork.tick(server);
         });
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            LOADED.clear(); DIRTY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); QuestBlockNetwork.clear();
+            LOADED.clear(); DIRTY.clear(); BOARD_GEOMETRY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); QuestBlockNetwork.clear();
         });
     }
     private static QuestUtilityBlock block(String name, int kind) {
@@ -70,12 +77,13 @@ public final class QuestWorldBlocks {
     }
     static void loaded(QuestUtilityEntity be) {
         LOADED.add(be);
-        if(be.getBlockState().is(BOARD) && be.config.boardMode().equals("leaderboard"))LEADERBOARDS.add(be);
+        if(be.getBlockState().is(BOARD))LEADERBOARDS.add(be);
+        if(QuestBoardParts.modular(be.getBlockState()))BOARD_GEOMETRY.add(be);
         if (be.owner != null) OWNERS.computeIfAbsent(be.owner, k -> new HashSet<>()).add(be);
         enqueue(be);
     }
     static void unloaded(QuestUtilityEntity be) {
-        LOADED.remove(be); DIRTY.remove(be); LEADERBOARDS.remove(be);
+        LOADED.remove(be); DIRTY.remove(be); BOARD_GEOMETRY.remove(be); LEADERBOARDS.remove(be);
         if (be.owner != null) {
             var set = OWNERS.get(be.owner);
             if (set != null) { set.remove(be); if (set.isEmpty()) OWNERS.remove(be.owner); }

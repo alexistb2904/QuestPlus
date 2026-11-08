@@ -184,6 +184,9 @@ loom {
             vmArg "-Dquestplus.integration.teams=${layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath}"
         }
         clientGameTest {
+            if(providers.gradleProperty('boardClientTest').isPresent())vmArg '-Dquestplus.boardClientTest=true'
+            if (providers.gradleProperty('relayClientTest').isPresent())
+                vmArg '-Dquestplus.relayClientTest=true'
             if (providers.gradleProperty('worldBlocksClientTest').isPresent())
                 vmArg '-Dquestplus.worldBlocksClientTest=true'
             if (providers.gradleProperty('teamClientTest').isPresent())

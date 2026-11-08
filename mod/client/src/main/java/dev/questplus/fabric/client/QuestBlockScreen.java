@@ -38,19 +38,23 @@ public final class QuestBlockScreen extends Screen {
         objective=field("objective",config.get("objective").getAsString(),1,128);
         category=field("category",config.get("category").getAsString(),2,128);
         threshold=field("threshold",config.get("threshold").getAsString(),3,7);
-        owner=field("owner",draftOwner,4,36);owner.setWidth(176);
+        String ownerName=state.has("ownerName")?state.get("ownerName").getAsString():tr("relay.unknown_player").getString();
+        for(var value:state.getAsJsonArray("players")) {
+            var player=value.getAsJsonObject();
+            if(player.get("id").getAsString().equals(draftOwner))ownerName=player.get("name").getAsString();
+        }
+        owner=field("owner",ownerName,4,64);owner.setWidth(176);owner.setEditable(false);
         button(Component.literal("…"),left+288,top+130,20,()->{
             collect();
             var choices=state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                     .map(p->new QuestBlockPicker.Choice(p.get("id").getAsString(),p.get("name").getAsString())).toList();
-            minecraft.gui.setScreen(new QuestBlockPicker(this,choices,chosen->{owner.setValue(chosen);collect();}));
+            minecraft.gui.setScreen(new QuestBlockPicker(this,tr("owner"),choices,chosen->{draftOwner=chosen;}));
         }).hoverText(tr("owner"));
         cycle("scope",List.of("PERSONAL","TEAM"),0,0);
         int kind=state.get("kind").getAsInt();
         button(tr("pick_quest"),left+168,top+153,140,()->{
             collect();
-            var choices=QuestPlusClient.STATE.quests.values().stream()
-                    .map(q->new QuestBlockPicker.Choice(q.id(),QuestPlusClient.STATE.text(q.title()))).toList();
+            var choices=QuestBlockPicker.questChoices();
             minecraft.gui.setScreen(new QuestBlockPicker(this,choices,id->{
                 if(kind==1)quests.setValue(id);
                 else {
@@ -106,14 +110,13 @@ public final class QuestBlockScreen extends Screen {
         }).selected(config.get(key).getAsBoolean());
     }
     private void collect(){
-        draftOwner=owner.getValue();
         var ids=new JsonArray();for(String q:quests.getValue().split(","))if(!q.isBlank())ids.add(q.trim());config.add("quests",ids);
         config.addProperty("objective",objective.getValue().trim());config.addProperty("category",category.getValue().trim());
         try{config.addProperty("threshold",Integer.parseInt(threshold.getValue()));}catch(NumberFormatException e){config.addProperty("threshold",0);}
     }
     private void rebuildWidgetsPreserving(){collect();rebuildWidgets();}
     private void send(String action){
-        collect();ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),action,config.toString(),owner.getValue().trim(),size));
+        collect();ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),action,config.toString(),draftOwner,size));
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
         g.fill(0,0,width,height,0xb0101215);

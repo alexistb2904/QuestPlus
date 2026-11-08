@@ -28,7 +28,7 @@ public final class QuestBlocksClientGameTest {
                 String quest="questplus:blocks_client";
                 Files.writeString(instance.getWorldPath(LevelResource.ROOT).resolve("questplus/quests/blocks-client.json5"),"""
                         {schemaVersion:2,id:'questplus:blocks_client',category:'%s',icon:'minecraft:stone',
-                        title:{en_us:'Supply the settlement'},progression:'once',objectives:[
+                        title:{en_us:'Supply the settlement',fr_fr:'Ravitailler le village'},progression:'once',objectives:[
                         {id:'stone',event:'item_turn_in',target:'minecraft:stone',count:8}],rewards:[]}
                         """.formatted(rt.categories().getFirst().id()));rt.reload();
                 p.setGameMode(GameType.SURVIVAL);
@@ -57,33 +57,100 @@ public final class QuestBlocksClientGameTest {
             server.runOnServer(instance->{var p=instance.getPlayerList().getPlayers().getFirst();
                 var be=(QuestUtilityEntity)p.level().getBlockEntity(pos[1]);QuestBlockNetwork.open(p,be);
             });
-            context.waitFor(client->client.gui.screen() instanceof QuestBlockScreen,200);
-            click(context,"pick_quest",null);
+            context.waitFor(client->client.gui.screen() instanceof QuestStationScreen,200);
+            clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.owner","Player0").getString());
+            context.takeScreenshot("station-owner-layout");
+            context.runOnClient(client->{
+                var buttons=client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast).toList();
+                var back=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.station.back").getString())).findFirst().orElseThrow();
+                var apply=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.blocks.save").getString())).findFirst().orElseThrow();
+                if(apply.getY()-17<back.getY()+back.getHeight()+6)throw new AssertionError("Station owner status overlaps the Back button");
+            });
+            clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.back").getString());
+            clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.choose_quest").getString());
+            String defaultQuestTitle=context.computeOnClient(client->QuestPlusClient.STATE.quests.values().stream()
+                    .filter(q->q.objectives().stream().anyMatch(o->o.event().equals("inventory_count")))
+                    .map(q->QuestPlusClient.STATE.text(q.title())).findFirst().orElseThrow());
+            context.runOnClient(client->client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+                    .findFirst().orElseThrow().setValue(defaultQuestTitle));
+            context.takeScreenshot("station-default-quest-search");
+            context.runOnClient(client->{
+                if(client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+                        .noneMatch(b->b.getMessage().getString().equals(defaultQuestTitle)))throw new AssertionError("Station picker hides existing default quests");
+            });
+            clickLabel(context,defaultQuestTitle);
+            context.runOnClient(client->{
+                var buttons=client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast).toList();
+                String noDeposit=net.minecraft.network.chat.Component.translatable("questplus.station.no_deposit_objective").getString();
+                if(buttons.stream().noneMatch(b->b.getMessage().getString().equals(noDeposit)&&!b.active))throw new AssertionError("Unsupported objectives must explain why deposits are unavailable");
+                String save=net.minecraft.network.chat.Component.translatable("questplus.blocks.save").getString();
+                if(buttons.stream().anyMatch(b->b.getMessage().getString().equals(save)&&b.active))throw new AssertionError("Possession objectives must not become consuming submissions");
+            });
+            context.takeScreenshot("station-default-quest-incompatible");
+            clickLabel(context,defaultQuestTitle);
             context.runOnClient(client->client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
                     .findFirst().orElseThrow().setValue("Supply the settlement"));
             context.takeScreenshot("world-blocks-quest-picker");
             clickLabel(context,"Supply the settlement");
-            click(context,"pick_objective",null);clickLabel(context,"stone");
+            String objectiveLabel=net.minecraft.network.chat.Component.translatable("questplus.station.deliver",Items.STONE.getDefaultInstance().getHoverName()).getString();
+            clickLabel(context,objectiveLabel);
+            server.runOnServer(instance->{var p=instance.getPlayerList().getPlayers().getFirst();((QuestUtilityEntity)p.level().getBlockEntity(pos[1])).status="waiting";});
+            context.waitTicks(25);
+            context.runOnClient(client->{if(client.gui.screen() instanceof QuestStationScreen)throw new AssertionError("Live update displaced the objective picker");});
+            clickLabel(context,objectiveLabel);
             context.takeScreenshot("world-blocks-station-configuration");
             click(context,"automation",ComponentKey.YES_NO_FALSE);
             context.takeScreenshot("world-blocks-station-automation-on");
             click(context,"save",null);context.waitTicks(15);context.takeScreenshot("world-blocks-station-applied");
+            clickLabel(context,objectiveLabel);clickLabel(context,objectiveLabel);
+            context.runOnClient(client->{
+                String label=net.minecraft.network.chat.Component.translatable("questplus.blocks.save").getString();
+                if(client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+                        .filter(b->b.getMessage().getString().equals(label)).findFirst().orElseThrow().active)
+                    throw new AssertionError("Reselecting the saved objective must not leave a pending draft");
+            });
             server.runOnServer(instance->{
                 var p=instance.getPlayerList().getPlayers().getFirst();var be=(QuestUtilityEntity)p.level().getBlockEntity(pos[1]);
                 if(!be.config.automation()||!be.config.quests().contains("questplus:blocks_client"))throw new AssertionError("C2S configuration did not apply: "+be.config.encode());
                 try(var tx=net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()){
                     var storage=net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(p.level(),pos[1],Direction.UP);
-                    if(storage.insert(net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(Items.STONE),8,tx)!=8)throw new AssertionError("Submission refused");tx.commit();
+                    if(storage.insert(net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(Items.STONE),4,tx)!=4)throw new AssertionError("Submission refused");tx.commit();
+                }
+            });
+            context.waitTicks(30);context.takeScreenshot("station-half-progress");
+            server.runOnServer(instance->{
+                var p=instance.getPlayerList().getPlayers().getFirst();var be=(QuestUtilityEntity)p.level().getBlockEntity(pos[1]);
+                if(be.rows.size()!=2||be.rows.get(0).fraction()!=.5||!be.rows.get(1).count().equals("4 / 8"))throw new AssertionError("Station display did not track half progress: "+be.rows);
+                try(var tx=net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()){
+                    be.items.insert(net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(Items.STONE),4,tx);tx.commit();
                 }
             });
             context.waitFor(client->QuestClientState.flag(QuestPlusClient.STATE.progress("questplus:blocks_client"),"completed"),300);
+            context.waitFor(client->client.level.getBlockEntity(pos[1]) instanceof QuestUtilityEntity be&&!be.rows.isEmpty()&&be.rows.getFirst().fraction()==1,300);
+            context.waitTicks(25);
             context.takeScreenshot("world-blocks-station-completed");
+            var stationScreen=context.computeOnClient(client->client.gui.screen());
+            context.runOnClient(client->client.gui.setScreen(null));
+            server.runOnServer(instance->{var p=instance.getPlayerList().getPlayers().getFirst();p.level().setBlock(pos[1],p.level().getBlockState(pos[1]).setValue(QuestUtilityBlock.FACING,Direction.NORTH),3);p.teleportTo(pos[1].getX()+.5,pos[1].getY(),pos[1].getZ()-1.7);p.setYRot(0);p.setXRot(30);});
+            context.runOnClient(client->{client.player.setYRot(0);client.player.setXRot(30);});
+            context.waitTicks(20);context.takeScreenshot("station-world-display-english");
+            context.runOnClient(client->client.gui.setScreen(stationScreen));
+            var languageReload=new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<Void>>();
+            context.runOnClient(client->{client.options.languageCode="fr_fr";client.getLanguageManager().setSelected("fr_fr");languageReload.set(client.reloadResourcePacks());});
+            context.waitFor(client->languageReload.get()!=null&&languageReload.get().isDone()&&client.gui.overlay()==null,300);
+            context.runOnClient(client->client.gui.screen().resize(client.getWindow().getGuiScaledWidth(),client.getWindow().getGuiScaledHeight()));
+            context.takeScreenshot("station-french-completed");
             context.runOnClient(client->{client.options.guiScale().set(4);});context.waitTicks(5);
-            context.runOnClient(client->client.gui.screen().mouseScrolled(100,100,0,-10));
+            context.takeScreenshot("station-small-screen-top");
+            context.runOnClient(client->client.gui.screen().mouseScrolled(100,100,0,-100));
             context.takeScreenshot("world-blocks-small-screen-settings");
             click(context,"close",null);context.waitTicks(20);
             context.waitFor(client->client.gui.screen()==null,100);
             context.takeScreenshot("world-blocks-completed-board-relay");
+            context.runOnClient(client->{client.options.guiScale().set(2);});
+            server.runOnServer(instance->{var p=instance.getPlayerList().getPlayers().getFirst();p.level().setBlock(pos[1],p.level().getBlockState(pos[1]).setValue(QuestUtilityBlock.FACING,Direction.NORTH),3);p.teleportTo(pos[1].getX()+.5,pos[1].getY(),pos[1].getZ()-1.7);p.setYRot(0);p.setXRot(30);});
+            context.runOnClient(client->{client.player.setYRot(0);client.player.setXRot(30);});
+            context.waitTicks(20);context.takeScreenshot("station-world-display-complete");
             server.runOnServer(instance->{
                 var relay=(QuestUtilityEntity)instance.getPlayerList().getPlayers().getFirst().level().getBlockEntity(pos[2]);
                 if(relay.signal!=15)throw new AssertionError("Event-driven relay did not update");

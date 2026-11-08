@@ -51,7 +51,7 @@ public final class AdvancedEventsTest {
 				.resolve("questplus/quests/advanced-integration.json");
 		Files.writeString(file,
 				"""
-						{"schemaVersion":1,"id":"questplus:advanced_test","category":"questplus:survival","icon":"minecraft:stone",
+						{"schemaVersion":1,"id":"questplus:advanced_test","category":"%s","icon":"minecraft:stone",
 						 "title":{"en_us":"Test"},"description":{"en_us":"Test"},"progression":"once","rewards":[],
 						 "objectives":[
 						   {"id":"place","event":"block_place","target":"minecraft:stone","count":2},
@@ -69,7 +69,7 @@ public final class AdvancedEventsTest {
 						   {"id":"distance","event":"travel_distance","target":"questplus:travel","count":1000},
 						   {"id":"location","event":"location","target":"questplus:position","count":3},
 						   {"id":"inventory","event":"inventory_count","target":"minecraft:stone","count":10}]}
-						""");
+						""".formatted(runtime.categories().getFirst().id()));
 		runtime.reload();
 		var progress = runtime.player(player.getUUID());
 		BlockPos base = helper.absolutePos(new BlockPos(2, 1, 2));
