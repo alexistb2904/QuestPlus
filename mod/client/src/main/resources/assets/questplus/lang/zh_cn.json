@@ -237,5 +237,21 @@
 	"item.questplus.loot_crate": "战利品箱",
 	"questplus.crate.opened": "箱子已开启。奖励已保存，将在背包有空间时发放。",
 	"item.questplus.tablet": "Quest 任务平板",
-	"itemGroup.questplus.quest": "Quest Plus"
+	"itemGroup.questplus.quest": "Quest Plus",
+	"questplus.client.team_options": "队伍设置",
+	"questplus.client.rename": "重命名",
+	"questplus.client.promote": "晋升",
+	"questplus.client.demote": "降级",
+	"questplus.client.revoke": "取消邀请",
+	"questplus.client.role_owner": "队长",
+	"questplus.client.role_manager": "管理员",
+	"questplus.client.role_member": "成员",
+	"questplus.client.sharing_on": "共享任务进度：开启",
+	"questplus.client.sharing_off": "共享任务进度：关闭",
+	"questplus.client.share_on": "开启共享任务进度",
+	"questplus.client.share_off": "关闭共享任务进度",
+	"questplus.client.sharing_hint": "保留已有进度和奖励领取记录。",
+	"questplus.client.sent_invitations": "待处理的邀请",
+	"questplus.client.scope_team": "进度范围：队伍",
+	"questplus.client.scope_personal": "进度范围：个人"
 }

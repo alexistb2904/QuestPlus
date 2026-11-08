@@ -183,6 +183,10 @@ loom {
             vmArg "-Dquestplus.integration.output=${layout.buildDirectory.file('integration-saves.json').get().asFile.absolutePath}"
             vmArg "-Dquestplus.integration.teams=${layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath}"
         }
+        clientGameTest {
+            if (providers.gradleProperty('teamClientTest').isPresent())
+                vmArg '-Dquestplus.teamClientTest=true'
+        }
     }
 }
 

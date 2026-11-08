@@ -237,5 +237,21 @@
 	"item.questplus.loot_crate": "Loot crate",
 	"questplus.crate.opened": "Loot crate opened. Rewards are saved and delivered when inventory space is available.",
 	"item.questplus.tablet": "Quest Tablet",
-	"itemGroup.questplus.quest": "Quest Plus"
+	"itemGroup.questplus.quest": "Quest Plus",
+	"questplus.client.team_options": "Team options",
+	"questplus.client.rename": "Rename",
+	"questplus.client.promote": "Promote",
+	"questplus.client.demote": "Demote",
+	"questplus.client.revoke": "Cancel invite",
+	"questplus.client.role_owner": "Owner",
+	"questplus.client.role_manager": "Manager",
+	"questplus.client.role_member": "Member",
+	"questplus.client.sharing_on": "Shared quest progress: ON",
+	"questplus.client.sharing_off": "Shared quest progress: OFF",
+	"questplus.client.share_on": "Enable shared quest progress",
+	"questplus.client.share_off": "Disable shared quest progress",
+	"questplus.client.sharing_hint": "Existing progress and reward history are preserved.",
+	"questplus.client.sent_invitations": "Pending invitations",
+	"questplus.client.scope_team": "Progress: Team",
+	"questplus.client.scope_personal": "Progress: Personal"
 }

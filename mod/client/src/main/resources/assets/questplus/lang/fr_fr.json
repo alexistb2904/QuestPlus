@@ -237,5 +237,21 @@
 	"item.questplus.loot_crate": "Caisse de butin",
 	"questplus.crate.opened": "Caisse ouverte. Les récompenses seront livrées dès qu’une place sera disponible.",
 	"item.questplus.tablet": "Tablette Quest",
-	"itemGroup.questplus.quest": "Quest Plus"
+	"itemGroup.questplus.quest": "Quest Plus",
+	"questplus.client.team_options": "Options d’équipe",
+	"questplus.client.rename": "Renommer",
+	"questplus.client.promote": "Promouvoir",
+	"questplus.client.demote": "Rétrograder",
+	"questplus.client.revoke": "Annuler l’invitation",
+	"questplus.client.role_owner": "Propriétaire",
+	"questplus.client.role_manager": "Gestionnaire",
+	"questplus.client.role_member": "Membre",
+	"questplus.client.sharing_on": "Progression partagée : OUI",
+	"questplus.client.sharing_off": "Progression partagée : NON",
+	"questplus.client.share_on": "Activer la progression partagée",
+	"questplus.client.share_off": "Désactiver la progression partagée",
+	"questplus.client.sharing_hint": "Progression et historique des récompenses conservés.",
+	"questplus.client.sent_invitations": "Invitations en attente",
+	"questplus.client.scope_team": "Progression : équipe",
+	"questplus.client.scope_personal": "Progression : personnelle"
 }

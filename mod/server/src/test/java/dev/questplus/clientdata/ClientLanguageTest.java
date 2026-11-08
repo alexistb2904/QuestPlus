@@ -38,6 +38,19 @@ class ClientLanguageTest {
 	}
 
 	@Test
+	void teamControlsAndRolesAreTranslatedInAllFourLocales() throws Exception {
+		for (String locale : java.util.List.of("en_us", "fr_fr", "es_es", "zh_cn")) {
+			var translations = read(locale);
+			for (String key : java.util.List.of("team_options", "promote", "demote", "rename", "revoke",
+					"role_owner", "role_manager", "role_member", "sharing_on", "sharing_off", "share_on", "share_off",
+					"scope_team", "scope_personal", "sent_invitations", "sharing_hint")) {
+				assertTrue(translations.has("questplus.client." + key), locale + ": " + key);
+				assertFalse(translations.get("questplus.client." + key).getAsString().isBlank(), locale + ": " + key);
+			}
+		}
+	}
+
+	@Test
 	void creativeTabAndTabletUseQuestPlusBrandInEveryLanguage() throws Exception {
 		var tablets = java.util.Map.of(
 				"en_us", "Quest Tablet",

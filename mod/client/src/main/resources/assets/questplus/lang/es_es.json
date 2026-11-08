@@ -237,5 +237,21 @@
 	"item.questplus.loot_crate": "Caja de botín",
 	"questplus.crate.opened": "Caja abierta. Las recompensas se guardarán y entregarán cuando haya espacio.",
 	"item.questplus.tablet": "Tableta Quest",
-	"itemGroup.questplus.quest": "Quest Plus"
+	"itemGroup.questplus.quest": "Quest Plus",
+	"questplus.client.team_options": "Opciones de equipo",
+	"questplus.client.rename": "Renombrar",
+	"questplus.client.promote": "Ascender",
+	"questplus.client.demote": "Degradar",
+	"questplus.client.revoke": "Cancelar invitación",
+	"questplus.client.role_owner": "Propietario",
+	"questplus.client.role_manager": "Administrador",
+	"questplus.client.role_member": "Miembro",
+	"questplus.client.sharing_on": "Progreso compartido: SÍ",
+	"questplus.client.sharing_off": "Progreso compartido: NO",
+	"questplus.client.share_on": "Activar el progreso compartido",
+	"questplus.client.share_off": "Desactivar el progreso compartido",
+	"questplus.client.sharing_hint": "Se conservan el progreso y el historial de recompensas.",
+	"questplus.client.sent_invitations": "Invitaciones pendientes",
+	"questplus.client.scope_team": "Progreso: equipo",
+	"questplus.client.scope_personal": "Progreso: personal"
 }
