@@ -812,14 +812,23 @@ public final class JsonProgressStore implements AutoCloseable {
 				root.add("rewardClaims", new JsonObject());
 			if (!root.has("managers"))
 				root.add("managers", new JsonArray());
+			if (!root.has("sharedQuestProgress"))
+				root.addProperty("sharedQuestProgress", true);
 			fields(root, "schemaVersion", "id", "name", "owner", "members", "invitations", "progress", "disbanded",
-					"rewardClaims", "managers");
+					"rewardClaims", "managers", "sharedQuestProgress");
 			if (integer(root.get("schemaVersion")) != 1)
 				throw new IllegalArgumentException("Unsupported team version");
 			UUID.fromString(text(root.get("id")));
 			UUID.fromString(text(root.get("owner")));
 			string(root.get("name"));
 			bool(root.get("disbanded"));
+			bool(root.get("sharedQuestProgress"));
+			if (!root.get("managers").isJsonArray())
+				throw new IllegalArgumentException("Invalid team managers");
+			Set<UUID> managers = new HashSet<>();
+			for (JsonElement manager : root.getAsJsonArray("managers"))
+				if (!managers.add(UUID.fromString(text(manager))))
+					throw new IllegalArgumentException("Duplicate team manager");
 			if (!root.get("members").isJsonArray())
 				throw new IllegalArgumentException("Invalid team members");
 			Set<UUID> members = new HashSet<>();

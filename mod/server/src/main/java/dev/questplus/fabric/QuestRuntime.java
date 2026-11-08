@@ -556,13 +556,28 @@ public final class QuestRuntime implements AutoCloseable {
 	}
 
 	public PlayerProgress state(UUID id) throws IOException {
+		player(id);
+		return teams.progress(id, teams.scope(id));
+	}
+
+	public ProgressScope progressScope(UUID id) throws IOException {
+		player(id);
+		return teams.scope(id);
+	}
+
+	public PlayerProgress state(UUID id, ProgressScope scope) throws IOException {
+		player(id);
+		return teams.progress(id, scope);
+	}
+
+	private UUID progressTeam(UUID id) throws IOException {
 		var personal = player(id);
-		return personal.teamId == null ? personal : teams.get(personal.teamId).progress;
+		return teams.scope(id) == ProgressScope.TEAM ? personal.teamId : null;
 	}
 
 	private Set<UUID> group(UUID id) throws IOException {
-		var personal = player(id);
-		return personal.teamId == null ? Set.of(id) : Set.copyOf(teams.get(personal.teamId).members);
+		UUID team = progressTeam(id);
+		return team == null ? Set.of(id) : Set.copyOf(teams.get(team).members);
 	}
 
 	private void ensureFree(Collection<UUID> ids) {
@@ -726,7 +741,7 @@ public final class QuestRuntime implements AutoCloseable {
 		Map<UUID, PlayerProgress> personal = new HashMap<>();
 		for (UUID member : members)
 			personal.put(member, JsonProgressStore.detachedCopy(player(member)));
-		UUID teamId = player(id).teamId;
+		UUID teamId = progressTeam(id);
 		TeamData team = teamId == null ? null
 				: new com.google.gson.Gson().fromJson(new com.google.gson.Gson().toJson(teams.get(teamId)),
 						TeamData.class);
@@ -741,7 +756,8 @@ public final class QuestRuntime implements AutoCloseable {
 		Set<UUID> recipients = teamRewardPolicy.equals("contributor") ? Set.of(id) : members;
 		for (UUID recipient : recipients)
 			for (var award : awards)
-				entitleAward(personal.get(recipient), award, teamId);
+				if (recipient.equals(id) || stageRequirementsMet(recipient, registry.get(award.questId())))
+					entitleAward(personal.get(recipient), award, teamId);
 		List<ItemStack> before = new ArrayList<>(), after = new ArrayList<>();
 		for (int i = 0; i < 37; i++) {
 			var stack = (i == 36 ? actor.getOffhandItem() : actor.getInventory().getItem(i)).copy();
@@ -935,15 +951,16 @@ public final class QuestRuntime implements AutoCloseable {
 				for (UUID recipient : recipients)
 					for (var award : completed) {
 						var personal = player(recipient);
-						if (!personal.claims.containsKey(award.key()))
-							entitleAward(personal, award, player(uuid).teamId);
+						if (!personal.claims.containsKey(award.key())
+								&& (recipient.equals(uuid) || stageRequirementsMet(recipient, registry.get(award.questId()))))
+							entitleAward(personal, award, progressTeam(uuid));
 						dirty.add(recipient);
 					}
 				Set<UUID> members = group(uuid);
 				Map<UUID, PlayerProgress> snapshots = new HashMap<>();
 				for (UUID member : members)
 					snapshots.put(member, player(member));
-				var team = player(uuid).teamId;
+				var team = progressTeam(uuid);
 				var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
                 if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
                     persisted.thenRun(() -> server.execute(() -> {
@@ -1051,11 +1068,12 @@ public final class QuestRuntime implements AutoCloseable {
 	public void changed(UUID id) {
 		assertThread();
 		var p = players.get(id);
-		if (p != null && p.teamId != null)
+		boolean shared = p != null && p.teamId != null && teams.get(p.teamId).sharedQuestProgress;
+		if (shared)
 			dirtyTeams.add(p.teamId);
 		else
 			dirty.add(id);
-		if (p != null && p.teamId != null)
+		if (shared)
 			teams.get(p.teamId).members.forEach(QuestNetwork::invalidate);
 		else
 			QuestNetwork.invalidate(id);
@@ -1220,7 +1238,7 @@ public final class QuestRuntime implements AutoCloseable {
 		TeamManager.Change change = action.prepare(teams);
 		if (!allowDuplicateTeamNames)
 			for (var candidate : change.teams().values())
-				if (!candidate.disbanded && teams.allTeams().stream().noneMatch(team -> team.id.equals(candidate.id))
+				if (!candidate.disbanded
 						&& pendingTeams.stream().flatMap(write -> write.change.teams().values().stream())
 								.anyMatch(team -> !team.disbanded && !team.id.equals(candidate.id) && team.name.equalsIgnoreCase(candidate.name)))
 					throw new IllegalArgumentException("A team with that name is being created");
@@ -1240,6 +1258,7 @@ public final class QuestRuntime implements AutoCloseable {
 		ensureFree(affected);
 		busy.addAll(affected);
 		var io = store.transaction(change.players(), change.teams());
+		affected.forEach(QuestNetwork::invalidate);
 		var write = new TeamWrite(change, io);
 		pendingTeams.add(write);
 		CompletableFuture<Void> result = new CompletableFuture<>();
@@ -1280,11 +1299,12 @@ public final class QuestRuntime implements AutoCloseable {
 			Map<UUID, PlayerProgress> snapshots = new HashMap<>();
 			for (UUID recipient : members) {
 				var p = player(recipient);
-				if (!p.claims.containsKey(award.key()))
-					entitleAward(p, award, player(id).teamId);
+				if (!p.claims.containsKey(award.key())
+						&& (recipient.equals(id) || stageRequirementsMet(recipient, registry.get(award.questId()))))
+					entitleAward(p, award, progressTeam(id));
 				snapshots.put(recipient, p);
 			}
-			var team = player(id).teamId;
+			var team = progressTeam(id);
 			var persisted = persistCurrent(snapshots, team == null ? Map.of() : Map.of(team, teams.get(team)), members);
             if (QuestPlusEvents.hasListeners(QuestPlusEvents.Type.QUEST_COMPLETED))
                 persisted.thenRun(() -> server.execute(() -> {
@@ -1304,6 +1324,29 @@ public final class QuestRuntime implements AutoCloseable {
 					: r;
 		}).toList();
 		personal.entitle(award.key(), new PlayerProgress.RewardGrant(award.questId(), rewards));
+	}
+
+	private static boolean containsStage(QuestDefinition.Condition condition) {
+		return condition != null && (condition.operator().equals("questplus:stage")
+				|| condition.children().stream().anyMatch(QuestRuntime::containsStage));
+	}
+
+	private boolean stageRequirementsMet(UUID recipient, QuestDefinition quest) throws IOException {
+		var required = quest.objectives().stream().filter(objective -> !objective.optional()).toList();
+		if (!containsStage(quest.requires()) && required.stream().noneMatch(o -> containsStage(o.conditions())))
+			return true;
+		var online = server.getPlayerList().getPlayer(recipient);
+		var context = online == null ? Map.<String, Object>of() : QuestPlusMod.context(online);
+		var completed = QuestEngine.prerequisiteState(state(recipient));
+		if (containsStage(quest.requires()) && (online == null || !quest.requires().matches(context, completed)))
+			return false;
+		long allowed = required.stream().filter(o -> !containsStage(o.conditions())
+				|| online != null && o.conditions().matches(context, completed)).count();
+		return allowed >= switch (quest.objectiveMode()) {
+			case "any" -> 1;
+			case "at_least" -> quest.objectiveThreshold();
+			default -> required.size();
+		};
 	}
 
 	private CompletableFuture<Void> save(UUID id) {
@@ -1502,6 +1545,8 @@ public final class QuestRuntime implements AutoCloseable {
 		var quest = registry.find(id).orElse(null);
 		if (quest == null && !id.equals("questplus:crate"))
 			throw new IllegalArgumentException("Unknown quest " + id);
+		if (quest != null && !stageRequirementsMet(uuid, quest))
+			throw new IllegalArgumentException("Required personal stages are not unlocked");
 		String key = progress.entitlements.entrySet().stream()
 				.filter(e -> e.getValue().questId().equals(id)
 						&& (requestedKey == null || requestedKey.equals(e.getKey()))
@@ -1519,11 +1564,14 @@ public final class QuestRuntime implements AutoCloseable {
 		TeamData shared = rewardScope == null ? null : teams.rewardScope(rewardScope);
 		if (shared != null && shared.rewardClaims.containsKey(key))
 			throw new IllegalArgumentException("Team reward already reserved or claimed");
+		Set<UUID> affected = new HashSet<>(group(uuid));
+		if (shared != null)
+			affected.addAll(shared.members);
+		ensureFree(affected);
 		progress.claims.put(key, "reserved");
 		if (shared != null)
 			shared.rewardClaims.put(key, "reserved");
 		QuestNetwork.invalidate(uuid);
-		Set<UUID> affected = group(uuid);
 		busy.addAll(affected);
 		claiming.add(uuid);
 		store.transaction(Map.of(uuid, progress), shared == null ? Map.of() : Map.of(rewardScope, shared))
