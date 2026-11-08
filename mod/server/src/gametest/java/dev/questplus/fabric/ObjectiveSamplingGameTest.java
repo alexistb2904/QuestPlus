@@ -49,6 +49,8 @@ public final class ObjectiveSamplingGameTest {
 		chunk.addReferenceForStructure(structure, chunk.getPos().pack());
 		var box = start.getBoundingBox();
 		player.setPos(box.minX() + 1.5, box.minY() + 1, box.minZ() + 1.5);
+		// The pyramid can extend into a different chunk than its start.
+		helper.getLevel().getChunkAt(player.blockPosition()).addReferenceForStructure(structure, chunk.getPos().pack());
 		player.getInventory().setItem(0, new ItemStack(Items.OAK_LOG, 3));
 		player.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.BIRCH_LOG, 2));
 		player.giveExperienceLevels(5);
