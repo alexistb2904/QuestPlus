@@ -1,0 +1,1540 @@
+{
+  "variants": {
+    "facing=north,size=0,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 0
+    },
+    "facing=north,size=0,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 0
+    },
+    "facing=north,size=0,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=0,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=0,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=0,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=0,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=2,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 0
+    },
+    "facing=north,size=0,column=2,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 0
+    },
+    "facing=north,size=0,column=2,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=0,column=2,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=0,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=0,column=3,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=0,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=3,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=0,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=0,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=0,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=0,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=0,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 0
+    },
+    "facing=north,size=1,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 0
+    },
+    "facing=north,size=1,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=1,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=1,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=1,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=1,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=1,column=2,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=1,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 0
+    },
+    "facing=north,size=1,column=3,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 0
+    },
+    "facing=north,size=1,column=3,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=1,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=1,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=1,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=1,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=1,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=1,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=1,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 0
+    },
+    "facing=north,size=2,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=2,column=0,row=2": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 0
+    },
+    "facing=north,size=2,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=2,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=2,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=1,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=2,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=2,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=2,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=2,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 0
+    },
+    "facing=north,size=2,column=3,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=2,column=3,row=2": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 0
+    },
+    "facing=north,size=2,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=2,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=2,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=4,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=2,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=2,column=5,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=2,column=5,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=2,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 0
+    },
+    "facing=north,size=3,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=3,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 0
+    },
+    "facing=north,size=3,column=0,row=3": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 0
+    },
+    "facing=north,size=3,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=3,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=1,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=3,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=3,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=2,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=3,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=3,column=3,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=3,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=3,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 0
+    },
+    "facing=north,size=3,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 0
+    },
+    "facing=north,size=3,column=4,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 0
+    },
+    "facing=north,size=3,column=5,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 0
+    },
+    "facing=north,size=3,column=5,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=3,column=5,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 0
+    },
+    "facing=north,size=3,column=5,row=3": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 0
+    },
+    "facing=east,size=0,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 90
+    },
+    "facing=east,size=0,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 90
+    },
+    "facing=east,size=0,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=0,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=0,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=0,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=0,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=2,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 90
+    },
+    "facing=east,size=0,column=2,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 90
+    },
+    "facing=east,size=0,column=2,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=0,column=2,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=0,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=0,column=3,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=0,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=3,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=0,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=0,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=0,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=0,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=0,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 90
+    },
+    "facing=east,size=1,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 90
+    },
+    "facing=east,size=1,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=1,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=1,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=1,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=1,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=1,column=2,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=1,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 90
+    },
+    "facing=east,size=1,column=3,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 90
+    },
+    "facing=east,size=1,column=3,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=1,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=1,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=1,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=1,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=1,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=1,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=1,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 90
+    },
+    "facing=east,size=2,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=2,column=0,row=2": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 90
+    },
+    "facing=east,size=2,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=2,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=2,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=1,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=2,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=2,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=2,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=2,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 90
+    },
+    "facing=east,size=2,column=3,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=2,column=3,row=2": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 90
+    },
+    "facing=east,size=2,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=2,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=2,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=4,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=2,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=2,column=5,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=2,column=5,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=2,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 90
+    },
+    "facing=east,size=3,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=3,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 90
+    },
+    "facing=east,size=3,column=0,row=3": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 90
+    },
+    "facing=east,size=3,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=3,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=1,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=3,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=3,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=2,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=3,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=3,column=3,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=3,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=3,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 90
+    },
+    "facing=east,size=3,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 90
+    },
+    "facing=east,size=3,column=4,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 90
+    },
+    "facing=east,size=3,column=5,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 90
+    },
+    "facing=east,size=3,column=5,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=3,column=5,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 90
+    },
+    "facing=east,size=3,column=5,row=3": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 90
+    },
+    "facing=south,size=0,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 180
+    },
+    "facing=south,size=0,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 180
+    },
+    "facing=south,size=0,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=0,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=0,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=0,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=0,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=2,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 180
+    },
+    "facing=south,size=0,column=2,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 180
+    },
+    "facing=south,size=0,column=2,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=0,column=2,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=0,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=0,column=3,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=0,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=3,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=0,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=0,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=0,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=0,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=0,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 180
+    },
+    "facing=south,size=1,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 180
+    },
+    "facing=south,size=1,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=1,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=1,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=1,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=1,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=1,column=2,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=1,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 180
+    },
+    "facing=south,size=1,column=3,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 180
+    },
+    "facing=south,size=1,column=3,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=1,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=1,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=1,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=1,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=1,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=1,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=1,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 180
+    },
+    "facing=south,size=2,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=2,column=0,row=2": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 180
+    },
+    "facing=south,size=2,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=2,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=2,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=1,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=2,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=2,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=2,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=2,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 180
+    },
+    "facing=south,size=2,column=3,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=2,column=3,row=2": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 180
+    },
+    "facing=south,size=2,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=2,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=2,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=4,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=2,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=2,column=5,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=2,column=5,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=2,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 180
+    },
+    "facing=south,size=3,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=3,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 180
+    },
+    "facing=south,size=3,column=0,row=3": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 180
+    },
+    "facing=south,size=3,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=3,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=1,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=3,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=3,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=2,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=3,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=3,column=3,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=3,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=3,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 180
+    },
+    "facing=south,size=3,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 180
+    },
+    "facing=south,size=3,column=4,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 180
+    },
+    "facing=south,size=3,column=5,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 180
+    },
+    "facing=south,size=3,column=5,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=3,column=5,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 180
+    },
+    "facing=south,size=3,column=5,row=3": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 180
+    },
+    "facing=west,size=0,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 270
+    },
+    "facing=west,size=0,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 270
+    },
+    "facing=west,size=0,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=0,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=0,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=0,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=0,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=2,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 270
+    },
+    "facing=west,size=0,column=2,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 270
+    },
+    "facing=west,size=0,column=2,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=0,column=2,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=0,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=0,column=3,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=0,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=3,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=0,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=0,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=0,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=0,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=0,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 270
+    },
+    "facing=west,size=1,column=0,row=1": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 270
+    },
+    "facing=west,size=1,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=1,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=1,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=1,column=1,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=1,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=1,column=2,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=1,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 270
+    },
+    "facing=west,size=1,column=3,row=1": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 270
+    },
+    "facing=west,size=1,column=3,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=1,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=1,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=1,column=4,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=1,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=1,column=5,row=1": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=1,column=5,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=1,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 270
+    },
+    "facing=west,size=2,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=2,column=0,row=2": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 270
+    },
+    "facing=west,size=2,column=0,row=3": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=2,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=2,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=1,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=2,column=1,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=2,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=2,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=2,column=2,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=3,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 270
+    },
+    "facing=west,size=2,column=3,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=2,column=3,row=2": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 270
+    },
+    "facing=west,size=2,column=3,row=3": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=2,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=2,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=4,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=2,column=4,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=5,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=2,column=5,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=2,column=5,row=2": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=2,column=5,row=3": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=0,row=0": {
+      "model": "questplus:block/quest_board_sw",
+      "y": 270
+    },
+    "facing=west,size=3,column=0,row=1": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=3,column=0,row=2": {
+      "model": "questplus:block/quest_board_w",
+      "y": 270
+    },
+    "facing=west,size=3,column=0,row=3": {
+      "model": "questplus:block/quest_board_nw",
+      "y": 270
+    },
+    "facing=west,size=3,column=1,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=3,column=1,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=1,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=1,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=3,column=2,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=3,column=2,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=2,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=2,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=3,column=3,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=3,column=3,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=3,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=3,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=3,column=4,row=0": {
+      "model": "questplus:block/quest_board_s",
+      "y": 270
+    },
+    "facing=west,size=3,column=4,row=1": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=4,row=2": {
+      "model": "questplus:block/quest_board_c",
+      "y": 270
+    },
+    "facing=west,size=3,column=4,row=3": {
+      "model": "questplus:block/quest_board_n",
+      "y": 270
+    },
+    "facing=west,size=3,column=5,row=0": {
+      "model": "questplus:block/quest_board_se",
+      "y": 270
+    },
+    "facing=west,size=3,column=5,row=1": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=3,column=5,row=2": {
+      "model": "questplus:block/quest_board_e",
+      "y": 270
+    },
+    "facing=west,size=3,column=5,row=3": {
+      "model": "questplus:block/quest_board_ne",
+      "y": 270
+    }
+  }
+}
