@@ -10,6 +10,7 @@ public final class TeamData {
 	public String name;
 	public UUID owner;
 	public Set<UUID> members = new HashSet<>();
+	public Set<UUID> managers = new HashSet<>();
 	public Map<UUID, Long> invitations = new HashMap<>();
 	public PlayerProgress progress = new PlayerProgress();
 	public Map<String, String> rewardClaims = new HashMap<>();
@@ -17,7 +18,8 @@ public final class TeamData {
 
 	public void validate() {
 		if (schemaVersion != 1 || id == null || owner == null || name == null || name.isBlank() || name.length() > 64
-				|| members == null || members.size() > 64 || members.contains(null) || invitations == null
+				|| members == null || members.size() > 64 || members.contains(null) || managers == null
+				|| !members.containsAll(managers) || managers.contains(owner) || invitations == null
 				|| invitations.size() > 64 || progress == null || rewardClaims == null)
 			throw new IllegalArgumentException("Invalid team");
 		if (disbanded ? !members.isEmpty() || !invitations.isEmpty() : !members.contains(owner))

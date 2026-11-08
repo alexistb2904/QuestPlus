@@ -57,6 +57,42 @@ class TeamManagerTest {
 	}
 
 	@Test
+	void managersCanInviteAndKickMembersButNotManagersOrOwner() throws Exception {
+		try (var store = new JsonProgressStore(root.resolve("data"))) {
+			var manager = new TeamManager(store, registry(), new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+			commit(store, manager, manager.invite(b, c, 1_000));
+			commit(store, manager, manager.join(c, team, 1_001));
+			assertThrows(IllegalArgumentException.class, () -> manager.kick(b, a));
+			assertThrows(IllegalArgumentException.class, () -> manager.transfer(b, c));
+			assertThrows(IllegalArgumentException.class, () -> manager.disband(b));
+			assertThrows(IllegalArgumentException.class, () -> manager.setManager(b, c, true));
+			commit(store, manager, manager.kick(b, c));
+			assertTrue(manager.teamOf(c).isEmpty());
+		}
+	}
+
+	@Test
+	void managerRoleSurvivesRestartAndIsRemovedWhenMemberLeaves() throws Exception {
+		Path data = root.resolve("data");
+		var definitions = registry();
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, definitions, new HashMap<>());
+			UUID team = create(store, manager);
+			join(store, manager, team, b);
+			commit(store, manager, manager.setManager(a, b, true));
+		}
+		try (var store = new JsonProgressStore(data)) {
+			var manager = new TeamManager(store, definitions, new HashMap<>());
+			commit(store, manager, manager.invite(b, c, 5_000));
+			commit(store, manager, manager.leave(b));
+			assertFalse(manager.teamOf(a).orElseThrow().managers.contains(b));
+		}
+	}
+
+	@Test
 	void duplicateNamesRespectPolicyAndIgnoreDisbandedTeams() throws Exception {
 		try (var store = new JsonProgressStore(root.resolve("data"))) {
 			var manager = new TeamManager(store, registry(), new HashMap<>());

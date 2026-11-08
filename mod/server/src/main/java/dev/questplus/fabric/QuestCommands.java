@@ -395,6 +395,10 @@ final class QuestCommands {
 				.then(literal("leave").executes(c -> team(c, m -> m.leave(actor(c)))))
 				.then(literal("kick").then(playerArgument()
 						.executes(c -> team(c, m -> m.kick(actor(c), playerId(c))))))
+				.then(literal("promote").then(playerArgument()
+						.executes(c -> team(c, m -> m.setManager(actor(c), playerId(c), true)))))
+				.then(literal("demote").then(playerArgument()
+						.executes(c -> team(c, m -> m.setManager(actor(c), playerId(c), false)))))
 				.then(literal("transfer").then(playerArgument()
 						.executes(c -> team(c, m -> m.transfer(actor(c), playerId(c))))))
 				.then(literal("disband").executes(c -> team(c, m -> m.disband(actor(c)))))
@@ -410,7 +414,7 @@ final class QuestCommands {
 					var value = QuestPlusMod.runtime().teams().teamOf(s.getPlayerOrException().getUUID());
 					s.sendSuccess(() -> value
 							.<Component>map(t -> Component.literal(t.id + " | " + t.name + " | owner=" + t.owner
-									+ " | members=" + t.members + " | invites=" + t.invitations.keySet()))
+									+ " | members=" + t.members + " | managers=" + t.managers + " | invites=" + t.invitations.keySet()))
 							.orElseGet(() -> Messages.text(s.getPlayer(), "questplus.no_team")), false);
 				})));
 	}

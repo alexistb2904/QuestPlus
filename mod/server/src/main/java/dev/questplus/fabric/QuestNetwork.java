@@ -318,6 +318,7 @@ public final class QuestNetwork {
 		team.members.stream().sorted().forEach(id -> {
 			JsonObject value = new JsonObject();
 			value.addProperty("id", id.toString());
+			value.addProperty("role", team.owner.equals(id) ? "owner" : team.managers.contains(id) ? "manager" : "member");
 			ServerPlayer online = server.getPlayerList().getPlayer(id);
 			value.addProperty("online", online != null);
 			if (online != null)
@@ -328,7 +329,7 @@ public final class QuestNetwork {
 		});
 		out.add("members", members);
 		JsonArray sent = new JsonArray();
-		if (team.owner.equals(viewer.getUUID()))
+		if (team.owner.equals(viewer.getUUID()) || team.managers.contains(viewer.getUUID()))
 			team.invitations.entrySet().stream().filter(e -> e.getValue() > System.currentTimeMillis())
 					.sorted(Map.Entry.comparingByKey()).forEach(e -> {
 						JsonObject value = new JsonObject();

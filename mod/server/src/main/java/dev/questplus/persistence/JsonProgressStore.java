@@ -810,8 +810,10 @@ public final class JsonProgressStore implements AutoCloseable {
 							.onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT))));
 			if (!root.has("rewardClaims"))
 				root.add("rewardClaims", new JsonObject());
+			if (!root.has("managers"))
+				root.add("managers", new JsonArray());
 			fields(root, "schemaVersion", "id", "name", "owner", "members", "invitations", "progress", "disbanded",
-					"rewardClaims");
+					"rewardClaims", "managers");
 			if (integer(root.get("schemaVersion")) != 1)
 				throw new IllegalArgumentException("Unsupported team version");
 			UUID.fromString(text(root.get("id")));
