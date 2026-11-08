@@ -58,10 +58,12 @@ public final class QuestBlocksClientGameTest {
                 var be=(QuestUtilityEntity)p.level().getBlockEntity(pos[1]);QuestBlockNetwork.open(p,be);
             });
             context.waitFor(client->client.gui.screen() instanceof QuestBlockScreen,200);
-            context.runOnClient(client->{
-                var fields=client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).toList();
-                fields.get(0).setValue("questplus:blocks_client");fields.get(1).setValue("stone");
-            });
+            click(context,"pick_quest",null);
+            context.runOnClient(client->client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+                    .findFirst().orElseThrow().setValue("Supply the settlement"));
+            context.takeScreenshot("world-blocks-quest-picker");
+            clickLabel(context,"Supply the settlement");
+            click(context,"pick_objective",null);clickLabel(context,"stone");
             context.takeScreenshot("world-blocks-station-configuration");
             click(context,"automation",ComponentKey.YES_NO_FALSE);
             context.takeScreenshot("world-blocks-station-automation-on");
@@ -76,7 +78,11 @@ public final class QuestBlocksClientGameTest {
             });
             context.waitFor(client->QuestClientState.flag(QuestPlusClient.STATE.progress("questplus:blocks_client"),"completed"),300);
             context.takeScreenshot("world-blocks-station-completed");
-            context.runOnClient(client->client.gui.setScreen(null));context.waitTicks(20);
+            context.runOnClient(client->{client.options.guiScale().set(4);});context.waitTicks(5);
+            context.runOnClient(client->client.gui.screen().mouseScrolled(100,100,0,-10));
+            context.takeScreenshot("world-blocks-small-screen-settings");
+            click(context,"close",null);context.waitTicks(20);
+            context.waitFor(client->client.gui.screen()==null,100);
             context.takeScreenshot("world-blocks-completed-board-relay");
             server.runOnServer(instance->{
                 var relay=(QuestUtilityEntity)instance.getPlayerList().getPlayers().getFirst().level().getBlockEntity(pos[2]);
@@ -88,11 +94,14 @@ public final class QuestBlocksClientGameTest {
     }
     private enum ComponentKey {YES_NO_FALSE}
     private static void click(ClientGameTestContext context,String key,ComponentKey arg){
+        String label=net.minecraft.network.chat.Component.translatable("questplus.blocks."+key,
+                arg==null?new Object[0]:new Object[]{net.minecraft.network.chat.Component.translatable("questplus.blocks.no")}).getString();
+        clickLabel(context,label);
+    }
+    private static void clickLabel(ClientGameTestContext context,String label){
         context.runOnClient(client->{
             if(client.gui.screen().getFocused()!=null)client.gui.screen().getFocused().setFocused(false);
         });
-        String label=net.minecraft.network.chat.Component.translatable("questplus.blocks."+key,
-                arg==null?new Object[0]:new Object[]{net.minecraft.network.chat.Component.translatable("questplus.blocks.no")}).getString();
         var coords=context.computeOnClient(client->{
             var b=client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .filter(button->button.getMessage().getString().equals(label)).findFirst().orElseThrow();

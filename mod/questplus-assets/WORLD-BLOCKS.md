@@ -97,3 +97,10 @@ event-driven board/relay updates. Captures are written under
 an integrated server. The team tests use two server-side player connections.
 Two independent interactive clients and third-party pipe mods require a separate
 compatibility run. Fabric item/fluid/energy API transfers are covered directly.
+
+Verified on 2026-11-08: Java build and 349 unit tests passed, 31 dedicated-server
+GameTests passed, and the rendered client scenario passed with searchable quest
+and objective selection, C2S settings, completion and compact-screen scrolling.
+Quest Studio passed 165 tests, typecheck and production build. The web API passed
+50 tests with one existing skipped test. Native Blockbench checks passed for the
+block assets. The station export matches Blockbench's native geometry and UVs.
