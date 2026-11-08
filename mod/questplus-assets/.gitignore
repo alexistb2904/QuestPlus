@@ -5,5 +5,6 @@ tools/*
 !tools/export_first_person.py
 !tools/export_third_person.py
 !tools/test_exports.py
+!tools/export_world_blocks.py
 manifest.json
 validation.json

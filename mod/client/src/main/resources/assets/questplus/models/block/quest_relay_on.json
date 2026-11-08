@@ -1,17 +1,11 @@
 {
   "textures": {
-    "wood": "questplus:block/wood",
-    "iron": "questplus:block/iron",
-    "slate": "questplus:block/slate",
-    "copper": "questplus:block/copper",
-    "rune": "questplus:block/rune",
-    "rune_off": "questplus:block/rune_off",
-    "parchment": "questplus:block/parchment",
-    "particle": "questplus:block/iron"
+    "utility": "questplus:block/questplus_utility",
+    "particle": "questplus:block/questplus_utility"
   },
   "elements": [
     {
-      "name": "base",
+      "name": "wrought_iron_foot",
       "from": [
         1,
         0,
@@ -19,424 +13,824 @@
       ],
       "to": [
         15,
-        3,
+        2,
         15
       ],
       "faces": {
         "north": {
-          "texture": "#iron",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            0.0,
+            11.5,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#iron",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            0.0,
+            11.5,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            0.0,
+            11.5,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#iron",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            0.0,
+            11.5,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#iron",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            0.0,
+            11.5,
+            3.5
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#iron",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            0.0,
+            11.5,
+            3.5
+          ],
+          "texture": "#utility"
         }
       }
     },
     {
-      "name": "rune_stone",
+      "name": "slate_plinth",
       "from": [
         2,
-        3,
+        2,
         2
       ],
       "to": [
         14,
-        5,
+        4,
         14
       ],
       "faces": {
         "north": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#slate",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            12.0,
+            0.0,
+            15.0,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            12.0,
+            0.0,
+            15.0,
+            0.5
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            12.0,
+            0.0,
+            15.0,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            12.0,
+            0.0,
+            15.0,
+            0.5
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            12.0,
+            0.0,
+            15.0,
+            3.0
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            12.0,
+            0.0,
+            15.0,
+            3.0
+          ],
+          "texture": "#utility"
         }
       }
     },
     {
-      "name": "quest_sigil",
+      "name": "dark_inlay",
       "from": [
-        4,
-        5,
-        7
-      ],
-      "to": [
-        12,
-        5.3,
-        9
-      ],
-      "faces": {
-        "north": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "up": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "quest_sigil",
-      "from": [
-        7,
-        5,
-        4
-      ],
-      "to": [
-        9,
-        5.3,
-        12
-      ],
-      "faces": {
-        "north": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "up": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#rune",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "contact",
-      "from": [
-        1,
-        2,
-        6
-      ],
-      "to": [
         3,
-        5.5,
-        10
+        4,
+        3
+      ],
+      "to": [
+        13,
+        4.5,
+        13
       ],
       "faces": {
         "north": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            10.5,
+            4.25
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            10.5,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            4.0,
+            10.5,
+            4.25
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            10.5,
+            4.25
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            10.5,
+            6.5
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            10.5,
+            6.5
+          ],
+          "texture": "#utility"
         }
       }
     },
     {
-      "name": "contact",
+      "name": "rune_stem",
       "from": [
-        13,
-        2,
+        7.5,
+        4.4,
         6
       ],
       "to": [
-        15,
-        5.5,
+        8.5,
+        4.8,
         10
       ],
       "faces": {
         "north": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            8.0,
+            0.25,
+            9.5
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#copper",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            8.0,
+            0.25,
+            9.5
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "rune_crown",
+      "from": [
+        5,
+        4.4,
+        5
+      ],
+      "to": [
+        11,
+        4.8,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            8.0,
+            1.5,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "rune_tick",
+      "from": [
+        8.4,
+        4.4,
+        10
+      ],
+      "to": [
+        11,
+        4.8,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            8.0,
+            0.65,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8.0,
+            0.65,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            8.0,
+            0.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            8.0,
+            0.65,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            8.0,
+            0.65,
+            8.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_contact_west",
+      "from": [
+        0.5,
+        1.5,
+        6
+      ],
+      "to": [
+        2.5,
+        4.7,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            1.0,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            1.0,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            5.0
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_contact_east",
+      "from": [
+        13.5,
+        1.5,
+        6
+      ],
+      "to": [
+        15.5,
+        4.7,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.0,
+            1.0,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.0,
+            1.0,
+            4.8
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            5.0
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            4.0,
+            0.5,
+            5.0
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_rivet_3_3",
+      "from": [
+        3.2,
+        3.8,
+        3.2
+      ],
+      "to": [
+        3.9,
+        4.7,
+        3.9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_rivet_3_12",
+      "from": [
+        3.2,
+        3.8,
+        12.2
+      ],
+      "to": [
+        3.9,
+        4.7,
+        12.9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_rivet_12_3",
+      "from": [
+        12.2,
+        3.8,
+        3.2
+      ],
+      "to": [
+        12.9,
+        4.7,
+        3.9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "iron_rivet_12_12",
+      "from": [
+        12.2,
+        3.8,
+        12.2
+      ],
+      "to": [
+        12.9,
+        4.7,
+        12.9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            4.25,
+            4.25
+          ],
+          "texture": "#utility"
         }
       }
     }
-  ],
-  "display": {
-    "gui": {
-      "rotation": [
-        30,
-        225,
-        0
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    }
-  }
+  ]
 }

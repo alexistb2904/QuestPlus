@@ -1,21 +1,15 @@
 {
   "textures": {
-    "wood": "questplus:block/wood",
-    "iron": "questplus:block/iron",
-    "slate": "questplus:block/slate",
-    "copper": "questplus:block/copper",
-    "rune": "questplus:block/rune",
-    "rune_off": "questplus:block/rune_off",
-    "parchment": "questplus:block/parchment",
-    "particle": "questplus:block/iron"
+    "utility": "questplus:block/questplus_utility",
+    "particle": "questplus:block/questplus_utility"
   },
   "elements": [
     {
-      "name": "back",
+      "name": "walnut_back",
       "from": [
         0,
         0,
-        13
+        13.2
       ],
       "to": [
         16,
@@ -24,132 +18,132 @@
       ],
       "faces": {
         "north": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            0.75,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            0.75,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            4.0,
+            0.75
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            4.0,
+            0.75
+          ],
+          "texture": "#utility"
         }
       }
     },
     {
-      "name": "writing_surface",
+      "name": "slate_surface",
       "from": [
+        2,
         0,
-        0,
-        12.7
+        12.6
       ],
       "to": [
         16,
         16,
-        13.1
+        13.2
       ],
       "faces": {
         "north": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#slate",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            12.0,
+            8.0
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            8.25,
+            8.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            4.0,
+            12.0,
+            8.0
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            8.25,
+            8.0
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            12.0,
+            4.25
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#slate",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            8.0,
+            4.0,
+            12.0,
+            4.25
+          ],
+          "texture": "#utility"
         }
       }
     },
     {
-      "name": "frame_w",
+      "name": "carved_frame_w",
       "from": [
         0,
         0,
@@ -158,78 +152,133 @@
       "to": [
         2,
         16,
-        16
+        13.2
       ],
       "faces": {
         "north": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            0.5,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "east": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            1.2,
+            4.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            0.5,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "west": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            1.2,
+            4.0
+          ],
+          "texture": "#utility"
         },
         "up": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            0.5,
+            1.2
+          ],
+          "texture": "#utility"
         },
         "down": {
-          "texture": "#wood",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
+            0.0,
+            0.0,
+            0.5,
+            1.2
+          ],
+          "texture": "#utility"
+        }
+      }
+    },
+    {
+      "name": "copper_inner_bead_w",
+      "from": [
+        1.5,
+        0.15,
+        10.7
+      ],
+      "to": [
+        1.9,
+        15.85,
+        11.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "east": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "west": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            12.0
+          ],
+          "texture": "#utility"
+        },
+        "up": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            8.0,
+            8.25,
+            8.25
+          ],
+          "texture": "#utility"
         }
       }
     }
-  ],
-  "display": {
-    "gui": {
-      "rotation": [
-        30,
-        225,
-        0
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    }
-  }
+  ]
 }
