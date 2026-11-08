@@ -8,6 +8,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TabletThirdPersonAnimationTest {
 	@Test
+	void readingPosePlacesBothPalmsAtOppositeTabletEdges() {
+		var frame = TabletThirdPersonAnimation.sample(true, 0);
+		assertTrue(TabletPoseClient.gripY(frame) >= 3 / 16f, "Hands should grip the lower side edges");
+		var right = new net.minecraft.client.model.geom.ModelPart(java.util.List.of(), java.util.Map.of());
+		var left = new net.minecraft.client.model.geom.ModelPart(java.util.List.of(), java.util.Map.of());
+		right.x = -5; left.x = 5; right.y = left.y = 2;
+		TabletPoseClient.arm(right, frame.right(), frame.rightPosition(), 1);
+		TabletPoseClient.arm(left, frame.left(), frame.leftPosition(), 1);
+		right.zRot -= (float) Math.toRadians(20);
+		left.zRot += (float) Math.toRadians(20);
+		var tablet = new com.mojang.blaze3d.vertex.PoseStack();
+		TabletPoseClient.tabletTransform(tablet, right, frame);
+		var opposite = tablet.last().pose().transformPosition(11.5f / 16, TabletPoseClient.gripY(frame), .2f / 16, new org.joml.Vector3f());
+		var hand = new com.mojang.blaze3d.vertex.PoseStack();
+		left.translateAndRotate(hand);
+		var palm = hand.last().pose().transformPosition(1 / 16f, 9 / 16f, 0, new org.joml.Vector3f());
+		assertTrue(opposite.distance(palm) < .04, "Left palm is separated from opposite edge by " + opposite.distance(palm));
+	}
+	@Test
 	void smallerTabletKeepsItsGripInsideThePalmThroughoutTheAnimation() {
 		assertEquals(.4f, TabletPoseClient.TABLET_SCALE);
 		for (double time : new double[] { 0, .2167, .4, .7, 1 }) {
@@ -21,7 +40,8 @@ class TabletThirdPersonAnimationTest {
 			var expected = hand.last().pose().transformPosition(-1 / 16f, 9 / 16f, 0, new org.joml.Vector3f());
 			var tablet = new com.mojang.blaze3d.vertex.PoseStack();
 			TabletPoseClient.tabletTransform(tablet, arm, frame);
-			var actual = tablet.last().pose().transformPosition(new org.joml.Vector3f(TabletPoseClient.TABLET_GRIP));
+			var grip = new org.joml.Vector3f(TabletPoseClient.TABLET_GRIP).setComponent(1, TabletPoseClient.gripY(frame));
+			var actual = tablet.last().pose().transformPosition(grip);
 			assertTrue(expected.distance(actual) < 1e-6, "Grip separated from palm at " + time);
 		}
 	}
@@ -29,6 +49,9 @@ class TabletThirdPersonAnimationTest {
 	@Test
 	void carryingStartsAndEndsAtTheVisibleSidePose() {
 		var carry = TabletThirdPersonAnimation.carry();
+		assertEquals(0, TabletPoseClient.gripY(carry));
+		assertTrue(TabletPoseClient.gripY(TabletThirdPersonAnimation.sample(false, .7))
+				< TabletPoseClient.gripY(TabletThirdPersonAnimation.sample(true, 0)));
 		assertEquals(1, carry.scale().x());
 		assertEquals(0, carry.left().x());
 		assertTrue(carry.position().x() > 9);

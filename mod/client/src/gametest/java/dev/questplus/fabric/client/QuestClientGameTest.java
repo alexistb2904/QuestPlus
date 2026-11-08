@@ -654,6 +654,22 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.waitTicks(18);
 		context.takeScreenshot("questplus-remote-idle");
 		assertRemoteArms(context);
+		context.runOnClient(client -> {
+			var witness = client.level.getEntity(9001);
+			witness.setPos(carryView.add(8, 0, 3.2));
+			witness.setOldPosAndRot();
+			client.player.setPos(carryView.add(-.85, 0, 1.3));
+			client.player.setOldPosAndRot();
+		});
+		context.waitTicks(3);
+		context.takeScreenshot("questplus-remote-grip-front");
+		context.runOnClient(client -> {
+			client.player.setPos(carryView.add(1.15, 0, 3.2));
+			client.player.setOldPosAndRot();
+		});
+		context.getInput().lookAt(90, 0);
+		context.waitTicks(3);
+		context.takeScreenshot("questplus-remote-grip-side");
 		var side = context.computeOnClient(client -> client.player.position().add(3, 0, 3.2));
 		context.runOnClient(client -> {
 			client.player.setPos(side);

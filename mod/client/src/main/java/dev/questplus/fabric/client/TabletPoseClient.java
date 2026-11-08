@@ -19,6 +19,9 @@ import java.util.*;
 public final class TabletPoseClient {
 	static final float TABLET_SCALE = .4f;
 	static final org.joml.Vector3f TABLET_GRIP = new org.joml.Vector3f(-11.5f / 16, 0, .2f / 16);
+	static float gripY(TabletThirdPersonAnimation.Pose frame) {
+		return 3.5f / 16 * Math.clamp(-frame.right().x() / 53, 0, 1);
+	}
 	private static final Map<UUID, PoseTime> POSES = new HashMap<>();
 	private static boolean sent;
 	private static int heartbeat;
@@ -178,7 +181,7 @@ public final class TabletPoseClient {
 		pose.scale(-TABLET_SCALE * scale.x(), TABLET_SCALE * scale.y(), TABLET_SCALE * scale.z());
 		// Scale around the grip, so the tablet edge stays inside the player's palm in
 		// every pose.
-		pose.translate(-TABLET_GRIP.x, -TABLET_GRIP.y, -TABLET_GRIP.z);
+		pose.translate(-TABLET_GRIP.x, -gripY(frame), -TABLET_GRIP.z);
 	}
 
 	static final class PoseTime {
