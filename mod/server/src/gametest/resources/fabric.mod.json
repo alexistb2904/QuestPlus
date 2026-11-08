@@ -13,6 +13,7 @@
 	"entrypoints": {
 		"fabric-client-gametest": ["dev.questplus.fabric.client.QuestClientGameTest"],
 		"fabric-gametest": [
+			"dev.questplus.fabric.QuestWorldBlocksGameTest",
 			"dev.questplus.fabric.ObjectiveRuntimeEdgeCasesGameTest",
 			"dev.questplus.fabric.ObjectiveObservationGameTest",
 			"dev.questplus.fabric.ObjectiveConditionMatrixGameTest",

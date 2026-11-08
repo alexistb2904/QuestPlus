@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    " C ",
+    "IRI",
+    "SSS"
+  ],
+  "key": {
+    "C": "minecraft:amethyst_shard",
+    "I": "minecraft:copper_ingot",
+    "R": "minecraft:redstone",
+    "S": "minecraft:stone"
+  },
+  "result": {
+    "id": "questplus:quest_relay",
+    "count": 1
+  }
+}

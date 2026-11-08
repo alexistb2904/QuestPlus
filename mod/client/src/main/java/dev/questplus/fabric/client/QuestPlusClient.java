@@ -60,6 +60,12 @@ public final class QuestPlusClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		settings = ClientSettings.load();
+		QuestWorldBlockRenderer.register();
+		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE,
+				(packet, context) -> context.client().execute(() -> {
+					if (context.client().gui.screen() instanceof QuestBlockScreen screen) screen.receive(packet);
+					else context.client().gui.setScreen(new QuestBlockScreen(packet));
+				}));
 		TabletPoseClient.register();
 		QuestClientTabletFlow.register();
 		PunchyTabletCompat.register();

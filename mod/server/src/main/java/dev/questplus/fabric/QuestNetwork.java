@@ -142,6 +142,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidate(UUID id) {
+		QuestWorldBlocks.invalidate(id);
 		DIRTY.add(id);
 		var session = SESSIONS.get(id);
 		if (session != null)
@@ -149,6 +150,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidateProgress(UUID id, Set<String> quests) {
+		QuestWorldBlocks.invalidate(id);
 		var session = SESSIONS.get(id);
 		if (session != null && session.progressDirty != null)
 			session.progressDirty.addAll(quests);
@@ -156,6 +158,7 @@ public final class QuestNetwork {
 	}
 
 	public static void invalidateAll(MinecraftServer server) {
+		QuestWorldBlocks.invalidateAll();
 		server.getPlayerList().getPlayers().forEach(p -> invalidate(p.getUUID()));
 	}
 

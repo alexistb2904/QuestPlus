@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "ICI",
+    "PSP",
+    "ICI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot",
+    "P": "#minecraft:planks",
+    "S": "minecraft:blackstone"
+  },
+  "result": {
+    "id": "questplus:quest_board",
+    "count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "ICI",
+    "PHP",
+    "IRI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:amethyst_shard",
+    "P": "#minecraft:planks",
+    "H": "minecraft:hopper",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "questplus:submission_station",
+    "count": 1
+  }
+}

@@ -49,6 +49,7 @@ public final class QuestPlusMod implements ModInitializer {
 	public void onInitialize() {
 		QuestCrateItem.register();
 		QuestTabletItem.register();
+		QuestWorldBlocks.register();
 		QuestCreativeTab.register();
 		QuestNetwork.register();
 		CommandRewards.install();

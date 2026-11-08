@@ -18,6 +18,9 @@ final class QuestCreativeTab {
 						.icon(tablet::getDefaultInstance).displayItems((parameters, output) -> {
 							output.accept(tablet);
 							output.accept(crate);
+							output.accept(QuestWorldBlocks.BOARD);
+							output.accept(QuestWorldBlocks.STATION);
+							output.accept(QuestWorldBlocks.RELAY);
 						}).build());
 	}
 }

@@ -544,7 +544,15 @@ public final class QuestRuntime implements AutoCloseable {
 					}
 				}
 			}
+		var online = server.getPlayerList().getPlayer(id);
+		if (online != null && !value.lastKnownName.equals(online.getPlainTextName())) {
+			value.lastKnownName = online.getPlainTextName(); dirty.add(id);
+		}
 		return value;
+	}
+
+	Set<UUID> knownPlayers() throws IOException {
+		var result = new HashSet<>(store.playerIds()); result.addAll(players.keySet()); return result;
 	}
 
 	public TeamManager teams() {
@@ -585,6 +593,102 @@ public final class QuestRuntime implements AutoCloseable {
 			throw new IllegalStateException("Quest Plus is stopping or storage is unavailable");
 		if (ids.stream().anyMatch(busy::contains))
 			throw new IllegalStateException("Quest Plus operation is still saving; try again shortly");
+	}
+
+	dev.questplus.persistence.BlockAccount loadBlock(UUID id) throws IOException {
+		assertThread();
+		if (storageFailed) throw new IOException("Quest storage unavailable");
+		return store.loadBlock(id);
+	}
+
+	void saveBlock(dev.questplus.persistence.BlockAccount account) throws IOException {
+		saveBlocks(Map.of(account.id(), account));
+	}
+
+	void saveBlocks(Map<UUID, dev.questplus.persistence.BlockAccount> accounts) throws IOException {
+		assertThread();
+		if (storageFailed) throw new IOException("Quest storage unavailable");
+		try { store.transaction(Map.of(), Map.of(), accounts).join(); }
+		catch (RuntimeException error) { failStorage(error); throw new IOException("Block transaction requires recovery", error); }
+	}
+
+	long storageRemaining(UUID owner, ProgressScope scope, UUID boundTeam, String questId, String objectiveId,
+			Map<String, Object> context) throws IOException {
+		assertThread();
+		player(owner);
+		if (scope == ProgressScope.TEAM && (!Objects.equals(boundTeam, player(owner).teamId)
+				|| !teams.get(boundTeam).sharedQuestProgress))
+			throw new IllegalArgumentException("Bound team is unavailable; reconfigure the block");
+		ensureFree(scope == ProgressScope.TEAM ? teams.get(boundTeam).members : Set.of(owner));
+		var state = state(owner, scope);
+		var q = registry.get(questId);
+		var o = q.objectives().stream().filter(v -> v.id().equals(objectiveId)).findFirst().orElseThrow();
+		if (!Set.of("item_turn_in", "fluid_submit", "energy_submit").contains(o.event()))
+			throw new IllegalArgumentException("Select a consuming submission objective");
+		// Offline validation cannot infer a player's stage, health, equipment or custom predicates.
+		if (!context.containsKey("playerPresent") && (!blockCondition(q.requires()) || !blockCondition(o.conditions())))
+			throw new IllegalArgumentException("This objective needs its owner online for validation");
+		var completed = QuestEngine.prerequisiteState(state);
+		if (q.requires() != null && !q.progressBeforeUnlock() && !q.requires().matches(context, completed)
+				|| o.conditions() != null && !o.conditions().matches(context, completed)
+				|| engine.diagnostic(state, questId).isPresent())
+			throw new IllegalArgumentException("Quest prerequisites or conditions are not satisfied");
+		var p = state.quests.get(questId);
+		if (p != null && (p.terminal || p.waitingRestart || q.progression().equals("once") && p.completed
+				|| p.attemptId != null && q.timeLimitSeconds() > 0
+					&& System.currentTimeMillis() - p.startedAt >= q.timeLimitSeconds() * 1000
+				|| p.attemptId == null && System.currentTimeMillis() - p.startedAt < q.cooldownSeconds() * 1000))
+			return 0;
+		long factor = q.progression().equals("tiered")
+				? q.tiers().get(Math.min(p == null ? 0 : p.tier, q.tiers().size()-1)).threshold() : 1;
+		if (q.objectiveMode().equals("sequence") && !o.optional())
+			for (var earlier : q.objectives()) {
+				if (earlier == o) break;
+				if (!earlier.optional() && (p == null || p.counters.getOrDefault(earlier.id(), 0L) < earlier.count()*factor))
+					return 0;
+			}
+		return Math.max(0, o.count()*factor - (p == null ? 0 : p.counters.getOrDefault(objectiveId, 0L)));
+	}
+
+	private static boolean blockCondition(QuestDefinition.Condition condition) {
+		return condition == null || Set.of("quest", "started", "dimension", "position", "biome").contains(condition.operator())
+				|| Set.of("and", "or", "not", "at_least").contains(condition.operator())
+					&& condition.children().stream().allMatch(QuestRuntime::blockCondition);
+	}
+
+	void submitStorage(UUID owner, ProgressScope scope, UUID boundTeam, QuestEvent event,
+			dev.questplus.persistence.BlockAccount debited) throws IOException {
+		String quest = (String)event.context().get("submissionQuest"), objective = (String)event.context().get("submissionObjective");
+		long remaining = storageRemaining(owner, scope, boundTeam, quest, objective, event.context());
+		if (event.amount() <= 0 || event.amount() > remaining) throw new IllegalArgumentException("Invalid resource amount");
+		Set<UUID> members = scope == ProgressScope.TEAM ? Set.copyOf(teams.get(boundTeam).members) : Set.of(owner);
+		Map<UUID, PlayerProgress> personal = new HashMap<>();
+		for (UUID id : members) personal.put(id, JsonProgressStore.detachedCopy(player(id)));
+		TeamData team = scope == ProgressScope.TEAM
+				? new com.google.gson.Gson().fromJson(new com.google.gson.Gson().toJson(teams.get(boundTeam)), TeamData.class) : null;
+		var progress = team == null ? personal.get(owner) : team.progress;
+		long before = progress.quests.containsKey(quest) ? progress.quests.get(quest).counters.getOrDefault(objective, 0L) : 0;
+		var awards = engine.applyDetailed(progress, event);
+		personal.get(owner).blockContributions = Math.addExact(personal.get(owner).blockContributions, event.amount());
+		var entry = progress.quests.get(quest);
+		if (entry == null || entry.counters.getOrDefault(objective, 0L) != before + event.amount()
+				&& awards.stream().noneMatch(a -> a.questId().equals(quest)))
+			throw new IllegalArgumentException("Submission did not advance the selected objective");
+		for (UUID recipient : teamRewardPolicy.equals("contributor") ? Set.of(owner) : members)
+			for (var award : awards)
+				if (recipient.equals(owner) || stageRequirementsMet(recipient, registry.get(award.questId())))
+					entitleAward(personal.get(recipient), award, team == null ? null : boundTeam);
+		try {
+			store.transaction(personal, team == null ? Map.of() : Map.of(boundTeam, team), Map.of(debited.id(), debited)).join();
+		} catch (RuntimeException error) { failStorage(error); throw new IOException("Submission requires storage recovery", error); }
+		personal.forEach(players::put);
+		if (team != null) teams.get(boundTeam).progress = team.progress;
+		dirty.removeAll(members);
+		if (team != null) dirtyTeams.remove(boundTeam);
+		members.forEach(QuestNetwork::invalidate);
+		QuestPlusEvents.publish(QuestPlusEvents.Type.OBJECTIVE_PROGRESS, owner, quest, objective, before, before+event.amount());
+		for (var award : awards)
+			QuestPlusEvents.publish(QuestPlusEvents.Type.QUEST_COMPLETED, owner, award.questId(), null, 0, 0);
 	}
 
 	/**
