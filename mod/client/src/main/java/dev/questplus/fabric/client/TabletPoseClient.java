@@ -28,6 +28,7 @@ public final class TabletPoseClient {
 	}
 
 	public static void register() {
+		registerModelCompatibility();
 		ClientPlayNetworking.registerGlobalReceiver(TabletPoseNetwork.State.TYPE,
 				(packet, ctx) -> ctx.client().execute(() -> {
 					changeLevel(ctx.client().level);
@@ -60,6 +61,29 @@ public final class TabletPoseClient {
 			if (renderer instanceof AvatarRenderer<?>avatar)
 				helper.register(new Layer(avatar));
 		});
+	}
+
+	private static void registerModelCompatibility() {
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("entity_model_features")) return;
+		try {
+			var api = Class.forName("traben.entity_model_features.EMFAnimationApi");
+			var entity = Class.forName("traben.entity_texture_features.utils.ETFEntity");
+			var uuid = entity.getMethod("etf$getUuid");
+			java.util.function.Function<Object, Boolean> holding = value -> {
+				try {
+					var id = (UUID) uuid.invoke(value);
+					if (POSES.containsKey(id)) return true;
+					var client = Minecraft.getInstance();
+					var player = client.level == null ? null : client.level.getPlayerByUUID(id);
+					return player != null && player.getMainHandItem().getItem() instanceof dev.questplus.fabric.QuestTabletItem;
+				} catch (ReflectiveOperationException error) {
+					return false;
+				}
+			};
+			api.getMethod("registerVanillaModelCondition", java.util.function.Function.class).invoke(null, holding);
+		} catch (ReflectiveOperationException | LinkageError error) {
+			dev.questplus.fabric.QuestPlusMod.LOGGER.warn("Entity Model Features tablet compatibility unavailable", error);
+		}
 	}
 
 	private static void changeLevel(Object current) {

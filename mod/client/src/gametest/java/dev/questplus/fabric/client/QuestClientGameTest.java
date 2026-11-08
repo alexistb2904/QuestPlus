@@ -18,6 +18,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		if (Boolean.getBoolean("questplus.tabletThirdPersonOnly")) {
+			try (var world = context.worldBuilder().create()) {
+				context.waitFor(client -> QuestPlusClient.STATE.ready, 600);
+				remotePoseTrial(context, world.getServer());
+			}
+			return;
+		}
 		if (Boolean.getBoolean("questplus.tabletOptions")) {
 			TabletOptionsGameTest.run(context);
 			return;
@@ -673,6 +680,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.waitTicks(18);
 		context.takeScreenshot("questplus-remote-closed");
 		assertRemoteCarry(context);
+		context.runOnClient(client -> ((net.minecraft.client.player.RemotePlayer) client.level.getEntity(9000))
+				.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY));
+		context.waitTicks(8);
+		context.takeScreenshot("questplus-remote-model-restored");
 		context.runOnClient(client -> {
 			client.level.removeEntity(9000, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 			client.level.removeEntity(9001, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
