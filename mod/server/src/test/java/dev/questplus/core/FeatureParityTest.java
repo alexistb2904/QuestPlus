@@ -61,6 +61,24 @@ class FeatureParityTest {
 	}
 
 	@Test
+	void sparseObservationStillResetsOtherTargetsInTheSameSharedQuest() throws Exception {
+		Files.writeString(root.resolve("gaze.json"), """
+				{"schemaVersion":2,"id":"test:gaze","category":"test:category","icon":"minecraft:stone","title":{"en_us":"Gaze"},
+				 "progression":"once","objectives":[{"id":"stone","event":"observe_block","target":"minecraft:stone","count":100},
+				 {"id":"dirt","event":"observe_block","target":"minecraft:dirt","count":100}],"rewards":[]}
+				""");
+		var engine = new QuestEngine(QuestRegistry.load(root, (kind, id) -> {}));
+		var shared = new PlayerProgress();
+		var targets = Set.of("minecraft:stone", "minecraft:dirt");
+		engine.apply(shared, new QuestEvent("observe_block", "minecraft:dirt", Set.of(), 1,
+				Map.of("stateValues", new ObservationValues(targets, Map.of("minecraft:dirt", 12L)))));
+		engine.apply(shared, new QuestEvent("observe_block", "minecraft:stone", Set.of(), 1,
+				Map.of("stateValues", new ObservationValues(targets, Map.of("minecraft:stone", 1L)))));
+		assertEquals(1L, shared.quests.get("test:gaze").counters.get("stone"));
+		assertEquals(0L, shared.quests.get("test:gaze").counters.get("dirt"));
+	}
+
+	@Test
 	void observationCannotSatisfyStageWithSameIdentifier() throws Exception {
 		Files.writeString(root.resolve("collision.json"),
 				"""

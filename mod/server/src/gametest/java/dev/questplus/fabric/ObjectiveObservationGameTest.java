@@ -46,6 +46,27 @@ public final class ObjectiveObservationGameTest {
 					f.expect("block", 0);
 				}).thenExecute(() -> level.setBlockAndUpdate(obstruction, Blocks.AIR.defaultBlockState()))
 				.thenWaitUntil(() -> helper.assertTrue(f.count("entity") > 0, "Removing obstruction restores gaze"))
+				.thenWaitUntil(f::idle).thenExecute(() -> {
+					try {
+						var field = QuestRuntime.class.getDeclaredField("busy");field.setAccessible(true);
+						@SuppressWarnings("unchecked") var busy = (java.util.Set<java.util.UUID>) field.get(f.runtime);
+						busy.add(player.getUUID());
+						player.setYRot(180);player.setYHeadRot(180);
+					} catch (ReflectiveOperationException e) { throw new RuntimeException(e); }
+				}).thenExecuteAfter(5, () -> {
+					helper.assertTrue(f.count("entity") > 0, "Saving rejects the gaze reset without caching it");
+					try {
+						var field = QuestRuntime.class.getDeclaredField("busy");field.setAccessible(true);
+						((java.util.Set<?>) field.get(f.runtime)).remove(player.getUUID());
+					} catch (ReflectiveOperationException e) { throw new RuntimeException(e); }
+				}).thenWaitUntil(() -> { f.expect("entity", 0);f.expect("tag", 0); })
+				.thenExecute(() -> {
+					try {
+						var progress = f.runtime.state(player.getUUID()).quests.get(f.quest);
+						progress.counters.put("block", 12L);progress.counters.put("entity", 12L);progress.counters.put("tag", 12L);
+						f.runtime.reload();
+					} catch (java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
+				}).thenWaitUntil(() -> { f.expect("block", 0);f.expect("entity", 0);f.expect("tag", 0); })
 				.thenExecute(f::close).thenSucceed();
 	}
 }

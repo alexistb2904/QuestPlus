@@ -38,7 +38,7 @@ public final class AdvancedEvents {
 			"xp_levels", "xp_points", "equipment_check");
 
 	private static final class Sample {
-		long last;
+		long last = Long.MIN_VALUE;
 		String dimension = "", biome = "";
 		Set<String> structures = Set.of();
 		int[] distances;
@@ -79,7 +79,7 @@ public final class AdvancedEvents {
 		while (visited++ < players.size() && sampled < 8) {
 			var player = players.get(Math.floorMod(cursor++, players.size()));
 			var state = SAMPLES.computeIfAbsent(player.getUUID(), id -> new Sample());
-			if (state.distances != null && ticks - state.last < 20)
+			if (state.last != Long.MIN_VALUE && ticks - state.last < 20)
 				continue;
 			state.last = ticks;
 			sample(player, state);
@@ -112,13 +112,16 @@ public final class AdvancedEvents {
 		var registry = QuestPlusMod.runtime().registry();
 		var snapshot = new SampleContext(player);
 		String dimension = player.level().dimension().identifier().toString();
-		var biomeHolder = player.level().getBiome(player.blockPosition());
-		String biome = biomeHolder.unwrapKey().map(k -> k.identifier().toString()).orElse("");
+		String biome = state.biome;
 		if (registry.hasEvent("dimension_enter") && !dimension.equals(state.dimension))
 			emit(player, "dimension_enter", dimension, Set.of(), 1, snapshot);
-		if (registry.hasEvent("biome_visit") && (!biome.equals(state.biome) || !dimension.equals(state.dimension)))
-			emit(player, "biome_visit", biome,
-					biomeHolder.tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1, snapshot);
+		if (registry.hasEvent("biome_visit")) {
+			var biomeHolder = player.level().getBiome(player.blockPosition());
+			biome = biomeHolder.unwrapKey().map(k -> k.identifier().toString()).orElse("");
+			if (!biome.equals(state.biome) || !dimension.equals(state.dimension))
+				emit(player, "biome_visit", biome,
+						biomeHolder.tags().map(t -> t.location().toString()).collect(Collectors.toSet()), 1, snapshot);
+		}
 		if (registry.hasEvent("structure_visit")) {
 			var structures = player.level().registryAccess().lookupOrThrow(Registries.STRUCTURE);
 			Set<String> inside = new HashSet<>();

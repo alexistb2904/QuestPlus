@@ -22,6 +22,26 @@ import java.nio.file.*;
 import java.util.*;
 
 public final class QuestWorldBlocksGameTest {
+    @GameTest(maxTicks=200)
+    public void sharedRankingIsReusedAndInvalidatedWithinTheTick(GameTestHelper h)throws Exception {
+        var actor=player(h);var rt=QuestPlusMod.runtime();var level=h.getLevel();
+        var boards=new ArrayList<QuestUtilityEntity>();
+        for(int i=0;i<2;i++) {
+            var pos=h.absolutePos(new BlockPos(i*4,8,1));level.setBlock(pos,QuestWorldBlocks.BOARD.defaultBlockState(),3);
+            var be=(QuestUtilityEntity)level.getBlockEntity(pos);be.claim(actor.getUUID());
+            be.config=QuestBlockConfig.parse(QuestBlockConfig.DEFAULT.encode().replace("\"leaderboard\":\"players\"","\"leaderboard\":\"contributions\""));
+            boards.add(be);
+        }
+        QuestWorldBlocks.invalidate(actor.getUUID());boards.forEach(QuestUtilityEntity::refresh);
+        h.assertTrue(boards.getFirst().leaders==boards.getLast().leaders,"Boards share one immutable ranking in the tick");
+        var before=boards.getFirst().leaders;
+        rt.player(actor.getUUID()).blockContributions=123456;rt.changed(actor.getUUID());boards.forEach(QuestUtilityEntity::refresh);
+        h.assertTrue(boards.getFirst().leaders!=before,"Progress invalidates a ranking immediately");
+        h.assertTrue(boards.getFirst().leaders.stream().anyMatch(r->r.player().equals(actor.getUUID().toString())&&r.progress().equals("123456")),"Contribution changes appear in the same tick");
+        for(var be:boards)level.removeBlock(be.getBlockPos(),false);
+        level.getServer().getPlayerList().remove(actor);rt.disconnect(actor.getUUID());
+        h.succeed();
+    }
     @GameTest(maxTicks=1200)
     public void modularBoardsConnectInEveryDirectionAndDropOnce(GameTestHelper h)throws Exception {
         var path=fixture(h,"modules","{id:'items',event:'item_turn_in',target:'minecraft:stone',count:4}");

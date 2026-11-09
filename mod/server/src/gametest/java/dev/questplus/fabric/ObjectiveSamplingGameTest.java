@@ -18,6 +18,27 @@ import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.structures.DesertPyramidPiece;
 
 public final class ObjectiveSamplingGameTest {
+	@GameTest(maxTicks = 200)
+	public void samplingCadenceDoesNotDependOnDistanceBaseline(GameTestHelper helper) throws Exception {
+		try (var f = new ObjectiveTestFixture(helper, "sample_cadence",
+				"[{id:'xp',event:'xp_levels',target:'questplus:levels',count:100}]")) {
+			var samplesField = AdvancedEvents.class.getDeclaredField("SAMPLES");
+			samplesField.setAccessible(true);
+			var samples = (Map<?, ?>) samplesField.get(null);
+			var server = helper.getLevel().getServer();
+			for (int i = 0; i < 100 && !samples.containsKey(f.player.getUUID()); i++) AdvancedEvents.tick(server);
+			var state = samples.get(f.player.getUUID());
+			var distances = state.getClass().getDeclaredField("distances");distances.setAccessible(true);
+			var last = state.getClass().getDeclaredField("last");last.setAccessible(true);
+			var ticks = AdvancedEvents.class.getDeclaredField("ticks");ticks.setAccessible(true);
+			// A pack without travel objectives never allocates a distance baseline.
+			distances.set(state, null);last.setLong(state, ticks.getLong(null));
+			long sampledAt = last.getLong(state);
+			for (int i = 0; i < 10; i++) AdvancedEvents.tick(server);
+			helper.assertTrue(last.getLong(state) == sampledAt, "No repeated sample within the 20-tick interval without distance stats");
+		}
+		helper.succeed();
+	}
 	@GameTest(maxTicks = 1000)
 	public void inventoryXpStatsAdvancementsGearAndVisits(GameTestHelper helper) throws Exception {
 		helper.setBiome(Biomes.DESERT);

@@ -714,7 +714,7 @@ public final class QuestScreen extends Screen {
 		drawAnnotations(g);
 		int edgeCount = 0;
 		for (var edge : visibleEdges) {
-			if ((edgeCount++ & 31) == 0)
+			if ((edgeCount++ & 7) == 0)
 				g.nextStratum();
 			var a = layout.points().get(edge.from());
 			var b = layout.points().get(edge.to());
@@ -764,7 +764,7 @@ public final class QuestScreen extends Screen {
 		for (String id : visibleNodes) {
 			// Bound Minecraft's intersection search without dropping overlapping authored
 			// nodes.
-			if ((nodeCount++ & 31) == 0)
+			if ((nodeCount++ & 7) == 0)
 				g.nextStratum();
 			any = true;
 			var p = layout.points().get(id);

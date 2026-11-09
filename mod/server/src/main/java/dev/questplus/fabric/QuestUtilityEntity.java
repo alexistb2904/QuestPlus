@@ -355,8 +355,10 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         return visible.stream().filter(q->config.quests().contains(q.id()) || !config.category().isEmpty() && q.category().equals(config.category())).toList();
     }
     private void updateRelay() throws IOException {
-        var rt=QuestPlusMod.runtime(); var p=rt.state(owner,config.scope()); var qs=selected(p); var ctx=context();
-        var complete=QuestEngine.prerequisiteState(p);
+        var rt=QuestPlusMod.runtime(); var p=rt.state(owner,config.scope()); var qs=selected(p);
+        boolean unlocked=config.condition().equals("unlocked");
+        var ctx=unlocked||config.condition().equals("stage")?context():Map.<String,Object>of();
+        var complete=unlocked?QuestEngine.prerequisiteState(p):Set.<String>of();
         boolean match;
         double fraction;
         if(config.condition().equals("stage")) {
@@ -378,7 +380,8 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(config.output().equals("pulse")) {
             if(match!=lastCondition) { setSignal(15);level.scheduleTick(worldPosition,QuestWorldBlocks.RELAY,4); }
         } else setSignal(out);
-        lastCondition=match; status="ready"; super.setChanged();
+        if(lastCondition!=match)super.setChanged();
+        lastCondition=match; status="ready";
     }
     private boolean rtClaimed(QuestRuntime rt,String quest) {
         try { var p=rt.player(owner);return p.entitlements.entrySet().stream().filter(e->e.getValue().questId().equals(quest))
@@ -393,23 +396,9 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     private void updateBoard() throws IOException {
         if(QuestBoardParts.modular(getBlockState())&&boardWidth==0)return;
         var rt=QuestPlusMod.runtime(); var p=rt.state(owner,config.scope()); var result=new ArrayList<Row>();
-        {
-            record Score(UUID id,String name,long score){}
-            var scores=new ArrayList<Score>();
-            if(config.leaderboard().equals("teams")) for(var t:rt.teams().allTeams())
-                scores.add(new Score(t.owner,t.name,t.progress.quests.values().stream().filter(q->q.completed||q.terminal).count()));
-            else for(UUID id:rt.knownPlayers()) {
-                var personal=rt.player(id); var online=level.getServer().getPlayerList().getPlayer(id);
-                String name=online==null?(personal.lastKnownName.isEmpty()?id.toString().substring(0,8):personal.lastKnownName):online.getPlainTextName();
-                long score=config.leaderboard().equals("contributions")?personal.blockContributions
-                        :rt.state(id).quests.values().stream().filter(q->q.completed||q.terminal).count();
-                scores.add(new Score(id,name,score));
-            }
-            scores.sort(Comparator.comparingLong(Score::score).reversed().thenComparing(s->s.id().toString()));
-            int rank=1;for(var score:scores.subList(0,Math.min(12,scores.size())))
-                result.add(new Row(rank+++". "+score.name(),"minecraft:player_head",Long.toString(score.score()),"",score.id().toString(),"",0,Long.toString(score.score())));
-        }
-        boolean leadersChanged=!leaders.equals(result);leaders=List.copyOf(result);
+        var ranking=QuestWorldBlocks.ranking((ServerLevel)level,config.leaderboard());
+        result.addAll(ranking);
+        boolean leadersChanged=!leaders.equals(ranking);leaders=ranking;
         if(!config.boardMode().equals("leaderboard")) {
             result.clear();
             var visible=dev.questplus.clientdata.ClientProjection.visible(rt.registry().all(),p);

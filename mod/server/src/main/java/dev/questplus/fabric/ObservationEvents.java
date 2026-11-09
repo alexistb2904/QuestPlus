@@ -19,10 +19,11 @@ final class ObservationEvents {
 	private static final int IDLE_SAMPLE_TICKS = 3;
 	private static final Map<UUID, Tracker> TRACKERS = new HashMap<>();
 	private static QuestRegistry lastRegistry;
+	private static Map<String, Set<String>> authoredTargets = Map.of();
 
 	private static final class Tracker {
 		final ObservationCounter counter = new ObservationCounter();
-		final Map<String, Long> published = new HashMap<>();
+		final Map<String, Map<String, Long>> published = new HashMap<>();
 		boolean observing;
 	}
 
@@ -34,6 +35,7 @@ final class ObservationEvents {
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			TRACKERS.clear();
 			lastRegistry = null;
+			authoredTargets = Map.of();
 		});
 	}
 
@@ -43,6 +45,8 @@ final class ObservationEvents {
 		if (registry != lastRegistry) {
 			TRACKERS.clear();
 			lastRegistry = registry;
+			authoredTargets = Map.of("observe_block", Set.copyOf(registry.targets("observe_block")),
+					"observe_entity", Set.copyOf(registry.targets("observe_entity")));
 		}
 		boolean blocks = registry.hasEvent("observe_block"), entities = registry.hasEvent("observe_entity");
 		if (!blocks && !entities)
@@ -89,22 +93,30 @@ final class ObservationEvents {
 			tracker.observing = false;
 			Map<String, Object> baseContext = null;
 			for (String event : List.of("observe_block", "observe_entity")) {
-				if (!registry.hasEvent(event))
+				var authored = authoredTargets.get(event);
+				if (authored.isEmpty())
 					continue;
+				var previous = tracker.published.get(event);
 				Map<String, Long> values = new HashMap<>();
-				List<String> changed = new ArrayList<>();
-				for (String authored : registry.targets(event)) {
-					boolean match = event.equals(type) && (authored.equals(target)
-							|| authored.startsWith("#") && tags.contains(authored.substring(1)));
-					long value = match ? ticks : 0L;
-					if (match)
-						tracker.observing = true;
-					values.put(authored, value);
-					String key = event + "\\0" + authored;
-					Long previous = tracker.published.get(key);
-					if (previous == null || previous.longValue() != value)
-						changed.add(authored);
+				// First sample clears persisted counters; later samples reset only the old gaze.
+				for (String old : previous == null ? authored : previous.keySet())
+					values.put(old, 0L);
+				if (event.equals(type)) {
+					if (authored.contains(target))
+						values.put(target, ticks);
+					for (String tag : tags)
+						if (authored.contains("#" + tag))
+							values.put("#" + tag, ticks);
 				}
+				Map<String, Long> positive = new HashMap<>();
+				List<String> changed = new ArrayList<>();
+				for (var entry : values.entrySet()) {
+					if (entry.getValue() > 0)
+						positive.put(entry.getKey(), entry.getValue());
+					if (previous == null || previous.getOrDefault(entry.getKey(), 0L).longValue() != entry.getValue())
+						changed.add(entry.getKey());
+				}
+				tracker.observing |= !positive.isEmpty();
 				if (changed.isEmpty())
 					continue;
 				if (runtime.isBusy(player.getUUID()))
@@ -112,12 +124,13 @@ final class ObservationEvents {
 				if (baseContext == null)
 					baseContext = QuestPlusMod.context(player);
 				var context = new HashMap<>(baseContext);
-				context.put("stateValues", values);
-				for (String authored : changed) {
-					runtime.event(player, new QuestEvent(event, authored.startsWith("#") ? "minecraft:air" : authored,
-							authored.startsWith("#") ? Set.of(authored.substring(1)) : Set.of(), 1, context));
-					tracker.published.put(event + "\\0" + authored, values.get(authored));
+				context.put("stateValues", new ObservationValues(authored, values));
+				for (String changedTarget : changed) {
+					runtime.event(player, new QuestEvent(event, changedTarget.startsWith("#") ? "minecraft:air" : changedTarget,
+							changedTarget.startsWith("#") ? Set.of(changedTarget.substring(1)) : Set.of(), 1, context));
 				}
+				if (!runtime.isBusy(player.getUUID()))
+					tracker.published.put(event, positive);
 			}
 		}
 	}

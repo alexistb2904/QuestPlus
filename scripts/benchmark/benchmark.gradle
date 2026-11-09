@@ -23,9 +23,14 @@ allprojects {
                 runDir file('build/benchmark/gametest-' + providers.gradleProperty('benchmarkFreshGameTest').get()).absolutePath
             }
         }
+        if (providers.gradleProperty('benchmarkGameplay').isPresent()) {
+            loom.runs.clientGameTest {
+                runDir file('build/benchmark/' + providers.gradleProperty('benchmarkGameplay').get()).absolutePath
+            }
+        }
         if (providers.gradleProperty('benchmarkClient').isPresent()) {
             def dense = providers.gradleProperty('benchmarkClientDense').isPresent()
-            def label = dense ? 'client-dense' : 'client'
+            def label = providers.gradleProperty('benchmarkLabel').getOrElse(dense ? 'client-dense' : 'client')
             sourceSets.gametest.java.srcDir file('../scripts/benchmark/client')
             sourceSets.gametest.resources.srcDir file('../scripts/benchmark/client-resources')
             loom.runs.clientGameTest {
@@ -42,6 +47,24 @@ allprojects {
                     def json = new groovy.json.JsonSlurper().parse(metadata)
                     json.entrypoints['fabric-client-gametest'] = ['dev.questplus.fabric.client.QuestClientLoadTest']
                     json.mixins.add([config: 'questplus-benchmark.mixins.json', environment: 'client'])
+                    metadata.text = groovy.json.JsonOutput.toJson(json)
+                }
+            }
+        }
+        if (providers.gradleProperty('benchmarkServer').isPresent()) {
+            sourceSets.gametest.java.srcDir file('../scripts/benchmark/server')
+            sourceSets.gametest.java.srcDir file('build/benchmark/baseline-observer')
+            loom.runs.gameTest {
+                runDir file('build/benchmark/server-' + providers.gradleProperty('benchmarkLabel').getOrElse('load')).absolutePath
+                vmArg '-Dquestplus.benchmark.root=' + file('build/benchmark').absolutePath
+                vmArg '-Dquestplus.benchmark.label=' + providers.gradleProperty('benchmarkLabel').getOrElse('load')
+            }
+            tasks.named('processGametestResources') {
+                inputs.property('benchmarkServer', true)
+                doLast {
+                    def metadata = new File(destinationDir, 'fabric.mod.json')
+                    def json = new groovy.json.JsonSlurper().parse(metadata)
+                    json.entrypoints['fabric-gametest'] = ['dev.questplus.fabric.QuestObserverLoadTest']
                     metadata.text = groovy.json.JsonOutput.toJson(json)
                 }
             }

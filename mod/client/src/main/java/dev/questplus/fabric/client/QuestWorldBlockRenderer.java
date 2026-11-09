@@ -24,6 +24,7 @@ import java.util.*;
 
 /** Static models carry the frame; cached rows carry quests, progress and the leaderboard. */
 public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestUtilityEntity,QuestWorldBlockRenderer.State> {
+    private static final float BOARD_TEXT_SCALE=1.25f;
     private final Font font;
     private final ItemModelResolver items;
     private record Line(QuestUtilityEntity.Row row,ItemStackRenderState icon){}
@@ -111,7 +112,7 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
             else {
                 boardText(pose,queue,row.detail()==null?row.state():row.detail(),x+23,y+15,w-29,0xffe0c5a2);
                 String value=row.count()==null?row.progress():row.count();
-                int available=Math.max(0,w-29),numberWidth=Math.min(font.width(value),available);
+                int available=Math.max(0,w-29),numberWidth=Math.min((int)Math.ceil(font.width(value)*BOARD_TEXT_SCALE),available);
                 int bar=Math.min(64,available-numberWidth-7);
                 if(bar>=16){
                     for(int n=0;n<8;n++)rect(queue,pose,x+23+n*bar/8,y+28,bar/8-1,5,n<Math.round(row.fraction()*8)?0xff91db40:0xff66513e);
@@ -122,10 +123,13 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
     }
     private void boardText(PoseStack pose,SubmitNodeCollector queue,String value,int x,int y,int width,int color){
         if(width<=0)return;
-        String label=font.plainSubstrByWidth(value,width);
-        if(!label.equals(value)&&width>=font.width("…"))label=font.plainSubstrByWidth(value,width-font.width("…"))+"…";
-        queue.submitText(pose,x,y,FormattedCharSequence.forward(label,Style.EMPTY),true,Font.DisplayMode.POLYGON_OFFSET,
+        int textWidth=(int)(width/BOARD_TEXT_SCALE);
+        String label=font.plainSubstrByWidth(value,textWidth);
+        if(!label.equals(value)&&textWidth>=font.width("…"))label=font.plainSubstrByWidth(value,textWidth-font.width("…"))+"…";
+        pose.pushPose();pose.translate(x,y,0);pose.scale(BOARD_TEXT_SCALE,BOARD_TEXT_SCALE,1);
+        queue.submitText(pose,0,0,FormattedCharSequence.forward(label,Style.EMPTY),true,Font.DisplayMode.POLYGON_OFFSET,
                 net.minecraft.util.LightCoordsUtil.FULL_BRIGHT,color,0,0);
+        pose.popPose();
     }
     private void text(State state,PoseStack pose,SubmitNodeCollector queue,String value,int x,int y,int width,int color){
         queue.submitText(pose,x,y,FormattedCharSequence.forward(font.plainSubstrByWidth(value,Math.max(0,width)),Style.EMPTY),false,Font.DisplayMode.POLYGON_OFFSET,state.lightCoords,color,0,0);

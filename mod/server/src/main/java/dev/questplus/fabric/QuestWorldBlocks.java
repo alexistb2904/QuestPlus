@@ -25,6 +25,8 @@ public final class QuestWorldBlocks {
     private static final Set<QuestUtilityEntity> BOARD_GEOMETRY = new HashSet<>();
     private static final Map<UUID, Set<QuestUtilityEntity>> OWNERS = new HashMap<>();
     private static final Set<QuestUtilityEntity> LEADERBOARDS = new HashSet<>();
+    private static final Map<String,List<QuestUtilityEntity.Row>> RANKINGS = new HashMap<>();
+    private static int rankingTick = Integer.MIN_VALUE;
     private QuestWorldBlocks() {}
     public static void register() {
         BOARD = block("quest_board", 0);
@@ -58,7 +60,8 @@ public final class QuestWorldBlocks {
             QuestBlockNetwork.tick(server);
         });
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            LOADED.clear(); DIRTY.clear(); BOARD_GEOMETRY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); QuestBlockNetwork.clear();
+            LOADED.clear(); DIRTY.clear(); BOARD_GEOMETRY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); RANKINGS.clear();
+            rankingTick=Integer.MIN_VALUE; QuestBlockNetwork.clear();
         });
     }
     private static QuestUtilityBlock block(String name, int kind) {
@@ -89,10 +92,37 @@ public final class QuestWorldBlocks {
             if (set != null) { set.remove(be); if (set.isEmpty()) OWNERS.remove(be.owner); }
         }
     }
-    static void enqueue(QuestUtilityEntity be) { DIRTY.add(be); }
-    public static void invalidate(UUID owner) {
-        DIRTY.addAll(OWNERS.getOrDefault(owner, Set.of()));
-        DIRTY.addAll(LEADERBOARDS);
+    static void enqueue(QuestUtilityEntity be) {
+        if(QuestBoardParts.modular(be.getBlockState()) && be.boardWidth==0 && !BOARD_GEOMETRY.contains(be))return;
+        DIRTY.add(be);
     }
-    static void invalidateAll() { DIRTY.addAll(LOADED); }
+    public static void invalidate(UUID owner) {
+        RANKINGS.clear();
+        OWNERS.getOrDefault(owner, Set.of()).forEach(QuestWorldBlocks::enqueue);
+        LEADERBOARDS.forEach(QuestWorldBlocks::enqueue);
+    }
+    static void invalidateAll() { RANKINGS.clear(); LOADED.forEach(QuestWorldBlocks::enqueue); }
+
+    static List<QuestUtilityEntity.Row> ranking(net.minecraft.server.level.ServerLevel level,String kind) throws java.io.IOException {
+        int now=level.getServer().getTickCount();
+        if(rankingTick!=now) {RANKINGS.clear();rankingTick=now;}
+        var cached=RANKINGS.get(kind);if(cached!=null)return cached;
+        var rt=QuestPlusMod.runtime();
+        record Score(UUID id,String name,long score){}
+        var scores=new ArrayList<Score>();
+        if(kind.equals("teams")) for(var t:rt.teams().allTeams())
+            scores.add(new Score(t.owner,t.name,t.progress.quests.values().stream().filter(q->q.completed||q.terminal).count()));
+        else for(UUID id:rt.knownPlayers()) {
+            var personal=rt.player(id);var online=level.getServer().getPlayerList().getPlayer(id);
+            String name=online==null?(personal.lastKnownName.isEmpty()?id.toString().substring(0,8):personal.lastKnownName):online.getPlainTextName();
+            long score=kind.equals("contributions")?personal.blockContributions
+                    :rt.state(id).quests.values().stream().filter(q->q.completed||q.terminal).count();
+            scores.add(new Score(id,name,score));
+        }
+        scores.sort(Comparator.comparingLong(Score::score).reversed().thenComparing(s->s.id().toString()));
+        var rows=new ArrayList<QuestUtilityEntity.Row>();int rank=1;
+        for(var score:scores.subList(0,Math.min(12,scores.size())))
+            rows.add(new QuestUtilityEntity.Row(rank+++". "+score.name(),"minecraft:player_head",Long.toString(score.score()),"",score.id().toString(),"",0,Long.toString(score.score())));
+        var result=List.copyOf(rows);RANKINGS.put(kind,result);return result;
+    }
 }
