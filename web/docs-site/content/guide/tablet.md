@@ -65,4 +65,4 @@ Holding it shows its carry pose. Right click to open it, then close the menu to 
 
 By default, taking damage closes the tablet. The setting to keep it open on damage is local to your client.
 
-[Quest blocks](/guide/world-blocks) · [Display and accessibility settings](/guide/settings) · [Play with a team](/guide/teams) · [Player commands](/reference/commands)
+[Quest blocks](/guide/world-blocks) · [Quest givers and loot crates](/guide/givers-and-crates) · [Display and accessibility settings](/guide/settings) · [Play with a team](/guide/teams) · [Player commands](/reference/commands)

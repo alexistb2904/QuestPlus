@@ -17,25 +17,32 @@ All geometry is baked Minecraft JSON; no per-frame geometry construction.
   orange front lens and side redstone traces. Its on/off baked models show the
   output state. Its nine-pixel collision height follows the cabinet.
 
-Editable sources are in `blockbench/world/`. These models were authored through
-the running Blockbench MCP. The board and station embed the original 64×64 material
-atlas; the relay has its own 64×64 pixel atlas for the cabinet and signal states.
-The four assembled board projects are
-Generic Models for editing the complete silhouette. They are not oversized block
-models in Minecraft.
+Editable sources are in `blockbench/world/`. Every runtime block model has its own
+`.bbmodel`; no script generates or modifies geometry. The board and station embed
+the original 64×64 material atlas (`textures/block/questplus_utility.png`); the relay
+has its own 64×64 pixel atlas for the cabinet and signal states. The four assembled
+board projects (`quest_board_2x3` … `quest_board_4x6`) are Generic Models for
+viewing the complete silhouette only. They are not exported.
 
-Regenerate the runtime JSON and PNG files with
-`python mod/questplus-assets/tools/export_world_blocks.py`. The exporter validates
-the source geometry, atlas consistency, UV bounds, 384 legacy board rules and 64
-modular border/orientation rules. The editable `quest_board_module.bbmodel` contains
-the independently selectable border and corner pieces. It
-does not require a running Blockbench instance. Runtime geometry and UVs were
-compared with Blockbench's native Java exporter, ignoring zero-angle transforms.
+To change a model, open its `.bbmodel` in Blockbench, edit it, save it, then use
+**File › Export › Export Block/Item Model** to overwrite the matching file in
+`mod/client/src/main/resources/assets/questplus/models/block/`. If you paint the
+atlas, also save the texture over the PNG in `textures/block/`. Commit the
+`.bbmodel` and the exported JSON/PNG together.
 
-The module source also stores the board item's display transforms. Dropped items
-use quarter scale; both third-person hands use 0.4 scale with the wall-offset depth
-recentered around the grip. The exporter preserves these transforms in the item
-model without changing the placed board or its inventory presentation.
+* Legacy fixed boards: `quest_board_c`, `_n`, `_s`, `_e`, `_w`, `_ne`, `_nw`, `_se`, `_sw`.
+* Modular boards: `quest_board_module_0` … `quest_board_module_15`. The number is the
+  set of framed borders: north = 1, south = 2, west = 4, east = 8 (`15` is framed on
+  all sides, `0` has no frame). The slate stops at the inner edge of every frame;
+  letting it run under the frame makes the faces z-fight on the board's outer edge.
+  A change to a frame piece must be made in each module that contains that border.
+
+Blockstates (`blockstates/quest_board.json`: 384 legacy rules, 64 modular rules) and
+item files are plain JSON with no geometry; edit them directly when needed.
+
+`quest_board_module_15.bbmodel` also stores the board item's display transforms;
+`models/item/quest_board.json` copies them. Dropped items use quarter scale; both
+third-person hands use 0.4 scale with the wall-offset depth recentered around the grip.
 
 ## In-game use
 
@@ -91,7 +98,7 @@ which reached tier maps to output 15. A pulse fires on either edge of a conditio
 
 Item display transforms live in the editable Blockbench projects. Dropped utility
 items use a quarter-size model, with separate first-person and third-person poses
-for both hands. The exporter preserves those transforms.
+for both hands. Blockbench's model export writes them into the item model.
 
 Boards display quest icons, titles, percentages and state, or rank, player heads,
 names and scores. The contributions ranking counts resources submitted through

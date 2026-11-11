@@ -139,7 +139,7 @@ The canvas is a pannable dark grid. Each node, 162 × 66 px before zoom, combine
 
 ### Quest details
 
-Tabs provide access to objectives, rewards, prerequisites, progression, NPCs, and translations; advanced JSON remains accessible. The NPC panel offers an `npc_interact` objective targeting an entity type. Another quest can use that quest as a prerequisite: the engine does not provide direct unlocks by NPC identity or narrative dialogue.
+Tabs provide access to objectives, rewards, prerequisites, progression, NPCs, and translations; advanced JSON remains accessible. The NPC tab picks which quest giver offers the quest and opens the Quest givers library, a wide dialog built on the reward-library shell: an NPC list, then appearance, spawn-place tiles and a quest search grouped by chapter. The `npc_interact` objective lives in the Objectives tab like any other objective.
 
 ## Do's and Don'ts
 

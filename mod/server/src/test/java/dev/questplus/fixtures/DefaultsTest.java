@@ -71,7 +71,7 @@ class DefaultsTest {
 		Defaults.install(definitions);
 		QuestRegistry registry = QuestRegistry.load(definitions.resolve("quests"), (kind, id) -> {
 		});
-		assertEquals(209, registry.all().size(), "Only maintained challenge and equipment quests");
+		assertEquals(219, registry.all().size(), "Only maintained challenge, equipment and explorer quests");
 
 		Set<String> categories = new HashSet<>();
 		try (var files = Files.walk(definitions.resolve("categories"))) {
@@ -84,7 +84,7 @@ class DefaultsTest {
 				}
 			});
 		}
-		assertEquals(16, categories.size());
+		assertEquals(17, categories.size());
 		for (QuestDefinition quest : registry.all()) {
 			assertTrue(categories.contains(quest.category()), "Missing category for " + quest.id());
 			Set<String> references = new HashSet<>();
@@ -94,6 +94,15 @@ class DefaultsTest {
 				assertTrue(registry.find(reference).isPresent(),
 						"Unresolved prerequisite " + reference + " from " + quest.id());
 		}
+		var config = JsonParser.parseString(Files.readString(definitions.resolve("config.json"))).getAsJsonObject();
+		Set<String> ids = new HashSet<>();
+		registry.all().forEach(q -> ids.add(q.id()));
+		var npcs = dev.questplus.core.QuestNpcs.parse(config.get("npcs"), ids, (kind, target) -> {
+		});
+		assertEquals(10, npcs.values().stream().mapToInt(npc -> npc.quests().size()).sum(),
+				"Every explorer quest is offered by an NPC");
+		assertTrue(registry.all().stream().filter(q -> q.category().equals("questplus:explorers"))
+				.allMatch(q -> npcs.values().stream().anyMatch(npc -> npc.quests().contains(q.id()))));
 		assertEquals("tiered", registry.get("questplus:quarries/stone_mountain").progression());
 		assertEquals("repeatable", registry.get("questplus:contracts/skeleton_bounty").progression());
 		assertEquals("infinite", registry.get("questplus:contracts/eternal_quarry").progression());

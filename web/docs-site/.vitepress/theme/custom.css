@@ -337,117 +337,6 @@ input:focus-visible,
 .VPDocFooter .pager-link:hover {
 	border-color: #ae73e8;
 }
-
-/* Home uses the Studio's large wooden plaque, beveled controls and quest-node tiles. */
-.VPHome {
-	background: transparent;
-}
-.VPHomeHero {
-	position: relative;
-	padding-top: calc(var(--vp-nav-height) + 48px) !important;
-	padding-bottom: 25px !important;
-}
-.VPHomeHero::before {
-	content: "";
-	position: absolute;
-	left: 50%;
-	top: 8px;
-	transform: translateX(-50%);
-	width: min(1120px, 92vw);
-	height: 100%;
-	pointer-events: none;
-	background: radial-gradient(ellipse at 60% 45%, #71468e41, transparent 66%);
-}
-.VPHomeHero .name {
-	font-size: clamp(42px, 6vw, 68px);
-	letter-spacing: 0.02em;
-	color: #f1d9a0;
-}
-.VPHomeHero .text {
-	color: #c99aeb !important;
-	font-size: clamp(27px, 4vw, 43px);
-}
-.VPHomeHero .tagline {
-	color: #d6ccd8;
-	max-width: 620px;
-	font-size: 16px;
-}
-.VPHomeHero .image-src {
-	image-rendering: pixelated;
-	filter: drop-shadow(0 9px 4px #0008);
-}
-.VPHomeHero .image-container {
-	transform: scale(0.92);
-}
-.VPButton {
-	border-radius: 4px !important;
-	box-shadow:
-		inset 0 1px 1px #ffffff25,
-		0 3px 5px #000a;
-	text-shadow: 0 1px 1px #0009;
-	font-weight: 700 !important;
-}
-.VPButton.brand {
-	border: 2px solid #73b548 !important;
-	color: #fff !important;
-	background: linear-gradient(#3d8d20, #21600e) !important;
-}
-.VPButton.brand:hover {
-	border-color: #a0dc72 !important;
-	background: linear-gradient(#4caa2d, #286d11) !important;
-}
-.VPButton.alt {
-	color: #f2e5fb !important;
-	border: 2px solid #b48acb !important;
-	background: linear-gradient(#7943a4, #4a276b) !important;
-}
-.VPButton.alt:hover {
-	border-color: #d9b4ea !important;
-}
-.VPFeatures {
-	padding-top: 16px !important;
-}
-.VPFeature {
-	background-color: #28272b !important;
-	background-image: var(--qp-stone) !important;
-	background-size: auto, 64px !important;
-	border: 2px solid #726779 !important;
-	border-top: 4px solid var(--qp-grass) !important;
-	border-radius: 4px !important;
-	box-shadow:
-		inset 1px 1px 1px #e1dce63b,
-		inset -2px -2px 1px #0b0c10,
-		0 5px 8px #0009;
-}
-.VPFeature:hover {
-	border-color: #b576f0 !important;
-	transform: translateY(-2px);
-}
-.VPFeature .title {
-	color: #f0d7a9;
-	font:
-		700 22px "Pixelify Sans",
-		sans-serif;
-}
-.VPFeature .details {
-	color: #d3c8d7;
-	font-size: 13px;
-}
-.VPHomeContent .vp-doc {
-	max-width: 960px;
-	margin: 25px auto 45px;
-	padding: 18px 24px;
-	background-image: var(--qp-oak);
-	background-size: auto, 160px;
-	border: 1px solid #725a40;
-	border-top: 4px solid var(--qp-grass);
-	border-radius: 4px;
-	box-shadow: 0 5px 15px #0006;
-}
-.VPHomeContent .vp-doc h2 {
-	color: #f1d9a0;
-	margin-top: 0;
-}
 .VPFooter {
 	background-image: var(--qp-oak) !important;
 	background-size: auto, 160px !important;
@@ -554,131 +443,6 @@ input:focus-visible,
 	color: #ae73e8;
 	font-style: normal;
 }
-
-/* The landing page pairs real gameplay with practical routes into the guides. */
-.VPHomeHero .image-container {
-	width: min(48vw, 560px);
-	height: auto;
-	transform: none;
-}
-.VPHomeHero .image-src {
-	position: static;
-	max-width: 100%;
-	max-height: none;
-	border: 2px solid #8d6848;
-	border-radius: 4px;
-	image-rendering: auto;
-	box-shadow: 0 14px 35px #000a;
-}
-.VPHomeContent .vp-doc {
-	max-width: 1152px;
-	padding: 0;
-	background: none;
-	border: 0;
-	box-shadow: none;
-}
-.home-intro {
-	max-width: 750px;
-	padding: 46px 0 32px;
-}
-.home-eyebrow,
-.home-story span,
-.home-paths span {
-	color: #d9a65d !important;
-	font-size: 11px;
-	font-weight: 800;
-	letter-spacing: 0.15em;
-}
-.home-intro h2,
-.home-paths h2 {
-	border: 0;
-	margin: 8px 0 12px !important;
-	font-size: clamp(28px, 4vw, 40px);
-	color: #f2dfb0;
-}
-.home-intro p,
-.home-paths p {
-	color: #c9bfba;
-}
-.home-showcase {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 20px;
-}
-.home-story {
-	overflow: hidden;
-	background: #211d20;
-	border: 1px solid #6b5545;
-	box-shadow: 0 6px 18px #0007;
-}
-.home-story img {
-	display: block;
-	width: 100%;
-	aspect-ratio: 16/9;
-	object-fit: cover;
-}
-.home-story div {
-	padding: 22px 24px 26px;
-}
-.home-story h3 {
-	margin: 7px 0;
-	color: #f4d8a1;
-	font-size: 24px;
-}
-.home-story p {
-	margin: 0 0 14px;
-	color: #d3c7c2;
-	font-size: 14px;
-}
-.home-story a {
-	font-weight: 700;
-}
-.home-paths {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 10px;
-	padding: 55px 0 25px;
-}
-.home-paths > div {
-	grid-column: 1/-1;
-	margin-bottom: 12px;
-}
-.home-paths > div p {
-	margin: 0;
-}
-.home-paths > a {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	min-height: 108px;
-	padding: 18px;
-	background: var(--qp-oak);
-	background-size: auto, 160px;
-	border: 1px solid #725a40;
-	color: #f2dfb0;
-	text-decoration: none;
-}
-.home-paths > a:hover {
-	border-color: #e9bc73;
-	color: #fff;
-}
-.home-paths strong {
-	font:
-		700 20px "Pixelify Sans",
-		sans-serif;
-}
-.home-paths small {
-	margin-top: 5px;
-	padding-right: 12px;
-	color: #cabcb0;
-	line-height: 1.4;
-}
-.home-paths b {
-	position: absolute;
-	right: 14px;
-	top: 14px;
-	color: #e9bc73;
-}
 @media (max-width: 767px) {
 	.QPFooter {
 		padding: 30px 20px 14px;
@@ -697,21 +461,7 @@ input:focus-visible,
 		flex-direction: column;
 		gap: 5px;
 		margin-top: 22px;
-	}
-	.VPHomeHero .image-container {
-		width: min(80vw, 480px);
-	}
-	.home-showcase {
-		grid-template-columns: 1fr;
-	}
-	.home-paths {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		padding-top: 38px;
-	}
-	.home-intro {
-		padding-top: 28px;
-	}
-}
+	}}
 @media (max-width: 960px) {
 	.VPDoc .content .vp-doc {
 		padding: 20px 18px;
@@ -719,38 +469,18 @@ input:focus-visible,
 	.VPNavBarTitle .title {
 		font-size: 18px;
 		padding: 3px 9px !important;
-	}
-	.VPHomeHero {
-		padding-top: calc(var(--vp-nav-height) + 32px) !important;
-	}
-}
+	}}
 @media (max-width: 640px) {
-	.VPHomeHero {
-		padding-top: calc(var(--vp-nav-height) + 20px) !important;
-	}
 	.VPNavBarTitle .title {
 		border-width: 1px;
 		font-size: 17px;
-	}
-	.VPHomeHero .image-container {
-		transform: scale(0.72);
-	}
-	.VPHomeContent .vp-doc {
-		margin-inline: 12px;
-		padding: 15px 16px;
 	}
 	.vp-doc h1 {
 		font-size: 28px;
 	}
 	.vp-doc h2 {
 		font-size: 22px;
-	}
-}
-@media (prefers-reduced-motion: reduce) {
-	.VPFeature {
-		transition: none !important;
-	}
-}
+	}}
 
 /* Mobile usability: keep the Quest Studio plaque away from screen edges. */
 .VPNavBarTitle {
@@ -891,98 +621,7 @@ input:focus-visible,
 	}
 	.VPNavScreenMenuLink .link {
 		min-height: 44px;
-	}
-}
-
-/* Landing: gameplay leads, with the same stone, oak and grass as the editor. */
-.VPHomeHero {
-	padding-bottom: 54px !important;
-}
-.VPHomeHero::before,
-.VPHomeHero .image-bg {
-	display: none;
-}
-.VPHomeHero .name {
-	color: #f4dfa9;
-}
-.VPHomeHero .text {
-	max-width: 540px;
-	color: #eee5d4 !important;
-	line-height: 1.08;
-}
-.VPHomeHero .tagline {
-	max-width: 480px;
-	line-height: 1.65;
-}
-.VPHomeHero .image-container {
-	width: min(47vw, 570px);
-}
-.VPHomeHero .image-src {
-	border: 5px solid #554334;
-	outline: 1px solid #a5855b;
-	box-shadow: 0 18px 40px #000a;
-}
-.VPHomeContent .vp-doc {
-	margin-top: 0;
-}
-.home-intro {
-	max-width: 760px;
-	padding: 32px 0 28px;
-	border-top: 3px solid var(--qp-grass);
-}
-.home-intro h2,
-.home-paths h2 {
-	text-wrap: balance;
-}
-.home-intro p {
-	max-width: 68ch;
-	font-size: 16px;
-	line-height: 1.7;
-}
-.home-showcase {
-	gap: 24px;
-}
-.home-story {
-	background: #242327;
-	background-image: var(--qp-stone);
-	background-size: auto, 64px;
-	border: 1px solid #675e5d;
-	border-top: 3px solid #568833;
-}
-.home-story img {
-	margin: 0;
-}
-.home-story div {
-	padding: 24px 26px 28px;
-}
-.home-story h3 {
-	font:
-		700 25px/1.2 "Pixelify Sans",
-		sans-serif;
-}
-.home-story p {
-	max-width: 52ch;
-	line-height: 1.65;
-}
-.home-story a {
-	display: inline-block;
-	padding: 5px 0;
-	text-underline-offset: 4px;
-}
-.home-paths {
-	gap: 0;
-	padding-top: 70px;
-}
-.home-paths > div {
-	margin-bottom: 18px;
-}
-.home-paths > a {
-	min-height: 122px;
-	border-right: 0;
-}
-.home-paths > a:last-child {
-	border-right: 1px solid #725a40;
-}
+	}}
 .QPFooter {
 	padding-top: 48px;
 }
@@ -1032,22 +671,6 @@ input:focus-visible,
 	margin-top: 36px;
 }
 @media (max-width: 767px) {
-	.VPHomeHero {
-		padding-bottom: 28px !important;
-	}
-	.VPHomeHero .image-container {
-		width: min(85vw, 520px);
-		transform: none;
-	}
-	.home-intro {
-		padding-top: 25px;
-	}
-	.home-paths {
-		padding-top: 48px;
-	}
-	.home-paths > a {
-		border-right: 1px solid #725a40;
-	}
 	.QPFooter__inner {
 		grid-template-columns: 1fr 1fr;
 		gap: 28px 20px;
@@ -1057,16 +680,8 @@ input:focus-visible,
 	}
 	.QPFooter__links {
 		align-items: flex-start;
-	}
-}
+	}}
 @media (max-width: 640px) {
-	.VPHomeHero .image-container {
-		transform: none;
-	}
-	.VPHomeContent .vp-doc {
-		margin-inline: 0;
-		padding: 0 12px;
-	}
 	.VPNavBarTitle {
 		max-width: none;
 	}
@@ -1076,41 +691,7 @@ input:focus-visible,
 	.VPNavBarTitle .title span {
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-}
-
-/* Keep the gameplay image in the hero layout at every viewport size. */
-.VPHomeHero .image {
-	margin: 0 0 32px;
-}
-.VPHomeHero .image-container {
-	width: 100%;
-	max-width: 570px;
-	height: auto;
-	transform: none;
-}
-.VPHomeHero .image-src {
-	display: block;
-	width: 100%;
-	height: auto;
-	transform: none !important;
-}
-@media (min-width: 960px) {
-	.VPHomeHero .container {
-		align-items: center;
-		gap: 48px;
-	}
-	.VPHomeHero.has-image .main {
-		flex: 1 1 0;
-		width: auto !important;
-		min-width: 0;
-	}
-	.VPHomeHero .image {
-		flex: 1 1 0;
-		min-width: 0;
-		margin: 0;
-	}
-}
+	}}
 
 /* Keep the documentation title and navigation inside their allotted column. */
 .VPNavBarTitle .title {
@@ -1131,8 +712,7 @@ input:focus-visible,
 	.VPNavBarTitle.has-sidebar .logo {
 		width: 32px;
 		height: 30px;
-	}
-}
+	}}
 .VPSidebarItem.level-0 > .items {
 	padding-top: 6px;
 }
@@ -1195,10 +775,8 @@ input:focus-visible,
 	.VPContent.has-sidebar ~ .QPFooter .QPFooter__inner {
 		grid-template-columns: minmax(0, 1fr) auto auto;
 		gap: 32px;
-	}
-}
+	}}
 @media (min-width: 1440px) {
 	.VPContent.has-sidebar ~ .QPFooter {
 		margin-left: calc((100vw - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width));
-	}
-}
+	}}

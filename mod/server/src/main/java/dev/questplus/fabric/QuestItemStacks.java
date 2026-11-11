@@ -37,7 +37,7 @@ final class QuestItemStacks {
 	}
 
 	static boolean matches(QuestDefinition.Objective objective, ItemStack stack, ServerPlayer player) {
-		return ItemComponents.matches(JsonParser.parseString(objective.data()).getAsJsonObject(),
+		return ItemComponents.matches(QuestExtensions.parsed(objective.data()).getAsJsonObject(),
 				components(stack, player.registryAccess()));
 	}
 

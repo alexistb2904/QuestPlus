@@ -65,7 +65,8 @@ public final class TabletNativeFirstPersonRenderer {
 				var renderType = TabletShaderCompat.shadersActive()
 						? RenderTypes.entityCutout(TabletSurfaceRenderer.TEXTURE)
 						: QuestPlusClient.settings.screenEmissive
-							? RenderTypes.entityTranslucentEmissive(TabletSurfaceRenderer.TEXTURE)
+							// Eyes skip the cardinal face shading that dimmed the "emissive" screen by a third.
+							? RenderTypes.eyes(TabletSurfaceRenderer.TEXTURE)
 							: RenderTypes.entityTranslucent(TabletSurfaceRenderer.TEXTURE);
 				collector.submitCustomGeometry(base, renderType, (framePose, vertices) ->
 						TabletNativeGeometry.render(restore(framePose), vertices, light,

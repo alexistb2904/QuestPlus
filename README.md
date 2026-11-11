@@ -1,66 +1,96 @@
-# Your adventure, in your hands.
+<p align="center">
+  <img src="https://quest.alexistb.com/docs/store/01-banner.jpg" alt="Quest Plus. Quests you hold in your hands. An animated tablet, quest blocks, quest givers and loot crates." width="100%">
+</p>
 
-A complete questing system built around an **animated 3D tablet** you can pull out in Minecraft.
+<p align="center">
+  <a href="https://quest.alexistb.com/docs/"><img src="https://quest.alexistb.com/docs/store/button-docs.png" alt="Documentation" width="200"></a>
+  <a href="https://quest.alexistb.com/"><img src="https://quest.alexistb.com/docs/store/button-studio.png" alt="Open Quest Studio" width="200"></a>
+  <a href="https://github.com/alexistb2904/QuestPlus/issues"><img src="https://quest.alexistb.com/docs/store/button-issues.png" alt="Report an issue" width="200"></a>
+</p>
 
-Explore quest trees, complete challenges, track your progress and earn rewards. Whether you're playing survival or building your own modpack, you decide how the adventure unfolds.
+**Your quest log is no longer a menu. It is an object you pull out in the middle of your world.**
 
-![The tablet of the mod that open and close](https://quest.alexistb.com/docs/media/tablet.gif)
+Quest Plus is a complete questing mod built around an **animated 3D tablet**. Follow quest trees, deliver resources to blocks in your base, meet quest givers on your travels and crack open loot crates. Play the **219 bundled quests** or build your own adventure with a visual editor.
 
-## A new way to experience quests
+![The tablet opens in the player's hands, shows a quest tree and closes](https://quest.alexistb.com/docs/store/02-tablet.gif)
 
-Press **J** to open your tablet and explore an interactive quest tree.
+---
 
-Browse categories, discover new challenges, inspect requirements and claim your rewards directly from the interface.
+![Your quests, in your hands](https://quest.alexistb.com/docs/store/03-tablet.jpg)
 
-Pin up to three quests to your HUD to keep track of your objectives while playing.
+Press **J** and the tablet comes up in your hands. Browse chapters, follow each quest tree and read exactly what an objective asks for. Pin up to **three quests** to your HUD, then claim your rewards one by one or all at once.
 
-![A page of a quest in the tablet of the mod](https://cdn.modrinth.com/data/cached_images/1d6abf7b02283ebc47e02c5fde3675a0ab94716e.webp)
+Prefer a classic menu? Switch to the flat 2D interface, reduce motion or resize the screen in the tablet settings.
 
-## Create your own adventure
+---
 
-Build entire questlines with **Quest Studio**, a visual editor that runs directly in your browser.
+![Quests that live in your world](https://quest.alexistb.com/docs/store/04-quest-blocks.jpg)
 
-Arrange quests freely, create dependencies, configure objectives and rewards, and customize the layout. Export your creation as a ZIP, ready to use in Minecraft.
+Three craftable blocks turn your base into a quest hub.
 
-No coding required.
+- **Quest Board**: a wall display for pinned quests and leaderboards. Connect up to 256 modules.
+- **Submission Station**: takes items and fluids from hoppers and pipes for delivery quests, and energy with Team Reborn Energy.
+- **Quest Relay**: turns quest progress into a redstone signal.
 
-![The Quest Plus Studio interface with quest a showing](https://cdn.modrinth.com/data/cached_images/c09265902bc48db1346ac1a2db1d661cd45f6d2e.png)
+![A hopper feeds the station, the board fills and the relay lights its lamp](https://quest.alexistb.com/docs/store/05-quest-blocks.gif)
 
-## More than basic objectives
+---
 
-Create quests around exploration, combat, crafting, equipment, automation and much more.
+![Meet the quest givers](https://quest.alexistb.com/docs/store/06-quest-givers.jpg)
 
-Choose from different progression modes, advanced conditions, item submissions, custom rewards and branching questlines.
+Quest givers wait in villages, pyramids, ruins and camps. Talk to one to hear a request, accept it, then come back for your reward. The bundled **Explorers guild** adds Marlo, Sela and Oswin, and every pack can create its own characters.
 
-Use modded items and tags to build quests around your favorite mods.
+---
 
-## Better together
+![Open loot crates](https://quest.alexistb.com/docs/store/07-loot-crates.jpg)
 
-Create teams, invite friends and work toward **shared quest progression**.
+Use a loot crate on the ground and a chest rises, shakes and bursts open with your rewards, from **COMMON** to **LEGENDARY**. Your loot is drawn and saved before the show starts.
 
-Complete challenges together while keeping reward claims properly managed for each player.
+![A loot crate shakes, bursts open and hands out its rewards](https://quest.alexistb.com/docs/store/08-loot-crates.gif)
 
-Perfect for cooperative survival and multiplayer modpacks.
+---
 
-## Built for your modpack
+![Better together](https://quest.alexistb.com/docs/store/09-teams.jpg)
 
-Comes with ready-to-play quests, customizable settings and support for custom quest packs.
+Create a team from the tablet, invite your friends and work toward **shared quest progression**. Quest Boards rank players, teams and station contributions.
 
-Includes a 2D interface option, adjustable tablet visuals, multilingual quest content and an API for mod integrations.
+---
 
-## Tool to import from FTB Quest
+![Build your own adventure](https://quest.alexistb.com/docs/store/10-quest-studio.jpg)
 
-Quest Plus have an import feature to import most of your quest from a FTB Quest configuration. More information [HERE](https://quest.alexistb.com/docs/guide/modpack-creators.html#import-ftb-quests)
+**[Quest Studio](https://quest.alexistb.com/)** is a visual editor that runs in your browser. No coding required.
 
-## Find the right guide
+- Arrange quest trees freely and connect prerequisites.
+- Build objectives around exploration, combat, crafting, equipment, automation and more, with modded items and tags.
+- Choose a progression mode: once, repeatable, infinite or tiered.
+- Create your own quest givers and turn any reward table into a loot crate.
+- Translate your pack, then export a ZIP or publish to a running server.
+- Coming from FTB Quests? [Import most of your quests](https://quest.alexistb.com/docs/guide/modpack-creators.html#import-ftb-quests).
 
-| Goal | Documentation |
-| --- | --- |
-| Play with friends | [Teams](web/docs-site/content/guide/teams.md) |
-| Install or update a pack | [Import and publish](web/docs-site/content/guide/import-and-publish.md) · [Backups](web/docs-site/content/guide/backups-and-updates.md) |
-| Solve a problem | [Troubleshooting](web/docs-site/content/guide/troubleshooting.md) |
-| Build or contribute | [Development](web/docs-site/content/reference/development.md) |
-| Host connected editing | [Web setup](web/api/README.md) |
-| Browse all guides | [English documentation](https://quest.alexistb.com/docs) |
+## Install
 
-[Report an issue](https://github.com/alexistb2904/QuestPlus/issues) · [Documentation source](web/docs-site/)
+|           |                                     |
+| --------- | ----------------------------------- |
+| Minecraft | Java 26.3                           |
+| Loader    | Fabric, with Fabric API             |
+| Java      | 25 or newer                         |
+| Install   | On the client and on the server     |
+| Languages | English, French, Spanish, Chinese   |
+
+No extra animation library is needed. A Java API lets other mods add their own objectives and rewards.
+
+## Learn more
+
+| Goal                              | Guide                                                                                   |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| Install and play                  | [Install Quest Plus](https://quest.alexistb.com/docs/guide/install.html)                |
+| Use the tablet                    | [The tablet](https://quest.alexistb.com/docs/guide/tablet.html)                         |
+| Craft the quest blocks            | [Quest blocks](https://quest.alexistb.com/docs/guide/world-blocks.html)                 |
+| Meet quest givers and open crates | [Quest givers and loot crates](https://quest.alexistb.com/docs/guide/givers-and-crates.html) |
+| Play with friends                 | [Teams](https://quest.alexistb.com/docs/guide/teams.html)                               |
+| Build a quest pack                | [Modpack creators](https://quest.alexistb.com/docs/guide/modpack-creators.html)         |
+| Solve a problem                   | [Troubleshooting](https://quest.alexistb.com/docs/guide/troubleshooting.html)           |
+| Build or contribute               | [Development](https://quest.alexistb.com/docs/reference/development.html)               |
+| Host connected editing            | [Web service](https://quest.alexistb.com/docs/reference/hosting.html)                   |
+
+[Report an issue](https://github.com/alexistb2904/QuestPlus/issues) · [All guides](https://quest.alexistb.com/docs/)

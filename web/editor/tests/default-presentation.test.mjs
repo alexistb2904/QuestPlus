@@ -24,7 +24,7 @@ test("default quest icons use real items and reflect their objectives", () => {
 });
 
 test("default thematic islands have explicit positions with room for nodes and labels", () => {
-	assert.equal(BUILTIN_PROJECT.quests.length, 209);
+	assert.equal(BUILTIN_PROJECT.quests.length, 219);
 	for (const category of BUILTIN_PROJECT.categories) {
 		const rows = BUILTIN_PROJECT.quests.filter((q) => q.category === category.id);
 		for (const [i, q] of rows.entries()) {

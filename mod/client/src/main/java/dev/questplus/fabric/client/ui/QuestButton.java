@@ -15,8 +15,9 @@ import net.minecraft.world.item.ItemStack;
  * vanilla button sprites.
  */
 public final class QuestButton extends AbstractWidget {
+	private static final int BAR_EDGE = 0xff6b5236;
 	private final Runnable action;
-	private boolean selected, pressed;
+	private boolean selected, pressed, bar, tab, accent, truncated;
 	private ItemStack icon = ItemStack.EMPTY;
 	private final Component defaultHoverText;
 	private Component hoverText;
@@ -34,6 +35,24 @@ public final class QuestButton extends AbstractWidget {
 		return this;
 	}
 
+	/** A control sitting on the ink top bar: the selected one becomes a piece of the page. */
+	public QuestButton onBar() {
+		bar = true;
+		return this;
+	}
+
+	/** A tab on the ink bar: bare text at rest, a filled tab on hover, the page itself when selected. */
+	public QuestButton tab() {
+		tab = true;
+		return onBar();
+	}
+
+	/** The screen's one reward action, in claim red. */
+	public QuestButton accent(boolean value) {
+		accent = value;
+		return this;
+	}
+
 	public QuestButton icon(ItemStack value) {
 		icon = value == null ? ItemStack.EMPTY : value;
 		return this;
@@ -44,22 +63,34 @@ public final class QuestButton extends AbstractWidget {
 		return this;
 	}
 
+	/**
+	 * A hover box earns its place only when it says more than the control already
+	 * shows: an explicit note, a cut label, or the name of a glyph control.
+	 */
 	public Component hoverText() {
-		return hoverText == null ? defaultHoverText : hoverText;
+		if (hoverText != null)
+			return hoverText;
+		if (truncated)
+			return getMessage();
+		return getMessage().getString().startsWith(defaultHoverText.getString()) ? Component.empty() : defaultHoverText;
 	}
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
 		int x = getX(), y = getY();
-		boolean highlighted = isHoveredOrFocused();
-		int fill = !active ? 0xff302923
-				: pressed ? 0xff483022 : selected ? 0xff523727 : highlighted ? 0xff4a3327 : 0xff30241e;
-		int edge = !active ? 0xff55483e
-				: selected ? QuestSkin.SELECTED : highlighted ? QuestSkin.HIGHLIGHT : QuestSkin.EDGE;
+		boolean hot = isHoveredOrFocused();
+		boolean inverse = active && (bar ? !selected : selected || accent);
+		int fill = !active ? 0
+				: bar ? (selected ? QuestSkin.PAPER : tab && hot ? BAR_EDGE : 0)
+						: accent ? (hot ? 0xff96291f : QuestSkin.CLAIM)
+								: selected ? (hot ? QuestSkin.DIM : QuestSkin.INK)
+										: pressed ? QuestSkin.PANEL : QuestSkin.FIELD;
+		int edge = !active ? QuestSkin.LINE
+				: bar ? (selected ? (tab && hot ? QuestSkin.INK : QuestSkin.PAPER)
+						: tab ? (hot ? BAR_EDGE : 0) : hot ? QuestSkin.FIELD : BAR_EDGE)
+						: hot || selected || accent ? QuestSkin.INK : QuestSkin.LINE;
 		QuestSkin.panel(g, x, y, width, height, fill, edge);
-		if (selected)
-			g.fill(x + 4, y + height - 3, x + width - 4, y + height - 2, 0xffae7b4e);
-		var font = Minecraft.getInstance().font;
+		var font = QuestSkin.font();
 		int iconWidth = icon.isEmpty() ? 0 : 15;
 		if (!icon.isEmpty()) {
 			g.pose().pushMatrix();
@@ -70,10 +101,13 @@ public final class QuestButton extends AbstractWidget {
 		}
 		int available = Math.max(0, (int) ((width - 8 - iconWidth) / QuestSkin.TEXT_SCALE));
 		String full = getMessage().getString(), label = font.plainSubstrByWidth(full, available);
-		if (!label.equals(full) && available >= font.width("…"))
+		truncated = !label.equals(full);
+		if (truncated && available >= font.width("…"))
 			label = font.plainSubstrByWidth(full, available - font.width("…")) + "…";
 		int textX = x + iconWidth + (int) ((width - iconWidth - font.width(label) * QuestSkin.TEXT_SCALE) / 2);
-		QuestSkin.text(g, font, label, textX, y + (height - 7) / 2, active ? QuestSkin.INK : QuestSkin.DIM, false);
+		QuestSkin.text(g, font, label, textX, y + (height - 7) / 2,
+				inverse ? (accent ? QuestSkin.LIGHT : QuestSkin.FIELD) : active ? QuestSkin.INK : bar ? QuestSkin.LINE : QuestSkin.DIM,
+				false);
 	}
 
 	@Override

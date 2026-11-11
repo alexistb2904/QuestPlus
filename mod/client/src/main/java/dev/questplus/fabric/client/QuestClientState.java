@@ -24,7 +24,9 @@ public final class QuestClientState {
 	}
 
 	public JsonObject progress(String id) {
-		return progress.getOrDefault(id, new JsonObject());
+		// Called per chart edge per frame: only allocate the empty default when it is needed.
+		var value = progress.get(id);
+		return value == null ? new JsonObject() : value;
 	}
 
 	public static boolean flag(JsonObject object, String name) {

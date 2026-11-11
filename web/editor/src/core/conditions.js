@@ -88,6 +88,46 @@ export function wrap(root, path, operator) {
 	if (existing && existing.type !== "not") return setAt(root, path, { [operator]: existing.children });
 	return setAt(root, path, { [operator]: [node] });
 }
+const joinPath = (...parts) => parts.filter((part) => part !== "").join(".");
+/**
+ * Editor view of a condition group. The editor offers four readable modes:
+ * "and" (all), "or" (any one), "at_least" (N of), "none" (stored as NOT of an OR).
+ * A root leaf reads as a one-item "all" group. removePath is the node to delete for each item.
+ */
+export function groupView(node, path = "") {
+	const branch = childrenOf(node);
+	if (branch?.type === "not") {
+		const inner = childrenOf(node.not);
+		if (inner?.type === "or")
+			return { mode: "none", items: inner.children.map((child, i) => ({ node: child, path: joinPath(path, "0", String(i)), removePath: joinPath(path, "0", String(i)) })) };
+		return { mode: "none", items: [{ node: node.not, path: joinPath(path, "0"), removePath: path }] };
+	}
+	if (branch)
+		return {
+			mode: branch.type,
+			count: branch.type === "at_least" ? node.at_least.count : undefined,
+			items: branch.children.map((child, i) => ({ node: child, path: joinPath(path, String(i)), removePath: joinPath(path, String(i)) })),
+		};
+	return { mode: "and", items: node ? [{ node, path, removePath: path }] : [] };
+}
+export function buildGroup(mode, items, count = 1) {
+	if (!items.length) return null;
+	if (mode === "none") return { not: items.length === 1 ? items[0] : { or: items } };
+	if (mode === "at_least") return { at_least: { count: Math.max(1, Math.min(count, items.length)), of: items } };
+	if (!["and", "or"].includes(mode)) throw Error("Invalid group mode");
+	return { [mode]: items };
+}
+/** Change how a group combines its items without touching the items themselves. */
+export function setGroupMode(root, path, mode, count) {
+	const view = groupView(atPath(root, path), path);
+	return setAt(root, path, buildGroup(mode, view.items.map((item) => item.node), count ?? view.count ?? 1));
+}
+/** Append an item to a group, keeping its mode (a root leaf becomes an "all" group). */
+export function addToGroup(root, path, child) {
+	if (!root) return child;
+	const view = groupView(atPath(root, path), path);
+	return setAt(root, path, buildGroup(view.mode, [...view.items.map((item) => item.node), child], view.count ?? 1));
+}
 export const leaf = (scope, kind) =>
 	scope === "requires"
 		? { quest: "" }

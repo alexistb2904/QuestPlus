@@ -64,7 +64,8 @@ public final class QuestBlocksClientGameTest {
                 var buttons=client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast).toList();
                 var back=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.station.back").getString())).findFirst().orElseThrow();
                 var apply=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.blocks.save").getString())).findFirst().orElseThrow();
-                if(apply.getY()-17<back.getY()+back.getHeight()+6)throw new AssertionError("Station owner status overlaps the Back button");
+                // The status shares the footer row with Apply; the footer rule sits 6px above it.
+                if(apply.getY()-6<=back.getY()+back.getHeight())throw new AssertionError("Station owner footer overlaps the Back button");
             });
             clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.back").getString());
             clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.choose_quest").getString());

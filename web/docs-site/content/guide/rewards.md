@@ -43,6 +43,14 @@ For weighted pools, choose each option's **Weight** and the number of **Rolls**.
 
 Pools support up to 32 choices. Weighted pools support 0 to 16 rolls, and expanded rewards cannot exceed 64 grants. Pool options accept supported items, XP, advancements, messages, stages, toasts, and explicitly approved custom rewards.
 
+## Loot crates
+
+A named table can become a **loot crate**, an item that players open in Minecraft to draw the table once. Enable **Openable loot crate** on the table, then give the crate with a **Loot crate** quest reward, a mob drop or an operator command.
+
+![A reward table with the Openable loot crate option, its name, color, mob drops and give command](/media/crates.webp)
+
+See [Quest givers and loot crates](/guide/givers-and-crates#open-a-loot-crate) for the reveal, the rarity labels and the drop settings.
+
 ## Reward options
 
 | Option                 | Behavior                                    |
@@ -64,6 +72,8 @@ Claims are validated server side. Quest Plus tracks claims to avoid repeatedly g
 | `tiered`     | Claim milestone rewards as progress increases |
 
 Use **Cooldown** for delays between cycles and **Time limit** for timed challenges. A tiered quest has increasing thresholds and may stop or repeat after its final tier.
+
+![The Progression tab of a tiered quest with its mode, objective rule, limits and tiers](/media/progression.webp)
 
 Repeatable quests use an explicit restart when eligible. Infinite quests begin another cycle automatically. Timers use persisted absolute times, so stopping the server does not pause a cooldown or time limit.
 

@@ -13,7 +13,7 @@ QuestPlus has three runtime responsibilities and two deployed units. The browser
 | `web/editor/`                                         | React and TypeScript quest authoring                        |
 | `web/api/`                                            | Same origin static hosting, approvals and publication relay |
 | `web/docs-site/`                                      | This VitePress documentation                                |
-| `mod/questplus-assets/`                               | Editable Blockbench sources and exporters                   |
+| `mod/questplus-assets/`                               | Editable Blockbench sources and animation converters        |
 
 ## Prerequisites
 
@@ -85,8 +85,35 @@ Never expose player saves, claim records or per-session server credentials to th
 
 Before changing a protocol, read `docs/architecture.md` and `web/api/README.md`. Add tests for changes to protocol, registry validation, permissions, rollback or release packaging.
 
-## Edit tablet assets
+## Edit 3D models
 
-Open the models in `mod/questplus-assets/blockbench/` with Blockbench. Export the Bedrock animation and geometry files, then run the converters described in `mod/questplus-assets/README.md`. They apply the camera, animation and coordinate adjustments required by the mod. Keep the editable source and updated runtime assets together, then run the asset tests.
+Every 3D model has an editable Blockbench project (`.bbmodel`) in `mod/questplus-assets/blockbench/`. Edit models in Blockbench only. No script generates or rewrites geometry, so do not add one. The game reads the exported files in `mod/client/src/main/resources/assets/questplus/`. Editing a `.bbmodel` alone does not change the game.
+
+### Blocks and items
+
+| Model                                             | Blockbench source                                  | Exported file                             |
+| ------------------------------------------------- | -------------------------------------------------- | ----------------------------------------- |
+| Fixed-size quest boards                           | `blockbench/world/quest_board_{c,n,s,e,w,ne,nw,se,sw}.bbmodel` | `models/block/quest_board_*.json` |
+| Modular quest board                               | `blockbench/world/quest_board_module_0` … `_15.bbmodel` | `models/block/quest_board_module_*.json` |
+| Submission station                                | `blockbench/world/submission_station.bbmodel`      | `models/block/submission_station.json`    |
+| Quest relay (off / on)                            | `blockbench/world/quest_relay.bbmodel`, `quest_relay_on.bbmodel` | `models/block/quest_relay*.json` |
+| Tablet in the inventory and on the ground         | `blockbench/questplus_tablet_item.bbmodel`         | `models/item/tablet.json`                 |
+
+1. Open the `.bbmodel` in Blockbench, make your change and save the project.
+2. Choose **File › Export › Export Block/Item Model** and overwrite the exported file listed above.
+3. If you painted the texture, also save it over its PNG in `textures/` (`block/questplus_utility.png` for the board and station, `block/quest_relay.png` for the relay, `fp/questplus_first_person.png` for the tablet).
+4. Commit the `.bbmodel` and the exported files together.
+
+Each modular board piece has its own file. Its number lists the framed borders: north = 1, south = 2, west = 4, east = 8. For example, `5` has a frame on the north and west sides, `15` on all four sides and `0` on none. A change to a frame must be repeated in every module that has that border. Keep the slate surface inside the frames. If it runs under a frame, both faces share the board's outer edge and flicker (z-fighting).
+
+`quest_board_module_15.bbmodel` also holds the hand and ground poses of the board item. They are copied into `models/item/quest_board.json`. The `quest_board_2x3` … `quest_board_4x6` projects only preview whole boards and are never exported. Blockstates and item definition files contain no geometry. Edit them directly as JSON.
+
+### Tablet animations
+
+The first person and third person tablet models are animated. Edit `questplus_first_person.bbmodel` or `questplus_third_person.bbmodel` in Blockbench, then export the Bedrock animation and geometry. Then run the converters described in `mod/questplus-assets/README.md`. They do not create geometry. They add the camera, animation and axis adjustments that the mod reads at runtime.
+
+### Check your change
+
+From `mod/`, run `./gradlew build`. Asset tests check the board borders, the item poses and the tablet resources. They do not replace a look in game: start `./gradlew runClient` and inspect the model from the front, the sides and the back.
 
 Report build, server integration, browser and live client results separately. A passing build does not prove a real session with two Minecraft clients.

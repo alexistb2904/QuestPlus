@@ -50,8 +50,27 @@ final class RichAnnotationRenderer {
 		}
 	}
 
-	private record Part(Component component, DynamicTexture image, int width, int height, float scale, int color,
+	/** {@code image} is the media's data URI: the frame is picked at draw time so GIFs keep animating. */
+	private record Part(Component component, String image, int width, int height, float scale, int color,
 			int highlight) {
+	}
+
+	/** {@code lines} is null when the note has no rich content in any language. */
+	private record Layout(String language, List<Line> lines) {
+	}
+
+	/**
+	 * Wrapping measures every word of a note, so it is done once per note rather
+	 * than per frame. Notes are immutable JSON from the last snapshot: identity is
+	 * the key, and the owning screen clears the cache on init.
+	 */
+	private static final Map<JsonObject, Layout> LAYOUTS = new IdentityHashMap<>();
+	private static final AnimatedImage BROKEN = new AnimatedImage(List.of(), 0);
+	private static final Set<String> FACES = Set.of("default", "uniform", "alt", "illageralt");
+	private static final java.util.regex.Pattern WORDS = java.util.regex.Pattern.compile("(?<=\\s)|(?=\\s)");
+
+	static void clearLayouts() {
+		LAYOUTS.clear();
 	}
 
 	private static final class Line {
@@ -72,9 +91,67 @@ final class RichAnnotationRenderer {
 			int y) {
 		int requestedWidth = Math.max(1, note.has("width") ? note.get("width").getAsInt() : 170);
 		int requestedHeight = Math.max(1, note.has("height") ? note.get("height").getAsInt() : 300);
-		int contentWidth = requestedWidth - 12;
 		if (!note.has("rich") || !note.get("rich").isJsonObject())
 			return false;
+		Layout cached = LAYOUTS.get(note);
+		if (cached == null || !cached.language().equals(language)) {
+			if (LAYOUTS.size() >= 256)
+				LAYOUTS.clear();
+			LAYOUTS.put(note, cached = new Layout(language,
+					wrap(font, note, pool, language, requestedWidth - 12, requestedHeight)));
+		}
+		List<Line> lines = cached.lines();
+		if (lines == null)
+			return false;
+		String style = note.has("style") ? note.get("style").getAsString() : "note";
+		int measuredHeight = 10, widest = 0;
+		for (Line l : lines) {
+			measuredHeight += l.height;
+			widest = Math.max(widest, l.width);
+		}
+		int total = note.has("height") ? Math.max(measuredHeight, requestedHeight) : measuredHeight;
+		int border = QuestSkin.onPaper(hex(note.has("color") ? note.get("color").getAsString() : "#c6a986", 0xffc6a986));
+		int w = note.has("width") ? requestedWidth : Math.max(38, widest + 12);
+		int top = y - total / 2, left = x - w / 2;
+		if (style.equals("heading")) {
+			g.fill(left, top - 3, left + w, top - 2, border);
+			g.fill(left, top + total + 1, left + w, top + total + 2, border);
+		} else if (style.equals("note"))
+			QuestSkin.panel(g, left, top, w, total, 0xdde8dab5, border);
+		int cy = top + 5 + (total - measuredHeight) / 2;
+		String align = note.has("align") ? note.get("align").getAsString() : "center";
+		for (var row : lines) {
+			int cx = switch (align) {
+			case "left" -> left + 6;
+			case "right" -> left + w - 6 - row.width;
+			default -> x - row.width / 2;
+			};
+			for (var part : row.parts) {
+				if (part.image() != null) {
+					AnimatedImage media = image(part.image());
+					if (media != null)
+						g.blit(media.current().getTextureView(),
+								RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST), cx, cy,
+								cx + part.width(), cy + part.height(), 0, 1, 0, 1);
+				} else if (part.component() != null) {
+					if (part.highlight() != 0)
+						g.fill(cx, cy, cx + part.width(), cy + part.height(), part.highlight() | 0xff000000);
+					g.pose().pushMatrix();
+					g.pose().translate(cx, cy);
+					g.pose().scale(part.scale());
+					g.text(font, QuestSkin.at(g, part.component()), 0, 0, part.color(), false);
+					g.pose().popMatrix();
+				}
+				cx += part.width();
+			}
+			cy += row.height;
+		}
+		return true;
+	}
+
+	/** The note's wrapped lines, or null when it has no rich content. */
+	private static List<Line> wrap(Font font, JsonObject note, JsonArray pool, String language, int contentWidth,
+			int requestedHeight) {
 		JsonObject locales = note.getAsJsonObject("rich");
 		// Older imported annotations may contain only fr_fr rich content while en_us
 		// still has the studio placeholder "Note": use the authored rich entry.
@@ -90,7 +167,7 @@ final class RichAnnotationRenderer {
 			}
 		String style = note.has("style") ? note.get("style").getAsString() : "note";
 		if (raw == null || !raw.isJsonArray())
-			return false;
+			return null;
 		JsonArray arr = raw.getAsJsonArray();
 
 		List<Line> lines = new ArrayList<>();
@@ -115,7 +192,7 @@ final class RichAnnotationRenderer {
 					line = new Line();
 					lines.add(line);
 				}
-				line.add(new Part(null, image.current(), w, h, 1, 0, 0));
+				line.add(new Part(null, uri, w, h, 1, 0, 0));
 				line = new Line();
 				lines.add(line);
 			} else if (p.get("type").getAsString().equals("text")) {
@@ -128,17 +205,27 @@ final class RichAnnotationRenderer {
 				else if (style.equals("label"))
 					scale = Math.max(.75f, scale * .9f);
 				String face = p.has("font") ? p.get("font").getAsString() : "default";
-				if (!Set.of("default", "uniform", "alt", "illageralt").contains(face))
+				if (!FACES.contains(face))
 					face = "default";
-				Style st = Style.EMPTY
-						.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("minecraft", face)))
-						.withBold(style.equals("heading") || bool(p, "bold")).withItalic(bool(p, "italic"))
-						.withUnderlined(bool(p, "underline")).withStrikethrough(bool(p, "strike"));
-				int color = p.has("color") ? hex(p.get("color").getAsString(), 0xffe3cdb1) : 0xffe3cdb1;
+				boolean heading = style.equals("heading"), bold = heading || bool(p, "bold");
+				// The default face is the quest face, which has real bold and title cuts:
+				// Minecraft's synthetic bold draws every glyph twice, one pixel apart.
+				boolean quest = face.equals("default");
+				float drawScale = quest && heading ? scale * 10f / 17f : scale;
+				Style st = (quest ? heading ? QuestSkin.TITLE : bold ? QuestSkin.BOLD : Style.EMPTY
+						: Style.EMPTY
+								.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("minecraft", face)))
+								.withBold(bold))
+						.withItalic(bool(p, "italic")).withUnderlined(bool(p, "underline"))
+						.withStrikethrough(bool(p, "strike"));
 				int highlight = p.has("highlight") ? hex(p.get("highlight").getAsString(), 0) : 0;
+				// Text on its own highlight keeps the authored pair; text on parchment must read on it.
+				int color = !p.has("color") ? QuestSkin.INK
+						: highlight != 0 ? hex(p.get("color").getAsString(), QuestSkin.INK)
+								: QuestSkin.onPaper(hex(p.get("color").getAsString(), QuestSkin.INK));
 				// Split at word boundaries, retaining whitespace. Oversized tokens break per
 				// glyph.
-				for (String token : s.split("(?<=\\s)|(?=\\s)", -1)) {
+				for (String token : WORDS.split(s, -1)) {
 					if (token.isEmpty())
 						continue;
 					if (token.equals("\n")) {
@@ -156,7 +243,7 @@ final class RichAnnotationRenderer {
 						}
 						int length = pending.length();
 						Component whole = Component.literal(pending).withStyle(st);
-						int width = (int) Math.ceil(font.width(whole) * scale);
+						int width = (int) Math.ceil(font.width(whole) * drawScale);
 						if (width > available) {
 							if (!line.parts.isEmpty() && pending.length() > 1
 									&& !Character.isWhitespace(pending.charAt(0))) {
@@ -168,7 +255,7 @@ final class RichAnnotationRenderer {
 							while (length < pending.length()) {
 								int w = (int) Math.ceil(
 										font.width(Component.literal(pending.substring(0, length + 1)).withStyle(st))
-												* scale);
+												* drawScale);
 								if (w > available)
 									break;
 								length++;
@@ -176,9 +263,9 @@ final class RichAnnotationRenderer {
 						}
 						String piece = pending.substring(0, length);
 						Component component = Component.literal(piece).withStyle(st);
-						int sw = (int) Math.ceil(font.width(component) * scale);
-						line.add(new Part(component, null, sw, Math.max(11, (int) Math.ceil(10 * scale)), scale, color,
-								highlight));
+						int sw = (int) Math.ceil(font.width(component) * drawScale);
+						line.add(new Part(component, null, sw, Math.max(11, (int) Math.ceil(10 * scale)), drawScale,
+								color, highlight));
 						pending = pending.substring(length);
 					}
 				}
@@ -186,44 +273,7 @@ final class RichAnnotationRenderer {
 		}
 		if (lines.size() > 1 && lines.getLast().parts.isEmpty())
 			lines.removeLast();
-		int measuredHeight = lines.stream().mapToInt(l -> l.height).sum() + 10;
-		int total = note.has("height") ? Math.max(measuredHeight, requestedHeight) : measuredHeight;
-		int border = hex(note.has("color") ? note.get("color").getAsString() : "#c6a986", 0xffc6a986);
-		int w = note.has("width") ? requestedWidth
-				: Math.max(38, lines.stream().mapToInt(l -> l.width).max().orElse(28) + 12);
-		int top = y - total / 2, left = x - w / 2;
-		if (style.equals("heading")) {
-			g.fill(left, top - 3, left + w, top - 2, border);
-			g.fill(left, top + total + 1, left + w, top + total + 2, border);
-		} else if (style.equals("note"))
-			QuestSkin.panel(g, left, top, w, total, 0xdd33271f, border);
-		int cy = top + 5 + (total - measuredHeight) / 2;
-		for (var row : lines) {
-			String align = note.has("align") ? note.get("align").getAsString() : "center";
-			int cx = switch (align) {
-			case "left" -> left + 6;
-			case "right" -> left + w - 6 - row.width;
-			default -> x - row.width / 2;
-			};
-			for (var part : row.parts) {
-				if (part.image() != null) {
-					g.blit(part.image().getTextureView(),
-							RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST), cx, cy,
-							cx + part.width(), cy + part.height(), 0, 1, 0, 1);
-				} else if (part.component() != null) {
-					if (part.highlight() != 0)
-						g.fill(cx, cy, cx + part.width(), cy + part.height(), part.highlight() | 0xff000000);
-					g.pose().pushMatrix();
-					g.pose().translate(cx, cy);
-					g.pose().scale(part.scale());
-					g.text(font, part.component(), 0, 0, part.color(), false);
-					g.pose().popMatrix();
-				}
-				cx += part.width();
-			}
-			cy += row.height;
-		}
-		return true;
+		return lines;
 	}
 
 	private static String imageData(JsonObject part, JsonArray pool) {
@@ -282,8 +332,22 @@ final class RichAnnotationRenderer {
 	private static synchronized AnimatedImage image(String data) {
 		AnimatedImage cached = MEDIA.get(data);
 		if (cached != null)
-			return cached;
+			return cached == BROKEN ? null : cached;
+		// Remember failures too: an undecodable image must not be decoded again every frame.
+		AnimatedImage decoded = decode(data);
+		MEDIA.put(data, decoded == null ? BROKEN : decoded);
 		// Image cache uses LRU eviction instead of refusing the next asset.
+		if (MEDIA.size() > MAX_CACHE) {
+			var iterator = MEDIA.entrySet().iterator();
+			var old = iterator.next();
+			iterator.remove();
+			for (var frame : old.getValue().frames())
+				frame.texture().close();
+		}
+		return decoded;
+	}
+
+	private static AnimatedImage decode(String data) {
 		if (!data.matches("data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/]+={0,2}"))
 			return null;
 		try {
@@ -364,18 +428,7 @@ final class RichAnnotationRenderer {
 			}
 			if (frames.isEmpty())
 				return null;
-			AnimatedImage media = new AnimatedImage(List.copyOf(frames), cycle);
-			MEDIA.put(data, media);
-			if (MEDIA.size() > MAX_CACHE) {
-				var iterator = MEDIA.entrySet().iterator();
-				if (iterator.hasNext()) {
-					var old = iterator.next();
-					iterator.remove();
-					for (var frame : old.getValue().frames())
-						frame.texture().close();
-				}
-			}
-			return media;
+			return new AnimatedImage(List.copyOf(frames), cycle);
 		} catch (Exception ex) {
 			return null;
 		}

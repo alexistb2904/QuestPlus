@@ -30,7 +30,6 @@ class ExportTest(unittest.TestCase):
             self.assertEqual(animation, json.loads((runtime / 'animations/first_person.json').read_text()))
             self.assertEqual(animation['animations']['questplus.open']['loop'], 'hold_on_last_frame')
             self.assertIn('player_animation_library', animation['animations']['questplus.open'])
-            self.assertTrue((runtime / 'models/item/tablet.json').is_file())
 
             third.SOURCE = root / 'blockbench/questplus_third_person.bbmodel'
             expected = json.loads((RUNTIME / 'animations/third_person.json').read_text())

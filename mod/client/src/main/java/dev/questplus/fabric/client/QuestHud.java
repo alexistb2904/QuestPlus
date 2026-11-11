@@ -12,18 +12,21 @@ import net.minecraft.world.item.Items;
 import java.util.*;
 
 final class QuestHud {
-	private record ObjectiveLine(String label, String modifier, long current, long target) {
+	/** Texts are already cut to the panel width: nothing is measured while drawing. */
+	private record ObjectiveLine(String label, String modifier, String count, int countWidth, long current,
+			long target) {
 		int height() {
 			return 19 + (modifier.isBlank() ? 0 : 11);
 		}
 	}
 
 	private record Panel(QuestDefinition quest, String name, String status, List<ObjectiveLine> lines, int height,
-			ItemStack icon, String caption) {
+			ItemStack icon, String caption, String more) {
 	}
 
-	// Quest text changes with server state or locale, not every rendered frame.
+	// Quest text changes with server state, locale or panel width, not every rendered frame.
 	private static long cachedRevision = Long.MIN_VALUE;
+	private static int cachedWidth = -1;
 	private static String cachedLanguage;
 	private static List<String> cachedPins = List.of();
 	private static List<Panel> cachedPanels = List.of();
@@ -39,15 +42,17 @@ final class QuestHud {
 			return;
 
 		if (settings.hud && state.ready && !settings.pinned.isEmpty()) {
-			if (cachedRevision != state.hudRevision || !Objects.equals(cachedLanguage, mc.options.languageCode)
-					|| !samePins(settings.pinned)) {
-				cachedPanels = buildPanels(mc, settings, state);
+			float scale = hudScale(g.guiWidth(), g.guiHeight());
+			int virtualHeight = (int) (g.guiHeight() / scale), virtualWidth = (int) (g.guiWidth() / scale);
+			int width = Math.min(170, virtualWidth - 14);
+			if (cachedRevision != state.hudRevision || cachedWidth != width
+					|| !Objects.equals(cachedLanguage, mc.options.languageCode) || !samePins(settings.pinned)) {
+				cachedPanels = buildPanels(mc, settings, state, width);
 				cachedPins = List.copyOf(settings.pinned);
 				cachedLanguage = mc.options.languageCode;
 				cachedRevision = state.hudRevision;
+				cachedWidth = width;
 			}
-			float scale = hudScale(g.guiWidth(), g.guiHeight());
-			int virtualHeight = (int) (g.guiHeight() / scale);
 			int maxHeight = Math.max(48, Math.min(virtualHeight - 92, (int) (virtualHeight * .42)));
 			int total = 0, count = 0;
 			for (Panel panel : cachedPanels) {
@@ -59,8 +64,7 @@ final class QuestHud {
 			if (count > 0) {
 				g.pose().pushMatrix();
 				g.pose().scale(scale);
-				drawPanels(g, mc, cachedPanels, count, total - 4, settings.hudPosition, (int) (g.guiWidth() / scale),
-						virtualHeight);
+				drawPanels(g, mc, cachedPanels, count, total - 4, settings.hudPosition, virtualWidth, virtualHeight);
 				g.pose().popMatrix();
 			}
 		}
@@ -77,7 +81,15 @@ final class QuestHud {
 		return true;
 	}
 
-	private static List<Panel> buildPanels(Minecraft mc, ClientSettings settings, QuestClientState state) {
+	private static ObjectiveLine line(Minecraft mc, int w, String label, String modifier, long current, long target) {
+		String count = target > 0 ? current + "/" + target : "";
+		int countWidth = mc.font.width(count);
+		return new ObjectiveLine(mc.font.plainSubstrByWidth(label, Math.max(1, w - 14 - countWidth)),
+				modifier.isBlank() ? "" : mc.font.plainSubstrByWidth("› " + modifier, w - 16), count, countWidth,
+				current, target);
+	}
+
+	private static List<Panel> buildPanels(Minecraft mc, ClientSettings settings, QuestClientState state, int w) {
 		List<Panel> panels = new ArrayList<>();
 		for (String id : settings.pinned) {
 			var q = state.quests.get(id);
@@ -87,7 +99,7 @@ final class QuestHud {
 			List<ObjectiveLine> objectives = new ArrayList<>();
 			if (q.kind().equals("information")) {
 				if (!QuestClientState.flag(progress, "completed"))
-					objectives.add(new ObjectiveLine(QuestPlusClient
+					objectives.add(line(mc, w, QuestPlusClient
 							.tr(q.acknowledgement().equals("manual") ? "information_review" : "information_read")
 							.getString(), "", 0, 0));
 			} else {
@@ -107,8 +119,7 @@ final class QuestHud {
 								return other == null ? QuestPlusClient.tr("unknown_quest").getString()
 										: state.text(other.title());
 							});
-					objectives.add(
-							new ObjectiveLine(base, modifier, count, QuestPresentation.target(q, objective, progress)));
+					objectives.add(line(mc, w, base, modifier, count, QuestPresentation.target(q, objective, progress)));
 				}
 			}
 			int height = 25 + objectives.stream().mapToInt(ObjectiveLine::height).sum()
@@ -122,7 +133,12 @@ final class QuestHud {
 			ItemStack icon = identifier != null && BuiltInRegistries.ITEM.containsKey(identifier)
 					? new ItemStack(BuiltInRegistries.ITEM.getValue(identifier))
 					: new ItemStack(Items.BOOK);
-			panels.add(new Panel(q, state.text(q.title()), status, List.copyOf(objectives), height, icon, caption));
+			panels.add(new Panel(q, mc.font.plainSubstrByWidth(state.text(q.title()), Math.max(1, w - 32)), status,
+					List.copyOf(objectives), height, icon,
+					caption.isEmpty() ? "" : mc.font.plainSubstrByWidth(caption, w - 30),
+					q.objectives().size() > 2
+							? QuestPlusClient.tr("hud.more", q.objectives().size() - 2).getString()
+							: null));
 			if (panels.size() >= ClientSettings.MAX_PINNED)
 				break;
 		}
@@ -149,24 +165,18 @@ final class QuestHud {
 			g.fill(x, y, x + 2, y + panel.height, accent);
 			if (!RichAnnotationRenderer.drawIcon(g, panel.quest.icon(), x + 5, y + 3, 16))
 				g.item(panel.icon, x + 5, y + 3);
-			String title = mc.font.plainSubstrByWidth(panel.name, Math.max(1, w - 32));
-			g.text(mc.font, title, x + 25, y + 3, 0xfff0eae0, false);
-			String caption = panel.caption;
-			if (!caption.isEmpty())
-				g.text(mc.font, mc.font.plainSubstrByWidth(caption, w - 30), x + 25, y + 13, accent, false);
+			g.text(mc.font, panel.name, x + 25, y + 3, 0xfff0eae0, false);
+			if (!panel.caption.isEmpty())
+				g.text(mc.font, panel.caption, x + 25, y + 13, accent, false);
 
 			int row = y + 25;
 			for (ObjectiveLine line : panel.lines) {
-				String count = line.target > 0 ? line.current + "/" + line.target : "";
-				int countWidth = mc.font.width(count);
-				String label = mc.font.plainSubstrByWidth(line.label, Math.max(1, w - 14 - countWidth));
-				g.text(mc.font, label, x + 7, row, 0xffd3d1ca, false);
-				if (!count.isEmpty())
-					g.text(mc.font, count, x + w - 7 - countWidth, row, 0xffa9a7a1, false);
+				g.text(mc.font, line.label, x + 7, row, 0xffd3d1ca, false);
+				if (!line.count.isEmpty())
+					g.text(mc.font, line.count, x + w - 7 - line.countWidth, row, 0xffa9a7a1, false);
 				if (!line.modifier.isBlank())
-					g.text(mc.font, mc.font.plainSubstrByWidth("› " + line.modifier, w - 16), x + 9, row + 10,
-							0xffbfb3a4, false);
-				if (!count.isEmpty()) {
+					g.text(mc.font, line.modifier, x + 9, row + 10, 0xffbfb3a4, false);
+				if (!line.count.isEmpty()) {
 					int barY = row + (line.modifier.isBlank() ? 11 : 22);
 					g.fill(x + 7, barY, x + w - 7, barY + 1, 0xff454341);
 					int width = w - 14, progress = (int) (width
@@ -176,9 +186,8 @@ final class QuestHud {
 				}
 				row += line.height();
 			}
-			if (panel.quest.objectives().size() > 2)
-				g.text(mc.font, QuestPlusClient.tr("hud.more", panel.quest.objectives().size() - 2).getString(), x + 7,
-						row - 2, 0xff979591, false);
+			if (panel.more != null)
+				g.text(mc.font, panel.more, x + 7, row - 2, 0xff979591, false);
 			y += panel.height + 4;
 		}
 	}

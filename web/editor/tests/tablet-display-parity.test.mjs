@@ -32,7 +32,7 @@ test("3D lighting is self-illuminated by default, brightness only affects 3D atl
 	assert.match(settings, /!json\.has\("screenEmissive"\)/);
 	assert.match(settings, /!json\.has\("screenBrightness"\)/);
 	assert.match(shader, /screenEmissive/);
-	assert.match(shader, /RenderTypes\.entityTranslucentEmissive/);
+	assert.match(shader, /RenderTypes\.eyes\(TabletSurfaceRenderer\.TEXTURE\)/);
 	assert.match(shader, /RenderTypes\.entityTranslucent\(TabletSurfaceRenderer\.TEXTURE\)/);
 	assert.match(surface, /if\s*\(brightness\s*<\s*\.999\)/);
 	assert.match(surface, /graphics\.nextStratum\(\)/);

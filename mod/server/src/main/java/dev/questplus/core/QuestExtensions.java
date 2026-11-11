@@ -26,6 +26,30 @@ public final class QuestExtensions {
 	}
 
 	private static final Map<String, ObjectiveType> OBJECTIVES = new ConcurrentHashMap<>();
+	private static final Set<String> COMPONENT_EVENTS = Set.of("item_craft", "item_obtained", "item_smelt",
+			"item_use", "item_consume", "fish_item", "trade");
+	/** Compiled once: String.matches recompiles its regex on every quest event and save. */
+	private static final java.util.regex.Pattern ID = java.util.regex.Pattern.compile("[a-z0-9_.-]+:[a-z0-9_./-]+");
+	private static final Map<String, JsonElement> PARSED = new ConcurrentHashMap<>();
+
+	public static boolean isId(String value) {
+		return value != null && ID.matcher(value).matches();
+	}
+
+	/**
+	 * Authored objective/condition JSON never changes after load, so each distinct
+	 * string is parsed once instead of on every event. The result is shared: read only.
+	 */
+	public static JsonElement parsed(String json) {
+		var value = PARSED.get(json);
+		if (value == null) {
+			// Reloads leave old strings behind; a full reset keeps the cache bounded.
+			if (PARSED.size() >= 4096)
+				PARSED.clear();
+			PARSED.put(json, value = JsonParser.parseString(json));
+		}
+		return value;
+	}
 	static {
 		REWARDS.put("questplus:advancement", data -> {
 			if (!Set.of("advancement", "criterion").containsAll(data.keySet()) || !data.has("advancement")
@@ -223,18 +247,16 @@ public final class QuestExtensions {
 	}
 
 	public static boolean matchesObjective(QuestDefinition.Objective objective, QuestEvent event) {
-		if (!objective.data().equals("{}")
-				&& Set.of("item_craft", "item_obtained", "item_smelt", "item_use", "item_consume", "fish_item", "trade")
-						.contains(objective.event())) {
-			var data = JsonParser.parseString(objective.data()).getAsJsonObject();
+		if (!objective.data().equals("{}") && COMPONENT_EVENTS.contains(objective.event())) {
+			var data = parsed(objective.data()).getAsJsonObject();
 			if (!data.has("matchComponents") || data.get("matchComponents").getAsString().equals("none"))
 				return true;
 			var actual = event.context().get("itemComponents");
 			return actual instanceof JsonObject components && ItemComponents.matches(data, components);
 		}
 		var type = OBJECTIVES.get(objective.event());
-		return type == null || type.predicate()
-				.test(JsonParser.parseString(Objects.toString(objective.data(), "{}")).getAsJsonObject(), event);
+		return type == null
+				|| type.predicate().test(parsed(Objects.toString(objective.data(), "{}")).getAsJsonObject(), event);
 	}
 
 	public static void registerCondition(String id, Consumer<JsonElement> validator,
@@ -257,7 +279,7 @@ public final class QuestExtensions {
 	}
 
 	public static boolean testCondition(String id, String json, Map<String, Object> context) {
-		return CONDITIONS.get(id).predicate().test(JsonParser.parseString(json), context);
+		return CONDITIONS.get(id).predicate().test(parsed(json), context);
 	}
 
 	public static void registerReward(String id, Consumer<JsonObject> validator) {
@@ -288,7 +310,7 @@ public final class QuestExtensions {
 		if (r == null || r.type() == null)
 			throw new IllegalArgumentException("Invalid reward");
 		if (r.type().equals("item")) {
-			if (r.item() == null || !r.item().matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || r.item().equals("minecraft:air")
+			if (!isId(r.item()) || r.item().equals("minecraft:air")
 					|| r.count() < 1 || r.count() > 2304)
 				throw new IllegalArgumentException("Invalid item reward");
 			var data = JsonParser.parseString(r.data()).getAsJsonObject();
@@ -303,7 +325,7 @@ public final class QuestExtensions {
 	}
 
 	private static void namespaced(String id) {
-		if (id == null || !id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
+		if (!isId(id))
 			throw new IllegalArgumentException("Extension IDs must be namespaced");
 	}
 }

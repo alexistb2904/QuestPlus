@@ -111,12 +111,13 @@ final class TabletNativeGeometry {
 		float y1 = (c.y + c.dy + c.inflate) / 16f;
 		float z1 = (c.z + c.dz + c.inflate) / 16f;
 		if (screen) {
-			face(vertices, pose.last(), x0,y0,z0, x1,y0,z0, x1,y1,z0, x0,y1,z0,
+			// Wound towards the viewer: the true-emissive pipeline culls back faces.
+			face(vertices, pose.last(), x1,y0,z0, x0,y0,z0, x0,y1,z0, x1,y1,z0,
 					0,0,-1, new float[] {
 					TabletSurfaceRenderer.SCREEN_X + TabletSurfaceRenderer.screenWidth(),
 					TabletSurfaceRenderer.atlasHeight() - TabletSurfaceRenderer.screenHeight(),
 					-TabletSurfaceRenderer.screenWidth(), TabletSurfaceRenderer.screenHeight()
-					}, TabletSurfaceRenderer.atlasWidth(), TabletSurfaceRenderer.atlasHeight(), light, false);
+					}, TabletSurfaceRenderer.atlasWidth(), TabletSurfaceRenderer.atlasHeight(), light, true);
 		} else {
 			float[][] uv=c.uvs;
 			face(vertices,pose.last(),x0,y0,z0,x1,y0,z0,x1,y1,z0,x0,y1,z0,0,0,-1,uv[0],TEXTURE_SIZE,TEXTURE_SIZE,light,c.mirror);

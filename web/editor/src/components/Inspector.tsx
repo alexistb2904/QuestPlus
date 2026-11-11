@@ -1,16 +1,19 @@
-import { Check, ChevronDown, Copy, Gift, Info, PenLine, SlidersHorizontal, Target } from "lucide-react";
-import React, { useId, useRef, useState } from "react";
-import { OBJECTIVE_KINDS, addChild, childrenOf, setAt, wrap } from "../core/conditions.js";
+import { Check, ChevronDown, Copy, Gift, Info, Layers, PenLine, Plus, SlidersHorizontal, Target, Trash2 } from "lucide-react";
+import React, { useId, useMemo, useRef, useState } from "react";
+import { addToGroup, childrenOf, groupView, setAt, setGroupMode } from "../core/conditions.js";
+import { descriptionParts } from "../core/description-format.js";
 import { gameLayout } from "../core/game-layout.js";
 import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
-import { annotationRich, annotationText, selectedOwner, text } from "../core/project.js";
+import { annotationRich, annotationText, orderedCategories, selectedOwner, text } from "../core/project.js";
 import { resourceMatcher } from "../core/resource-search.js";
 import type { Project, Selection } from "../types";
 import { versionWarning } from "../ui/minecraft-icons.js";
+import { CONDITION_GROUPS, CONDITION_HINTS } from "../ui/type-catalog.js";
 import { tUI } from "../ui/ui-i18n.js";
 import { GearEditor, armorPreset } from "./GearEditor";
 import { ItemIcon, TargetPicker } from "./IconPicker";
 import { DescriptionEditor, RichEditor } from "./RichEditor";
+import { catalogOptions, ChoiceCards, InfoTip, TypePicker, type TypeOption } from "./TypePicker";
 
 export type Props = {
 	project: Project;
@@ -22,8 +25,11 @@ export type Props = {
 	onChooseIcon: (path: string) => void;
 	onCondition: (scope: string, value: any) => void;
 	onAddLocale?: (id: string) => void;
+	/** Edits config.json (NPCs, turn-in rule) as one undoable change. */
+	onConfig?: (change: (config: any) => void, field?: string) => void;
 	onOpenTranslations?: () => void;
 	translationRequest?: number;
+	issues?: { where: string; message: string }[];
 };
 type FieldProps = { label: string; value: any; onChange: (value: any) => void; type?: string; placeholder?: string; rows?: number };
 export function Field({ label, value, onChange, type = "text", placeholder = "", rows }: FieldProps) {
@@ -185,6 +191,30 @@ function IconField({ id, onUpdate, onChooseIcon, project }: { id: string; onUpda
 		</div>
 	);
 }
+const CONDITION_NAMES: Record<string, string> = {
+	dimension: "Dimension",
+	tool: "Tool",
+	biome: "Biome",
+	effect: "Effect",
+	"questplus:stage": "Stage",
+	healthAtMost: "Health ≤",
+	healthAtLeast: "Health ≥",
+	sneaking: "Sneaking",
+	equipment: "Equipment",
+	position: "Position",
+	context: "Context",
+};
+const GROUP_MODES: [string, string][] = [
+	["and", "all of these are met"],
+	["or", "any one of these is met"],
+	["at_least", "at least N of these are met"],
+	["none", "none of these is met"],
+];
+const plain = (value: string) =>
+	descriptionParts(value)
+		.map((part: { text: string }) => part.text)
+		.join("")
+		.trim();
 export function ConditionEditor({
 	value,
 	scope,
@@ -200,9 +230,41 @@ export function ConditionEditor({
 }) {
 	const [picker, setPicker] = useState<{ kind: any; pick: (id: string) => void } | null>(null);
 	const requires = scope === "requires";
-	const available = project.quests
-		.filter((q) => q.id && q.id !== currentQuestId && !(q.kind === "information" && q.acknowledgement === "read_only"))
-		.map((q) => [q.id, text(q.title, "en_us") || q.id] as [string, string]);
+	const categoryOrder = orderedCategories(project.categories).map((c: { id: string }) => c.id);
+	const questName = (id: string) => text(project.quests.find((q) => q.id === id)?.title, "en_us") || id;
+	const questOptions = (current?: string): TypeOption[] => {
+		const list: TypeOption[] = project.quests
+			.filter((q) => q.id && q.id !== currentQuestId && !(q.kind === "information" && q.acknowledgement === "read_only"))
+			.sort((a, b) => categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category))
+			.map((q) => ({
+				id: q.id,
+				name: text(q.title, "en_us") || q.id,
+				hint: q.id,
+				icon: q.icon,
+				group: text(project.categories.find((c) => c.id === q.category)?.title, "en_us") || q.category,
+				detail: plain(text(q.description, "en_us")).slice(0, 240) || tUI("No description"),
+			}));
+		if (current && !list.some((o) => o.id === current)) list.push({ id: current, name: current, hint: tUI("Unknown quest") });
+		return list;
+	};
+	const extensions = hubEditorDescriptors("condition");
+	const conditionOptions = (current?: string) => catalogOptions(CONDITION_GROUPS, CONDITION_NAMES, CONDITION_HINTS, extensions, current);
+	const defaults: Record<string, any> = {
+		sneaking: true,
+		biome: "minecraft:plains",
+		tool: "minecraft:iron_pickaxe",
+		effect: "minecraft:speed",
+		"questplus:stage": "questplus:chapter",
+		equipment: { slot: "mainhand", item: "minecraft:stone" },
+		"questplus:gear": { items: armorPreset("iron") },
+		position: { xMin: 0 },
+		context: { key: "", equals: true },
+	};
+	const initial = (kind: string) => {
+		const descriptor = extensions.find((d) => d.id === kind);
+		const fromDescriptor = descriptor ? Object.fromEntries(descriptor.fields.map((field: any) => [field.key, hubFieldDefault(field)])) : undefined;
+		return { [kind]: fromDescriptor ?? defaults[kind] ?? (kind.startsWith("health") ? 2 : "minecraft:overworld") };
+	};
 	const mutate = (fn: (root: any) => any) => {
 		try {
 			onChange(fn(value));
@@ -210,238 +272,290 @@ export function ConditionEditor({
 			console.error(e);
 		}
 	};
-	const newLeaf = () => (requires ? { quest: available[0]?.[0] || "" } : { dimension: "minecraft:overworld" });
-	const add = (path: string, child: any) => mutate((root) => addChild(root, path, child));
 	const remove = (path: string) => mutate((root) => setAt(root, path, null));
-	const group = (path: string, kind: "and" | "or" | "not" | "at_least") =>
-		mutate((root) =>
-			root ? wrap(root, path, kind) : kind === "at_least" ? { at_least: { count: 1, of: [newLeaf()] } } : { [kind]: kind === "not" ? newLeaf() : [newLeaf()] }
-		);
-	function render(node: any, path: string, depth: number): React.ReactNode {
+	const describe = (node: any, top = true): string => {
 		const child = childrenOf(node);
 		if (child) {
-			return (
-				<div key={path} className={"cond-group depth-" + Math.min(depth, 4)}>
-					<div className="cond-group-head">
-						<select className="cond-op" aria-label={tUI("Logical operator")} value={child.type} onChange={(e) => group(path, e.target.value as any)}>
-							<option value="and">AND</option>
-							<option value="or">OR</option>
-							<option value="not">NOT</option>
-							<option value="at_least">{tUI("At least N")}</option>
-						</select>
-						{child.type === "at_least" && (
+			const parts = child.children.map((c: any) => describe(c, false));
+			const sentence =
+				child.type === "not"
+					? tUI("not") + " " + parts[0]
+					: child.type === "at_least"
+						? `${tUI("at least")} ${node.at_least.count} ${tUI("of")} (${parts.join(", ")})`
+						: parts.join(" " + tUI(child.type === "and" ? "and" : "or") + " ");
+			return top || child.type === "not" ? sentence : "(" + sentence + ")";
+		}
+		if (requires) {
+			const state = node?.started ? "started" : "quest";
+			return "“" + questName(node?.[state] || "") + "” " + tUI(state === "started" ? "started" : "completed");
+		}
+		const kind = Object.keys(node || {})[0] || "";
+		const val = node?.[kind];
+		return (tUI(CONDITION_NAMES[kind] || kind) + (val === undefined || typeof val === "object" ? "" : " " + String(val))).trim();
+	};
+	const pick = (label: string, icon: React.ReactNode, onPick: (child: any) => void) => (
+		<TypePicker
+			label={label}
+			triggerContent={
+				<>
+					{icon}
+					{tUI(label)}
+				</>
+			}
+			triggerClass="button secondary cond-add"
+			value=""
+			options={requires ? questOptions() : conditionOptions()}
+			filterGroups={requires}
+			translate={!requires}
+			onChange={(id) => onPick(requires ? { quest: id } : initial(id))}
+		/>
+	);
+	const tools = (path: string, depth: number) => (
+		<div className="cond-tools">
+			{pick(requires ? "Add quest" : "Add condition", <Plus size={14} aria-hidden="true" />, (child) => mutate((root) => addToGroup(root, path, child)))}
+			{depth === 0 && value && (
+				<>
+					{pick("Add an “any one of” group", <Layers size={14} aria-hidden="true" />, (child) => mutate((root) => addToGroup(root, path, { or: [child] })))}
+					<InfoTip text={tUI("Groups mix rules, for example: Quest A and (Quest B or Quest C). Pick the first item of the group, then add more inside it.")} />
+				</>
+			)}
+		</div>
+	);
+	// A group reads as one sentence ("Available when all of these are met") followed by its items.
+	function renderGroup(node: any, path: string, depth: number, removePath = path): React.ReactNode {
+		const view = groupView(node, path),
+			connector = view.mode === "and" ? "and" : view.mode === "or" ? "or" : "";
+		return (
+			<div key={path || "root"} className={"cond-group depth-" + Math.min(depth, 4)}>
+				<div className="cond-sentence">
+					<span>{tUI(depth ? "This group passes when" : requires ? "Available when" : "Counts only when")}</span>
+					<select className="cond-mode" aria-label={tUI("Logical operator")} value={view.mode} onChange={(e) => mutate((root) => setGroupMode(root, path, e.target.value))}>
+						{GROUP_MODES.map(([mode, label]) => (
+							<option key={mode} value={mode}>
+								{tUI(label)}
+							</option>
+						))}
+					</select>
+					{view.mode === "at_least" && (
+						<label className="cond-count">
+							<span>N =</span>
 							<input
 								type="number"
 								min={1}
-								max={child.children.length}
+								max={view.items.length}
 								aria-label={tUI("Required prerequisites")}
-								value={node.at_least.count}
-								onChange={(e) => mutate((root) => setAt(root, path, { at_least: { ...node.at_least, count: Number(e.target.value) } }))}
+								value={view.count}
+								onChange={(e) => mutate((root) => setGroupMode(root, path, "at_least", Number(e.target.value) || 1))}
 							/>
-						)}
-						<button aria-label={tUI("Remove condition")} className="cond-remove" onClick={() => remove(path)}>
-							×
+							<span>/ {view.items.length}</span>
+						</label>
+					)}
+					{depth > 0 && (
+						<button type="button" className="cond-remove" aria-label={tUI("Remove group")} title={tUI("Remove group")} onClick={() => remove(removePath)}>
+							<Trash2 size={14} />
 						</button>
-					</div>
-					<div className="cond-children">{child.children.map((c: any, i: number) => render(c, path ? path + "." + i : String(i), depth + 1))}</div>
-					{child.type !== "not" && (
-						<div className="cond-tools">
-							<button disabled={requires && !available.length} onClick={() => add(path, newLeaf())}>
-								+ {tUI(requires ? "Quest" : "Condition")}
-							</button>
-						</div>
 					)}
 				</div>
-			);
-		}
+				<ol className="cond-items">
+					{view.items.map((item: { node: any; path: string; removePath: string }, i: number) => (
+						<li key={item.path || "leaf"}>
+							{i > 0 && connector && <span className="cond-connector">{tUI(connector)}</span>}
+							{childrenOf(item.node) ? renderGroup(item.node, item.path, depth + 1, item.removePath) : renderLeaf(item.node, item.path, item.removePath)}
+						</li>
+					))}
+				</ol>
+				{tools(path, depth)}
+			</div>
+		);
+	}
+	function renderLeaf(node: any, path: string, removePath: string): React.ReactNode {
+		const removeButton = (
+			<button type="button" aria-label={tUI("Remove condition")} title={tUI("Remove condition")} className="cond-remove" onClick={() => remove(removePath)}>
+				<Trash2 size={14} />
+			</button>
+		);
 		if (requires) {
 			const prerequisite = node?.started ? "started" : "quest",
 				target = node?.[prerequisite] || "";
 			return (
-				<div className="cond-leaf" key={path}>
-					<select aria-label={tUI("Prerequisite state")} value={prerequisite} onChange={(e) => mutate((root) => setAt(root, path, { [e.target.value]: target }))}>
-						<option value="quest">{tUI("Completed")}</option>
-						<option value="started">{tUI("Started")}</option>
-					</select>
-					<select aria-label={tUI("Prerequisite quest")} value={target} onChange={(e) => mutate((root) => setAt(root, path, { [prerequisite]: e.target.value }))}>
-						<option value="">{tUI("Select quest…")}</option>
-						{target && !available.some(([id]) => id === target) && <option value={target}>{target}</option>}
-						{available.map(([id, name]) => (
-							<option key={id} value={id}>
-								{name}
-							</option>
+				<div className="cond-leaf cond-leaf-quest" key={path}>
+					<TypePicker
+						label="Prerequisite quest"
+						value={target}
+						options={questOptions(target)}
+						filterGroups
+						translate={false}
+						placeholder="Choose a quest…"
+						onChange={(id) => mutate((root) => setAt(root, path, { [prerequisite]: id }))}
+					/>
+					<div className="cond-state" role="radiogroup" aria-label={tUI("Prerequisite state")}>
+						{(["quest", "started"] as const).map((state) => (
+							<button
+								type="button"
+								role="radio"
+								key={state}
+								aria-checked={prerequisite === state}
+								onClick={() => prerequisite !== state && mutate((root) => setAt(root, path, { [state]: target }))}>
+								{tUI(state === "quest" ? "Completed" : "Started")}
+							</button>
 						))}
-					</select>
-					<button aria-label={tUI("Remove condition")} className="cond-remove" onClick={() => remove(path)}>
-						×
-					</button>
+					</div>
+					{removeButton}
 				</div>
 			);
 		}
 		const kind = Object.keys(node || {})[0] || "dimension",
 			val = node?.[kind];
-		const extensions = hubEditorDescriptors("condition");
-		const choices: [string, string][] = [
-			...OBJECTIVE_KINDS,
-			["equipment", "Equipment"],
-			["position", "Position"],
-			["context", "Context"],
-			...extensions.map((d) => [d.id, d.label] as [string, string]),
-		];
-		const defaults: Record<string, any> = {
-			sneaking: true,
-			equipment: { slot: "mainhand", item: "minecraft:stone" },
-			"questplus:gear": { items: armorPreset("iron") },
-			position: { xMin: 0 },
-			context: { key: "", equals: true },
-		};
-		const setKind = (next: string) =>
-			mutate((root) => {
-				const descriptor = extensions.find((d) => d.id === next);
-				const initial = descriptor
-					? Object.fromEntries(descriptor.fields.map((field: any) => [field.key, hubFieldDefault(field)]))
-					: undefined;
-				return setAt(root, path, { [next]: initial ?? defaults[next] ?? (next.startsWith("health") ? 2 : "minecraft:overworld") });
-			});
 		const setMember = (member: string, next: any) => mutate((root) => setAt(root, path, { [kind]: { ...val, [member]: next } }));
 		return (
 			<div className="cond-leaf" key={path}>
-				<select aria-label={tUI("Condition type")} value={kind} onChange={(e) => setKind(e.target.value)}>
-					{choices.map(([key, name]: [string, string]) => (
-						<option key={key} value={key}>
-							{tUI(name)}
-						</option>
-					))}
-					{!choices.some(([key]) => key === kind) && <option value={kind}>{kind}</option>}
-				</select>
-				{kind === "sneaking" ? (
-					<select aria-label={tUI("Condition value")} value={String(val)} onChange={(e) => mutate((root) => setAt(root, path, { sneaking: e.target.value === "true" }))}>
-						<option value="true">{tUI("Yes")}</option>
-						<option value="false">{tUI("No")}</option>
-					</select>
-				) : kind === "questplus:gear" ? (
-					<GearEditor conditions={node} onChange={(next) => mutate((root) => setAt(root, path, next))} />
-				) : kind === "equipment" ? (
-					<>
-						<select aria-label={tUI("Equipment slot")} value={val?.slot || "mainhand"} onChange={(e) => setMember("slot", e.target.value)}>
-							{["mainhand", "offhand", "head", "chest", "legs", "feet"].map((s) => (
-								<option key={s} value={s}>
-									{s}
-								</option>
-							))}
+				<TypePicker label="Condition type" value={kind} options={conditionOptions(kind)} onChange={(next) => next !== kind && mutate((root) => setAt(root, path, initial(next)))} />
+				<div className="cond-value">
+					{kind === "sneaking" ? (
+						<select aria-label={tUI("Condition value")} value={String(val)} onChange={(e) => mutate((root) => setAt(root, path, { sneaking: e.target.value === "true" }))}>
+							<option value="true">{tUI("Yes")}</option>
+							<option value="false">{tUI("No")}</option>
 						</select>
-						<input aria-label={tUI("Equipment item")} value={val?.item || ""} onChange={(e) => setMember("item", e.target.value)} />
-					</>
-				) : kind === "position" ? (
-					<div className="field-row">
-						{["xMin", "xMax", "yMin", "yMax", "zMin", "zMax"].map((axis) => (
-							<label className="field" key={axis}>
-								<span>{axis}</span>
-								<input
-									type="number"
-									value={val?.[axis] ?? ""}
-									onChange={(e) => {
-										const next = { ...val };
-										if (e.target.value === "") delete next[axis];
-										else next[axis] = Number(e.target.value);
-										mutate((root) => setAt(root, path, { position: next }));
-									}}
-								/>
-							</label>
-						))}
-					</div>
-				) : kind === "context" ? (
-					<>
-						<input aria-label={tUI("Context key")} value={val?.key || ""} onChange={(e) => setMember("key", e.target.value)} />
-						<input
-							aria-label={tUI("Context value (JSON)")}
-							defaultValue={JSON.stringify(val?.equals ?? true)}
-							key={path + ":" + JSON.stringify(val?.equals)}
-							onBlur={(e) => {
-								try {
-									const next = JSON.parse(e.target.value);
-									if (next === null || typeof next === "object") throw Error();
-									setMember("equals", next);
-								} catch {
-									e.target.value = JSON.stringify(val?.equals ?? true);
-								}
-							}}
-						/>
-					</>
-				) : extensions.some((d) => d.id === kind) && val && typeof val === "object" && !Array.isArray(val) ? (
-					<div className="field-row">
-						{extensions
-							.find((d) => d.id === kind)!
-							.fields.map((field: any) => (
-								<div key={field.key} className="field-row">
-									{field.type === "boolean" ? (
-                                        <label className="checkbox-row">
-                                            <input type="checkbox" checked={!!val[field.key]} onChange={(e) => setMember(field.key, e.target.checked)} />
-                                            {field.label}
-                                        </label>
-                                    ) : field.type === "choice" ? (
-                                        <label className="field">
-                                            <span>{field.label}</span>
-                                            <select value={val[field.key] ?? hubFieldDefault(field)} onChange={(e) => setMember(field.key, e.target.value)}>
-                                                {field.options.map((option: string) => <option key={option} value={option}>{option}</option>)}
-                                            </select>
-                                        </label>
-                                    ) : (
-										<>
-											<Field
-												label={field.label}
-												type={["integer", "number"].includes(field.type) ? "number" : "text"}
-												value={val[field.key] ?? ""}
-												onChange={(v) => setMember(field.key, v)}
-											/>
-											{!["string", "integer", "number"].includes(field.type) && (
-												<button
-													type="button"
-													className="button secondary"
-													onClick={() => setPicker({ kind: field.type, pick: (id) => setMember(field.key, id) })}>
-													{tUI("Browse")}
-												</button>
-											)}
-										</>
-									)}
-								</div>
+					) : kind === "questplus:gear" ? (
+						<GearEditor conditions={node} onChange={(next) => mutate((root) => setAt(root, path, next))} />
+					) : kind === "equipment" ? (
+						<>
+							<select aria-label={tUI("Equipment slot")} value={val?.slot || "mainhand"} onChange={(e) => setMember("slot", e.target.value)}>
+								{["mainhand", "offhand", "head", "chest", "legs", "feet"].map((s) => (
+									<option key={s} value={s}>
+										{s}
+									</option>
+								))}
+							</select>
+							<input aria-label={tUI("Equipment item")} value={val?.item || ""} onChange={(e) => setMember("item", e.target.value)} />
+							<button type="button" className="button secondary" onClick={() => setPicker({ kind: "item", pick: (id) => setMember("item", id) })}>
+								{tUI("Browse")}
+							</button>
+						</>
+					) : kind === "position" ? (
+						<div className="cond-position">
+							{["xMin", "xMax", "yMin", "yMax", "zMin", "zMax"].map((axis) => (
+								<label className="field" key={axis}>
+									<span>{axis}</span>
+									<input
+										type="number"
+										value={val?.[axis] ?? ""}
+										onChange={(e) => {
+											const next = { ...val };
+											if (e.target.value === "") delete next[axis];
+											else next[axis] = Number(e.target.value);
+											mutate((root) => setAt(root, path, { position: next }));
+										}}
+									/>
+								</label>
 							))}
-					</div>
-				) : typeof val === "object" ? (
-                    <small role="status">{tUI("Unknown or unavailable condition extension. Data is preserved; edit in Advanced JSON.")}</small>
-				) : (
-					<input
-						aria-label={tUI("Condition value")}
-						value={val ?? ""}
-						onChange={(e) => mutate((root) => setAt(root, path, { [kind]: kind.startsWith("health") ? Number(e.target.value) : e.target.value }))}
-					/>
-				)}
-				<button aria-label={tUI("Remove condition")} className="cond-remove" onClick={() => remove(path)}>
-					×
-				</button>
+						</div>
+					) : kind === "context" ? (
+						<>
+							<input aria-label={tUI("Context key")} placeholder={tUI("Context key")} value={val?.key || ""} onChange={(e) => setMember("key", e.target.value)} />
+							<input
+								aria-label={tUI("Context value (JSON)")}
+								defaultValue={JSON.stringify(val?.equals ?? true)}
+								key={path + ":" + JSON.stringify(val?.equals)}
+								onBlur={(e) => {
+									try {
+										const next = JSON.parse(e.target.value);
+										if (next === null || typeof next === "object") throw Error();
+										setMember("equals", next);
+									} catch {
+										e.target.value = JSON.stringify(val?.equals ?? true);
+									}
+								}}
+							/>
+						</>
+					) : extensions.some((d) => d.id === kind) && val && typeof val === "object" && !Array.isArray(val) ? (
+						<div className="field-row">
+							{extensions
+								.find((d) => d.id === kind)!
+								.fields.map((field: any) => (
+									<div key={field.key} className="field-row">
+										{field.type === "boolean" ? (
+											<label className="checkbox-row">
+												<input type="checkbox" checked={!!val[field.key]} onChange={(e) => setMember(field.key, e.target.checked)} />
+												{field.label}
+											</label>
+										) : field.type === "choice" ? (
+											<label className="field">
+												<span>{field.label}</span>
+												<select value={val[field.key] ?? hubFieldDefault(field)} onChange={(e) => setMember(field.key, e.target.value)}>
+													{field.options.map((option: string) => (
+														<option key={option} value={option}>
+															{option}
+														</option>
+													))}
+												</select>
+											</label>
+										) : (
+											<>
+												<Field
+													label={field.label}
+													type={["integer", "number"].includes(field.type) ? "number" : "text"}
+													value={val[field.key] ?? ""}
+													onChange={(v) => setMember(field.key, v)}
+												/>
+												{!["string", "integer", "number"].includes(field.type) && (
+													<button type="button" className="button secondary" onClick={() => setPicker({ kind: field.type, pick: (id) => setMember(field.key, id) })}>
+														{tUI("Browse")}
+													</button>
+												)}
+											</>
+										)}
+									</div>
+								))}
+						</div>
+					) : typeof val === "object" ? (
+						<small role="status">{tUI("Unknown or unavailable condition extension. Data is preserved; edit in Advanced JSON.")}</small>
+					) : (
+						<>
+							<input
+								aria-label={tUI("Condition value")}
+								type={kind.startsWith("health") ? "number" : "text"}
+								step={kind.startsWith("health") ? 0.5 : undefined}
+								value={val ?? ""}
+								onChange={(e) => mutate((root) => setAt(root, path, { [kind]: kind.startsWith("health") ? Number(e.target.value) : e.target.value }))}
+							/>
+							{["dimension", "biome", "tool", "effect"].includes(kind) && (
+								<button
+									type="button"
+									className="button secondary"
+									onClick={() =>
+										setPicker({
+											kind: kind === "tool" ? "item" : kind === "effect" ? "effect" : kind,
+											pick: (id) => mutate((root) => setAt(root, path, { [kind]: id })),
+										})
+									}>
+									{tUI("Browse")}
+								</button>
+							)}
+						</>
+					)}
+				</div>
+				{removeButton}
 			</div>
 		);
 	}
 	return (
 		<div className="condition-builder">
-			{value ? render(value, "", 0) : <div className="cond-empty">{tUI("No conditions")}</div>}
-			<div className="cond-tools root-tools">
-				<button disabled={requires && !available.length} onClick={() => add("", newLeaf())}>
-					+ {tUI(requires ? "Quest" : "Condition")}
-				</button>
-				<button disabled={!value && requires && !available.length} onClick={() => group("", "and")}>
-					AND
-				</button>
-				<button disabled={!value && requires && !available.length} onClick={() => group("", "or")}>
-					OR
-				</button>
-				<button disabled={!value && requires && !available.length} onClick={() => group("", "not")}>
-					NOT
-				</button>
-				<button disabled={!value && requires && !available.length} onClick={() => group("", "at_least")}>
-					{tUI("At least N")}
-				</button>
-			</div>
+			{value ? (
+				<>
+					{groupView(value).items.some((item: { node: any }) => childrenOf(item.node)) && (
+						<p className="cond-summary">
+							<strong>{tUI("In short:")}</strong> {describe(value)}
+						</p>
+					)}
+					{renderGroup(value, "", 0)}
+				</>
+			) : (
+				<>
+					<p className="cond-summary empty">{tUI(requires ? "No prerequisites: the quest is available from the start." : "No conditions: the objective counts everywhere.")}</p>
+					{tools("", 0)}
+				</>
+			)}
 			{picker && (
 				<TargetPicker
 					kind={picker.kind}
@@ -468,14 +582,15 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 	const category = selection?.type === "category" ? project.categories.find((c) => c.id === selection.id) : undefined;
 	const quest = selection?.type === "quest" ? project.quests.find((q) => q.id === selection.id) : undefined;
 	const note = selection?.type === "annotation" ? selectedOwner(project, selection, categoryId) : undefined;
-	let position = quest?.layout;
-	if (quest && !position) {
+	// Laying out a whole category is not something to redo on every render (camera moves included).
+	const position = useMemo(() => {
+		if (!quest || quest.layout) return quest?.layout;
 		try {
-			position = gameLayout(project.quests.filter((q) => q.category === quest.category)).points.get(quest.id);
+			return gameLayout(project.quests.filter((q) => q.category === quest.category)).points.get(quest.id);
 		} catch {
 			/* Invalid prerequisites remain editable while validation reports the cycle. */
 		}
-	}
+	}, [project.quests, quest]);
 	const changeKind = (next: string) => {
 		if (next === (quest?.kind || "standard")) return;
 		if (next === "information" && !confirm(tUI("Changing to information removes objectives, tiers and their rewards, and gameplay constraints. Continue?"))) return;
@@ -604,6 +719,10 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 						{quest && (
 							<>
 								<Section title="Quest">
+									<div className="translated-field">
+										<Field label="Title (English)" value={quest.title?.en_us || ""} onChange={(v) => onUpdate("title.en_us", v)} />
+										<TranslationHelp onOpen={onOpenTranslations} />
+									</div>
 									<label className="field">
 										<span>{tUI("Quest ID")}</span>
 										<span className="id-field">
@@ -626,11 +745,8 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 										</span>
 										{copyStatus === "error" && <small role="status">{tUI("Copy unavailable")}</small>}
 									</label>
-									<div className="translated-field">
-										<Field label="Title (English)" value={quest.title?.en_us || ""} onChange={(v) => onUpdate("title.en_us", v)} />
-										<TranslationHelp onOpen={onOpenTranslations} />
-									</div>
-									<Select
+									<ChoiceCards
+										compact
 										label="Type"
 										value={quest.kind || "standard"}
 										options={[
@@ -646,7 +762,6 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 										onChange={(v) => onUpdate("category", v)}
 									/>
 									<IconField id={quest.icon} project={project} onUpdate={(v) => onUpdate("icon", v)} onChooseIcon={() => onChooseIcon("icon")} />
-									<Field label="Quest size" type="number" value={quest.size ?? 32} onChange={(v) => onUpdate("size", Math.max(1, Math.round(v) || 1))} />
 									<div className="description-field">
 										<div className="translation-label">
 											<span>{tUI("Description (English)")}</span>
@@ -662,12 +777,17 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 										/>
 									</div>
 								</Section>
-								<Section title="Position">
-									<div className="field-row">
+								<Section title="Layout">
+									<div className="field-row field-row-3">
 										<Field label="X" type="number" value={position?.x ?? 0} onChange={(v) => onUpdate("layout.x", v)} />
 										<Field label="Y" type="number" value={position?.y ?? 0} onChange={(v) => onUpdate("layout.y", v)} />
+										<Field label="Quest size" type="number" value={quest.size ?? 32} onChange={(v) => onUpdate("size", Math.max(1, Math.round(v) || 1))} />
 									</div>
 								</Section>
+								<Section title="Visibility">
+									<label className="checkbox-row">
+										<input type="checkbox" checked={!!quest.hidden} onChange={(e) => onUpdate("hidden", e.target.checked)} /> {tUI("Hidden until unlocked")}
+									</label>
 								<Disclosure title="Presentation">
 									<div className="presentation-group">
 										<strong>{tUI("Appearance")}</strong>
@@ -753,10 +873,6 @@ export function Inspector({ project, categoryId, selection, language, onUpdate, 
 										/>
 									</div>
 								</Disclosure>
-								<Section title="Visibility">
-									<label className="checkbox-row">
-										<input type="checkbox" checked={!!quest.hidden} onChange={(e) => onUpdate("hidden", e.target.checked)} /> {tUI("Hidden until unlocked")}
-									</label>
 								</Section>
 							</>
 						)}

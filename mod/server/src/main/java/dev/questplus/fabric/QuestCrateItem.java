@@ -24,6 +24,33 @@ final class QuestCrateItem extends Item {
 				new QuestCrateItem(new Item.Properties().setId(key).stacksTo(64)));
 	}
 
+	/**
+	 * On a block: stage the reveal chest. Anywhere it cannot stand (or in
+	 * creative) PASS falls back to {@link #use}, the instant open.
+	 */
+	@Override
+	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+		var level = context.getLevel();
+		var player = context.getPlayer();
+		var pos = QuestLootChest.target(level, context.getClickedPos(), context.getClickedFace());
+		if (player == null || player.isCreative() || player.isSpectator() || pos == null
+				|| !player.mayUseItemAt(pos, context.getClickedFace(), context.getItemInHand()))
+			return InteractionResult.PASS;
+		if (!(player instanceof ServerPlayer actor)
+				|| !(level instanceof net.minecraft.server.level.ServerLevel serverLevel))
+			return InteractionResult.SUCCESS;
+		try {
+			var runtime = QuestPlusMod.runtime();
+			var crate = runtime.openCrate(actor, context.getHand(), QuestLootChest.DELIVER);
+			if (!QuestLootChest.place(serverLevel, pos, actor, crate))
+				runtime.releaseCrateHold(crate.key());
+		} catch (Exception error) {
+			actor.sendSystemMessage(net.minecraft.network.chat.Component.literal("QuestPlus: " + error.getMessage()));
+			return InteractionResult.FAIL;
+		}
+		return InteractionResult.SUCCESS;
+	}
+
 	@Override
 	public InteractionResult use(Level level, Player player, InteractionHand hand) {
 		if (player instanceof ServerPlayer actor) {

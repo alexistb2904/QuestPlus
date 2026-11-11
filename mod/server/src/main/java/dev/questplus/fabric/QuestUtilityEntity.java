@@ -39,7 +39,8 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     private QuestDefinition.Objective cachedObjective;
     private String moveToken;
     public String status="unconfigured";
-    public record Row(String title, String icon, String progress, String state, String player, String detail, double fraction, String count) {}
+    /** {@code id} names the quest a row shows; empty for leaderboard and objective rows. */
+    public record Row(String title, String icon, String progress, String state, String player, String detail, double fraction, String count, String id) {}
     public List<Row> rows=List.of();
     public List<Row> leaders=List.of();
     public long contentRevision;
@@ -69,6 +70,16 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     int kind() { return ((QuestUtilityBlock)getBlockState().getBlock()).kind; }
     public String stationQuestId() { return kind()==1 && config.quests().size()==1 ? config.quests().getFirst() : ""; }
     public boolean boardLeaderboard(){return config.boardMode().equals("leaderboard");}
+    /** Pins that stay on top of the in-world board while the rest scroll (mixed mode only). */
+    public List<String> boardFixedPins(){return config.boardMode().equals("mixed")?config.quests():List.of();}
+    /**
+     * Progress a board displays. "Personal" means what the owner's own tablet shows: a player in a
+     * shared-progress team has no live personal record, so it follows their active scope (as the leaderboard does).
+     */
+    PlayerProgress boardState(UUID who,ProgressScope scope) throws IOException {
+        var rt=QuestPlusMod.runtime();
+        return kind()==0&&scope==ProgressScope.PERSONAL?rt.state(who):rt.state(who,scope);
+    }
     private UUID accountId() {
         return UUID.nameUUIDFromBytes((level.dimension().identifier()+"/"+worldPosition.asLong()).getBytes(StandardCharsets.UTF_8));
     }
@@ -197,11 +208,11 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         return ItemComponents.targets(o).stream().anyMatch(t->t.startsWith("#")
                 ? item.is(net.minecraft.tags.TagKey.create(Registries.ITEM,Identifier.parse(t.substring(1))))
                 : BuiltInRegistries.ITEM.getKey(item.getItem()).toString().equals(t))
-                && ItemComponents.matches(JsonParser.parseString(o.data()).getAsJsonObject(),QuestItemStacks.components(item,level.registryAccess()));
+                && ItemComponents.matches(QuestExtensions.parsed(o.data()).getAsJsonObject(),QuestItemStacks.components(item,level.registryAccess()));
     }
     int energyRatio() {
         var o=objective(); if(o==null) return 1;
-        var data=JsonParser.parseString(o.data()).getAsJsonObject();
+        var data=QuestExtensions.parsed(o.data()).getAsJsonObject();
         return data.has("fePerEnergy") ? data.get("fePerEnergy").getAsInt() : 1;
     }
     private boolean hasResources() { return !stack.isEmpty() || fluids.amount>0 || energy>0; }
@@ -289,7 +300,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         long target=Math.multiplyExact(o.count(),factor);
         long current=v!=null&&(v.completed||v.terminal)?target:Math.min(target,v==null?0:v.counters.getOrDefault(o.id(),0L));
         publishRows(List.of(boardRow(q,p),new Row(Localization.text(o.text(),"en_us",Map.of()),o.target(),
-                Math.round(100.0*current/target)+"%",status,"",o.event(),(double)current/target,current+" / "+target)));
+                Math.round(100.0*current/target)+"%",status,"",o.event(),(double)current/target,current+" / "+target,"")));
     }
     public boolean canConfigure(ServerPlayer actor) {
         if(actor.isSpectator() || actor.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(worldPosition))>64 || !level.mayInteract(actor,worldPosition)) return false;
@@ -312,7 +323,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         UUID team=value.scope()==ProgressScope.TEAM ? rt.player(newOwner).teamId : null;
         if(value.scope()==ProgressScope.TEAM && (team==null || !rt.teams().get(team).sharedQuestProgress))
             throw new IllegalArgumentException("Shared progress unavailable");
-        var visible=dev.questplus.clientdata.ClientProjection.visible(rt.registry().all(),rt.state(newOwner,value.scope()));
+        var visible=dev.questplus.clientdata.ClientProjection.visible(rt.registry().all(),boardState(newOwner,value.scope()));
         for(String id:value.quests()) if(visible.stream().noneMatch(q->q.id().equals(id))) throw new IllegalArgumentException("Quest unavailable");
         if(kind()==1 && (value.quests().size()!=1 || rt.registry().get(value.quests().getFirst()).objectives().stream()
                 .noneMatch(o->o.id().equals(value.objective()) && Set.of("item_turn_in","fluid_submit","energy_submit").contains(o.event()))))
@@ -336,6 +347,8 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             }
             QuestBoardParts.rebuild(this);
         }
+        // Clients render the mode from the synced config: publish it even when the rows are unchanged.
+        if(kind()==0)for(var part:parts){part.contentRevision++;level.sendBlockUpdated(part.worldPosition,part.getBlockState(),part.getBlockState(),2);}
     }
     private void resize(int size) {
         if(size<0 || size>3) throw new IllegalArgumentException("Invalid board size");
@@ -395,7 +408,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     }
     private void updateBoard() throws IOException {
         if(QuestBoardParts.modular(getBlockState())&&boardWidth==0)return;
-        var rt=QuestPlusMod.runtime(); var p=rt.state(owner,config.scope()); var result=new ArrayList<Row>();
+        var rt=QuestPlusMod.runtime(); var p=boardState(owner,config.scope()); var result=new ArrayList<Row>();
         var ranking=QuestWorldBlocks.ranking((ServerLevel)level,config.leaderboard());
         result.addAll(ranking);
         boolean leadersChanged=!leaders.equals(ranking);leaders=ranking;
@@ -405,11 +418,18 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             var order=new LinkedHashSet<QuestDefinition>();
             if(!config.boardMode().equals("automatic"))for(String id:config.quests())
                 visible.stream().filter(q->q.id().equals(id)).findFirst().ifPresent(order::add);
-            if(!config.boardMode().equals("pinned")) for(var q:visible) {
-                var v=p.quests.get(q.id()); if(v!=null && v.attemptId!=null && !v.terminal && !v.completed) order.add(q);
+            if(!config.boardMode().equals("pinned")) {
+                // Started quests first, most advanced on top; then quests that can be started now,
+                // so a fresh world (no progress yet) still shows what the player can work on.
+                visible.stream().filter(q->p.quests.containsKey(q.id())&&p.quests.get(q.id()).inProgress())
+                        .sorted(Comparator.comparingDouble((QuestDefinition q)->fraction(q,p)).reversed()).forEach(order::add);
+                var complete=QuestEngine.prerequisiteState(p);
+                visible.stream().filter(q->{var v=p.quests.get(q.id());
+                    return (v==null||!v.completed&&!v.terminal&&!v.waitingRestart)&&(q.requires()==null||q.requires().matches(Map.of(),complete));
+                }).forEach(order::add);
             }
             for(var q:order) {
-                var v=p.quests.get(q.id()); double f=fraction(q,p);
+                var v=p.quests.get(q.id());
                 if(!config.category().isEmpty()&&!config.category().equals(q.category()))continue;
                 if(!config.all()&&v!=null&&(v.completed||v.terminal))continue;
                 result.add(boardRow(q,p));
@@ -431,7 +451,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         String detail=category.map(c->Localization.text(c.title(),"en_us",Map.of())).orElse(q.category())+" · Tier "+(tier+1);
         String title=Localization.text(q.title(),"en_us",Map.of());
         return new Row(title.substring(0,Math.min(128,title.length())),q.icon(),Math.round(f*100)+"%",
-                v!=null&&(v.completed||v.terminal)?"completed":f>0?"started":"available","",detail.substring(0,Math.min(96,detail.length())),f,current+" / "+target);
+                v!=null&&(v.completed||v.terminal)?"completed":f>0?"started":"available","",detail.substring(0,Math.min(96,detail.length())),f,current+" / "+target,q.id());
     }
     private void publishRows(List<Row> value) {
         if(rows.equals(value))return; rows=List.copyOf(value);contentRevision++;

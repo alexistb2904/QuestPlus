@@ -13,15 +13,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.*;
 import java.util.*;
+import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
 /** A local station draft; progress and resource balances always come from the server. */
 public final class QuestStationScreen extends Screen {
+    private final net.minecraft.client.gui.Font font = QuestSkin.font();
     private QuestBlockNetwork.Snapshot snapshot;
     private JsonObject state, config, pending;
     private String owner, pendingOwner;
     private boolean dirty, editable, ownerSettings;
-    private int left, top, panelWidth, panelHeight, scroll, columnWidth, right, settingsY, bufferY;
-    private QuestButton returnItems, apply;
+    /** Section box heights; offsets below are from the window top. */
+    private static final int QUEST_BOX = 138, BUFFER_BOX = 34, AUTOMATION_BOX = 68, SIDES_BOX = 80;
+    private int left, top, panelWidth, panelHeight, scroll, columnWidth, rightWidth, right, questY, settingsY, bufferY;
+    private QuestButton returnItems, apply, ownerButton;
 
     public QuestStationScreen(QuestBlockNetwork.Snapshot packet) { super(t("title")); receive(packet); }
     static Component t(String key, Object... args) { return Component.translatable("questplus.station." + key, args); }
@@ -59,65 +63,75 @@ public final class QuestStationScreen extends Screen {
     private void changed() { dirty = modified(); rebuildWidgets(); }
     @Override protected void init() {
         clearWidgets(); returnItems = null;
-        panelWidth = Math.min(520, width - 16); boolean narrow = panelWidth < 440;
-        panelHeight = ownerSettings ? 232 : narrow ? 600 : 370;
+        // A dialog sized to its content: 440 wide, two columns, stacked below 400.
+        panelWidth = Math.min(440, width - 16); boolean narrow = panelWidth < 400;
+        int inner = panelWidth - 2 * PAD;
+        columnWidth = narrow ? inner : (inner - 8) * 55 / 100;
+        rightWidth = narrow ? inner : inner - columnWidth - 8;
+        int body = BAR + ROW + 16;
+        questY = body; bufferY = body + QUEST_BOX + 8;
+        settingsY = narrow ? bufferY + BUFFER_BOX + 8 : body;
+        int bodyEnd = narrow ? settingsY + AUTOMATION_BOX + 8 + SIDES_BOX : bufferY + BUFFER_BOX;
+        panelHeight = ownerSettings ? BAR + 92 + 6 + FOOTER : bodyEnd + 6 + FOOTER;
         scroll = Math.clamp(scroll, 0, Math.max(0, panelHeight + 16 - height));
         left = (width - panelWidth) / 2; top = Math.max(8, (height - panelHeight) / 2) - scroll;
-        int inner = panelWidth - 24;
-        button(t("owner", ownerName()), left + panelWidth - 166, top + 12, 154, 22,
-                () -> { ownerSettings = !ownerSettings; scroll = 0; rebuildWidgets(); });
+        right = narrow ? left + PAD : left + PAD + columnWidth + 8;
+        ownerButton = addRenderableWidget(QuestBlockChrome.owner(t("owner", ownerName()), left, top, panelWidth,
+                () -> { ownerSettings = !ownerSettings; scroll = 0; rebuildWidgets(); }));
+        ownerButton.active = editable;
+        int x = left + PAD;
         if (ownerSettings) {
-            var ownerField = addRenderableWidget(new QuestTextField(font, left + 12, top + 78, inner, 22, QuestBlockScreen.tr("owner")));
+            var ownerField = addRenderableWidget(new QuestTextField(font, x, top + BAR + 24, inner, ROW, QuestBlockScreen.tr("owner")));
             ownerField.setMaxLength(36); ownerField.setValue(owner); ownerField.setEditable(editable);
             ownerField.setResponder(value -> { owner = value.strip(); dirty = modified(); if (apply != null) apply.active = editable && dirty && objective() != null; });
-            button(t("choose_player"), left + 12, top + 110, inner, 24, () -> {
+            button(t("choose_player"), x, top + BAR + 48, inner, ROW, () -> {
                 var choices = state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                         .map(p -> new QuestBlockPicker.Choice(p.get("id").getAsString(), p.get("name").getAsString())).toList();
                 minecraft.gui.setScreen(new QuestBlockPicker(this, t("choose_player"), choices, id -> { owner = id; changed(); }));
             });
-            button(t("back"), left + 12, top + 142, inner, 22, () -> { ownerSettings = false; rebuildWidgets(); });
+            button(t("back"), x, top + BAR + 72, inner, ROW, () -> { ownerSettings = false; rebuildWidgets(); });
         } else {
-            int half = (inner - 6) / 2;
+            int half = (inner - GAP) / 2;
             for (int i = 0; i < 2; i++) {
                 String scope = i == 0 ? "PERSONAL" : "TEAM";
-                button(QuestBlockScreen.tr("scope." + scope), left + 12 + i * (half + 6), top + 44, half, 24,
+                button(QuestBlockScreen.tr("scope." + scope), x + i * (half + GAP), top + BAR + 8, half, ROW,
                         () -> { config.addProperty("scope", scope); changed(); }).selected(config.get("scope").getAsString().equals(scope));
             }
-            columnWidth = narrow ? inner : (inner - 12) * 56 / 100;
-            right = narrow ? left + 12 : left + 24 + columnWidth;
-            settingsY = top + (narrow ? 334 : 80); bufferY = top + 264;
-            int settingsWidth = narrow ? inner : inner - columnWidth - 12;
             var q = quest(); var o = objective();
+            int boxX = x + 8, boxWidth = columnWidth - 16, qy = top + questY;
             button(q == null ? t("choose_quest") : Component.literal(QuestPlusClient.STATE.text(q.title())),
-                    left + 20, top + 104, columnWidth - 16, 34, this::pickQuest).icon(itemIcon(q == null ? "minecraft:book" : q.icon()));
+                    boxX, qy + 18, boxWidth, 22, this::pickQuest).icon(itemIcon(q == null ? "minecraft:book" : q.icon()));
             var chooseObjective = button(o == null ? t(q == null ? "choose_objective" : "no_deposit_objective") : Component.literal(objectiveTitle(o)),
-                    left + 20, top + 168, columnWidth - 16, 34, this::pickObjective);
+                    boxX, qy + 70, boxWidth, 22, this::pickObjective);
             chooseObjective.icon(itemIcon(o == null ? "minecraft:hopper" : icon(o)));
             chooseObjective.active = editable && q != null && q.objectives().stream().anyMatch(QuestStationScreen::consuming);
-            toggle("automation", right + 8, settingsY + 25, settingsWidth - 16);
-            toggle("advanceTiers", right + 8, settingsY + 55, settingsWidth - 16);
+            int sy = top + settingsY, settingsInner = rightWidth - 16;
+            toggle("automation", right + 8, sy + 18, settingsInner);
+            toggle("advanceTiers", right + 8, sy + 18 + ROW + GAP, settingsInner);
+            int sides = sy + AUTOMATION_BOX + 8, cell = (settingsInner - 2 * GAP) / 3;
             for (int i = 0; i < 6; i++) {
-                var side = Direction.values()[i]; int cell = (settingsWidth - 20) / 3;
+                var side = Direction.values()[i];
                 int mask = 1 << side.ordinal();
-                button(QuestBlockScreen.tr("face." + side.getName()), right + 8 + i % 3 * (cell + 2),
-                        settingsY + 139 + i / 3 * 26, cell, 24,
+                button(QuestBlockScreen.tr("face." + side.getName()), right + 8 + i % 3 * (cell + GAP),
+                        sides + 30 + i / 3 * (ROW + GAP), cell, ROW,
                         () -> { config.addProperty("faces", config.get("faces").getAsInt() ^ mask); changed(); })
                         .selected((config.get("faces").getAsInt() & mask) != 0);
             }
-            returnItems = button(t("return_items"), left + 20, bufferY + 23, columnWidth - 16, 20, () -> send("return_items"));
+            int returnWidth = Math.min(boxWidth - 64, font.width(t("return_items")) + 16);
+            returnItems = button(t("return_items"), x + columnWidth - 8 - returnWidth, top + bufferY + 7, returnWidth, ROW, () -> send("return_items"));
             returnItems.active = editable && state.get("items").getAsInt() > 0;
         }
-        int bottom = top + panelHeight - 30;
-        apply = button(QuestBlockScreen.tr("save"), left + panelWidth - 178, bottom, 88, 22, () -> send("save"));
+        int bottom = footerY(top, panelHeight);
+        apply = button(QuestBlockScreen.tr("save"), applyX(left, panelWidth), bottom, APPLY, ROW, () -> send("save"));
         apply.selected(true); apply.active = editable && dirty && objective() != null;
-        addRenderableWidget(new QuestButton(QuestBlockScreen.tr("close"), left + panelWidth - 84, bottom, 72, 22, this::onClose));
+        addRenderableWidget(new QuestButton(QuestBlockScreen.tr("close"), closeX(left, panelWidth), bottom, CLOSE, ROW, this::onClose));
     }
     private QuestButton button(Component label, int x, int y, int w, int h, Runnable action) {
         var b = addRenderableWidget(new QuestButton(label, x, y, w, h, action)); b.active = editable; return b;
     }
     private void toggle(String key, int x, int y, int w) {
         boolean on = config.get(key).getAsBoolean();
-        button(QuestBlockScreen.tr(key, QuestBlockScreen.tr(on ? "yes" : "no")), x, y, w, 24,
+        button(QuestBlockScreen.tr(key, QuestBlockScreen.tr(on ? "yes" : "no")), x, y, w, ROW,
                 () -> { config.addProperty(key, !on); changed(); }).selected(on);
     }
     private void pickQuest() {
@@ -163,63 +177,71 @@ public final class QuestStationScreen extends Screen {
         ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), action, config.toString(), owner, 0));
     }
     private void text(GuiGraphicsExtractor g, Component value, int x, int y, int w, int color) {
-        g.text(font, font.plainSubstrByWidth(value.getString(), w), x, y, color, false);
+        QuestSkin.text(g, font, QuestSkin.fit(font, value.getString(), w), x, y, color, false);
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
-        g.fill(0, 0, width, height, 0xb0101215);
-        QuestSkin.panel(g, left, top, panelWidth, panelHeight, 0xff211a17, QuestSkin.EDGE);
-        text(g, title, left + 12, top + 18, panelWidth - 190, QuestSkin.INK);
+        // The saved team, which the scope pair below does not show; nothing otherwise, so the title centres.
+        boolean team = state.getAsJsonObject("config").get("scope").getAsString().equals("TEAM");
+        window(g, font, width, height, left, top, panelWidth, panelHeight, new ItemStack(dev.questplus.fabric.QuestWorldBlocks.STATION),
+                title, team && state.has("teamName") && !state.get("teamName").getAsString().isEmpty()
+                        ? QuestBlockScreen.tr("relay.team").getString() + " · " + state.get("teamName").getAsString() : "",
+                ownerButton.getWidth() + 8);
+        int x = left + PAD;
         if (ownerSettings) {
-            text(g, t("owner_uuid"), left + 12, top + 58, panelWidth - 24, QuestSkin.INK);
+            text(g, t("owner_uuid"), x, top + BAR + 10, panelWidth - 2 * PAD, QuestSkin.INK);
         } else {
-            int settingsWidth = panelWidth - 24 - (right - left - 12);
-            QuestSkin.panel(g, left + 12, top + 80, columnWidth, 174, 0xff2b201a, QuestSkin.EDGE);
-            text(g, t("quest"), left + 22, top + 90, columnWidth - 20, QuestSkin.HIGHLIGHT);
-            text(g, t("objective"), left + 22, top + 154, columnWidth - 20, QuestSkin.HIGHLIGHT);
+            int qy = top + questY, by = top + bufferY, sy = top + settingsY, w = columnWidth - 16;
+            QuestSkin.panel(g, x, qy, columnWidth, QUEST_BOX, QuestSkin.PANEL, QuestSkin.LINE);
+            text(g, t("quest"), x + 8, qy + 6, w, QuestSkin.HIGHLIGHT);
+            text(g, t("objective"), x + 8, qy + 58, w, QuestSkin.HIGHLIGHT);
             var q = quest(); var o = objective();
             text(g, q == null ? t("choose_hint") : Component.literal(QuestBlockPicker.categoryTitle(q.category())),
-                    left + 22, top + 141, columnWidth - 20, QuestSkin.DIM);
+                    x + 8, qy + 44, w, QuestSkin.DIM);
             var objective = row(1); var quest = row(0);
             String count = objective == null ? "—" : objective.get("count").getAsString();
-            text(g, t("progress", count), left + 22, top + 216, columnWidth - 20, QuestSkin.INK);
-            bar(g, left + 22, top + 232, columnWidth - 20, objective == null ? 0 : objective.get("fraction").getAsDouble());
+            text(g, t("progress", count), x + 8, qy + 98, w, QuestSkin.INK);
+            bar(g, x + 8, qy + 110, w, objective == null ? 0 : objective.get("fraction").getAsDouble());
             text(g, t("quest_progress", quest == null ? "—" : quest.get("progress").getAsString()),
-                    left + 22, top + 244, columnWidth - 20, QuestSkin.DIM);
-            text(g, t("buffer"), left + 20, bufferY + 2, columnWidth - 16, QuestSkin.HIGHLIGHT);
+                    x + 8, qy + 123, w, QuestSkin.DIM);
+            QuestSkin.panel(g, x, by, columnWidth, BUFFER_BOX, QuestSkin.PANEL, QuestSkin.LINE);
+            int amountsWidth = w - returnItems.getWidth() - 2 * GAP;
+            text(g, t("buffer"), x + 8, by + 6, amountsWidth, QuestSkin.HIGHLIGHT);
             var amounts = new ArrayList<String>();
             if (state.get("items").getAsInt() > 0 || o != null && o.event().equals("item_turn_in")) amounts.add(state.get("items").getAsInt() + " " + t("items").getString());
             if (state.get("fluid").getAsLong() > 0 || o != null && o.event().equals("fluid_submit")) amounts.add(state.get("fluid").getAsLong() + " mB");
             if (state.get("energy").getAsLong() > 0 || o != null && o.event().equals("energy_submit")) amounts.add(state.get("energy").getAsLong() + " FE");
-            text(g, Component.literal(amounts.isEmpty() ? "—" : String.join(" · ", amounts)), left + 20, bufferY + 13, columnWidth - 16, QuestSkin.INK);
-            QuestSkin.panel(g, right, settingsY, settingsWidth, 91, 0xff2b201a, QuestSkin.EDGE);
-            text(g, t("automation"), right + 8, settingsY + 10, settingsWidth - 16, QuestSkin.HIGHLIGHT);
-            QuestSkin.panel(g, right, settingsY + 103, settingsWidth, 95, 0xff2b201a, QuestSkin.EDGE);
-            text(g, t("input_sides"), right + 8, settingsY + 114, settingsWidth - 16, QuestSkin.HIGHLIGHT);
-            text(g, t("selected_sides"), right + 8, settingsY + 126, settingsWidth - 16, QuestSkin.DIM);
+            text(g, Component.literal(amounts.isEmpty() ? "—" : String.join(" · ", amounts)), x + 8, by + 18, amountsWidth, QuestSkin.INK);
+            QuestSkin.panel(g, right, sy, rightWidth, AUTOMATION_BOX, QuestSkin.PANEL, QuestSkin.LINE);
+            text(g, t("automation"), right + 8, sy + 6, rightWidth - 16, QuestSkin.HIGHLIGHT);
+            int sides = sy + AUTOMATION_BOX + 8;
+            QuestSkin.panel(g, right, sides, rightWidth, SIDES_BOX, QuestSkin.PANEL, QuestSkin.LINE);
+            text(g, t("input_sides"), right + 8, sides + 6, rightWidth - 16, QuestSkin.HIGHLIGHT);
+            text(g, t("selected_sides"), right + 8, sides + 17, rightWidth - 16, QuestSkin.DIM);
         }
         var questProgress = row(0);
         var status = !state.get("error").getAsString().isEmpty() ? QuestBlockScreen.tr("configuration_rejected")
                 : !ownerSettings && quest() != null && objective() == null ? t("no_deposit_hint")
                 : dirty ? t("unsaved") : questProgress != null && questProgress.get("fraction").getAsDouble() >= 1
                 ? Component.translatable("questplus.client.status.completed") : QuestBlockScreen.tr("status." + state.get("status").getAsString());
-        text(g, status, left + 12, top + panelHeight - 47, panelWidth - 24,
-                state.get("error").getAsString().isEmpty() ? QuestSkin.DIM : 0xffffa08b);
+        footer(g, font, left, top, panelWidth, panelHeight, status,
+                dirty || !state.get("error").getAsString().isEmpty() ? QuestSkin.ALERT : QuestSkin.DIM, APPLY + GAP + CLOSE);
         super.extractRenderState(g, mx, my, delta);
+        hoverBox(g, font, width, height, mx, my, buttonHover(children()));
         int maximum = Math.max(0, panelHeight + 16 - height);
         if (scroll < maximum) {
-            int x = left + panelWidth + 2, track = height - 16;
+            int sx = left + panelWidth + 2, track = height - 16;
             int thumb = Math.max(12, track * track / panelHeight), y = 8 + (track - thumb) * scroll / maximum;
-            g.fill(x, 8, x + 4, height - 8, 0xff453c32);
-            g.fill(x, y, x + 4, y + thumb, QuestSkin.HIGHLIGHT);
+            g.fill(sx, 8, sx + 4, height - 8, 0xff6b5236);
+            g.fill(sx, y, sx + 4, y + thumb, QuestSkin.FIELD);
         }
     }
     static void bar(GuiGraphicsExtractor g, int x, int y, int w, double fraction) {
-        QuestSkin.panel(g, x, y, w, 9, 0xff171713, QuestSkin.EDGE);
+        QuestSkin.panel(g, x, y, w, 9, QuestSkin.FIELD, QuestSkin.INK);
         int fill = (int)Math.round((w - 4) * Math.clamp(fraction, 0, 1));
         for (int i = 0; i < w - 4; i += 9) {
             int end = Math.min(i + 7, w - 4);
-            g.fill(x + 2 + i, y + 2, x + 2 + end, y + 7, 0xff453c32);
-            if (i < fill) g.fill(x + 2 + i, y + 2, x + 2 + Math.min(end, fill), y + 7, 0xffd4ad70);
+            g.fill(x + 2 + i, y + 2, x + 2 + end, y + 7, QuestSkin.LINE);
+            if (i < fill) g.fill(x + 2 + i, y + 2, x + 2 + Math.min(end, fill), y + 7, fraction >= 1 ? QuestSkin.DONE : QuestSkin.ACTIVE);
         }
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {

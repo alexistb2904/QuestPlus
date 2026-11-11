@@ -26,6 +26,37 @@ Pack configuration, client presentation and web credentials have different owner
 | `enableCommandRewards` | Boolean                                      | `false`                           |
 | `dropLootCrates`       | Boolean                                      | `false`                           |
 | `crateNoDrop`          | Validated weight overrides by creature group | Passive 4000, monster 600, boss 0 |
+| `npcTurnIn`            | Boolean. With `true`, rewards of NPC quests are claimed only at an NPC that offers the quest | `true` |
+| `npcs`                 | Quest givers, see below                      | None                              |
+
+## Quest givers (NPCs)
+
+A quest listed by an NPC is hidden from the tablet and counts no progress until a player accepts it from that NPC. Declining only closes the dialog. Quest Studio edits these from a quest's **NPC** tab.
+
+![The NPC tab of a quest offered by Marlo the Cartographer, with his appearance and spawn chances](/media/npc.webp)
+
+Players can read [Quest givers and loot crates](/guide/givers-and-crates) for the dialog and the claim flow.
+
+```json
+"npcs": [
+	{
+		"id": "old_miner",
+		"name": { "en_us": "Old Miner", "fr_fr": "Vieux mineur" },
+		"quests": ["questplus:mining/stone"],
+		"spawns": [
+			{ "type": "structure", "target": "minecraft:village_snowy", "chance": 0.5 },
+			{ "type": "structure", "target": "#minecraft:village", "chance": 0.1 },
+			{ "type": "structure", "target": "#minecraft:mineshaft", "chance": 0.02 },
+			{ "type": "random", "target": "minecraft:overworld", "chance": 0.0005 }
+		]
+	}
+]
+```
+
+- `structure` rolls once when a structure is generated. `target` is a structure ID or `#tag`. An exact ID beats a tag, otherwise the first matching rule applies.
+- `random` rolls once per newly generated chunk of the `target` dimension.
+- `chance` is a probability from 0 to 1. Chunks generated before a rule existed never roll. Place an NPC with `/questplus npc <id>` (operators).
+- NPCs are invulnerable except to creative players and `/kill`, and never despawn.
 
 Existing teams are preserved when duplicates are disabled. Disbanded names can be reused. Reload to apply the setting. Unknown configuration keys are rejected. Back up the world before changing progression or reward policy, then reload and check the server log.
 

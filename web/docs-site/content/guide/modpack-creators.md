@@ -6,7 +6,7 @@ Create a quest pack in Quest Studio, test it in Minecraft, and ship it as the de
 
 ## Create your quests
 
-1. Install Quest Plus and Fabric API in your modpack, then [open Quest Studio](https://alexistb2904.github.io/QuestPlus/).
+1. Install Quest Plus and Fabric API in your modpack, then [open Quest Studio](https://quest.alexistb.com/).
 2. Create a project, add categories and quests, and set their objectives, prerequisites and rewards. Use IDs from the mods installed in your pack.
 3. Fix the validation errors and select **Export ZIP**. Keep the ZIP as a backup: browser drafts are local to that browser.
 

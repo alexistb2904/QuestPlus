@@ -27,7 +27,7 @@ export default defineConfig({
 			{ text: "Quest Studio", link: "/guide/studio" },
 			{ text: "Integrations", link: "/reference/java-api" },
 			{ text: "Commands", link: "/reference/commands" },
-			{ text: "Open editor", link: "https://alexistb2904.github.io/QuestPlus/", target: "_blank" },
+			{ text: "Open editor", link: "https://quest.alexistb.com/", target: "_blank" },
 		],
 		sidebar: [
 			{
@@ -36,6 +36,7 @@ export default defineConfig({
 					{ text: "Install Quest Plus", link: "/guide/install" },
 					{ text: "Use the tablet", link: "/guide/tablet" },
 					{ text: "Quest blocks", link: "/guide/world-blocks" },
+					{ text: "Quest givers and loot crates", link: "/guide/givers-and-crates" },
 					{ text: "Teams", link: "/guide/teams" },
 					{ text: "Settings and accessibility", link: "/guide/settings" },
 					{ text: "Compatibility", link: "/guide/compatibility" },

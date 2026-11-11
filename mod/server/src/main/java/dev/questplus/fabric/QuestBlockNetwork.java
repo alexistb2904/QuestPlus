@@ -99,12 +99,12 @@ public final class QuestBlockNetwork {
         try{
             var rt=QuestPlusMod.runtime();
             if(be.kind()==0&&be.owner!=null)for(String id:be.config.quests()) {
-                var q=rt.registry().find(id);if(q.isPresent())pins.add(id,QuestBlockConfig.JSON.toJsonTree(be.boardRow(q.get(),rt.state(be.owner,be.config.scope()))));
+                var q=rt.registry().find(id);if(q.isPresent())pins.add(id,QuestBlockConfig.JSON.toJsonTree(be.boardRow(q.get(),be.boardState(be.owner,be.config.scope()))));
             }
             if(be.owner!=null)json.addProperty("ownerName",rt.player(be.owner).lastKnownName);
             json.addProperty("teamName",be.boundTeam==null?"":rt.teams().get(be.boundTeam).name);
             for(String id:be.config.quests()){
-                var q=rt.registry().find(id);if(q.isPresent())json.addProperty("progress",Math.round(100*QuestUtilityEntity.fraction(q.get(),rt.state(be.owner,be.config.scope()))));
+                var q=rt.registry().find(id);if(q.isPresent())json.addProperty("progress",Math.round(100*QuestUtilityEntity.fraction(q.get(),be.boardState(be.owner,be.config.scope()))));
             }
             for(var player:actor.level().getServer().getPlayerList().getPlayers().stream().limit(64).toList()){
                 var p=new JsonObject();p.addProperty("id",player.getUUID().toString());p.addProperty("name",player.getPlainTextName());choices.add(p);

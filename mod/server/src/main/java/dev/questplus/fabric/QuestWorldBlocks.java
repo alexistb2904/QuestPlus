@@ -27,6 +27,10 @@ public final class QuestWorldBlocks {
     private static final Set<QuestUtilityEntity> LEADERBOARDS = new HashSet<>();
     private static final Map<String,List<QuestUtilityEntity.Row>> RANKINGS = new HashMap<>();
     private static int rankingTick = Integer.MIN_VALUE;
+    /** Ranking inputs per known player; a progress change drops only that player's entry. */
+    private record Totals(String order,long completed,long contributions){}
+    private static final Map<UUID,Totals> TOTALS = new HashMap<>();
+    private static int totalsTick;
     private QuestWorldBlocks() {}
     public static void register() {
         BOARD = block("quest_board", 0);
@@ -61,6 +65,7 @@ public final class QuestWorldBlocks {
         });
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             LOADED.clear(); DIRTY.clear(); BOARD_GEOMETRY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); RANKINGS.clear();
+            TOTALS.clear(); totalsTick=0;
             rankingTick=Integer.MIN_VALUE; QuestBlockNetwork.clear();
         });
     }
@@ -97,32 +102,40 @@ public final class QuestWorldBlocks {
         DIRTY.add(be);
     }
     public static void invalidate(UUID owner) {
-        RANKINGS.clear();
+        RANKINGS.clear(); TOTALS.remove(owner);
         OWNERS.getOrDefault(owner, Set.of()).forEach(QuestWorldBlocks::enqueue);
         LEADERBOARDS.forEach(QuestWorldBlocks::enqueue);
     }
-    static void invalidateAll() { RANKINGS.clear(); LOADED.forEach(QuestWorldBlocks::enqueue); }
+    static void invalidateAll() { RANKINGS.clear(); TOTALS.clear(); LOADED.forEach(QuestWorldBlocks::enqueue); }
 
     static List<QuestUtilityEntity.Row> ranking(net.minecraft.server.level.ServerLevel level,String kind) throws java.io.IOException {
         int now=level.getServer().getTickCount();
         if(rankingTick!=now) {RANKINGS.clear();rankingTick=now;}
+        // Safety net: a progress path that skipped invalidate() cannot keep a total stale for over a minute.
+        if(now-totalsTick>=1200||now<totalsTick) {TOTALS.clear();totalsTick=now;}
         var cached=RANKINGS.get(kind);if(cached!=null)return cached;
         var rt=QuestPlusMod.runtime();
-        record Score(UUID id,String name,long score){}
+        record Score(UUID id,String order,String name,long score){}
         var scores=new ArrayList<Score>();
         if(kind.equals("teams")) for(var t:rt.teams().allTeams())
-            scores.add(new Score(t.owner,t.name,t.progress.quests.values().stream().filter(q->q.completed||q.terminal).count()));
+            scores.add(new Score(t.owner,t.owner.toString(),t.name,t.progress.quests.values().stream().filter(q->q.completed||q.terminal).count()));
         else for(UUID id:rt.knownPlayers()) {
-            var personal=rt.player(id);var online=level.getServer().getPlayerList().getPlayer(id);
-            String name=online==null?(personal.lastKnownName.isEmpty()?id.toString().substring(0,8):personal.lastKnownName):online.getPlainTextName();
-            long score=kind.equals("contributions")?personal.blockContributions
-                    :rt.state(id).quests.values().stream().filter(q->q.completed||q.terminal).count();
-            scores.add(new Score(id,name,score));
+            // Recount only players whose progress changed: every known player is ranked, online or not.
+            var totals=TOTALS.get(id);
+            if(totals==null) TOTALS.put(id,totals=new Totals(id.toString(),
+                    rt.state(id).quests.values().stream().filter(q->q.completed||q.terminal).count(),rt.player(id).blockContributions));
+            scores.add(new Score(id,totals.order(),null,kind.equals("contributions")?totals.contributions():totals.completed()));
         }
-        scores.sort(Comparator.comparingLong(Score::score).reversed().thenComparing(s->s.id().toString()));
+        scores.sort(Comparator.comparingLong(Score::score).reversed().thenComparing(Score::order));
         var rows=new ArrayList<QuestUtilityEntity.Row>();int rank=1;
-        for(var score:scores.subList(0,Math.min(12,scores.size())))
-            rows.add(new QuestUtilityEntity.Row(rank+++". "+score.name(),"minecraft:player_head",Long.toString(score.score()),"",score.id().toString(),"",0,Long.toString(score.score())));
+        for(var score:scores.subList(0,Math.min(12,scores.size()))) {
+            String name=score.name();
+            if(name==null) {
+                var personal=rt.player(score.id());var online=level.getServer().getPlayerList().getPlayer(score.id());
+                name=online==null?(personal.lastKnownName.isEmpty()?score.order().substring(0,8):personal.lastKnownName):online.getPlainTextName();
+            }
+            rows.add(new QuestUtilityEntity.Row(rank+++". "+name,"minecraft:player_head",Long.toString(score.score()),"",score.order(),"",0,Long.toString(score.score()),""));
+        }
         var result=List.copyOf(rows);RANKINGS.put(kind,result);return result;
     }
 }

@@ -318,6 +318,43 @@ public final class QuestWorldBlocksGameTest {
                     h.assertTrue(!be.canPlaceItem(0,new ItemStack(Items.STONE)),"Removed quest refuses input");
                 }).thenSucceed();
     }
+    @GameTest(maxTicks=400)
+    public void boardListsInProgressQuestsInAutomaticAndMixedModes(GameTestHelper h)throws Exception{
+        var path=fixture(h,"progress","{id:'items',event:'item_turn_in',target:'minecraft:stone',count:4}");
+        var level=h.getLevel();var actor=player(h);var origin=h.absolutePos(new BlockPos(0,1,4));
+        for(int y=0;y<2;y++)for(int x=0;x<3;x++)level.setBlock(origin.offset(x,y,1),Blocks.STONE.defaultBlockState(),3);
+        QuestUtilityBlock.assemble(level,origin,Direction.NORTH,0);
+        var board=(QuestUtilityEntity)level.getBlockEntity(origin);board.claim(actor.getUUID());board.serverTick();
+        QuestPlusMod.runtime().setObjectiveProgress(actor,"questplus:blocks_progress","items",2);
+        for(String mode:List.of("automatic","mixed")){
+            board.configure(actor,new QuestBlockConfig(ProgressScope.PERSONAL,List.of(),"","",mode,"players","completed","binary",1,true,63,false,false),null,0);
+            h.assertTrue(!board.rows.isEmpty()&&"questplus:blocks_progress".equals(board.rows.getFirst().id()),mode+" board lists the in-progress quest first: "+board.rows);
+            // Quests that can be started fill the rest, so a world with no progress yet still has a board.
+            h.assertTrue(board.rows.size()>1&&board.rows.get(1).fraction()==0,mode+" board fills with startable quests: "+board.rows);
+        }
+        board.configure(actor,new QuestBlockConfig(ProgressScope.PERSONAL,List.of(),"","","leaderboard","players","completed","binary",1,true,63,false,false),null,0);
+        h.assertTrue(board.boardLeaderboard()&&board.rows.equals(board.leaders),"Leaderboard mode shows the ranking");
+        Files.delete(path);QuestPlusMod.runtime().reload();h.succeed();
+    }
+    @GameTest(maxTicks=2000)
+    public void personalBoardFollowsOwnersSharedTeamProgress(GameTestHelper h)throws Exception{
+        var path=fixture(h,"teamboard","{id:'items',event:'item_turn_in',target:'minecraft:stone',count:4}");
+        var rt=QuestPlusMod.runtime();var level=h.getLevel();var actor=player(h);UUID id=actor.getUUID();
+        var origin=h.absolutePos(new BlockPos(0,1,4));
+        for(int y=0;y<2;y++)for(int x=0;x<3;x++)level.setBlock(origin.offset(x,y,1),Blocks.STONE.defaultBlockState(),3);
+        Runnable idle=()->{if(rt.isBusy(id)){java.util.concurrent.locks.LockSupport.parkNanos(1000000);h.fail("Await durable team operation");}};
+        h.startSequence().thenExecute(step(()->rt.changeTeam(m->m.create(id,"Board team"))))
+                .thenWaitUntil(idle).thenExecute(step(()->{
+                    // Progress now lands in the shared team record; the player's personal record stays empty.
+                    rt.setObjectiveProgress(actor,"questplus:blocks_teamboard","items",2);
+                    QuestUtilityBlock.assemble(level,origin,Direction.NORTH,0);
+                    var board=(QuestUtilityEntity)level.getBlockEntity(origin);board.claim(id);board.serverTick();
+                    board.configure(actor,new QuestBlockConfig(ProgressScope.PERSONAL,List.of(),"","","automatic","players","completed","binary",1,true,63,false,false),null,0);
+                    h.assertTrue(board.rows.stream().filter(r->"questplus:blocks_teamboard".equals(r.id())&&r.fraction()==.5).count()==1,
+                            "Personal board shows the progress the owner's tablet shows, once: "+board.rows);
+                    Files.delete(path);rt.reload();
+                })).thenSucceed();
+    }
     @GameTest(maxTicks=1200)
     public void multiblockSizesOneEntityAndRelaySignals(GameTestHelper h)throws Exception{
         var path=fixture(h,"board","{id:'items',event:'item_turn_in',target:'minecraft:stone',count:4}");

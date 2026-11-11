@@ -15,7 +15,14 @@ export function ItemIcon({ id, version = "26.3", size = 30 }: { id?: string; ver
 	const url = fail === 0 ? ((id || "").startsWith("data:image/png;base64,") ? id : hubTexture(id || "") || (inVanillaRegistry(id) ? iconUrl(id || "", version) : "")) : "";
 	return (
 		<span className="mc-icon" title={id?.startsWith("data:") ? tUI("Custom image") : id || ""} style={{ width: size, height: size, flexShrink: 0 }}>
-			{url ? <img alt="" loading="lazy" src={url} onError={() => setFail((f) => f + 1)} /> : <Package size={Math.min(size, 24)} aria-hidden="true" />}
+			{url ? <img
+					alt=""
+					loading="lazy"
+					src={url}
+					onError={() => setFail((f) => f + 1)}
+					// Animated vanilla textures are vertical frame strips; show only the first frame.
+					onLoad={(e) => e.currentTarget.classList.toggle("strip", e.currentTarget.naturalHeight > e.currentTarget.naturalWidth)}
+				/> : <Package size={Math.min(size, 24)} aria-hidden="true" />}
 		</span>
 	);
 }

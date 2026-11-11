@@ -137,4 +137,26 @@ class RewardTablesTest {
 			assertThrows(RuntimeException.class,
 					() -> RewardTables.validate(JsonParser.parseString(json).getAsJsonObject()));
 	}
+
+	@Test
+	void rollReportsTheRarestDrawnChanceForServerSideRarity() {
+		var loot = new QuestDefinition.Reward("questplus:loot", null, 0, 0,
+				"{\"emptyWeight\":0,\"options\":[{\"weight\":1,\"type\":\"experience\",\"amount\":1},"
+						+ "{\"weight\":0,\"type\":\"experience\",\"amount\":2}]}",
+				Map.of());
+		double[] rarest = { 1 };
+		assertEquals(2, RewardTables.resolve(List.of(loot), rarest).size());
+		assertEquals(1, rarest[0], "Guaranteed and certain picks are common");
+		var coin = new QuestDefinition.Reward("questplus:random", null, 0, 0,
+				"{\"options\":[{\"weight\":1,\"type\":\"experience\",\"amount\":1},"
+						+ "{\"weight\":1,\"type\":\"experience\",\"amount\":2}]}",
+				Map.of());
+		RewardTables.resolve(List.of(loot, coin), rarest);
+		assertEquals(.5, rarest[0], "Either side of a fair coin is a 50% roll");
+		assertEquals(4, RewardTables.rarity(1 / 200.0));
+		assertEquals(3, RewardTables.rarity(.05));
+		assertEquals(2, RewardTables.rarity(.1));
+		assertEquals(1, RewardTables.rarity(.25));
+		assertEquals(0, RewardTables.rarity(1));
+	}
 }

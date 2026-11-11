@@ -1,6 +1,6 @@
 # Quest Studio
 
-[**Open Quest Studio →**](https://alexistb2904.github.io/QuestPlus/)
+[**Open Quest Studio →**](https://quest.alexistb.com/)
 
 Build quest packs visually in the browser. Use the local editor for ZIP workflows, or connect to the optional web service when an operator approves access.
 
@@ -34,6 +34,10 @@ Select a category in the library to show its diagram. Select a quest to open its
 
 Resize the dividers to give the diagram or detail panel more room. Collapse the library when you need additional horizontal space. Use the search fields to find content in a large project.
 
+![The equipment chapter zoomed out to show its whole quest tree and links](/media/tree.webp)
+
+_Zoom out and center the tree to review a whole chapter and its prerequisite links._
+
 ## Choose the right tool
 
 | Tool              | Use it for                                       |
@@ -44,6 +48,10 @@ Resize the dividers to give the diagram or detail panel more room. Collapse the 
 | Mod Registry      | Find resource IDs and inspect available previews |
 | Advanced JSON     | Inspect fields that need direct editing          |
 | Validation status | Find errors before exporting                     |
+
+![The Bulk Quest Editor with a category filter, a quest list and an operation to apply](/media/bulk-edit.webp)
+
+_Bulk Edit applies one operation to every selected quest and can be undone._
 
 ![The registry browser before a server snapshot has been loaded](/media/registry.webp)
 

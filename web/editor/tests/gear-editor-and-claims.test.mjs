@@ -9,7 +9,7 @@ test("new projects contain only maintained categories in progression order", () 
 	const removed = ["combat", "exploration", "mining", "survival"];
 	assert.ok(!project.categories.some((c) => removed.some((id) => c.id === "questplus:" + id)));
 	assert.ok(!project.quests.some((q) => removed.some((id) => q.category === "questplus:" + id)));
-	assert.equal(project.categories.length, 16);
+	assert.equal(project.categories.length, 17);
 	const ids = orderedCategories(project.categories).map((c) => c.id);
 	assert.equal(ids[0], "questplus:homestead");
 	assert.ok(ids.indexOf("questplus:endgame") > ids.indexOf("questplus:nether"));

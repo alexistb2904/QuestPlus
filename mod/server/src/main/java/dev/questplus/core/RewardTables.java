@@ -192,6 +192,14 @@ public final class RewardTables {
 	}
 
 	public static List<QuestDefinition.Reward> resolve(List<QuestDefinition.Reward> authored) {
+		return resolve(authored, new double[] { 1 });
+	}
+
+	/**
+	 * Same roll; {@code rarest[0]} is lowered to the smallest chance of any option
+	 * actually drawn from weights, so rarity is decided on the server with the roll.
+	 */
+	public static List<QuestDefinition.Reward> resolve(List<QuestDefinition.Reward> authored, double[] rarest) {
 		List<QuestDefinition.Reward> selected = new ArrayList<>();
 		for (var reward : authored) {
 			if (!Set.of("questplus:random", "questplus:loot", "questplus:all").contains(reward.type())) {
@@ -232,6 +240,7 @@ public final class RewardTables {
 					if (ticket >= 0)
 						continue;
 					selected.add(concrete(option, reward.text()).withPolicy(reward.policy()));
+					rarest[0] = Math.min(rarest[0], option.get("weight").getAsDouble() / weightedTotal);
 					break;
 				}
 			}
@@ -239,6 +248,11 @@ public final class RewardTables {
 		if (selected.size() > 64)
 			throw new IllegalArgumentException("Random rewards exceed entitlement limit");
 		return selected.stream().map(RewardTables::resolveItem).toList();
+	}
+
+	/** Loot tier 0 common, 1 uncommon, 2 rare, 3 epic, 4 legendary from a roll's chance. */
+	public static int rarity(double chance) {
+		return chance <= .01 ? 4 : chance <= .05 ? 3 : chance <= .15 ? 2 : chance <= .4 ? 1 : 0;
 	}
 
 	private static QuestDefinition.Reward resolveItem(QuestDefinition.Reward reward) {

@@ -1,422 +1,91 @@
 {
-  "textures": {
-    "utility": "questplus:block/questplus_utility",
-    "particle": "questplus:block/questplus_utility"
-  },
-  "elements": [
-    {
-      "name": "walnut_back",
-      "from": [
-        0,
-        0,
-        13.2
-      ],
-      "to": [
-        16,
-        16,
-        16
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            0.0,
-            0.0,
-            0.75,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            0.0,
-            0.0,
-            0.75,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.75
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.75
-          ],
-          "texture": "#utility"
-        }
-      }
-    },
-    {
-      "name": "slate_surface",
-      "from": [
-        0,
-        0,
-        12.6
-      ],
-      "to": [
-        16,
-        16,
-        13.2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            8.0,
-            4.0,
-            12.0,
-            8.0
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            8.0,
-            4.0,
-            8.25,
-            8.0
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            8.0,
-            4.0,
-            12.0,
-            8.0
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            8.0,
-            4.0,
-            8.25,
-            8.0
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            8.0,
-            4.0,
-            12.0,
-            4.25
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            8.0,
-            4.0,
-            12.0,
-            4.25
-          ],
-          "texture": "#utility"
-        }
-      }
-    },
-    {
-      "name": "carved_frame_n",
-      "from": [
-        0,
-        14,
-        11
-      ],
-      "to": [
-        16,
-        16,
-        13.2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        }
-      }
-    },
-    {
-      "name": "copper_inner_bead_n",
-      "from": [
-        0.2,
-        14.1,
-        10.7
-      ],
-      "to": [
-        15.8,
-        14.5,
-        11.2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        }
-      }
-    },
-    {
-      "name": "carved_frame_s",
-      "from": [
-        0,
-        0,
-        11
-      ],
-      "to": [
-        16,
-        2,
-        13.2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            0.0,
-            0.0,
-            4.0,
-            4.0
-          ],
-          "texture": "#utility"
-        }
-      }
-    },
-    {
-      "name": "copper_inner_bead_s",
-      "from": [
-        0.2,
-        1.5,
-        10.7
-      ],
-      "to": [
-        15.8,
-        1.9,
-        11.2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "east": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "south": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "west": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "up": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        },
-        "down": {
-          "uv": [
-            8.0,
-            8.0,
-            12.0,
-            8.5
-          ],
-          "texture": "#utility"
-        }
-      }
-    }
-  ]
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "questplus:block/questplus_utility",
+		"utility": "questplus:block/questplus_utility"
+	},
+	"elements": [
+		{
+			"name": "walnut_back",
+			"from": [0, 0, 13.2],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 13]},
+			"faces": {
+				"north": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"east": {"uv": [0, 0, 0.75, 4], "texture": "#utility"},
+				"south": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"west": {"uv": [0, 0, 0.75, 4], "texture": "#utility"},
+				"up": {"uv": [0, 0, 4, 0.75], "texture": "#utility"},
+				"down": {"uv": [0, 0, 4, 0.75], "texture": "#utility"}
+			}
+		},
+		{
+			"name": "slate_surface",
+			"from": [0, 2, 12.6],
+			"to": [16, 14, 13.2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 12.6]},
+			"faces": {
+				"north": {"uv": [8, 4, 12, 8], "texture": "#utility"},
+				"east": {"uv": [8, 4, 8.25, 8], "texture": "#utility"},
+				"south": {"uv": [8, 4, 12, 8], "texture": "#utility"},
+				"west": {"uv": [8, 4, 8.25, 8], "texture": "#utility"},
+				"up": {"uv": [8, 4, 12, 4.25], "texture": "#utility"},
+				"down": {"uv": [8, 4, 12, 4.25], "texture": "#utility"}
+			}
+		},
+		{
+			"name": "carved_frame_n",
+			"from": [0, 14, 11],
+			"to": [16, 16, 13.2],
+			"faces": {
+				"north": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"east": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"south": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"west": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#utility"}
+			}
+		},
+		{
+			"name": "copper_inner_bead_n",
+			"from": [0.2, 14.1, 10.7],
+			"to": [15.8, 14.5, 11.2],
+			"faces": {
+				"north": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"east": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"south": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"west": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"up": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"down": {"uv": [8, 8, 12, 8.5], "texture": "#utility"}
+			}
+		},
+		{
+			"name": "carved_frame_s",
+			"from": [0, 0, 11],
+			"to": [16, 2, 13.2],
+			"faces": {
+				"north": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"east": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"south": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"west": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#utility"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#utility"}
+			}
+		},
+		{
+			"name": "copper_inner_bead_s",
+			"from": [0.2, 1.5, 10.7],
+			"to": [15.8, 1.9, 11.2],
+			"faces": {
+				"north": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"east": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"south": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"west": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"up": {"uv": [8, 8, 12, 8.5], "texture": "#utility"},
+				"down": {"uv": [8, 8, 12, 8.5], "texture": "#utility"}
+			}
+		}
+	]
 }

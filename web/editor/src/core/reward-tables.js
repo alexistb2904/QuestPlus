@@ -22,6 +22,14 @@ export function resolveNamedTable(reward, tables, chain = []) {
 	for (const key of ["text", "teamReward", "autoClaim", "excludeFromClaimAll"]) if (reward[key] !== undefined) resolved[key] = structuredClone(reward[key]);
 	return resolved;
 }
+/** Same item the server drops for this crate table (NamedRewardTables.drop). */
+export function crateGiveCommand(table) {
+	const name = { text: table.crateName || table.name, ...(table.crateColor ? { color: table.crateColor } : {}) },
+		parts = ["minecraft:custom_data={questplus_table:" + JSON.stringify(table.name) + "}",
+			"minecraft:custom_name={text:" + JSON.stringify(name.text) + (name.color ? ",color:" + JSON.stringify(name.color) : "") + "}"];
+	if (table.crateGlow !== undefined) parts.push("minecraft:enchantment_glint_override=" + table.crateGlow);
+	return "/give @s questplus:loot_crate[" + parts.join(",") + "]";
+}
 export function poolError(reward) {
 	const { type, data } = reward || {},
 		choice = type === "questplus:choice",
@@ -161,4 +169,50 @@ export function simulatePool(reward, random = Math.random) {
 		results.push(structuredClone(reward.data.options[index] ?? null));
 	}
 	return results;
+}
+/** Switch a pool's draw type, keeping its options and only the settings the new type accepts. */
+export function convertPool(reward, type) {
+	const data = reward?.data || {},
+		options = (data.options || []).map(({ weight, ...option }) => (type === "questplus:choice" ? option : { ...option, weight: weight ?? 1 }));
+	return {
+		...reward,
+		type,
+		data: {
+			options,
+			...(data.description ? { description: data.description } : {}),
+			...(type === "questplus:random" || type === "questplus:loot" ? { rolls: data.rolls ?? 1 } : {}),
+			...(type === "questplus:loot" ? { emptyWeight: data.emptyWeight ?? 1 } : {}),
+		},
+	};
+}
+export const CRATE_ITEM = "questplus:loot_crate";
+/** Item reward giving the crate of a named table, with the same components the server puts on dropped crates. */
+export function crateReward(table, count = 1) {
+	const components = {
+		"minecraft:custom_data": { questplus_table: table.name },
+		"minecraft:custom_name": { text: table.crateName || table.name, ...(table.crateColor ? { color: table.crateColor } : {}) },
+	};
+	if (table.crateGlow !== undefined) components["minecraft:enchantment_glint_override"] = table.crateGlow;
+	return { type: "item", item: CRATE_ITEM, count, components };
+}
+/** Table name of a crate item reward, or undefined for any other reward. */
+export function crateTableName(reward) {
+	const name = reward?.type === "item" && reward.item === CRATE_ITEM ? reward.components?.["minecraft:custom_data"]?.questplus_table : undefined;
+	return typeof name === "string" ? name : undefined;
+}
+/** Rename a named table and every quest, table or crate reference to it, in place. */
+export function renameRewardTable(project, from, to) {
+	const fix = (reward) => {
+		if (reward?.type === "questplus:table" && reward.data?.name === from) reward.data.name = to;
+		if (crateTableName(reward) === from) reward.components["minecraft:custom_data"].questplus_table = to;
+	};
+	for (const table of project.rewardTables || []) {
+		if (table.name === from) table.name = to;
+		fix(table.reward);
+	}
+	for (const quest of project.quests || []) {
+		quest.rewards?.forEach(fix);
+		quest.tiers?.forEach((tier) => tier.rewards?.forEach(fix));
+	}
+	return project;
 }

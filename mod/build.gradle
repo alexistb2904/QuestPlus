@@ -59,7 +59,7 @@ processResources {
     from('server/src/legacy-defaults') { into 'defaults' }
     // Catalogue authored once for both the server JAR and Quest Studio.
     from('../web/editor/src/data') {
-        include 'challenge-catalogue.json', 'equipment-catalogue.json'
+        include 'challenge-catalogue.json', 'equipment-catalogue.json', 'explorers-catalogue.json'
         into 'defaults/catalogue'
     }
 }
@@ -185,6 +185,8 @@ loom {
         }
         clientGameTest {
             if(providers.gradleProperty('boardClientTest').isPresent())vmArg '-Dquestplus.boardClientTest=true'
+            if (providers.gradleProperty('questGiverClientTest').isPresent())
+                vmArg '-Dquestplus.questGiverClientTest=true'
             if (providers.gradleProperty('relayClientTest').isPresent())
                 vmArg '-Dquestplus.relayClientTest=true'
             if (providers.gradleProperty('worldBlocksClientTest').isPresent())

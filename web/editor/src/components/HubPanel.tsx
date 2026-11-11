@@ -1,5 +1,5 @@
 import { AlertCircle, Check, Copy, Download, Globe, Link2, Save, Server, UploadCloud } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { hubHttpError, isHubOverloaded } from "../core/hub-errors.js";
 import { setHubRegistry } from "../core/hub-registry.js";
 import { fileMap, importDocuments, validate } from "../core/project.js";
@@ -48,7 +48,8 @@ export function HubPanel({ project, onLoad, onSaveLocal }: { project: Project; o
 		[copied, setCopied] = useState("");
 	const running = useRef(false);
 	const host = hub.replace(/\/$/, "");
-	const dirty = loaded && JSON.stringify(project) !== savedProject;
+	// Serializing the whole project is only worth doing when it changed, not on every render.
+	const dirty = useMemo(() => loaded && JSON.stringify(project) !== savedProject, [loaded, project, savedProject]);
 	const feedback = (message: string, tone: Feedback["tone"] = "info", detail?: string) => setStatus({ message, tone, detail });
 	const run = async (job: () => Promise<void>) => {
 		if (running.current) return;

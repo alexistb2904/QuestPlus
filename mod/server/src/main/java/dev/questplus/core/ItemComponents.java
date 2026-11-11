@@ -76,7 +76,7 @@ public final class ItemComponents {
 			return fallback;
 		if (!(context.get("itemStacks") instanceof java.util.List<?>stacks))
 			return 0;
-		var data = JsonParser.parseString(objective.data()).getAsJsonObject();
+		var data = QuestExtensions.parsed(objective.data()).getAsJsonObject();
 		long result = 0;
 		var targets = targets(objective);
 		for (Object entry : stacks)
@@ -92,7 +92,7 @@ public final class ItemComponents {
 	public static java.util.Set<String> targets(QuestDefinition.Objective objective) {
 		if (!supports(objective.event()))
 			return Set.of(objective.target());
-		var data = JsonParser.parseString(objective.data()).getAsJsonObject();
+		var data = QuestExtensions.parsed(objective.data()).getAsJsonObject();
 		if (!data.has("targets"))
 			return Set.of(objective.target());
 		var result = new java.util.LinkedHashSet<String>();

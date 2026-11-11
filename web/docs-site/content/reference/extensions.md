@@ -48,7 +48,7 @@ Need HTTP requests instead? See [Quest Hub API](/reference/web-api).
 
 ## Dynamic forms and compatibility
 
-Descriptor fields support `key`, `type` and `label`, plus optional data-only metadata: `default`, numeric `min`/`max`, and `options` (1–30 distinct strings) for `choice` fields. `number` supports finite decimal values alongside `integer`. These hints are validated on the server and in Studio but are **not** a replacement for `registerObjectiveData`, `registerCondition` or `registerReward` validators. Studio never evaluates scripts or trusts values from a browser.
+Descriptor fields support `key`, `type` and `label`, plus optional data-only metadata: `default`, numeric `min`/`max`, and `options` (1 to 30 distinct strings) for `choice` fields. `number` supports finite decimal values alongside `integer`. These hints are validated on the server and in Studio but are **not** a replacement for `registerObjectiveData`, `registerCondition` or `registerReward` validators. Studio never evaluates scripts or trusts values from a browser.
 
 Example:
 

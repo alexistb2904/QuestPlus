@@ -71,11 +71,18 @@ public final class Defaults {
 		// Shared source of truth with Quest Studio. Never regenerate player data.
 		installCatalogue(directory, "catalogue/challenge-catalogue.json");
 		installCatalogue(directory, "catalogue/equipment-catalogue.json");
+		var explorers = installCatalogue(directory, "catalogue/explorers-catalogue.json");
 		Path config = directory.resolve("config.json");
-		if (!Files.exists(config))
-			try (var input = resource("config.json")) {
-				Files.copy(input, config);
+		if (!Files.exists(config)) {
+			JsonObject value;
+			try (var input = resource("config.json");
+					var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+				value = QuestRegistry.parseStrict(reader).getAsJsonObject();
 			}
+			// The Explorers' quests are offered by these NPCs.
+			value.add("npcs", explorers.get("npcs"));
+			Files.writeString(config, value.toString(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+		}
 	}
 
 	/**
@@ -133,7 +140,7 @@ public final class Defaults {
 		}
 	}
 
-	private static void installCatalogue(Path root, String bundled) throws IOException {
+	private static JsonObject installCatalogue(Path root, String bundled) throws IOException {
 		JsonObject catalogue;
 		try (var input = resource(bundled); var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
 			catalogue = QuestRegistry.parseStrict(reader).getAsJsonObject();
@@ -150,6 +157,7 @@ public final class Defaults {
 			Path target = root.resolve("quests").resolve(name + ".json").normalize();
 			writeNew(root, target, quest);
 		}
+		return catalogue;
 	}
 
 	private static String relativeName(String id) throws IOException {

@@ -6,17 +6,46 @@ QuestPlus targets **Minecraft Java 26.3**, **Fabric** and **Java 25**. Install t
 
 The minimum versions are **Fabric Loader 0.19.5** and **Fabric API 0.161.0+26.3**. Newer versions for Minecraft 26.3 are accepted, including Fabric API 0.164.0+26.3. These minima come from the bundled animation libraries. Older 26.3 builds cannot load them. Minecraft versions other than 26.3 remain unsupported.
 
-Gradle compiles against these minimum versions. The verification workflow also runs server GameTests with Loader 0.19.5 / API 0.164.0+26.3 and Loader 0.20.1 / API 0.165.2+26.3.
-
-Player Animation Library 1.2.8 and First Person PAL Expansion 1.1.1 are bundled in the current artifact configuration. Fabric API is installed separately. Check the requirements of the release you download.
+The tablet animations are built in and no animation library is bundled or required. Fabric API is installed separately. Check the requirements of the release you download.
 
 There is no supported Forge, NeoForge or Bedrock build.
 
 ## Shaders and animation mods
 
-Shaders works in theory, but the tablet animation can conflict with depth of field, reflections and other camera effects. Test your exact shader, camera and player animation combination. If it interferes, use the flat interface while investigating. Actually Make Up Fast, Bliss and Complementary Reimagined are known to work with the tablet animation.
+Shader packs run through **Iris**. QuestPlus has no hard dependency on Iris. It detects an active pack and adapts its rendering.
 
-QuestPlus detects an active shader pack and suppresses its own background blur. Use screen brightness and Self Illumination to tune the tablet. Shader depth of field and reflections remain controlled by the shader.
+### World blocks
+
+The Quest Board, the Submission Station, the Quest Relay and the loot crate reveal work with the following shader packs. They were tested with Iris 1.11.7 and Sodium 0.9.2 on Minecraft 26.3:
+
+| Shader pack | Version tested |
+| --- | --- |
+| Complementary Reimagined | r5.9.3 |
+| Complementary Unbound | r5.9.3 |
+| BSL Shaders | 10.1.8 |
+| Photon | v1.4 |
+| Solas | 3.9 |
+| Bliss | 2.1.2 |
+| MakeUp - Ultra Fast | 9.6 |
+| Sildur's Vibrant | 2.02 |
+
+In each pack, board and station text stays readable. No stray geometry is drawn around the blocks, and the crate glow stays around the crate.
+
+While a shader pack is active, board and station text uses Minecraft's pixel font instead of the QuestPlus font. Iris does not render outline fonts correctly in the world yet. The QuestPlus font comes back as soon as shaders are turned off.
+
+Known differences:
+
+- With Solas, the board is darker than with the other packs. It stays readable.
+- With Sildur's Vibrant, the front of the loot crate looks black during the reveal.
+- At night, station text dims with the surrounding light, like a sign.
+
+### Tablet
+
+The tablet animation can conflict with depth of field, reflections and other camera effects. MakeUp - Ultra Fast, Bliss and Complementary Reimagined are known to work with the tablet animation. With any other pack, test your exact shader, camera and player animation combination. If it interferes, use the flat interface while investigating.
+
+QuestPlus suppresses its own background blur while a shader pack is active. Use screen brightness and Self Illumination to tune the tablet. Shader depth of field and reflections remain controlled by the shader.
+
+### Animation mods
 
 The mod has been tested with the following animation mods: Punchy, Punchy Moves, Not Enough Animations.
 

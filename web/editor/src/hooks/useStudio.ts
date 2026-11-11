@@ -1,6 +1,6 @@
 import JSON5 from "json5";
 import type { Dispatch, SetStateAction } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isCategoryLink, pruneLinkRoutes } from "../core/diagram-geometry.js";
 import { fitEditor } from "../core/editor-geometry.js";
 import { inspectFtbPack, selectFtbQuests } from "../core/ftb-import.js";
@@ -66,9 +66,16 @@ export function useStudio() {
 		setNotice(msg);
 		window.setTimeout(() => setNotice((v) => (v === msg ? "" : v)), 3600);
 	};
+	// One serialization per state object: an edit compares against it and the autosave writes it,
+	// instead of each walking the whole project again.
+	const serialized = useRef<{ state: Session; json: string } | null>(null);
+	const serialize = (s: Session) => {
+		if (serialized.current?.state !== s) serialized.current = { state: s, json: JSON.stringify(s) };
+		return serialized.current.json;
+	};
 	function save() {
 		try {
-			localStorage.setItem(KEY, JSON.stringify(latest.current));
+			localStorage.setItem(KEY, serialize(latest.current));
 			warned.current = false;
 			setSaveStatus("saved");
 			return true;
@@ -91,7 +98,9 @@ export function useStudio() {
 			const next = { ...prev, project: copy(prev.project) };
 			change(next);
 			pruneLinkRoutes(next.project);
-			if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
+			const json = JSON.stringify(next);
+			if (serialize(prev) === json) return prev;
+			serialized.current = { state: next, json };
 			const now = Date.now();
 			if (!field || last.current.field !== field || now - last.current.time > 600) {
 				history.current.push(copy(prev));
@@ -166,7 +175,9 @@ export function useStudio() {
 		);
 	}
 	const currentCategory = state.project.categories.find((c) => c.id === state.categoryId);
-	const quests = state.project.quests.filter((q) => q.category === state.categoryId);
+	// Stable between edits: the canvas lays the graph out again whenever this array changes identity,
+	// which used to be on every camera move.
+	const quests = useMemo(() => state.project.quests.filter((q) => q.category === state.categoryId), [state.project.quests, state.categoryId]);
 	function fit(group = currentCategory, rows = quests) {
 		const el = document.getElementById("viewport");
 		return fitEditor(
@@ -354,6 +365,7 @@ export function useStudio() {
 			}
 			if (kind === "delete-quest") {
 				s.project.quests = s.project.quests.filter((q) => q.id !== o.id);
+				for (const npc of s.project.config?.npcs || []) npc.quests = npc.quests.filter((id: string) => id !== o.id);
 				s.selection = { type: "category", id: s.categoryId || "" };
 				return;
 			}

@@ -7,6 +7,8 @@ import { isIP } from "node:net";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
 
 const PORT = Number(process.env.PORT || 8787);
 const BIND = process.env.HUB_BIND || "127.0.0.1";
@@ -75,6 +77,26 @@ function send(res, status, data) {
 	res.end(data);
 }
 const json = (res, status, value) => send(res, status, Buffer.from(JSON.stringify(value)));
+const compress = promisify(gzip);
+const acceptsGzip = (req) => /\bgzip\b/.test(String(req.headers["accept-encoding"] || ""));
+// A whole catalogue is megabytes of repeated JSON keys: gzip it for clients that ask (browsers do,
+// the Minecraft server does not). The raw size is reserved first, so concurrent compressions stay
+// inside the same output budget as uncompressed responses.
+async function sendLarge(req, res, status, data) {
+	if (data.length < 4096 || !acceptsGzip(req)) return send(res, status, data);
+	reserveOutput(res, data.length);
+	const packed = await compress(data);
+	if (res.destroyed) return;
+	res.writeHead(status, {
+		"Content-Type": "application/json; charset=utf-8",
+		"Content-Encoding": "gzip",
+		"Content-Length": packed.length,
+		"Cache-Control": "no-store",
+		"X-Content-Type-Options": "nosniff",
+		Vary: "Origin, Accept-Encoding",
+	});
+	res.end(packed);
+}
 function reserveState(bytes) {
 	if (stateBytes + bytes > MAX_STATE) throw fail(503, "Editor memory capacity reached; retry after a session closes");
 	stateBytes += bytes;
@@ -113,15 +135,22 @@ function documents(value) {
 		if (f.name.startsWith("quests/")) quest++;
 		if (f.name.startsWith("categories/")) category++;
 		try {
-			(f.name.endsWith(".json5") ? JSON5 : JSON).parse(f.content);
+			JSON.parse(f.content);
 		} catch {
-			throw fail(400, "Invalid JSON document: " + f.name);
+			// Valid JSON is valid JSON5: only documents that need the far slower JSON5 parser pay for it.
+			try {
+				if (!f.name.endsWith(".json5")) throw Error("Not JSON");
+				JSON5.parse(f.content);
+			} catch {
+				throw fail(400, "Invalid JSON document: " + f.name);
+			}
 		}
 	}
 	if (!seen.has("config.json") || !quest || !category) throw fail(400, "Missing quests, categories or config");
 	return value;
 }
 const active = (s) => s && Date.now() < s.expires;
+const PACK_PREFIX = /^\{"expires":(\d+),"sha256":"[a-f0-9]{64}","files":/;
 async function expiredPack(file, bytes, now) {
 	const handle = await open(file, "r");
 	let prefix;
@@ -132,7 +161,7 @@ async function expiredPack(file, bytes, now) {
 	} finally {
 		await handle.close();
 	}
-	const match = prefix.match(/^\{"expires":(\d+),"sha256":"[a-f0-9]{64}","files":/);
+	const match = prefix.match(PACK_PREFIX);
 	if (match) return Number(match[1]) <= now;
 	if (bytes > MAX_BODY || bodyBytes + bytes > MAX_BODY_IN_FLIGHT) return false;
 	bodyBytes += bytes;
@@ -240,7 +269,7 @@ async function body(req) {
 const sessionInfo = (s) => ({ expires: s.expires, revision: s.revision, serverName: s.serverName, approvalRequired: true });
 async function readPack(id) {
 	if (!/^[A-Za-z0-9_-]{32}$/.test(id)) throw fail(404, "Unknown pack");
-	let stored;
+	let stored, expires;
 	try {
 		const file = path.join(DATA_DIR, id + ".json"),
 			bytes = (await stat(file)).size;
@@ -248,7 +277,11 @@ async function readPack(id) {
 		if (bodyBytes + bytes > MAX_BODY_IN_FLIGHT) throw fail(503, "Pack read capacity reached; retry shortly");
 		bodyBytes += bytes;
 		try {
-			stored = JSON.parse(await readFile(file, "utf8"));
+			stored = await readFile(file);
+			// A pack is stored as the exact JSON a reader gets back: its expiry is in the prefix, so the
+			// megabytes behind it are never parsed and re-encoded on the event loop.
+			const match = stored.subarray(0, 256).toString("latin1").match(PACK_PREFIX);
+			expires = match ? Number(match[1]) : JSON.parse(stored.toString("utf8")).expires;
 		} finally {
 			bodyBytes -= bytes;
 		}
@@ -256,7 +289,7 @@ async function readPack(id) {
 		if (error.status) throw error;
 		throw fail(404, "Unknown pack");
 	}
-	if (stored.expires <= Date.now()) throw fail(410, "Pack expired");
+	if (!(expires > Date.now())) throw fail(410, "Pack expired");
 	return stored;
 }
 const fileTypes = {
@@ -274,7 +307,32 @@ const fileTypes = {
 	".woff2": "font/woff2",
 	".ttf": "font/ttf",
 };
-async function serveStudio(res, p) {
+// The built Studio is a few megabytes of files that never change while running: keep them in memory,
+// already gzipped, so a busy site neither opens a file per request nor ships a 1.2 MB bundle raw.
+const staticFiles = new Map(),
+	MAX_STATIC_FILE = 4 * 1024 * 1024,
+	MAX_STATIC_CACHE = 64 * 1024 * 1024;
+let staticBytes = 0;
+async function staticEntry(file, info, type) {
+	const etag = '"' + info.size.toString(36) + "-" + Math.round(info.mtimeMs).toString(36) + '"';
+	const cached = staticFiles.get(file);
+	if (cached?.etag === etag) return cached;
+	const entry = { etag, raw: null, packed: null, bytes: 0 };
+	if (info.size > MAX_STATIC_FILE) return entry;
+	const raw = await readFile(file);
+	// Replaced while being read: serve this one from disk and cache it on a later request.
+	if (raw.length !== info.size) return entry;
+	entry.raw = raw;
+	if (/^(?:text\/|application\/json|image\/svg)/.test(type) && raw.length >= 1024) entry.packed = await compress(raw);
+	entry.bytes = raw.length + (entry.packed?.length || 0);
+	const previous = staticFiles.get(file);
+	if (staticBytes - (previous?.bytes || 0) + entry.bytes <= MAX_STATIC_CACHE) {
+		staticBytes += entry.bytes - (previous?.bytes || 0);
+		staticFiles.set(file, entry);
+	}
+	return entry;
+}
+async function serveStudio(req, res, p) {
 	let route;
 	try {
 		route = decodeURIComponent(p);
@@ -294,14 +352,27 @@ async function serveStudio(res, p) {
 	} catch {
 		throw fail(404, "Quest Studio has not been built or asset is missing");
 	}
-	reserveOutput(res, info.size);
-	const ext = path.extname(file);
-	res.writeHead(200, {
-		"Content-Type": fileTypes[ext] || "application/octet-stream",
-		"Content-Length": info.size,
+	const type = fileTypes[path.extname(file)] || "application/octet-stream",
+		entry = await staticEntry(file, info, type);
+	const headers = {
+		"Content-Type": type,
 		"X-Content-Type-Options": "nosniff",
-		"Cache-Control": route === "/index.html" ? "no-cache" : "public, max-age=3600",
-	});
+		// Vite names everything under /assets after its content hash: that URL's bytes never change.
+		"Cache-Control": route === "/index.html" ? "no-cache" : route.startsWith("/assets/") ? "public, max-age=31536000, immutable" : "public, max-age=3600",
+		ETag: entry.etag,
+		Vary: "Accept-Encoding",
+	};
+	if (req.headers["if-none-match"] === entry.etag) {
+		res.writeHead(304, headers);
+		return res.end();
+	}
+	const packed = entry.packed && acceptsGzip(req),
+		data = packed ? entry.packed : entry.raw;
+	if (packed) headers["Content-Encoding"] = "gzip";
+	headers["Content-Length"] = data ? data.length : info.size;
+	reserveOutput(res, headers["Content-Length"]);
+	res.writeHead(200, headers);
+	if (data) return res.end(data);
 	await pipeline(createReadStream(file), res);
 }
 async function handler(req, res) {
@@ -465,7 +536,7 @@ async function handler(req, res) {
 			const s = sessions.get(p.split("/")[4]);
 			editor(s, req);
 			rateLimit(req, "data", 6, 60_000, s.id);
-			return send(res, 200, s.data);
+			return await sendLarge(req, res, 200, s.data);
 		}
 		if (req.method === "POST" && /^\/v1\/editor\/sessions\/[A-Za-z0-9_-]+\/publish$/.test(p)) {
 			const s = sessions.get(p.split("/")[4]);
@@ -542,10 +613,9 @@ async function handler(req, res) {
 		}
 		if (req.method === "GET" && /^\/v1\/packs\/[A-Za-z0-9_-]+$/.test(p)) {
 			rateLimit(req, "readpacks", 90, 60_000);
-			const pack = await readPack(p.split("/").pop());
-			return json(res, 200, { files: pack.files, sha256: pack.sha256, expires: pack.expires });
+			return await sendLarge(req, res, 200, await readPack(p.split("/").pop()));
 		}
-		if (req.method === "GET" && !p.startsWith("/v1/")) return await serveStudio(res, p);
+		if (req.method === "GET" && !p.startsWith("/v1/")) return await serveStudio(req, res, p);
 		throw fail(404, "Unknown endpoint");
 	} catch (error) {
 		if (res.headersSent || res.destroyed) {

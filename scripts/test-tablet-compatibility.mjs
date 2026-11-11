@@ -9,17 +9,24 @@ export const PROFILES=Object.freeze({
  punchy:['sodium','iris','punchy-fpa','punchymoves','fluid-foolish','3dskinlayers'],
  nea:['sodium','iris','not-enough-animations','3dskinlayers'],
  firstperson:['sodium','iris','not-enough-animations','first-person-model','3dskinlayers'],
- fresh:['sodium','iris','entity-model-features','entitytexturefeatures','fresh-animations','fa-player-extension']
+ fresh:['sodium','iris','entity-model-features','entitytexturefeatures','fresh-animations','fa-player-extension'],
+ blocks:['sodium','iris']
 });
 export const COMPAT_ASSETS=Object.freeze([...ASSETS,
  ...['not-enough-animations','first-person-model','3dskinlayers','entity-model-features','entitytexturefeatures'].map(id=>({id,type:'mod',loader:'fabric',ext:'.jar'})),
  ...['fresh-animations','fa-player-extension'].map(id=>({id,type:'resourcepack',ext:'.zip'})),
- ...['complementary-unbound','photon-shader','bsl-shaders','sildurs-vibrant-shaders'].map(id=>({id,type:'shader',ext:'.zip'}))
+ ...['complementary-unbound','photon-shader','bsl-shaders','sildurs-vibrant-shaders','solas-shader'].map(id=>({id,type:'shader',ext:'.zip'}))
 ]);
 
+const SHADERS=COMPAT_ASSETS.filter(a=>a.type==='shader').length;
 export function validateGpuLog(log,profile){
- if((log.match(/TABLET COMPAT PASS /g)||[]).length!==16)throw Error('Incomplete shader matrix');
- if(!log.includes('TABLET MOVEMENT AND REMOTE POSE PASS'))throw Error('Missing movement/remote pose validation');
+ if(profile==='blocks'){
+  if(!log.includes('WORLD BLOCKS SHADER MATRIX PASS '+SHADERS))throw Error('Incomplete world blocks shader matrix');
+ }else{
+  // Vanilla plus every pack, each lit and unlit.
+  if((log.match(/TABLET COMPAT PASS /g)||[]).length!==2*(1+SHADERS))throw Error('Incomplete shader matrix');
+  if(!log.includes('TABLET MOVEMENT AND REMOTE POSE PASS'))throw Error('Missing movement/remote pose validation');
+ }
  if(profile==='punchy'&&!log.includes('TABLET PUNCHY REBIND PASS'))throw Error('Missing Punchy shortcut validation');
  if(/Tablet (opening|close) animation timed out|ShaderCompileException|Failed to create shader rendering pipeline|falling back to normal rendering without shaders|Iris hand pass API is unavailable|Cannot identify Iris hand pass/i.test(log))
   throw Error('Shader or animation fallback in GPU log');

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuestBoardAssetTest {
     private static final Path ASSETS=Path.of("client/src/main/resources/assets/questplus");
     @Test void itemPresentationSurvivesExportAndKeepsTheBoardNearItsGrip()throws Exception {
-        var source=JsonParser.parseString(Files.readString(Path.of("questplus-assets/blockbench/world/quest_board_module.bbmodel"))).getAsJsonObject();
+        var source=JsonParser.parseString(Files.readString(Path.of("questplus-assets/blockbench/world/quest_board_module_15.bbmodel"))).getAsJsonObject();
         var item=JsonParser.parseString(Files.readString(ASSETS.resolve("models/item/quest_board.json"))).getAsJsonObject();
         var display=item.getAsJsonObject("display");assertEquals(source.getAsJsonObject("display"),display);
         assertEquals(display.get("thirdperson_righthand"),display.get("thirdperson_lefthand"));
@@ -21,7 +21,9 @@ class QuestBoardAssetTest {
         for(String context:List.of("ground","thirdperson_righthand","thirdperson_lefthand")){
             var transform=display.getAsJsonObject(context);double scale=transform.getAsJsonArray("scale").get(2).getAsDouble();
             assertTrue(scale>0&&scale<=(context.equals("ground")?.3:.5),context+" must remain compact");
-            var rotation=transform.getAsJsonArray("rotation");var translation=transform.getAsJsonArray("translation");
+            // Blockbench omits a zero rotation on export.
+            var rotation=transform.has("rotation")?transform.getAsJsonArray("rotation"):JsonParser.parseString("[0,0,0]").getAsJsonArray();
+            var translation=transform.getAsJsonArray("translation");
             var center=new org.joml.Vector3f(0,0,(float)((minZ+maxZ)/2-8)).mul((float)scale)
                     .rotateX((float)Math.toRadians(rotation.get(0).getAsDouble()))
                     .rotateY((float)Math.toRadians(rotation.get(1).getAsDouble()))
@@ -48,6 +50,18 @@ class QuestBoardAssetTest {
             String[] edges={"n","s","w","e"};
             for(int bit=0;bit<4;bit++)assertEquals((mask&(1<<bit))!=0,names.contains("carved_frame_"+edges[bit]),"Mask "+mask+" edge "+edges[bit]);
             assertTrue(names.contains("slate_surface"));
+            // Overlapping cubes share outer faces and z-fight, letting the slate show on the frame's edge.
+            JsonObject slate=null;var frames=new ArrayList<JsonObject>();
+            for(var e:model.getAsJsonArray("elements")){
+                var o=e.getAsJsonObject();String name=o.get("name").getAsString();
+                if(name.equals("slate_surface"))slate=o;else if(name.startsWith("carved_frame_"))frames.add(o);
+            }
+            for(var frame:frames){
+                boolean overlaps=true;
+                for(int axis=0;axis<3;axis++)overlaps&=Math.max(slate.getAsJsonArray("from").get(axis).getAsDouble(),frame.getAsJsonArray("from").get(axis).getAsDouble())
+                        <Math.min(slate.getAsJsonArray("to").get(axis).getAsDouble(),frame.getAsJsonArray("to").get(axis).getAsDouble());
+                assertFalse(overlaps,"Mask "+mask+" slate overlaps "+frame.get("name").getAsString());
+            }
         }
     }
 }

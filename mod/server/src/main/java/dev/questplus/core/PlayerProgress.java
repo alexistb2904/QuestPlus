@@ -14,6 +14,10 @@ public final class PlayerProgress {
 	public Map<String, RewardGrant> entitlements = new HashMap<>();
 	public Set<String> legacyUnclaimed = new HashSet<>();
 	public transient boolean migratedFromV1;
+	/** QuestEngine.prerequisiteState memo, valid while {@link #revision} is unchanged. */
+	transient Set<String> prerequisites;
+	transient long prerequisitesRevision;
+	private static final java.util.regex.Pattern TIER_ID = java.util.regex.Pattern.compile("[a-z0-9_.-]+");
 
 	public record RewardGrant(String questId, List<QuestDefinition.Reward> rewards) {
 	}
@@ -49,6 +53,12 @@ public final class PlayerProgress {
 		public boolean waitingRestart;
 		public boolean terminal;
 		public Set<String> reachedTiers = new HashSet<>();
+
+		/** The tablet's "active" rule: started or with any progress, and not finished. */
+		public boolean inProgress() {
+			return !completed && !terminal && !waitingRestart
+					&& (attemptId != null || tier > 0 || counters.values().stream().anyMatch(c -> c > 0));
+		}
 	}
 
 	/**
@@ -102,7 +112,7 @@ public final class PlayerProgress {
 		if (schemaVersion != 2 || quests == null || claims == null || entitlements == null || legacyUnclaimed == null)
 			throw new IllegalArgumentException("Invalid player progress");
 		quests.forEach((id, p) -> {
-			if (id == null || !id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || p == null || p.counters == null
+			if (!QuestExtensions.isId(id) || p == null || p.counters == null
 					|| p.fingerprint == null || p.fingerprint.isBlank())
 				throw new IllegalArgumentException("Invalid quest progress: " + id);
 			p.counters.forEach((k, v) -> {
@@ -117,7 +127,7 @@ public final class PlayerProgress {
 			});
 			if (p.attemptId != null)
 				UUID.fromString(p.attemptId);
-			if (p.reachedTiers.stream().anyMatch(t -> t == null || !t.matches("[a-z0-9_.-]+")))
+			if (p.reachedTiers.stream().anyMatch(t -> t == null || !TIER_ID.matcher(t).matches()))
 				throw new IllegalArgumentException("Invalid tier id");
 		});
 		claims.forEach((k, v) -> {
@@ -125,13 +135,13 @@ public final class PlayerProgress {
 				throw new IllegalArgumentException("Invalid claim");
 		});
 		entitlements.forEach((key, grant) -> {
-			if (key == null || key.isBlank() || grant == null || grant.questId() == null
-					|| !grant.questId().matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || grant.rewards() == null
+			if (key == null || key.isBlank() || grant == null || !QuestExtensions.isId(grant.questId())
+					|| grant.rewards() == null
 					|| grant.rewards().size() > 64)
 				throw new IllegalArgumentException("Invalid entitlement");
 			grant.rewards().forEach(QuestExtensions::validateSavedReward);
 		});
-		if (legacyUnclaimed.stream().anyMatch(id -> id == null || !id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")))
+		if (legacyUnclaimed.stream().anyMatch(id -> !QuestExtensions.isId(id)))
 			throw new IllegalArgumentException("Invalid legacy entitlement");
 	}
 }

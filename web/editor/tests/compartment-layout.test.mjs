@@ -4,7 +4,7 @@ import test from "node:test";
 import { backgroundRect, edgePoints, insertWaypoint, nearestSegment } from "../src/core/diagram-geometry.js";
 import { BUILTIN_PROJECT } from "../src/data/default-data.js";
 
-test("all 209 built-in quests are aligned in disjoint tablet-compatible compartments", () => {
+test("all 219 built-in quests are aligned in disjoint tablet-compatible compartments", () => {
 	let total = 0;
 	for (const category of BUILTIN_PROJECT.categories) {
 		const labels = (category.annotations || []).filter((note) => note.style === "label");
@@ -39,7 +39,7 @@ test("all 209 built-in quests are aligned in disjoint tablet-compatible compartm
 			topByRow.set(row, label.y);
 		}
 	}
-	assert.equal(total, 209);
+	assert.equal(total, 219);
 });
 
 test("homestead and equipment have coherent thematic compartments with aligned titles", () => {

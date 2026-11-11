@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "targetMinecraftVersion": "26.3",
+  "iconVersions": {},
+  "editorLocales": [],
+  "rewardTables": [
+    {
+      "name": "Common chest",
+      "reward": {
+        "type": "questplus:loot",
+        "data": {
+          "options": [
+            {
+              "type": "item",
+              "item": "minecraft:diamond",
+              "count": 1,
+              "weight": 1
+            }
+          ],
+          "emptyWeight": 1,
+          "rolls": 1
+        }
+      },
+      "crate": true,
+      "crateName": "Coffre commun",
+      "crateColor": "#4aa8ff",
+      "crateGlow": true,
+      "crateDrops": {
+        "passive": 0,
+        "monster": 5,
+        "boss": 100
+      }
+    },
+    {
+      "name": "Jackpot",
+      "reward": {
+        "type": "questplus:random",
+        "data": {
+          "options": [
+            {
+              "type": "item",
+              "item": "minecraft:netherite_ingot",
+              "count": 1,
+              "weight": 1
+            },
+            {
+              "type": "experience",
+              "amount": 5,
+              "weight": 199
+            }
+          ]
+        }
+      },
+      "crate": true
+    },
+    {
+      "name": "Jackpot alias",
+      "reward": {
+        "type": "questplus:table",
+        "data": {
+          "name": "Jackpot"
+        }
+      },
+      "crate": true
+    },
+    {
+      "name": "Pick one",
+      "reward": {
+        "type": "questplus:choice",
+        "data": {
+          "options": [
+            {
+              "type": "experience",
+              "amount": 1
+            },
+            {
+              "type": "experience_levels",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "questTemplates": []
+}

@@ -12,7 +12,9 @@ public final class ClientSettings {
 	private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
 	public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
 	public boolean tabletTransitions = true;
-	public int treeResolution = 2;
+	public int treeResolution = 4;
+	/** 2: the 3D screen's default resolution became 4x. 3: the pinned quest HUD is on. */
+	public int settingsVersion = 3;
 	public int tabletProximity = 100;
 	public boolean stayOpenOnDamage = false;
 	public int hudPosition = 2, notificationPosition = 1, detail = 1;
@@ -45,7 +47,18 @@ public final class ClientSettings {
 					settings.screenBrightness = 1.0;
 				if (settings != null)
 					settings.treeResolution = json.has("treeResolution") ? Math.clamp(settings.treeResolution, 1, 8)
-							: 2;
+							: new ClientSettings().treeResolution;
+				// Configs written before version 2 saved the old 2x default without the
+				// player choosing it: move them to the new default once.
+				if (settings != null) {
+					int version = json.has("settingsVersion") ? settings.settingsVersion : 1;
+					if (version < 2 && settings.treeResolution == 2)
+						settings.treeResolution = new ClientSettings().treeResolution;
+					// 1.0.0 saved hud=false as its default, not as a choice: switch it on once.
+					if (version < 3)
+						settings.hud = true;
+					settings.settingsVersion = 3;
+				}
 				if (settings != null)
 					settings.tabletProximity = json.has("tabletProximity") ? Math.clamp(settings.tabletProximity, 80, 130)
 							: 100;

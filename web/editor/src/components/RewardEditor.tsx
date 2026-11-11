@@ -1,12 +1,14 @@
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Layers, PenLine, Plus, RefreshCw, Trash2, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
 import { text } from "../core/project.js";
-import { POOL_TYPES, poolError, poolProbabilities, simulatePool } from "../core/reward-tables.js";
+import { crateReward, crateTableName, POOL_TYPES, poolError, poolProbabilities, simulatePool } from "../core/reward-tables.js";
 import type { LocaleMap, Project, Reward } from "../types";
+import { REWARD_GROUPS, REWARD_HINTS } from "../ui/type-catalog.js";
 import { tUI as t } from "../ui/ui-i18n.js";
 import { ItemIcon, TargetPicker } from "./IconPicker";
 import { Disclosure, Field, Select } from "./Inspector";
+import { catalogOptions, InfoTip, TypePicker, type TypeOption } from "./TypePicker";
 
 const types: [string, string][] = [
 	["item", "Item"],
@@ -57,6 +59,14 @@ const make = (type: string): Reward =>
 											])
 										),
 									};
+const typeNames: Record<string, string> = Object.fromEntries([
+		...types,
+		["questplus:table", "Reward table"],
+		["questplus:crate", "Loot crate"],
+		...poolTypes,
+		["questplus:command", "Command"],
+	]),
+	optionNames: Record<string, string> = Object.fromEntries(types);
 const move = (list: any[], index: number, delta: number) => {
 	const copy = [...list];
 	[copy[index], copy[index + delta]] = [copy[index + delta], copy[index]];
@@ -106,6 +116,111 @@ function Translation({ label, value, language, onChange }: { label: string; valu
 		</>
 	);
 }
+type Table = NonNullable<Project["rewardTables"]>[number];
+const policy = (r: Reward) => Object.fromEntries(["text", "teamReward", "autoClaim", "excludeFromClaimAll"].filter((key) => (r as any)[key] !== undefined).map((key) => [key, (r as any)[key]]));
+/** A quest reward that draws a named table: choose the table, open it, or turn the link into an editable copy. */
+function TableLink({
+	reward: r,
+	options,
+	table,
+	onChange,
+	onOpenTables,
+}: {
+	reward: Reward;
+	options: TypeOption[];
+	table?: Table;
+	onChange: (value: Reward) => void;
+	onOpenTables?: (name?: string) => void;
+}) {
+	return (
+		<div className="reward-table-link">
+			<TypePicker label="Table" value={r.data?.name || ""} options={options} translate={false} placeholder="Choose a table…" onChange={(name) => onChange({ ...r, data: { name } })} />
+			<p>{t("When the quest is claimed, the server draws this table. Edit the table to change what every linked quest gives.")}</p>
+			<div className="toolbar-row">
+				{onOpenTables && (
+					<button type="button" className="button secondary" onClick={() => onOpenTables(r.data?.name)}>
+						<PenLine size={14} />
+						{t("Edit table")}
+					</button>
+				)}
+				<button type="button" className="button secondary" disabled={!table} onClick={() => table && onChange({ ...structuredClone(table.reward), ...policy(r) })}>
+					<Copy size={14} />
+					{t("Make an editable copy")}
+				</button>
+				<InfoTip text={t("Replaces the link with a copy of the table that you edit here. Later changes to the table no longer apply.")} />
+			</div>
+		</div>
+	);
+}
+/** A quest reward that gives the crate item of a named table; the player opens it later in Minecraft. */
+function CrateReward({
+	reward: r,
+	options,
+	tables,
+	onChange,
+	onOpenTables,
+	onEnableCrate,
+}: {
+	reward: Reward;
+	options: TypeOption[];
+	tables: Table[];
+	onChange: (value: Reward) => void;
+	onOpenTables?: (name?: string) => void;
+	onEnableCrate?: (name: string) => void;
+}) {
+	const name = crateTableName(r) || "",
+		table = tables.find((row) => row.name === name),
+		fresh = table && crateReward(table, r.count),
+		stale = fresh && JSON.stringify(fresh.components) !== JSON.stringify(r.components);
+	return (
+		<div className="reward-crate">
+			<div className="reward-crate-fields">
+				<TypePicker
+					label="Table"
+					value={name}
+					options={options}
+					translate={false}
+					onChange={(next) => {
+						const target = tables.find((row) => row.name === next);
+						if (!target) return;
+						onChange({ ...r, ...crateReward(target, r.count) });
+						if (!target.crate && target.reward.type !== "questplus:choice") onEnableCrate?.(target.name);
+					}}
+				/>
+				<Field label="Count" type="number" value={r.count} onChange={(count) => onChange({ ...r, count: Math.max(1, Math.min(64, Math.floor(count) || 1)) })} />
+			</div>
+			<p>{t("The player receives this crate and opens it in Minecraft (right-click) to draw the table.")}</p>
+			{table && !table.crate && (
+				<div className="reward-notice" role="alert">
+					<TriangleAlert size={15} aria-hidden="true" />
+					<span>{t(table.reward.type === "questplus:choice" ? "Crates cannot use Player Choice. Choose another draw type." : "This table is not an openable crate yet.")}</span>
+					{table.reward.type !== "questplus:choice" && onEnableCrate && (
+						<button type="button" className="button secondary" onClick={() => onEnableCrate(table.name)}>
+							{t("Make it a crate")}
+						</button>
+					)}
+				</div>
+			)}
+			{stale && (
+				<div className="reward-notice">
+					<RefreshCw size={15} aria-hidden="true" />
+					<span>{t("The crate name or color changed in the table.")}</span>
+					<button type="button" className="button secondary" onClick={() => onChange({ ...r, components: fresh.components })}>
+						{t("Update name and color")}
+					</button>
+				</div>
+			)}
+			{onOpenTables && (
+				<div className="toolbar-row">
+					<button type="button" className="button secondary" onClick={() => onOpenTables(name)}>
+						<PenLine size={14} />
+						{t("Edit table")}
+					</button>
+				</div>
+			)}
+		</div>
+	);
+}
 export function RewardEditor({
 	rewards,
 	onChange,
@@ -113,6 +228,8 @@ export function RewardEditor({
 	project,
 	onAdvanced,
 	onSaveTable,
+	onOpenTables,
+	onEnableCrate,
 	singlePool = false,
 }: {
 	rewards: Reward[];
@@ -121,9 +238,24 @@ export function RewardEditor({
 	project: Project;
 	onAdvanced: () => void;
 	onSaveTable: (index: number) => void;
+	onOpenTables?: (name?: string) => void;
+	onEnableCrate?: (name: string) => void;
 	singlePool?: boolean;
 }) {
-	const [linkTable, setLinkTable] = useState(false);
+	const tables = project.rewardTables || [];
+	const tableOptions = (current?: string): TypeOption[] => {
+		const list: TypeOption[] = tables.map((table) => ({
+			id: table.name,
+			name: table.name,
+			icon: table.crate ? "minecraft:chest_minecart" : "minecraft:bundle",
+			group: table.crate ? t("Crates") : t("Reward tables"),
+			hint: [t(typeNames[table.reward.type] || table.reward.type), (table.reward.data?.options?.length ?? 0) + " " + t("options"), table.crate ? "" : t("Not a crate yet")]
+				.filter(Boolean)
+				.join(" · "),
+		}));
+		if (current && !tables.some((table) => table.name === current)) list.push({ id: current, name: current, hint: t("Unknown table") });
+		return list;
+	};
 	const [newType, setNewType] = useState("item"),
 		[result, setResult] = useState<{ index: number; values: any[] } | null>(null),
 		[preview, setPreview] = useState<Record<number, number>>({});
@@ -136,7 +268,7 @@ export function RewardEditor({
 		[
 			text(r.text, language),
 			r.type === "item"
-				? `${r.count} × ${r.item}`
+				? `${r.count} × ${String(r.item).replace(/^minecraft:/, "")}`
 				: r.type === "experience"
 					? `${r.amount} XP`
 					: r.type === "experience_levels"
@@ -149,7 +281,28 @@ export function RewardEditor({
 		]
 			.filter(Boolean)
 			.join(" · ");
-	const icon = (r: Reward) => (r.type === "item" ? r.item : r.type.startsWith("experience") ? "minecraft:experience_bottle" : "minecraft:chest");
+	const kindOf = (r: Reward) => (crateTableName(r) !== undefined ? "questplus:crate" : r.type);
+	const icon = (r: Reward) =>
+		crateTableName(r) !== undefined
+			? "minecraft:chest_minecart"
+			: r.type === "item"
+				? r.item
+				: r.type.startsWith("experience")
+					? "minecraft:experience_bottle"
+					: "minecraft:bundle";
+	const needsTable = newType === "questplus:table" || newType === "questplus:crate";
+	const addReward = () => {
+		if (needsTable && !tables.length) return onOpenTables?.();
+		if (newType === "questplus:table") return onChange([...rewards, { type: "questplus:table", data: { name: tables[0].name } }]);
+		if (newType === "questplus:crate") {
+			const table = tables.find((row) => row.crate) || tables[0];
+			onChange([...rewards, crateReward(table)]);
+			// Giving a crate is the intent: make the table openable unless its draw type forbids it.
+			if (!table.crate && table.reward.type !== "questplus:choice") onEnableCrate?.(table.name);
+			return;
+		}
+		onChange([...rewards, make(newType)]);
+	};
 	const reorder = (list: Reward[], i: number, onEdit: (v: Reward[]) => void) => (
 		<span className="reward-order">
 			<button type="button" className="tiny" aria-label={t("Move up")} disabled={i === 0} onClick={() => onEdit(move(list, i, -1))}>
@@ -282,45 +435,27 @@ export function RewardEditor({
 	return (
 		<div className="reward-editor">
 			{!singlePool && (
-				<div className="toolbar-row">
-					<Select
+				<div className="reward-add">
+					<TypePicker
 						label="Reward type"
 						value={newType}
-						options={[...types, ...poolTypes, ["questplus:command", "Command"], ...hubEditorDescriptors("reward").map((d) => [d.id, d.label] as [string, string])]}
+						options={catalogOptions(REWARD_GROUPS, typeNames, REWARD_HINTS, hubEditorDescriptors("reward"))}
 						onChange={setNewType}
 					/>
-					<button type="button" className="button primary" disabled={rewards.length >= 64} onClick={() => onChange([...rewards, make(newType)])}>
+					<button type="button" className="button primary" disabled={rewards.length >= 64 || (needsTable && !tables.length && !onOpenTables)} onClick={addReward}>
 						<Plus size={14} />
-						{t("Reward")}
+						{t(needsTable && !tables.length ? "Create reward table" : "Reward")}
 					</button>
+					{needsTable && !tables.length && <small className="reward-add-note">{t("Create a table first to use this reward.")}</small>}
+					{onOpenTables && (
+						<button type="button" className="button secondary" onClick={() => onOpenTables()}>
+							<Layers size={14} />
+							{t("Manage tables")}
+						</button>
+					)}
 				</div>
 			)}
-			{!singlePool && !!project.rewardTables?.length && (
-				<label className="field">
-					<span>{t("Saved reward tables")}</span>
-					<select
-						aria-label={t("Saved reward tables")}
-						value=""
-						onChange={(e) => {
-							const table = project.rewardTables?.[Number(e.target.value)];
-							if (table) onChange([...rewards, linkTable ? { type: "questplus:table", data: { name: table.name } } : structuredClone(table.reward)]);
-						}}>
-						<option value="">{t(linkTable ? "Insert table reference" : "Insert a table copy")}</option>
-						{project.rewardTables.map((table, i) => (
-							<option value={i} key={table.name}>
-								{table.name}
-							</option>
-						))}
-					</select>
-				</label>
-			)}
-			{!singlePool && !!project.rewardTables?.length && (
-				<label className="checkbox-row">
-					<input type="checkbox" checked={linkTable} onChange={(e) => setLinkTable(e.target.checked)} />
-					{t("Keep a live table reference")}
-				</label>
-			)}
-			{!rewards.length && <p>{t("No rewards")}</p>}
+			{!rewards.length && <p className="reward-empty">{t("No rewards")}</p>}
 			{rewards.map((r, i) => {
 				const pool = POOL_TYPES.includes(r.type),
 					choice = r.type === "questplus:choice",
@@ -335,7 +470,8 @@ export function RewardEditor({
 					<div className={singlePool ? "mini-card reward-pool" : "mini-card"} key={i}>
 						<div className="mini-card-head">
 							<ItemIcon id={icon(r)} size={24} />
-							<strong>{t([...types, ...poolTypes, ["questplus:command", "Command"]].find(([id]) => id === r.type)?.[1] || r.type)}</strong>
+							<strong>{t(typeNames[kindOf(r)] || hubEditorDescriptors("reward").find((d) => d.id === r.type)?.label || r.type)}</strong>
+							<InfoTip text={REWARD_HINTS[kindOf(r)] && t(REWARD_HINTS[kindOf(r)])} />
 							{!singlePool && (
 								<>
 									{reorder(rewards, i, onChange)}
@@ -346,11 +482,25 @@ export function RewardEditor({
 							)}
 						</div>
 						{r.type === "questplus:table" ? (
-							<p>
-								{t("Linked table")}: {r.data?.name}. {t("Update the named table to update linked quests.")}
-							</p>
+							<TableLink
+								reward={r}
+								options={tableOptions(r.data?.name)}
+								table={tables.find((table) => table.name === r.data?.name)}
+								onChange={edit}
+								onOpenTables={onOpenTables}
+							/>
+						) : crateTableName(r) !== undefined ? (
+							<CrateReward
+								reward={r}
+								options={tableOptions(crateTableName(r))}
+								tables={tables}
+								onChange={edit}
+								onOpenTables={onOpenTables}
+								onEnableCrate={onEnableCrate}
+							/>
 						) : pool ? (
-							<>
+							<div className="reward-pool-layout">
+								<div className="reward-pool-main">
 								<p>
 									{t(
 										choice
@@ -364,6 +514,7 @@ export function RewardEditor({
 										<Field label="Empty chance weight" type="number" value={r.data?.emptyWeight} onChange={(emptyWeight) => editData({ emptyWeight })} />
 									)}
 								</div>
+								<div className="reward-options">
 								{options.map((option, j) => (
 									<div className="mini-card reward-option" key={j}>
 										<div className="mini-card-head">
@@ -381,15 +532,15 @@ export function RewardEditor({
 												<Trash2 size={14} />
 											</button>
 										</div>
-										<Select
+										<TypePicker
 											label="Type"
 											value={option.type}
-											options={[
-												...types,
-												...hubEditorDescriptors("reward")
-													.filter((d) => d.pool)
-													.map((d) => [d.id, d.label] as [string, string]),
-											]}
+											options={catalogOptions(
+												REWARD_GROUPS,
+												optionNames,
+												REWARD_HINTS,
+												hubEditorDescriptors("reward").filter((d) => d.pool)
+											)}
 											onChange={(type) =>
 												editOptions(
 													options.map((o, k) =>
@@ -429,8 +580,9 @@ export function RewardEditor({
 										</Disclosure>
 									</div>
 								))}
+								</div>
 								<button
-									className="button secondary"
+									className="button secondary reward-add-option"
 									type="button"
 									disabled={options.length >= 32}
 									onClick={() => editOptions([...options, { ...make("item"), ...(!choice ? { weight: 1 } : {}) }])}>
@@ -454,6 +606,9 @@ export function RewardEditor({
 										{t(error)}
 									</p>
 								)}
+								</div>
+								<div className="reward-pool-side">
+								<strong className="reward-side-title">{t("Draw preview")}</strong>
 								<div className="reward-preview" aria-label={t("Tablet preview")}>
 									{options.map((option, j) => (
 										<button
@@ -490,7 +645,8 @@ export function RewardEditor({
 										{t("Simulation only. No rewards are granted.")} {result.values.map((v) => (v ? label(v) : t("Nothing"))).join(" / ")}
 									</output>
 								)}
-							</>
+								</div>
+							</div>
 						) : (
 							inputs(r, edit)
 						)}

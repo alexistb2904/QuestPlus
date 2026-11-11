@@ -73,7 +73,8 @@ public final class QuestRelayClientGameTest {
         });
         context.takeScreenshot("relay-configuration");
         String playerName = context.computeOnClient(client -> client.player.getPlainTextName());
-        clickLabel(context, playerName);
+        // The owner control now sits in the shared block-dialog header as "Owner: <name>".
+        clickLabel(context, Component.translatable("questplus.blocks.owner_name", playerName).getString());
         context.takeScreenshot("relay-player-names");
         clickLabel(context, playerName);
         click(context, "output.binary");

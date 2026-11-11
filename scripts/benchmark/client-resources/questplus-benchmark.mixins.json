@@ -1,1 +1,0 @@
-{"required":true,"package":"dev.questplus.fabric.client.benchmarkmixin","compatibilityLevel":"JAVA_25","client":["BenchmarkFrameMixin"],"injectors":{"defaultRequire":1}}

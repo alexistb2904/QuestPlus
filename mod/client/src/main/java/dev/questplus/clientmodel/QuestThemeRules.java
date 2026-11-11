@@ -64,19 +64,28 @@ public final class QuestThemeRules {
 		return Map.copyOf(result);
 	}
 
+	// Looked up for every text draw: compiled once, and nothing allocated on the common paths.
+	private static final java.util.regex.Pattern REFERENCE = java.util.regex.Pattern.compile("\\{\\{\\s*[a-z_]+\\s*}}"),
+			RGB = java.util.regex.Pattern.compile("#[a-fA-F0-9]{6}"),
+			ARGB = java.util.regex.Pattern.compile("#[a-fA-F0-9]{8}");
+
 	public static int color(Map<String, String> properties, String key, int fallback) {
-		var seen = new HashSet<String>();
 		String value = properties.get(key);
-		while (value != null && value.matches("\\{\\{\\s*[a-z_]+\\s*}}")) {
+		if (value == null)
+			return fallback;
+		Set<String> seen = null;
+		while (value != null && REFERENCE.matcher(value).matches()) {
+			if (seen == null)
+				seen = new HashSet<>();
 			if (!seen.add(value) || seen.size() > 16)
 				return fallback;
 			value = properties.get(value.substring(2, value.length() - 2).trim());
 		}
 		if (value == null)
 			return fallback;
-		if (value.matches("#[a-fA-F0-9]{6}"))
+		if (RGB.matcher(value).matches())
 			return 0xff000000 | (int) Long.parseLong(value.substring(1), 16);
-		if (value.matches("#[a-fA-F0-9]{8}"))
+		if (ARGB.matcher(value).matches())
 			return (int) Long.parseLong(value.substring(1), 16);
 		return switch (value.toLowerCase(Locale.ROOT)) {
 		case "transparent" -> 0;

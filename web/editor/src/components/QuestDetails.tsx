@@ -1,4 +1,4 @@
-import { Check, Gift, GitBranch, Globe, MessageCircle, Plus, Repeat2, Search, Target, Trash2, X } from "lucide-react";
+import { Check, Gift, GitBranch, Globe, MessageCircle, Plus, Repeat2, Search, Target, Trash2, TriangleAlert, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { descriptionParts } from "../core/description-format.js";
 import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
@@ -15,13 +15,16 @@ import {
 import { EVENTS, objectiveLabel, text } from "../core/project.js";
 import type { Category, Objective, Project, Quest, Reward } from "../types";
 import { localesOf, supportedLocales } from "../types";
+import { OBJECTIVE_GROUPS, OBJECTIVE_HINTS } from "../ui/type-catalog.js";
 import { tUI } from "../ui/ui-i18n.js";
 import { armorPreset, GearEditor, updateGear } from "./GearEditor";
 import { ItemIcon, TargetPicker } from "./IconPicker";
 import type { Props } from "./Inspector";
 import { ConditionEditor, Disclosure, Field, Select, Translated } from "./Inspector";
 import { ItemComponentField, RewardEditor } from "./RewardEditor";
+import { NpcPanel } from "./NpcPanel";
 import { DescriptionEditor } from "./RichEditor";
+import { catalogOptions, ChoiceCards, TypePicker } from "./TypePicker";
 
 type Tier = { id: string; threshold: number; rewards: Reward[] };
 type Tab = "objectives" | "rewards" | "conditions" | "progression" | "npc" | "localization";
@@ -209,6 +212,7 @@ function LocalizationPanel({
 	);
 }
 
+const eventNames: Record<string, string> = Object.fromEntries(EVENTS.map(([id]) => [id, EVENT_LABELS[id] || id]));
 type PickerKind = "block" | "item" | "entity" | "biome" | "structure" | "statistic" | "advancement" | "fluid";
 function ObjectiveInputs({
 	objective: o,
@@ -319,16 +323,10 @@ function ObjectiveInputs({
 	};
 	return (
 		<div className={"field-row objective-inputs objective-inputs-" + kind}>
-			<Select
+			<TypePicker
 				label="Action"
 				value={o.event}
-				options={[
-					...EVENTS.map(([id]) => [id, EVENT_LABELS[id] || id] as [string, string]),
-					...hubEditorDescriptors("event")
-						.filter((d) => !EVENTS.some(([id]) => id === d.id))
-						.map((d) => [d.id, d.label] as [string, string]),
-					...(!EVENTS.some(([id]) => id === o.event) && !hubEditorDescriptors("event").some((d) => d.id === o.event) ? [[o.event, o.event] as [string, string]] : []),
-				]}
+				options={catalogOptions(OBJECTIVE_GROUPS, eventNames, OBJECTIVE_HINTS, hubEditorDescriptors("event"), o.event)}
 				onChange={(event) => {
 					const next = changeObjectiveEvent(o, event, questId);
 					if (event === "equipment_check" && !next.conditions?.["questplus:gear"]) next.conditions = updateGear(next.conditions, armorPreset("iron"));
@@ -428,7 +426,7 @@ function ObjectiveInputs({
 	);
 }
 
-export function QuestDetails({ project, selection, language, onUpdate, onAction, onCondition, onAddLocale, translationRequest = 0 }: Props) {
+export function QuestDetails({ project, selection, language, onUpdate, onAction, onCondition, onAddLocale, onConfig, translationRequest = 0, issues = [] }: Props) {
 	const [tab, setTab] = useState<Tab>("objectives");
 	const [targetBrowser, setTargetBrowser] = useState<{ index: number; kind: PickerKind } | null>(null);
 	useEffect(() => {
@@ -491,15 +489,8 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 		while (tiers.some((t) => t.id === id)) id = "tier" + ++n;
 		onUpdate("tiers", [...tiers, { id, threshold: (tiers.at(-1)?.threshold || 0) + 1, rewards: [] }]);
 	};
-	const addNpcObjective = () => {
-		const objectives = quest.objectives || [];
-		let n = objectives.length + 1,
-			id = "step" + n;
-		while (objectives.some((o) => o.id === id)) id = "step" + ++n;
-		onUpdate("objectives", [...objectives, { id, event: "npc_interact", target: "minecraft:villager", count: 1 }]);
-		setTab("objectives");
-	};
 	const ui = (value: string) => tUI(value);
+	const questIssues = issues.filter((issue) => issue.where === quest.id);
 	return (
 		<section className="quest-details" aria-label={ui("Quest details")}>
 			<div className="detail-tabs" role="tablist" aria-label={ui("Quest details")}>
@@ -534,21 +525,34 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 				{ui("Advanced JSON")}
 			</button>
 			<div className="detail-content" role="tabpanel" id="detail-panel" aria-labelledby={"detail-tab-" + tab}>
+				{questIssues.length > 0 && (
+					<div className="quest-issues" role="alert">
+						<TriangleAlert size={16} aria-hidden="true" />
+						<div>
+							<strong>{ui("This quest has problems to fix before export")}</strong>
+							{questIssues.map((issue, i) => (
+								<p key={i}>{ui(issue.message)}</p>
+							))}
+						</div>
+					</div>
+				)}
 				{tab === "objectives" && (
 					<>
 						<div className="detail-heading">
 							<strong>
 								{ui("Quest objectives")} · {text(quest.title, language)}
 							</strong>
-							<button type="button" className="button secondary" onClick={() => onAction("save-as-template")}>
-								Save as template
-							</button>
-							{!info && (
-								<button className="button primary" onClick={() => onAction("add-objective")}>
-									<Plus size={14} />
-									{ui("Objective")}
+							<span className="detail-actions">
+								<button type="button" className="button secondary" onClick={() => onAction("save-as-template")}>
+									{ui("Save as template")}
 								</button>
-							)}
+								{!info && (
+									<button className="button primary" onClick={() => onAction("add-objective")}>
+										<Plus size={14} />
+										{ui("Objective")}
+									</button>
+								)}
+							</span>
 						</div>
 						{info ? (
 							<div className="objective-row">
@@ -589,16 +593,18 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 											onCondition={onCondition}
 											onBrowse={(index, kind) => setTargetBrowser({ index, kind })}
 										/>
-										<label className="checkbox-row">
-											<input type="checkbox" checked={!!o.optional} onChange={(e) => onUpdate("objectives." + i + ".optional", e.target.checked)} />
-											{ui("Optional objective")}
-										</label>
-										<Disclosure title="Custom label">
-											<Translated label="Text" prefix={"objectives." + i + ".text"} value={o.text} language={language} onUpdate={onUpdate} />
-										</Disclosure>
-										<Disclosure title="Conditions">
-											<ConditionEditor project={project} scope={"objective:" + i} value={o.conditions} onChange={(v) => onCondition("objective:" + i, v)} />
-										</Disclosure>
+										<div className="objective-foot">
+											<label className="checkbox-row">
+												<input type="checkbox" checked={!!o.optional} onChange={(e) => onUpdate("objectives." + i + ".optional", e.target.checked)} />
+												{ui("Optional objective")}
+											</label>
+											<Disclosure title="Custom label">
+												<Translated label="Text" prefix={"objectives." + i + ".text"} value={o.text} language={language} onUpdate={onUpdate} />
+											</Disclosure>
+											<Disclosure title="Conditions">
+												<ConditionEditor project={project} scope={"objective:" + i} value={o.conditions} onChange={(v) => onCondition("objective:" + i, v)} />
+											</Disclosure>
+										</div>
 									</div>
 								))}
 							</div>
@@ -623,6 +629,8 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 						onChange={(rewards) => onUpdate("rewards", rewards)}
 						onAdvanced={() => onAction("advanced-json")}
 						onSaveTable={(index) => onAction("save-reward-table:rewards." + index)}
+onOpenTables={(name) => onAction("open-reward-tables:" + (name || ""))}
+						onEnableCrate={(name) => onAction("enable-crate:" + name)}
 					/>
 				)}
 				{tab === "conditions" && (
@@ -643,77 +651,68 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 							<p>{ui("Information quests are completed once.")}</p>
 						) : (
 							<>
-								<div className="field-row">
-									<Select
-										label="Mode"
-										value={quest.progression}
-										options={[
-											["once", "Once"],
-											["repeatable", "Repeatable"],
-											["infinite", "Infinite"],
-											["tiered", "Tiered"],
-										]}
-										onChange={changeProgression}
-									/>
-									<Select
-										label="Objectives"
-										value={quest.objectiveMode || "all"}
-										options={[
-											["all", "All"],
-											["any", "Any"],
-											["sequence", "Sequence"],
-											["at_least", "At least N"],
-										]}
-										onChange={(v) => {
-											onUpdate("objectiveMode", v);
-											if (v === "at_least" && !quest.objectiveThreshold) onUpdate("objectiveThreshold", 1);
-											else if (v !== "at_least") onUpdate("objectiveThreshold", undefined);
-										}}
-									/>
-									{quest.objectiveMode === "at_least" && (
-										<Field
-											label="Required objectives"
-											type="number"
-											value={quest.objectiveThreshold || 1}
-											onChange={(v) => onUpdate("objectiveThreshold", Math.max(1, Math.floor(v)))}
-										/>
-									)}
+							<div className="progression-grid">
+								<ChoiceCards
+									label="How often"
+									value={quest.progression || "once"}
+									options={[
+										["once", "Once", "Complete and claim once."],
+										["repeatable", "Repeatable", "Can be done again after claiming, once the cooldown is over."],
+										["infinite", "Infinite", "Keeps completing cycles without stopping."],
+										["tiered", "Tiered", "Milestone rewards unlock as progress grows."],
+									]}
+									onChange={changeProgression}
+								/>
+								<ChoiceCards
+									label="Objectives to complete"
+									value={quest.objectiveMode || "all"}
+									options={[
+										["all", "All", "Every required objective."],
+										["any", "Any", "Any one objective is enough."],
+										["sequence", "Sequence", "Objectives in order, one after another."],
+										["at_least", "At least N", "A chosen number of objectives."],
+									]}
+									onChange={(v) => {
+										onUpdate("objectiveMode", v);
+										if (v === "at_least" && !quest.objectiveThreshold) onUpdate("objectiveThreshold", 1);
+										else if (v !== "at_least") onUpdate("objectiveThreshold", undefined);
+									}}
+								/>
+							</div>
+							<fieldset className="progression-limits">
+								<legend>{ui("Limits")}</legend>
+								{quest.objectiveMode === "at_least" && (
 									<Field
-										label="Cooldown (s)"
+										label="Required objectives"
 										type="number"
-										value={quest.cooldownSeconds ?? 0}
-										onChange={(v) => {
-											onUpdate("cooldownSeconds", Math.max(0, v));
-										}}
+										value={quest.objectiveThreshold || 1}
+										onChange={(v) => onUpdate("objectiveThreshold", Math.max(1, Math.floor(v)))}
 									/>
-									<Field
-										label="Time limit (s)"
-										type="number"
-										value={quest.timeLimitSeconds ?? ""}
-										placeholder="—"
-										onChange={(v) => {
-											onUpdate("timeLimitSeconds", v > 0 ? v : undefined);
-										}}
-									/>
-								</div>
+								)}
+								<Field label="Cooldown (s)" type="number" value={quest.cooldownSeconds ?? 0} onChange={(v) => onUpdate("cooldownSeconds", Math.max(0, v))} />
+								<Field
+									label="Time limit (s)"
+									type="number"
+									value={quest.timeLimitSeconds ?? ""}
+									placeholder="—"
+									onChange={(v) => onUpdate("timeLimitSeconds", v > 0 ? v : undefined)}
+								/>
 								<label className="checkbox-row">
-									<input
-										type="checkbox"
-										checked={!!quest.noDeath}
-										onChange={(e) => {
-											onUpdate("noDeath", e.target.checked);
-										}}
-									/>{" "}
+									<input type="checkbox" checked={!!quest.noDeath} onChange={(e) => onUpdate("noDeath", e.target.checked)} />
 									{ui("Without dying")}
 								</label>
 								<label className="checkbox-row">
 									<input type="checkbox" checked={!!quest.progressBeforeUnlock} onChange={(e) => onUpdate("progressBeforeUnlock", e.target.checked)} />
 									{ui("Track objectives before prerequisites are unlocked")}
 								</label>
+							</fieldset>
 								{quest.progression === "tiered" && (
 									<>
-										<Select
-											label="After last tier"
+									<div className="detail-heading tier-heading">
+										<strong>{ui("Tiers")}</strong>
+									</div>
+									<Select
+										label="After last tier"
 											value={quest.afterLast || "stop"}
 											options={[
 												["stop", "Stop"],
@@ -722,7 +721,7 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 											onChange={(v) => onUpdate("afterLast", v)}
 										/>
 										{(quest.tiers || []).map((tier: Tier, i: number) => (
-											<div className="mini-card" key={tier.id}>
+										<div className="mini-card tier-card" key={tier.id}>
 												<div className="mini-card-head">
 													<strong>
 														{ui("Tier")} {i + 1} · {tier.id}
@@ -753,6 +752,8 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 													onChange={(rewards) => changeTier(i, { ...tier, rewards })}
 													onAdvanced={() => onAction("advanced-json")}
 													onSaveTable={(index) => onAction("save-reward-table:tiers." + i + ".rewards." + index)}
+onOpenTables={(name) => onAction("open-reward-tables:" + (name || ""))}
+						onEnableCrate={(name) => onAction("enable-crate:" + name)}
 												/>
 											</div>
 										))}
@@ -765,23 +766,15 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 						)}
 					</>
 				)}
-				{tab === "npc" && (
-					<>
-						<div className="detail-heading">
-							<strong>{ui("NPC interaction")}</strong>
-						</div>
-						<p>{ui("An NPC interaction is an objective. Its target is an entity type, not a unique NPC.")}</p>
-						<p>
-							{ui(
-								"To unlock another quest after an interaction, create an NPC interaction quest and select it as a prerequisite. Dialogues and direct NPC unlocks are not available in the current engine."
-							)}
-						</p>
-						{!info && (
-							<button className="button primary" onClick={addNpcObjective}>
-								+ {ui("NPC interaction objective")}
-							</button>
-						)}
-					</>
+				{tab === "npc" && onConfig && (
+					<NpcPanel
+						key={quest.id}
+						project={project}
+						quest={quest}
+						language={language}
+						onConfig={onConfig}
+						onManage={(npc) => onAction("open-quest-givers:" + npc)}
+					/>
 				)}
 				{tab === "localization" && <LocalizationPanel key={quest.id} project={project} quest={quest} onUpdate={onUpdate} onAddLocale={onAddLocale} />}
 			</div>

@@ -21,17 +21,11 @@ Open the address printed by VitePress. Changes to Markdown and theme files appea
 - Edit `.vitepress/theme/` for shared layout and styles.
 - Store public images and videos in `content/public/`. Add useful alternative text to images.
 
-Write in clear English and document the behavior that exists in the project. Avoid semicolons and grammatical dashes. Keep punctuation required in code and paths. See the [media guide](content/reference/media.md) for capture sources and attribution.
+Write in clear English and document the behavior that exists in the project. Avoid semicolons and grammatical dashes. Keep punctuation required in code and paths.
 
-## Check and build
+## Build
 
-Run the documentation checks from the repository root:
-
-```sh
-node scripts/docs/check-docs.mjs
-```
-
-Then build from this folder:
+Build from this folder:
 
 ```sh
 npm run build

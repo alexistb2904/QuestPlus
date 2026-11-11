@@ -11,7 +11,7 @@ import java.util.List;
  * GPU regression matrix in an isolated run directory, selected by the
  * compatibility launcher.
  */
-final class TabletCompatibilityTest {
+public final class TabletCompatibilityTest {
 	static void run(ClientGameTestContext context) {
 		var packs = new ArrayList<String>();
 		packs.add("");
@@ -212,7 +212,7 @@ final class TabletCompatibilityTest {
 		}
 	}
 
-	static void shader(String pack) {
+	public static void shader(String pack) {
 		try {
 			var iris = Class.forName("net.irisshaders.iris.Iris");
 			var config = iris.getMethod("getIrisConfig").invoke(null);

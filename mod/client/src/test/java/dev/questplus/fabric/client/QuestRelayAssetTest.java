@@ -30,7 +30,7 @@ class QuestRelayAssetTest {
     @Test void utilityItemsHaveSmallDropsAndExplicitHandPoses() throws Exception {
         for (String name : List.of("quest_relay", "submission_station", "quest_board")) {
             var display = json("models/item/" + name + ".json").getAsJsonObject("display");
-            String source = name.equals("quest_board") ? "quest_board_module" : name;
+            String source = name.equals("quest_board") ? "quest_board_module_15" : name;
             var editable = JsonParser.parseString(Files.readString(Path.of("questplus-assets/blockbench/world/" + source + ".bbmodel"))).getAsJsonObject();
             assertEquals(editable.getAsJsonObject("display"), display, "Editable poses must survive export: " + name);
             assertEquals(display.getAsJsonObject("thirdperson_righthand").get("rotation"), display.getAsJsonObject("thirdperson_lefthand").get("rotation"),

@@ -9,7 +9,7 @@
 
 Install Quest Plus and Fabric API in `mods/` on the client and server.
 
-**Player Animation Library 1.2.8** and **First Person PAL Expansion 1.1.1** are bundled inside Quest Plus. No separate animation download is needed. The 2D interface remains available in settings. Fabric API is still required separately.
+The tablet animations are built into Quest Plus. No separate animation library is needed. The 2D interface remains available in settings. Fabric API is still required separately.
 
 ## Check the installation
 
@@ -35,4 +35,4 @@ Use a QuestPlus ZIP exported by Studio. Back up the world and follow [Import and
 
 For a modpack, distribute `config/questplus/default/` so new worlds start with your quests. Follow the [modpack creator guide](/guide/modpack-creators) before updating an existing world.
 
-[Use the tablet](/guide/tablet) · [Compatibility](/guide/compatibility) · [Troubleshooting](/guide/troubleshooting)
+[Use the tablet](/guide/tablet) · [Quest blocks](/guide/world-blocks) · [Quest givers and loot crates](/guide/givers-and-crates) · [Compatibility](/guide/compatibility) · [Troubleshooting](/guide/troubleshooting)

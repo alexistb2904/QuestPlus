@@ -16,6 +16,7 @@ public final class QuestResourceTheme {
 	private static QuestThemeRules theme = QuestThemeRules.parse("");
 	private static Map<String, String> global = Map.of();
 	private static final Map<String, Map<String, String>> CACHE = new HashMap<>();
+	private static long catalogue = -1;
 	private static final Set<String> SHAPES = new HashSet<>();
 
 	private QuestResourceTheme() {
@@ -50,10 +51,17 @@ public final class QuestResourceTheme {
 	}
 
 	static int color(QuestDefinition quest, String property, int fallback) {
-		String key = quest.id() + "\0" + quest.presentation().tags();
-		return QuestThemeRules.color(
-				CACHE.computeIfAbsent(key, ignored -> theme.properties(quest.id(), quest.presentation().tags())),
-				property, fallback);
+		// Per chart node and edge per frame. A quest's tags only change with a new
+		// catalogue, so the id is the key and the cache is dropped with the catalogue.
+		long revision = QuestPlusClient.STATE.catalogueRevision;
+		if (revision != catalogue) {
+			CACHE.clear();
+			catalogue = revision;
+		}
+		var properties = CACHE.get(quest.id());
+		if (properties == null)
+			CACHE.put(quest.id(), properties = theme.properties(quest.id(), quest.presentation().tags()));
+		return QuestThemeRules.color(properties, property, fallback);
 	}
 
 	static void ensureShape(String shape) {

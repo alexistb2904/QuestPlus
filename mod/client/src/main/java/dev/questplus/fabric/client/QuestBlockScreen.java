@@ -8,12 +8,17 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import java.util.*;
+import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
 /** Uses the tablet's native controls; the server owns every applied value. */
 public final class QuestBlockScreen extends Screen {
+    private final net.minecraft.client.gui.Font font=QuestSkin.font();
     private QuestBlockNetwork.Snapshot snapshot;
     private JsonObject state,config;
-    private QuestTextField quests,objective,category,threshold,owner;
+    /** Fields, then option rows, then the resource line, under the shared header. */
+    private static final int WIDTH=320,HEIGHT=294,FIELDS=BAR+8,OPTIONS=BAR+104;
+    private QuestTextField quests,objective,category,threshold;
+    private QuestButton owner;
     private int size,left,top,scroll;
     private boolean editable;
     private String draftOwner;
@@ -33,7 +38,7 @@ public final class QuestBlockScreen extends Screen {
     }
     @Override protected void init(){
         clearWidgets();
-        left=(width-320)/2;top=Math.max(8,(height-310)/2)-scroll;labels.clear();
+        left=Math.max(0,(width-WIDTH)/2);top=Math.max(8,(height-HEIGHT)/2)-scroll;labels.clear();
         quests=field("quests",config.getAsJsonArray("quests").asList().stream().map(JsonElement::getAsString).collect(java.util.stream.Collectors.joining(",")),0,8192);
         objective=field("objective",config.get("objective").getAsString(),1,128);
         category=field("category",config.get("category").getAsString(),2,128);
@@ -43,16 +48,15 @@ public final class QuestBlockScreen extends Screen {
             var player=value.getAsJsonObject();
             if(player.get("id").getAsString().equals(draftOwner))ownerName=player.get("name").getAsString();
         }
-        owner=field("owner",ownerName,4,64);owner.setWidth(176);owner.setEditable(false);
-        button(Component.literal("…"),left+288,top+130,20,()->{
+        owner=addRenderableWidget(QuestBlockChrome.owner(tr("owner_name",ownerName),left,top,WIDTH,()->{
             collect();
             var choices=state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                     .map(p->new QuestBlockPicker.Choice(p.get("id").getAsString(),p.get("name").getAsString())).toList();
             minecraft.gui.setScreen(new QuestBlockPicker(this,tr("owner"),choices,chosen->{draftOwner=chosen;}));
-        }).hoverText(tr("owner"));
+        }));owner.active=editable;
         cycle("scope",List.of("PERSONAL","TEAM"),0,0);
         int kind=state.get("kind").getAsInt();
-        button(tr("pick_quest"),left+168,top+153,140,()->{
+        button(tr("pick_quest"),left+168,top+OPTIONS,140,()->{
             collect();
             var choices=QuestBlockPicker.questChoices();
             minecraft.gui.setScreen(new QuestBlockPicker(this,choices,id->{
@@ -67,45 +71,46 @@ public final class QuestBlockScreen extends Screen {
         if(kind==0){
             cycle("boardMode",List.of("pinned","automatic","mixed","leaderboard"),1,0);
             cycle("leaderboard",List.of("players","teams","contributions"),2,0);
-            button(tr("size",sizeName()),left+168,top+176,140,()->{size=(size+1)%4;rebuildWidgetsPreserving();});
+            button(tr("size",sizeName()),left+168,top+OPTIONS+24,140,()->{size=(size+1)%4;rebuildWidgetsPreserving();});
         }else if(kind==1){
             toggle("automation",1,0);toggle("advanceTiers",2,0);
             int faces=config.get("faces").getAsInt();
             for(int i=0;i<6;i++){final int side=i;
-                var b=button(tr("face."+net.minecraft.core.Direction.values()[i].getName()),left+12+i*48,top+225,44,()->{
+                var b=button(tr("face."+net.minecraft.core.Direction.values()[i].getName()),left+12+i*50,top+OPTIONS+72,46,()->{
                     config.addProperty("faces",config.get("faces").getAsInt()^(1<<side));rebuildWidgetsPreserving();
                 });b.selected((faces&(1<<i))!=0);
             }
-            button(tr("pick_objective"),left+168,top+176,140,()->{
+            button(tr("pick_objective"),left+168,top+OPTIONS+24,140,()->{
                 collect();String id=config.getAsJsonArray("quests").isEmpty()?"":config.getAsJsonArray("quests").get(0).getAsString();
                 var q=QuestPlusClient.STATE.quests.get(id);if(q==null)return;
                 var choices=q.objectives().stream().filter(o->Set.of("item_turn_in","fluid_submit","energy_submit").contains(o.event()))
                         .map(o->new QuestBlockPicker.Choice(o.id(),o.text().isEmpty()?o.id():QuestPlusClient.STATE.text(o.text()))).toList();
                 minecraft.gui.setScreen(new QuestBlockPicker(this,choices,chosen->{objective.setValue(chosen);collect();}));
             });
-            button(tr("return_items"),left+168,top+201,140,()->send("return_items"));
+            button(tr("return_items"),left+168,top+OPTIONS+48,140,()->send("return_items"));
         }else{
             cycle("condition",List.of("unlocked","started","completed","claimed","tier","stage"),1,0);
             cycle("output",List.of("binary","pulse","analog"),2,0);toggle("all",1,1);
         }
-        button(tr("save"),left+12,top+270,140,()->send("save"));
-        var close=addRenderableWidget(new QuestButton(tr("close"),left+168,top+270,140,20,this::onClose));close.active=true;
+        int footer=footerY(top,HEIGHT);
+        addRenderableWidget(new QuestButton(tr("save"),applyX(left,WIDTH),footer,APPLY,ROW,()->send("save"))).selected(true).active=editable;
+        addRenderableWidget(new QuestButton(tr("close"),closeX(left,WIDTH),footer,CLOSE,ROW,this::onClose));
     }
     private String sizeName(){return List.of("2×3","2×4","3×4","4×6").get(size);}
     private QuestTextField field(String key,String value,int row,int maximum){
-        var f=addRenderableWidget(new QuestTextField(font,left+104,top+30+row*25,204,21,tr(key)));
+        var f=addRenderableWidget(new QuestTextField(font,left+104,top+FIELDS+row*24,204,ROW,tr(key)));
         f.setMaxLength(maximum);f.setValue(value);f.setEditable(editable);labels.add(tr(key));return f;
     }
     private QuestButton button(Component label,int x,int y,int w,Runnable action){
         var b=addRenderableWidget(new QuestButton(label,x,y,w,20,action));b.active=editable;return b;
     }
     private void cycle(String key,List<String> values,int row,int column){
-        button(tr(key+"."+config.get(key).getAsString()),left+12+column*156,top+153+row*25,140,()->{
+        button(tr(key+"."+config.get(key).getAsString()),left+12+column*156,top+OPTIONS+row*24,140,()->{
             config.addProperty(key,values.get((values.indexOf(config.get(key).getAsString())+1)%values.size()));rebuildWidgetsPreserving();
         });
     }
     private void toggle(String key,int row,int column){
-        button(tr(key,config.get(key).getAsBoolean()?tr("yes"):tr("no")),left+12+column*156,top+153+row*25,140,()->{
+        button(tr(key,config.get(key).getAsBoolean()?tr("yes"):tr("no")),left+12+column*156,top+OPTIONS+row*24,140,()->{
             config.addProperty(key,!config.get(key).getAsBoolean());rebuildWidgetsPreserving();
         }).selected(config.get(key).getAsBoolean());
     }
@@ -119,21 +124,21 @@ public final class QuestBlockScreen extends Screen {
         collect();ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),action,config.toString(),draftOwner,size));
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
-        g.fill(0,0,width,height,0xb0101215);
-        QuestSkin.panel(g,left,top,320,302,0xff211a17,QuestSkin.EDGE);
-        g.centeredText(font,tr("kind."+state.get("kind").getAsInt()),left+160,top+6,QuestSkin.INK);
+        int kind=state.get("kind").getAsInt();
         String identity=state.has("ownerName")?state.get("ownerName").getAsString():"";
         if(state.has("teamName")&&!state.get("teamName").getAsString().isEmpty())identity+=" · "+state.get("teamName").getAsString();
-        g.centeredText(font,Component.literal(font.plainSubstrByWidth(identity,296)),left+160,top+19,QuestSkin.DIM);
-        for(int i=0;i<labels.size();i++)g.text(font,font.plainSubstrByWidth(labels.get(i).getString(),88),left+12,top+37+i*25,QuestSkin.DIM,false);
+        window(g,font,width,height,left,top,WIDTH,HEIGHT,new net.minecraft.world.item.ItemStack(kind==0?QuestWorldBlocks.BOARD:kind==1?QuestWorldBlocks.STATION:QuestWorldBlocks.RELAY),
+                tr("kind."+kind),identity,owner.getWidth()+8);
+        for(int i=0;i<labels.size();i++)QuestSkin.text(g,font,QuestSkin.fit(font,labels.get(i).getString(),88),left+12,top+FIELDS+6+i*24,QuestSkin.DIM,false);
         var status=state.get("error").getAsString().isEmpty()?tr("status."+state.get("status").getAsString()):tr("configuration_rejected");
         String statusText=status.getString()+(state.has("progress")?" · "+state.get("progress").getAsInt()+"%":"");
-        g.text(font,font.plainSubstrByWidth(statusText,296),left+12,top+248,QuestSkin.INK,false);
-        g.text(font,tr("resources",state.get("items").getAsInt(),state.get("fluid").getAsLong(),state.get("energy").getAsLong(),state.get("signal").getAsInt()),left+12,top+260,QuestSkin.DIM,false);
+        QuestSkin.text(g,font,QuestSkin.fit(font,tr("resources",state.get("items").getAsInt(),state.get("fluid").getAsLong(),state.get("energy").getAsLong(),state.get("signal").getAsInt()).getString(),WIDTH-2*PAD),
+                left+12,top+OPTIONS+98,QuestSkin.DIM,false);
+        footer(g,font,left,top,WIDTH,HEIGHT,Component.literal(statusText),state.get("error").getAsString().isEmpty()?QuestSkin.DIM:QuestSkin.ALERT,APPLY+GAP+CLOSE);
         super.extractRenderState(g,mx,my,delta);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical){
-        int maximum=Math.max(0,318-height),next=Math.max(0,Math.min(maximum,scroll-(int)(vertical*20)));
+        int maximum=Math.max(0,HEIGHT+16-height),next=Math.max(0,Math.min(maximum,scroll-(int)(vertical*20)));
         if(next==scroll)return super.mouseScrolled(x,y,horizontal,vertical);
         scroll=next;rebuildWidgetsPreserving();return true;
     }

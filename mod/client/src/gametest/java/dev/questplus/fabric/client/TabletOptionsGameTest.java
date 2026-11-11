@@ -40,6 +40,11 @@ final class TabletOptionsGameTest {
 					Files.writeString(file, json.toString());
 					if (ClientSettings.load().hud)
 						throw new AssertionError("Explicitly disabled HUD preference must be preserved");
+					json.addProperty("settingsVersion", 2);
+					Files.writeString(file, json.toString());
+					if (!ClientSettings.load().hud)
+						throw new AssertionError("The 1.0.0 default of hud=false must be switched on once");
+					json.addProperty("settingsVersion", 3);
 					json.addProperty("hud", true);
 					json.remove("treeResolution");
 					json.addProperty("scale", 1.25);

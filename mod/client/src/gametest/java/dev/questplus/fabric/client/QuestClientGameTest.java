@@ -19,6 +19,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		if(Boolean.getBoolean("questplus.boardClientTest")){dev.questplus.fabric.QuestBoardClientGameTest.run(context);return;}
+		if (Boolean.getBoolean("questplus.questGiverClientTest")) {
+			dev.questplus.fabric.QuestGiverClientGameTest.run(context);
+			return;
+		}
 		if (Boolean.getBoolean("questplus.relayClientTest")) {
 			dev.questplus.fabric.QuestRelayClientGameTest.run(context); return;
 		}
@@ -48,6 +52,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			TabletCarryGameTest.run(context);
 			return;
 		}
+		if (Boolean.getBoolean("questplus.worldBlocksShaders")) {
+			dev.questplus.fabric.WorldBlocksShaderGameTest.run(context);
+			return;
+		}
 		if (Boolean.getBoolean("questplus.tabletCompatibility")) {
 			TabletCompatibilityTest.run(context);
 			return;
@@ -73,6 +81,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			context.takeScreenshot("questplus-details");
 			context.runOnClient(
 					client -> client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
+			searchListTrial(context);
 			for (int[] resolution : new int[][] { { 1280, 800 }, { 1024, 768 }, { 1600, 900 } }) {
 				context.getInput().resizeWindow(resolution[0], resolution[1]);
 				context.waitTicks(5);
@@ -299,7 +308,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 							throw new AssertionError("The projected Quests tab click did not return to Quests");
 					});
 					context.takeScreenshot("questplus-native-" + cycle + "-scaled-details");
-					clickFace(context, 300, 59);
+					clickFace(context, 300, 34);
 					context.runOnClient(client -> {
 						if (hasButtonLabel(client, (QuestScreen) client.gui.screen(), "close_details")
 								|| !hasButtonLabel(client, (QuestScreen) client.gui.screen(), "filter.all"))
@@ -557,6 +566,60 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		}
 	}
 
+	/** Typing opens the side list without losing the caret; the chart is never filtered; Escape closes it. */
+	private static void searchListTrial(ClientGameTestContext context) {
+		int before = context.computeOnClient(client -> visibleNodes((QuestScreen) client.gui.screen()));
+		context.runOnClient(client -> {
+			var screen = (QuestScreen) client.gui.screen();
+			var box = searchBox(screen);
+			screen.setFocused(box);
+			box.setFocused(true);
+		});
+		context.getInput().typeChars("surface");
+		context.waitTicks(3);
+		context.runOnClient(client -> {
+			var screen = (QuestScreen) client.gui.screen();
+			var box = searchBox(screen);
+			if (!box.getValue().equals("surface") || !box.isFocused())
+				throw new AssertionError("Search field lost text or focus while the list opened: '" + box.getValue()
+						+ "', focused=" + box.isFocused());
+			try {
+				var field = QuestScreen.class.getDeclaredField("journal");
+				field.setAccessible(true);
+				if (((java.util.List<?>) field.get(screen)).isEmpty())
+					throw new AssertionError("Search list is empty for a quest title in the default pack");
+			} catch (ReflectiveOperationException failure) {
+				throw new AssertionError(failure);
+			}
+		});
+		context.takeScreenshot("questplus-search-list");
+		int during = context.computeOnClient(client -> visibleNodes((QuestScreen) client.gui.screen()));
+		if (during != before)
+			throw new AssertionError("Search changed the chart: " + before + " nodes before, " + during + " during");
+		context.runOnClient(client -> client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
+		context.waitTicks(2);
+		context.runOnClient(client -> {
+			var screen = (QuestScreen) client.gui.screen();
+			if (!(screen instanceof QuestScreen) || !searchBox(screen).getValue().isEmpty())
+				throw new AssertionError("Escape must clear the search and keep the tablet open");
+		});
+	}
+
+	private static EditBox searchBox(QuestScreen screen) {
+		return screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).findFirst()
+				.orElseThrow();
+	}
+
+	private static int visibleNodes(QuestScreen screen) {
+		try {
+			var field = QuestScreen.class.getDeclaredField("filtered");
+			field.setAccessible(true);
+			return ((java.util.Set<?>) field.get(screen)).size();
+		} catch (ReflectiveOperationException failure) {
+			throw new AssertionError(failure);
+		}
+	}
+
 	private static void categoryScrollTrial(ClientGameTestContext context) {
 		var original = context
 				.computeOnClient(client -> new java.util.LinkedHashMap<>(QuestPlusClient.STATE.categories));
@@ -590,7 +653,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				}
 			});
 			context.takeScreenshot("questplus-native-categories-scrolled");
-			clickFace(context, 17, 61);
+			clickFace(context, 17, 40);
 			context.runOnClient(client -> {
 				try {
 					var field = QuestScreen.class.getDeclaredField("category");

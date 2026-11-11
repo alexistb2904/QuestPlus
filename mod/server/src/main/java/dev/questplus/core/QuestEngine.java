@@ -17,14 +17,54 @@ public final class QuestEngine {
 
 	private final QuestRegistry registry;
 	private final LongSupplier clock;
+	/** Quests offered by an NPC: gameplay events only count once the attempt was accepted. */
+	private final Set<String> acceptRequired;
 
 	public QuestEngine(QuestRegistry registry) {
 		this(registry, System::currentTimeMillis);
 	}
 
 	public QuestEngine(QuestRegistry registry, LongSupplier clock) {
+		this(registry, clock, Set.of());
+	}
+
+	public QuestEngine(QuestRegistry registry, LongSupplier clock, Set<String> acceptRequired) {
 		this.registry = Objects.requireNonNull(registry);
 		this.clock = Objects.requireNonNull(clock);
+		this.acceptRequired = Set.copyOf(acceptRequired);
+	}
+
+	public boolean requiresAcceptance(String id) {
+		return acceptRequired.contains(id);
+	}
+
+	/** Why the quest cannot be accepted now, or empty when it can. */
+	public Optional<String> acceptBlocker(PlayerProgress player, String id, Map<String, Object> context) {
+		var q = registry.get(id);
+		var p = player.quests.get(id);
+		if (diagnostic(player, id).isPresent())
+			return diagnostic(player, id);
+		if (p != null && terminal(q, p))
+			return Optional.of("completed");
+		if (p != null && p.attemptId != null && !p.waitingRestart)
+			return Optional.of("active");
+		if (q.requires() != null && !q.requires().matches(context, prerequisiteState(player)))
+			return Optional.of("locked");
+		if (p != null && p.startedAt > 0 && clock.getAsLong() - p.startedAt < q.cooldownSeconds() * 1000)
+			return Optional.of("cooldown");
+		return Optional.empty();
+	}
+
+	/** Starts a new attempt for a player who accepted the quest from its NPC. */
+	public void accept(PlayerProgress player, String id, Map<String, Object> context) {
+		var blocker = acceptBlocker(player, id, context);
+		if (blocker.isPresent())
+			throw new IllegalArgumentException("Quest cannot be accepted: " + blocker.get());
+		var p = player.quests.computeIfAbsent(id, ignored -> fresh(registry.get(id)));
+		newAttempt(p);
+		p.attemptId = UUID.randomUUID().toString();
+		p.startedAt = clock.getAsLong();
+		player.revision++;
 	}
 
 	public List<String> apply(PlayerProgress player, QuestEvent event) {
@@ -87,6 +127,8 @@ public final class QuestEngine {
 			var q = candidate.quest();
 			var objective = candidate.objective();
 			var p = player.quests.get(q.id());
+			if (forced == null && acceptRequired.contains(q.id()) && (p == null || p.attemptId == null))
+				continue;
 			if (forced == null && !QuestExtensions.matchesObjective(objective, event))
 				continue;
 			if (forced == null && SUBMISSION_EVENTS.contains(event.type())) {
@@ -172,7 +214,9 @@ public final class QuestEngine {
 		}
 		List<Completion> result = new ArrayList<>();
 		Set<String> evaluated = new HashSet<>();
-		Set<String> unlocks = needsPrerequisites ? prerequisiteState(player) : null;
+		// Mutable copy, and only when something progressed: polled state events mostly change nothing.
+		Set<String> unlocks = needsPrerequisites && !touched.isEmpty() ? new HashSet<>(prerequisiteState(player))
+				: null;
 		while (!touched.isEmpty()) {
 			List<String> batch = List.copyOf(touched);
 			touched.clear();
@@ -239,7 +283,7 @@ public final class QuestEngine {
 			// can unlock already-satisfied flexible quests without another gameplay event.
 			if (result.size() > previousAwards && !registry.flexibleQuests().isEmpty()) {
 				if (unlocks == null)
-					unlocks = prerequisiteState(player);
+					unlocks = new HashSet<>(prerequisiteState(player));
 				for (var q : registry.flexibleQuests()) {
 					if (!q.progressBeforeUnlock() || evaluated.contains(q.id()))
 						continue;
@@ -390,10 +434,18 @@ public final class QuestEngine {
 		return p;
 	}
 
+	/**
+	 * Read-only snapshot, rebuilt only after {@code revision} moved: every engine
+	 * mutation bumps it, and detached copies start without a memo.
+	 */
 	public static Set<String> prerequisiteState(PlayerProgress player) {
-		Set<String> result = new HashSet<>();
-		player.quests.forEach((id, p) -> updatePrerequisiteState(result, id, p));
-		return result;
+		if (player.prerequisites == null || player.prerequisitesRevision != player.revision) {
+			Set<String> result = new HashSet<>();
+			player.quests.forEach((id, p) -> updatePrerequisiteState(result, id, p));
+			player.prerequisites = Collections.unmodifiableSet(result);
+			player.prerequisitesRevision = player.revision;
+		}
+		return player.prerequisites;
 	}
 
 	private static void updatePrerequisiteState(Set<String> result, String id, PlayerProgress.QuestProgress p) {

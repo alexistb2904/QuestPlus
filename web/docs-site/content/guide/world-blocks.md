@@ -2,13 +2,24 @@
 
 Bring quests into your world with three craftable blocks: a **Quest Board** for shared displays, a **Submission Station** for resource deposits, and a **Quest Relay** for redstone automation. Find them in the QuestPlus creative tab or craft them with the grids below. Every recipe produces **one block**.
 
+[![A small quest hub with a Submission Station under a hopper, a quest giver, a Quest Board on the wall and a Quest Relay under a redstone lamp](/media/hub.webp)](/media/hub.webp)
+
+_From left to right: a station fed by a hopper, a quest giver, a 4×2 board and a relay that powers a lamp._
+
+<details class="doc-clip">
+<summary>Watch the three blocks work together</summary>
+
+![A hopper feeds the station, the board row fills and the relay lights its lamp when the quest completes](/media/quest-blocks.gif)
+
+</details>
+
 ## Quest Board
 
 `questplus:quest_board`
 
-[![A four by two modular Quest Board displaying quest progress and player rankings in Minecraft](/media/blocks/board-world.png)](/media/blocks/board-world.png)
+[![A four by two modular Quest Board displaying quest progress and player rankings in Minecraft](/media/board-world.webp)](/media/board-world.webp)
 
-_Eight modules form this 4×2 display. Quest icons, objective counts and progress appear on the left player rankings appear on the right._
+_Eight modules form this 4×2 display. Quest icons, objective counts and progress appear on the left. Player rankings appear on the right._
 
 ### Craft and place
 
@@ -26,7 +37,7 @@ Use **4 iron ingots, 2 copper ingots, 2 planks and 1 blackstone** per module.
 
 ### Choose what it shows
 
-[![Quest Board configuration with progress scope, display modes, category filters and pinned quest ordering](/media/blocks/board-settings.png)](/media/blocks/board-settings.png)
+[![Quest Board configuration with progress scope, display modes, category filters and pinned quest ordering](/media/board-settings.webp)](/media/board-settings.webp)
 
 Right-click the board with an empty hand to open its configuration:
 
@@ -37,7 +48,7 @@ Right-click the board with an empty hand to open its configuration:
 
 Click **Apply** to save. Connected modules with the same owner share the configuration. Progress updates as you play.
 
-[![Quest Board leaderboard settings for players, teams and station contributions](/media/blocks/board-leaderboard.png)](/media/blocks/board-leaderboard.png)
+[![Quest Board leaderboard settings for players, teams and station contributions](/media/board-leaderboard.webp)](/media/board-leaderboard.webp)
 
 The **Leaderboard** tab selects player, team or contribution rankings. Contributions count resources submitted through stations. Larger boards can show rankings alongside their quest rows.
 
@@ -45,9 +56,9 @@ The **Leaderboard** tab selects player, team or contribution rankings. Contribut
 
 `questplus:submission_station`
 
-[![Submission Station in the world with its quest title and completed progress bar](/media/blocks/station-world.png)](/media/blocks/station-world.png)
+[![Submission Station in the world under a hopper, with its quest title and progress on the front screen](/media/station-world.webp)](/media/station-world.webp)
 
-_The front screen shows the linked quest and its progress. This example has received all eight required stone blocks._
+_The front screen shows the linked quest and its progress. A hopper on top feeds this station._
 
 ### Craft
 
@@ -61,7 +72,7 @@ Use **4 iron ingots, 2 planks, 1 hopper, 1 amethyst shard and 1 redstone dust**.
 
 ### Link a deposit objective
 
-[![Submission Station configuration showing the linked quest, objective progress, stored resources and input sides](/media/blocks/station-settings.png)](/media/blocks/station-settings.png)
+[![Submission Station configuration showing the linked quest, objective progress, stored resources and input sides](/media/station-settings.webp)](/media/station-settings.webp)
 
 1. Place the station and right-click it to open the settings. **Sneak-right-click** opens settings while holding a resource.
 2. Choose a quest, then a compatible resource-consuming objective. The picker lets you browse other quests too, but **Apply** stays disabled if the quest has no compatible deposit objective.
@@ -83,9 +94,9 @@ Breaking a station in survival preserves its configuration and stored resources 
 
 `questplus:quest_relay`
 
-[![Quest Relay blocks in Minecraft showing lit and unlit front indicators](/media/blocks/relay-world.png)](/media/blocks/relay-world.png)
+[![A Quest Relay with a lit front indicator powering the redstone lamp above it](/media/relay-world.webp)](/media/relay-world.webp)
 
-_The relay turns quest state into a redstone signal. Its front indicator shows the output state._
+_The relay turns quest state into a redstone signal. Its front indicator shows the output state, here after the linked quest completed._
 
 ### Craft
 
@@ -99,9 +110,7 @@ Use **1 amethyst shard, 2 copper ingots, 1 redstone dust and 3 stone**.
 
 ### Configure a signal
 
-[![Quest Relay configuration with quest selection, conditions and output controls, shown in French](/media/blocks/relay-settings.png)](/media/blocks/relay-settings.png)
-
-_This capture uses the French Minecraft language setting. The same controls are available in English._
+[![Quest Relay configuration with quest selection, trigger conditions and the live redstone output](/media/relay-settings.webp)](/media/relay-settings.webp)
 
 1. Place the relay near your redstone circuit and right-click it.
 2. Select personal or shared team progress, then link quests or select a category.
@@ -113,8 +122,8 @@ _This capture uses the French Minecraft language setting. The same controls are 
 | ------ | -------------------------------------------------------------------------------------------------- |
 | Binary | Signal 15 while the selected condition is true, otherwise 0                                        |
 | Pulse  | A four game tick pulse when the condition becomes true **or false**                                |
-| Analog | Signal 0–15 based on average quest progress tier mode uses reached tiers relative to the threshold |
+| Analog | Signal 0 to 15 based on average quest progress tier mode uses reached tiers relative to the threshold |
 
 For example, select a supply quest, choose **Completed**, and use **Binary** output to power a lamp when the delivery is finished. Use **Claimed** instead if the circuit should wait for reward collection. Analog output measures progress it does not simply switch to 15 when the selected condition becomes true.
 
-[Craft the tablet](/guide/tablet#hold-a-physical-tablet) · [Teams](/guide/teams) · [Objectives](/guide/objectives)
+[Quest givers and loot crates](/guide/givers-and-crates) · [Craft the tablet](/guide/tablet#hold-a-physical-tablet) · [Teams](/guide/teams) · [Objectives](/guide/objectives)

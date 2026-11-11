@@ -30,14 +30,14 @@ public final class QuestTextField extends EditBox {
 
 	@Override
 	public void extractWidgetRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
-		QuestSkin.panel(g, getX() - 4, getY() - 1, getWidth() + 8, getHeight() + 2, 0xff211a17,
-				isFocused() ? QuestSkin.HIGHLIGHT : QuestSkin.EDGE);
+		QuestSkin.panel(g, getX() - 4, getY() - 1, getWidth() + 8, getHeight() + 2, QuestSkin.FIELD,
+				isFocused() ? QuestSkin.INK : QuestSkin.LINE);
 		g.pose().pushMatrix();
 		g.pose().translate(0, Math.max(0, (getHeight() - 8) / 2));
 		super.extractWidgetRenderState(g, mouseX, mouseY, delta);
 		if (hint != null && getValue().isEmpty() && !isFocused()) {
-			String text = font.plainSubstrByWidth(hint.getString(), getWidth());
-			g.centeredText(font, Component.literal(text), getX() + getWidth() / 2, getY(), QuestSkin.DIM);
+			QuestSkin.centered(g, font, Component.literal(QuestSkin.fit(font, hint.getString(), getWidth())),
+					getX() + getWidth() / 2, getY(), QuestSkin.DIM);
 		}
 		g.pose().popMatrix();
 	}

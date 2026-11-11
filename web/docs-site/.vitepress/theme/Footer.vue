@@ -17,7 +17,7 @@ import { withBase } from "vitepress";
 				<a :href="withBase('/guide/install.html')">Get started</a>
 				<a :href="withBase('/guide/tablet.html')">The quest tablet</a>
 				<a :href="withBase('/guide/studio.html')">Quest Studio guide</a>
-				<a class="QPFooter__studio" href="/QuestPlus/">Open Quest Studio <span aria-hidden="true">↗</span></a>
+				<a class="QPFooter__studio" href="https://quest.alexistb.com/">Open Quest Studio <span aria-hidden="true">↗</span></a>
 			</div>
 			<nav class="QPFooter__links" aria-label="Quest Plus links">
 				<strong>Find us</strong>

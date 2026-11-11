@@ -4,7 +4,7 @@ Build a small quest that asks the player to break eight oak logs and awards 25 X
 
 ## Create a category
 
-Open [Quest Studio](https://alexistb2904.github.io/QuestPlus/). If the startup dialog offers an existing draft, export it before replacing it. Choose **Create a new project**, then **Empty project**.
+Open [Quest Studio](https://quest.alexistb.com/). If the startup dialog offers an existing draft, export it before replacing it. Choose **Create a new project**, then **Empty project**.
 
 Select **Add Category**. Name it `First Steps` and choose an oak log as its icon. Keep the generated category ID. Categories organise the tablet and do not track progress themselves.
 

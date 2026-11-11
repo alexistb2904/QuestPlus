@@ -44,7 +44,7 @@ test("native screen materials preserve matte and emissive shader behavior", () =
 	const atlas = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java");
 	assert.match(shader, /return shaderActive && selfIlluminated;/);
 	assert.match(renderer, /RenderTypes\.entityCutout\(TabletSurfaceRenderer\.TEXTURE\)/);
-	assert.match(renderer, /RenderTypes\.entityTranslucentEmissive\(TabletSurfaceRenderer\.TEXTURE\)/);
+	assert.match(renderer, /RenderTypes\.eyes\(TabletSurfaceRenderer\.TEXTURE\)/);
 	assert.match(renderer, /RenderTypes\.entityTranslucent\(TabletSurfaceRenderer\.TEXTURE\)/);
 	assert.match(geometry, /LightCoordsUtil\.FULL_BRIGHT/);
 	assert.match(atlas, /TabletShaderCompat\.illuminatedScreen\(\)/);

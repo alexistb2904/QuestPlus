@@ -2,6 +2,10 @@
 
 Open **Settings** in the tablet. These preferences are local to your Minecraft client and do not change server quest definitions or rewards.
 
+[![The Settings tab of the tablet with display, HUD, notification and screen options](/media/settings.webp)](/media/settings.webp)
+
+_Every option applies as soon as you select it._
+
 ## Choose a display mode
 
 The animated 3D tablet and the flat 2D interface use the same quest layout and actions. Disable the tablet display option to use the flat view. Use **Interface scale** to make the complete interface larger or smaller.
@@ -18,8 +22,7 @@ _The flat view gives the same controls more direct screen space, without the 3D 
 
 **Self Illumination** controls whether the 3D screen provides its own light. **Screen brightness** dims that screen independently of the world. Neither option changes the flat interface colours.
 
-**Tree resolution** adjusts the 3D screen from 1× (500 × 300 pixels) to 8× (4000 × 2400). The new default, 6× (3000 × 1800), doubles the previous width and height. Changes apply immediately and keep interface size, tree zoom and pointer coordinates unchanged. Older configuration files receive the new default while retaining other preferences.
-
+**Tree resolution** adjusts the 3D screen from 1× (500 × 300 pixels) to 8× (4000 × 2400). The default is 4× (2000 × 1200), which keeps text sharp on the held tablet. Changes apply immediately and keep interface size, tree zoom and pointer coordinates unchanged.Z
 Increase it for more texture detail, or lower it to reduce GPU time and memory use. The screen's colour/depth texture uses about 45 MiB at 6× and 78 MiB at 8×. The flat interface renders directly to the Minecraft window. At extreme zoom-out, tiny letters remain limited by the number of pixels on your display.
 
 When a shader pack is active, QuestPlus automatically suppresses its background blur. Shader depth of field and reflections still come from the shader pack. Adjust those in Iris if they obscure the tablet.
@@ -30,7 +33,7 @@ _Shaders are optional. This example shows the 3D display with its illuminated sc
 
 ## Keep the HUD useful
 
-Pin up to three quests from their details. They remain pinned until you explicitly unpin them, including completed quests and repeatable or tiered quests between cycles. The HUD is enabled by default for new configurations and only appears when you have pinned quests. You can disable it in settings. Existing saved preferences are preserved.
+The HUD is enabled by default and only appears when you have pinned quests. You can disable it in settings. Existing saved preferences are preserved.
 
 HUD position and notification position are separate preferences. Move either display if it overlaps another mod's interface. Turning off notifications does not stop quest progress.
 

@@ -44,3 +44,13 @@ docs-site/.vitepress/.temp/
 profiles/
 *.jfr
 web/docs-site/.vitepress/.temp/
+
+# Local-only tooling, kept on the owner's machine and never published:
+# docs media export (scripts/docs/ is covered by docs/ above), showcase and
+# store kit capture, benchmarks, one-off checks and manual browser scripts.
+scripts/showcase/
+scripts/benchmark/
+scripts/profile-questplus.ps1
+scripts/verify-ftb-import.mjs
+web/editor/tests/browser-*.mjs
+.vscode/

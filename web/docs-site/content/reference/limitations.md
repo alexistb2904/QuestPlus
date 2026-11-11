@@ -30,4 +30,4 @@ The documentation media includes real Minecraft and Studio sessions. Those captu
 
 Protocol sessions and publication queues are process local. A larger deployment needs an explicit shared state design rather than several independent writers using one storage folder.
 
-[Compatibility](/guide/compatibility) · [Build and contribute](/reference/development) · [Media sources](/reference/media)
+[Compatibility](/guide/compatibility) · [Build and contribute](/reference/development)

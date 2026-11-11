@@ -57,7 +57,20 @@ class EnginePerformanceTest {
 	}
 
 	@Test
-	void fanoutSharesTwoSnapshotsAndKeepsPreEventStartedSemantics() throws Exception {
+	void prerequisiteSnapshotIsReusedUntilProgressChanges() throws Exception {
+		quest("first", "");
+		var engine = new QuestEngine(QuestRegistry.load(root, (kind, id) -> {
+		}));
+		var state = new PlayerProgress();
+		var before = QuestEngine.prerequisiteState(state);
+		assertSame(before, QuestEngine.prerequisiteState(state));
+		engine.grant(state, "test:first");
+		assertTrue(QuestEngine.prerequisiteState(state).contains("test:first"));
+		assertFalse(before.contains("test:first"), "Earlier snapshots stay pre-event");
+	}
+
+	@Test
+	void fanoutSharesSnapshotsAndKeepsPreEventStartedSemantics() throws Exception {
 		quest("first", "");
 		quest("not_started", ",\"requires\":{\"not\":{\"started\":\"test:first\"}}");
 		for (int i = 0; i < 100; i++)
@@ -74,7 +87,8 @@ class EnginePerformanceTest {
 		counted.scans = 0;
 		Set<String> changed = new HashSet<>();
 		engine.applyDetailed(state, event(), changed);
-		assertEquals(2, counted.scans);
+		// The pre-event snapshot is the memo left by the previous event; only the post-event one is rebuilt.
+		assertEquals(1, counted.scans);
 		assertEquals(101, changed.size());
 		assertFalse(changed.contains("test:not_started"));
 		for (int i = 0; i < 100; i++)

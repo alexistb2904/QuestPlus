@@ -352,7 +352,11 @@ public final class ClientProjection {
 		Set<String> claimableAny = new HashSet<>();
 		Map<String, Map.Entry<String, PlayerProgress.RewardGrant>> pending = new HashMap<>(),
 				receipts = new HashMap<>();
-		personal.entitlements.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+		// A progress delta projects a few quests: do not sort every receipt the player ever earned.
+		Set<String> projected = new HashSet<>();
+		quests.forEach(q -> projected.add(q.id()));
+		personal.entitlements.entrySet().stream().filter(entry -> projected.contains(entry.getValue().questId()))
+				.sorted(Map.Entry.comparingByKey()).forEach(entry -> {
 			if (!entry.getValue().rewards().isEmpty()
 					&& entry.getValue().rewards().stream().allMatch(r -> r.policy().autoClaim().equals("invisible")))
 				return;

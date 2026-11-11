@@ -64,6 +64,8 @@ public final class QuestRuntime implements AutoCloseable {
 	private boolean allowDuplicateTeamNames = true;
 	private boolean commandRewardsEnabled;
 	private boolean dropLootCrates;
+	private Map<String, QuestNpcs.Npc> npcs = Map.of();
+	private boolean npcTurnIn = true;
 	private Map<String, Integer> crateNoDrop = Map.of("passive", 4000, "monster", 600, "boss", 0);
 	private QuestRegistry registry;
 	private NamedRewardTables rewardTables;
@@ -72,6 +74,8 @@ public final class QuestRuntime implements AutoCloseable {
 	private QuestEngine engine;
 	private int autosaveTicks;
 	private int ticks;
+	/** Crate entitlement key -> tick it may auto-deliver; memory only, so a restart just delivers. */
+	private final Map<String, Integer> crateHolds = new HashMap<>();
 	/**
 	 * Autosave is gradual and bounds BOTH the main-thread snapshot cost and the
 	 * worker queue competing with durable claim transactions.
@@ -146,7 +150,7 @@ public final class QuestRuntime implements AutoCloseable {
 		assertThread();
 		var config = Defaults.readObject(definitions.resolve("config.json"));
 		if (!Set.of("schemaVersion", "autosaveSeconds", "teamRewardPolicy", "enableCommandRewards", "dropLootCrates",
-				"crateNoDrop", "allowDuplicateTeamNames").containsAll(config.keySet()) || !config.has("schemaVersion")
+				"crateNoDrop", "allowDuplicateTeamNames", "npcTurnIn", "npcs").containsAll(config.keySet()) || !config.has("schemaVersion")
 				|| !config.has("autosaveSeconds") || !config.get("schemaVersion").isJsonPrimitive()
 				|| !config.get("schemaVersion").getAsJsonPrimitive().isNumber()
 				|| config.get("schemaVersion").getAsBigDecimal().intValueExact() != 1)
@@ -172,6 +176,10 @@ public final class QuestRuntime implements AutoCloseable {
 				|| !config.getAsJsonPrimitive("dropLootCrates").isBoolean()))
 			throw new IllegalArgumentException("dropLootCrates must be boolean");
 		boolean candidateDrops = config.has("dropLootCrates") && config.get("dropLootCrates").getAsBoolean();
+		if (config.has("npcTurnIn") && (!config.get("npcTurnIn").isJsonPrimitive()
+				|| !config.getAsJsonPrimitive("npcTurnIn").isBoolean()))
+			throw new IllegalArgumentException("npcTurnIn must be boolean");
+		boolean candidateTurnIn = !config.has("npcTurnIn") || config.get("npcTurnIn").getAsBoolean();
 		Map<String, Integer> candidateNoDrop = new HashMap<>(Map.of("passive", 4000, "monster", 600, "boss", 0));
 		if (config.has("crateNoDrop")) {
 			var weights = config.getAsJsonObject("crateNoDrop");
@@ -391,6 +399,11 @@ public final class QuestRuntime implements AutoCloseable {
 		for (var quest : candidate.all())
 			if (!categoryIds.contains(quest.category()))
 				throw new IllegalArgumentException("Unknown category: " + quest.category());
+		Set<String> questIds = new HashSet<>();
+		candidate.all().forEach(q -> questIds.add(q.id()));
+		var candidateNpcs = QuestNpcs.parse(config.get("npcs"), questIds, this::validateRegistryReference);
+		Set<String> offered = new HashSet<>();
+		candidateNpcs.values().forEach(npc -> offered.addAll(npc.quests()));
 		if (!activate)
 			return;
 		registry = candidate;
@@ -399,7 +412,9 @@ public final class QuestRuntime implements AutoCloseable {
 				Comparator.comparingInt(ClientProjection.Category::order).thenComparing(ClientProjection.Category::id))
 				.toList();
 		catalogGeneration++;
-		engine = new QuestEngine(candidate);
+		engine = new QuestEngine(candidate, System::currentTimeMillis, offered);
+		npcs = candidateNpcs;
+		npcTurnIn = candidateTurnIn;
 		if (teams != null) {
 			teams.registry(candidate);
 			teams.allowDuplicateNames(candidateDuplicateNames);
@@ -411,6 +426,7 @@ public final class QuestRuntime implements AutoCloseable {
 		crateNoDrop = Map.copyOf(candidateNoDrop);
 		autosaveTicks = seconds * 20;
 		QuestNetwork.invalidateAll(server);
+		server.getPlayerList().getPlayers().forEach(QuestGiverNetwork::sendLooks);
 		QuestPlusAdapters.definitionsReloaded();
 	}
 
@@ -500,7 +516,19 @@ public final class QuestRuntime implements AutoCloseable {
 	}
 
 	public List<QuestDefinition> visibleQuests(UUID id) throws IOException {
-		return ClientProjection.visible(registry.all(), state(id));
+		var state = state(id);
+		// An NPC's quests are found in the world: they join the tablet once accepted.
+		return ClientProjection.visible(registry.all().stream()
+				.filter(q -> !engine.requiresAcceptance(q.id()) || state.quests.containsKey(q.id())).toList(), state);
+	}
+
+	public Map<String, QuestNpcs.Npc> npcs() {
+		return npcs;
+	}
+
+	/** Whether this reward waits for the player to return to the quest's NPC. */
+	boolean heldForNpc(String questId) {
+		return npcTurnIn && engine.requiresAcceptance(questId);
 	}
 
 	public QuestDefinition visibleQuest(UUID player, String id) throws IOException {
@@ -524,7 +552,7 @@ public final class QuestRuntime implements AutoCloseable {
 				throw e;
 			}
 		}
-		for (String quest : List.copyOf(value.legacyUnclaimed))
+		for (String quest : value.legacyUnclaimed.isEmpty() ? List.<String>of() : List.copyOf(value.legacyUnclaimed))
 			if (registry.find(quest).isPresent()) {
 				if (!value.claims.containsKey(quest))
 					value.entitlements.putIfAbsent(quest,
@@ -551,8 +579,13 @@ public final class QuestRuntime implements AutoCloseable {
 		return value;
 	}
 
+	/** Listed from disk once: every later save belongs to a UUID already in {@code players}. */
+	private Set<UUID> savedPlayers;
+
 	Set<UUID> knownPlayers() throws IOException {
-		var result = new HashSet<>(store.playerIds()); result.addAll(players.keySet()); return result;
+		if (savedPlayers == null)
+			savedPlayers = store.playerIds();
+		var result = new HashSet<>(savedPlayers); result.addAll(players.keySet()); return result;
 	}
 
 	public TeamManager teams() {
@@ -942,7 +975,19 @@ public final class QuestRuntime implements AutoCloseable {
 		}
 	}
 
+	/** Display-only outcome of a crate already consumed and durably entitled. */
+	public record OpenedCrate(String key, List<ItemStack> display, int rarity) {
+	}
+
 	public void openCrate(ServerPlayer actor, net.minecraft.world.InteractionHand hand) throws IOException {
+		openCrate(actor, hand, 0);
+		actor.sendSystemMessage(net.minecraft.network.chat.Component.translatableWithFallback("questplus.crate.opened",
+				"Loot crate opened; rewards are saved and delivered when inventory space is available."));
+	}
+
+	/** Rolls on the server; auto-delivery waits {@code holdTicks} so the reveal plays first. */
+	public OpenedCrate openCrate(ServerPlayer actor, net.minecraft.world.InteractionHand hand, int holdTicks)
+			throws IOException {
 		assertThread();
 		ensureFree(group(actor.getUUID()));
 		if (actor.isCreative() || actor.isSpectator())
@@ -956,11 +1001,27 @@ public final class QuestRuntime implements AutoCloseable {
 				.orElseThrow(() -> new IllegalArgumentException("Loot crate has no table"));
 		var list = new JsonArray();
 		list.add(rewardTables.crate(name));
-		var rewards = RewardTables.resolve(QuestRegistry.rewards(list, this::validateRegistryReference)).stream()
-				.map(r -> r.withPolicy(new QuestDefinition.RewardPolicy(false, "enabled", false))).toList();
+		double[] chance = { 1 };
+		var rewards = RewardTables.resolve(QuestRegistry.rewards(list, this::validateRegistryReference), chance)
+				.stream().map(r -> r.withPolicy(new QuestDefinition.RewardPolicy(false, "enabled", false))).toList();
+		var display = new ArrayList<ItemStack>();
+		for (var reward : rewards) {
+			if (display.size() == 8)
+				break;
+			if (reward.type().equals("item")) {
+				var stacks = QuestItemStacks.rewards(reward, server.registryAccess());
+				if (!stacks.isEmpty())
+					display.add(stacks.getFirst().copyWithCount(Math.min(reward.count(), 99)));
+			} else if (reward.type().startsWith("experience"))
+				display.add(new ItemStack(net.minecraft.world.item.Items.EXPERIENCE_BOTTLE,
+						Math.max(1, Math.min(reward.amount(), 99))));
+		}
+		int rarity = RewardTables.rarity(chance[0]);
+		for (var shown : display)
+			rarity = Math.max(rarity, shown.getRarity().ordinal());
+		String key = "questplus:crate|" + UUID.randomUUID();
 		var personal = JsonProgressStore.detachedCopy(player(actor.getUUID()));
-		personal.entitle("questplus:crate|" + UUID.randomUUID(),
-				new PlayerProgress.RewardGrant("questplus:crate", rewards));
+		personal.entitle(key, new PlayerProgress.RewardGrant("questplus:crate", rewards));
 		var before = new ArrayList<ItemStack>();
 		var after = new ArrayList<ItemStack>();
 		int selected = -1;
@@ -974,9 +1035,20 @@ public final class QuestRuntime implements AutoCloseable {
 		if (selected < 0)
 			throw new IllegalStateException("Crate moved before opening");
 		after.get(selected).shrink(1);
-		commitInventory(actor, before, after, Map.of(actor.getUUID(), personal), Map.of());
-		actor.sendSystemMessage(net.minecraft.network.chat.Component.translatableWithFallback("questplus.crate.opened",
-				"Loot crate opened; rewards are saved and delivered when inventory space is available."));
+		if (holdTicks > 0)
+			crateHolds.put(key, ticks + holdTicks);
+		try {
+			commitInventory(actor, before, after, Map.of(actor.getUUID(), personal), Map.of());
+		} catch (IOException | RuntimeException error) {
+			crateHolds.remove(key);
+			throw error;
+		}
+		return new OpenedCrate(key, List.copyOf(display), rarity);
+	}
+
+	/** The reveal could not be shown: deliver as soon as possible. */
+	public void releaseCrateHold(String key) {
+		crateHolds.remove(key);
 	}
 
 	void dropCrate(net.minecraft.world.entity.LivingEntity entity) {
@@ -1145,16 +1217,21 @@ public final class QuestRuntime implements AutoCloseable {
 		}
 		try {
 			UUID uuid = player.getUUID();
-			PlayerProgress progress = state(uuid);
+			// Polled state events fire many times a second per player: once loaded, skip
+			// player()'s O(entitlements) normalization. Every reader of claims still goes through it.
+			PlayerProgress personal = players.get(uuid);
+			if (personal == null)
+				personal = player(uuid);
+			PlayerProgress progress = teams.progress(uuid, teams.scope(uuid));
 			Map<String, Map<String, Long>> before = captureObjectiveProgress(progress, event);
 			long revision = progress.revision;
 			Set<String> updated = new HashSet<>();
 			var completed = engine.applyDetailed(progress, event, updated);
 			if (progress.revision != revision) {
-				if (progress == player(uuid))
+				if (progress == personal)
 					dirty.add(uuid);
 				else
-					dirtyTeams.add(player(uuid).teamId);
+					dirtyTeams.add(personal.teamId);
 				group(uuid).forEach(member -> QuestNetwork.invalidateProgress(member, updated));
 			}
 			publishObjectiveProgress(uuid, progress, event, before);
@@ -1195,6 +1272,8 @@ public final class QuestRuntime implements AutoCloseable {
 			autosaveDraining = true;
 		if (autosaveDraining && ticks % 2 == 0)
 			flushDirty();
+		if (ticks % 200 == 0)
+			crateHolds.values().removeIf(until -> until - ticks <= 0);
 		// Keep the tick-time budget independent of the number of online players.
 		// Failed auto-claims are retried on the next round (including when inventory
 		// space becomes available).
@@ -1211,6 +1290,8 @@ public final class QuestRuntime implements AutoCloseable {
 					Map.Entry<String, PlayerProgress.RewardGrant> next = null;
 					for (var entry : personal.entitlements.entrySet()) {
 						if (personal.claims.containsKey(entry.getKey()) || entry.getValue().rewards().isEmpty()
+								|| heldForNpc(entry.getValue().questId())
+								|| crateHolds.getOrDefault(entry.getKey(), ticks) - ticks > 0
 								|| entry.getValue().rewards().stream()
 										.anyMatch(r -> r.policy().autoClaim().equals("disabled")
 												|| r.type().equals("questplus:choice")))
@@ -1485,7 +1566,7 @@ public final class QuestRuntime implements AutoCloseable {
 		var state = player(uuid);
 		List<String> ids = state.entitlements.entrySet().stream()
 				.filter(e -> visible.contains(e.getValue().questId()) && !state.claims.containsKey(e.getKey())
-						&& !e.getValue().rewards().isEmpty()
+						&& !e.getValue().rewards().isEmpty() && !heldForNpc(e.getValue().questId())
 						&& e.getValue().rewards().stream().noneMatch(
 								r -> r.type().equals("questplus:choice") || r.policy().excludeFromClaimAll()))
 				.sorted(Map.Entry.comparingByKey()).map(Map.Entry::getKey).toList();
@@ -1630,10 +1711,41 @@ public final class QuestRuntime implements AutoCloseable {
 	}
 
 	public void claim(ServerPlayer player, String id) throws IOException {
+		requireNotHeld(player, id);
 		claim(player, id, null, null);
 	}
 
+	private void requireNotHeld(ServerPlayer player, String id) {
+		if (!heldForNpc(id))
+			return;
+		String locale = player.clientInformation().language();
+		String names = String.join(" / ", npcs.values().stream().filter(npc -> npc.quests().contains(id))
+				.map(npc -> Localization.text(npc.name(), locale, Map.of())).toList());
+		throw new IllegalArgumentException(Messages.text(player, "questplus.npc.return", names).getString());
+	}
+
+	/** Accept an NPC's quest: its objectives start counting from now. */
+	public void acceptFromNpc(ServerPlayer actor, QuestNpcs.Npc npc, String questId) throws IOException {
+		assertThread();
+		if (!npc.quests().contains(questId))
+			throw new IllegalArgumentException("This NPC does not offer " + questId);
+		ensureFree(group(actor.getUUID()));
+		engine.accept(state(actor.getUUID()), questId, QuestPlusMod.context(actor));
+		changed(actor.getUUID());
+	}
+
+	/** Turn in at the NPC that gave the quest. */
+	public void claimFromNpc(ServerPlayer player, QuestNpcs.Npc npc, String questId) throws IOException {
+		if (!npc.quests().contains(questId))
+			throw new IllegalArgumentException("This NPC does not offer " + questId);
+		var quest = registry.get(questId);
+		claim(player, questId, null,
+				() -> QuestNetwork.notice(player, Messages.text(player, "questplus.client.toast.claimed").getString(),
+						title(player, quest), quest.icon()));
+	}
+
 	public void claimFromTablet(ServerPlayer player, String id) throws IOException {
+		requireNotHeld(player, id);
 		var quest = registry.find(id).orElse(null);
 		claim(player, id, null,
 				() -> QuestNetwork.notice(player, Messages.text(player, "questplus.client.toast.claimed").getString(),

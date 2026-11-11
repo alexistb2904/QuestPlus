@@ -8,13 +8,14 @@ allprojects {
             punchy: ['sodium', 'iris', 'punchy-fpa', 'punchymoves', 'fluid-foolish', '3dskinlayers'],
             nea: ['sodium', 'iris', 'not-enough-animations', '3dskinlayers'],
             firstperson: ['sodium', 'iris', 'not-enough-animations', 'first-person-model', '3dskinlayers'],
-            fresh: ['sodium', 'iris', 'entity-model-features', 'entitytexturefeatures', 'fresh-animations', 'fa-player-extension']
+            fresh: ['sodium', 'iris', 'entity-model-features', 'entitytexturefeatures', 'fresh-animations', 'fa-player-extension'],
+            blocks: ['sodium', 'iris']
         ]
         if (!profiles.containsKey(profile)) throw new GradleException('Unknown tablet profile: ' + profile)
         def testDir = file("build/tablet-compat/${profile}")
         loom.runs.clientGameTest {
             runDir testDir.absolutePath
-            vmArg '-Dquestplus.tabletCompatibility=true'
+            vmArg profile == 'blocks' ? '-Dquestplus.worldBlocksShaders=true' : '-Dquestplus.tabletCompatibility=true'
             if (providers.gradleProperty('tabletThirdPersonOnly').isPresent())
                 vmArg '-Dquestplus.tabletThirdPersonOnly=true'
             vmArg '-Xmx2G'

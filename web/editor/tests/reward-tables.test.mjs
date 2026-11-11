@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { category, emptyProject, fileMap, importDocuments, quest, validate } from "../src/core/project.js";
-import { poolError, poolProbabilities, simulatePool } from "../src/core/reward-tables.js";
+import { convertPool, crateGiveCommand, crateReward, crateTableName, poolError, poolProbabilities, renameRewardTable, simulatePool } from "../src/core/reward-tables.js";
 
 const loot = {
 	type: "questplus:loot",
@@ -64,4 +64,72 @@ test("named project tables survive ZIP documents as snapshots without entering s
 	assert.equal(project.rewardTables[0].reward.data.options[0].count, 3);
 	project.rewardTables.push({ name: "Miner loot", reward: loot });
 	assert.ok(validate(project).length);
+});
+test("crate tables export exactly the shared server fixture and give the same item mobs drop", () => {
+	const fixture = JSON.parse(readFileSync(new URL("../../../mod/server/src/test/resources/studio-crate-tables.json", import.meta.url), "utf8")),
+		project = emptyProject();
+	project.rewardTables = structuredClone(fixture.rewardTables);
+	assert.deepEqual(validate(project), []);
+	assert.deepEqual(JSON.parse(fileMap(project).get("queststudio-compatibility.json")), fixture);
+	assert.equal(
+		crateGiveCommand(project.rewardTables[0]),
+		'/give @s questplus:loot_crate[minecraft:custom_data={questplus_table:"Common chest"},minecraft:custom_name={text:"Coffre commun",color:"#4aa8ff"},minecraft:enchantment_glint_override=true]'
+	);
+	assert.equal(crateGiveCommand(project.rewardTables[1]), '/give @s questplus:loot_crate[minecraft:custom_data={questplus_table:"Jackpot"},minecraft:custom_name={text:"Jackpot"}]');
+	// The server rejects a crate whose resolved pool is a choice, even through an alias.
+	project.rewardTables.push({ name: "Choice alias", reward: { type: "questplus:table", data: { name: "Pick one" } }, crate: true });
+	assert.ok(validate(project).some((e) => e.message === "Crates cannot contain a player choice"));
+});
+test("changing a table's draw type keeps options and drops settings the new type rejects", () => {
+	const choice = convertPool(loot, "questplus:choice");
+	assert.equal(poolError(choice), "");
+	assert.deepEqual(Object.keys(choice.data), ["options"]);
+	assert.ok(choice.data.options.every((o) => o.weight === undefined));
+	const back = convertPool(choice, "questplus:loot");
+	assert.equal(poolError(back), "");
+	assert.deepEqual([back.data.rolls, back.data.emptyWeight, back.data.options[0].weight], [1, 1, 1]);
+	assert.equal(poolError(convertPool(loot, "questplus:all")), "");
+	assert.equal(loot.data.options[0].weight, 1, "source pool is not mutated");
+});
+test("renaming a reward table updates quest, tier and alias references", () => {
+	const project = emptyProject();
+	project.categories.push(category("c", "C"));
+	const q = quest("c", "Q");
+	q.rewards = [{ type: "questplus:table", data: { name: "Old" } }];
+	q.tiers = [{ id: "t", threshold: 1, rewards: [{ type: "questplus:table", data: { name: "Old" } }] }];
+	project.quests.push(q);
+	project.rewardTables = [
+		{ name: "Old", reward: structuredClone(loot) },
+		{ name: "Alias", reward: { type: "questplus:table", data: { name: "Old" } } },
+	];
+	renameRewardTable(project, "Old", "New");
+	assert.deepEqual(project.rewardTables.map((t) => t.name), ["New", "Alias"]);
+	assert.equal(project.rewardTables[1].reward.data.name, "New");
+	assert.equal(q.rewards[0].data.name, "New");
+	assert.equal(q.tiers[0].rewards[0].data.name, "New");
+});
+test("a loot crate reward gives the same item the server drops and is validated against its table", () => {
+	const project = emptyProject();
+	project.categories.push(category("c", "C"));
+	const q = quest("c", "Q");
+	const table = { name: "Ore box", crate: true, crateColor: "#55ffff", reward: structuredClone(loot) };
+	project.rewardTables = [table];
+	q.rewards = [crateReward(table, 2)];
+	project.quests.push(q);
+	assert.deepEqual(q.rewards[0].components, {
+		"minecraft:custom_data": { questplus_table: "Ore box" },
+		"minecraft:custom_name": { text: "Ore box", color: "#55ffff" },
+	});
+	assert.equal(crateTableName(q.rewards[0]), "Ore box");
+	assert.equal(crateTableName({ type: "item", item: "minecraft:diamond", count: 1 }), undefined);
+	const before = validate(project).length;
+	assert.ok(!validate(project).some((e) => /crate|Unknown reward table/.test(e.message)));
+	table.crate = false;
+	assert.ok(validate(project).some((e) => e.where === q.id && /not an openable crate/.test(e.message)));
+	table.crate = true;
+	assert.equal(validate(project).length, before, "a crate reward on a crate table adds no error");
+	renameRewardTable(project, "Ore box", "Gem box");
+	assert.equal(crateTableName(q.rewards[0]), "Gem box");
+	project.rewardTables = [];
+	assert.ok(validate(project).some((e) => e.where === q.id && /Unknown reward table/.test(e.message)));
 });

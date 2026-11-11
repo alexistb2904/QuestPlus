@@ -78,6 +78,20 @@ final class QuestCommands {
 												s -> QuestPlusMod.hub().previewImport(s,
 														StringArgumentType.getString(c, "pack"))))))
 								.then(migrationCommand())
+								.then(literal("npc")
+										.requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+										.then(argument("id", StringArgumentType.word())
+												.suggests((c, builder) -> net.minecraft.commands.SharedSuggestionProvider
+														.suggest(QuestPlusMod.runtime().npcs().keySet(), builder))
+												.executes(c -> execute(c, s -> {
+													var npc = QuestPlusMod.runtime().npcs()
+															.get(StringArgumentType.getString(c, "id"));
+													if (npc == null)
+														throw new IllegalArgumentException("Unknown NPC");
+													if (QuestGiver.spawn(s.getLevel(), npc,
+															net.minecraft.core.BlockPos.containing(s.getPosition())) == null)
+														throw new IllegalStateException("NPC could not be spawned");
+												}))))
 								.then(literal("debug")
 										.requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
 										.executes(

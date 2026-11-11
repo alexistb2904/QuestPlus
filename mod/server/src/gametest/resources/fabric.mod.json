@@ -16,6 +16,7 @@
 			"dev.questplus.fabric.TabletRecipeGameTest",
 			"dev.questplus.fabric.QuestStationDisplayGameTest",
 			"dev.questplus.fabric.QuestWorldBlocksGameTest",
+			"dev.questplus.fabric.QuestLootChestGameTest",
 			"dev.questplus.fabric.ObjectiveRuntimeEdgeCasesGameTest",
 			"dev.questplus.fabric.ObjectiveObservationGameTest",
 			"dev.questplus.fabric.ObjectiveConditionMatrixGameTest",

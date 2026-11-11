@@ -1,0 +1,407 @@
+{
+	"categories": [
+		{
+			"id": "questplus:explorers",
+			"order": 16,
+			"icon": "minecraft:filled_map",
+			"title": { "en_us": "The Explorers", "fr_fr": "Les Explorateurs" },
+			"description": {
+				"en_us": "The guild's members are scattered across the world. Find them in villages, ruins and camps: each one has a request for you.",
+				"fr_fr": "Les membres de la guilde sont dispersés à travers le monde. Trouvez-les dans les villages, les ruines et les campements : chacun a une requête pour vous."
+			},
+			"annotations": [
+				{
+					"id": "chapter_heading",
+					"x": 0,
+					"y": -266,
+					"style": "heading",
+					"color": "#c6a986",
+					"width": 400,
+					"height": 40,
+					"text": { "en_us": "Seek out the guild across the world.", "fr_fr": "Retrouvez la guilde aux quatre coins du monde." }
+				},
+				{
+					"id": "section_1",
+					"x": -413,
+					"y": -174,
+					"style": "label",
+					"color": "#b1a28e",
+					"width": 200,
+					"height": 24,
+					"text": { "en_us": "Marlo, in the villages", "fr_fr": "Marlo, dans les villages" }
+				},
+				{
+					"id": "section_2",
+					"x": -47,
+					"y": -174,
+					"style": "label",
+					"color": "#b1a28e",
+					"width": 200,
+					"height": 24,
+					"text": { "en_us": "Sela, in the ruins", "fr_fr": "Sela, dans les ruines" }
+				},
+				{
+					"id": "section_3",
+					"x": 319,
+					"y": -174,
+					"style": "label",
+					"color": "#b1a28e",
+					"width": 200,
+					"height": 24,
+					"text": { "en_us": "Oswin, on the roads", "fr_fr": "Oswin, sur les routes" }
+				},
+				{
+					"id": "section_01",
+					"x": -366,
+					"y": -138,
+					"width": 330,
+					"height": 128,
+					"style": "background",
+					"color": "#947b63",
+					"text": { "en_us": "Marlo, in the villages" }
+				},
+				{
+					"id": "section_02",
+					"x": 0,
+					"y": -138,
+					"width": 330,
+					"height": 128,
+					"style": "background",
+					"color": "#9a8456",
+					"text": { "en_us": "Sela, in the ruins" }
+				},
+				{
+					"id": "section_03",
+					"x": 366,
+					"y": -138,
+					"width": 330,
+					"height": 128,
+					"style": "background",
+					"color": "#6f7d5c",
+					"text": { "en_us": "Oswin, on the roads" }
+				}
+			]
+		}
+	],
+	"quests": [
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/blank_pages",
+			"category": "questplus:explorers",
+			"icon": "minecraft:map",
+			"title": { "en_us": "Blank Pages", "fr_fr": "Pages blanches" },
+			"description": {
+				"en_us": "Every explorer starts with an empty map and a needle that points home. Make yours, and I will teach you to fill it.",
+				"fr_fr": "Tout explorateur commence avec une carte vierge et une aiguille qui pointe vers chez lui. Fabriquez les vôtres, je vous apprendrai à les remplir."
+			},
+			"objectives": [
+				{ "id": "compass", "event": "item_craft", "target": "minecraft:compass", "count": 1 },
+				{ "id": "map", "event": "item_craft", "target": "minecraft:map", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 150 },
+				{ "type": "item", "item": "minecraft:spyglass", "count": 1 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"layout": { "x": -474, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/four_winds",
+			"category": "questplus:explorers",
+			"icon": "minecraft:compass",
+			"title": { "en_us": "The Four Winds", "fr_fr": "Les quatre vents" },
+			"description": {
+				"en_us": "Sand, snow, jungle and red clay: a map is only worth the lands it has seen. Go and see them for me.",
+				"fr_fr": "Sable, neige, jungle et argile rouge : une carte ne vaut que par les terres qu'elle a vues. Allez les voir pour moi."
+			},
+			"objectives": [
+				{ "id": "desert", "event": "biome_visit", "target": "minecraft:desert", "count": 1 },
+				{ "id": "snow", "event": "biome_visit", "target": "minecraft:snowy_plains", "count": 1 },
+				{ "id": "jungle", "event": "biome_visit", "target": "minecraft:jungle", "count": 1 },
+				{ "id": "badlands", "event": "biome_visit", "target": "minecraft:badlands", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 300 },
+				{ "type": "item", "item": "minecraft:golden_carrot", "count": 16 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/blank_pages" },
+			"layout": { "x": -402, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/far_horizon",
+			"category": "questplus:explorers",
+			"icon": "minecraft:spyglass",
+			"title": { "en_us": "The Far Horizon", "fr_fr": "L'horizon lointain" },
+			"description": {
+				"en_us": "The edge of my map moves every time I reach it. Walk five kilometres and tell me where it went.",
+				"fr_fr": "Le bord de ma carte recule chaque fois que je l'atteins. Parcourez cinq kilomètres et dites-moi où il est parti."
+			},
+			"objectives": [
+				{ "id": "travel", "event": "travel_distance", "target": "questplus:travel", "count": 500000, "conditions": { "dimension": "minecraft:overworld" } }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 400 },
+				{ "type": "item", "item": "minecraft:ender_pearl", "count": 4 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/four_winds" },
+			"layout": { "x": -330, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/living_atlas",
+			"category": "questplus:explorers",
+			"icon": "minecraft:filled_map",
+			"title": { "en_us": "The Living Atlas", "fr_fr": "L'atlas vivant" },
+			"description": {
+				"en_us": "My atlas still lacks the villages of the far lands. Visit them, and the guild will remember your name.",
+				"fr_fr": "Il manque encore à mon atlas les villages des terres lointaines. Rendez-leur visite, et la guilde se souviendra de votre nom."
+			},
+			"objectives": [
+				{ "id": "desert", "event": "structure_visit", "target": "minecraft:village_desert", "count": 1 },
+				{ "id": "snowy", "event": "structure_visit", "target": "minecraft:village_snowy", "count": 1 },
+				{ "id": "savanna", "event": "structure_visit", "target": "minecraft:village_savanna", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 600 },
+				{ "type": "item", "item": "minecraft:emerald", "count": 16 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/far_horizon" },
+			"layout": { "x": -258, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/tombs_of_the_sands",
+			"category": "questplus:explorers",
+			"icon": "minecraft:chiseled_sandstone",
+			"title": { "en_us": "Tombs of Sand and Vine", "fr_fr": "Tombeaux de sable et de lianes" },
+			"description": {
+				"en_us": "Two temples, one under the sand, one under the leaves. Mind the traps: I lost a good friend to a tripwire.",
+				"fr_fr": "Deux temples, l'un sous le sable, l'autre sous les feuilles. Attention aux pièges : j'ai perdu un ami à cause d'un fil tendu."
+			},
+			"objectives": [
+				{ "id": "desert", "event": "structure_visit", "target": "minecraft:desert_pyramid", "count": 1 },
+				{ "id": "jungle", "event": "structure_visit", "target": "minecraft:jungle_pyramid", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 350 },
+				{ "type": "item", "item": "minecraft:golden_apple", "count": 2 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"layout": { "x": -72, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/sunken_gold",
+			"category": "questplus:explorers",
+			"icon": "minecraft:heart_of_the_sea",
+			"title": { "en_us": "Sunken Gold", "fr_fr": "L'or englouti" },
+			"description": {
+				"en_us": "Wrecks keep their captains' maps, and those maps lead to buried chests. Bring back the treasure's heart.",
+				"fr_fr": "Les épaves gardent les cartes de leurs capitaines, et ces cartes mènent à des coffres enterrés. Rapportez-en le cœur du trésor."
+			},
+			"objectives": [
+				{ "id": "wreck", "event": "structure_visit", "target": "minecraft:shipwreck", "count": 1 },
+				{ "id": "heart", "event": "item_obtained", "target": "minecraft:heart_of_the_sea", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 400 },
+				{ "type": "item", "item": "minecraft:diamond", "count": 2 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/tombs_of_the_sands" },
+			"layout": { "x": 0, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/patient_brushwork",
+			"category": "questplus:explorers",
+			"icon": "minecraft:brush",
+			"title": { "en_us": "Patient Brushwork", "fr_fr": "Coups de pinceau patients" },
+			"description": {
+				"en_us": "The oldest ruins hide under the gravel of the trails. Take a brush, and take your time.",
+				"fr_fr": "Les ruines les plus anciennes se cachent sous le gravier des sentiers. Prenez un pinceau, et prenez votre temps."
+			},
+			"objectives": [
+				{ "id": "brush", "event": "item_craft", "target": "minecraft:brush", "count": 1 },
+				{ "id": "ruins", "event": "structure_visit", "target": "minecraft:trail_ruins", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 300 },
+				{ "type": "item", "item": "minecraft:emerald", "count": 8 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/sunken_gold" },
+			"layout": { "x": 72, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/campfire_tales",
+			"category": "questplus:explorers",
+			"icon": "minecraft:campfire",
+			"title": { "en_us": "Campfire Tales", "fr_fr": "Histoires au coin du feu" },
+			"description": {
+				"en_us": "Sit down, traveller. Light a fire of your own and share some berries; the road is long and stories are free.",
+				"fr_fr": "Asseyez-vous, voyageur. Allumez votre propre feu et partagez quelques baies ; la route est longue et les histoires sont gratuites."
+			},
+			"objectives": [
+				{ "id": "campfire", "event": "item_craft", "target": "minecraft:campfire", "count": 1 },
+				{ "id": "berries", "event": "item_consume", "target": "minecraft:sweet_berries", "count": 5 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 150 },
+				{ "type": "item", "item": "minecraft:bundle", "count": 1 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"layout": { "x": 294, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/above_the_clouds",
+			"category": "questplus:explorers",
+			"icon": "minecraft:goat_horn",
+			"title": { "en_us": "Above the Clouds", "fr_fr": "Au-dessus des nuages" },
+			"description": {
+				"en_us": "From the highest peaks you can see three days of walking. Climb the jagged and the frozen ones.",
+				"fr_fr": "Du haut des plus hauts sommets, on voit trois jours de marche. Gravissez les pics déchiquetés et les pics gelés."
+			},
+			"objectives": [
+				{ "id": "jagged", "event": "biome_visit", "target": "minecraft:jagged_peaks", "count": 1 },
+				{ "id": "frozen", "event": "biome_visit", "target": "minecraft:frozen_peaks", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 300 },
+				{ "type": "item", "item": "minecraft:cooked_beef", "count": 16 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/campfire_tales" },
+			"layout": { "x": 366, "y": -111 }
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/edge_of_the_world",
+			"category": "questplus:explorers",
+			"icon": "minecraft:red_mushroom",
+			"title": { "en_us": "Edge of the World", "fr_fr": "Le bout du monde" },
+			"description": {
+				"en_us": "They say there are islands of giant mushrooms where no monster walks. Walk ten kilometres, find one, and come back to tell me.",
+				"fr_fr": "On raconte qu'il existe des îles de champignons géants où aucun monstre ne marche. Parcourez dix kilomètres, trouvez-en une, et revenez me raconter."
+			},
+			"objectives": [
+				{ "id": "travel", "event": "travel_distance", "target": "questplus:travel", "count": 1000000, "conditions": { "dimension": "minecraft:overworld" } },
+				{ "id": "mushrooms", "event": "biome_visit", "target": "minecraft:mushroom_fields", "count": 1 }
+			],
+			"rewards": [
+				{ "type": "experience", "amount": 800 },
+				{ "type": "item", "item": "minecraft:diamond", "count": 4 }
+			],
+			"progression": "once",
+			"objectiveMode": "all",
+			"requires": { "quest": "questplus:explorers/above_the_clouds" },
+			"layout": { "x": 438, "y": -111 }
+		}
+	],
+	"npcs": [
+		{
+			"id": "marlo_cartographer",
+			"name": {
+				"en_us": "Marlo the Cartographer",
+				"fr_fr": "Marlo le cartographe"
+			},
+			"model": "villager",
+			"villager": "taiga",
+			"quests": [
+				"questplus:explorers/blank_pages",
+				"questplus:explorers/four_winds",
+				"questplus:explorers/far_horizon",
+				"questplus:explorers/living_atlas"
+			],
+			"spawns": [
+				{
+					"type": "structure",
+					"target": "minecraft:village_taiga",
+					"chance": 0.5
+				},
+				{
+					"type": "structure",
+					"target": "#minecraft:village",
+					"chance": 0.25
+				}
+			]
+		},
+		{
+			"id": "sela_treasure_hunter",
+			"name": {
+				"en_us": "Sela the Treasure Hunter",
+				"fr_fr": "Sela la chasseuse de trésors"
+			},
+			"model": "villager",
+			"villager": "desert",
+			"quests": [
+				"questplus:explorers/tombs_of_the_sands",
+				"questplus:explorers/sunken_gold",
+				"questplus:explorers/patient_brushwork"
+			],
+			"spawns": [
+				{
+					"type": "structure",
+					"target": "minecraft:desert_pyramid",
+					"chance": 0.5
+				},
+				{
+					"type": "structure",
+					"target": "minecraft:jungle_pyramid",
+					"chance": 0.5
+				},
+				{
+					"type": "structure",
+					"target": "minecraft:trail_ruins",
+					"chance": 0.4
+				},
+				{
+					"type": "structure",
+					"target": "#minecraft:village",
+					"chance": 0.05
+				}
+			]
+		},
+		{
+			"id": "oswin_wanderer",
+			"name": {
+				"en_us": "Oswin the Wanderer",
+				"fr_fr": "Oswin le vagabond"
+			},
+			"model": "player",
+			"quests": [
+				"questplus:explorers/campfire_tales",
+				"questplus:explorers/above_the_clouds",
+				"questplus:explorers/edge_of_the_world"
+			],
+			"spawns": [
+				{
+					"type": "structure",
+					"target": "#minecraft:abandoned_camp",
+					"chance": 0.6
+				},
+				{
+					"type": "random",
+					"target": "minecraft:overworld",
+					"chance": 0.002
+				}
+			]
+		}
+	]
+}

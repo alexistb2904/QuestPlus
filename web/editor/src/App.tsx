@@ -12,6 +12,7 @@ import {
 	Globe,
 	Grid2X2,
 	Hand,
+	Layers,
 	Magnet,
 	Minus,
 	MousePointer2,
@@ -26,6 +27,7 @@ import {
 	TriangleAlert,
 	Undo2,
 	Workflow,
+	X,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { BulkEditor } from "./components/BulkEditor";
@@ -37,6 +39,7 @@ import { Inspector } from "./components/Inspector";
 import { PaneSeparator } from "./components/PaneSeparator";
 import { QuestDetails } from "./components/QuestDetails";
 import { RegistryBrowser } from "./components/RegistryBrowser";
+import { QuestGiverLibrary } from "./components/QuestGiverLibrary";
 import { RewardTableLibrary } from "./components/RewardTableLibrary";
 import { Sidebar } from "./components/Sidebar";
 import { TemplateLibrary } from "./components/TemplateLibrary";
@@ -45,12 +48,13 @@ import { descriptionHtml, descriptionParts } from "./core/description-format.js"
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
 import { objectiveLabel, orderedCategories, text, validate } from "./core/project.js";
+import { renameRewardTable } from "./core/reward-tables.js";
 import { richToHtml } from "./core/rich-format.js";
 import { owner, useStudio } from "./hooks/useStudio";
 import { localesOf, supportedLocales } from "./types";
 import { setUiLocale, storedUiLocale, tUI } from "./ui/ui-i18n.js";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
-const docsUrl = import.meta.env.VITE_QUESTPLUS_DOCS_URL || "https://alexistb2904.github.io/QuestPlus/docs/";
+const docsUrl = import.meta.env.VITE_QUESTPLUS_DOCS_URL || "https://quest.alexistb.com/docs/";
 
 export default function App() {
 	const studio = useStudio(),
@@ -61,7 +65,11 @@ export default function App() {
 		setUiLocale(l);
 		return l;
 	});
-	const [startupStep, setStartupStep] = useState<"resume" | "create" | null>(() => (studio.hasPreviousProject ? "resume" : null));
+	// A Hub link (?session= / ?pack=) opens the Hub panel instead, so skip the startup choice.
+	const [startupStep, setStartupStep] = useState<"resume" | "create" | null>(() => {
+		const params = new URLSearchParams(window.location.search);
+		return studio.hasPreviousProject && !params.get("session") && !params.get("pack") ? "resume" : null;
+	});
 	const [translationRequest, setTranslationRequest] = useState(0);
 	const [picker, setPicker] = useState<string | null>(null),
 		[jsonOpen, setJsonOpen] = useState(false),
@@ -73,7 +81,12 @@ export default function App() {
 	const [importOpen, setImportOpen] = useState(false);
 	const [bulkOpen, setBulkOpen] = useState(false);
 	const [templatesOpen, setTemplatesOpen] = useState(false);
-	const [tablesOpen, setTablesOpen] = useState(false);
+	const [tablesOpen, setTablesOpen] = useState(false),
+		[tableFocus, setTableFocus] = useState(""),
+		/** The quest-giver library is open when set; the value is the NPC to show first. */
+		[giverFocus, setGiverFocus] = useState<string | null>(null),
+		[issueAlert, setIssueAlert] = useState<{ where: string; message: string } | null>(null),
+		alertedIssues = useRef<Set<string> | null>(null);
 	const [showQuestTitles, setShowQuestTitles] = useState(() => localStorage.getItem("questplus.quest-titles") === "true");
 	useEffect(() => {
 		localStorage.setItem("questplus.quest-titles", String(showQuestTitles));
@@ -124,6 +137,25 @@ export default function App() {
 		searchRef = useRef<HTMLInputElement>(null);
 	const locales = useMemo(() => localesOf(project), [project]),
 		issues = useMemo(() => validate(project), [project]);
+	// Announce a new validation problem once the author pauses, so a half-typed ID does not flash an alert on every key.
+	useEffect(() => {
+		const key = (x: { where: string; message: string }) => x.where + "\u0000" + x.message,
+			keys = new Set(issues.map(key));
+		if (!alertedIssues.current) {
+			alertedIssues.current = keys;
+			return;
+		}
+		const alerted = alertedIssues.current;
+		for (const k of alerted) if (!keys.has(k)) alerted.delete(k);
+		setIssueAlert((current) => (current && keys.has(key(current)) ? current : null));
+		const fresh = issues.find((x: { where: string; message: string }) => !alerted.has(key(x)));
+		if (!fresh) return;
+		const timer = window.setTimeout(() => {
+			alerted.add(key(fresh));
+			setIssueAlert(fresh);
+		}, 700);
+		return () => clearTimeout(timer);
+	}, [issues]);
 	const cat = studio.currentCategory,
 		quests = studio.quests;
 	const selected = selection?.type === "quest" ? project.quests.find((q) => q.id === selection.id) : undefined;
@@ -161,6 +193,18 @@ export default function App() {
 	};
 	const doAction = (type: string, index?: number) => {
 		if (type === "advanced-json") return editJson();
+		if (type.startsWith("enable-crate:")) {
+			const name = type.slice("enable-crate:".length);
+			return studio.mutate((s) => {
+				const table = s.project.rewardTables?.find((row) => row.name === name);
+				if (table && table.reward.type !== "questplus:choice") table.crate = true;
+			});
+		}
+		if (type.startsWith("open-reward-tables")) {
+			setTableFocus(type.slice("open-reward-tables:".length));
+			return setTablesOpen(true);
+		}
+		if (type.startsWith("open-quest-givers")) return setGiverFocus(type.slice("open-quest-givers:".length));
 		studio.action(type, index);
 	};
 	const goQuest = (id: string) => {
@@ -189,11 +233,17 @@ export default function App() {
 		onChooseIcon: setPicker,
 		onCondition: studio.changeCondition,
 		onAddLocale: studio.addLocale,
+		onConfig: (change: (config: any) => void, field = "config:npcs") =>
+			studio.mutate((state) => {
+				state.project.config ||= {};
+				change(state.project.config);
+			}, field),
 		onOpenTranslations: () => {
 			setTranslationRequest((value) => value + 1);
 			setMobilePanel("canvas");
 		},
 		translationRequest,
+		issues,
 	};
 	return (
 		<div className="app">
@@ -315,7 +365,13 @@ export default function App() {
 					<FolderOpen size={16} />
 					{tUI("Templates")}
 				</button>
-				<button className="button secondary" onClick={() => setTablesOpen(true)}>
+				<button
+					className="button secondary"
+					onClick={() => {
+						setTableFocus("");
+						setTablesOpen(true);
+					}}>
+					<Layers size={16} />
 					{tUI("Reward tables")}
 				</button>
 				<button className="button violet" onClick={studio.createCategory}>
@@ -497,7 +553,7 @@ export default function App() {
 					<div className={"issues-bar stone" + (issues.length ? " error" : "")} role="status">
 						<span className="issues-icon">{issues.length ? <TriangleAlert size={16} /> : <Check size={16} />}</span>
 						<button className="subtle validation-button" onClick={() => setIssuesOpen((v) => !v)} aria-expanded={issuesOpen}>
-							{issues.length ? issues.length + " " + tUI("errors") : tUI("Validation: No issues found")}
+							{issues.length ? issues.length + " " + tUI(issues.length === 1 ? "error · click to review" : "errors · click to review") : tUI("Validation: No issues found")}
 						</button>
 						<span className="pack-stats">
 							{project.quests.length} {tUI("Quests")}
@@ -672,12 +728,28 @@ export default function App() {
 				<RewardTableLibrary
 					project={studio.state.project}
 					language={language}
+					initial={tableFocus}
+					onRename={(from, to) =>
+						studio.mutate((s) => {
+							renameRewardTable(s.project, from, to);
+						})
+					}
 					onChange={(tables) =>
 						studio.mutate((s) => {
 							s.project.rewardTables = tables;
 						})
 					}
 					onClose={() => setTablesOpen(false)}
+				/>
+			)}
+			{giverFocus !== null && (
+				<QuestGiverLibrary
+					project={studio.state.project}
+					language={language}
+					initial={giverFocus}
+					quest={selected?.id}
+					onConfig={inspectorProps.onConfig}
+					onClose={() => setGiverFocus(null)}
 				/>
 			)}
 			{templatesOpen && (
@@ -833,6 +905,32 @@ export default function App() {
 				</Dialog>
 			)}
 			{studio.pendingImport && <FtbImportReview pendingImport={studio.pendingImport} onConfirm={studio.confirmFtbImport} onCancel={studio.cancelFtbImport} />}
+			{issueAlert && (
+				<div className="issue-toast" role="alert">
+					<TriangleAlert size={18} aria-hidden="true" />
+					<div>
+						<strong>{tUI("Validation error")}</strong>
+						<p>
+							<b>{tUI(issueAlert.where)}</b> — {tUI(issueAlert.message)}
+						</p>
+					</div>
+					<button
+						className="button secondary"
+						onClick={() => {
+							setIssuesOpen(true);
+							if (issueAlert.where === "Reward tables") {
+								setTableFocus("");
+								setTablesOpen(true);
+							} else if (project.quests.some((q) => q.id === issueAlert.where)) goQuest(issueAlert.where);
+							setIssueAlert(null);
+						}}>
+						{tUI("Show errors")}
+					</button>
+					<button className="icon-button" aria-label={tUI("Dismiss")} onClick={() => setIssueAlert(null)}>
+						<X size={16} />
+					</button>
+				</div>
+			)}
 			{studio.notice && (
 				<div className="toast show" role="status">
 					{studio.notice}

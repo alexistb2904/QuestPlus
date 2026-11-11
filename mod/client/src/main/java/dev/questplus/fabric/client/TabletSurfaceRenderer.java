@@ -109,6 +109,7 @@ public final class TabletSurfaceRenderer {
 		RenderSystem.backupProjectionMatrix();
 		try {
 			rendering = true;
+			dev.questplus.fabric.client.ui.QuestSkin.renderScale = pixelScale * uiScale();
 			var point = TabletFaceAnchor.pointer(mc.mouseHandler.getScaledXPos(mc.getWindow()),
 					mc.mouseHandler.getScaledYPos(mc.getWindow()));
 			int x = point == null ? -10000 : (int) (point.x() / uiScale()),
@@ -149,6 +150,7 @@ public final class TabletSurfaceRenderer {
 			window.height = oldHeight;
 			window.guiScale = oldScale;
 			rendering = false;
+			dev.questplus.fabric.client.ui.QuestSkin.renderScale = 0;
 			RenderSystem.restoreProjectionMatrix();
 		}
 	}

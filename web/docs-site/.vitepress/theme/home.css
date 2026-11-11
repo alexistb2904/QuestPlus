@@ -1,0 +1,321 @@
+/* Home page. Same world as the guides and Quest Studio: stone, dark oak, grass and amethyst. */
+.VPHome {
+	margin-bottom: 0 !important;
+}
+.qp-home {
+	--qp-wide: 1180px;
+	--qp-gutter: clamp(16px, 4vw, 32px);
+	--qp-ink: #f1eee9;
+	--qp-ink-soft: #d0c6cf;
+	--qp-parchment: #f1d9a0;
+	color: var(--qp-ink);
+	font: 16px/1.65 var(--vp-font-family-base);
+	padding-bottom: 96px;
+}
+.qp-home section,
+.qp-home nav {
+	width: min(var(--qp-wide), 100% - 2 * var(--qp-gutter));
+	margin-inline: auto;
+}
+.qp-home h1,
+.qp-home h2 {
+	margin: 0;
+	color: var(--qp-parchment);
+	font-family: "Pixelify Sans", sans-serif;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	text-wrap: balance;
+}
+.qp-home h1 {
+	font-size: clamp(36px, 5.2vw, 64px);
+	line-height: 1.04;
+}
+.qp-home h2 {
+	font-size: clamp(25px, 2.7vw, 34px);
+	line-height: 1.15;
+}
+.qp-home p {
+	margin: 0;
+	max-width: 54ch;
+	color: var(--qp-ink-soft);
+}
+.qp-home a {
+	color: #dfbcff;
+	text-underline-offset: 4px;
+}
+
+/* A capture sits in a beveled stone frame, like a block face. */
+.qp-frame {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 2px solid #6f6577;
+	border-radius: 4px;
+	background: #0b0b0e;
+	box-shadow:
+		inset 0 0 0 2px #0b0c10,
+		0 22px 40px -18px #000d,
+		0 3px 6px #0008;
+	overflow: hidden;
+}
+.qp-frame img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+a.qp-frame {
+	transition:
+		border-color 0.16s ease-out,
+		transform 0.16s ease-out;
+}
+a.qp-frame:hover {
+	border-color: #c08af2;
+	transform: translateY(-3px);
+}
+
+.qp-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 14px 18px;
+}
+.qp-button {
+	display: inline-block;
+	padding: 11px 22px;
+	border: 2px solid;
+	border-radius: 4px;
+	color: #fff !important;
+	font-weight: 700;
+	line-height: 1.2;
+	text-decoration: none;
+	text-shadow: 0 1px 1px #0009;
+	box-shadow:
+		inset 0 1px 1px #ffffff25,
+		0 3px 5px #000a;
+	transition:
+		border-color 0.14s ease-out,
+		filter 0.14s ease-out;
+}
+.qp-button:hover {
+	filter: brightness(1.14);
+}
+.qp-button:active {
+	filter: brightness(0.94);
+}
+.qp-button--grass {
+	border-color: #73b548;
+	background: linear-gradient(#3d8d20, #21600e);
+}
+.qp-button--grass:hover {
+	border-color: #a0dc72;
+}
+.qp-button--violet {
+	border-color: #b48acb;
+	background: linear-gradient(#7943a4, #4a276b);
+}
+.qp-button--violet:hover {
+	border-color: #d9b4ea;
+}
+.qp-link {
+	font-weight: 700;
+	text-decoration: underline;
+	text-decoration-color: #dfbcff80;
+}
+.qp-link:hover {
+	color: #fff;
+	text-decoration-color: currentColor;
+}
+
+/* Hero: the tablet clip carries the page, the copy stays short beside it. */
+.qp-hero {
+	display: grid;
+	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+	gap: clamp(28px, 4vw, 56px);
+	align-items: center;
+	padding-block: clamp(36px, 6vw, 76px) clamp(48px, 7vw, 92px);
+}
+.qp-hero__copy {
+	display: grid;
+	gap: 22px;
+}
+.qp-hero__copy > p:first-of-type {
+	font-size: 17px;
+	color: #ddd3dc;
+}
+.qp-home p.qp-hero__meta {
+	font-size: 14px;
+	color: #b9aeb6;
+}
+
+/* Feature rows alternate their capture and their copy. */
+.qp-row,
+.qp-stage,
+.qp-studio {
+	display: grid;
+	grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+	gap: clamp(24px, 4vw, 56px);
+	align-items: center;
+}
+.qp-row {
+	padding-block: clamp(30px, 4vw, 52px);
+}
+.qp-row--flip {
+	grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+}
+.qp-row--flip > .qp-frame {
+	order: 2;
+}
+.qp-row__copy {
+	display: grid;
+	gap: 14px;
+	justify-items: start;
+}
+.qp-frame--dialog {
+	max-width: 620px;
+	justify-self: center;
+}
+.qp-new {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 3px 8px 2px;
+	border: 1px solid #73b548;
+	border-radius: 3px;
+	background: #24500f;
+	color: #e6ffd2;
+	font: 700 12px/1.3 var(--vp-font-family-base);
+	letter-spacing: 0.02em;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+.qp-blocks {
+	display: grid;
+	gap: 10px;
+	margin: 2px 0 4px;
+}
+.qp-blocks dt {
+	color: #dfbcff;
+	font: 700 18px/1.3 "Pixelify Sans", sans-serif;
+}
+.qp-blocks dd {
+	margin: 0;
+	max-width: 46ch;
+	color: var(--qp-ink-soft);
+	font-size: 15px;
+	line-height: 1.55;
+}
+
+/* The crate reveal gets its own night stage, lit by the crate's amethyst burst. */
+.qp-home .qp-stage {
+	width: 100%;
+	margin-block: clamp(26px, 4vw, 48px);
+	padding: clamp(40px, 6vw, 80px) max(var(--qp-gutter), (100% - var(--qp-wide)) / 2);
+	border-block: 2px solid #2c2433;
+	background:
+		radial-gradient(ellipse 60% 90% at 30% 55%, #7a3fb04d, transparent 70%),
+		#0c0b10;
+}
+.qp-stage .qp-frame {
+	border-color: #8f62b8;
+}
+
+/* Quest Studio closes the tour on an oak plank band, as in the editor header. */
+.qp-home .qp-studio {
+	grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+	width: 100%;
+	margin-top: clamp(30px, 4vw, 52px);
+	padding: clamp(40px, 6vw, 76px) max(var(--qp-gutter), (100% - var(--qp-wide)) / 2);
+	border-top: 4px solid var(--qp-grass);
+	border-bottom: 2px solid #3d2e20;
+	background-image: var(--qp-oak);
+	background-size: auto, 160px;
+}
+.qp-studio .qp-frame {
+	border-color: #8a6c4a;
+}
+
+.qp-paths {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	margin-top: clamp(48px, 7vw, 88px);
+}
+.qp-paths h2 {
+	grid-column: 1 / -1;
+	margin-bottom: 20px;
+}
+.qp-paths a {
+	display: grid;
+	gap: 4px;
+	align-content: start;
+	min-height: 96px;
+	padding: 16px 18px;
+	border: 1px solid #725a40;
+	margin-left: -1px;
+	background-image: var(--qp-oak);
+	background-size: auto, 160px;
+	text-decoration: none;
+	transition: background-color 0.14s ease-out;
+}
+.qp-paths a:first-of-type {
+	margin-left: 0;
+	border-radius: 4px 0 0 4px;
+}
+.qp-paths a:last-of-type {
+	border-radius: 0 4px 4px 0;
+}
+.qp-paths a:hover {
+	position: relative;
+	border-color: #c08af2;
+}
+.qp-paths strong {
+	color: var(--qp-parchment);
+	font: 700 19px/1.25 "Pixelify Sans", sans-serif;
+}
+.qp-paths span {
+	color: #d6cabb;
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+	.qp-hero,
+	.qp-row,
+	.qp-row--flip,
+	.qp-home .qp-stage,
+	.qp-home .qp-studio {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.qp-row--flip > .qp-frame {
+		order: 0;
+	}
+	.qp-studio .qp-frame {
+		order: -1;
+	}
+	.qp-paths {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.qp-paths a,
+	.qp-paths a:first-of-type,
+	.qp-paths a:last-of-type {
+		margin: 0 -1px -1px 0;
+		border-radius: 0;
+	}
+}
+@media (max-width: 520px) {
+	.qp-paths {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.qp-button {
+		flex: 1 1 100%;
+		text-align: center;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	a.qp-frame,
+	.qp-button,
+	.qp-paths a {
+		transition: none;
+	}
+	a.qp-frame:hover {
+		transform: none;
+	}
+}

@@ -41,7 +41,7 @@ test(
 		const publicRoot = path.join(dir, "public");
 		await mkdir(path.join(publicRoot, "assets"), { recursive: true });
 		await writeFile(path.join(publicRoot, "index.html"), '<html><div id="root">Quest Studio</div></html>');
-		await writeFile(path.join(publicRoot, "assets", "app.js"), 'console.log("studio");');
+		await writeFile(path.join(publicRoot, "assets", "app.js"), 'console.log("studio");' + "//".padEnd(4000, "x"));
 		const child = spawn(process.execPath, ["server.mjs"], {
 			cwd: new URL("..", import.meta.url),
 			env: {
@@ -74,6 +74,12 @@ test(
 			const js = await fetch(base + "/assets/app.js");
 			assert.equal(js.status, 200);
 			assert.match(js.headers.get("content-type"), /javascript/);
+			// Hashed assets are compressed, cached forever and revalidate without a body.
+			assert.equal(js.headers.get("content-encoding"), "gzip");
+			assert.match(js.headers.get("cache-control"), /immutable/);
+			assert.match(await js.text(), /^console\.log\("studio"\);/);
+			assert.equal((await fetch(base + "/assets/app.js", { headers: { "if-none-match": js.headers.get("etag") } })).status, 304);
+			assert.equal(page.headers.get("cache-control"), "no-cache");
 			assert.equal((await fetch(base + "/../hidden.txt")).status, 404);
 			assert.equal((await fetch(base + "/v1/notfound")).status, 404);
 			assert.equal((await fetch(base + "/api/notfound")).status, 404);
@@ -210,7 +216,9 @@ test(
 			);
 			const saved = await api(base, "/api/packs", { method: "POST", body: { files } });
 			assert.equal(saved.status, 201);
-			assert.equal((await api(base, "/api/packs/" + saved.data.id)).status, 200);
+			const read = await api(base, "/api/packs/" + saved.data.id);
+			assert.equal(read.status, 200);
+			assert.deepEqual(read.data, { expires: saved.data.expires, sha256: saved.data.sha256, files });
 			assert.equal((await api(base, "/api/packs/" + saved.data.id.slice(0, 5))).status, 404);
 			const injection = await api(base, "/api/packs", { method: "POST", body: { files: [...files, { name: "quests/../world.json", content: "{}" }] } });
 			assert.equal(injection.status, 400);

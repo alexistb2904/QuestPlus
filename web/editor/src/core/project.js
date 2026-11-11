@@ -2,8 +2,9 @@ import JSON5 from "json5";
 import { BUILTIN_PROJECT } from "../data/default-data.js";
 import { isCategoryLink } from "./diagram-geometry.js";
 import { hubEditorDescriptors } from "./hub-registry.js";
+import { skinProblem, VILLAGER_TYPES } from "./npc-spawns.js";
 import { BIOMES, DIMENSIONS, STRUCTURES } from "./objective-targets.js";
-import { POOL_TYPES, poolError, resolveNamedTable, rewardTranslations } from "./reward-tables.js";
+import { crateTableName, POOL_TYPES, poolError, resolveNamedTable, rewardTranslations } from "./reward-tables.js";
 import { mediaPattern, validRich } from "./rich-format.js";
 // Persist the public JSON v2 pack format, not the server's internal projection.
 export const EVENTS = [
@@ -278,6 +279,45 @@ export function references(req, out = []) {
 	if (Array.isArray(req.at_least?.of)) req.at_least.of.forEach((n) => references(n, out));
 	return out;
 }
+/** Mirrors the server's QuestNpcs rules for config.json "npcs". */
+export function validateNpcs(npcs, questIds, fail) {
+	if (!Array.isArray(npcs) || npcs.length > 256) return fail("NPC", "Invalid NPC list");
+	const ids = new Set(),
+		resource = /^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
+	for (const npc of npcs) {
+		const label = "NPC " + (npc?.id || "?");
+		if (!npc || typeof npc !== "object") {
+			fail(label, "Invalid NPC");
+			continue;
+		}
+		if (Object.keys(npc).some((key) => !["id", "name", "quests", "spawns", "model", "villager", "skin"].includes(key))) fail(label, "Unknown NPC field");
+		if (npc.model !== undefined && !["villager", "player"].includes(npc.model)) fail(label, "NPC model must be villager or player");
+		if (npc.villager !== undefined && !VILLAGER_TYPES.some((type) => type.id === npc.villager)) fail(label, "Unknown villager outfit: " + npc.villager);
+		if (npc.skin !== undefined) {
+			if (npc.model !== "player") fail(label, "A custom skin needs the player model");
+			const problem = skinProblem(npc.skin);
+			if (problem) fail(label, problem);
+		}
+		if (typeof npc.id !== "string" || !/^[a-z0-9_.-]{1,64}$/.test(npc.id) || ids.has(npc.id)) fail(label, "NPC identifier: lowercase letters, digits, _ . - (unique)");
+		ids.add(npc.id);
+		const names = npc.name && typeof npc.name === "object" ? Object.values(npc.name) : [];
+		if (typeof npc.name?.en_us !== "string" || names.some((v) => typeof v !== "string" || !v.trim() || v.length > 64)) fail(label, "NPC name: English name required (64 characters max)");
+		if (!Array.isArray(npc.quests) || npc.quests.length > 64 || new Set(npc.quests).size !== npc.quests.length) fail(label, "Invalid NPC quest list");
+		else for (const id of npc.quests) if (!questIds.has(id)) fail(label, "Unknown quest offered by NPC: " + id);
+		if (npc.spawns === undefined) continue;
+		if (!Array.isArray(npc.spawns) || npc.spawns.length > 64) {
+			fail(label, "Invalid spawn rules");
+			continue;
+		}
+		for (const rule of npc.spawns) {
+			if (!rule || Object.keys(rule).sort().join() !== "chance,target,type") fail(label, "Spawn rule requires type, target and chance");
+			else if (typeof rule.chance !== "number" || !(rule.chance >= 0 && rule.chance <= 1)) fail(label, "Spawn chance must be between 0 and 100%");
+			else if (rule.type === "structure" ? !resource.test(String(rule.target).replace(/^#/, "")) : rule.type !== "random" || !resource.test(rule.target))
+				fail(label, "Invalid spawn target: " + rule.target);
+			else if (rule.type === "structure" && rule.target.startsWith("minecraft:") && !STRUCTURES.includes(rule.target)) fail(label, "Unknown vanilla structure: " + rule.target);
+		}
+	}
+}
 export function validate(p) {
 	const issues = [],
 		seenC = new Set(),
@@ -302,7 +342,6 @@ export function validate(p) {
 					fail("Reward tables", "Invalid named table fields");
 				if ((table?.crate !== undefined && typeof table.crate !== "boolean") || (table?.crateGlow !== undefined && typeof table.crateGlow !== "boolean"))
 					fail("Reward tables", "Invalid crate flag");
-				if (table?.crate && table.reward?.type === "questplus:choice") fail("Reward tables", "Crates cannot contain a player choice");
 				if (table?.crateName !== undefined && (typeof table.crateName !== "string" || !table.crateName.trim() || table.crateName.length > 256))
 					fail("Reward tables", "Invalid crate name");
 				if (table?.crateColor !== undefined && !/^#[a-f0-9]{6}$/i.test(table.crateColor)) fail("Reward tables", "Invalid crate color");
@@ -317,6 +356,8 @@ export function validate(p) {
 				try {
 					const resolved = resolveNamedTable({ type: "questplus:table", data: { name: table.name } }, tables);
 					if (poolError(resolved)) fail("Reward tables", "Invalid reward table library");
+					// The server checks the resolved pool, so an alias to a choice table is rejected too.
+					if (table.crate && resolved.type === "questplus:choice") fail("Reward tables", "Crates cannot contain a player choice");
 				} catch (error) {
 					fail("Reward tables", error.message);
 				}
@@ -331,6 +372,8 @@ export function validate(p) {
 			Object.values(p.config.crateNoDrop).some((n) => !Number.isInteger(n) || n < 0 || n > 1000000))
 	)
 		fail("Config", "Invalid crate drop weights");
+	if (p?.config?.npcTurnIn !== undefined && typeof p.config.npcTurnIn !== "boolean") fail("Config", "Invalid NPC turn-in flag");
+	if (p?.config?.npcs !== undefined) validateNpcs(p.config.npcs, new Set(p.quests.map((q) => q.id)), fail);
 	const validateRewards = (list, label) => {
 		if (!Array.isArray(list)) {
 			fail(label, "Liste de récompenses invalide");
@@ -350,6 +393,12 @@ export function validate(p) {
 			if (!r || typeof r !== "object" || Array.isArray(r)) {
 				fail(label, "Récompense invalide");
 				continue;
+			}
+			const crate = crateTableName(r);
+			if (crate !== undefined) {
+				const table = p.rewardTables?.find((t) => t.name === crate);
+				if (!table) fail(label, "Unknown reward table: " + crate);
+				else if (!table.crate) fail(label, "This loot crate uses a table that is not an openable crate");
 			}
 			if (
 				r.type === "questplus:stage" &&

@@ -61,6 +61,18 @@ public final class QuestPlusClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		settings = ClientSettings.load();
 		QuestWorldBlockRenderer.register();
+		QuestLootChestRenderer.register();
+		QuestGiverRenderer.register();
+		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestGiverNetwork.Look.TYPE,
+				(packet, context) -> context.client().execute(() -> QuestGiverLooks.receive(packet)));
+		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestGiverNetwork.Dialog.TYPE,
+				(packet, context) -> context.client().execute(() -> {
+					if (context.client().gui.screen() instanceof QuestGiverScreen screen
+							&& screen.entity() == packet.entity())
+						screen.receive(packet);
+					else
+						context.client().gui.setScreen(new QuestGiverScreen(packet));
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE,
 				(packet, context) -> context.client().execute(() -> {
 					if (context.client().gui.screen() instanceof QuestStationScreen screen) screen.receive(packet);
@@ -86,7 +98,10 @@ public final class QuestPlusClient implements ClientModInitializer {
 			clear();
 			sync();
 		});
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			clear();
+			client.execute(QuestGiverLooks::clear);
+		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (open.consumeClick())
 				if (client.player != null)

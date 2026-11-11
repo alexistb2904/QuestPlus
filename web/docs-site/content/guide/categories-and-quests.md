@@ -26,6 +26,10 @@ Connect **Collect Stone** → **Craft a Furnace**. The second quest unlocks afte
 
 Use the **Prerequisites** tab for explicit dependencies. Layout alone does not make one quest depend on another. Completion unlocks a prerequisite, reward collection is separate.
 
+![The Prerequisites tab of a quest that requires another quest to be completed](/media/prerequisites.webp)
+
+_This quest becomes available when Blank Pages is completed._
+
 ## Explain the chapter
 
 Add a heading or note to explain the goal of a branch. Background annotations group related nodes visually. Images and GIFs can illustrate a build or machine, but increase pack size. Annotations do not create objectives or grant progress.
