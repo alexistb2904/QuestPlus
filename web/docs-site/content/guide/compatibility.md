@@ -2,17 +2,15 @@
 
 ## Required environment
 
-QuestPlus runs on **Minecraft Java 26.1.2, 26.2 and 26.3** with **Fabric** and **Java 25**. One JAR covers the three versions: it detects the running Minecraft and loads the matching code. Install the same QuestPlus release and a Fabric API for your Minecraft version on clients and the server.
+QuestPlus runs on **Minecraft Java 26.1, 26.1.1, 26.1.2, 26.2 and 26.3** with **Fabric** and **Java 25**. One JAR covers all of them: it detects the running Minecraft and loads the matching code. Install the same QuestPlus release and a Fabric API for your Minecraft version on clients and the server.
 
 The minimum versions are **Fabric Loader 0.19.5** and the Fabric API build each version was tested with:
 
 | Minecraft | Minimum Fabric API |
 | --- | --- |
-| 26.1.2 | 0.155.3+26.1.2 |
+| 26.1, 26.1.1, 26.1.2 | 0.155.3+26.1.2 |
 | 26.2 | 0.161.0+26.2 |
 | 26.3 | 0.161.0+26.3 |
-
-Newer Fabric API builds for the same Minecraft version are accepted. QuestPlus stops at startup with a clear message on an older Fabric API or on another Minecraft version, including 26.1 and 26.1.1, which were not tested.
 
 The tablet animations are built in and no animation library is bundled or required. Fabric API is installed separately. Check the requirements of the release you download.
 
@@ -24,7 +22,7 @@ Shader packs run through **Iris**. QuestPlus has no hard dependency on Iris. It 
 
 ### World blocks
 
-The Quest Board, the Submission Station, the Quest Relay and the loot crate reveal work with the following shader packs. They were tested with Sodium 0.9.2 and Iris 1.11.7 on Minecraft 26.3, and Iris 1.11.4 on Minecraft 26.1.2 and 26.2:
+The Quest Board, the Submission Station, the Quest Relay and the loot crate reveal work with the following shader packs. They were tested with Sodium 0.9.2 and Iris 1.11.7 on Minecraft 26.3, and Iris 1.11.4 on Minecraft 26.1.2 and 26.2. Minecraft 26.1 and 26.1.1 are an exception, listed below.
 
 | Shader pack | Version tested |
 | --- | --- |
@@ -46,6 +44,7 @@ Known differences:
 - With Solas, the board is darker than with the other packs. It stays readable.
 - With Sildur's Vibrant, the front of the loot crate looks black during the reveal.
 - At night, station text dims with the surrounding light, like a sign.
+- On Minecraft 26.1 and 26.1.1, Iris 1.10.9 is the newest Iris available. With a shader pack active there, the Quest Board, the Submission Station, the Quest Relay and the loot crate are not drawn, although they still work. The tablet is not affected. Play on 26.1.2 or later to use these blocks with shaders.
 
 ### Tablet
 

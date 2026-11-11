@@ -2,7 +2,7 @@
 
 | Requirement    | Version              |
 | -------------- | -------------------- |
-| Minecraft Java | 26.1.2, 26.2 or 26.3 |
+| Minecraft Java | 26.1 to 26.3         |
 | Loader         | Fabric               |
 | Java           | 25+                  |
 | Fabric API     | For your Minecraft   |

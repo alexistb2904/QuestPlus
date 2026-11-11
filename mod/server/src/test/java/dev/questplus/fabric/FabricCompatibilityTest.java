@@ -46,10 +46,25 @@ final class FabricCompatibilityTest {
 	void declaresExactlyTheValidatedMinecraftVersions() throws Exception {
 		var declared = new java.util.ArrayList<String>();
 		dependencies().getAsJsonArray("minecraft").forEach(v -> declared.add(v.getAsString()));
-		assertTrue(declared.containsAll(java.util.List.of("26.1.2", "26.2", "26.3")), declared.toString());
+		var expected = java.util.Map.of("mc26_1", java.util.List.of("26.1", "26.1.1", "26.1.2"),
+				"mc26_2", java.util.List.of("26.2"), "mc26_3", java.util.List.of("26.3"));
+		var fromTargets = new java.util.ArrayList<String>();
+		try (var stream = getClass().getResourceAsStream("/fabric.mod.json")) {
+			var targets = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject()
+					.getAsJsonObject("custom").getAsJsonObject("questplus:targets");
+			assertFalse(targets.isEmpty());
+			for (var target : targets.entrySet()) {
+				var versions = new java.util.ArrayList<String>();
+				target.getValue().getAsJsonObject().getAsJsonArray("minecraft").forEach(v -> versions.add(v.getAsString()));
+				if (expected.containsKey(target.getKey()))
+					assertEquals(expected.get(target.getKey()), versions, target.getKey());
+				fromTargets.addAll(versions);
+			}
+		}
+		assertEquals(fromTargets, declared);
 		for (String version : declared)
 			assertTrue(version.matches("[0-9]+([.][0-9]+)+"), "Exact release versions only, no ranges: " + version);
-		for (String untested : new String[] { "26.1", "26.1.1", "26.2-pre-1", "26.3-rc-1", "26.4", "26.4-snapshot-1" })
+		for (String untested : new String[] { "26.1-rc-1", "26.1.3", "26.2-pre-1", "26.3-rc-1", "26.4", "26.4-snapshot-1" })
 			assertFalse(declared.stream().anyMatch(v -> {
 				try {
 					return VersionPredicate.parse(v).test(Version.parse(untested));

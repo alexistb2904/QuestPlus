@@ -72,9 +72,10 @@ public final class ObjectiveSamplingGameTest {
 		player.setPos(box.minX() + 1.5, box.minY() + 1, box.minZ() + 1.5);
 		// The pyramid can extend into a different chunk than its start.
 		helper.getLevel().getChunkAt(player.blockPosition()).addReferenceForStructure(structure, chunk.getPos().pack());
-		// The pyramid floor is at y=64, above the test area that setBiome filled.
-		var low = new BlockPos(box.minX(), box.minY(), box.minZ());
-		var high = new BlockPos(box.maxX(), box.maxY(), box.maxZ());
+		// The pyramid floor is at y=64, above the test area that setBiome filled. Biome reads jitter by
+		// up to a 4-block cell, so cover a margin around the player rather than the pyramid's edge.
+		var low = player.blockPosition().offset(-8, -8, -8);
+		var high = player.blockPosition().offset(8, 8, 8);
 		// fill() changes nothing unless every chunk of the region is loaded.
 		for (int chunkX = low.getX() >> 4; chunkX <= high.getX() >> 4; chunkX++)
 			for (int chunkZ = low.getZ() >> 4; chunkZ <= high.getZ() >> 4; chunkZ++)

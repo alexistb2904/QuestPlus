@@ -17,7 +17,7 @@ allprojects {
             blocks: ['sodium', 'iris']
         ]
         if (!profiles.containsKey(profile)) throw new GradleException('Unknown tablet profile: ' + profile)
-        def testDir = rootProject.file("build/tablet-compat/${project.name}/${profile}")
+        def testDir = rootProject.file("build/tablet-compat/${project.minecraft_version}/${profile}")
         loom.runs.clientGameTest {
             runDir testDir.absolutePath
             vmArg profile == 'blocks' ? '-Dquestplus.worldBlocksShaders=true' : '-Dquestplus.tabletCompatibility=true'
@@ -28,7 +28,7 @@ allprojects {
         tasks.named('deleteGameTestRunDir') {
             setDelete([testDir])
             doLast {
-                def cache = rootProject.file("build/tablet-assets/${project.name}")
+                def cache = rootProject.file("build/tablet-assets/${project.minecraft_version}")
                 def manifest = new groovy.json.JsonSlurper().parse(new File(cache, 'manifest.json'))
                 profiles[profile].each { id ->
                     def asset = manifest[id]

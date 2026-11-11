@@ -45,8 +45,20 @@ function meetsMinimum(version,required) {
  for(let i=0;i<3;i++){if(a[i]>b[i])return true;if(a[i]<b[i])return false}
  return true;
 }
+// Modrinth lists Iris 1.11.x for 26.1 and 26.1.1, but those jars need Sodium 0.9, which exists for
+// 26.1.2 only. Pin the pair actually built for those releases (Iris 1.10.9 requires Sodium 0.8.x).
+const PINNED={
+ '26.1':{sodium:'mc26.1.1-0.8.9-fabric',iris:'1.10.9+26.1-fabric'},
+ '26.1.1':{sodium:'mc26.1.1-0.8.9-fabric',iris:'1.10.9+26.1-fabric'}
+};
 export function selectVersion(versions,asset){
  if(!Array.isArray(versions))throw Error('Invalid Modrinth version list for '+asset.id);
+ const pin=PINNED[mcVersion()]?.[asset.id];
+ if(pin){
+  const pinned=versions.find(v=>v?.version_number===pin);
+  if(!pinned)throw Error('Pinned '+asset.id+' '+pin+' not found for Minecraft '+mcVersion());
+  return pinned;
+ }
  const available=versions.filter(v=>v&&v.game_versions?.includes(mcVersion())&&
   (!asset.loader||v.loaders?.includes(asset.loader))&&meetsMinimum(v.version_number,asset.minVersion)
   &&v.files?.some(f=>f.filename?.toLowerCase().endsWith(asset.ext)));

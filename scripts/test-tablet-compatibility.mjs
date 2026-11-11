@@ -39,12 +39,14 @@ async function main(args){
   .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
  const target=(args.find(a=>a.startsWith('--mc='))||'--mc='+targets.at(-1)).slice(5);
  if(!targets.includes(target))throw Error('Unknown Minecraft target: '+target+' (known: '+targets.join(', ')+')');
- process.env.QUESTPLUS_MC_VERSION=(await readFile(path.join(root,'mod','versions',target,'gradle.properties'),'utf8'))
+ // --minecraft=<version> runs that target on another release it declares (e.g. 26.1.1 for 26.1).
+ const minecraft=args.find(a=>a.startsWith('--minecraft='))?.slice(12)||(await readFile(path.join(root,'mod','versions',target,'gradle.properties'),'utf8'))
   .match(/^minecraft_version=(.+)$/m)[1].trim();
+ process.env.QUESTPLUS_MC_VERSION=minecraft;
  let profiles=args.filter(a=>!a.startsWith('--'));
  if(!profiles.length)profiles=Object.keys(PROFILES);
  for(const profile of profiles)if(!Object.hasOwn(PROFILES,profile))throw Error('Unknown profile: '+profile);
- const cache=path.join(root,'mod','build','tablet-assets',target);
+ const cache=path.join(root,'mod','build','tablet-assets',minecraft);
  await mkdir(cache,{recursive:true});
  let records={};
  try{records=JSON.parse(await readFile(path.join(cache,'manifest.json'),'utf8'))}catch{}
@@ -57,18 +59,18 @@ async function main(args){
  const failed=[];
  for(const profile of profiles){
   console.log('\n[TABLET MATRIX] Minecraft '+process.env.QUESTPLUS_MC_VERSION+' '+profile);
-  const result=spawnSync('cmd.exe',['/d','/c',`"${path.join(root,'mod','gradlew.bat')}" --console=plain runClientGameTest -Pmc=${target} -I ../scripts/tablet-compatibility.gradle -PtabletCompatibility=${profile}`],
+  const result=spawnSync('cmd.exe',['/d','/c',`"${path.join(root,'mod','gradlew.bat')}" --console=plain runClientGameTest -Pmc=${target} -Pminecraft_version=${minecraft} -I ../scripts/tablet-compatibility.gradle -PtabletCompatibility=${profile}`],
    // Verbatim: Node would otherwise escape the quotes around the wrapper path for cmd.exe.
    {cwd:path.join(root,'mod'),stdio:'inherit',windowsVerbatimArguments:true,env:{...process.env,JAVA_HOME:java}});
   if(result.error)throw result.error;
   if(result.status!==0)failed.push(profile);
   else {
-   try {validateGpuLog(await readFile(path.join(root,'mod','build','tablet-compat',target,profile,'logs','latest.log'),'utf8'),profile)}
+   try {validateGpuLog(await readFile(path.join(root,'mod','build','tablet-compat',minecraft,profile,'logs','latest.log'),'utf8'),profile)}
    catch(e){console.error(profile+': '+e.message);failed.push(profile)}
   }
  }
  if(failed.length)throw Error('Failed GPU profiles: '+failed.join(', '));
- console.log('[PASS] '+profiles.join(', ')+'. Screenshots and logs: build/tablet-compat/'+target+'/<profile>/');
+ console.log('[PASS] '+profiles.join(', ')+'. Screenshots and logs: build/tablet-compat/'+minecraft+'/<profile>/');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))
  main(process.argv.slice(2)).catch(e=>{console.error(e.message);process.exitCode=1});

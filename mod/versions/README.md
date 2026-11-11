@@ -5,7 +5,7 @@ Each folder is one validated target:
 
 | Folder | Builds against | Declared in `fabric.mod.json` | Adapter package |
 | --- | --- | --- | --- |
-| `26.1` | 26.1.2, Fabric API 0.155.3+26.1.2 | `26.1.2` | `dev.questplus.compat.mc26_1` |
+| `26.1` | 26.1.2, Fabric API 0.155.3+26.1.2 | `26.1`, `26.1.1`, `26.1.2` | `dev.questplus.compat.mc26_1` |
 | `26.2` | 26.2, Fabric API 0.161.0+26.2 | `26.2` | `dev.questplus.compat.mc26_2` |
 | `26.3` | 26.3, Fabric API 0.161.0+26.3 | `26.3` | `dev.questplus.compat.mc26_3` |
 
@@ -75,8 +75,17 @@ mods and configure the newest target only.
 6. The newest folder becomes the reference target automatically (release JAR, `run/client`).
    Update the mods pinned in `scripts/*.gradle` and `scripts/test-tablet-compatibility.mjs`.
 
-To drop a version, delete its folder. A hotfix that keeps the API (for example 26.1.3) is added
-to `validated_minecraft` of its folder after its tests ran on it (`-Pminecraft_version=26.1.3 -Pmc=26.1`).
+To drop a version, delete its folder. A hotfix release that keeps the API (for example 26.1.3) is
+added to `validated_minecraft` of the folder it belongs to, without a new folder, once:
+
+1. the folder compiles to byte-identical classes on it, adapters included. Compare
+   `versions/<folder>/build/classes/java/main` after
+   `./gradlew :<folder>:compileJava -Pmc=<folder> -Pminecraft_version=<hotfix>` with the normal build;
+2. its tests ran on it: `test`, `integrationTest` and `runClientGameTest` with the same two
+   properties, and `node scripts/test-tablet-compatibility.mjs --mc=<folder> --minecraft=<hotfix>`.
+
+This is how 26.1 and 26.1.1 share the `26.1` folder. If the bytes differ, the hotfix changed an API
+the adapters use and it needs its own folder.
 
 If a future version diverges so far that a universal JAR becomes fragile, `-Pmc=<folder>`
 already builds a single-target JAR from the same sources.
