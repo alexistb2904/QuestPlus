@@ -375,11 +375,23 @@ async function serveStudio(req, res, p) {
 	if (data) return res.end(data);
 	await pipeline(createReadStream(file), res);
 }
+function logRequest(req, res, started) {
+	const p = String(req.url).split("?")[0];
+	if (p === "/health" || (res.statusCode < 400 && !/^\/(?:api|v1)\//.test(p))) return;
+	// Session IDs let anyone ask for approval, so they stay out of the logs.
+	const route = p.replace(/(\/sessions\/)[^/]+/, "$1*");
+	console.log(
+		new Date().toISOString() + " " + req.method + " " + route + " " + res.statusCode + " " + (Date.now() - started) + "ms" +
+			(req.headers.origin ? " origin=" + req.headers.origin : "") + (res.errorMessage ? " error=" + JSON.stringify(res.errorMessage) : "")
+	);
+}
 async function handler(req, res) {
+	const started = Date.now();
+	res.once("finish", () => logRequest(req, res, started));
 	try {
 		const origin = req.headers.origin;
 		if (origin) {
-			if (origin !== ALLOWED_ORIGIN) throw fail(403, "Origin not permitted");
+			if (origin !== ALLOWED_ORIGIN) throw fail(403, "Origin " + origin + " not permitted, expected " + ALLOWED_ORIGIN);
 			res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
 			res.setHeader("Vary", "Origin");
 		}
@@ -639,6 +651,7 @@ async function handler(req, res) {
 				clearTimeout(timer);
 			}
 		}
+		res.errorMessage = error.message;
 		json(res, error.status || 500, { error: error.status ? error.message : "Internal server error" });
 		if (!error.status) console.error(error);
 	}
@@ -650,4 +663,6 @@ setInterval(() => {
 }, 60_000).unref();
 const server = http.createServer({ headersTimeout: 10000, requestTimeout: 20000, keepAliveTimeout: 5000 }, handler);
 server.maxConnections = 256;
-server.listen(PORT, BIND, () => console.log("QuestPlus Web listening on port " + PORT));
+server.listen(PORT, BIND, () =>
+	console.log("QuestPlus Web listening on " + BIND + ":" + PORT + " (public " + PUBLIC_URL + ", allowed browser origin " + ALLOWED_ORIGIN + ", studio " + STUDIO_URL + ")")
+);

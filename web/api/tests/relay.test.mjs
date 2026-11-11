@@ -55,6 +55,8 @@ test(
 			},
 			stdio: ["ignore", "pipe", "pipe"],
 		});
+		let logs = "";
+		child.stdout.on("data", (chunk) => (logs += chunk));
 		try {
 			let ready = false;
 			for (let i = 0; i < 80; i++) {
@@ -86,6 +88,10 @@ test(
 			assert.equal((await api(base, "/api/server/poll?session=unknown")).status, 401);
 			assert.equal((await api(base, "/api/server/revoke", { method: "POST", body: { session: "unknown" } })).status, 401);
 			assert.equal((await api(base, "/api/packs", { method: "POST", origin: "https://evil.example", body: { files } })).status, 403);
+			for (let i = 0; i < 40 && !logs.includes("POST /api/packs 403"); i++) await new Promise((ok) => setTimeout(ok, 25));
+			assert.match(logs, /POST \/api\/packs 403 \d+ms origin=https:\/\/evil\.example error="Origin https:\/\/evil\.example not permitted/);
+			assert.match(logs, /GET \/api\/server\/poll 401/);
+			assert.doesNotMatch(logs, /\/health|assets\/app\.js/);
 			const assets = { names: { "mymod:crystal": { fr_fr: "Cristal" } }, textures: { "mymod:crystal": "data:image/png;base64,iVBORw0KGgo=" } };
 			const start = await api(base, "/api/server/sessions", {
 				method: "POST",

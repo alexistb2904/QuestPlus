@@ -254,6 +254,9 @@ final class QuestHubService implements AutoCloseable {
 					}
 					try {
 						if (response.statusCode() / 100 != 2) {
+							String body = response.body() == null ? "" : response.body();
+							QuestPlusMod.LOGGER.warn("Quest Studio returned HTTP {} for {} {}: {}", response.statusCode(), method,
+									req.uri(), body.length() > 300 ? body.substring(0, 300) + "..." : body);
 							if (response.statusCode() == 401 && path.equals("/api/server/sessions")) {
 								onError.accept("Quest Studio refused to create a session (HTTP 401) at " + origin
 										+ ". This mod sends no Authorization header when creating sessions. "
@@ -299,23 +302,33 @@ final class QuestHubService implements AutoCloseable {
 	static String responseError(int status, String response) {
 		return switch (status) {
 		case 401 -> "Quest Studio rejected the session credentials (HTTP 401). Start a new editor session or check the web API version.";
-		case 403 -> "Access denied by Quest Studio (HTTP 403). Check the server's permissions and web API configuration.";
+		case 403 -> {
+			String detail = apiError(response);
+			// The QuestPlus API always answers JSON, so a 403 without it comes from a proxy or firewall in front.
+			yield detail != null ? "Access denied by Quest Studio (HTTP 403): " + detail
+					: "Access denied before reaching the Quest Studio API (HTTP 403). A firewall, Cloudflare or reverse proxy blocked this server, allow its IP for /api/server/ requests.";
+		}
 		case 413 -> "The quest pack is too large for Quest Studio (HTTP 413). Reduce its size before retrying.";
 		case 429 -> "Quest Studio is receiving too many requests (HTTP 429). Wait a moment, then retry.";
 		default -> {
 			if (status >= 500)
 				yield "Quest Studio is temporarily unavailable (HTTP " + status
 						+ "). Retry shortly or check the web service.";
-			try {
-				JsonElement detail = JsonParser.parseString(response).getAsJsonObject().get("error");
-				if (detail != null && detail.isJsonPrimitive() && detail.getAsJsonPrimitive().isString())
-					yield detail.getAsString();
-			} catch (RuntimeException ignored) {
-			}
-			yield "Quest Studio rejected the request (HTTP " + status
-					+ "). Check the web API address and configuration.";
+			String detail = apiError(response);
+			yield detail != null ? detail
+					: "Quest Studio rejected the request (HTTP " + status + "). Check the web API address and configuration.";
 		}
 		};
+	}
+
+	private static String apiError(String response) {
+		try {
+			JsonElement detail = JsonParser.parseString(response).getAsJsonObject().get("error");
+			if (detail != null && detail.isJsonPrimitive() && detail.getAsJsonPrimitive().isString())
+				return detail.getAsString();
+		} catch (RuntimeException ignored) {
+		}
+		return null;
 	}
 
 	void createSession(CommandSourceStack source) {

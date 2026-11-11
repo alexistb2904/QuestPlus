@@ -49,6 +49,8 @@ class QuestHubChatTest {
 	void proxyAndAuthenticationFailuresStayReadableEvenWhenTheResponseIsHtml() {
 		assertTrue(QuestHubService.responseError(401, "<html>denied</html>").contains("session credentials"));
 		assertTrue(QuestHubService.responseError(403, "{}").contains("denied"));
+		assertTrue(QuestHubService.responseError(403, "<html>Attention Required! | Cloudflare</html>").contains("Cloudflare"));
+		assertTrue(QuestHubService.responseError(403, "{\"error\":\"Editor not authorized\"}").contains("Editor not authorized"));
 		assertTrue(QuestHubService.responseError(429, "{}").contains("retry"));
 		assertTrue(QuestHubService.responseError(503, "<html>offline</html>").contains("unavailable"));
 		assertTrue(QuestHubService.responseError(404, "{\"error\":\"Session expired\"}").contains("expired"));
