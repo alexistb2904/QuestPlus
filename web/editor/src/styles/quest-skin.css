@@ -3602,30 +3602,71 @@ kbd {
 .rich-studio {
 	position: relative;
 }
-.rich-pixel-size {
+/* Rich sizes are Minecraft pixels (9 = normal), shown relative to each host's base font. */
+:root {
+	--mc-px: calc(13px / 9);
+}
+.annotation-node {
+	--mc-px: calc(12px / 9);
+}
+.annotation-node.heading {
+	--mc-px: calc(19px / 9);
+}
+.rich-size {
 	display: inline-flex;
 	align-items: center;
+	gap: 2px;
+}
+.rich-toolbar .rich-size select,
+.rich-bubble .rich-size select {
+	min-width: 74px;
+	max-width: 86px;
+	padding: 3px 2px;
+}
+.rich-size button:disabled,
+.rich-size select:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+.rich-bubble {
+	position: fixed;
+	z-index: 1000;
+	transform: translate(-50%, calc(-100% - 8px));
+	max-width: calc(100vw - 16px);
+	padding: 4px;
+	border: 1px solid #9b7fb0;
+	border-radius: 5px;
+	background: #2d2335;
+	box-shadow: 0 6px 18px #000a;
+}
+.rich-bubble.below {
+	transform: translate(-50%, 10px);
+}
+.rich-bubble-row {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
 	gap: 3px;
-	border-left: 1px solid #68556d;
-	padding-left: 7px;
 }
-.rich-pixel-size > span {
-	font-size: 11px;
-	color: #ccbcd8;
+.rich-bubble button,
+.rich-bubble select {
+	font-size: 12px;
+	min-width: 27px;
+	min-height: 29px;
+	border: 1px solid #72617e;
+	border-radius: 2px;
+	color: #f0dbf6;
+	background: #29212f;
+	padding: 3px 6px;
+	cursor: pointer;
 }
-.rich-pixel-size input {
-	width: 51px;
-	min-width: 0;
-	padding: 3px 4px;
-	background: #201925;
-	border: 1px solid #73607e;
-	border-radius: 3px;
-	color: #eee;
+.rich-bubble button[aria-pressed="true"] {
+	background: #5b3b73;
+	border-color: #c99ce4;
 }
-.rich-pixel-size button {
-	font-size: 11px;
-	min-width: 35px;
-	padding: 3px 5px;
+.rich-bubble .rich-palette {
+	margin-top: 4px;
+	border-bottom: 0;
 }
 .rich-image-grip {
 	position: absolute;

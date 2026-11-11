@@ -1,10 +1,13 @@
-import { Bold, ChevronDown, Highlighter, ImagePlus, Italic, Palette, Strikethrough, Trash2, Underline } from "lucide-react";
+import { AArrowDown, AArrowUp, Bold, ChevronDown, Highlighter, ImagePlus, Italic, Palette, RemoveFormatting, Strikethrough, Trash2, Underline } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DESCRIPTION_COLORS, descriptionHtml, descriptionParts, descriptionText } from "../core/description-format.js";
 import { richToHtml } from "../core/rich-format.js";
 import type { RichPart } from "../types";
-import { plainFallback, richFromDom, toEmbeddedImage } from "../ui/rich-dom.js";
+import { minecraftPx, plainFallback, richFromDom, toEmbeddedImage } from "../ui/rich-dom.js";
 import { tUI } from "../ui/ui-i18n.js";
+
+const NORMAL_PX = 9;
+const SIZES = [6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72, 96, 128];
 
 type Props = { content: RichPart[]; onChange: (parts: RichPart[], plain: string) => void; locale: string; mode?: "annotation" | "description"; label?: string };
 export function RichEditor({ content, onChange, locale, mode = "annotation", label }: Props) {
@@ -14,7 +17,9 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 		lastEmitted = useRef("");
 	const [image, setImage] = useState<{ width: number; height: number } | null>(null);
 	const [imageBounds, setImageBounds] = useState<{ left: number; top: number } | null>(null);
-	const [pixelSize, setPixelSize] = useState(16);
+	const [pixelSize, setPixelSize] = useState(NORMAL_PX);
+	const [hasSelection, setHasSelection] = useState(false);
+	const [bubble, setBubble] = useState<{ x: number; y: number; below: boolean } | null>(null);
 	const dragImage = useRef<{ pointer: number; x: number; y: number; width: number; height: number } | null>(null);
 	const [colorOpen, setColorOpen] = useState(false);
 	const colorNames = [
@@ -62,11 +67,32 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 			onChange(parts, plainFallback(parts));
 		}
 	}, [onChange, isDescription]);
+	const selectionSize = () => {
+		const start = savedRange.current?.startContainer;
+		for (let el = start?.nodeType === Node.ELEMENT_NODE ? (start as HTMLElement) : start?.parentElement; el && el !== ref.current; el = el.parentElement) {
+			const px = minecraftPx(el.style.fontSize);
+			if (px) return px;
+			if (el.style.fontSize.endsWith("%")) return Math.round((NORMAL_PX * parseFloat(el.style.fontSize)) / 100) || NORMAL_PX;
+		}
+		return NORMAL_PX;
+	};
+	const placeBubble = (range: Range, at?: { x: number; y: number }) => {
+		const rect = range.getBoundingClientRect();
+		const below = !!at || rect.top < 64;
+		const x = at ? at.x : rect.left + rect.width / 2;
+		const half = Math.min(180, window.innerWidth / 2);
+		setBubble({ x: Math.min(Math.max(x, half), window.innerWidth - half), y: at ? at.y : below ? rect.bottom : rect.top, below });
+	};
 	const captureSelection = () => {
 		const s = window.getSelection();
 		if (s?.rangeCount && ref.current?.contains(s.anchorNode)) {
-			savedRange.current = s.getRangeAt(0).cloneRange();
+			const range = s.getRangeAt(0);
+			savedRange.current = range.cloneRange();
 			setActive(Object.fromEntries(["bold", "italic", "underline", "strikeThrough"].map((name) => [name, document.queryCommandState(name)])));
+			setPixelSize(selectionSize());
+			setHasSelection(!range.collapsed);
+			if (range.collapsed) setBubble(null);
+			else placeBubble(range);
 		}
 	};
 	const restore = () => {
@@ -86,8 +112,8 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 		read();
 		captureSelection();
 	};
-	const applyPixelSize = () => {
-		const px = Math.max(1, Math.round(pixelSize) || 16);
+	const applyPixelSize = (value: number) => {
+		const px = Math.min(128, Math.max(1, Math.round(value) || NORMAL_PX));
 		ref.current?.focus();
 		restore();
 		const selection = window.getSelection();
@@ -95,9 +121,10 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 		const range = selection.getRangeAt(0);
 		if (range.collapsed) return;
 		const span = document.createElement("span");
-		span.style.fontSize = px + "px";
+		span.style.fontSize = "calc(var(--mc-px, 1px) * " + px + ")";
 		try {
 			span.appendChild(range.extractContents());
+			span.querySelectorAll<HTMLElement>("[style]").forEach((el) => el.style.removeProperty("font-size"));
 			range.insertNode(span);
 			range.selectNodeContents(span);
 			selection.removeAllRanges();
@@ -107,6 +134,11 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 		}
 		read();
 		captureSelection();
+	};
+	const stepSize = (direction: 1 | -1) => {
+		const current = selectionSize();
+		const next = direction > 0 ? SIZES.find((v) => v > current) : [...SIZES].reverse().find((v) => v < current);
+		if (next) applyPixelSize(next);
 	};
 	const insert = async (file: File) => {
 		try {
@@ -159,38 +191,106 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 		["underline", "Underline", Underline],
 		["strikeThrough", "Strikethrough", Strikethrough],
 	] as const;
+	const sizeHint = hasSelection ? "" : " · " + tUI("Select text to change its size");
+	const sizeControls = (
+		<div className="rich-size" role="group" aria-label={tUI("Text size")}>
+			<button
+				type="button"
+				disabled={!hasSelection}
+				onClick={() => stepSize(-1)}
+				title={tUI("Decrease text size") + " (Ctrl+Shift+<)" + sizeHint}
+				aria-label={tUI("Decrease text size")}>
+				<AArrowDown size={15} />
+			</button>
+			<select
+				disabled={!hasSelection}
+				aria-label={tUI("Text size")}
+				title={tUI("Text size") + sizeHint}
+				value={pixelSize}
+				onChange={(e) => applyPixelSize(Number(e.target.value))}>
+				{[...new Set([...SIZES, pixelSize])]
+					.sort((a, b) => a - b)
+					.map((v) => (
+						<option key={v} value={v}>
+							{v === NORMAL_PX ? v + " · " + tUI("Normal") : v}
+						</option>
+					))}
+			</select>
+			<button
+				type="button"
+				disabled={!hasSelection}
+				onClick={() => stepSize(1)}
+				title={tUI("Increase text size") + " (Ctrl+Shift+>)" + sizeHint}
+				aria-label={tUI("Increase text size")}>
+				<AArrowUp size={15} />
+			</button>
+		</div>
+	);
+	const formatToggles = formatButtons.map(([name, title, Icon]) => (
+		<button type="button" key={name} onClick={() => command(name)} title={tUI(title)} aria-label={tUI(title)} aria-pressed={!!active[name]}>
+			<Icon size={15} />
+		</button>
+	));
+	const colorTrigger = (
+		<button
+			type="button"
+			className="rich-color-trigger"
+			title={tUI("Text color")}
+			aria-label={tUI("Text color")}
+			aria-expanded={colorOpen}
+			onClick={() => setColorOpen((v) => !v)}>
+			<Palette size={15} />
+			<ChevronDown size={12} />
+		</button>
+	);
+	const highlightButton = (
+		<button type="button" onClick={() => command("hiliteColor", "#ffe178")} title={tUI("Highlight")} aria-label={tUI("Highlight")}>
+			<Highlighter size={15} />
+		</button>
+	);
+	const keepEditorFocus = (e: React.PointerEvent) => {
+		if ((e.target as HTMLElement).closest("button")) e.preventDefault();
+	};
+	const palette = isDescription && colorOpen && (
+		<div
+			className="rich-palette"
+			role="group"
+			aria-label={tUI("Description colors")}
+			onPointerDown={(e) => e.preventDefault()}
+			onKeyDown={(e) => {
+				if (e.key === "Escape") {
+					e.stopPropagation();
+					setColorOpen(false);
+				}
+			}}>
+			{Object.entries(DESCRIPTION_COLORS).map(([code, color], index) => (
+				<button
+					key={code}
+					type="button"
+					style={{ backgroundColor: color }}
+					title={tUI(colorNames[index])}
+					aria-label={tUI(colorNames[index])}
+					onClick={() => {
+						command("foreColor", color);
+						setColorOpen(false);
+					}}
+				/>
+			))}
+		</div>
+	);
 	return (
-		<div className={"rich-studio" + (isDescription ? " description-editor" : "")}>
-			<div
-				className="rich-toolbar"
-				role="toolbar"
-				aria-label={tUI("Text formatting")}
-				onPointerDown={(e) => {
-					if ((e.target as HTMLElement).closest("button")) e.preventDefault();
-				}}>
-				{formatButtons.map(([name, title, Icon]) => (
-					<button type="button" key={name} onClick={() => command(name)} title={tUI(title)} aria-label={tUI(title)} aria-pressed={!!active[name]}>
-						<Icon size={15} />
-					</button>
-				))}
+		<div
+			className={"rich-studio" + (isDescription ? " description-editor" : "")}
+			onBlur={(e) => {
+				if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setBubble(null);
+			}}>
+			<div className="rich-toolbar" role="toolbar" aria-label={tUI("Text formatting")} onPointerDown={keepEditorFocus}>
+				{formatToggles}
 				{isDescription ? (
-					<div className="rich-color">
-						<button
-							type="button"
-							className="rich-color-trigger"
-							title={tUI("Text color")}
-							aria-label={tUI("Text color")}
-							aria-expanded={colorOpen}
-							onClick={() => setColorOpen((v) => !v)}>
-							<Palette size={15} />
-							<ChevronDown size={12} />
-						</button>
-					</div>
+					<div className="rich-color">{colorTrigger}</div>
 				) : (
 					<>
-						<button type="button" onClick={() => command("hiliteColor", "#ffe178")} title={tUI("Highlight")} aria-label={tUI("Highlight")}>
-							<Highlighter size={15} />
-						</button>
+						{highlightButton}
 						<select aria-label={tUI("Font")} defaultValue="default" onChange={(e) => command("fontName", e.target.value)}>
 							<option value="default">Minecraft</option>
 							<option value="uniform">Uniform</option>
@@ -199,26 +299,10 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 						</select>
 					</>
 				)}
-				<label className="rich-pixel-size" title={tUI("Text size in pixels")}>
-					<span>px</span>
-					<input
-						aria-label={tUI("Text size in pixels")}
-						type="number"
-						min="1"
-						step="1"
-						value={pixelSize}
-						onChange={(e) => setPixelSize(Number(e.target.value))}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") {
-								e.preventDefault();
-								applyPixelSize();
-							}
-						}}
-					/>
-					<button type="button" onClick={applyPixelSize} aria-label={tUI("Apply text size")}>
-						{tUI("Apply")}
-					</button>
-				</label>
+				{sizeControls}
+				<button type="button" onClick={() => command("removeFormat")} title={tUI("Clear formatting")} aria-label={tUI("Clear formatting")}>
+					<RemoveFormatting size={15} />
+				</button>
 				<label className="rich-upload">
 					<ImagePlus size={15} />
 					{tUI("Image")}
@@ -234,31 +318,27 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 					/>
 				</label>
 			</div>
-			{isDescription && colorOpen && (
+			{!bubble && palette}
+			{bubble && (
 				<div
-					className="rich-palette"
-					role="group"
-					aria-label={tUI("Description colors")}
-					onPointerDown={(e) => e.preventDefault()}
+					className={"rich-bubble" + (bubble.below ? " below" : "")}
+					role="toolbar"
+					aria-label={tUI("Text formatting")}
+					style={{ left: bubble.x, top: bubble.y }}
+					onPointerDown={keepEditorFocus}
 					onKeyDown={(e) => {
 						if (e.key === "Escape") {
 							e.stopPropagation();
-							setColorOpen(false);
+							setBubble(null);
+							ref.current?.focus();
 						}
 					}}>
-					{Object.entries(DESCRIPTION_COLORS).map(([code, color], index) => (
-						<button
-							key={code}
-							type="button"
-							style={{ backgroundColor: color }}
-							title={tUI(colorNames[index])}
-							aria-label={tUI(colorNames[index])}
-							onClick={() => {
-								command("foreColor", color);
-								setColorOpen(false);
-							}}
-						/>
-					))}
+					<div className="rich-bubble-row">
+						{formatToggles}
+						{sizeControls}
+						{isDescription ? colorTrigger : highlightButton}
+					</div>
+					{palette}
 				</div>
 			)}
 			{image && (
@@ -344,6 +424,20 @@ export function RichEditor({ content, onChange, locale, mode = "annotation", lab
 				onInput={read}
 				onKeyUp={captureSelection}
 				onMouseUp={captureSelection}
+				onScroll={() => setBubble(null)}
+				onKeyDown={(e) => {
+					if (!(e.ctrlKey || e.metaKey) || ![">", "<", "]", "["].includes(e.key)) return;
+					e.preventDefault();
+					captureSelection();
+					stepSize(e.key === ">" || e.key === "]" ? 1 : -1);
+				}}
+				onContextMenu={(e) => {
+					const s = window.getSelection();
+					if (!s?.rangeCount || s.isCollapsed || !ref.current?.contains(s.anchorNode)) return;
+					e.preventDefault();
+					captureSelection();
+					placeBubble(s.getRangeAt(0), { x: e.clientX, y: e.clientY });
+				}}
 				onClick={(e) => {
 					const img = (e.target as HTMLElement).closest("img");
 					if (img) chooseImage(img as HTMLImageElement);

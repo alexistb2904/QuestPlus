@@ -16,74 +16,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Build small. Think big.",
 						"fr_fr": "Construisez petit. Pensez grand."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Build small. Think big.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Construisez petit. Pensez grand.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Heat & transport",
 						"fr_fr": "Chaleur et transport"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Heat & transport",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Chaleur et transport",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Growing systems",
 						"fr_fr": "Cultures automatisées"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Growing systems",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Cultures automatisées",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Living machines",
 						"fr_fr": "Machines du vivant"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Living machines",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Machines du vivant",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Redstone workshop",
 						"fr_fr": "Atelier de redstone"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Redstone workshop",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Atelier de redstone",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -92,10 +182,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -104,10 +194,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 34,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": 48,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -116,10 +206,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 34,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": 48,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -144,74 +234,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "The world is bigger than your base.",
 						"fr_fr": "Le monde est plus grand que votre base."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The world is bigger than your base.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Le monde est plus grand que votre base.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Landscapes",
 						"fr_fr": "Paysages"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Landscapes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Paysages",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Hidden worlds",
 						"fr_fr": "Mondes cachés"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Hidden worlds",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Mondes cachés",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Sea & sky",
 						"fr_fr": "Mers et ciel"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Sea & sky",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Mers et ciel",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Long journeys",
 						"fr_fr": "Grands voyages"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Long journeys",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Grands voyages",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -220,10 +400,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -232,10 +412,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": -271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -244,10 +424,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": 271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -272,74 +452,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Forgotten places, unfinished stories.",
 						"fr_fr": "Des lieux oubliés, des histoires inachevées."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Forgotten places, unfinished stories.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Des lieux oubliés, des histoires inachevées.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Traces of the past",
 						"fr_fr": "Traces du passé"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Traces of the past",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Traces du passé",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Beneath the waves",
 						"fr_fr": "Sous les vagues"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Beneath the waves",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Sous les vagues",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Dangerous discoveries",
 						"fr_fr": "Découvertes périlleuses"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Dangerous discoveries",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Découvertes périlleuses",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Beyond the ruins",
 						"fr_fr": "Au-delà des ruines"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Beyond the ruins",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Au-delà des ruines",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -348,10 +618,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -360,10 +630,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": -271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -372,10 +642,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": 271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -400,61 +670,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Every block counts.",
 						"fr_fr": "Chaque bloc compte."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Every block counts.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Chaque bloc compte.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Stone & timber",
 						"fr_fr": "Pierre et bois"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Stone & timber",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Pierre et bois",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Ore veins",
 						"fr_fr": "Filons de minerais"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Ore veins",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Filons de minerais",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Ancient riches",
 						"fr_fr": "Richesses anciennes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Ancient riches",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Richesses anciennes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -463,10 +805,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -476,9 +818,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -503,74 +845,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "The hunter's work is never over.",
 						"fr_fr": "La chasse ne s'arrête jamais."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The hunter's work is never over.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "La chasse ne s'arrête jamais.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Night creatures",
 						"fr_fr": "Créatures de la nuit"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Night creatures",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Créatures de la nuit",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Across the wild",
 						"fr_fr": "À travers les terres"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Across the wild",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "À travers les terres",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Beyond the portal",
 						"fr_fr": "Au-delà du portail"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Beyond the portal",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Au-delà du portail",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Legendary hunts",
 						"fr_fr": "Chasses légendaires"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Legendary hunts",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Chasses légendaires",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -579,10 +1011,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -591,10 +1023,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": -271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -603,10 +1035,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": 271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -631,61 +1063,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "A world worth caring for.",
 						"fr_fr": "Un monde dont il faut prendre soin."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "A world worth caring for.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Un monde dont il faut prendre soin.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Farm & companions",
 						"fr_fr": "Ferme et compagnons"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Farm & companions",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Ferme et compagnons",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Water sanctuaries",
 						"fr_fr": "Refuges aquatiques"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Water sanctuaries",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Refuges aquatiques",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Rare encounters",
 						"fr_fr": "Rencontres rares"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Rare encounters",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Rencontres rares",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -694,10 +1198,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -707,9 +1211,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -734,61 +1238,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Make the world thrive.",
 						"fr_fr": "Faites prospérer votre monde."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Make the world thrive.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Faites prospérer votre monde.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "From field to table",
 						"fr_fr": "Du champ à la table"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "From field to table",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Du champ à la table",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "The village market",
 						"fr_fr": "Le marché du village"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The village market",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Le marché du village",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Knowledge & journeys",
 						"fr_fr": "Savoirs et voyages"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Knowledge & journeys",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Savoirs et voyages",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -797,10 +1373,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -810,9 +1386,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -837,61 +1413,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Beyond the shoreline.",
 						"fr_fr": "Au-delà du rivage."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Beyond the shoreline.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Au-delà du rivage.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Cast your line",
 						"fr_fr": "À la ligne"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Cast your line",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "À la ligne",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Living waters",
 						"fr_fr": "Eaux vivantes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Living waters",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Eaux vivantes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Ocean treasures",
 						"fr_fr": "Trésors de l’océan"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Ocean treasures",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Trésors de l’océan",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -900,10 +1548,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -913,9 +1561,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -940,61 +1588,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Give your world a story.",
 						"fr_fr": "Donnez une histoire à votre monde."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Give your world a story.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Donnez une histoire à votre monde.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "A place to live",
 						"fr_fr": "Un lieu de vie"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "A place to live",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Un lieu de vie",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Spaces to discover",
 						"fr_fr": "Lieux de découverte"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Spaces to discover",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Lieux de découverte",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Working rooms",
 						"fr_fr": "Ateliers"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Working rooms",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Ateliers",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1003,10 +1723,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1016,9 +1736,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1043,61 +1763,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "The Nether does not forgive.",
 						"fr_fr": "Le Nether ne pardonne pas."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The Nether does not forgive.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Le Nether ne pardonne pas.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Roads through fire",
 						"fr_fr": "Routes dans les flammes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Roads through fire",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Routes dans les flammes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Fortresses & battles",
 						"fr_fr": "Forteresses et combats"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Fortresses & battles",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Forteresses et combats",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Build & gather",
 						"fr_fr": "Bâtir et récolter"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Build & gather",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Bâtir et récolter",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1106,10 +1898,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1119,9 +1911,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1146,61 +1938,133 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "The end is only the beginning.",
 						"fr_fr": "La fin n'est que le début."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The end is only the beginning.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "La fin n'est que le début.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Explore the void",
 						"fr_fr": "Explorer le vide"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Explore the void",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Explorer le vide",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Make it your home",
 						"fr_fr": "S’y installer"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Make it your home",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "S’y installer",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -3,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Face the legends",
 						"fr_fr": "Affronter les légendes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Face the legends",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Affronter les légendes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1209,10 +2073,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1222,9 +2086,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": 34,
-					"width": 716,
-					"height": 128,
+					"y": 48,
+					"width": 1006,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1249,74 +2113,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Something to do today.",
 						"fr_fr": "Un défi pour aujourd'hui."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Something to do today.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Un défi pour aujourd'hui.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Hunting bounties",
 						"fr_fr": "Primes de chasse"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Hunting bounties",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Primes de chasse",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Village orders",
 						"fr_fr": "Commandes du village"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Village orders",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Commandes du village",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Sea contracts",
 						"fr_fr": "Contrats de la mer"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Sea contracts",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Contrats de la mer",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Long-term work",
 						"fr_fr": "Travaux de longue haleine"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Long-term work",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Travaux de longue haleine",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1325,10 +2279,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1337,10 +2291,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": -271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1349,10 +2303,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": 271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1377,74 +2331,164 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "No rewards without risk.",
 						"fr_fr": "Sans risque, pas de légende."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "No rewards without risk.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Sans risque, pas de légende.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Combat disciplines",
 						"fr_fr": "Disciplines de combat"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Combat disciplines",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Disciplines de combat",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Dangerous conditions",
 						"fr_fr": "Conditions extrêmes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Dangerous conditions",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Conditions extrêmes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -240,
-					"y": -2,
+					"x": -337,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Ancient threats",
 						"fr_fr": "Menaces anciennes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Ancient threats",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Menaces anciennes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 146,
-					"y": -2,
+					"x": 205,
+					"y": -4,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "The final ascent",
 						"fr_fr": "L’ascension finale"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "The final ascent",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "L’ascension finale",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1453,10 +2497,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1465,10 +2509,10 @@
 				},
 				{
 					"id": "section_03",
-					"x": -193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": -271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1477,10 +2521,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 193,
-					"y": 70,
-					"width": 330,
-					"height": 200,
+					"x": 271,
+					"y": 98,
+					"width": 464,
+					"height": 282,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1505,48 +2549,102 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Find joy in the unusual.",
 						"fr_fr": "Découvrez le plaisir de l'insolite."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Find joy in the unusual.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Découvrez le plaisir de l'insolite.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Sound & color",
 						"fr_fr": "Sons et couleurs"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Sound & color",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Sons et couleurs",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": 146,
-					"y": -174,
+					"x": 205,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Collections",
 						"fr_fr": "Collections"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Collections",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Collections",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1555,10 +2653,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": 193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": 271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -1583,35 +2681,71 @@
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -266,
+					"y": -374,
 					"style": "heading",
 					"color": "#c6a986",
-					"width": 400,
-					"height": 40,
+					"width": 563,
+					"height": 56,
 					"text": {
 						"en_us": "Mark the moments.",
 						"fr_fr": "Marquez les grandes étapes."
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Mark the moments.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Marquez les grandes étapes.",
+								"color": "#c6a986",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_1",
-					"x": -240,
-					"y": -174,
+					"x": -337,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Across the realms",
 						"fr_fr": "À travers les mondes"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Across the realms",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "À travers les mondes",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -193,
-					"y": -138,
-					"width": 330,
-					"height": 128,
+					"x": -271,
+					"y": -194,
+					"width": 464,
+					"height": 180,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -1627,6 +2761,7 @@
 			"id": "questplus:engineering/automatic_furnace",
 			"category": "questplus:engineering",
 			"icon": "minecraft:furnace",
+			"size": 45,
 			"title": {
 				"en_us": "The First Automatism",
 				"fr_fr": "Le premier automatisme"
@@ -1660,8 +2795,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			}
 		},
 		{
@@ -1669,6 +2804,7 @@
 			"id": "questplus:engineering/one_item_sorter",
 			"category": "questplus:engineering",
 			"icon": "minecraft:comparator",
+			"size": 45,
 			"title": {
 				"en_us": "Everything in Its Place",
 				"fr_fr": "Chaque chose à sa place"
@@ -1718,8 +2854,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": 61
+				"x": 322,
+				"y": 86
 			}
 		},
 		{
@@ -1727,6 +2863,7 @@
 			"id": "questplus:engineering/hidden_door",
 			"category": "questplus:engineering",
 			"icon": "minecraft:sticky_piston",
+			"size": 45,
 			"title": {
 				"en_us": "A Hidden Entrance",
 				"fr_fr": "Une entrée secrète"
@@ -1760,8 +2897,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": 61
+				"x": 220,
+				"y": 86
 			}
 		},
 		{
@@ -1769,6 +2906,7 @@
 			"id": "questplus:engineering/sugar_cane_farm",
 			"category": "questplus:engineering",
 			"icon": "minecraft:sugar_cane",
+			"size": 45,
 			"title": {
 				"en_us": "Harvest Without Effort",
 				"fr_fr": "La récolte sans effort"
@@ -1812,8 +2950,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		},
 		{
@@ -1821,6 +2959,7 @@
 			"id": "questplus:engineering/wool_automation",
 			"category": "questplus:engineering",
 			"icon": "minecraft:shears",
+			"size": 45,
 			"title": {
 				"en_us": "The Sheep Works Alone",
 				"fr_fr": "La laine travaille toute seule"
@@ -1860,8 +2999,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": 61
+				"x": -220,
+				"y": 86
 			}
 		},
 		{
@@ -1869,6 +3008,7 @@
 			"id": "questplus:engineering/pumpkin_machine",
 			"category": "questplus:engineering",
 			"icon": "minecraft:carved_pumpkin",
+			"size": 45,
 			"title": {
 				"en_us": "The Mechanical Garden",
 				"fr_fr": "Le potager mécanique"
@@ -1912,8 +3052,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -1921,6 +3061,7 @@
 			"id": "questplus:engineering/lava_generator",
 			"category": "questplus:engineering",
 			"icon": "minecraft:lava_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "Liquid Gold",
 				"fr_fr": "L'or liquide"
@@ -1954,8 +3095,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": 61
+				"x": -322,
+				"y": 86
 			}
 		},
 		{
@@ -1963,6 +3104,7 @@
 			"id": "questplus:engineering/honey_collector",
 			"category": "questplus:engineering",
 			"icon": "minecraft:honeycomb",
+			"size": 45,
 			"title": {
 				"en_us": "Honey Without Stings",
 				"fr_fr": "Le miel sans piqûres"
@@ -1996,8 +3138,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -85,
-				"y": 61
+				"x": -119,
+				"y": 86
 			}
 		},
 		{
@@ -2005,6 +3147,7 @@
 			"id": "questplus:engineering/kelp_garden",
 			"category": "questplus:engineering",
 			"icon": "minecraft:kelp",
+			"size": 45,
 			"title": {
 				"en_us": "Underwater Engineering",
 				"fr_fr": "Le jardin sous-marin"
@@ -2038,8 +3181,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": 61
+				"x": 119,
+				"y": 86
 			}
 		},
 		{
@@ -2047,6 +3190,7 @@
 			"id": "questplus:engineering/bubble_elevator",
 			"category": "questplus:engineering",
 			"icon": "minecraft:soul_sand",
+			"size": 45,
 			"title": {
 				"en_us": "Going Up",
 				"fr_fr": "Un petit ascenseur"
@@ -2084,8 +3228,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -301,
-				"y": 61
+				"x": -423,
+				"y": 86
 			}
 		},
 		{
@@ -2093,6 +3237,7 @@
 			"id": "questplus:engineering/piston_laboratory",
 			"category": "questplus:engineering",
 			"icon": "minecraft:piston",
+			"size": 45,
 			"title": {
 				"en_us": "Piston Laboratory",
 				"fr_fr": "Le laboratoire à pistons"
@@ -2126,8 +3271,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": 61
+				"x": 423,
+				"y": 86
 			}
 		},
 		{
@@ -2135,6 +3280,7 @@
 			"id": "questplus:engineering/furnace_district",
 			"category": "questplus:engineering",
 			"icon": "minecraft:hopper",
+			"size": 45,
 			"title": {
 				"en_us": "The Neighborhood Furnace",
 				"fr_fr": "Le four du quartier"
@@ -2168,8 +3314,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			}
 		},
 		{
@@ -2177,6 +3323,7 @@
 			"id": "questplus:expeditions/arid_lands",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:cactus",
+			"size": 45,
 			"title": {
 				"en_us": "Arid Lands",
 				"fr_fr": "Les terres arides"
@@ -2216,8 +3363,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -2225,6 +3372,7 @@
 			"id": "questplus:expeditions/high_peaks",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:powder_snow_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "On Top of the World",
 				"fr_fr": "Au sommet du monde"
@@ -2264,8 +3412,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -2273,6 +3421,7 @@
 			"id": "questplus:expeditions/under_canopy",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:jungle_sapling",
+			"size": 45,
 			"title": {
 				"en_us": "Under the Canopy",
 				"fr_fr": "Sous la canopée"
@@ -2312,8 +3461,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -2321,6 +3470,7 @@
 			"id": "questplus:expeditions/frozen_realm",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:packed_ice",
+			"size": 45,
 			"title": {
 				"en_us": "The Frozen Realm",
 				"fr_fr": "Le royaume des glaces"
@@ -2354,8 +3504,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -2363,6 +3513,7 @@
 			"id": "questplus:expeditions/flower_road",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:cherry_sapling",
+			"size": 45,
 			"title": {
 				"en_us": "The Flower Road",
 				"fr_fr": "La route des fleurs"
@@ -2402,8 +3553,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 61
+				"x": -271,
+				"y": 85
 			}
 		},
 		{
@@ -2411,6 +3562,7 @@
 			"id": "questplus:expeditions/lost_islands",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:red_mushroom_block",
+			"size": 45,
 			"title": {
 				"en_us": "Lost Islands",
 				"fr_fr": "Les îles perdues"
@@ -2438,8 +3590,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -2447,6 +3599,7 @@
 			"id": "questplus:expeditions/world_below",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:glow_berries",
+			"size": 45,
 			"title": {
 				"en_us": "The World Beneath",
 				"fr_fr": "Les entrailles du monde"
@@ -2480,8 +3633,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -2489,6 +3642,7 @@
 			"id": "questplus:expeditions/villages_of_world",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:bell",
+			"size": 45,
 			"title": {
 				"en_us": "Villages of the World",
 				"fr_fr": "Les villages du monde"
@@ -2534,8 +3688,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 133
+				"x": 170,
+				"y": 186
 			}
 		},
 		{
@@ -2543,6 +3697,7 @@
 			"id": "questplus:expeditions/sea_route",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:oak_boat",
+			"size": 45,
 			"title": {
 				"en_us": "The Sea Route",
 				"fr_fr": "La route maritime"
@@ -2582,8 +3737,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 133
+				"x": -372,
+				"y": 186
 			}
 		},
 		{
@@ -2591,6 +3746,7 @@
 			"id": "questplus:expeditions/wild_lands",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:dark_oak_sapling",
+			"size": 45,
 			"title": {
 				"en_us": "Wild Lands",
 				"fr_fr": "Les terres sauvages"
@@ -2630,8 +3786,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 61
+				"x": -372,
+				"y": 85
 			}
 		},
 		{
@@ -2639,6 +3795,7 @@
 			"id": "questplus:expeditions/underground_expedition",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:explorer_pottery_sherd",
+			"size": 45,
 			"title": {
 				"en_us": "Underground Expedition",
 				"fr_fr": "L'expédition souterraine"
@@ -2672,8 +3829,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 61
+				"x": 271,
+				"y": 85
 			}
 		},
 		{
@@ -2681,6 +3838,7 @@
 			"id": "questplus:expeditions/between_worlds",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:ender_pearl",
+			"size": 45,
 			"title": {
 				"en_us": "Across Three Realms",
 				"fr_fr": "La traversée des dimensions"
@@ -2727,8 +3885,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 133
+				"x": -271,
+				"y": 186
 			}
 		},
 		{
@@ -2736,6 +3894,7 @@
 			"id": "questplus:expeditions/twelve_horizons",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:compass",
+			"size": 45,
 			"title": {
 				"en_us": "Twelve Horizons",
 				"fr_fr": "Les douze horizons"
@@ -2823,8 +3982,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": 61
+				"x": 372,
+				"y": 85
 			}
 		},
 		{
@@ -2832,6 +3991,7 @@
 			"id": "questplus:expeditions/legendary_cartographer",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:cartography_table",
+			"size": 45,
 			"title": {
 				"en_us": "Legendary Cartographer",
 				"fr_fr": "Le cartographe légendaire"
@@ -2917,8 +4077,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": 133
+				"x": 372,
+				"y": 186
 			}
 		},
 		{
@@ -2926,6 +4086,7 @@
 			"id": "questplus:expeditions/grand_traveler",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:leather_boots",
+			"size": 45,
 			"title": {
 				"en_us": "The Great Traveler",
 				"fr_fr": "Le grand voyageur"
@@ -2946,8 +4107,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 133
+				"x": 271,
+				"y": 186
 			},
 			"tiers": [
 				{
@@ -2997,6 +4158,7 @@
 			"id": "questplus:expeditions/hidden_corners",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:blue_ice",
+			"size": 45,
 			"title": {
 				"en_us": "The Hidden Corners",
 				"fr_fr": "Les recoins du monde"
@@ -3036,8 +4198,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 61
+				"x": 170,
+				"y": 85
 			}
 		},
 		{
@@ -3045,6 +4207,7 @@
 			"id": "questplus:expeditions/end_archipelago",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:chorus_fruit",
+			"size": 45,
 			"title": {
 				"en_us": "The End Archipelago",
 				"fr_fr": "L'archipel de l'End"
@@ -3084,8 +4247,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": 133
+				"x": -170,
+				"y": 186
 			}
 		},
 		{
@@ -3093,6 +4256,7 @@
 			"id": "questplus:expeditions/deep_seas",
 			"category": "questplus:expeditions",
 			"icon": "minecraft:nautilus_shell",
+			"size": 45,
 			"title": {
 				"en_us": "The Deep Blue",
 				"fr_fr": "Les profondeurs bleues"
@@ -3132,8 +4296,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": 61
+				"x": -170,
+				"y": 85
 			}
 		},
 		{
@@ -3141,6 +4305,7 @@
 			"id": "questplus:milestones/overworld_entry",
 			"category": "questplus:milestones",
 			"icon": "minecraft:grass_block",
+			"size": 45,
 			"title": {
 				"en_us": "The Surface",
 				"fr_fr": "La Surface"
@@ -3162,8 +4327,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -3171,6 +4336,7 @@
 			"id": "questplus:milestones/nether_entry",
 			"category": "questplus:milestones",
 			"icon": "minecraft:obsidian",
+			"size": 45,
 			"title": {
 				"en_us": "Through the Flames",
 				"fr_fr": "À travers les flammes"
@@ -3192,8 +4358,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -3201,6 +4367,7 @@
 			"id": "questplus:milestones/end_entry",
 			"category": "questplus:milestones",
 			"icon": "minecraft:ender_eye",
+			"size": 45,
 			"title": {
 				"en_us": "Beyond the Void",
 				"fr_fr": "Au-delà du vide"
@@ -3222,8 +4389,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -3231,6 +4398,7 @@
 			"id": "questplus:archaeology/beneath_civilizations",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:iron_pickaxe",
+			"size": 45,
 			"title": {
 				"en_us": "Beneath Civilizations",
 				"fr_fr": "Sous les civilisations"
@@ -3264,8 +4432,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": 61
+				"x": -322,
+				"y": 85
 			}
 		},
 		{
@@ -3273,6 +4441,7 @@
 			"id": "questplus:archaeology/ancient_temples",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:sandstone",
+			"size": 45,
 			"title": {
 				"en_us": "Forgotten Temples",
 				"fr_fr": "Les temples anciens"
@@ -3306,8 +4475,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			}
 		},
 		{
@@ -3315,6 +4484,7 @@
 			"id": "questplus:archaeology/ocean_expedition",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:prismarine_shard",
+			"size": 45,
 			"title": {
 				"en_us": "The Ocean Expedition",
 				"fr_fr": "L'expédition océanique"
@@ -3348,8 +4518,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		},
 		{
@@ -3357,6 +4527,7 @@
 			"id": "questplus:archaeology/trails_of_past",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:angler_pottery_sherd",
+			"size": 45,
 			"title": {
 				"en_us": "Trails of the Past",
 				"fr_fr": "Les ruines du passé"
@@ -3390,8 +4561,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			}
 		},
 		{
@@ -3399,6 +4570,7 @@
 			"id": "questplus:archaeology/sunken_wealth",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:heart_of_the_sea",
+			"size": 45,
 			"title": {
 				"en_us": "Sunken Riches",
 				"fr_fr": "Les trésors engloutis"
@@ -3432,8 +4604,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -3441,6 +4613,7 @@
 			"id": "questplus:archaeology/silent_city",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:echo_shard",
+			"size": 45,
 			"title": {
 				"en_us": "The Silent City",
 				"fr_fr": "La cité silencieuse"
@@ -3478,8 +4651,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -301,
-				"y": 133
+				"x": -423,
+				"y": 186
 			}
 		},
 		{
@@ -3487,6 +4660,7 @@
 			"id": "questplus:archaeology/guardian_monument",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:prismarine",
+			"size": 45,
 			"title": {
 				"en_us": "Guardians of the Monument",
 				"fr_fr": "Le gardien du monument"
@@ -3520,8 +4694,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 61
+				"x": 170,
+				"y": 85
 			}
 		},
 		{
@@ -3529,6 +4703,7 @@
 			"id": "questplus:archaeology/trial_chambers",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:trial_key",
+			"size": 45,
 			"title": {
 				"en_us": "Trial by Chamber",
 				"fr_fr": "Les chambres des épreuves"
@@ -3562,8 +4737,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": 133
+				"x": -220,
+				"y": 186
 			}
 		},
 		{
@@ -3571,6 +4746,7 @@
 			"id": "questplus:archaeology/ominous_trials",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:ominous_trial_key",
+			"size": 45,
 			"title": {
 				"en_us": "Ominous Trials",
 				"fr_fr": "Les épreuves inquiétantes"
@@ -3598,8 +4774,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": 133
+				"x": -322,
+				"y": 186
 			}
 		},
 		{
@@ -3607,6 +4783,7 @@
 			"id": "questplus:archaeology/abandoned_estates",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:cauldron",
+			"size": 45,
 			"title": {
 				"en_us": "Abandoned Estates",
 				"fr_fr": "Les demeures abandonnées"
@@ -3640,8 +4817,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -85,
-				"y": 61
+				"x": -119,
+				"y": 85
 			}
 		},
 		{
@@ -3649,6 +4826,7 @@
 			"id": "questplus:archaeology/raider_territory",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:crossbow",
+			"size": 45,
 			"title": {
 				"en_us": "Raider Territory",
 				"fr_fr": "Les pillards du royaume"
@@ -3682,8 +4860,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": 61
+				"x": -220,
+				"y": 85
 			}
 		},
 		{
@@ -3691,6 +4869,7 @@
 			"id": "questplus:archaeology/portal_trails",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:crying_obsidian",
+			"size": 45,
 			"title": {
 				"en_us": "Portal Trails",
 				"fr_fr": "Sur la trace des portails"
@@ -3736,8 +4915,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": 61
+				"x": 372,
+				"y": 85
 			}
 		},
 		{
@@ -3745,6 +4924,7 @@
 			"id": "questplus:archaeology/piglin_history",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:gilded_blackstone",
+			"size": 45,
 			"title": {
 				"en_us": "Piglin History",
 				"fr_fr": "L'histoire des Piglins"
@@ -3778,8 +4958,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 61
+				"x": 271,
+				"y": 85
 			}
 		},
 		{
@@ -3787,6 +4967,7 @@
 			"id": "questplus:archaeology/world_remnants",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:brush",
+			"size": 45,
 			"title": {
 				"en_us": "World Remnants",
 				"fr_fr": "Les vestiges du monde"
@@ -3826,8 +5007,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -301,
-				"y": 61
+				"x": -423,
+				"y": 85
 			}
 		},
 		{
@@ -3835,6 +5016,7 @@
 			"id": "questplus:archaeology/end_ruins",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:shulker_shell",
+			"size": 45,
 			"title": {
 				"en_us": "Cities Beyond",
 				"fr_fr": "Les cités de l'au-delà"
@@ -3868,8 +5050,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 133
+				"x": 271,
+				"y": 186
 			}
 		},
 		{
@@ -3877,6 +5059,7 @@
 			"id": "questplus:archaeology/legendary_archaeologist",
 			"category": "questplus:archaeology",
 			"icon": "minecraft:decorated_pot",
+			"size": 45,
 			"title": {
 				"en_us": "Legendary Archaeologist",
 				"fr_fr": "L'archéologue légendaire"
@@ -3926,8 +5109,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 133
+				"x": 170,
+				"y": 186
 			}
 		},
 		{
@@ -3935,6 +5118,7 @@
 			"id": "questplus:quarries/stone_mountain",
 			"category": "questplus:quarries",
 			"icon": "minecraft:stone",
+			"size": 45,
 			"title": {
 				"en_us": "The Vanishing Mountain",
 				"fr_fr": "La montagne disparaît"
@@ -3955,8 +5139,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4016,6 +5200,7 @@
 			"id": "questplus:quarries/deepslate_mountain",
 			"category": "questplus:quarries",
 			"icon": "minecraft:deepslate",
+			"size": 45,
 			"title": {
 				"en_us": "Endless Depths",
 				"fr_fr": "Profondeurs sans fin"
@@ -4032,8 +5217,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4083,6 +5268,7 @@
 			"id": "questplus:quarries/endless_lumber",
 			"category": "questplus:quarries",
 			"icon": "minecraft:oak_log",
+			"size": 45,
 			"title": {
 				"en_us": "Endless Lumber",
 				"fr_fr": "Le bûcheron infatigable"
@@ -4099,8 +5285,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4150,6 +5336,7 @@
 			"id": "questplus:quarries/coal_empire",
 			"category": "questplus:quarries",
 			"icon": "minecraft:coal_ore",
+			"size": 45,
 			"title": {
 				"en_us": "Coal Empire",
 				"fr_fr": "L'empire du charbon"
@@ -4166,8 +5353,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4217,6 +5404,7 @@
 			"id": "questplus:quarries/iron_king",
 			"category": "questplus:quarries",
 			"icon": "minecraft:iron_ore",
+			"size": 45,
 			"title": {
 				"en_us": "King of Iron",
 				"fr_fr": "Le roi du fer"
@@ -4233,8 +5421,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": -111
+				"x": 119,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4284,6 +5472,7 @@
 			"id": "questplus:quarries/copper_rush",
 			"category": "questplus:quarries",
 			"icon": "minecraft:copper_ore",
+			"size": 45,
 			"title": {
 				"en_us": "Copper Rush",
 				"fr_fr": "La ruée vers le cuivre"
@@ -4300,8 +5489,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": -111
+				"x": 423,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4351,6 +5540,7 @@
 			"id": "questplus:quarries/redstone_engineer",
 			"category": "questplus:quarries",
 			"icon": "minecraft:redstone_ore",
+			"size": 45,
 			"title": {
 				"en_us": "Redstone Prospector",
 				"fr_fr": "L'ingénieur des profondeurs"
@@ -4367,8 +5557,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4418,6 +5608,7 @@
 			"id": "questplus:quarries/ancient_debris",
 			"category": "questplus:quarries",
 			"icon": "minecraft:ancient_debris",
+			"size": 45,
 			"title": {
 				"en_us": "Ancient Debris Collector",
 				"fr_fr": "Le collectionneur de débris"
@@ -4434,8 +5625,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			},
 			"tiers": [
 				{
@@ -4485,6 +5676,7 @@
 			"id": "questplus:quarries/netherite_ingots",
 			"category": "questplus:quarries",
 			"icon": "minecraft:netherite_ingot",
+			"size": 45,
 			"title": {
 				"en_us": "Master of Netherite",
 				"fr_fr": "Le maître de la Netherite"
@@ -4505,8 +5697,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			},
 			"tiers": [
 				{
@@ -4546,6 +5738,7 @@
 			"id": "questplus:hunts/skeleton_master",
 			"category": "questplus:hunts",
 			"icon": "minecraft:bone",
+			"size": 45,
 			"title": {
 				"en_us": "Skeleton Scourge",
 				"fr_fr": "Le fléau des squelettes"
@@ -4562,8 +5755,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4623,6 +5816,7 @@
 			"id": "questplus:hunts/zombie_master",
 			"category": "questplus:hunts",
 			"icon": "minecraft:rotten_flesh",
+			"size": 45,
 			"title": {
 				"en_us": "The Zombie Apocalypse",
 				"fr_fr": "L'apocalypse des zombies"
@@ -4639,8 +5833,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -4690,6 +5884,7 @@
 			"id": "questplus:hunts/creeper_master",
 			"category": "questplus:hunts",
 			"icon": "minecraft:gunpowder",
+			"size": 45,
 			"title": {
 				"en_us": "Creeper Demolition",
 				"fr_fr": "Le démineur"
@@ -4706,8 +5901,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 61
+				"x": -271,
+				"y": 85
 			},
 			"tiers": [
 				{
@@ -4757,6 +5952,7 @@
 			"id": "questplus:hunts/enderman_master",
 			"category": "questplus:hunts",
 			"icon": "minecraft:ender_pearl",
+			"size": 45,
 			"title": {
 				"en_us": "Enderman Hunter",
 				"fr_fr": "La guerre contre l'End"
@@ -4773,8 +5969,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": 61
+				"x": -170,
+				"y": 85
 			},
 			"tiers": [
 				{
@@ -4824,6 +6020,7 @@
 			"id": "questplus:hunts/blaze_master",
 			"category": "questplus:hunts",
 			"icon": "minecraft:blaze_rod",
+			"size": 45,
 			"title": {
 				"en_us": "Blaze Exterminator",
 				"fr_fr": "L'exterminateur de Blazes"
@@ -4840,8 +6037,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 133
+				"x": -372,
+				"y": 186
 			},
 			"tiers": [
 				{
@@ -4881,6 +6078,7 @@
 			"id": "questplus:hunts/four_undead",
 			"category": "questplus:hunts",
 			"icon": "minecraft:skeleton_skull",
+			"size": 45,
 			"title": {
 				"en_us": "Four Undead",
 				"fr_fr": "Les quatre morts"
@@ -4920,8 +6118,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": 61
+				"x": 423,
+				"y": 85
 			}
 		},
 		{
@@ -4929,6 +6127,7 @@
 			"id": "questplus:hunts/pillager_terror",
 			"category": "questplus:hunts",
 			"icon": "minecraft:crossbow",
+			"size": 45,
 			"title": {
 				"en_us": "Terror of the Raiders",
 				"fr_fr": "La terreur des pillards"
@@ -4968,8 +6167,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": 133
+				"x": 119,
+				"y": 186
 			}
 		},
 		{
@@ -4977,6 +6176,7 @@
 			"id": "questplus:hunts/shulker_exterminator",
 			"category": "questplus:hunts",
 			"icon": "minecraft:shulker_shell",
+			"size": 45,
 			"title": {
 				"en_us": "Shulker Exterminator",
 				"fr_fr": "L'exterminateur de Shulkers"
@@ -4993,8 +6193,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 133
+				"x": -271,
+				"y": 186
 			},
 			"tiers": [
 				{
@@ -5034,6 +6234,7 @@
 			"id": "questplus:hunts/silence_broken",
 			"category": "questplus:hunts",
 			"icon": "minecraft:sculk_catalyst",
+			"size": 45,
 			"title": {
 				"en_us": "Silence Broken",
 				"fr_fr": "Le silence est brisé"
@@ -5059,8 +6260,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": 133
+				"x": 322,
+				"y": 186
 			}
 		},
 		{
@@ -5068,6 +6269,7 @@
 			"id": "questplus:hunts/wither_destroyer",
 			"category": "questplus:hunts",
 			"icon": "minecraft:nether_star",
+			"size": 45,
 			"title": {
 				"en_us": "Wither Destroyer",
 				"fr_fr": "Le destructeur de Withers"
@@ -5093,8 +6295,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": 133
+				"x": 220,
+				"y": 186
 			}
 		},
 		{
@@ -5102,6 +6304,7 @@
 			"id": "questplus:hunts/biome_hunter",
 			"category": "questplus:hunts",
 			"icon": "minecraft:tipped_arrow",
+			"size": 45,
 			"title": {
 				"en_us": "Biome Hunter",
 				"fr_fr": "Le chasseur des biomes"
@@ -5141,8 +6344,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -5150,6 +6353,7 @@
 			"id": "questplus:hunts/predator_hunter",
 			"category": "questplus:hunts",
 			"icon": "minecraft:rabbit_foot",
+			"size": 45,
 			"title": {
 				"en_us": "Great Predator",
 				"fr_fr": "Le grand prédateur"
@@ -5189,8 +6393,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": 61
+				"x": 220,
+				"y": 85
 			}
 		},
 		{
@@ -5198,6 +6402,7 @@
 			"id": "questplus:hunts/plains_hunter",
 			"category": "questplus:hunts",
 			"icon": "minecraft:cooked_beef",
+			"size": 45,
 			"title": {
 				"en_us": "Hunt of the Plains",
 				"fr_fr": "La chasse des plaines"
@@ -5237,8 +6442,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		},
 		{
@@ -5246,6 +6451,7 @@
 			"id": "questplus:hunts/rare_creatures",
 			"category": "questplus:hunts",
 			"icon": "minecraft:rabbit_hide",
+			"size": 45,
 			"title": {
 				"en_us": "Rare Creatures",
 				"fr_fr": "Les créatures rares"
@@ -5291,8 +6497,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": 61
+				"x": 119,
+				"y": 85
 			}
 		},
 		{
@@ -5300,6 +6506,7 @@
 			"id": "questplus:hunts/night_hunt",
 			"category": "questplus:hunts",
 			"icon": "minecraft:spider_eye",
+			"size": 45,
 			"title": {
 				"en_us": "Night Stalker",
 				"fr_fr": "La traque nocturne"
@@ -5333,8 +6540,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 61
+				"x": -372,
+				"y": 85
 			},
 			"noDeath": true
 		},
@@ -5343,6 +6550,7 @@
 			"id": "questplus:hunts/undead_legion",
 			"category": "questplus:hunts",
 			"icon": "minecraft:wither_skeleton_skull",
+			"size": 45,
 			"title": {
 				"en_us": "The Undead Legion",
 				"fr_fr": "La légion des morts"
@@ -5376,8 +6584,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": 61
+				"x": 322,
+				"y": 85
 			}
 		},
 		{
@@ -5385,6 +6593,7 @@
 			"id": "questplus:wildlife/great_breeder",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:wheat",
+			"size": 45,
 			"title": {
 				"en_us": "The Great Breeder",
 				"fr_fr": "Le grand éleveur"
@@ -5424,8 +6633,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -5433,6 +6642,7 @@
 			"id": "questplus:wildlife/honey_empire",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:beehive",
+			"size": 45,
 			"title": {
 				"en_us": "Honey Empire",
 				"fr_fr": "L'empire du miel"
@@ -5466,8 +6676,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -108,
-				"y": 61
+				"x": -152,
+				"y": 86
 			}
 		},
 		{
@@ -5475,6 +6685,7 @@
 			"id": "questplus:wildlife/companions",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:bone",
+			"size": 45,
 			"title": {
 				"en_us": "The Companions Ark",
 				"fr_fr": "L'arche des compagnons"
@@ -5508,8 +6719,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -5517,6 +6728,7 @@
 			"id": "questplus:wildlife/horse_breeder",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:saddle",
+			"size": 45,
 			"title": {
 				"en_us": "The Stable Master",
 				"fr_fr": "Le maître des écuries"
@@ -5550,8 +6762,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -5559,6 +6771,7 @@
 			"id": "questplus:wildlife/wetlands",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:frogspawn",
+			"size": 45,
 			"title": {
 				"en_us": "Wetlands Guardians",
 				"fr_fr": "Les gardiens des zones humides"
@@ -5592,8 +6805,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -5601,6 +6814,7 @@
 			"id": "questplus:wildlife/forgotten_fauna",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:sweet_berries",
+			"size": 45,
 			"title": {
 				"en_us": "Forgotten Fauna",
 				"fr_fr": "La faune oubliée"
@@ -5634,8 +6848,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			}
 		},
 		{
@@ -5643,6 +6857,7 @@
 			"id": "questplus:wildlife/sniffer_sanctuary",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:torchflower_seeds",
+			"size": 45,
 			"title": {
 				"en_us": "Sniffer Sanctuary",
 				"fr_fr": "Le sanctuaire des Sniffers"
@@ -5676,8 +6891,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			}
 		},
 		{
@@ -5685,6 +6900,7 @@
 			"id": "questplus:wildlife/axolotl_collector",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:axolotl_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "Axolotl Collector",
 				"fr_fr": "Le collectionneur d'axolotls"
@@ -5706,8 +6922,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": -111
+				"x": 119,
+				"y": -156
 			}
 		},
 		{
@@ -5715,6 +6931,7 @@
 			"id": "questplus:wildlife/tropical_aquarium",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:tropical_fish_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "Tropical Aquarium",
 				"fr_fr": "L'aquarium tropical"
@@ -5742,8 +6959,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": -111
+				"x": 423,
+				"y": -156
 			}
 		},
 		{
@@ -5751,6 +6968,7 @@
 			"id": "questplus:wildlife/turtle_refuge",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:turtle_egg",
+			"size": 45,
 			"title": {
 				"en_us": "Turtle Refuge",
 				"fr_fr": "Le refuge des tortues"
@@ -5778,8 +6996,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		},
 		{
@@ -5787,6 +7005,7 @@
 			"id": "questplus:wildlife/parrot_sanctuary",
 			"category": "questplus:wildlife",
 			"icon": "minecraft:feather",
+			"size": 45,
 			"title": {
 				"en_us": "Parrot Sanctuary",
 				"fr_fr": "Le sanctuaire des perroquets"
@@ -5814,8 +7033,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 108,
-				"y": 61
+				"x": 152,
+				"y": 86
 			}
 		},
 		{
@@ -5823,6 +7042,7 @@
 			"id": "questplus:professions/royal_feast",
 			"category": "questplus:professions",
 			"icon": "minecraft:golden_carrot",
+			"size": 45,
 			"title": {
 				"en_us": "Royal Feast",
 				"fr_fr": "Le banquet royal"
@@ -5886,8 +7106,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -5895,6 +7115,7 @@
 			"id": "questplus:professions/industrial_farmer",
 			"category": "questplus:professions",
 			"icon": "minecraft:wheat",
+			"size": 45,
 			"title": {
 				"en_us": "Industrial Farmer",
 				"fr_fr": "L'agriculteur industriel"
@@ -5928,8 +7149,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -5937,6 +7158,7 @@
 			"id": "questplus:professions/master_cook",
 			"category": "questplus:professions",
 			"icon": "minecraft:cake",
+			"size": 45,
 			"title": {
 				"en_us": "Master Chef",
 				"fr_fr": "Le maître cuisinier"
@@ -5970,8 +7192,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -5979,6 +7201,7 @@
 			"id": "questplus:professions/professional_fisher",
 			"category": "questplus:professions",
 			"icon": "minecraft:fishing_rod",
+			"size": 45,
 			"title": {
 				"en_us": "Professional Fisher",
 				"fr_fr": "Le pêcheur professionnel"
@@ -6018,8 +7241,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 108,
-				"y": 61
+				"x": 152,
+				"y": 86
 			}
 		},
 		{
@@ -6027,6 +7250,7 @@
 			"id": "questplus:professions/flourishing_market",
 			"category": "questplus:professions",
 			"icon": "minecraft:emerald",
+			"size": 45,
 			"title": {
 				"en_us": "Flourishing Market",
 				"fr_fr": "Le marché florissant"
@@ -6060,8 +7284,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -6069,6 +7293,7 @@
 			"id": "questplus:professions/renowned_librarian",
 			"category": "questplus:professions",
 			"icon": "minecraft:enchanted_book",
+			"size": 45,
 			"title": {
 				"en_us": "Renowned Librarian",
 				"fr_fr": "Le bibliothécaire renommé"
@@ -6102,8 +7327,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			}
 		},
 		{
@@ -6111,6 +7336,7 @@
 			"id": "questplus:professions/village_supplier",
 			"category": "questplus:professions",
 			"icon": "minecraft:cooked_beef",
+			"size": 45,
 			"title": {
 				"en_us": "Village Supplier",
 				"fr_fr": "Le fournisseur du village"
@@ -6138,8 +7364,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -6147,6 +7373,7 @@
 			"id": "questplus:professions/village_tour",
 			"category": "questplus:professions",
 			"icon": "minecraft:bell",
+			"size": 45,
 			"title": {
 				"en_us": "Tour of the Towns",
 				"fr_fr": "La tournée des bourgs"
@@ -6192,8 +7419,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			}
 		},
 		{
@@ -6201,6 +7428,7 @@
 			"id": "questplus:professions/great_beekeeper",
 			"category": "questplus:professions",
 			"icon": "minecraft:honey_bottle",
+			"size": 45,
 			"title": {
 				"en_us": "Great Beekeeper",
 				"fr_fr": "Le grand apiculteur"
@@ -6234,8 +7462,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -108,
-				"y": 61
+				"x": -152,
+				"y": 86
 			}
 		},
 		{
@@ -6243,6 +7471,7 @@
 			"id": "questplus:professions/profitable_trades",
 			"category": "questplus:professions",
 			"icon": "minecraft:ender_pearl",
+			"size": 45,
 			"title": {
 				"en_us": "Trade Without Borders",
 				"fr_fr": "Le commerce sans frontières"
@@ -6270,8 +7499,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -6279,6 +7508,7 @@
 			"id": "questplus:ocean/four_catches",
 			"category": "questplus:ocean",
 			"icon": "minecraft:pufferfish",
+			"size": 45,
 			"title": {
 				"en_us": "The Four Catches",
 				"fr_fr": "Les quatre prises"
@@ -6318,8 +7548,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -6327,6 +7557,7 @@
 			"id": "questplus:ocean/great_fisher",
 			"category": "questplus:ocean",
 			"icon": "minecraft:fishing_rod",
+			"size": 45,
 			"title": {
 				"en_us": "The Great Fisher",
 				"fr_fr": "Le grand pêcheur"
@@ -6347,8 +7578,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			},
 			"tiers": [
 				{
@@ -6392,6 +7623,7 @@
 			"id": "questplus:ocean/tropical_collection",
 			"category": "questplus:ocean",
 			"icon": "minecraft:tropical_fish_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "Tropical Collection",
 				"fr_fr": "Le collectionneur tropical"
@@ -6413,8 +7645,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -6422,6 +7654,7 @@
 			"id": "questplus:ocean/axolotl_sanctuary",
 			"category": "questplus:ocean",
 			"icon": "minecraft:axolotl_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "Axolotl Sanctuary",
 				"fr_fr": "Le sanctuaire des axolotls"
@@ -6455,8 +7688,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -6464,6 +7697,7 @@
 			"id": "questplus:ocean/deep_hunter",
 			"category": "questplus:ocean",
 			"icon": "minecraft:trident",
+			"size": 45,
 			"title": {
 				"en_us": "Deep Sea Hunter",
 				"fr_fr": "Le chasseur des profondeurs"
@@ -6497,8 +7731,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -6506,6 +7740,7 @@
 			"id": "questplus:ocean/angler_treasure",
 			"category": "questplus:ocean",
 			"icon": "minecraft:enchanted_book",
+			"size": 45,
 			"title": {
 				"en_us": "Angler Treasure",
 				"fr_fr": "Le trésor du pêcheur"
@@ -6539,8 +7774,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -6548,6 +7783,7 @@
 			"id": "questplus:ocean/sea_wealth",
 			"category": "questplus:ocean",
 			"icon": "minecraft:heart_of_the_sea",
+			"size": 45,
 			"title": {
 				"en_us": "Wealth of the Sea",
 				"fr_fr": "Les richesses de la mer"
@@ -6582,7 +7818,7 @@
 			"objectiveMode": "all",
 			"layout": {
 				"x": 0,
-				"y": 61
+				"y": 86
 			}
 		},
 		{
@@ -6590,6 +7826,7 @@
 			"id": "questplus:ocean/underwater_architect",
 			"category": "questplus:ocean",
 			"icon": "minecraft:sea_lantern",
+			"size": 45,
 			"title": {
 				"en_us": "Underwater Architect",
 				"fr_fr": "L'architecte sous-marin"
@@ -6623,8 +7860,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -72,
-				"y": 61
+				"x": -101,
+				"y": 86
 			}
 		},
 		{
@@ -6632,6 +7869,7 @@
 			"id": "questplus:ocean/oceanic_legacy",
 			"category": "questplus:ocean",
 			"icon": "minecraft:conduit",
+			"size": 45,
 			"title": {
 				"en_us": "Oceanic Legacy",
 				"fr_fr": "L'héritage des océans"
@@ -6665,8 +7903,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 72,
-				"y": 61
+				"x": 101,
+				"y": 86
 			}
 		},
 		{
@@ -6674,6 +7912,7 @@
 			"id": "questplus:homestead/museum",
 			"category": "questplus:homestead",
 			"icon": "minecraft:item_frame",
+			"size": 45,
 			"title": {
 				"en_us": "Museum of Discoveries",
 				"fr_fr": "Le musée des découvertes"
@@ -6707,8 +7946,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -6716,6 +7955,7 @@
 			"id": "questplus:homestead/map_room",
 			"category": "questplus:homestead",
 			"icon": "minecraft:map",
+			"size": 45,
 			"title": {
 				"en_us": "The Map Room",
 				"fr_fr": "La salle des cartes"
@@ -6749,8 +7989,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -6758,6 +7998,7 @@
 			"id": "questplus:homestead/greenhouse",
 			"category": "questplus:homestead",
 			"icon": "minecraft:moss_block",
+			"size": 45,
 			"title": {
 				"en_us": "The Greenhouse",
 				"fr_fr": "La serre botanique"
@@ -6791,8 +8032,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -6800,6 +8041,7 @@
 			"id": "questplus:homestead/alchemy_room",
 			"category": "questplus:homestead",
 			"icon": "minecraft:brewing_stand",
+			"size": 45,
 			"title": {
 				"en_us": "Alchemist's Laboratory",
 				"fr_fr": "Le laboratoire d'alchimie"
@@ -6839,8 +8081,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			}
 		},
 		{
@@ -6848,6 +8090,7 @@
 			"id": "questplus:homestead/village_forge",
 			"category": "questplus:homestead",
 			"icon": "minecraft:anvil",
+			"size": 45,
 			"title": {
 				"en_us": "The Village Forge",
 				"fr_fr": "La forge du village"
@@ -6893,8 +8136,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			}
 		},
 		{
@@ -6902,6 +8145,7 @@
 			"id": "questplus:homestead/flower_garden",
 			"category": "questplus:homestead",
 			"icon": "minecraft:flower_pot",
+			"size": 45,
 			"title": {
 				"en_us": "The Color Garden",
 				"fr_fr": "Le jardin des couleurs"
@@ -6941,8 +8185,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -6950,6 +8194,7 @@
 			"id": "questplus:homestead/observatory",
 			"category": "questplus:homestead",
 			"icon": "minecraft:spyglass",
+			"size": 45,
 			"title": {
 				"en_us": "The Observatory",
 				"fr_fr": "L'observatoire"
@@ -6989,8 +8234,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -6998,6 +8243,7 @@
 			"id": "questplus:homestead/traveler_lodge",
 			"category": "questplus:homestead",
 			"icon": "minecraft:campfire",
+			"size": 45,
 			"title": {
 				"en_us": "Traveler's Lodge",
 				"fr_fr": "Le pavillon du voyageur"
@@ -7037,8 +8283,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -7046,6 +8292,7 @@
 			"id": "questplus:nether/five_hells",
 			"category": "questplus:nether",
 			"icon": "minecraft:warped_nylium",
+			"size": 45,
 			"title": {
 				"en_us": "Five Nether Biomes",
 				"fr_fr": "Les cinq enfers"
@@ -7091,8 +8338,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -7100,6 +8347,7 @@
 			"id": "questplus:nether/piglin_war",
 			"category": "questplus:nether",
 			"icon": "minecraft:golden_sword",
+			"size": 45,
 			"title": {
 				"en_us": "The Piglin War",
 				"fr_fr": "La guerre des Piglins"
@@ -7133,8 +8381,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -7142,6 +8390,7 @@
 			"id": "questplus:nether/nether_creatures",
 			"category": "questplus:nether",
 			"icon": "minecraft:ghast_tear",
+			"size": 45,
 			"title": {
 				"en_us": "Creatures of the Depths",
 				"fr_fr": "Les créatures des profondeurs"
@@ -7175,8 +8424,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": -111
+				"x": 119,
+				"y": -156
 			}
 		},
 		{
@@ -7184,6 +8433,7 @@
 			"id": "questplus:nether/fortress_conquered",
 			"category": "questplus:nether",
 			"icon": "minecraft:blaze_rod",
+			"size": 45,
 			"title": {
 				"en_us": "Fortress Conquered",
 				"fr_fr": "La forteresse conquise"
@@ -7217,8 +8467,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": -111
+				"x": 423,
+				"y": -156
 			}
 		},
 		{
@@ -7226,6 +8476,7 @@
 			"id": "questplus:nether/bastion_treasure",
 			"category": "questplus:nether",
 			"icon": "minecraft:gilded_blackstone",
+			"size": 45,
 			"title": {
 				"en_us": "Treasure of the Bastion",
 				"fr_fr": "Le trésor du bastion"
@@ -7259,8 +8510,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			}
 		},
 		{
@@ -7268,6 +8519,7 @@
 			"id": "questplus:nether/infernal_architect",
 			"category": "questplus:nether",
 			"icon": "minecraft:polished_blackstone_bricks",
+			"size": 45,
 			"title": {
 				"en_us": "Infernal Architect",
 				"fr_fr": "L'architecte infernal"
@@ -7301,8 +8553,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			}
 		},
 		{
@@ -7310,6 +8562,7 @@
 			"id": "questplus:nether/nether_highway",
 			"category": "questplus:nether",
 			"icon": "minecraft:nether_bricks",
+			"size": 45,
 			"title": {
 				"en_us": "Nether Highway",
 				"fr_fr": "L'autoroute des enfers"
@@ -7346,8 +8599,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -7355,6 +8608,7 @@
 			"id": "questplus:nether/wither_ritual",
 			"category": "questplus:nether",
 			"icon": "minecraft:wither_skeleton_skull",
+			"size": 45,
 			"title": {
 				"en_us": "Wither Ritual",
 				"fr_fr": "Le rituel du Wither"
@@ -7392,8 +8646,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		},
 		{
@@ -7401,6 +8655,7 @@
 			"id": "questplus:nether/infernal_crossing",
 			"category": "questplus:nether",
 			"icon": "minecraft:crimson_fungus",
+			"size": 45,
 			"title": {
 				"en_us": "Infernal Crossing",
 				"fr_fr": "La traversée infernale"
@@ -7434,8 +8689,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			},
 			"noDeath": true
 		},
@@ -7444,6 +8699,7 @@
 			"id": "questplus:nether/strider_voyage",
 			"category": "questplus:nether",
 			"icon": "minecraft:warped_fungus_on_a_stick",
+			"size": 45,
 			"title": {
 				"en_us": "Lava Sea Voyager",
 				"fr_fr": "Le voyageur des mers de lave"
@@ -7480,8 +8736,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -108,
-				"y": 61
+				"x": -152,
+				"y": 86
 			}
 		},
 		{
@@ -7489,6 +8745,7 @@
 			"id": "questplus:nether/netherite_harvest",
 			"category": "questplus:nether",
 			"icon": "minecraft:netherite_upgrade_smithing_template",
+			"size": 45,
 			"title": {
 				"en_us": "Netherite Harvest",
 				"fr_fr": "La récolte de Netherite"
@@ -7516,8 +8773,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 108,
-				"y": 61
+				"x": 152,
+				"y": 86
 			}
 		},
 		{
@@ -7525,6 +8782,7 @@
 			"id": "questplus:endgame/end_recon",
 			"category": "questplus:endgame",
 			"icon": "minecraft:ender_eye",
+			"size": 45,
 			"title": {
 				"en_us": "The Grand Reconnaissance",
 				"fr_fr": "La grande reconnaissance"
@@ -7564,8 +8822,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": -111
+				"x": -271,
+				"y": -156
 			}
 		},
 		{
@@ -7573,6 +8831,7 @@
 			"id": "questplus:endgame/city_hunter",
 			"category": "questplus:endgame",
 			"icon": "minecraft:elytra",
+			"size": 45,
 			"title": {
 				"en_us": "City Hunter",
 				"fr_fr": "Le chasseur de cités"
@@ -7606,8 +8865,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": -111
+				"x": -372,
+				"y": -156
 			}
 		},
 		{
@@ -7615,6 +8874,7 @@
 			"id": "questplus:endgame/enderman_slayer",
 			"category": "questplus:endgame",
 			"icon": "minecraft:ender_pearl",
+			"size": 45,
 			"title": {
 				"en_us": "Enderman Scourge",
 				"fr_fr": "Le fléau des Endermen"
@@ -7634,8 +8894,8 @@
 			"progression": "tiered",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -36,
-				"y": 61
+				"x": -51,
+				"y": 86
 			},
 			"tiers": [
 				{
@@ -7675,6 +8935,7 @@
 			"id": "questplus:endgame/void_architect",
 			"category": "questplus:endgame",
 			"icon": "minecraft:purpur_block",
+			"size": 45,
 			"title": {
 				"en_us": "Void Architect",
 				"fr_fr": "L'architecte du vide"
@@ -7708,8 +8969,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -7717,6 +8978,7 @@
 			"id": "questplus:endgame/chorus_garden",
 			"category": "questplus:endgame",
 			"icon": "minecraft:chorus_flower",
+			"size": 45,
 			"title": {
 				"en_us": "Void Garden",
 				"fr_fr": "Le jardin du vide"
@@ -7744,8 +9006,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -7753,6 +9015,7 @@
 			"id": "questplus:endgame/dragon_twice",
 			"category": "questplus:endgame",
 			"icon": "minecraft:dragon_head",
+			"size": 45,
 			"title": {
 				"en_us": "One Dragon Is Not Enough",
 				"fr_fr": "Un dragon ne suffit pas"
@@ -7774,8 +9037,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 108,
-				"y": 61
+				"x": 152,
+				"y": 86
 			}
 		},
 		{
@@ -7783,6 +9046,7 @@
 			"id": "questplus:endgame/double_boss",
 			"category": "questplus:endgame",
 			"icon": "minecraft:nether_star",
+			"size": 45,
 			"title": {
 				"en_us": "Double Confrontation",
 				"fr_fr": "Le double affrontement"
@@ -7820,8 +9084,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 36,
-				"y": 61
+				"x": 51,
+				"y": 86
 			},
 			"noDeath": true
 		},
@@ -7830,6 +9094,7 @@
 			"id": "questplus:endgame/sky_master",
 			"category": "questplus:endgame",
 			"icon": "minecraft:firework_rocket",
+			"size": 45,
 			"title": {
 				"en_us": "Master of the Skies",
 				"fr_fr": "Le maître des airs"
@@ -7857,8 +9122,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": -111
+				"x": -170,
+				"y": -156
 			}
 		},
 		{
@@ -7866,6 +9131,7 @@
 			"id": "questplus:endgame/dragon_sanctuary",
 			"category": "questplus:endgame",
 			"icon": "minecraft:end_crystal",
+			"size": 45,
 			"title": {
 				"en_us": "Dragon Sanctuary",
 				"fr_fr": "Le sanctuaire du Dragon"
@@ -7899,8 +9165,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -7908,6 +9174,7 @@
 			"id": "questplus:endgame/guardians_of_void",
 			"category": "questplus:endgame",
 			"icon": "minecraft:shulker_shell",
+			"size": 45,
 			"title": {
 				"en_us": "Guardians of the Void",
 				"fr_fr": "Les gardiens du vide"
@@ -7950,8 +9217,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -108,
-				"y": 61
+				"x": -152,
+				"y": 86
 			},
 			"noDeath": true
 		},
@@ -7960,6 +9227,7 @@
 			"id": "questplus:contracts/skeleton_bounty",
 			"category": "questplus:contracts",
 			"icon": "minecraft:bone",
+			"size": 45,
 			"title": {
 				"en_us": "Skeleton Bounty",
 				"fr_fr": "Prime aux squelettes"
@@ -7981,8 +9249,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			},
 			"cooldownSeconds": 86400
 		},
@@ -7991,6 +9259,7 @@
 			"id": "questplus:contracts/undead_cleanup",
 			"category": "questplus:contracts",
 			"icon": "minecraft:rotten_flesh",
+			"size": 45,
 			"title": {
 				"en_us": "Undead Cleanup",
 				"fr_fr": "Nettoyage des morts-vivants"
@@ -8012,8 +9281,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8022,6 +9291,7 @@
 			"id": "questplus:contracts/quarry_order",
 			"category": "questplus:contracts",
 			"icon": "minecraft:cobblestone",
+			"size": 45,
 			"title": {
 				"en_us": "Quarry Order",
 				"fr_fr": "Commande de la carrière"
@@ -8049,8 +9319,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8059,6 +9329,7 @@
 			"id": "questplus:contracts/daily_fishing",
 			"category": "questplus:contracts",
 			"icon": "minecraft:fishing_rod",
+			"size": 45,
 			"title": {
 				"en_us": "The Daily Catch",
 				"fr_fr": "Le pêcheur du jour"
@@ -8088,8 +9359,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": 61
+				"x": -220,
+				"y": 85
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8098,6 +9369,7 @@
 			"id": "questplus:contracts/trade_continues",
 			"category": "questplus:contracts",
 			"icon": "minecraft:emerald",
+			"size": 45,
 			"title": {
 				"en_us": "The Trade Continues",
 				"fr_fr": "Le commerce continue"
@@ -8119,8 +9391,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 61
+				"x": 170,
+				"y": 85
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8129,6 +9401,7 @@
 			"id": "questplus:contracts/infernal_bounty",
 			"category": "questplus:contracts",
 			"icon": "minecraft:blaze_rod",
+			"size": 45,
 			"title": {
 				"en_us": "Infernal Bounty",
 				"fr_fr": "La prime infernale"
@@ -8156,8 +9429,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": 61
+				"x": -322,
+				"y": 85
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8166,6 +9439,7 @@
 			"id": "questplus:contracts/village_meal",
 			"category": "questplus:contracts",
 			"icon": "minecraft:cooked_porkchop",
+			"size": 45,
 			"title": {
 				"en_us": "Dinner for the Village",
 				"fr_fr": "Le repas du village"
@@ -8193,8 +9467,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			},
 			"cooldownSeconds": 86400
 		},
@@ -8203,6 +9477,7 @@
 			"id": "questplus:contracts/extermination",
 			"category": "questplus:contracts",
 			"icon": "minecraft:gunpowder",
+			"size": 45,
 			"title": {
 				"en_us": "Extermination",
 				"fr_fr": "L'extermination"
@@ -8236,8 +9511,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -301,
-				"y": 61
+				"x": -423,
+				"y": 85
 			},
 			"cooldownSeconds": 604800
 		},
@@ -8246,6 +9521,7 @@
 			"id": "questplus:contracts/great_cleanup",
 			"category": "questplus:contracts",
 			"icon": "minecraft:crossbow",
+			"size": 45,
 			"title": {
 				"en_us": "Great Cleanup",
 				"fr_fr": "Le grand nettoyage"
@@ -8279,8 +9555,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": 61
+				"x": 372,
+				"y": 85
 			},
 			"cooldownSeconds": 604800
 		},
@@ -8289,6 +9565,7 @@
 			"id": "questplus:contracts/treasure_fishing",
 			"category": "questplus:contracts",
 			"icon": "minecraft:name_tag",
+			"size": 45,
 			"title": {
 				"en_us": "Treasure Fishing",
 				"fr_fr": "La chasse aux trésors"
@@ -8316,8 +9593,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -85,
-				"y": 61
+				"x": -119,
+				"y": 85
 			},
 			"cooldownSeconds": 604800
 		},
@@ -8326,6 +9603,7 @@
 			"id": "questplus:contracts/fortress_challenge",
 			"category": "questplus:contracts",
 			"icon": "minecraft:wither_skeleton_skull",
+			"size": 45,
 			"title": {
 				"en_us": "Fortress Challenge",
 				"fr_fr": "Le défi de la forteresse"
@@ -8353,8 +9631,8 @@
 			"progression": "repeatable",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 61
+				"x": 271,
+				"y": 85
 			},
 			"cooldownSeconds": 604800,
 			"noDeath": true
@@ -8364,6 +9642,7 @@
 			"id": "questplus:contracts/eternal_quarry",
 			"category": "questplus:contracts",
 			"icon": "minecraft:stone_pickaxe",
+			"size": 45,
 			"title": {
 				"en_us": "Eternal Quarry",
 				"fr_fr": "La carrière éternelle"
@@ -8385,8 +9664,8 @@
 			"progression": "infinite",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": 133
+				"x": 170,
+				"y": 186
 			}
 		},
 		{
@@ -8394,6 +9673,7 @@
 			"id": "questplus:contracts/endless_hunt",
 			"category": "questplus:contracts",
 			"icon": "minecraft:bow",
+			"size": 45,
 			"title": {
 				"en_us": "Endless Hunt",
 				"fr_fr": "La chasse sans fin"
@@ -8415,8 +9695,8 @@
 			"progression": "infinite",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": 133
+				"x": 372,
+				"y": 186
 			}
 		},
 		{
@@ -8424,6 +9704,7 @@
 			"id": "questplus:contracts/endless_travel",
 			"category": "questplus:contracts",
 			"icon": "minecraft:compass",
+			"size": 45,
 			"title": {
 				"en_us": "The Endless Road",
 				"fr_fr": "Le voyage sans retour"
@@ -8445,8 +9726,8 @@
 			"progression": "infinite",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": 133
+				"x": 271,
+				"y": 186
 			}
 		},
 		{
@@ -8454,6 +9735,7 @@
 			"id": "questplus:trials/invisible_creepers",
 			"category": "questplus:trials",
 			"icon": "minecraft:gunpowder",
+			"size": 45,
 			"title": {
 				"en_us": "They Never Saw Me",
 				"fr_fr": "Personne ne m'a vu"
@@ -8478,8 +9760,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 193,
-				"y": -111
+				"x": 271,
+				"y": -156
 			}
 		},
 		{
@@ -8487,6 +9769,7 @@
 			"id": "questplus:trials/underwater_hunter",
 			"category": "questplus:trials",
 			"icon": "minecraft:trident",
+			"size": 45,
 			"title": {
 				"en_us": "Hunter of the Abyss",
 				"fr_fr": "Le chasseur des abysses"
@@ -8511,8 +9794,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 121,
-				"y": -111
+				"x": 170,
+				"y": -156
 			}
 		},
 		{
@@ -8520,6 +9803,7 @@
 			"id": "questplus:trials/bare_hands",
 			"category": "questplus:trials",
 			"icon": "minecraft:rotten_flesh",
+			"size": 45,
 			"title": {
 				"en_us": "Bare Fists",
 				"fr_fr": "Les poings de la colère"
@@ -8544,8 +9828,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			}
 		},
 		{
@@ -8553,6 +9837,7 @@
 			"id": "questplus:trials/last_heart",
 			"category": "questplus:trials",
 			"icon": "minecraft:golden_apple",
+			"size": 45,
 			"title": {
 				"en_us": "On the Brink",
 				"fr_fr": "À un souffle de la mort"
@@ -8577,8 +9862,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 265,
-				"y": -111
+				"x": 372,
+				"y": -156
 			}
 		},
 		{
@@ -8586,6 +9871,7 @@
 			"id": "questplus:trials/obsessive_archer",
 			"category": "questplus:trials",
 			"icon": "minecraft:bow",
+			"size": 45,
 			"title": {
 				"en_us": "Obsessive Archer",
 				"fr_fr": "L'archer obsessionnel"
@@ -8610,8 +9896,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 61
+				"x": -271,
+				"y": 85
 			}
 		},
 		{
@@ -8619,6 +9905,7 @@
 			"id": "questplus:trials/silent_predator",
 			"category": "questplus:trials",
 			"icon": "minecraft:spider_eye",
+			"size": 45,
 			"title": {
 				"en_us": "Silent Predator",
 				"fr_fr": "Le prédateur silencieux"
@@ -8643,8 +9930,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 61
+				"x": -372,
+				"y": 85
 			}
 		},
 		{
@@ -8652,6 +9939,7 @@
 			"id": "questplus:trials/unarmored_gladiator",
 			"category": "questplus:trials",
 			"icon": "minecraft:iron_sword",
+			"size": 45,
 			"title": {
 				"en_us": "Unarmored Gladiator",
 				"fr_fr": "Le gladiateur sans armure"
@@ -8685,8 +9973,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			},
 			"noDeath": true
 		},
@@ -8695,6 +9983,7 @@
 			"id": "questplus:trials/warden_shadow",
 			"category": "questplus:trials",
 			"icon": "minecraft:echo_shard",
+			"size": 45,
 			"title": {
 				"en_us": "The Warden's Shadow",
 				"fr_fr": "L'ombre du Warden"
@@ -8719,8 +10008,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -265,
-				"y": 133
+				"x": -372,
+				"y": 186
 			}
 		},
 		{
@@ -8728,6 +10017,7 @@
 			"id": "questplus:trials/hunter_marathon",
 			"category": "questplus:trials",
 			"icon": "minecraft:arrow",
+			"size": 45,
 			"title": {
 				"en_us": "Hunter Marathon",
 				"fr_fr": "Le marathon du chasseur"
@@ -8761,8 +10051,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": 61
+				"x": 119,
+				"y": 85
 			},
 			"noDeath": true,
 			"timeLimitSeconds": 2700
@@ -8772,6 +10062,7 @@
 			"id": "questplus:trials/nether_descent",
 			"category": "questplus:trials",
 			"icon": "minecraft:crimson_fungus",
+			"size": 45,
 			"title": {
 				"en_us": "Descent into the Nether",
 				"fr_fr": "La descente aux enfers"
@@ -8805,8 +10096,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": 61
+				"x": 220,
+				"y": 85
 			},
 			"noDeath": true
 		},
@@ -8815,6 +10106,7 @@
 			"id": "questplus:trials/deep_guardian",
 			"category": "questplus:trials",
 			"icon": "minecraft:sculk_sensor",
+			"size": 45,
 			"title": {
 				"en_us": "Guardian of the Depths",
 				"fr_fr": "Le gardien des profondeurs"
@@ -8842,8 +10134,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": 61
+				"x": -170,
+				"y": 85
 			},
 			"noDeath": true
 		},
@@ -8852,6 +10144,7 @@
 			"id": "questplus:trials/three_world_conqueror",
 			"category": "questplus:trials",
 			"icon": "minecraft:shulker_shell",
+			"size": 45,
 			"title": {
 				"en_us": "Conqueror of Three Worlds",
 				"fr_fr": "Le conquérant des trois mondes"
@@ -8894,8 +10187,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": 61
+				"x": 423,
+				"y": 85
 			},
 			"noDeath": true
 		},
@@ -8904,6 +10197,7 @@
 			"id": "questplus:trials/ancient_trial",
 			"category": "questplus:trials",
 			"icon": "minecraft:prismarine_shard",
+			"size": 45,
 			"title": {
 				"en_us": "Trial of the Ancients",
 				"fr_fr": "L'épreuve des anciens"
@@ -8937,8 +10231,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -121,
-				"y": 133
+				"x": -170,
+				"y": 186
 			},
 			"noDeath": true
 		},
@@ -8947,6 +10241,7 @@
 			"id": "questplus:trials/warrior_ascension",
 			"category": "questplus:trials",
 			"icon": "minecraft:blaze_powder",
+			"size": 45,
 			"title": {
 				"en_us": "The Warrior's Ascent",
 				"fr_fr": "L'ascension du guerrier"
@@ -8982,8 +10277,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": 61
+				"x": 322,
+				"y": 85
 			},
 			"noDeath": true
 		},
@@ -8992,6 +10287,7 @@
 			"id": "questplus:trials/three_giants",
 			"category": "questplus:trials",
 			"icon": "minecraft:dragon_head",
+			"size": 45,
 			"title": {
 				"en_us": "Three Giants, One Life",
 				"fr_fr": "Trois géants, une vie"
@@ -9029,8 +10325,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": 133
+				"x": 119,
+				"y": 186
 			},
 			"noDeath": true,
 			"hidden": true,
@@ -9043,6 +10339,7 @@
 			"id": "questplus:trials/collector_hunt",
 			"category": "questplus:trials",
 			"icon": "minecraft:skeleton_skull",
+			"size": 45,
 			"title": {
 				"en_us": "Collector Hunt",
 				"fr_fr": "La chasse du collectionneur"
@@ -9178,8 +10475,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -193,
-				"y": 133
+				"x": -271,
+				"y": 186
 			}
 		},
 		{
@@ -9187,6 +10484,7 @@
 			"id": "questplus:trials/last_survivor",
 			"category": "questplus:trials",
 			"icon": "minecraft:shield",
+			"size": 45,
 			"title": {
 				"en_us": "The Last Survivor",
 				"fr_fr": "Le dernier survivant"
@@ -9226,8 +10524,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": 133
+				"x": 322,
+				"y": 186
 			},
 			"noDeath": true,
 			"timeLimitSeconds": 3600
@@ -9237,6 +10535,7 @@
 			"id": "questplus:trials/final_page",
 			"category": "questplus:trials",
 			"icon": "minecraft:written_book",
+			"size": 45,
 			"title": {
 				"en_us": "The Final Page",
 				"fr_fr": "La dernière page"
@@ -9262,8 +10561,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": 133
+				"x": 220,
+				"y": 186
 			},
 			"hidden": true,
 			"requires": {
@@ -9282,6 +10581,7 @@
 			"id": "questplus:curiosities/disc_collector",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:music_disc_cat",
+			"size": 45,
 			"title": {
 				"en_us": "The Record Collector",
 				"fr_fr": "Le collectionneur de disques"
@@ -9327,8 +10627,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -229,
-				"y": -111
+				"x": -322,
+				"y": -156
 			}
 		},
 		{
@@ -9336,6 +10636,7 @@
 			"id": "questplus:curiosities/note_orchestra",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:note_block",
+			"size": 45,
 			"title": {
 				"en_us": "The Note Orchestra",
 				"fr_fr": "L'orchestre du village"
@@ -9363,8 +10664,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -301,
-				"y": -111
+				"x": -423,
+				"y": -156
 			}
 		},
 		{
@@ -9372,6 +10673,7 @@
 			"id": "questplus:curiosities/heads_museum",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:zombie_head",
+			"size": 45,
 			"title": {
 				"en_us": "Museum of Heads",
 				"fr_fr": "La galerie des horreurs"
@@ -9409,8 +10711,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 85,
-				"y": -111
+				"x": 119,
+				"y": -156
 			}
 		},
 		{
@@ -9418,6 +10720,7 @@
 			"id": "questplus:curiosities/pottery_museum",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:decorated_pot",
+			"size": 45,
 			"title": {
 				"en_us": "The Pottery Museum",
 				"fr_fr": "Le musée des poteries"
@@ -9439,8 +10742,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 157,
-				"y": -111
+				"x": 220,
+				"y": -156
 			}
 		},
 		{
@@ -9448,6 +10751,7 @@
 			"id": "questplus:curiosities/frog_lights",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:ochre_froglight",
+			"size": 45,
 			"title": {
 				"en_us": "Froglight Rainbow",
 				"fr_fr": "Le royaume des grenouilles"
@@ -9481,8 +10785,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -85,
-				"y": -111
+				"x": -119,
+				"y": -156
 			}
 		},
 		{
@@ -9490,6 +10794,7 @@
 			"id": "questplus:curiosities/wool_rainbow",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:magenta_wool",
+			"size": 45,
 			"title": {
 				"en_us": "The Colors of the World",
 				"fr_fr": "Les couleurs du monde"
@@ -9601,8 +10906,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -157,
-				"y": -111
+				"x": -220,
+				"y": -156
 			}
 		},
 		{
@@ -9610,6 +10915,7 @@
 			"id": "questplus:curiosities/small_treasures",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:sniffer_egg",
+			"size": 45,
 			"title": {
 				"en_us": "The Little Treasures",
 				"fr_fr": "Les petits trésors"
@@ -9649,8 +10955,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 301,
-				"y": -111
+				"x": 423,
+				"y": -156
 			}
 		},
 		{
@@ -9658,6 +10964,7 @@
 			"id": "questplus:curiosities/strange_collection",
 			"category": "questplus:curiosities",
 			"icon": "minecraft:pufferfish_bucket",
+			"size": 45,
 			"title": {
 				"en_us": "The Strange Collector",
 				"fr_fr": "L'étrange collectionneur"
@@ -9703,8 +11010,8 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 229,
-				"y": -111
+				"x": 322,
+				"y": -156
 			}
 		}
 	]

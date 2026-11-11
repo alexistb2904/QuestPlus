@@ -19,6 +19,11 @@ function normalizedSize(v) {
 	if (String(v).endsWith("px")) return Math.max(0.75, Math.min(2, pt / 14));
 	return null;
 }
+export function minecraftPx(v) {
+	const m = String(v || "").match(/\*\s*([\d.]+)\s*\)\s*$/) || String(v || "").match(/^([\d.]+)px$/);
+	const px = m ? Math.round(parseFloat(m[1])) : NaN;
+	return Number.isFinite(px) && px > 0 ? px : null;
+}
 export function richFromDom(root) {
 	const parts = [];
 	function pushText(txt, style) {
@@ -66,12 +71,10 @@ export function richFromDom(root) {
 			else if (v.includes("default")) s.font = "default";
 		}
 		const size = normalizedSize(el.style.fontSize) || (tag === "font" ? { 1: 0.75, 2: 0.85, 3: 1, 4: 1.3, 5: 1.6, 6: 1.85, 7: 2 }[Number(el.getAttribute("size"))] : null);
-		if (el.style.fontSize?.endsWith("px")) {
-			const px = Math.round(parseFloat(el.style.fontSize));
-			if (Number.isFinite(px)) {
-				s.sizePx = Math.max(1, px);
-				delete s.size;
-			}
+		const px = minecraftPx(el.style.fontSize);
+		if (px) {
+			s.sizePx = px;
+			delete s.size;
 		} else if (size) {
 			s.size = size;
 			delete s.sizePx;
@@ -108,7 +111,6 @@ export async function toEmbeddedImage(file) {
 		canvas.height = img.naturalHeight;
 		canvas.getContext("2d").drawImage(img, 0, 0);
 		data = canvas.toDataURL("image/png");
-		// Larger WebP conversions fall through to the optional client-side compression below.
 	}
 	if (file.type !== "image/gif" && file.size > 2 * 1024 * 1024) {
 		const max = 1; // keep the original pixel dimensions
@@ -118,14 +120,12 @@ export async function toEmbeddedImage(file) {
 		const ctx = canvas.getContext("2d");
 		if (!ctx) throw Error("Image compression unavailable");
 		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-		// Light client-side JPEG compression for photos, keep transparent PNG images as PNG.
 		const hasAlpha = (() => {
 			const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 			for (let i = 3; i < pixels.length; i += 4) if (pixels[i] !== 255) return true;
 			return false;
 		})();
 		data = canvas.toDataURL(hasAlpha ? "image/png" : "image/jpeg", hasAlpha ? undefined : 0.88);
-		// No hard rejection if the compressed result is still large.
 	}
 	const scale = 1;
 	return { data, width: Math.max(8, Math.round(img.naturalWidth * scale)), height: Math.max(8, Math.round(img.naturalHeight * scale)) };

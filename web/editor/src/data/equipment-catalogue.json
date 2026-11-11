@@ -15,88 +15,196 @@
 			"annotations": [
 				{
 					"id": "section_1",
-					"x": -417,
-					"y": -174,
+					"x": -586,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Armor collection",
 						"fr_fr": "Collection d’armures"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Armor collection",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Collection d’armures",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_2",
-					"x": -417,
-					"y": 142,
+					"x": -586,
+					"y": 199,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Enchanted armor",
 						"fr_fr": "Armures enchantées"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Enchanted armor",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Armures enchantées",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_3",
-					"x": -47,
-					"y": -174,
+					"x": -66,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Melee weapons",
 						"fr_fr": "Armes de mêlée"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Melee weapons",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Armes de mêlée",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_4",
-					"x": 323,
-					"y": -174,
+					"x": 454,
+					"y": -245,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Ranged & mobility",
 						"fr_fr": "Distance et mobilité"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Ranged & mobility",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Distance et mobilité",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_5",
-					"x": -47,
-					"y": 142,
+					"x": -66,
+					"y": 199,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Tools of the trade",
 						"fr_fr": "Outils de métier"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Tools of the trade",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Outils de métier",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_6",
-					"x": 323,
-					"y": 142,
+					"x": 454,
+					"y": 199,
 					"style": "label",
 					"color": "#b1a28e",
-					"width": 200,
-					"height": 24,
+					"width": 281,
+					"height": 34,
 					"text": {
 						"en_us": "Mastery",
 						"fr_fr": "Maîtrise"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Mastery",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Maîtrise",
+								"color": "#b1a28e",
+								"size": 1.4
+							}
+						]
 					}
 				},
 				{
 					"id": "section_01",
-					"x": -370,
-					"y": -66,
-					"width": 330,
-					"height": 272,
+					"x": -520,
+					"y": -93,
+					"width": 464,
+					"height": 382,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -105,10 +213,10 @@
 				},
 				{
 					"id": "section_02",
-					"x": -370,
-					"y": 286,
-					"width": 330,
-					"height": 344,
+					"x": -520,
+					"y": 402,
+					"width": 464,
+					"height": 484,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -118,9 +226,9 @@
 				{
 					"id": "section_03",
 					"x": 0,
-					"y": -66,
-					"width": 330,
-					"height": 272,
+					"y": -93,
+					"width": 464,
+					"height": 382,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -129,10 +237,10 @@
 				},
 				{
 					"id": "section_04",
-					"x": 370,
-					"y": -66,
-					"width": 330,
-					"height": 272,
+					"x": 520,
+					"y": -93,
+					"width": 464,
+					"height": 382,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -142,9 +250,9 @@
 				{
 					"id": "section_05",
 					"x": 0,
-					"y": 286,
-					"width": 330,
-					"height": 344,
+					"y": 402,
+					"width": 464,
+					"height": 484,
 					"style": "background",
 					"color": "#947b63",
 					"text": {
@@ -153,10 +261,10 @@
 				},
 				{
 					"id": "section_06",
-					"x": 370,
-					"y": 286,
-					"width": 330,
-					"height": 344,
+					"x": 520,
+					"y": 402,
+					"width": 464,
+					"height": 484,
 					"style": "background",
 					"color": "#74718e",
 					"text": {
@@ -172,6 +280,7 @@
 			"id": "questplus:equipment/set_leather",
 			"category": "questplus:equipment",
 			"icon": "minecraft:leather_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Master of Leather",
 				"fr_fr": "Maître du cuir"
@@ -222,8 +331,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -478,
-				"y": -111
+				"x": -672,
+				"y": -156
 			}
 		},
 		{
@@ -231,6 +340,7 @@
 			"id": "questplus:equipment/set_copper",
 			"category": "questplus:equipment",
 			"icon": "minecraft:copper_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Copper Age",
 				"fr_fr": "L'âge du cuivre"
@@ -281,8 +391,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -406,
-				"y": -111
+				"x": -571,
+				"y": -156
 			}
 		},
 		{
@@ -290,6 +400,7 @@
 			"id": "questplus:equipment/set_iron",
 			"category": "questplus:equipment",
 			"icon": "minecraft:iron_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Iron Knight",
 				"fr_fr": "Le chevalier de fer"
@@ -340,8 +451,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -334,
-				"y": -111
+				"x": -469,
+				"y": -156
 			}
 		},
 		{
@@ -349,6 +460,7 @@
 			"id": "questplus:equipment/set_golden",
 			"category": "questplus:equipment",
 			"icon": "minecraft:golden_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Golden Sovereign",
 				"fr_fr": "L'armure du roi"
@@ -399,8 +511,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -262,
-				"y": -111
+				"x": -368,
+				"y": -156
 			}
 		},
 		{
@@ -408,6 +520,7 @@
 			"id": "questplus:equipment/set_chainmail",
 			"category": "questplus:equipment",
 			"icon": "minecraft:chainmail_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Forgotten Mail",
 				"fr_fr": "Les mailles oubliées"
@@ -458,8 +571,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -478,
-				"y": -39
+				"x": -672,
+				"y": -55
 			}
 		},
 		{
@@ -467,6 +580,7 @@
 			"id": "questplus:equipment/set_diamond",
 			"category": "questplus:equipment",
 			"icon": "minecraft:diamond_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Diamond Warrior",
 				"fr_fr": "Le guerrier de diamant"
@@ -517,8 +631,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -406,
-				"y": -39
+				"x": -571,
+				"y": -55
 			}
 		},
 		{
@@ -526,6 +640,7 @@
 			"id": "questplus:equipment/set_netherite",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Netherite Lord",
 				"fr_fr": "Le seigneur de Netherite"
@@ -576,8 +691,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -334,
-				"y": -39
+				"x": -469,
+				"y": -55
 			}
 		},
 		{
@@ -585,6 +700,7 @@
 			"id": "questplus:equipment/armor_collector",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Armor Collector",
 				"fr_fr": "Le collectionneur d'armures"
@@ -660,8 +776,8 @@
 				]
 			},
 			"layout": {
-				"x": -406,
-				"y": 33
+				"x": -571,
+				"y": 46
 			}
 		},
 		{
@@ -669,6 +785,7 @@
 			"id": "questplus:equipment/diamond_p4",
 			"category": "questplus:equipment",
 			"icon": "minecraft:diamond_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Diamond Bulwark",
 				"fr_fr": "Le rempart de diamant"
@@ -727,8 +844,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -478,
-				"y": 205
+				"x": -672,
+				"y": 288
 			}
 		},
 		{
@@ -736,6 +853,7 @@
 			"id": "questplus:equipment/netherite_p4",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Netherite Bulwark",
 				"fr_fr": "Le rempart de Netherite"
@@ -794,8 +912,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -406,
-				"y": 205
+				"x": -571,
+				"y": 288
 			}
 		},
 		{
@@ -803,6 +921,7 @@
 			"id": "questplus:equipment/netherite_unbreaking",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Built to Last",
 				"fr_fr": "À l'épreuve du temps"
@@ -861,8 +980,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -334,
-				"y": 205
+				"x": -469,
+				"y": 288
 			}
 		},
 		{
@@ -870,6 +989,7 @@
 			"id": "questplus:equipment/perfect_bulwark",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Perfect Bulwark",
 				"fr_fr": "Le blindage parfait"
@@ -932,8 +1052,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -262,
-				"y": 205
+				"x": -368,
+				"y": 288
 			}
 		},
 		{
@@ -941,6 +1061,7 @@
 			"id": "questplus:equipment/eternal_armor",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Eternal Armor",
 				"fr_fr": "L'équipement éternel"
@@ -1007,8 +1128,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -478,
-				"y": 277
+				"x": -672,
+				"y": 389
 			}
 		},
 		{
@@ -1016,6 +1137,7 @@
 			"id": "questplus:equipment/deep_helmet",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_helmet",
+			"size": 45,
 			"title": {
 				"en_us": "Helm of the Depths",
 				"fr_fr": "Le casque des profondeurs"
@@ -1057,8 +1179,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -406,
-				"y": 277
+				"x": -571,
+				"y": 389
 			}
 		},
 		{
@@ -1066,6 +1188,7 @@
 			"id": "questplus:equipment/explorer_boots",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_boots",
+			"size": 45,
 			"title": {
 				"en_us": "Explorer's Boots",
 				"fr_fr": "Les bottes de l'explorateur"
@@ -1107,8 +1230,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -334,
-				"y": 277
+				"x": -469,
+				"y": 389
 			}
 		},
 		{
@@ -1116,6 +1239,7 @@
 			"id": "questplus:equipment/shadow_leggings",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_leggings",
+			"size": 45,
 			"title": {
 				"en_us": "Shadow Leggings",
 				"fr_fr": "Les jambières de l'ombre"
@@ -1156,8 +1280,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -262,
-				"y": 277
+				"x": -368,
+				"y": 389
 			}
 		},
 		{
@@ -1165,6 +1289,7 @@
 			"id": "questplus:equipment/titan_chest",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Titan's Chestplate",
 				"fr_fr": "Le plastron du titan"
@@ -1205,8 +1330,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -478,
-				"y": 349
+				"x": -672,
+				"y": 490
 			}
 		},
 		{
@@ -1214,6 +1339,7 @@
 			"id": "questplus:equipment/imperial_armor",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Imperial Armor",
 				"fr_fr": "L'armure impériale"
@@ -1305,8 +1431,8 @@
 				]
 			},
 			"layout": {
-				"x": -406,
-				"y": 421
+				"x": -571,
+				"y": 591
 			}
 		},
 		{
@@ -1314,6 +1440,7 @@
 			"id": "questplus:equipment/netherite_blade",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
+			"size": 45,
 			"title": {
 				"en_us": "Blade from the Depths",
 				"fr_fr": "La lame des profondeurs"
@@ -1349,8 +1476,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -72,
-				"y": -111
+				"x": -101,
+				"y": -156
 			}
 		},
 		{
@@ -1358,6 +1485,7 @@
 			"id": "questplus:equipment/sharp_blade",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
+			"size": 45,
 			"title": {
 				"en_us": "A Keen Edge",
 				"fr_fr": "Une lame bien aiguisée"
@@ -1396,7 +1524,7 @@
 			"progression": "once",
 			"layout": {
 				"x": 0,
-				"y": -111
+				"y": -156
 			}
 		},
 		{
@@ -1404,6 +1532,7 @@
 			"id": "questplus:equipment/sword_master",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
+			"size": 45,
 			"title": {
 				"en_us": "Sword Master",
 				"fr_fr": "Le maître épéiste"
@@ -1445,8 +1574,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 72,
-				"y": -111
+				"x": 101,
+				"y": -156
 			}
 		},
 		{
@@ -1454,6 +1583,7 @@
 			"id": "questplus:equipment/battle_axe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_axe",
+			"size": 45,
 			"title": {
 				"en_us": "Warrior's Axe",
 				"fr_fr": "La hache du guerrier"
@@ -1494,8 +1624,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -72,
-				"y": -39
+				"x": -101,
+				"y": -55
 			}
 		},
 		{
@@ -1503,6 +1633,7 @@
 			"id": "questplus:equipment/legendary_bow",
 			"category": "questplus:equipment",
 			"icon": "minecraft:bow",
+			"size": 45,
 			"title": {
 				"en_us": "Legendary Bow",
 				"fr_fr": "L'arc légendaire"
@@ -1543,8 +1674,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 298,
-				"y": -111
+				"x": 419,
+				"y": -156
 			}
 		},
 		{
@@ -1552,6 +1683,7 @@
 			"id": "questplus:equipment/hunter_crossbow",
 			"category": "questplus:equipment",
 			"icon": "minecraft:crossbow",
+			"size": 45,
 			"title": {
 				"en_us": "Hunter's Crossbow",
 				"fr_fr": "L'arbalète du chasseur"
@@ -1591,8 +1723,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 370,
-				"y": -111
+				"x": 520,
+				"y": -156
 			}
 		},
 		{
@@ -1600,6 +1732,7 @@
 			"id": "questplus:equipment/storm_trident",
 			"category": "questplus:equipment",
 			"icon": "minecraft:trident",
+			"size": 45,
 			"title": {
 				"en_us": "Storm Trident",
 				"fr_fr": "Le trident des tempêtes"
@@ -1641,8 +1774,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 442,
-				"y": -111
+				"x": 621,
+				"y": -156
 			}
 		},
 		{
@@ -1650,6 +1783,7 @@
 			"id": "questplus:equipment/riptide_trident",
 			"category": "questplus:equipment",
 			"icon": "minecraft:trident",
+			"size": 45,
 			"title": {
 				"en_us": "Wandering Trident",
 				"fr_fr": "Le trident du voyageur"
@@ -1690,8 +1824,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 298,
-				"y": -39
+				"x": 419,
+				"y": -55
 			}
 		},
 		{
@@ -1699,6 +1833,7 @@
 			"id": "questplus:equipment/titan_mace",
 			"category": "questplus:equipment",
 			"icon": "minecraft:mace",
+			"size": 45,
 			"title": {
 				"en_us": "Titan's Mace",
 				"fr_fr": "La masse du titan"
@@ -1740,7 +1875,7 @@
 			"progression": "once",
 			"layout": {
 				"x": 0,
-				"y": -39
+				"y": -55
 			}
 		},
 		{
@@ -1748,6 +1883,7 @@
 			"id": "questplus:equipment/legendary_spear",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_spear",
+			"size": 45,
 			"title": {
 				"en_us": "Legendary Spear",
 				"fr_fr": "La lance légendaire"
@@ -1787,8 +1923,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 72,
-				"y": -39
+				"x": 101,
+				"y": -55
 			}
 		},
 		{
@@ -1796,6 +1932,7 @@
 			"id": "questplus:equipment/fortune_pick",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
+			"size": 45,
 			"title": {
 				"en_us": "Fortune Pickaxe",
 				"fr_fr": "La pioche du mineur"
@@ -1836,8 +1973,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -72,
-				"y": 205
+				"x": -101,
+				"y": 288
 			}
 		},
 		{
@@ -1845,6 +1982,7 @@
 			"id": "questplus:equipment/silk_pick",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
+			"size": 45,
 			"title": {
 				"en_us": "Silk Touch Pickaxe",
 				"fr_fr": "Le toucher de soie"
@@ -1886,7 +2024,7 @@
 			"progression": "once",
 			"layout": {
 				"x": 0,
-				"y": 205
+				"y": 288
 			}
 		},
 		{
@@ -1894,6 +2032,7 @@
 			"id": "questplus:equipment/woodcutter_axe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_axe",
+			"size": 45,
 			"title": {
 				"en_us": "Woodcutter's Axe",
 				"fr_fr": "La hache du bûcheron"
@@ -1933,8 +2072,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 72,
-				"y": 205
+				"x": 101,
+				"y": 288
 			}
 		},
 		{
@@ -1942,6 +2081,7 @@
 			"id": "questplus:equipment/endless_shovel",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_shovel",
+			"size": 45,
 			"title": {
 				"en_us": "Endless Shovel",
 				"fr_fr": "La pelle infatigable"
@@ -1981,8 +2121,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -72,
-				"y": 277
+				"x": -101,
+				"y": 389
 			}
 		},
 		{
@@ -1990,6 +2130,7 @@
 			"id": "questplus:equipment/farmer_hoe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_hoe",
+			"size": 45,
 			"title": {
 				"en_us": "Farmer's Tool",
 				"fr_fr": "L'outil du cultivateur"
@@ -2030,7 +2171,7 @@
 			"progression": "once",
 			"layout": {
 				"x": 0,
-				"y": 277
+				"y": 389
 			}
 		},
 		{
@@ -2038,6 +2179,7 @@
 			"id": "questplus:equipment/eternal_wings",
 			"category": "questplus:equipment",
 			"icon": "minecraft:elytra",
+			"size": 45,
 			"title": {
 				"en_us": "Eternal Wings",
 				"fr_fr": "Les ailes éternelles"
@@ -2076,8 +2218,8 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 370,
-				"y": -39
+				"x": 520,
+				"y": -55
 			}
 		},
 		{
@@ -2085,6 +2227,7 @@
 			"id": "questplus:equipment/miners_kit",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
+			"size": 45,
 			"title": {
 				"en_us": "The Miner's Collection",
 				"fr_fr": "La panoplie du mineur"
@@ -2146,7 +2289,7 @@
 			},
 			"layout": {
 				"x": 0,
-				"y": 349
+				"y": 490
 			}
 		},
 		{
@@ -2154,6 +2297,7 @@
 			"id": "questplus:equipment/equipment_master",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
+			"size": 45,
 			"title": {
 				"en_us": "Master of Equipment",
 				"fr_fr": "Le maître des équipements"
@@ -2278,8 +2422,8 @@
 				]
 			},
 			"layout": {
-				"x": 370,
-				"y": 205
+				"x": 520,
+				"y": 288
 			}
 		}
 	]

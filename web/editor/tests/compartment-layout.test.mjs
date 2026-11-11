@@ -18,19 +18,19 @@ test("all 219 built-in quests are aligned in disjoint tablet-compatible compartm
 			assert.ok(box.width > 0 && box.height > 0);
 			const label = labels.find((note) => note.text.en_us === box.text.en_us);
 			assert.ok(label, category.id + " missing heading for " + box.id);
-			assert.equal(label.y, box.y - box.height / 2 + 28, category.id + " title baseline");
-			assert.equal(label.x, box.x - box.width / 2 + 118, category.id + " title left alignment");
+			assert.equal(label.y, box.y - box.height / 2 + 39, category.id + " title baseline");
+			assert.equal(label.x, box.x - box.width / 2 + 166, category.id + " title left alignment");
 		}
 		for (const quest of quests) {
 			assert.ok(Number.isFinite(quest.layout?.x) && Number.isFinite(quest.layout?.y), quest.id);
-			const inside = backgrounds.filter((box) => Math.abs(quest.layout.x - box.x) <= box.width / 2 - 17 && Math.abs(quest.layout.y - box.y) <= box.height / 2 - 17);
+			const inside = backgrounds.filter((box) => Math.abs(quest.layout.x - box.x) <= box.width / 2 - 23 && Math.abs(quest.layout.y - box.y) <= box.height / 2 - 23);
 			assert.equal(inside.length, 1, quest.id + " must lie in exactly one section");
 			const box = inside[0];
-			assert.equal((quest.layout.y - (box.y - box.height / 2) - 91) % 72, 0, quest.id + " must be row-aligned");
+			assert.equal((quest.layout.y - (box.y - box.height / 2) - 128) % 101, 0, quest.id + " must be row-aligned");
 		}
 		for (let i = 0; i < quests.length; i++)
 			for (let j = i + 1; j < quests.length; j++)
-				assert.ok(Math.hypot(quests[i].layout.x - quests[j].layout.x, quests[i].layout.y - quests[j].layout.y) >= 70, quests[i].id + " overlaps " + quests[j].id);
+				assert.ok(Math.hypot(quests[i].layout.x - quests[j].layout.x, quests[i].layout.y - quests[j].layout.y) >= 98, quests[i].id + " overlaps " + quests[j].id);
 		const topByRow = new Map();
 		for (const box of backgrounds) {
 			const row = box.y - box.height / 2,

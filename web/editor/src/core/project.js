@@ -165,7 +165,7 @@ export function quest(group, id = "questplus:quest", en = "New quest", layout = 
 		id,
 		category: group.id,
 		icon: "minecraft:book",
-		size: 32,
+		size: 45,
 		title: { en_us: en },
 		objectives: [{ id: "step", event: "block_break", target: "minecraft:stone", count: 1 }],
 		rewards: [],
@@ -174,7 +174,8 @@ export function quest(group, id = "questplus:quest", en = "New quest", layout = 
 	};
 }
 export function annotation(id = "note", x = 0, y = 0) {
-	return { id, x, y, text: { en_us: "Note" }, style: "note", color: "#c6a986", width: 170, height: 100 };
+	// Text at 1.4x matches the 45px default quest (the game's own default is 32px).
+	return { id, x, y, text: { en_us: "Note" }, rich: { en_us: [{ type: "text", text: "Note", size: 1.4 }] }, style: "note", color: "#c6a986", width: 240, height: 140 };
 }
 export function gearRequirementText(conditions, lang = "en_us") {
 	const root = conditions?.["questplus:gear"] ? conditions : conditions?.and?.find((x) => x?.["questplus:gear"]);

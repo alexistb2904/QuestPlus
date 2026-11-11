@@ -1,7 +1,4 @@
-// A deliberately small, portable format shared by Quest Studio and the Minecraft client.
-// Images are embedded data URIs (never remote URLs). Everything is serialized as JSON.
 export const RICH_FONTS = ["default", "uniform", "alt", "illageralt"];
-// Image uploads have no product-imposed byte limit. Device memory and transport remain finite.
 
 const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (x) => ESC[x]);
@@ -42,7 +39,7 @@ export function richToHtml(parts) {
 			if (p.type === "image") return '<img draggable="false" alt="Embedded image" src="' + esc(p.data) + '" width="' + p.width + '" height="' + p.height + '">';
 			const style = [];
 			if (p.font) style.push("--mc-font:" + p.font);
-			if (p.sizePx) style.push("font-size:" + p.sizePx + "px");
+			if (p.sizePx) style.push("font-size:calc(var(--mc-px, 1px) * " + p.sizePx + ")");
 			else if (p.size) style.push("font-size:" + Math.round(p.size * 100) + "%");
 			if (p.color) style.push("color:" + p.color);
 			if (p.highlight) style.push("background-color:" + p.highlight);
