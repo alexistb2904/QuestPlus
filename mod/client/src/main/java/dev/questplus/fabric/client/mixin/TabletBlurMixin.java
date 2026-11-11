@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client.mixin;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.client.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class TabletBlurMixin {
 	@Inject(method = "getMenuBackgroundBlurriness", at = @At("RETURN"), cancellable = true)
 	private void questplus$blur(CallbackInfoReturnable<Integer> result) {
-		if (Minecraft.getInstance().gui.screen() instanceof QuestScreen screen && QuestPlusClient.settings != null) {
+		if (ClientAdapter.INSTANCE.screen(Minecraft.getInstance()) instanceof QuestScreen screen && QuestPlusClient.settings != null) {
 			var settings = QuestPlusClient.settings;
 			result.setReturnValue(TabletShaderCompat.backgroundBlurEnabled()
 					? (int) Math.round(8 * settings.blurIntensity * screen.animationProgress())

@@ -20,6 +20,21 @@ class DefaultsTest {
 	Path tempDir;
 
 	@Test
+	void bundledNpcsSkipOnlyStructuresMissingFromTheRunningMinecraft() throws Exception {
+		Path root = tempDir.resolve("older-minecraft");
+		Defaults.install(root, structure -> !structure.equals("#minecraft:abandoned_camp"));
+		var config = JsonParser.parseString(Files.readString(root.resolve("config.json"))).getAsJsonObject();
+		var oswin = config.getAsJsonArray("npcs").asList().stream().map(n -> n.getAsJsonObject())
+				.filter(n -> n.get("id").getAsString().equals("oswin_wanderer")).findFirst().orElseThrow();
+		var spawns = oswin.getAsJsonArray("spawns").toString();
+		assertFalse(spawns.contains("abandoned_camp"), spawns);
+		assertTrue(spawns.contains("\"random\""), "Other spawn rules stay: " + spawns);
+		Path current = tempDir.resolve("current-minecraft");
+		Defaults.install(current, structure -> true);
+		assertTrue(Files.readString(current.resolve("config.json")).contains("#minecraft:abandoned_camp"));
+	}
+
+	@Test
 	void newWorldCopiesGlobalDefaultsOnlyOnce() throws Exception {
 		Path defaults = tempDir.resolve("config/default"), world = tempDir.resolve("world/questplus");
 		Defaults.install(defaults);

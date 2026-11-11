@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.loader.api.FabricLoader;
@@ -25,7 +26,7 @@ public final class TabletCompatibilityTest {
 			context.waitFor(client -> QuestPlusClient.STATE.ready, 600);
 			context.waitTicks(20);
 			context.runOnClient(client -> {
-				client.gui.setScreen(null);
+				ClientAdapter.INSTANCE.setScreen(client, null);
 				QuestPlusClient.settings.animations = true;
 				QuestPlusClient.settings.tablet = true;
 				QuestPlusClient.settings.reducedMotion = false;
@@ -55,13 +56,13 @@ public final class TabletCompatibilityTest {
 						QuestClientTabletFlow.toggle(client);
 					});
 					context.waitTicks(8);
-					context.takeScreenshot(trial + "-opening");
+					dev.questplus.compat.ClientGameTestShims.screenshot(context, trial + "-opening");
 					context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 					context.waitTicks(4);
 					context.runOnClient(client -> assertCameraOwnership(true));
 					context.runOnClient(client -> TabletArmRenderingTest.verify(client, true));
-					assertMatteScreen(context.takeScreenshot(trial + "-held"));
-					context.runOnClient(client -> client.gui.screen().onClose());
+					assertMatteScreen(dev.questplus.compat.ClientGameTestShims.screenshot(context, trial + "-held"));
+					context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 					context.waitTicks(5);
 					var before = context.computeOnClient(client -> {
 						if (!QuestClientTabletFlow.nativeHandsActive() || !TabletSurfaceRenderer.hasSurface()
@@ -69,22 +70,22 @@ public final class TabletCompatibilityTest {
 							throw new AssertionError("Native close pose disappeared: " + trial);
 						return TabletNativeAnimation.bone("tablet_root", "position");
 					});
-					context.takeScreenshot(trial + "-closing-5");
+					dev.questplus.compat.ClientGameTestShims.screenshot(context, trial + "-closing-5");
 					context.waitTicks(6);
 					context.runOnClient(client -> {
 						if (!QuestClientTabletFlow.nativeHandsActive()
 								|| before.equals(TabletNativeAnimation.bone("tablet_root", "position")))
 							throw new AssertionError("Native close pose did not advance: " + trial);
 					});
-					context.takeScreenshot(trial + "-closing-11");
+					dev.questplus.compat.ClientGameTestShims.screenshot(context, trial + "-closing-11");
 					context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 35);
 					context.runOnClient(client -> {
-						if (client.gui.screen() != null || TabletSurfaceRenderer.hidesHud())
+						if (ClientAdapter.INSTANCE.screen(client) != null || TabletSurfaceRenderer.hidesHud())
 							throw new AssertionError("HUD or screen retained after close: " + trial);
 						assertCameraOwnership(false);
 						TabletArmRenderingTest.verify(client, false);
 					});
-					context.takeScreenshot(trial + "-closed");
+					dev.questplus.compat.ClientGameTestShims.screenshot(context, trial + "-closed");
 					QuestPlusMod.LOGGER.info("TABLET COMPAT PASS {}", trial);
 				}
 			}
@@ -97,7 +98,7 @@ public final class TabletCompatibilityTest {
 			context.waitTicks(8);
 			context.getInput().releaseKey(com.mojang.blaze3d.platform.InputConstants.KEY_W);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 35);
 			QuestClientGameTest.remotePoseTrial(context, world.getServer());
 			if (FabricLoader.getInstance().isModLoaded("punchy_moves"))
@@ -112,11 +113,11 @@ public final class TabletCompatibilityTest {
 		context.waitFor(client -> QuestClientTabletFlow.carrying() && TabletNativeArms.active(), 120);
 		context.waitTicks(5);
 		context.runOnClient(client -> {
-			if (client.gui.screen() != null || TabletSurfaceRenderer.hidesHud() || TabletSurfaceRenderer.hasSurface())
+			if (ClientAdapter.INSTANCE.screen(client) != null || TabletSurfaceRenderer.hidesHud() || TabletSurfaceRenderer.hasSurface())
 				throw new AssertionError("Carry pose opened the menu or retained its surface");
 			assertCameraOwnership(true);
 		});
-		context.takeScreenshot(label + "-item-carried");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, label + "-item-carried");
 		server.runCommand("execute at @p run setblock ~ ~1 ~2 minecraft:chest");
 		context.runOnClient(client -> {
 			client.player.setYRot(0);
@@ -130,9 +131,9 @@ public final class TabletCompatibilityTest {
 		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
 		context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
 		context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
-		context.runOnClient(client -> client.gui.screen().onClose());
+		context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 		context.waitFor(client -> QuestClientTabletFlow.carrying(), 120);
-		context.takeScreenshot(label + "-item-carried-after-close");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, label + "-item-carried-after-close");
 		server.runCommand("execute at @p run setblock ~ ~1 ~2 minecraft:air");
 		server.runCommand("item replace entity @p weapon.mainhand with minecraft:air");
 		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 60);
@@ -151,7 +152,7 @@ public final class TabletCompatibilityTest {
 				var key = java.util.Arrays.stream(client.options.keyMappings)
 						.filter(k -> k.getName().equals("questplus.client.open")).findFirst().orElseThrow();
 				var previous = com.mojang.blaze3d.platform.InputConstants.getKey(key.saveString());
-				key.setKey(com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD
+				key.setKey(dev.questplus.compat.ClientGameTestShims.KEYBOARD
 						.getOrCreate(com.mojang.blaze3d.platform.InputConstants.KEY_K));
 				net.minecraft.client.KeyMapping.resetMapping();
 				if (!Boolean.TRUE.equals(handler.invoke(null, j)))
@@ -164,7 +165,7 @@ public final class TabletCompatibilityTest {
 		try {
 			context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_K);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 60);
 			QuestPlusMod.LOGGER.info("TABLET PUNCHY REBIND PASS");
 		} finally {
@@ -194,19 +195,20 @@ public final class TabletCompatibilityTest {
 	private static void assertMatteScreen(java.nio.file.Path screenshot) {
 		try {
 			var image = javax.imageio.ImageIO.read(screenshot.toFile());
-			int dark = 0, total = 0;
+			int parchment = 0, total = 0;
 			// Centre of the held display at the fixed test camera, away from arms and world
-			// geometry.
+			// geometry. The parchment UI is warm when lit and neutral grey when world-lit; sky or
+			// grass behind a missing display is blue or green, and a specular glare is saturated white.
 			for (int y = image.getHeight() * 35 / 100; y < image.getHeight() * 60 / 100; y++)
 				for (int x = image.getWidth() * 35 / 100; x < image.getWidth() * 65 / 100; x++) {
-					int rgb = image.getRGB(x, y);
-					if (Math.max((rgb >> 16) & 255, Math.max((rgb >> 8) & 255, rgb & 255)) < 120)
-						dark++;
+					int rgb = image.getRGB(x, y), r = (rgb >> 16) & 255, g = (rgb >> 8) & 255, b = rgb & 255;
+					if (r >= b && g <= r + 15 && Math.min(r, Math.min(g, b)) < 235)
+						parchment++;
 					total++;
 				}
-			if (dark < total / 2)
-				throw new AssertionError("Tablet display is missing or reflective: " + screenshot + " (dark pixels "
-						+ dark + "/" + total + ")");
+			if (parchment < total / 2)
+				throw new AssertionError("Tablet display is missing or reflective: " + screenshot + " (parchment pixels "
+						+ parchment + "/" + total + ")");
 		} catch (java.io.IOException e) {
 			throw new AssertionError(e);
 		}

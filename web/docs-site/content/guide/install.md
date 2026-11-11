@@ -2,10 +2,10 @@
 
 | Requirement    | Version              |
 | -------------- | -------------------- |
-| Minecraft Java | 26.3                 |
+| Minecraft Java | 26.1.2, 26.2 or 26.3 |
 | Loader         | Fabric               |
 | Java           | 25+                  |
-| Fabric API     | Compatible with 26.3 |
+| Fabric API     | For your Minecraft   |
 
 Install Quest Plus and Fabric API in `mods/` on the client and server.
 

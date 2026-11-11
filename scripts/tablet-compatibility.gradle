@@ -1,6 +1,11 @@
 // Test-only launch configuration. All downloads and worlds stay under build/.
 allprojects {
     afterEvaluate {
+        // One Minecraft target per run (-Pmc): the launcher downloads that version's mods.
+        if (project != rootProject.findProperty('referenceTarget')) {
+            tasks.matching { it.name.startsWith('run') }.configureEach { enabled = false }
+            return
+        }
         loom.mods { questplus { sourceSet sourceSets.main } }
         def profile = providers.gradleProperty('tabletCompatibility').get()
         def profiles = [
@@ -12,7 +17,7 @@ allprojects {
             blocks: ['sodium', 'iris']
         ]
         if (!profiles.containsKey(profile)) throw new GradleException('Unknown tablet profile: ' + profile)
-        def testDir = file("build/tablet-compat/${profile}")
+        def testDir = rootProject.file("build/tablet-compat/${project.name}/${profile}")
         loom.runs.clientGameTest {
             runDir testDir.absolutePath
             vmArg profile == 'blocks' ? '-Dquestplus.worldBlocksShaders=true' : '-Dquestplus.tabletCompatibility=true'
@@ -23,7 +28,7 @@ allprojects {
         tasks.named('deleteGameTestRunDir') {
             setDelete([testDir])
             doLast {
-                def cache = file('build/tablet-assets')
+                def cache = rootProject.file("build/tablet-assets/${project.name}")
                 def manifest = new groovy.json.JsonSlurper().parse(new File(cache, 'manifest.json'))
                 profiles[profile].each { id ->
                     def asset = manifest[id]

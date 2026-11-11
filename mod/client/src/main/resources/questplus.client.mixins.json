@@ -7,14 +7,10 @@
 		"TabletBlurMixin",
 		"GameRendererAccessor",
 		"FontAccessor",
-		"TabletGameRendererMixin",
-		"TabletGuiRendererMixin",
 		"TabletGuiExtractorMixin",
 		"PunchyMovesKeyMixin",
-		"TabletHudMixin",
 		"TabletModelPartAccessor",
-		"TabletIrisHandMixin",
-		"TabletNativeFirstPersonMixin"
+		"TabletIrisHandMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

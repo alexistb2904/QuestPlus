@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
 import dev.questplus.fabric.QuestRuntime;
 import dev.questplus.fabric.client.ui.QuestButton;
@@ -31,14 +32,14 @@ final class TeamClientGameTest {
 			ready(context, "OWNER", 1);
 			UUID team = context.computeOnClient(client -> UUID.fromString(QuestPlusClient.STATE.team.get("id").getAsString()));
 			for (UUID id : List.of(member, other)) {
-				change(server, m -> m.invite(owner, id, System.currentTimeMillis()));
-				change(server, m -> m.join(id, team, System.currentTimeMillis()));
+				change(context, server, m -> m.invite(owner, id, System.currentTimeMillis()));
+				change(context, server, m -> m.join(id, team, System.currentTimeMillis()));
 			}
 			ready(context, "OWNER", 3);
 			for (int i = 3; i <= 9; i++) {
 				UUID id = new UUID(81, i);
-				change(server, m -> m.invite(owner, id, System.currentTimeMillis()));
-				change(server, m -> m.join(id, team, System.currentTimeMillis()));
+				change(context, server, m -> m.invite(owner, id, System.currentTimeMillis()));
+				change(context, server, m -> m.join(id, team, System.currentTimeMillis()));
 			}
 			ready(context, "OWNER", 10);
 			click(context, "next");
@@ -46,7 +47,7 @@ final class TeamClientGameTest {
 			context.takeScreenshot("teams-paginated-owner-controls");
 			for (int i = 3; i <= 9; i++) {
 				UUID id = new UUID(81, i);
-				change(server, m -> m.kick(owner, id));
+				change(context, server, m -> m.kick(owner, id));
 			}
 			ready(context, "OWNER", 3);
 			buttons(context, "previous", 0);
@@ -91,7 +92,7 @@ final class TeamClientGameTest {
 					&& !QuestClientState.flag(QuestPlusClient.STATE.team, "saving"), 300);
 			click(context, "back");
 			context.runOnClient(client -> {
-				client.gui.setScreen(null);
+				ClientAdapter.INSTANCE.setScreen(client, null);
 				QuestPlusClient.settings.tablet = true;
 				QuestClientTabletFlow.toggle(client);
 			});
@@ -118,7 +119,7 @@ final class TeamClientGameTest {
 					throw new AssertionError(error);
 				}
 			});
-			change(server, m -> m.setManager(member, owner, false));
+			change(context, server, m -> m.setManager(member, owner, false));
 			ready(context, "MEMBER", 2);
 			buttons(context, "invite", 0);
 			buttons(context, "team_options", 0);
@@ -129,20 +130,20 @@ final class TeamClientGameTest {
 			context.runOnClient(client -> QuestPlusClient.action("promote", member.toString()));
 			context.waitFor(client -> QuestPlusClient.STATE.error != null, 300);
 			role(context, owner, "MEMBER");
-			change(server, m -> m.setManager(member, owner, true));
+			change(context, server, m -> m.setManager(member, owner, true));
 			ready(context, "MANAGER", 2);
 			click(context, "team_options");
-			change(server, m -> m.kick(member, owner));
+			change(context, server, m -> m.kick(member, owner));
 			context.waitFor(client -> QuestPlusClient.STATE.team == null, 300);
 			context.waitTicks(3);
 			buttons(context, "create", 1);
 			buttons(context, "rename", 0);
 			context.takeScreenshot("teams-kicked-live-refresh");
-			change(server, m -> m.invite(member, owner, System.currentTimeMillis()));
+			change(context, server, m -> m.invite(member, owner, System.currentTimeMillis()));
 			context.waitFor(client -> QuestPlusClient.STATE.invitations.size() == 1, 300);
 			click(context, "join");
 			ready(context, "MEMBER", 2);
-			change(server, m -> m.transfer(member, owner));
+			change(context, server, m -> m.transfer(member, owner));
 			ready(context, "OWNER", 2);
 			click(context, "disband");
 			click(context, "confirm");
@@ -150,11 +151,11 @@ final class TeamClientGameTest {
 			context.waitTicks(3);
 			buttons(context, "create", 1);
 			context.takeScreenshot("teams-disbanded-live-refresh");
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 		}
 	}
 
-	private static void change(TestServerContext server, QuestRuntime.TeamAction action) {
+	private static void change(ClientGameTestContext context, TestServerContext server, QuestRuntime.TeamAction action) {
 		var pending = new AtomicReference<CompletableFuture<Void>>();
 		server.runOnServer(s -> {
 			try {
@@ -163,7 +164,7 @@ final class TeamClientGameTest {
 				throw new AssertionError(error);
 			}
 		});
-		server.waitFor(s -> pending.get().isDone(), 300);
+		dev.questplus.compat.ClientGameTestShims.waitForServer(context, server, s -> pending.get().isDone(), 300);
 		pending.get().join();
 	}
 
@@ -174,7 +175,7 @@ final class TeamClientGameTest {
 				&& !QuestClientState.flag(QuestPlusClient.STATE.team, "saving"), 300);
 		context.waitTicks(3);
 		context.runOnClient(client -> {
-			var controls = client.gui.screen().children().stream().filter(AbstractWidget.class::isInstance)
+			var controls = ClientAdapter.INSTANCE.screen(client).children().stream().filter(AbstractWidget.class::isInstance)
 					.map(AbstractWidget.class::cast).filter(c -> c.visible).toList();
 			for (int i = 0; i < controls.size(); i++)
 				for (int j = i + 1; j < controls.size(); j++) {
@@ -198,13 +199,13 @@ final class TeamClientGameTest {
 	}
 
 	private static void text(ClientGameTestContext context, String value) {
-		context.runOnClient(client -> client.gui.screen().children().stream().filter(EditBox.class::isInstance)
+		context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).children().stream().filter(EditBox.class::isInstance)
 				.map(EditBox.class::cast).findFirst().orElseThrow().setValue(value));
 	}
 
 	private static void buttons(ClientGameTestContext context, String key, long expected) {
 		context.runOnClient(client -> {
-			long count = client.gui.screen().children().stream().filter(QuestButton.class::isInstance)
+			long count = ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance)
 					.map(QuestButton.class::cast)
 					.filter(b -> b.active && b.getMessage().getString().equals(QuestPlusClient.tr(key).getString())).count();
 			if (count != expected)
@@ -215,8 +216,8 @@ final class TeamClientGameTest {
 	private static void click(ClientGameTestContext context, String key) {
 		context.waitTicks(3);
 		context.runOnClient(client -> {
-			if (client.gui.screen().getFocused() != null)
-				client.gui.screen().getFocused().setFocused(false);
+			if (ClientAdapter.INSTANCE.screen(client).getFocused() != null)
+				ClientAdapter.INSTANCE.screen(client).getFocused().setFocused(false);
 		});
 		QuestClientGameTest.clickButton(context, key);
 	}

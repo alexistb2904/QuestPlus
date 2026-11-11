@@ -7,14 +7,22 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class Defaults {
+	private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("questplus");
+
 	private Defaults() {
 	}
 
 	public static void installWorld(Path defaults, Path world) throws IOException {
+		installWorld(defaults, world, structure -> true);
+	}
+
+	/** {@code knownStructure} filters bundled NPC spawns for structures this Minecraft version lacks. */
+	public static void installWorld(Path defaults, Path world, Predicate<String> knownStructure) throws IOException {
 		if (!Files.exists(defaults))
-			install(defaults);
+			install(defaults, knownStructure);
 		if (Files.exists(world))
 			return;
 		Files.createDirectories(world.getParent());
@@ -42,6 +50,10 @@ public final class Defaults {
 	}
 
 	public static void install(Path directory) throws IOException {
+		install(directory, structure -> true);
+	}
+
+	public static void install(Path directory, Predicate<String> knownStructure) throws IOException {
 		// Never overwrite existing worlds or intentionally deleted definitions.
 		if (Files.exists(directory.resolve("config.json"))) {
 			removeUnmodifiedLegacySamples(directory);
@@ -80,9 +92,28 @@ public final class Defaults {
 				value = QuestRegistry.parseStrict(reader).getAsJsonObject();
 			}
 			// The Explorers' quests are offered by these NPCs.
-			value.add("npcs", explorers.get("npcs"));
+			value.add("npcs", availableNpcs(explorers.get("npcs"), knownStructure));
 			Files.writeString(config, value.toString(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 		}
+	}
+
+	/** Bundled NPCs may also spawn in structures added by a newer Minecraft; drop only those rules. */
+	static JsonElement availableNpcs(JsonElement npcs, Predicate<String> knownStructure) {
+		var copy = npcs.deepCopy();
+		for (var npc : copy.getAsJsonArray()) {
+			var spawns = npc.getAsJsonObject().getAsJsonArray("spawns");
+			if (spawns != null)
+				spawns.asList().removeIf(rule -> {
+					var spawn = rule.getAsJsonObject();
+					boolean missing = spawn.get("type").getAsString().equals("structure")
+							&& !knownStructure.test(spawn.get("target").getAsString());
+					if (missing)
+						LOGGER.info("Quest Plus: default NPC {} skips structure {} absent from this Minecraft version",
+								npc.getAsJsonObject().get("id").getAsString(), spawn.get("target").getAsString());
+					return missing;
+				});
+		}
+		return copy;
 	}
 
 	/**

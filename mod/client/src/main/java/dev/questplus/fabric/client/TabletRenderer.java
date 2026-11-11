@@ -1,5 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
+
 import com.google.gson.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.Model;
@@ -31,8 +33,8 @@ public final class TabletRenderer {
 		graphics.pose().pushMatrix();
 		MODEL.root().setRotation(0, 0, 0);
 		MODEL.root().y = 25.616f - (height + 2 * marginY) * 8f / (width * .8f);
-		graphics.skin(MODEL, TEXTURE, width * .8f, 0, 0, 0, left - marginX, top - marginY, right + marginX,
-				bottom + marginY);
+		ClientAdapter.INSTANCE.skin(graphics, MODEL, TEXTURE, width * .8f, 0, 0, 0, left - marginX, top - marginY,
+				right + marginX, bottom + marginY);
 		graphics.nextStratum();
 		graphics.pose().popMatrix();
 	}

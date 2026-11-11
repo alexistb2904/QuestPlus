@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.QuestNetwork;
 import net.fabricmc.api.ClientModInitializer;
@@ -11,7 +12,6 @@ import net.minecraft.client.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.resources.Identifier;
-import com.mojang.blaze3d.platform.InputConstants;
 import java.util.*;
 
 public final class QuestPlusClient implements ClientModInitializer {
@@ -59,6 +59,7 @@ public final class QuestPlusClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		ClientAdapter.INSTANCE.initialize();
 		settings = ClientSettings.load();
 		QuestWorldBlockRenderer.register();
 		QuestLootChestRenderer.register();
@@ -67,31 +68,31 @@ public final class QuestPlusClient implements ClientModInitializer {
 				(packet, context) -> context.client().execute(() -> QuestGiverLooks.receive(packet)));
 		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestGiverNetwork.Dialog.TYPE,
 				(packet, context) -> context.client().execute(() -> {
-					if (context.client().gui.screen() instanceof QuestGiverScreen screen
+					if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestGiverScreen screen
 							&& screen.entity() == packet.entity())
 						screen.receive(packet);
 					else
-						context.client().gui.setScreen(new QuestGiverScreen(packet));
+						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestGiverScreen(packet));
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE,
 				(packet, context) -> context.client().execute(() -> {
-					if (context.client().gui.screen() instanceof QuestStationScreen screen) screen.receive(packet);
-					else if (context.client().gui.screen() instanceof QuestRelayScreen screen) screen.receive(packet);
-					else if (context.client().gui.screen() instanceof QuestBlockScreen screen) screen.receive(packet);
-					else if(context.client().gui.screen() instanceof QuestBoardScreen screen)screen.receive(packet);
-					else if(context.client().gui.screen() instanceof QuestBlockPicker picker)picker.receive(packet);
+					if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestStationScreen screen) screen.receive(packet);
+					else if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestRelayScreen screen) screen.receive(packet);
+					else if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBlockScreen screen) screen.receive(packet);
+					else if(ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBoardScreen screen)screen.receive(packet);
+					else if(ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBlockPicker picker)picker.receive(packet);
 					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==0)
-						context.client().gui.setScreen(new QuestBoardScreen(packet));
+						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestBoardScreen(packet));
 					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==2)
-						context.client().gui.setScreen(new QuestRelayScreen(packet));
-					else context.client().gui.setScreen(new QuestStationScreen(packet));
+						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestRelayScreen(packet));
+					else ClientAdapter.INSTANCE.setScreen(context.client(), new QuestStationScreen(packet));
 				}));
 		TabletPoseClient.register();
 		QuestClientTabletFlow.register();
 		PunchyTabletCompat.register();
 		FirstPersonTabletCompat.register();
 		open = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping("questplus.client.open", InputConstants.KEY_J, KeyMapping.Category.MISC));
+				new KeyMapping("questplus.client.open", ClientAdapter.INSTANCE.keys().j(), KeyMapping.Category.MISC));
 		ClientPlayNetworking.registerGlobalReceiver(QuestNetwork.State.TYPE,
 				(payload, context) -> context.client().execute(() -> receive(payload)));
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

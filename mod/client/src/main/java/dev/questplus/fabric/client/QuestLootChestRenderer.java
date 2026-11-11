@@ -160,9 +160,9 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 		float squash = t >= 7 && t < 12 ? 1 - .12f * (float) Math.sin((t - 7) / 5 * Math.PI) : 1;
 		pose.pushPose();
 		pose.translate(0, drop + Math.max(0, Math.sin(t * 1.3)) * shake * .05 - sink * .35, 0);
-		pose.rotate(Axis.YP.rotationDegrees(180 - Direction.from2DDataValue(state.facing).toYRot()));
-		pose.rotate(Axis.ZP.rotationDegrees((float) Math.sin(t * 2.9) * shake * 7));
-		pose.rotate(Axis.XP.rotationDegrees((float) Math.cos(t * 3.7) * shake * 4));
+		pose.last().rotate(Axis.YP.rotationDegrees(180 - Direction.from2DDataValue(state.facing).toYRot()));
+		pose.last().rotate(Axis.ZP.rotationDegrees((float) Math.sin(t * 2.9) * shake * 7));
+		pose.last().rotate(Axis.XP.rotationDegrees((float) Math.cos(t * 3.7) * shake * 4));
 		float size = 1 - sq(sink) * .9f;
 		pose.scale(size * (2 - squash), size * squash, size * (2 - squash));
 		pose.translate(-.5, 0, -.5);
@@ -186,7 +186,7 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 				glow(p, v, 13.5f, 8.9f, 3.5f, c);
 			});
 		pose.translate(0, 9, 14);
-		pose.rotate(Axis.XP.rotationDegrees(lidAngle));
+		pose.last().rotate(Axis.XP.rotationDegrees(lidAngle));
 		pose.translate(0, -9, -14);
 		queue.submitCustomGeometry(pose, RenderTypes.entityCutout(TEXTURE), (p, v) -> {
 			for (var box : lid)
@@ -222,8 +222,8 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 			sphere(pp, v, r, argb(.55f, color));
 			sphere(pp, v, r * 1.6f, argb(.16f, color));
 		});
-		pose.rotate(Axis.YP.rotationDegrees(t * 3));
-		pose.rotate(Axis.XP.rotationDegrees(t * 1.3f));
+		pose.last().rotate(Axis.YP.rotationDegrees(t * 3));
+		pose.last().rotate(Axis.XP.rotationDegrees(t * 1.3f));
 		int rays = 5 + state.rarity * 3;
 		float length = (.4f + .25f * state.rarity) * cubicOut(p) * (1 + charge * .8f);
 		queue.submitCustomGeometry(pose, glow(), (pp, v) -> {
@@ -269,7 +269,7 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 				float scale = (n == 1 ? .85f : .55f) * appear * (1 - .8f * fly);
 				pose.pushPose();
 				pose.translate(at.x, at.y, at.z);
-				pose.rotate(Axis.YP.rotationDegrees(t * 4 + i * 45));
+				pose.last().rotate(Axis.YP.rotationDegrees(t * 4 + i * 45));
 				pose.scale(scale, scale, scale);
 				state.items.get(i).submit(pose, queue, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
 				pose.popPose();
@@ -279,7 +279,7 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 			return;
 		pose.pushPose();
 		pose.translate(0, ORB_TOP + .95, 0);
-		pose.rotate(camera.orientation);
+		pose.last().rotate(camera.orientation);
 		pose.scale(.025f, -.025f, .025f);
 		int alpha = Math.max(5, (int) (text * 255)) << 24;
 		if (n > 0)

@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.CommonAdapter;
+
 import dev.questplus.persistence.BlockAccount;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -13,7 +15,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.PushReaction;
 import java.util.*;
 
 public final class QuestWorldBlocks {
@@ -73,7 +74,7 @@ public final class QuestWorldBlocks {
         var id = Identifier.parse("questplus:"+name);
         var key = ResourceKey.create(Registries.BLOCK, id);
         var properties = BlockBehaviour.Properties.of().setId(key).strength(2.5f).sound(SoundType.WOOD)
-                .noOcclusion().pushReaction(PushReaction.IMMOVEABLE);
+                .noOcclusion().pushReaction(CommonAdapter.INSTANCE.immovable());
         var block = Registry.register(BuiltInRegistries.BLOCK, key, switch(kind) {
             case 0 -> new QuestUtilityBlock.Board(properties); case 1 -> new QuestUtilityBlock.Station(properties);
             default -> new QuestUtilityBlock.Relay(properties);

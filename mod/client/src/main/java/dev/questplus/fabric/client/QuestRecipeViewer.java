@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +17,7 @@ final class QuestRecipeViewer {
 	private static Session session;
 
 	static QuestScreen tabletScreen() {
-		var current = Minecraft.getInstance().gui.screen();
+		var current = ClientAdapter.INSTANCE.screen(Minecraft.getInstance());
 		if (session != null) {
 			if (session.contains(current))
 				return session.parent();
@@ -47,10 +48,10 @@ final class QuestRecipeViewer {
 		if (stack.isEmpty())
 			return false;
 		var client = Minecraft.getInstance();
-		var parent = client.gui.screen();
+		var parent = ClientAdapter.INSTANCE.screen(client);
 		boolean opened = openViewer(stack);
-		session = opened && parent instanceof QuestScreen quest && client.gui.screen() != parent
-				&& client.gui.screen() != null ? new Session(quest, client.gui.screen()) : null;
+		session = opened && parent instanceof QuestScreen quest && ClientAdapter.INSTANCE.screen(client) != parent
+				&& ClientAdapter.INSTANCE.screen(client) != null ? new Session(quest, ClientAdapter.INSTANCE.screen(client)) : null;
 		return opened;
 	}
 

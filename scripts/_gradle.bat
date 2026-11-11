@@ -20,7 +20,7 @@ for /f "usebackq delims=" %%J in (`powershell.exe -NoProfile -ExecutionPolicy By
 if not defined JDK25_HOME (
     echo.
     echo [Quest Plus] ERROR: JDK 25 not found.
-    echo [Quest Plus] Minecraft 26.3 requires Java 25.
+    echo [Quest Plus] Minecraft 26.x requires Java 25.
     echo [Quest Plus] Install a Java 25 JDK,
     echo [Quest Plus] or install it with:
     echo     winget install -e --id EclipseAdoptium.Temurin.25.JDK
@@ -38,7 +38,7 @@ echo [Quest Plus] JDK 25 found : %JAVA_HOME%
 "%JAVA_HOME%\bin\java.exe" -version
 "%JAVA_HOME%\bin\javac.exe" -version
 echo.
-echo [Quest Plus] Minecraft 26.3 / Fabric - Gradle tasks : %*
+echo [Quest Plus] Minecraft 26.x / Fabric - Gradle tasks : %*
 cd /d "%ROOT%\mod"
 call "%ROOT%\mod\gradlew.bat" --console=plain %*
 set "RESULT=%ERRORLEVEL%"

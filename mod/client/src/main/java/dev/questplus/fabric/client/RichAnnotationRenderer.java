@@ -2,8 +2,7 @@ package dev.questplus.fabric.client;
 
 import com.google.gson.*;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.textures.FilterMode;
+import dev.questplus.compat.ClientAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -130,9 +129,8 @@ final class RichAnnotationRenderer {
 				if (part.image() != null) {
 					AnimatedImage media = image(part.image());
 					if (media != null)
-						g.blit(media.current().getTextureView(),
-								RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST), cx, cy,
-								cx + part.width(), cy + part.height(), 0, 1, 0, 1);
+						ClientAdapter.INSTANCE.blitNearest(g, media.current(), cx, cy, cx + part.width(),
+								cy + part.height());
 				} else if (part.component() != null) {
 					if (part.highlight() != 0)
 						g.fill(cx, cy, cx + part.width(), cy + part.height(), part.highlight() | 0xff000000);
@@ -319,9 +317,7 @@ final class RichAnnotationRenderer {
 		AnimatedImage decoded = image(data);
 		if (decoded == null)
 			return false;
-		graphics.blit(decoded.current().getTextureView(),
-				RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST), x, y, x + size, y + size, 0, 1, 0,
-				1);
+		ClientAdapter.INSTANCE.blitNearest(graphics, decoded.current(), x, y, x + size, y + size);
 		return true;
 	}
 

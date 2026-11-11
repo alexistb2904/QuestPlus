@@ -1,4 +1,4 @@
-package dev.questplus.fabric.client.mixin;
+package dev.questplus.compat.mc26_2.mixin;
 
 import dev.questplus.fabric.client.TabletSurfaceRenderer;
 import dev.questplus.fabric.client.QuestPlusClient;
@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 abstract class TabletGameRendererMixin {
-	@Inject(method = "render3dHud", at = @At("HEAD"))
+	@Inject(method = "renderItemInHand", at = @At("HEAD"))
 	private void questplus$blurWorldBeforeHands(CallbackInfo ci) {
 		var settings = QuestPlusClient.settings;
 		if (TabletSurfaceRenderer.active() && settings.blurIntensity > 0 && TabletShaderCompat.backgroundBlurEnabled())
 			Minecraft.getInstance().gameRenderer.processBlurEffect();
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel()V"))
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(Lnet/minecraft/client/DeltaTracker;)V"))
 	private void questplus$renderSurface(CallbackInfo ci) {
 		TabletSurfaceRenderer.render();
 	}

@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "dev.questplus.compat.mc26_2.mixin",
+	"plugin": "dev.questplus.compat.TargetMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [],
+	"client": [
+		"TabletGameRendererMixin",
+		"TabletGuiRendererMixin",
+		"TabletHudMixin",
+		"TabletNativeFirstPersonMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.*;
 import dev.questplus.fabric.client.ui.*;
@@ -52,14 +53,14 @@ public final class QuestBlockScreen extends Screen {
             collect();
             var choices=state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                     .map(p->new QuestBlockPicker.Choice(p.get("id").getAsString(),p.get("name").getAsString())).toList();
-            minecraft.gui.setScreen(new QuestBlockPicker(this,tr("owner"),choices,chosen->{draftOwner=chosen;}));
+            ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,tr("owner"),choices,chosen->{draftOwner=chosen;}));
         }));owner.active=editable;
         cycle("scope",List.of("PERSONAL","TEAM"),0,0);
         int kind=state.get("kind").getAsInt();
         button(tr("pick_quest"),left+168,top+OPTIONS,140,()->{
             collect();
             var choices=QuestBlockPicker.questChoices();
-            minecraft.gui.setScreen(new QuestBlockPicker(this,choices,id->{
+            ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,choices,id->{
                 if(kind==1)quests.setValue(id);
                 else {
                     var ids=new LinkedHashSet<>(Arrays.asList(quests.getValue().split(",")));ids.remove("");
@@ -85,7 +86,7 @@ public final class QuestBlockScreen extends Screen {
                 var q=QuestPlusClient.STATE.quests.get(id);if(q==null)return;
                 var choices=q.objectives().stream().filter(o->Set.of("item_turn_in","fluid_submit","energy_submit").contains(o.event()))
                         .map(o->new QuestBlockPicker.Choice(o.id(),o.text().isEmpty()?o.id():QuestPlusClient.STATE.text(o.text()))).toList();
-                minecraft.gui.setScreen(new QuestBlockPicker(this,choices,chosen->{objective.setValue(chosen);collect();}));
+                ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,choices,chosen->{objective.setValue(chosen);collect();}));
             });
             button(tr("return_items"),left+168,top+OPTIONS+48,140,()->send("return_items"));
         }else{

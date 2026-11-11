@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.loader.api.FabricLoader;
@@ -64,13 +65,13 @@ final class TabletOptionsGameTest {
 			});
 			for (boolean tablet : new boolean[] { true, false }) {
 				context.runOnClient(client -> {
-					client.gui.setScreen(null);
+					ClientAdapter.INSTANCE.setScreen(client, null);
 					QuestPlusClient.settings.tablet = tablet;
 					QuestPlusClient.settings.animations = false;
 					QuestPlusClient.settings.tabletTransitions = true;
 					client.options.setCameraType(CameraType.THIRD_PERSON_BACK);
 					QuestClientTabletFlow.toggle(client);
-					if (!(client.gui.screen() instanceof QuestScreen) || TabletSurfaceRenderer.active() != tablet)
+					if (!(ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen) || TabletSurfaceRenderer.active() != tablet)
 						throw new AssertionError("Animations disabled changed 3D selection: " + tablet);
 					if (client.options
 							.getCameraType() != (tablet ? CameraType.FIRST_PERSON : CameraType.THIRD_PERSON_BACK))
@@ -79,8 +80,8 @@ final class TabletOptionsGameTest {
 				context.waitTicks(5);
 				context.takeScreenshot("tablet-options-" + (tablet ? "3d" : "2d"));
 				context.runOnClient(client -> {
-					client.gui.screen().onClose();
-					if (client.gui.screen() != null || QuestClientTabletFlow.nativeHandsActive()
+					ClientAdapter.INSTANCE.screen(client).onClose();
+					if (ClientAdapter.INSTANCE.screen(client) != null || QuestClientTabletFlow.nativeHandsActive()
 							|| client.options.getCameraType() != CameraType.THIRD_PERSON_BACK)
 						throw new AssertionError("Instant close retained screen, hands or camera");
 				});
@@ -94,7 +95,7 @@ final class TabletOptionsGameTest {
 					throw new AssertionError("Reduced motion removed the 3D tablet");
 			});
 			context.waitTicks(5);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.runOnClient(client -> {
 				QuestPlusClient.settings.reducedMotion = false;
 				QuestPlusClient.settings.tabletTransitions = false;
@@ -109,7 +110,7 @@ final class TabletOptionsGameTest {
 			for (int proximity : new int[] { 80, 90, 100, 110, 120, 130 }) {
 				context.runOnClient(client -> {
 					QuestPlusClient.settings.tabletProximity = proximity;
-					((QuestScreen) client.gui.screen()).init();
+					((QuestScreen) ClientAdapter.INSTANCE.screen(client)).init();
 				});
 				context.waitTicks(5);
 				var left = context.computeOnClient(client -> TabletFaceAnchor.windowPoint(0, 150));
@@ -134,7 +135,7 @@ final class TabletOptionsGameTest {
 				context.runOnClient(client -> {
 					if (TabletSurfaceRenderer.screenWidth() != 500 * resolution
 							|| TabletSurfaceRenderer.screenHeight() != 300 * resolution
-							|| client.gui.screen().width != TabletSurfaceRenderer.logicalWidth())
+							|| ClientAdapter.INSTANCE.screen(client).width != TabletSurfaceRenderer.logicalWidth())
 						throw new AssertionError("Resolution changed logical layout or framebuffer size");
 				});
 				QuestClientGameTest.clickButton(context, "settings");
@@ -152,29 +153,29 @@ final class TabletOptionsGameTest {
 				context.takeScreenshot("tablet-resolution-" + resolution + "-tree");
 				context.runOnClient(client -> {
 					for (int i = 0; i < 5; i++)
-						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_MINUS, 0, 0));
+						ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_MINUS, 0, 0));
 				});
 				context.waitTicks(2);
 				context.takeScreenshot("tablet-resolution-" + resolution + "-zoomed-out");
 				context.runOnClient(client -> {
 					for (int i = 0; i < 5; i++)
-						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_EQUALS, 0, 0));
+						ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_EQUALS, 0, 0));
 				});
 			}
 			context.runOnClient(client -> {
-				client.gui.screen().onClose();
+				ClientAdapter.INSTANCE.screen(client).onClose();
 				if (QuestClientTabletFlow.nativeHandsActive())
 					throw new AssertionError("Disabling transitions retained the close pose");
 			});
 			context.runOnClient(client -> {
 				QuestPlusClient.settings.tabletTransitions = true;
 				QuestClientTabletFlow.toggle(client);
-				if (client.gui.screen() != null || !QuestClientTabletFlow.nativeHandsActive())
+				if (ClientAdapter.INSTANCE.screen(client) != null || !QuestClientTabletFlow.nativeHandsActive())
 					throw new AssertionError("Enabled transitions skipped the opening animation");
 			});
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 			context.runOnClient(client -> {
-				client.gui.screen().onClose();
+				ClientAdapter.INSTANCE.screen(client).onClose();
 				if (!QuestClientTabletFlow.closing())
 					throw new AssertionError("Enabled transitions skipped the closing animation");
 			});

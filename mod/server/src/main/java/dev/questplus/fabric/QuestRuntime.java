@@ -101,7 +101,7 @@ public final class QuestRuntime implements AutoCloseable {
 		definitions = world.resolve("questplus");
 		Defaults.installWorld(
 				net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("questplus/default"),
-				definitions);
+				definitions, this::hasStructure);
 		inventoryMarker = new InventoryMarker(server);
 		store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"), new JsonProgressStore.SavedMarker() {
 			public String read(UUID id) throws IOException {
@@ -428,6 +428,16 @@ public final class QuestRuntime implements AutoCloseable {
 		QuestNetwork.invalidateAll(server);
 		server.getPlayerList().getPlayers().forEach(QuestGiverNetwork::sendLooks);
 		QuestPlusAdapters.definitionsReloaded();
+	}
+
+	/** Whether this Minecraft version has the structure or structure tag; adapts bundled defaults. */
+	public boolean hasStructure(String target) {
+		try {
+			validateRegistryReference("structure_visit", target);
+			return true;
+		} catch (IllegalArgumentException missing) {
+			return false;
+		}
 	}
 
 	private void validateRegistryReference(String kind, String target) {

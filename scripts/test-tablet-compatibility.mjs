@@ -1,5 +1,5 @@
 import {installAsset,ASSETS,repositoryRoot} from './install-client-test-assets.mjs';
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,readdir} from 'node:fs/promises';
 import {spawnSync,execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -32,10 +32,19 @@ export function validateGpuLog(log,profile){
   throw Error('Shader or animation fallback in GPU log');
 }
 
-async function main(profiles){
+async function main(args){
+ // --mc=<mod/versions folder> picks the Minecraft target; the newest folder by default.
+ const root=repositoryRoot();
+ const targets=(await readdir(path.join(root,'mod','versions'),{withFileTypes:true})).filter(d=>d.isDirectory()).map(d=>d.name)
+  .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+ const target=(args.find(a=>a.startsWith('--mc='))||'--mc='+targets.at(-1)).slice(5);
+ if(!targets.includes(target))throw Error('Unknown Minecraft target: '+target+' (known: '+targets.join(', ')+')');
+ process.env.QUESTPLUS_MC_VERSION=(await readFile(path.join(root,'mod','versions',target,'gradle.properties'),'utf8'))
+  .match(/^minecraft_version=(.+)$/m)[1].trim();
+ let profiles=args.filter(a=>!a.startsWith('--'));
  if(!profiles.length)profiles=Object.keys(PROFILES);
  for(const profile of profiles)if(!Object.hasOwn(PROFILES,profile))throw Error('Unknown profile: '+profile);
- const root=repositoryRoot(),cache=path.join(root,'mod','build','tablet-assets');
+ const cache=path.join(root,'mod','build','tablet-assets',target);
  await mkdir(cache,{recursive:true});
  let records={};
  try{records=JSON.parse(await readFile(path.join(cache,'manifest.json'),'utf8'))}catch{}
@@ -47,18 +56,19 @@ async function main(profiles){
  const java=execFileSync('powershell.exe',['-NoProfile','-File',path.join(root,'scripts','Find-Java25.ps1')],{encoding:'utf8'}).trim();
  const failed=[];
  for(const profile of profiles){
-  console.log('\n[TABLET MATRIX] '+profile);
-  const result=spawnSync('cmd.exe',['/d','/c',`gradlew.bat --console=plain runClientGameTest -I ../scripts/tablet-compatibility.gradle -PtabletCompatibility=${profile}`],
-   {cwd:path.join(root,'mod'),stdio:'inherit',env:{...process.env,JAVA_HOME:java}});
+  console.log('\n[TABLET MATRIX] Minecraft '+process.env.QUESTPLUS_MC_VERSION+' '+profile);
+  const result=spawnSync('cmd.exe',['/d','/c',`"${path.join(root,'mod','gradlew.bat')}" --console=plain runClientGameTest -Pmc=${target} -I ../scripts/tablet-compatibility.gradle -PtabletCompatibility=${profile}`],
+   // Verbatim: Node would otherwise escape the quotes around the wrapper path for cmd.exe.
+   {cwd:path.join(root,'mod'),stdio:'inherit',windowsVerbatimArguments:true,env:{...process.env,JAVA_HOME:java}});
   if(result.error)throw result.error;
   if(result.status!==0)failed.push(profile);
   else {
-   try {validateGpuLog(await readFile(path.join(root,'mod','build','tablet-compat',profile,'logs','latest.log'),'utf8'),profile)}
+   try {validateGpuLog(await readFile(path.join(root,'mod','build','tablet-compat',target,profile,'logs','latest.log'),'utf8'),profile)}
    catch(e){console.error(profile+': '+e.message);failed.push(profile)}
   }
  }
  if(failed.length)throw Error('Failed GPU profiles: '+failed.join(', '));
- console.log('[PASS] '+profiles.join(', ')+'. Screenshots and logs: build/tablet-compat/<profile>/');
+ console.log('[PASS] '+profiles.join(', ')+'. Screenshots and logs: build/tablet-compat/'+target+'/<profile>/');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))
  main(process.argv.slice(2)).catch(e=>{console.error(e.message);process.exitCode=1});

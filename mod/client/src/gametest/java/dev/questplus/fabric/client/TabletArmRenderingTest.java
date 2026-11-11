@@ -44,7 +44,7 @@ final class TabletArmRenderingTest {
 				throw new AssertionError("Vanilla hand submissions=" + counts[1]);
 			counts[0] = 0;
 			boolean submitted = TabletNativeFirstPersonRenderer.submit(new PoseStack(), nodes,
-					new net.minecraft.client.renderer.entity.state.AvatarRenderState());
+					LightCoordsUtil.FULL_BRIGHT);
 			if (submitted != tablet || tablet && counts[0] == 0)
 				throw new AssertionError("Native hand submissions: tablet=" + tablet + ", vertices=" + counts[0]);
 			if (tablet) {

@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.*;
 import dev.questplus.fabric.client.ui.*;
@@ -81,7 +82,7 @@ public final class QuestBoardScreen extends Screen {
         button(categoryName(),x+8,y+29,sideWidth-16,23,()->{
             var choices=new ArrayList<QuestBlockPicker.Choice>();choices.add(new QuestBlockPicker.Choice("",t("all_categories").getString()));
             choices.addAll(QuestBlockPicker.categoryChoices());
-            minecraft.gui.setScreen(new QuestBlockPicker(this,choices,id->set("category",id)));
+            ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,choices,id->set("category",id)));
         });
         button(t("completed",config.get("all").getAsBoolean()?"✓":"□"),x+8,y+57,sideWidth-16,20,()->{
             config.addProperty("all",!config.get("all").getAsBoolean());changed();
@@ -114,7 +115,7 @@ public final class QuestBoardScreen extends Screen {
     private void chooseOwner(){
         var choices=state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                 .map(p->new QuestBlockPicker.Choice(p.get("id").getAsString(),p.get("name").getAsString())).toList();
-        minecraft.gui.setScreen(new QuestBlockPicker(this,t("choose_player"),choices,id->{owner=id;changed();}));
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,t("choose_player"),choices,id->{owner=id;changed();}));
     }
     private String questMode(){return config.get("boardMode").getAsString();}
     /** Pins are ignored by the server in automatic mode and by the leaderboard. */
@@ -157,7 +158,7 @@ public final class QuestBoardScreen extends Screen {
     }
     private void pickQuest(){
         var choices=QuestBlockPicker.questChoices().stream().filter(q->!pins.contains(q.id())).toList();
-        minecraft.gui.setScreen(new QuestBlockPicker(this,choices,id->{if(pins.size()<32&&!pins.contains(id))pins.add(id);changed();}));
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,choices,id->{if(pins.size()<32&&!pins.contains(id))pins.add(id);changed();}));
     }
     private void save(){ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"save",config.toString(),owner,state.get("size").getAsInt()));}
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){

@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.JsonParser;
 import dev.questplus.fabric.client.QuestGiverScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -81,7 +82,7 @@ public final class QuestGiverClientGameTest {
 			context.getInput().setCursorPos(1150, 560);
 			context.waitTicks(2);
 			context.takeScreenshot("npc-offer-long");
-			context.runOnClient(client -> client.gui.screen().mouseScrolled(600, 300, 0, -40));
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).mouseScrolled(600, 300, 0, -40));
 			context.waitTicks(2);
 			context.takeScreenshot("npc-offer-scrolled");
 			click(context, net.minecraft.network.chat.Component.translatable("questplus.npc.accept").getString());
@@ -90,15 +91,15 @@ public final class QuestGiverClientGameTest {
 			click(context, "›");
 			context.waitTicks(5);
 			context.takeScreenshot("npc-second-request");
-			context.runOnClient(client -> client.gui.setScreen(null));
+			context.runOnClient(client -> ClientAdapter.INSTANCE.setScreen(client, null));
 			open(context, server, "sela", 2);
 			context.takeScreenshot("npc-already-done");
-			context.runOnClient(client -> client.gui.setScreen(null));
+			context.runOnClient(client -> ClientAdapter.INSTANCE.setScreen(client, null));
 			open(context, server, "oswin", 3);
 			context.takeScreenshot("npc-nothing-skin-portrait");
 			context.runOnClient(client -> client.options.guiScale().set(4));
 			context.waitTicks(5);
-			context.runOnClient(client -> client.gui.setScreen(null));
+			context.runOnClient(client -> ClientAdapter.INSTANCE.setScreen(client, null));
 			open(context, server, "marlo", 0);
 			context.takeScreenshot("npc-compact-scale-4");
 		}
@@ -107,7 +108,7 @@ public final class QuestGiverClientGameTest {
 	/** Clicks a dialog button the way a player does, through the real mouse input. */
 	private static void click(ClientGameTestContext context, String label) {
 		var coords = context.computeOnClient(client -> {
-			var button = client.gui.screen().children().stream()
+			var button = ClientAdapter.INSTANCE.screen(client).children().stream()
 					.filter(dev.questplus.fabric.client.ui.QuestButton.class::isInstance)
 					.map(dev.questplus.fabric.client.ui.QuestButton.class::cast)
 					.filter(b -> b.getMessage().getString().equals(label)).findFirst()
@@ -133,7 +134,7 @@ public final class QuestGiverClientGameTest {
 					player.blockPosition().offset(slot - 1, 0, 3)));
 			QuestGiverNetwork.open(player, giver);
 		});
-		context.waitFor(client -> client.gui.screen() instanceof QuestGiverScreen, 300);
+		context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) instanceof QuestGiverScreen, 300);
 		context.waitTicks(10);
 	}
 }

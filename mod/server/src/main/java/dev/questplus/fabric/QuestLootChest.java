@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.CommonAdapter;
+
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
@@ -11,7 +13,6 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.*;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.*;
 import net.minecraft.world.phys.shapes.*;
 import java.util.*;
@@ -41,7 +42,7 @@ public final class QuestLootChest extends Block implements EntityBlock {
 		var key = ResourceKey.create(Registries.BLOCK, id);
 		BLOCK = Registry.register(BuiltInRegistries.BLOCK, key,
 				new QuestLootChest(BlockBehaviour.Properties.of().setId(key).strength(-1, 3_600_000).noLootTable()
-						.noOcclusion().lightLevel(s -> 10).sound(SoundType.WOOD).pushReaction(PushReaction.IMMOVEABLE)));
+						.noOcclusion().lightLevel(s -> 10).sound(SoundType.WOOD).pushReaction(CommonAdapter.INSTANCE.immovable())));
 		ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id,
 				FabricBlockEntityTypeBuilder.create(Stage::new, BLOCK).build());
 	}

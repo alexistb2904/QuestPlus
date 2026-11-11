@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.QuestBlockNetwork;
 import dev.questplus.fabric.client.ui.*;
@@ -236,12 +237,12 @@ public final class QuestRelayScreen extends Screen {
         collect();
         var choices = state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                 .map(p -> new QuestBlockPicker.Choice(p.get("id").getAsString(), p.get("name").getAsString())).toList();
-        minecraft.gui.setScreen(new QuestBlockPicker(this, tr("owner"), choices, chosen -> {
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, tr("owner"), choices, chosen -> {
             owner = chosen; ownerName = displayOwner(chosen);
         }));
     }
     private void chooseCategory() {
-        collect(); minecraft.gui.setScreen(new QuestBlockPicker(this, tr("relay.choose_category"), QuestBlockPicker.categoryChoices(), chosen -> {
+        collect(); ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, tr("relay.choose_category"), QuestBlockPicker.categoryChoices(), chosen -> {
             categoryMode = true; quests().asList().clear(); config.addProperty("category", chosen);
             if (config.get("condition").getAsString().equals("stage")) config.addProperty("condition", "completed");
         }));
@@ -249,7 +250,7 @@ public final class QuestRelayScreen extends Screen {
     private void chooseQuest() {
         collect();
         var choices = QuestBlockPicker.questChoices().stream().filter(c -> !quests().contains(new JsonPrimitive(c.id()))).toList();
-        minecraft.gui.setScreen(new QuestBlockPicker(this, tr("relay.choose_individual"), choices, chosen -> {
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, tr("relay.choose_individual"), choices, chosen -> {
             categoryMode = false;
             if (quests().size() < 32) quests().add(chosen);
             config.addProperty("category", "");

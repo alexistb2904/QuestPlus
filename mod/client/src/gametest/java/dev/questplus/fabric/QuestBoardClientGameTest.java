@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.client.*;
 import dev.questplus.fabric.client.ui.QuestButton;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -56,10 +57,10 @@ public final class QuestBoardClientGameTest {
                 catch(Exception error){throw new RuntimeException(error);}});
             context.waitTicks(10);context.takeScreenshot("board-readable-at-night");
             server.runOnServer(s->{var p=s.getPlayerList().getPlayers().getFirst();QuestBlockNetwork.open(p,(QuestUtilityEntity)p.level().getBlockEntity(origin[0]));});
-            context.waitFor(c->c.gui.screen() instanceof QuestBoardScreen,200);
+            context.waitFor(c->ClientAdapter.INSTANCE.screen(c) instanceof QuestBoardScreen,200);
             context.takeScreenshot("board-configuration-desktop");
             click(context,Component.translatable("questplus.board.owner","Player0").getString());
-            context.runOnClient(c->{if(c.gui.screen().children().stream().noneMatch(net.minecraft.client.gui.components.EditBox.class::isInstance))throw new AssertionError("Offline UUID input missing");});
+            context.runOnClient(c->{if(ClientAdapter.INSTANCE.screen(c).children().stream().noneMatch(net.minecraft.client.gui.components.EditBox.class::isInstance))throw new AssertionError("Offline UUID input missing");});
             click(context,Component.translatable("questplus.board.configuration").getString());
             click(context,"↓");context.takeScreenshot("board-reorder-draft");
             click(context,Component.translatable("questplus.blocks.save").getString());context.waitTicks(30);context.takeScreenshot("board-reorder-applied");
@@ -72,18 +73,18 @@ public final class QuestBoardClientGameTest {
             click(context,Component.translatable("questplus.board.configuration").getString());
             context.runOnClient(c->c.options.guiScale().set(4));context.waitTicks(5);
             context.takeScreenshot("board-configuration-small-top");
-            context.runOnClient(c->c.gui.screen().mouseScrolled(20,100,0,-30));context.waitTicks(2);
+            context.runOnClient(c->ClientAdapter.INSTANCE.screen(c).mouseScrolled(20,100,0,-30));context.waitTicks(2);
             context.takeScreenshot("board-configuration-small-bottom");
             click(context,Component.translatable("questplus.blocks.close").getString());
-            context.waitFor(c->c.gui.screen()==null,100);
+            context.waitFor(c->ClientAdapter.INSTANCE.screen(c)==null,100);
             context.runOnClient(c->c.options.guiScale().set(2));context.waitTicks(5);
             server.runOnServer(s->{var p=s.getPlayerList().getPlayers().getFirst();QuestBlockNetwork.open(p,(QuestUtilityEntity)p.level().getBlockEntity(origin[0]));});
-            context.waitFor(c->c.gui.screen() instanceof QuestBoardScreen,200);
+            context.waitFor(c->ClientAdapter.INSTANCE.screen(c) instanceof QuestBoardScreen,200);
             context.takeScreenshot("board-reopened-saved-settings");
             click(context,Component.translatable("questplus.board.add").getString());
             server.runOnServer(s->{try{QuestPlusMod.runtime().setObjectiveProgress(s.getPlayerList().getPlayers().getFirst(),"questplus:board_client_0","items",4);}catch(Exception e){throw new RuntimeException(e);}});
             context.waitTicks(25);
-            context.runOnClient(c->{if(!c.gui.screen().getClass().getSimpleName().equals("QuestBlockPicker"))throw new AssertionError("Live snapshot closed the picker");c.gui.screen().onClose();});
+            context.runOnClient(c->{if(!ClientAdapter.INSTANCE.screen(c).getClass().getSimpleName().equals("QuestBlockPicker"))throw new AssertionError("Live snapshot closed the picker");ClientAdapter.INSTANCE.screen(c).onClose();});
             click(context,Component.translatable("questplus.blocks.close").getString());
             itemPresentation(context,server);
         }
@@ -119,8 +120,8 @@ public final class QuestBoardClientGameTest {
         context.waitTicks(25);context.takeScreenshot("board-dropped-next-to-vanilla-stone");
     }
     private static void click(ClientGameTestContext context,String label){
-        context.runOnClient(c->{if(c.gui.screen().getFocused()!=null)c.gui.screen().getFocused().setFocused(false);});
-        var xy=context.computeOnClient(c->{var b=c.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+        context.runOnClient(c->{if(ClientAdapter.INSTANCE.screen(c).getFocused()!=null)ClientAdapter.INSTANCE.screen(c).getFocused().setFocused(false);});
+        var xy=context.computeOnClient(c->{var b=ClientAdapter.INSTANCE.screen(c).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                 .filter(button->button.active&&button.getMessage().getString().equals(label)).findFirst().orElseThrow();
             return new double[]{(b.getX()+b.getWidth()/2.0)*c.getWindow().getWidth()/c.getWindow().getGuiScaledWidth(),
                     (b.getY()+b.getHeight()/2.0)*c.getWindow().getHeight()/c.getWindow().getGuiScaledHeight()};});

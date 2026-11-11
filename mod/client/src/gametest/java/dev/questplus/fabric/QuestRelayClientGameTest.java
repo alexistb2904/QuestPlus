@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.core.Localization;
 import dev.questplus.fabric.client.*;
 import dev.questplus.fabric.client.ui.QuestButton;
@@ -62,12 +63,12 @@ public final class QuestRelayClientGameTest {
                 QuestBlockNetwork.open(player, (QuestUtilityEntity) player.level().getBlockEntity(pos));
             } catch (Exception e) { throw new RuntimeException(e); }
         });
-        context.waitFor(client -> client.gui.screen() instanceof QuestRelayScreen
+        context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) instanceof QuestRelayScreen
                 && QuestPlusClient.STATE.quests.containsKey("questplus:relay_picker_1"), 300);
         context.runOnClient(client -> {
-            if (client.gui.screen().children().stream().anyMatch(EditBox.class::isInstance))
+            if (ClientAdapter.INSTANCE.screen(client).children().stream().anyMatch(EditBox.class::isInstance))
                 throw new AssertionError("Relay configuration must use named choices, not ID text fields");
-            for (var child : client.gui.screen().children()) if (child instanceof QuestButton b
+            for (var child : ClientAdapter.INSTANCE.screen(client).children()) if (child instanceof QuestButton b
                     && b.getMessage().getString().matches(".*[a-f0-9]{8}-[a-f0-9-]{27}.*"))
                 throw new AssertionError("UUID exposed in relay controls");
         });
@@ -88,7 +89,7 @@ public final class QuestRelayClientGameTest {
         });
         context.waitTicks(30);
         context.runOnClient(client -> {
-            if (!client.gui.screen().getClass().getSimpleName().equals("QuestBlockPicker"))
+            if (!ClientAdapter.INSTANCE.screen(client).getClass().getSimpleName().equals("QuestBlockPicker"))
                 throw new AssertionError("Live server snapshot closed the picker");
         });
         String categoryName = context.computeOnClient(client -> {
@@ -99,10 +100,10 @@ public final class QuestRelayClientGameTest {
         });
         clickPaged(context, categoryName);
         context.runOnClient(client -> {
-            if (client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            if (ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .anyMatch(b -> b.getMessage().getString().equals("Relay picker 1")))
                 throw new AssertionError("Quest from another category leaked into selection");
-            client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+            ClientAdapter.INSTANCE.screen(client).children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
                     .findFirst().orElseThrow().setValue("Relay picker 0");
         });
         context.takeScreenshot("relay-quests-with-icons");
@@ -124,14 +125,14 @@ public final class QuestRelayClientGameTest {
             if (relay.config.quests().size() != 2) throw new AssertionError("Close saved an abandoned removal");
             QuestBlockNetwork.open(player, relay);
         });
-        context.waitFor(client -> client.gui.screen() instanceof QuestRelayScreen, 200);
+        context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) instanceof QuestRelayScreen, 200);
         click(context, "relay.target_category");
         context.runOnClient(client -> {
-            if (!(client.gui.screen() instanceof QuestRelayScreen)) throw new AssertionError("Target modes must switch inline");
-            if (client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            if (!(ClientAdapter.INSTANCE.screen(client) instanceof QuestRelayScreen)) throw new AssertionError("Target modes must switch inline");
+            if (ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .anyMatch(b -> b.active && b.getMessage().getString().equals(Component.translatable("questplus.blocks.save").getString())))
                 throw new AssertionError("Cannot apply an empty category target");
-            if (client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            if (ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .anyMatch(b -> b.visible && b.getMessage().getString().equals(Component.translatable("questplus.blocks.pick_quest").getString())))
                 throw new AssertionError("Category mode must not expose the individual quest selector");
         });
@@ -139,7 +140,7 @@ public final class QuestRelayClientGameTest {
         context.takeScreenshot("relay-category-mode");
         click(context, "relay.view_category");
         context.runOnClient(client -> {
-            if (client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            if (ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .anyMatch(b -> b.getMessage().getString().equals(Component.translatable("questplus.blocks.relay.remove").getString())))
                 throw new AssertionError("Category preview must not allow removing individual quests");
         });
@@ -152,7 +153,7 @@ public final class QuestRelayClientGameTest {
                 throw new AssertionError("Category target retained stale quest links");
         });
         click(context, "condition.tier");
-        context.runOnClient(client -> client.gui.screen().children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
+        context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
                 .findFirst().orElseThrow().setValue("2"));
         context.takeScreenshot("relay-tier-threshold");
         click(context, "save"); context.waitTicks(25);
@@ -165,17 +166,17 @@ public final class QuestRelayClientGameTest {
         context.runOnClient(client -> client.options.guiScale().set(4)); context.waitTicks(5);
         bounds(context);
         context.takeScreenshot("relay-compact-top");
-        context.runOnClient(client -> client.gui.screen().mouseScrolled(100, 100, 0, -40));
+        context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).mouseScrolled(100, 100, 0, -40));
         bounds(context);
         context.takeScreenshot("relay-compact-output-and-apply");
         for (int[] size : new int[][]{{1280,800,2},{1024,768,2},{1280,720,3},{1280,800,4}}) {
             context.getInput().resizeWindow(size[0],size[1]);
             context.runOnClient(client -> client.options.guiScale().set(size[2])); context.waitTicks(3);
-            context.runOnClient(client -> client.gui.screen().mouseScrolled(100,100,0,100)); bounds(context);
+            context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).mouseScrolled(100,100,0,100)); bounds(context);
             context.takeScreenshot("relay-layout-"+size[0]+"x"+size[1]+"-scale-"+size[2]);
-            context.runOnClient(client -> client.gui.screen().mouseScrolled(100,100,0,-100)); bounds(context);
+            context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).mouseScrolled(100,100,0,-100)); bounds(context);
         }
-        click(context, "close"); context.waitFor(client -> client.gui.screen() == null, 100);
+        click(context, "close"); context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) == null, 100);
         modelViews(context, server, pos);
     }
     private static void click(ClientGameTestContext context, String key) {
@@ -183,7 +184,7 @@ public final class QuestRelayClientGameTest {
     }
     private static void clickPaged(ClientGameTestContext context, String label) {
         for (int i = 0; i < 32; i++) {
-            if (context.computeOnClient(client -> client.gui.screen().children().stream().filter(QuestButton.class::isInstance)
+            if (context.computeOnClient(client -> ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance)
                     .map(QuestButton.class::cast).anyMatch(b -> b.getMessage().getString().equals(label)))) {
                 clickLabel(context, label); return;
             }
@@ -192,21 +193,21 @@ public final class QuestRelayClientGameTest {
         throw new AssertionError("Category not found: " + label);
     }
     private static void clickLabel(ClientGameTestContext context, String label) {
-        context.runOnClient(client -> { if (client.gui.screen().getFocused() != null) client.gui.screen().getFocused().setFocused(false); });
+        context.runOnClient(client -> { if (ClientAdapter.INSTANCE.screen(client).getFocused() != null) ClientAdapter.INSTANCE.screen(client).getFocused().setFocused(false); });
         bounds(context);
         for (int i = 0; i < 30; i++) {
             int direction = context.computeOnClient(client -> {
-                var b = client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+                var b = ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                         .filter(button -> button.getMessage().getString().equals(label)).findFirst().orElseThrow(() -> new AssertionError("Missing button: " + label));
-                return b.visible ? 0 : b.getY() < client.gui.screen().height / 2 ? 1 : -1;
+                return b.visible ? 0 : b.getY() < ClientAdapter.INSTANCE.screen(client).height / 2 ? 1 : -1;
             });
             if (direction == 0) break;
-            context.runOnClient(client -> client.gui.screen().mouseScrolled(100, 200, 0, direction)); context.waitTicks(1);
+            context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).mouseScrolled(100, 200, 0, direction)); context.waitTicks(1);
         }
         var coords = context.computeOnClient(client -> {
-            var button = client.gui.screen().children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
+            var button = ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
                     .filter(b -> b.getMessage().getString().equals(label)).findFirst().orElseThrow(() -> new AssertionError("Missing button: " + label));
-            if (!button.active || !button.visible || button.getY() < 0 || button.getBottom() > client.gui.screen().height)
+            if (!button.active || !button.visible || button.getY() < 0 || button.getBottom() > ClientAdapter.INSTANCE.screen(client).height)
                 throw new AssertionError("Unreachable relay button: " + label + " at " + button.getY());
             return new double[]{(button.getX() + button.getWidth() / 2.0) * client.getWindow().getWidth() / client.getWindow().getGuiScaledWidth(),
                     (button.getY() + button.getHeight() / 2.0) * client.getWindow().getHeight() / client.getWindow().getGuiScaledHeight()};
@@ -260,9 +261,9 @@ public final class QuestRelayClientGameTest {
     }
     private static void bounds(ClientGameTestContext context) {
         context.runOnClient(client -> {
-            var widgets=client.gui.screen().children().stream().filter(net.minecraft.client.gui.components.AbstractWidget.class::isInstance)
+            var widgets=ClientAdapter.INSTANCE.screen(client).children().stream().filter(net.minecraft.client.gui.components.AbstractWidget.class::isInstance)
                     .map(net.minecraft.client.gui.components.AbstractWidget.class::cast).filter(w->w.visible).toList();
-            for(var w:widgets) if(w.getX()<0||w.getY()<0||w.getRight()>client.gui.screen().width||w.getBottom()>client.gui.screen().height)
+            for(var w:widgets) if(w.getX()<0||w.getY()<0||w.getRight()>ClientAdapter.INSTANCE.screen(client).width||w.getBottom()>ClientAdapter.INSTANCE.screen(client).height)
                 throw new AssertionError("Widget outside screen: "+w.getMessage().getString());
             for(int i=0;i<widgets.size();i++)for(int j=i+1;j<widgets.size();j++) {
                 var a=widgets.get(i);var b=widgets.get(j);

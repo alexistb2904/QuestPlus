@@ -1,4 +1,4 @@
-package dev.questplus.fabric.client.mixin;
+package dev.questplus.compat.mc26_3.mixin;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import dev.questplus.fabric.client.TabletSurfaceRenderer;

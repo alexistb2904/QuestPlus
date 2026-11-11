@@ -120,7 +120,7 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
         if(state.station){station(state,pose,queue);return;}
         if(!state.board)return;
         var rects=new ArrayList<int[]>();
-        pose.pushPose();pose.translate(.5,0,.5);pose.rotate(Axis.YP.rotationDegrees(-state.rotation));pose.translate(-.5,0,-.5);
+        pose.pushPose();pose.translate(.5,0,.5);pose.last().rotate(Axis.YP.rotationDegrees(-state.rotation));pose.translate(-.5,0,-.5);
         pose.translate(state.width-.16,state.height-.16,12.45/16);pose.scale(-1/96f,-1/96f,1/96f);
         int w=state.width*96-31,h=state.height*96-31;
         rect(rects,0,0,w,h,0xff281b12,.2f);
@@ -134,7 +134,7 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
         pose.popPose();
     }
     private void station(State state,PoseStack pose,SubmitNodeCollector queue){
-        pose.pushPose();pose.translate(.5,0,.5);pose.rotate(Axis.YP.rotationDegrees(-state.rotation));pose.translate(-.5,0,-.5);
+        pose.pushPose();pose.translate(.5,0,.5);pose.last().rotate(Axis.YP.rotationDegrees(-state.rotation));pose.translate(-.5,0,-.5);
         // The screen is on the north face, just ahead of the baked slate surface.
         pose.translate(12.15/16,11.65/16,.025/16);pose.scale(-1/128f,-1/128f,1/128f);
         var row=state.stationQuest;
@@ -156,7 +156,7 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
             var line=lines.get(index);var row=line.row;int y=21+i*41;
             rect(rects,x,y,w,38,0xffa76c3b,.12f);rect(rects,x+1,y+1,w-2,36,0xff302016,.08f);
             pose.pushPose();pose.translate(x+11,y+13,-.15);pose.scale(16,-16,-16);
-            if(ranking)pose.rotate(Axis.YP.rotationDegrees(180));
+            if(ranking)pose.last().rotate(Axis.YP.rotationDegrees(180));
             line.icon.submit(pose,queue,net.minecraft.util.LightCoordsUtil.FULL_BRIGHT,net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,0);pose.popPose();
             // Title a pixel higher than before: the face's descenders reach further than the pixel font's.
             boardText(pose,queue,row.title(),x+23,y+3,w-29,ranking&&index<3?0xffffd477:0xffffedce,ui);

@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.JsonObject;
 import dev.questplus.clientdata.QuestPresentation;
 import dev.questplus.core.QuestDefinition;
@@ -38,7 +39,7 @@ final class QuestHud {
 		var mc = Minecraft.getInstance();
 		var settings = QuestPlusClient.settings;
 		var state = QuestPlusClient.STATE;
-		if (mc.player == null || TabletSurfaceRenderer.hidesHud() || mc.gui.screen() instanceof QuestScreen)
+		if (mc.player == null || TabletSurfaceRenderer.hidesHud() || ClientAdapter.INSTANCE.screen(mc) instanceof QuestScreen)
 			return;
 
 		if (settings.hud && state.ready && !settings.pinned.isEmpty()) {

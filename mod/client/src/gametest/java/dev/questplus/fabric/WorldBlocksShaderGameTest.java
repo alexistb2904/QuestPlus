@@ -68,7 +68,7 @@ public final class WorldBlocksShaderGameTest {
                 context.waitTicks(60);
                 var with=shot(context,server,origin[0],"blocks-"+label+"-with");
                 server.runCommand("time set 18000");context.waitTicks(15);
-                context.takeScreenshot("blocks-"+label+"-night");
+                dev.questplus.compat.ClientGameTestShims.screenshot(context, "blocks-"+label+"-night");
                 server.runCommand("time set 6000");context.waitTicks(15);
                 // Fixed camera at 1280x720: first quest title on the board, quest title on the station screen.
                 int board=text(with,484,362,600,386),station=text(with,1112,489,1190,512);
@@ -134,9 +134,9 @@ public final class WorldBlocksShaderGameTest {
     /** Same camera for every frame, without toasts: only the blocks may differ between two shots. */
     private static BufferedImage shot(ClientGameTestContext context,TestServerContext server,BlockPos o,String name){
         server.runOnServer(instance->instance.getPlayerList().getPlayers().getFirst().connection.teleport(o.getX()+2,o.getY(),o.getZ()-4.5,0,0));
-        context.runOnClient(c->{c.player.setYRot(0);c.player.setXRot(0);c.player.yRotO=0;c.player.xRotO=0;c.gui.toastManager().clear();clearQuestToasts();});
+        context.runOnClient(c->{c.player.setYRot(0);c.player.setXRot(0);c.player.yRotO=0;c.player.xRotO=0;dev.questplus.compat.ClientGameTestShims.toasts(c).clear();clearQuestToasts();});
         context.waitTicks(5);
-        return image(context.takeScreenshot(name));
+        return image(dev.questplus.compat.ClientGameTestShims.screenshot(context, name));
     }
     /** Quest unlock notices are the mod's own HUD toast, outside the vanilla toast manager. */
     private static void clearQuestToasts(){

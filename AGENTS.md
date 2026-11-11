@@ -8,7 +8,9 @@
 - `mod/server/`: authoritative Fabric engine, data validation, persistent progress, commands, networking and server mixins.
 
 This is still **one Fabric JAR**, not two separately installed Fabric mods. Gradle compiles
-both `mod/client/src/main/java` and `mod/server/src/main/java` in its main source set.
+both `mod/client/src/main/java` and `mod/server/src/main/java` in its main source set, once per
+Minecraft target in `mod/versions/` (see `mod/versions/README.md`). Version-specific Minecraft or
+Fabric calls belong in `dev.questplus.compat` adapters, never in shared code.
 Minecraft entrypoints and mixin package names are unchanged.
 
 ## Rules

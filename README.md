@@ -71,7 +71,7 @@ Create a team from the tablet, invite your friends and work toward **shared ques
 
 |           |                                     |
 | --------- | ----------------------------------- |
-| Minecraft | Java 26.3                           |
+| Minecraft | Java 26.1.2, 26.2, 26.3 (one JAR)   |
 | Loader    | Fabric, with Fabric API             |
 | Java      | 25 or newer                         |
 | Install   | On the client and on the server     |

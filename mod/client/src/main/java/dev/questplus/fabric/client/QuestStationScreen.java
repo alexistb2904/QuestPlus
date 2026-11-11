@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.core.QuestDefinition;
 import dev.questplus.fabric.QuestBlockNetwork;
@@ -87,7 +88,7 @@ public final class QuestStationScreen extends Screen {
             button(t("choose_player"), x, top + BAR + 48, inner, ROW, () -> {
                 var choices = state.getAsJsonArray("players").asList().stream().map(JsonElement::getAsJsonObject)
                         .map(p -> new QuestBlockPicker.Choice(p.get("id").getAsString(), p.get("name").getAsString())).toList();
-                minecraft.gui.setScreen(new QuestBlockPicker(this, t("choose_player"), choices, id -> { owner = id; changed(); }));
+                ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, t("choose_player"), choices, id -> { owner = id; changed(); }));
             });
             button(t("back"), x, top + BAR + 72, inner, ROW, () -> { ownerSettings = false; rebuildWidgets(); });
         } else {
@@ -136,7 +137,7 @@ public final class QuestStationScreen extends Screen {
     }
     private void pickQuest() {
         var choices = QuestBlockPicker.questChoices();
-        minecraft.gui.setScreen(new QuestBlockPicker(this, t("choose_quest"), choices, id -> {
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, t("choose_quest"), choices, id -> {
             var ids = new JsonArray(); ids.add(id); config.add("quests", ids);
             config.addProperty("objective", QuestPlusClient.STATE.quests.get(id).objectives().stream()
                     .filter(QuestStationScreen::consuming).map(QuestDefinition.Objective::id).findFirst().orElse("")); changed();
@@ -146,7 +147,7 @@ public final class QuestStationScreen extends Screen {
         var q = quest(); if (q == null) return;
         var choices = q.objectives().stream().filter(QuestStationScreen::consuming)
                 .map(o -> new QuestBlockPicker.Choice(o.id(), objectiveTitle(o), icon(o), "")).toList();
-        minecraft.gui.setScreen(new QuestBlockPicker(this, t("choose_objective"), choices,
+        ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this, t("choose_objective"), choices,
                 id -> { config.addProperty("objective", id); changed(); }));
     }
     private static String icon(QuestDefinition.Objective o) {

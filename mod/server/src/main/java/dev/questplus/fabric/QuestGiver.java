@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.CommonAdapter;
+
 import dev.questplus.core.Localization;
 import dev.questplus.core.QuestNpcs;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -51,7 +53,7 @@ public final class QuestGiver extends PathfinderMob {
 	public QuestGiver(EntityType<? extends QuestGiver> type, Level level) {
 		super(type, level);
 		// Creative players and /kill can still remove it.
-		setPermanentlyInvulnerable(true);
+		CommonAdapter.INSTANCE.setPermanentlyInvulnerable(this, true);
 		setPersistenceRequired();
 	}
 

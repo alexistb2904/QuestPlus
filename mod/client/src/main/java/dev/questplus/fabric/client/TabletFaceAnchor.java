@@ -44,7 +44,7 @@ public final class TabletFaceAnchor {
 	public static void capture(PoseStack pose) {
 		if (!TabletSurfaceRenderer.active()) return;
 		var projection = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).questplus$hudProjection();
-		var matrix = projection.getMatrix(new Matrix4f()).mul(RenderSystem.getModelViewMatrixCopy())
+		var matrix = projection.getMatrix(new Matrix4f()).mul(RenderSystem.getModelViewStack())
 				.mul(pose.last().pose());
 		if (!Float.isFinite(matrix.determinant()) || Math.abs(matrix.determinant()) < 1e-9f)
 			return;

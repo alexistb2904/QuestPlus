@@ -17,7 +17,7 @@ try {
         Write-Host "[OK] Project version updated to $version"
     }
 
-    & "$PSScriptRoot/_gradle.bat" jar
+    & "$PSScriptRoot/_gradle.bat" universalJar
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     $jar = "$root/mod/build/libs/questplus-$version.jar"

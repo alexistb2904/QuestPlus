@@ -26,7 +26,7 @@ onMounted(() => {
       <a class="qp-button qp-button--grass" :href="withBase('/guide/install.html')">Get started</a>
       <a class="qp-button qp-button--violet" href="https://quest.alexistb.com/">Open Quest Studio</a>
     </div>
-    <p class="qp-hero__meta">Minecraft Java 26.3 on Fabric. Free on <a href="https://modrinth.com/mod/quest-plus">Modrinth</a> and <a href="https://www.curseforge.com/minecraft/mc-mods/quest-plus">CurseForge</a>.</p>
+    <p class="qp-hero__meta">Minecraft Java 26.1.2, 26.2 and 26.3 on Fabric. Free on <a href="https://modrinth.com/mod/quest-plus">Modrinth</a> and <a href="https://www.curseforge.com/minecraft/mc-mods/quest-plus">CurseForge</a>.</p>
   </div>
   <video class="qp-frame qp-hero__clip" :src="withBase('/media/tablet.mp4')" :poster="withBase('/media/tablet-shader.webp')" width="1600" height="900" autoplay muted loop playsinline aria-label="The tablet opens in the player's hands, shows a quest tree and closes"></video>
 </section>

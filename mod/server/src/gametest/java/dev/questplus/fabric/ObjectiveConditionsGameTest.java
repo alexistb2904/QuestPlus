@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.GameTestShims;
+
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.nio.file.Files;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -9,7 +11,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -49,18 +50,18 @@ public final class ObjectiveConditionsGameTest {
 			player.setHealth(60);
 			player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
 			var progress = runtime.player(player.getUUID());
-			var zombie = helper.spawn(EntityTypes.ZOMBIE, new BlockPos(3, 2, 3));
+			var zombie = helper.spawn(GameTestShims.ZOMBIE, new BlockPos(3, 2, 3));
 			zombie.hurtServer(level, level.damageSources().playerAttack(player), 1000);
 			helper.assertTrue(!progress.quests.containsKey("questplus:conditions_gametest"),
 					"Wrong weapon must not count even with enough health and armor");
 			player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND_SWORD));
 			player.setHealth(59);
-			zombie = helper.spawn(EntityTypes.ZOMBIE, new BlockPos(3, 2, 3));
+			zombie = helper.spawn(GameTestShims.ZOMBIE, new BlockPos(3, 2, 3));
 			zombie.hurtServer(level, level.damageSources().playerAttack(player), 1000);
 			helper.assertTrue(!progress.quests.containsKey("questplus:conditions_gametest"),
 					"Health below 30 hearts must not count");
 			player.setHealth(60);
-			zombie = helper.spawn(EntityTypes.ZOMBIE, new BlockPos(3, 2, 3));
+			zombie = helper.spawn(GameTestShims.ZOMBIE, new BlockPos(3, 2, 3));
 			zombie.hurtServer(level, level.damageSources().playerAttack(player), 1000);
 			helper.assertTrue(progress.quests.get("questplus:conditions_gametest").counters.get("kill") == 1,
 					"Kill with matching weapon, armor and 30 hearts counts once");

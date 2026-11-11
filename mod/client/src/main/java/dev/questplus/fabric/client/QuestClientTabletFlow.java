@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
 import dev.questplus.fabric.QuestTabletItem;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -64,7 +65,7 @@ final class QuestClientTabletFlow {
 			return InteractionResult.PASS;
 		if (clientSide) {
 			var client = Minecraft.getInstance();
-			if (client.gui.screen() == null) {
+			if (ClientAdapter.INSTANCE.screen(client) == null) {
 				if (stage == Stage.CLOSING)
 					reopenRequested = true;
 				else if (stage == Stage.CLOSED || stage == Stage.CARRIED || stage == Stage.STRIKING)
@@ -84,8 +85,8 @@ final class QuestClientTabletFlow {
 
 	private static boolean shouldCarry(Minecraft client) {
 		return client.player != null && client.player.isAlive() && !client.player.isSpectator()
-				&& (client.gui.screen() == null
-						|| client.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen)
+				&& (ClientAdapter.INSTANCE.screen(client) == null
+						|| ClientAdapter.INSTANCE.screen(client) instanceof net.minecraft.client.gui.screens.ChatScreen)
 				&& client.options.getCameraType() == CameraType.FIRST_PERSON
 				&& client.player.getMainHandItem().getItem() instanceof QuestTabletItem && tabletAvailable();
 	}
@@ -120,7 +121,7 @@ final class QuestClientTabletFlow {
 	}
 
 	static void toggle(Minecraft client) {
-		if (client.gui.screen() instanceof QuestScreen quest) {
+		if (ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen quest) {
 			quest.onClose();
 			return;
 		}
@@ -128,7 +129,7 @@ final class QuestClientTabletFlow {
 			close();
 			return;
 		}
-		if (client.gui.screen() != null)
+		if (ClientAdapter.INSTANCE.screen(client) != null)
 			return;
 		if (stage == Stage.CLOSING) {
 			reopenRequested = true;
@@ -161,7 +162,7 @@ final class QuestClientTabletFlow {
 				try {
 					if (TabletNativeAnimation.play("questplus.idle")) {
 						stage = Stage.HELD;
-						client.gui.setScreen(new QuestScreen());
+						ClientAdapter.INSTANCE.setScreen(client, new QuestScreen());
 						return;
 					}
 				} catch (LinkageError | RuntimeException error) {
@@ -169,7 +170,7 @@ final class QuestClientTabletFlow {
 				}
 				stop();
 				reset();
-				client.gui.setScreen(new QuestScreen());
+				ClientAdapter.INSTANCE.setScreen(client, new QuestScreen());
 				return;
 			}
 			stage = Stage.OPENING;
@@ -195,7 +196,7 @@ final class QuestClientTabletFlow {
 			previousCamera = null;
 		}
 		QuestPlusMod.LOGGER.warn("Quest Plus native tablet unavailable; using flat GUI fallback");
-		client.gui.setScreen(new QuestScreen());
+		ClientAdapter.INSTANCE.setScreen(client, new QuestScreen());
 	}
 
 	static void close() {
@@ -233,7 +234,7 @@ final class QuestClientTabletFlow {
 			DAMAGE.reset();
 		else {
 			boolean tabletActive = stage == Stage.OPENING || stage == Stage.HELD
-					|| client.gui.screen() instanceof QuestScreen;
+					|| ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen;
 			boolean allow = QuestPlusClient.settings != null && QuestPlusClient.settings.stayOpenOnDamage;
 			if (DAMAGE.observe(tabletActive, allow, client.player.getHealth(), client.player.getAbsorptionAmount())) {
 				// A hit during the opening animation interrupts that pose
@@ -273,13 +274,13 @@ final class QuestClientTabletFlow {
 			QuestPlusMod.LOGGER.warn("Tablet opening animation timed out; recovering the normal GUI");
 			stop();
 			reset();
-			if (client.player != null && client.gui.screen() == null)
-				client.gui.setScreen(new QuestScreen());
+			if (client.player != null && ClientAdapter.INSTANCE.screen(client) == null)
+				ClientAdapter.INSTANCE.setScreen(client, new QuestScreen());
 			return;
 		}
 		// If a different screen (inventory, pause, etc.) appeared during
 		// closing, release the FP pose immediately instead of drawing over it.
-		if (stage == Stage.CLOSING && client.gui.screen() != null) {
+		if (stage == Stage.CLOSING && ClientAdapter.INSTANCE.screen(client) != null) {
 			stop();
 			reset();
 			return;
@@ -300,7 +301,7 @@ final class QuestClientTabletFlow {
 		}
 		try {
 			if (stage == Stage.OPENING && TabletNativeAnimation.finished(openingClip)) {
-				if (client.gui.screen() != null) {
+				if (ClientAdapter.INSTANCE.screen(client) != null) {
 					stop();
 					reset();
 					return;
@@ -323,7 +324,7 @@ final class QuestClientTabletFlow {
 					return;
 				}
 				stage = Stage.HELD;
-				client.gui.setScreen(new QuestScreen());
+				ClientAdapter.INSTANCE.setScreen(client, new QuestScreen());
 			} else if (stage == Stage.CLOSING && TabletNativeAnimation.finished(closingClip)) {
 				if (reopenRequested) {
 					reset();

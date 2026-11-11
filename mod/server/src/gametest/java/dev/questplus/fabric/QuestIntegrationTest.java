@@ -1,10 +1,11 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.GameTestShims;
+
 import com.google.gson.Gson;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.*;
@@ -119,7 +120,7 @@ public final class QuestIntegrationTest {
 		runtime.reload();
 		Path global = Files.createTempDirectory("questplus-default-test-");
 		try {
-			Defaults.install(global);
+			Defaults.install(global, runtime::hasStructure);
 			var pack = QuestHubFiles.snapshot(global);
 			long generation = runtime.catalogGeneration();
 			QuestHubFiles.applyTo(global, global.resolveSibling(global.getFileName() + "-backups"), pack, runtime,
@@ -184,7 +185,7 @@ public final class QuestIntegrationTest {
 					}
 		}
 		diagramReload(helper);
-		var player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		var player = GameTestShims.mockServerPlayer(helper, GameType.SURVIVAL);
 		var connection = new Connection(PacketFlow.SERVERBOUND);
 		new EmbeddedChannel(connection);
 		server.getPlayerList().placeNewPlayer(connection, player,
@@ -208,9 +209,9 @@ public final class QuestIntegrationTest {
 		Runnable idle = () -> helper.assertTrue(!runtime.isBusy(player.getUUID()), "Wait for durable operation");
 		sequence.thenWaitUntil(idle).thenExecute(step(() -> {
 			for (int i = 0; i < 5; i++) {
-				var skeleton = helper.spawn(EntityTypes.SKELETON, new BlockPos(4, 2, 4));
+				var skeleton = helper.spawn(GameTestShims.SKELETON, new BlockPos(4, 2, 4));
 				skeleton.setNoAi(true);
-				Arrow arrow = helper.spawn(EntityTypes.ARROW, new BlockPos(4, 2, 4));
+				Arrow arrow = helper.spawn(GameTestShims.ARROW, new BlockPos(4, 2, 4));
 				arrow.setOwner(player);
 				skeleton.hurtServer(level, level.damageSources().arrow(arrow, player), 1000);
 				arrow.discard();

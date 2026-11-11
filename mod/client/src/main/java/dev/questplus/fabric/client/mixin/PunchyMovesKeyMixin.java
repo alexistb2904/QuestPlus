@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client.mixin;
 
+import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.client.QuestPlusClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
@@ -19,7 +20,7 @@ abstract class PunchyMovesKeyMixin {
 	@Inject(method = "handleKey", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void questplus$allowTabletShortcut(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
 		var client = Minecraft.getInstance();
-		if (client.player != null && client.gui.screen() == null && QuestPlusClient.matchesOpenKey(event))
+		if (client.player != null && ClientAdapter.INSTANCE.screen(client) == null && QuestPlusClient.matchesOpenKey(event))
 			cir.setReturnValue(false);
 	}
 }

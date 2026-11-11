@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.questplus.fabric.client.ui.QuestButton;
 import net.fabricmc.fabric.api.client.gametest.v1.*;
@@ -18,6 +19,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		context.runOnClient(client -> dev.questplus.compat.TargetAudit.run(dev.questplus.compat.CommonAdapter.INSTANCE,
+				dev.questplus.compat.ClientAdapter.INSTANCE));
 		if(Boolean.getBoolean("questplus.boardClientTest")){dev.questplus.fabric.QuestBoardClientGameTest.run(context);return;}
 		if (Boolean.getBoolean("questplus.questGiverClientTest")) {
 			dev.questplus.fabric.QuestGiverClientGameTest.run(context);
@@ -74,19 +77,19 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				ResourceClientGameTest.run(context, world.getServer());
 			diagramFixture(context);
 			context.runOnClient(client -> {
-				client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
-				client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+				ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
+				ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 			});
 			context.waitTicks(3);
 			context.takeScreenshot("questplus-details");
 			context.runOnClient(
-					client -> client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
+					client -> ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
 			searchListTrial(context);
 			for (int[] resolution : new int[][] { { 1280, 800 }, { 1024, 768 }, { 1600, 900 } }) {
 				context.getInput().resizeWindow(resolution[0], resolution[1]);
 				context.waitTicks(5);
 				context.runOnClient(client -> {
-					var screen = (QuestScreen) client.gui.screen();
+					var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 					screen.mouseScrolled(screen.width / 2.0, screen.height / 2.0, 0, 2);
 					screen.keyPressed(new KeyEvent(InputConstants.KEY_HOME, 0, 0));
 				});
@@ -95,7 +98,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			clickButton(context, "team");
 			context.waitTicks(3);
 			context.runOnClient(client -> {
-				var screen = (QuestScreen) client.gui.screen();
+				var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 				screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast).findFirst()
 						.orElseThrow().setValue("Client test team");
 			});
@@ -115,7 +118,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			});
 			context.waitFor(client -> client.getConnection().getPlayerInfo("Picker11") != null, 100);
 			context.runOnClient(client -> {
-				var screen = (QuestScreen) client.gui.screen();
+				var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
 						.findFirst().orElseThrow();
 				input.setValue("Picker1");
@@ -124,7 +127,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			});
 			context.takeScreenshot("questplus-team-online-picker");
 			context.runOnClient(client -> {
-				var screen = (QuestScreen) client.gui.screen();
+				var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 				var input = screen.children().stream().filter(EditBox.class::isInstance).map(EditBox.class::cast)
 						.findFirst().orElseThrow();
 				input.setValue("");
@@ -139,7 +142,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					throw new AssertionError("Scrolling and selecting an online player failed: " + input.getValue());
 			});
 			clickButton(context, "invite");
-			world.getServer().waitFor(server -> {
+			dev.questplus.compat.ClientGameTestShims.waitForServer(context, world.getServer(), server -> {
 				var team = dev.questplus.fabric.QuestPlusMod.runtime().teams().allTeams().stream()
 						.filter(t -> t.name.equals("Client test team")).findFirst();
 				return team.isPresent() && team.get().invitations.containsKey(new java.util.UUID(42, 5));
@@ -148,10 +151,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			clickButton(context, "settings");
 			context.waitTicks(3);
 			context.takeScreenshot("questplus-settings");
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitTicks(12);
 			context.runOnClient(client -> {
-				if (client.gui.screen() != null)
+				if (ClientAdapter.INSTANCE.screen(client) != null)
 					throw new AssertionError("Screen did not close");
 			});
 
@@ -159,10 +162,10 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				context.runOnClient(client -> {
 					QuestPlusClient.settings.tabletTransitions = false;
 					QuestClientTabletFlow.toggle(client);
-					if (!(client.gui.screen() instanceof QuestScreen) || !QuestClientTabletFlow.nativeHandsActive())
+					if (!(ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen) || !QuestClientTabletFlow.nativeHandsActive())
 						throw new AssertionError("Instant opening must show the native idle tablet");
-					client.gui.screen().onClose();
-					if (client.gui.screen() != null || QuestClientTabletFlow.nativeHandsActive())
+					ClientAdapter.INSTANCE.screen(client).onClose();
+					if (ClientAdapter.INSTANCE.screen(client) != null || QuestClientTabletFlow.nativeHandsActive())
 						throw new AssertionError("Instant closing must release the native tablet");
 					QuestPlusClient.settings.tabletTransitions = true;
 				});
@@ -206,7 +209,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					context.waitTicks(8);
 					context.takeScreenshot("questplus-native-" + cycle + "-settling");
 					context.waitFor(
-							client -> client.gui.screen() instanceof QuestScreen && TabletSurfaceRenderer.active(),
+							client -> ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen && TabletSurfaceRenderer.active(),
 							120);
 					context.waitTicks(3);
 					context.takeScreenshot("questplus-native-" + cycle + "-idle");
@@ -228,7 +231,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					context.runOnClient(client -> {
 						if (!TabletSurfaceRenderer.active())
 							throw new AssertionError("Native tablet UI did not attach at cycle " + currentCycle);
-						if (!(client.gui.screen() instanceof QuestScreen screen) || TabletSurfaceRenderer.WIDTH != 500
+						if (!(ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen screen) || TabletSurfaceRenderer.WIDTH != 500
 								|| TabletSurfaceRenderer.HEIGHT != 300)
 							throw new AssertionError("Native UI surface dimensions changed");
 						boolean projected = false;
@@ -244,8 +247,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					});
 					clickFace(context, 45, 13);
 					context.runOnClient(client -> {
-						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
-						client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+						ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
+						ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 					});
 					context.waitTicks(2);
 					context.takeScreenshot("questplus-native-" + cycle + "-quest-interaction");
@@ -258,20 +261,20 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 						categoryScrollTrial(context);
 						context.waitTicks(3);
 						context.runOnClient(client -> {
-							client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
-							client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+							ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_F6, 0, 0));
+							ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 						});
 					}
 					clickFace(context, 125, 13);
 					context.runOnClient(client -> {
-						if (!hasButtonLabel(client, (QuestScreen) client.gui.screen(), "invite"))
+						if (!hasButtonLabel(client, (QuestScreen) ClientAdapter.INSTANCE.screen(client), "invite"))
 							throw new AssertionError("The projected Team tab click did not open Team");
 					});
 					if (cycle == 1) {
 						clickFace(context, 200, 78);
 						context.getInput().typeChars("00000000-0000-0000-0000-000000000001");
 						context.runOnClient(client -> {
-							var box = ((QuestScreen) client.gui.screen()).children().stream()
+							var box = ((QuestScreen) ClientAdapter.INSTANCE.screen(client)).children().stream()
 									.filter(EditBox.class::isInstance).map(EditBox.class::cast).findFirst()
 									.orElseThrow();
 							if (!box.getValue().equals("00000000-0000-0000-0000-000000000001"))
@@ -282,7 +285,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					context.takeScreenshot("questplus-native-" + cycle + "-team");
 					clickFace(context, 205, 13);
 					context.runOnClient(client -> {
-						if (!hasButtonLabel(client, (QuestScreen) client.gui.screen(), "scale",
+						if (!hasButtonLabel(client, (QuestScreen) ClientAdapter.INSTANCE.screen(client), "scale",
 								Math.round(QuestPlusClient.settings.scale * 100)))
 							throw new AssertionError("The projected Settings tab click did not open Settings");
 					});
@@ -298,31 +301,31 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					clickButton(context, "scale", 100);
 					context.runOnClient(client -> {
 						if (QuestPlusClient.settings.scale != 1.25
-								|| client.gui.screen().width != TabletSurfaceRenderer.logicalWidth())
+								|| ClientAdapter.INSTANCE.screen(client).width != TabletSurfaceRenderer.logicalWidth())
 							throw new AssertionError("Interface scale did not resize the logical canvas");
 					});
 					context.takeScreenshot("questplus-native-" + cycle + "-scaled");
 					clickFace(context, 45, 13);
 					context.runOnClient(client -> {
-						if (!hasButtonLabel(client, (QuestScreen) client.gui.screen(), "close_details"))
+						if (!hasButtonLabel(client, (QuestScreen) ClientAdapter.INSTANCE.screen(client), "close_details"))
 							throw new AssertionError("The projected Quests tab click did not return to Quests");
 					});
 					context.takeScreenshot("questplus-native-" + cycle + "-scaled-details");
 					clickFace(context, 300, 34);
 					context.runOnClient(client -> {
-						if (hasButtonLabel(client, (QuestScreen) client.gui.screen(), "close_details")
-								|| !hasButtonLabel(client, (QuestScreen) client.gui.screen(), "filter.all"))
+						if (hasButtonLabel(client, (QuestScreen) ClientAdapter.INSTANCE.screen(client), "close_details")
+								|| !hasButtonLabel(client, (QuestScreen) ClientAdapter.INSTANCE.screen(client), "filter.all"))
 							throw new AssertionError(
 									"The detail close button collided with diagram controls at 125% scale");
 					});
 					context.getInput().pressKey(InputConstants.KEY_J);
 					context.waitTicks(12);
 					context.takeScreenshot("questplus-native-" + cycle + "-closing");
-					context.waitFor(client -> client.gui.screen() == null && !QuestClientTabletFlow.nativeHandsActive(),
+					context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) == null && !QuestClientTabletFlow.nativeHandsActive(),
 							180);
 					context.waitTicks(2);
 					context.runOnClient(client -> {
-						if (client.gui.screen() != null || QuestClientTabletFlow.nativeHandsActive())
+						if (ClientAdapter.INSTANCE.screen(client) != null || QuestClientTabletFlow.nativeHandsActive())
 							throw new AssertionError(
 									"Tablet close did not restore the game view at cycle " + currentCycle);
 					});
@@ -339,7 +342,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				context.getInput().pressKey(InputConstants.KEY_J);
 				context.waitTicks(2);
 				context.getInput().pressKey(InputConstants.KEY_J);
-				context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive() && client.gui.screen() == null,
+				context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive() && ClientAdapter.INSTANCE.screen(client) == null,
 						180);
 				context.takeScreenshot("questplus-native-interrupted-closed");
 				context.runOnClient(client -> {
@@ -483,8 +486,8 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			}
 		});
 		if (nativeTablet) {
-			context.runOnClient(client -> client.gui.screen().onClose());
-			context.waitFor(client -> client.gui.screen() == null && !QuestClientTabletFlow.nativeHandsActive(), 180);
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
+			context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) == null && !QuestClientTabletFlow.nativeHandsActive(), 180);
 		}
 		context.setScreen(QuestScreen::new);
 		context.runOnClient(client -> QuestPlusClient.sync());
@@ -568,9 +571,9 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 
 	/** Typing opens the side list without losing the caret; the chart is never filtered; Escape closes it. */
 	private static void searchListTrial(ClientGameTestContext context) {
-		int before = context.computeOnClient(client -> visibleNodes((QuestScreen) client.gui.screen()));
+		int before = context.computeOnClient(client -> visibleNodes((QuestScreen) ClientAdapter.INSTANCE.screen(client)));
 		context.runOnClient(client -> {
-			var screen = (QuestScreen) client.gui.screen();
+			var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 			var box = searchBox(screen);
 			screen.setFocused(box);
 			box.setFocused(true);
@@ -578,7 +581,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.getInput().typeChars("surface");
 		context.waitTicks(3);
 		context.runOnClient(client -> {
-			var screen = (QuestScreen) client.gui.screen();
+			var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 			var box = searchBox(screen);
 			if (!box.getValue().equals("surface") || !box.isFocused())
 				throw new AssertionError("Search field lost text or focus while the list opened: '" + box.getValue()
@@ -593,13 +596,13 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			}
 		});
 		context.takeScreenshot("questplus-search-list");
-		int during = context.computeOnClient(client -> visibleNodes((QuestScreen) client.gui.screen()));
+		int during = context.computeOnClient(client -> visibleNodes((QuestScreen) ClientAdapter.INSTANCE.screen(client)));
 		if (during != before)
 			throw new AssertionError("Search changed the chart: " + before + " nodes before, " + during + " during");
-		context.runOnClient(client -> client.gui.screen().keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
+		context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).keyPressed(new KeyEvent(InputConstants.KEY_ESCAPE, 0, 0)));
 		context.waitTicks(2);
 		context.runOnClient(client -> {
-			var screen = (QuestScreen) client.gui.screen();
+			var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 			if (!(screen instanceof QuestScreen) || !searchBox(screen).getValue().isEmpty())
 				throw new AssertionError("Escape must clear the search and keep the tablet open");
 		});
@@ -643,9 +646,9 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 				try {
 					var field = QuestScreen.class.getDeclaredField("categoryScroll");
 					field.setAccessible(true);
-					if (field.getInt(client.gui.screen()) != 7)
+					if (field.getInt(ClientAdapter.INSTANCE.screen(client)) != 7)
 						throw new AssertionError("Category rail did not scroll through projected mouse input: scroll="
-								+ field.getInt(client.gui.screen()) + ", target=" + point + ", pointer="
+								+ field.getInt(ClientAdapter.INSTANCE.screen(client)) + ", target=" + point + ", pointer="
 								+ TabletFaceAnchor.pointer(client.mouseHandler.getScaledXPos(client.getWindow()),
 										client.mouseHandler.getScaledYPos(client.getWindow())));
 				} catch (ReflectiveOperationException failure) {
@@ -659,7 +662,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 					var field = QuestScreen.class.getDeclaredField("category");
 					field.setAccessible(true);
 					var expected = new java.util.ArrayList<>(QuestPlusClient.STATE.categories.keySet()).get(7);
-					if (!expected.equals(field.get(client.gui.screen())))
+					if (!expected.equals(field.get(ClientAdapter.INSTANCE.screen(client))))
 						throw new AssertionError("Scrolled category hitbox does not match its visible icon");
 				} catch (ReflectiveOperationException failure) {
 					throw new AssertionError(failure);
@@ -708,7 +711,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.getInput().lookAt(0, 0);
 		context.waitTicks(5);
 		assertRemoteCarry(context);
-		context.takeScreenshot("questplus-remote-carried-front");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-carried-front");
 		var carryView = context.computeOnClient(client -> client.player.position());
 		context.runOnClient(client -> {
 			client.player.setPos(carryView.add(-3, 0, 3.2));
@@ -716,7 +719,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		});
 		context.getInput().lookAt(-90, 0);
 		context.waitTicks(3);
-		context.takeScreenshot("questplus-remote-carried-side");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-carried-side");
 		context.runOnClient(client -> {
 			client.player.setPos(carryView);
 			client.player.setOldPosAndRot();
@@ -724,9 +727,9 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.getInput().lookAt(0, 0);
 		sendPose(server, holderId, true);
 		context.waitTicks(12);
-		context.takeScreenshot("questplus-remote-opening");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-opening");
 		context.waitTicks(18);
-		context.takeScreenshot("questplus-remote-idle");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-idle");
 		assertRemoteArms(context);
 		context.runOnClient(client -> {
 			var witness = client.level.getEntity(9001);
@@ -736,14 +739,14 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 			client.player.setOldPosAndRot();
 		});
 		context.waitTicks(3);
-		context.takeScreenshot("questplus-remote-grip-front");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-grip-front");
 		context.runOnClient(client -> {
 			client.player.setPos(carryView.add(1.15, 0, 3.2));
 			client.player.setOldPosAndRot();
 		});
 		context.getInput().lookAt(90, 0);
 		context.waitTicks(3);
-		context.takeScreenshot("questplus-remote-grip-side");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-grip-side");
 		var side = context.computeOnClient(client -> client.player.position().add(3, 0, 3.2));
 		context.runOnClient(client -> {
 			client.player.setPos(side);
@@ -751,7 +754,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		});
 		context.getInput().lookAt(90, 0);
 		context.waitTicks(3);
-		context.takeScreenshot("questplus-remote-side");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-side");
 		context.runOnClient(client -> {
 			client.player.setPos(side.add(-3, 0, -3.2));
 			client.player.setOldPosAndRot();
@@ -760,20 +763,20 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		context.getInput().pressKey(InputConstants.KEY_J);
 		context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 		context.waitTicks(3);
-		context.takeScreenshot("questplus-local-and-remote-holding");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-local-and-remote-holding");
 		context.getInput().pressKey(InputConstants.KEY_J);
 		context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 180);
 		assertRemoteArms(context);
 		sendPose(server, holderId, false);
 		context.waitTicks(12);
-		context.takeScreenshot("questplus-remote-closing");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-closing");
 		context.waitTicks(18);
-		context.takeScreenshot("questplus-remote-closed");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-closed");
 		assertRemoteCarry(context);
 		context.runOnClient(client -> ((net.minecraft.client.player.RemotePlayer) client.level.getEntity(9000))
 				.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY));
 		context.waitTicks(8);
-		context.takeScreenshot("questplus-remote-model-restored");
+		dev.questplus.compat.ClientGameTestShims.screenshot(context, "questplus-remote-model-restored");
 		context.runOnClient(client -> {
 			client.level.removeEntity(9000, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 			client.level.removeEntity(9001, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
@@ -828,12 +831,12 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 	}
 
 	static void clickButton(ClientGameTestContext context, String key, Object... args) {
-		context.waitFor(client -> client.gui.screen() instanceof QuestScreen screen && screen.children().stream()
+		context.waitFor(client -> ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen screen && screen.children().stream()
 				.filter(QuestButton.class::isInstance).map(QuestButton.class::cast).anyMatch(b -> b.active && b.visible
 						&& b.getMessage().getString().equals(QuestPlusClient.tr(key, args).getString())),
 				120);
 		var point = context.computeOnClient(client -> {
-			var screen = (QuestScreen) client.gui.screen();
+			var screen = (QuestScreen) ClientAdapter.INSTANCE.screen(client);
 			var button = screen.children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast)
 					.filter(b -> b.getMessage().getString().equals(QuestPlusClient.tr(key, args).getString()))
 					.findFirst().orElseThrow();

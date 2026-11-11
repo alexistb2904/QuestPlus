@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.GameTestShims;
+
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -104,7 +106,7 @@ public final class ThirdPartyObjectivesGameTest {
 			ghoul.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(f.player), 10000);
 			f.expect("mob", 2);
 			f.expect("weapon", 1);
-			var arrow = f.spawn(EntityTypes.ARROW);
+			var arrow = f.spawn(GameTestShims.ARROW);
 			arrow.setOwner(f.player);
 			ghoul = (LivingEntity) f.spawn(ghoulType);
 			ghoul.hurtServer(helper.getLevel(), helper.getLevel().damageSources().arrow(arrow, f.player), 10000);
@@ -120,7 +122,7 @@ public final class ThirdPartyObjectivesGameTest {
 			for (int phase = 0; phase < 8 && !boss.isDeadOrDying(); phase++) {
 				boss.getClass().getMethod("setInvulTimer", int.class).invoke(boss, 0);
 				boss.getClass().getMethod("setPhaseInvulTimer", int.class).invoke(boss, 0);
-				boss.setInvulnerableTime(0);
+				GameTestShims.clearInvulnerableTime(boss);
 				boss.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(f.player), 100000);
 				f.expect("boss", boss.isDeadOrDying() ? 1 : 0);
 			}

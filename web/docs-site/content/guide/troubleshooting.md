@@ -4,7 +4,7 @@ Start with the symptom below. Keep a copy of your exported pack and the relevant
 
 ## The tablet does not open
 
-Confirm that QuestPlus and Fabric API are installed for Minecraft Java 26.3 on the client and server. Check Minecraft Controls for the QuestPlus binding and conflicts with **J**. Try the flat 2D interface if the problem occurs during a 3D animation.
+Confirm that QuestPlus and Fabric API are installed for the same Minecraft Java version (26.1.2, 26.2 or 26.3) on the client and server. Check Minecraft Controls for the QuestPlus binding and conflicts with **J**. Try the flat 2D interface if the problem occurs during a 3D animation.
 
 ## A quest is missing or locked
 

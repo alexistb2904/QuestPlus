@@ -3,7 +3,6 @@ package dev.questplus.fabric.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
@@ -18,9 +17,9 @@ public final class TabletNativeFirstPersonRenderer {
 
 	private TabletNativeFirstPersonRenderer() {}
 
-	public static boolean submit(PoseStack base, SubmitNodeCollector collector, AvatarRenderState avatar) {
+	public static boolean submit(PoseStack base, SubmitNodeCollector collector, int light) {
 		var mc = Minecraft.getInstance();
-		if (mc.player == null || avatar == null || !TabletNativeArms.active()
+		if (mc.player == null || !TabletNativeArms.active()
 				|| !mc.options.getCameraType().isFirstPerson())
 			return false;
 		String clip = TabletNativeAnimation.clip();
@@ -28,7 +27,6 @@ public final class TabletNativeFirstPersonRenderer {
 		if (TabletShaderCompat.translucentHandPass()) return true;
 		double seconds = TabletNativeAnimation.seconds();
 		var frame = TabletFirstPersonAnimation.pose(clip, seconds);
-		int light = avatar.lightCoords;
 		var skin = mc.player.getSkin().body().texturePath();
 
 		base.pushPose();

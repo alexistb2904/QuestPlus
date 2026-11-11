@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.questplus.fabric.TabletPoseNetwork;
@@ -50,7 +51,7 @@ public final class TabletPoseClient {
 			POSES.values().removeIf(p -> p.finishedClosed(time, animate));
 			if (client.player == null || !ClientPlayNetworking.canSend(TabletPoseNetwork.Request.TYPE))
 				return;
-			boolean now = (client.gui.screen() instanceof QuestScreen || QuestClientTabletFlow.thirdPersonHolding())
+			boolean now = (ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen || QuestClientTabletFlow.thirdPersonHolding())
 					&& client.player.isAlive() && !client.player.isSpectator();
 			if (now != sent || (now && ++heartbeat >= 100)) {
 				if (now != sent)
@@ -175,9 +176,9 @@ public final class TabletPoseClient {
 		pose.translate(palm.x, palm.y, palm.z);
 		var rotation = frame.rotation();
 		var scale = frame.scale();
-		pose.rotateDegrees(Axis.ZP, rotation.z());
-		pose.rotateDegrees(Axis.YP, -rotation.y());
-		pose.rotateDegrees(Axis.XP, -rotation.x());
+		pose.last().rotate(Axis.ZP.rotationDegrees(rotation.z()));
+		pose.last().rotate(Axis.YP.rotationDegrees(-rotation.y()));
+		pose.last().rotate(Axis.XP.rotationDegrees(-rotation.x()));
 		pose.scale(-TABLET_SCALE * scale.x(), TABLET_SCALE * scale.y(), TABLET_SCALE * scale.z());
 		// Scale around the grip, so the tablet edge stays inside the player's palm in
 		// every pose.
@@ -256,8 +257,8 @@ public final class TabletPoseClient {
 			var frame = sampled.pose();
 			pose.pushPose();
 			tabletTransform(pose, getParentModel().rightArm, frame);
-			nodes.submitModel(model, Unit.INSTANCE, pose, TabletRenderer.texture(), light, OverlayTexture.NO_OVERLAY,
-					0);
+			ClientAdapter.INSTANCE.submitModel(nodes, model, Unit.INSTANCE, pose, TabletRenderer.texture(), light,
+					OverlayTexture.NO_OVERLAY, 0);
 			var effects = TabletIdleEffects.frame();
 			pose.scale(1, -1, 1);
 			nodes.submitCustomGeometry(pose, TabletIdleEffects.renderType(),

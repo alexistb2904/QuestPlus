@@ -6,3 +6,13 @@ pluginManagement {
     }
 }
 rootProject.name = 'questplus'
+
+// Every versions/<minecraft> folder with a gradle.properties is one validated Minecraft
+// target. See versions/README.md. -Pmc=<folder> configures a single target only.
+def targets = file('versions').listFiles().findAll { new File(it, 'gradle.properties').file }*.name
+def only = startParameter.projectProperties.mc
+if (only && !targets.contains(only)) throw new GradleException("Unknown -Pmc=${only}, known targets: ${targets}")
+targets.findAll { !only || it == only }.each { name ->
+    include name
+    project(":${name}").projectDir = file("versions/${name}")
+}

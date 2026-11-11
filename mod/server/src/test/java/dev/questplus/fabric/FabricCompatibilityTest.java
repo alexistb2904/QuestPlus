@@ -36,10 +36,26 @@ final class FabricCompatibilityTest {
 	void rejectsVersionsBelowBundledAnimationAndGameRequirements() throws Exception {
 		var dependencies = dependencies();
 		for (String[] entry : new String[][] {
-				{ "fabricloader", "0.19.4" }, { "fabric-api", "0.160.7+26.3" },
-				{ "minecraft", "26.2" }, { "minecraft", "26.4" }, { "java", "24" } }) {
+				{ "fabricloader", "0.19.4" }, { "fabric-api", "0.155.2+26.1.2" }, { "java", "24" } }) {
 			assertFalse(VersionPredicate.parse(dependencies.get(entry[0]).getAsString())
 					.test(Version.parse(entry[1])), entry[0] + " " + entry[1]);
 		}
+	}
+
+	@Test
+	void declaresExactlyTheValidatedMinecraftVersions() throws Exception {
+		var declared = new java.util.ArrayList<String>();
+		dependencies().getAsJsonArray("minecraft").forEach(v -> declared.add(v.getAsString()));
+		assertTrue(declared.containsAll(java.util.List.of("26.1.2", "26.2", "26.3")), declared.toString());
+		for (String version : declared)
+			assertTrue(version.matches("[0-9]+([.][0-9]+)+"), "Exact release versions only, no ranges: " + version);
+		for (String untested : new String[] { "26.1", "26.1.1", "26.2-pre-1", "26.3-rc-1", "26.4", "26.4-snapshot-1" })
+			assertFalse(declared.stream().anyMatch(v -> {
+				try {
+					return VersionPredicate.parse(v).test(Version.parse(untested));
+				} catch (Exception e) {
+					throw new AssertionError(e);
+				}
+			}), "Undeclared Minecraft " + untested);
 	}
 }

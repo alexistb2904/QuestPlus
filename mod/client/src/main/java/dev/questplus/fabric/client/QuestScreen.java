@@ -1,7 +1,8 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
+
 import com.google.gson.*;
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.questplus.clientmodel.*;
 import dev.questplus.core.QuestDefinition;
 import dev.questplus.clientdata.QuestPresentation;
@@ -2241,7 +2242,7 @@ public final class QuestScreen extends Screen {
 			event = new MouseButtonEvent(twoDX(event.x()), twoDY(event.y()), event.buttonInfo());
 		event = new MouseButtonEvent(event.x(), event.y() - visualOffset, event.buttonInfo());
 		if (tab.equals("team") && state.team != null && input != null
-				&& event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+				&& event.button() == ClientAdapter.INSTANCE.keys().mouseLeft()) {
 			double x = event.x(), y = event.y();
 			if (playerPicker && x >= left + 14 && x < right - 99 && y >= top + 88
 					&& y < top + 88 + playerPickerRows() * 20) {
@@ -2257,7 +2258,7 @@ public final class QuestScreen extends Screen {
 		}
 		if (super.mouseClicked(event, doubleClick))
 			return true;
-		if (!tab.equals("quests") || event.button() != InputConstants.MOUSE_BUTTON_LEFT)
+		if (!tab.equals("quests") || event.button() != ClientAdapter.INSTANCE.keys().mouseLeft())
 			return false;
 		double x = event.x(), y = event.y();
 		if (selected != null && !rewardView && QuestRecipeViewer.available())
@@ -2359,7 +2360,7 @@ public final class QuestScreen extends Screen {
 		else
 			event = new MouseButtonEvent(twoDX(event.x()), twoDY(event.y()), event.buttonInfo());
 		event = new MouseButtonEvent(event.x(), event.y() - visualOffset, event.buttonInfo());
-		if (dragging && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+		if (dragging && event.button() == ClientAdapter.INSTANCE.keys().mouseLeft()) {
 			dragging = false;
 			if (!dragged && inTree(event.x(), event.y()))
 				hitQuestAtScreen(event.x(), event.y()).filter(this::shown).ifPresent(id -> select(id, false));
@@ -2416,7 +2417,8 @@ public final class QuestScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
-		if (event.key() == InputConstants.KEY_F6 && tab.equals("quests")) {
+		var keys = ClientAdapter.INSTANCE.keys();
+		if (event.key() == keys.f6() && tab.equals("quests")) {
 			updateRenderCache();
 			var ids = filtered.stream().sorted().toList();
 			if (!ids.isEmpty()) {
@@ -2426,31 +2428,32 @@ public final class QuestScreen extends Screen {
 			}
 			return true;
 		}
-		if (event.key() == InputConstants.KEY_RETURN && keyboardQuest != null && !(getFocused() instanceof EditBox)) {
+		if (event.isConfirmation() && keyboardQuest != null && !(getFocused() instanceof EditBox)) {
 			select(keyboardQuest, false);
 			return true;
 		}
-		if (event.key() == InputConstants.KEY_RETURN && search != null && getFocused() == search && selected == null
+		if (event.isConfirmation() && search != null && getFocused() == search && selected == null
 				&& !query.isEmpty()) {
 			// Enter in the search opens the first result, so the list is usable without a mouse.
 			updateJournal();
 			journal.stream().filter(row -> row.id() != null).findFirst().ifPresent(row -> select(row.id(), true));
 			return true;
 		}
-		if (event.key() != InputConstants.KEY_ESCAPE && getFocused() instanceof EditBox box && box.isFocused())
+		if (!event.isEscape() && getFocused() instanceof EditBox box && box.isFocused())
 			return super.keyPressed(event);
-		switch (event.key()) {
-		case InputConstants.KEY_LEFT -> camera.pan(24, 0);
-		case InputConstants.KEY_RIGHT -> camera.pan(-24, 0);
-		case InputConstants.KEY_UP -> camera.pan(0, 24);
-		case InputConstants.KEY_DOWN -> camera.pan(0, -24);
-		case InputConstants.KEY_HOME -> fit();
-		case InputConstants.KEY_EQUALS, InputConstants.KEY_ADD -> camera.zoomAt(QuestCamera.ZOOM_STEP,
+		// Key codes differ per target (GLFW before 26.3, SDL after): no inlined InputConstants here.
+		int key = event.key();
+		if (event.isLeft()) camera.pan(24, 0);
+		else if (event.isRight()) camera.pan(-24, 0);
+		else if (event.isUp()) camera.pan(0, 24);
+		else if (event.isDown()) camera.pan(0, -24);
+		else if (key == keys.home()) fit();
+		else if (key == keys.equals() || key == keys.add()) camera.zoomAt(QuestCamera.ZOOM_STEP,
 				(treeLeft + treeRight) / 2.0, (treeTop + treeBottom) / 2.0);
-		case InputConstants.KEY_MINUS -> camera.zoomAt(1 / QuestCamera.ZOOM_STEP, (treeLeft + treeRight) / 2.0,
+		else if (key == keys.minus()) camera.zoomAt(1 / QuestCamera.ZOOM_STEP, (treeLeft + treeRight) / 2.0,
 				(treeTop + treeBottom) / 2.0);
-		case InputConstants.KEY_J -> onClose();
-		case InputConstants.KEY_ESCAPE -> {
+		else if (key == keys.j()) onClose();
+		else if (event.isEscape()) {
 			// Details first, then the search list, then the tablet itself.
 			if (selected != null) {
 				selected = null;
@@ -2462,11 +2465,8 @@ public final class QuestScreen extends Screen {
 				init();
 			} else
 				onClose();
-		}
-		default -> {
+		} else
 			return super.keyPressed(event);
-		}
-		}
 		return true;
 	}
 

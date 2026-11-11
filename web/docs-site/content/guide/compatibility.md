@@ -2,9 +2,17 @@
 
 ## Required environment
 
-QuestPlus targets **Minecraft Java 26.3**, **Fabric** and **Java 25**. Install the same QuestPlus release and a compatible Fabric API on clients and the server. The project builds one universal Fabric JAR.
+QuestPlus runs on **Minecraft Java 26.1.2, 26.2 and 26.3** with **Fabric** and **Java 25**. One JAR covers the three versions: it detects the running Minecraft and loads the matching code. Install the same QuestPlus release and a Fabric API for your Minecraft version on clients and the server.
 
-The minimum versions are **Fabric Loader 0.19.5** and **Fabric API 0.161.0+26.3**. Newer versions for Minecraft 26.3 are accepted, including Fabric API 0.164.0+26.3. These minima come from the bundled animation libraries. Older 26.3 builds cannot load them. Minecraft versions other than 26.3 remain unsupported.
+The minimum versions are **Fabric Loader 0.19.5** and the Fabric API build each version was tested with:
+
+| Minecraft | Minimum Fabric API |
+| --- | --- |
+| 26.1.2 | 0.155.3+26.1.2 |
+| 26.2 | 0.161.0+26.2 |
+| 26.3 | 0.161.0+26.3 |
+
+Newer Fabric API builds for the same Minecraft version are accepted. QuestPlus stops at startup with a clear message on an older Fabric API or on another Minecraft version, including 26.1 and 26.1.1, which were not tested.
 
 The tablet animations are built in and no animation library is bundled or required. Fabric API is installed separately. Check the requirements of the release you download.
 
@@ -16,7 +24,7 @@ Shader packs run through **Iris**. QuestPlus has no hard dependency on Iris. It 
 
 ### World blocks
 
-The Quest Board, the Submission Station, the Quest Relay and the loot crate reveal work with the following shader packs. They were tested with Iris 1.11.7 and Sodium 0.9.2 on Minecraft 26.3:
+The Quest Board, the Submission Station, the Quest Relay and the loot crate reveal work with the following shader packs. They were tested with Sodium 0.9.2 and Iris 1.11.7 on Minecraft 26.3, and Iris 1.11.4 on Minecraft 26.1.2 and 26.2:
 
 | Shader pack | Version tested |
 | --- | --- |
@@ -41,13 +49,11 @@ Known differences:
 
 ### Tablet
 
-The tablet animation can conflict with depth of field, reflections and other camera effects. MakeUp - Ultra Fast, Bliss and Complementary Reimagined are known to work with the tablet animation. With any other pack, test your exact shader, camera and player animation combination. If it interferes, use the flat interface while investigating.
-
 QuestPlus suppresses its own background blur while a shader pack is active. Use screen brightness and Self Illumination to tune the tablet. Shader depth of field and reflections remain controlled by the shader.
 
 ### Animation mods
 
-The mod has been tested with the following animation mods: Punchy, Punchy Moves, Not Enough Animations.
+The mod has been tested on Minecraft 26.3 with the following animation mods: Punchy, Punchy Moves, Not Enough Animations.
 
 The first-person tablet hand rendering has also been checked with Fresh Animations 1.11.2, Player Extension 1.1, EMF 3.3.12 and ETF 7.2.7, alongside Punchy. While the tablet is active, it draws the player's skin on its own vanilla arm meshes and suppresses normal first-person hands. Custom player arm geometry from resource packs is not used for the tablet. This check does not cover every shader or resource-pack combination.
 

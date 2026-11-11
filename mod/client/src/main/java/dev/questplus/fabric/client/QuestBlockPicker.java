@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.google.gson.JsonObject;
 import dev.questplus.fabric.QuestBlockNetwork;
 import dev.questplus.fabric.client.ui.*;
@@ -100,7 +101,7 @@ final class QuestBlockPicker extends Screen {
             var choice = filtered.get(i); int y = top + ROWS_Y + (i - page * count) * PITCH;
             var row = addRenderableWidget(new QuestButton(Component.literal(choice.title), left + PAD, y, panelWidth - 2 * PAD, ROW, () -> {
                 if (browsingCategories) { category = choice.id; page = 0; rows(); }
-                else { selected.accept(choice.id); minecraft.gui.setScreen(parent); }
+                else { selected.accept(choice.id); ClientAdapter.INSTANCE.setScreen(minecraft, parent); }
             }));
             if (!choice.icon.isEmpty()) {
                 row.icon(item(choice.icon));
@@ -122,7 +123,7 @@ final class QuestBlockPicker extends Screen {
     }
     @Override public void onClose() {
         if (!category.isEmpty()) { category = ""; page = 0; query = ""; search.setValue(""); rows(); }
-        else minecraft.gui.setScreen(parent);
+        else ClientAdapter.INSTANCE.setScreen(minecraft, parent);
     }
     private static ItemStack item(String value) {
         var id = Identifier.tryParse(value);

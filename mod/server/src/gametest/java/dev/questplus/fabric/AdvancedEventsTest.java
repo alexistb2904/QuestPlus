@@ -1,5 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.compat.GameTestShims;
+
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +14,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import io.netty.channel.embedded.EmbeddedChannel;
 import com.mojang.authlib.GameProfile;
 import java.util.UUID;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.InteractionHand;
@@ -118,7 +119,7 @@ public final class AdvancedEventsTest {
 		player.gameMode.useItemOn(player, level, ItemStack.EMPTY, InteractionHand.MAIN_HAND, hit);
 		helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("interact") == 1,
 				"Non-interactive block does not count");
-		var wolf = helper.spawn(EntityTypes.WOLF, new BlockPos(5, 2, 2));
+		var wolf = helper.spawn(GameTestShims.WOLF, new BlockPos(5, 2, 2));
 		wolf.tame(player);
 		helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("tame") == 1,
 				"Successful tame counted");
@@ -126,14 +127,14 @@ public final class AdvancedEventsTest {
 		player.interactOn(wolf, InteractionHand.MAIN_HAND, Vec3.ZERO);
 		helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("npc") == 1,
 				"Successful entity interaction counted");
-		var cow = helper.spawn(EntityTypes.COW, new BlockPos(6, 2, 2));
-		var mate = helper.spawn(EntityTypes.COW, new BlockPos(7, 2, 2));
+		var cow = helper.spawn(GameTestShims.COW, new BlockPos(6, 2, 2));
+		var mate = helper.spawn(GameTestShims.COW, new BlockPos(7, 2, 2));
 		cow.setInLove(player);
 		mate.setInLove(player);
 		cow.spawnChildFromBreeding(level, mate);
 		helper.assertTrue(progress.quests.get("questplus:advanced_test").counters.get("breed") == 1,
 				"Successful breeding counted once");
-		var villager = helper.spawn(EntityTypes.VILLAGER, new BlockPos(8, 2, 2));
+		var villager = helper.spawn(GameTestShims.VILLAGER, new BlockPos(8, 2, 2));
 		villager.setTradingPlayer(player);
 		villager.getOffers().clear();
 		villager.getOffers().add(new MerchantOffer(new ItemCost(Items.WHEAT), new ItemStack(Items.EMERALD), 10, 1, 0));

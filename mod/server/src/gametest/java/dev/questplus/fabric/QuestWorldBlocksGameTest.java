@@ -232,7 +232,7 @@ public final class QuestWorldBlocksGameTest {
         h.assertTrue(second.isEmpty()&&second.fluids.amount==0&&second.energy==0,"Replayed packed item cannot duplicate balances");
         h.assertTrue(!QuestBlockNetwork.authorized(actor,destination,UUID.randomUUID()),"Forged configuration token rejected");
         var other=player(h);h.assertTrue(!moved.canConfigure(other),"Other player cannot configure personal station");
-        h.assertTrue(moved.getBlockState().getPistonPushReaction()==net.minecraft.world.level.material.PushReaction.IMMOVEABLE,"Piston movement rejected");
+        h.assertTrue(moved.getBlockState().getPistonPushReaction()==dev.questplus.compat.CommonAdapter.INSTANCE.immovable(),"Piston movement rejected");
         Files.delete(path);QuestPlusMod.runtime().reload();h.succeed();
     }
     static QuestBlockConfig config(String quest,String objective){

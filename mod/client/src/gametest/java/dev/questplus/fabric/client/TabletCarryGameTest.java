@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen;
 import net.minecraft.client.CameraType;
@@ -12,7 +13,7 @@ final class TabletCarryGameTest {
 		try (var world = context.worldBuilder().create()) {
 			context.waitFor(client -> QuestPlusClient.STATE.ready, 600);
 			context.runOnClient(client -> {
-				client.gui.setScreen(null);
+				ClientAdapter.INSTANCE.setScreen(client, null);
 				QuestPlusClient.settings.animations = true;
 				QuestPlusClient.settings.tablet = true;
 				QuestPlusClient.settings.tabletTransitions = true;
@@ -26,7 +27,7 @@ final class TabletCarryGameTest {
 			context.waitTicks(5);
 			context.runOnClient(client -> {
 				var screen = new CreativeModeInventoryScreen(client.player, client.level.enabledFeatures(), true);
-				client.gui.setScreen(screen);
+				ClientAdapter.INSTANCE.setScreen(client, screen);
 				var tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(Identifier.parse("questplus:quest"));
 				if (tab == null || !((FabricCreativeModeInventoryScreen) screen).setSelectedTab(tab)
 						|| !tab.contains(BuiltInRegistries.ITEM.getValue(Identifier.parse("questplus:tablet"))
@@ -37,7 +38,7 @@ final class TabletCarryGameTest {
 			});
 			context.waitTicks(4);
 			context.takeScreenshot("questplus-creative-quest");
-			context.runOnClient(client -> client.gui.setScreen(null));
+			context.runOnClient(client -> ClientAdapter.INSTANCE.setScreen(client, null));
 			terminalFrameTrial(context);
 			emptyHandTrial(context);
 			world.getServer().runCommand("item replace entity @p weapon.mainhand with questplus:tablet");
@@ -55,7 +56,7 @@ final class TabletCarryGameTest {
 			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
 			context.getInput().releaseMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
 			world.getServer().runCommand("kill @e[tag=tablet_test]");
 			try (var files = java.nio.file.Files
@@ -91,7 +92,7 @@ final class TabletCarryGameTest {
 	private static void terminalFrameTrial(ClientGameTestContext context) {
 		context.runOnClient(QuestClientTabletFlow::toggle);
 		context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
-		context.runOnClient(client -> client.gui.screen().onClose());
+		context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 		context.waitTicks(5);
 		context.runOnClient(client -> {
 			if (!TabletNativeAnimation.active() || !"questplus.close".equals(TabletNativeAnimation.clip()))
@@ -105,7 +106,7 @@ final class TabletCarryGameTest {
 			context.runOnClient(QuestClientTabletFlow::toggle);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
 			context.runOnClient(client -> TabletArmRenderingTest.verify(client, true));
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			if (cycle == 0) {
 				context.waitTicks(5);
 				var before = context.computeOnClient(client -> TabletNativeAnimation.bone("tablet_root", "position"));
@@ -169,12 +170,12 @@ final class TabletCarryGameTest {
 				client -> QuestClientTabletFlow.carrying() && TabletNativeArms.active()
 						&& TabletNativeAnimation.bone("tablet_root", "position") != null,
 				120);
-		context.runOnClient(client -> client.gui.setScreen(new net.minecraft.client.gui.screens.ChatScreen("", false)));
+		context.runOnClient(client -> ClientAdapter.INSTANCE.setScreen(client, new net.minecraft.client.gui.screens.ChatScreen("", false)));
 		context.waitTicks(5);
 		context.runOnClient(client -> {
 			if (!QuestClientTabletFlow.carrying() || !TabletNativeArms.active())
 				throw new AssertionError("Chat interrupted the tablet carry pose");
-			client.gui.setScreen(null);
+			ClientAdapter.INSTANCE.setScreen(client, null);
 		});
 		context.waitTicks(2);
 		var before = context.computeOnClient(client -> TabletNativeAnimation.bone("tablet_root", "position"));
@@ -192,7 +193,7 @@ final class TabletCarryGameTest {
 		for (int cycle = 0; cycle < 2; cycle++) {
 			context.runOnClient(QuestClientTabletFlow::toggle);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 120);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			for (int tick = 0; tick < 25; tick++) {
 				context.waitTicks(1);
 				context.runOnClient(client -> {
@@ -207,7 +208,7 @@ final class TabletCarryGameTest {
 		for (boolean useItem : new boolean[] { true, false }) {
 			context.runOnClient(QuestClientTabletFlow::toggle);
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 60);
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitTicks(2);
 			if (useItem) {
 				context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
@@ -221,7 +222,7 @@ final class TabletCarryGameTest {
 				return TabletSurfaceRenderer.active();
 			}, 60);
 			context.takeScreenshot("tablet-reopened-" + (useItem ? "click" : "key"));
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitFor(client -> QuestClientTabletFlow.carrying(), 60);
 		}
 		context.getInput().lookAt(0, 0);

@@ -72,6 +72,17 @@ public final class ObjectiveSamplingGameTest {
 		player.setPos(box.minX() + 1.5, box.minY() + 1, box.minZ() + 1.5);
 		// The pyramid can extend into a different chunk than its start.
 		helper.getLevel().getChunkAt(player.blockPosition()).addReferenceForStructure(structure, chunk.getPos().pack());
+		// The pyramid floor is at y=64, above the test area that setBiome filled.
+		var low = new BlockPos(box.minX(), box.minY(), box.minZ());
+		var high = new BlockPos(box.maxX(), box.maxY(), box.maxZ());
+		// fill() changes nothing unless every chunk of the region is loaded.
+		for (int chunkX = low.getX() >> 4; chunkX <= high.getX() >> 4; chunkX++)
+			for (int chunkZ = low.getZ() >> 4; chunkZ <= high.getZ() >> 4; chunkZ++)
+				helper.getLevel().getChunk(chunkX, chunkZ);
+		net.minecraft.server.commands.FillBiomeCommand.fill(helper.getLevel(), low, high,
+				server.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.DESERT));
+		helper.assertTrue(helper.getLevel().getBiome(player.blockPosition()).is(Biomes.DESERT),
+				"Player stands in the desert before sampling");
 		player.getInventory().setItem(0, new ItemStack(Items.OAK_LOG, 3));
 		player.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.BIRCH_LOG, 2));
 		player.giveExperienceLevels(5);
@@ -91,7 +102,8 @@ public final class ObjectiveSamplingGameTest {
 			f.expect("stat", 3);
 			f.expect("advancement", 1);
 			helper.assertTrue(f.count("structure") > 0, "Real structure manager detects the registered start");
-			helper.assertTrue(f.count("biome") > 0, "Biome visit reads the world's biome");
+			helper.assertTrue(f.count("biome") > 0, "Biome visit reads the world's biome, found "
+					+ helper.getLevel().getBiome(player.blockPosition()).unwrapKey() + " at " + player.blockPosition());
 			helper.assertTrue(f.count("location") > 0, "Location samples actual player position");
 			f.expect("gear", 0);
 		}).thenExecute(() -> {

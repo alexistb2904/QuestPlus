@@ -63,7 +63,7 @@ final class ResourceClientGameTest {
 		context.waitTicks(8);
 		context.takeScreenshot("questplus-tech-resources-before");
 		QuestClientGameTest.clickButton(context, "submit");
-		server.waitFor(instance -> {
+		dev.questplus.compat.ClientGameTestShims.waitForServer(context, server, instance -> {
 			try {
 				var p = instance.getPlayerList().getPlayers().getFirst();
 				var state = dev.questplus.fabric.QuestPlusMod.runtime().state(p.getUUID()).quests.get(quest);

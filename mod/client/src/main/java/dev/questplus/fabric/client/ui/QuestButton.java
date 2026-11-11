@@ -1,6 +1,5 @@
 package dev.questplus.fabric.client.ui;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -125,8 +124,7 @@ public final class QuestButton extends AbstractWidget {
 	public boolean keyPressed(KeyEvent event) {
 		if (!active || !visible || !isFocused())
 			return false;
-		if (event.key() != InputConstants.KEY_SPACE && event.key() != InputConstants.KEY_RETURN
-				&& event.key() != InputConstants.KEY_NUMPADENTER)
+		if (!event.isSelection())
 			return false;
 		playDownSound(Minecraft.getInstance().getSoundManager());
 		action.run();

@@ -1,0 +1,383 @@
+
+version = rootProject.version
+group = rootProject.group
+base.archivesName = "questplus-mc${name}"
+def shared = { String path -> rootProject.file(path) }
+def adapterId = rootProject.adapterId(project)
+def otherTargets = rootProject.targets.findAll { it != project }
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://api.modrinth.com/maven' }
+    maven { url = 'https://www.cursemaven.com' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    compileOnly 'teamreborn:energy:5.0.0'
+    compileOnly 'com.google.j2objc:j2objc-annotations:3.0.0'
+    compileOnly('maven.modrinth:rei:rKsAE6bX') { transitive = false }
+    compileOnly('maven.modrinth:jei:hif1VmML') { transitive = false }
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+sourceSets {
+    main {
+        java.setSrcDirs([shared('server/src/main/java'), shared('client/src/main/java'), 'src/main/java'])
+        resources.setSrcDirs([shared('server/src/main/resources'), shared('client/src/main/resources'), 'src/main/resources'])
+    }
+    test {
+        java.setSrcDirs([shared('server/src/test/java'), shared('client/src/test/java'), 'src/test/java'])
+        resources.setSrcDirs([shared('server/src/test/resources')])
+    }
+}
+
+def exportAdapters = tasks.register('exportAdapters', Sync) {
+    from(tasks.named('compileJava')) { include "dev/questplus/compat/${adapterId}/**" }
+    from('src/main/resources') { include "questplus.${adapterId}.mixins.json" }
+    into layout.buildDirectory.dir('adapter-export')
+}
+// Every run and JAR carries all targets' adapters, exactly like the universal JAR.
+otherTargets.each { other ->
+    sourceSets.main.output.dir(other.layout.buildDirectory.dir('adapter-export'), builtBy: "${other.path}:exportAdapters")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+processResources {
+    def resourceVersion = project.version
+    def targets = rootProject.targetMetadata
+    inputs.property 'version', resourceVersion
+    inputs.property 'targets', targets
+    // Text-only MIT attributions for adapted model geometry conventions (no library binaries).
+    from(shared('licenses/native-tablet')) { into 'META-INF/licenses/native-tablet' }
+    from(shared('server/src/legacy-defaults')) { into 'defaults' }
+    // Catalogue authored once for both the server JAR and Quest Studio.
+    from(shared('../web/editor/src/data')) {
+        include 'challenge-catalogue.json', 'equipment-catalogue.json', 'explorers-catalogue.json'
+        into 'defaults/catalogue'
+    }
+    // Minecraft compatibility is generated from versions/*: never hand-edit it in fabric.mod.json.
+    doLast {
+        def metadata = new File(destinationDir, 'fabric.mod.json')
+        def data = new groovy.json.JsonSlurper().parse(metadata)
+        data.version = resourceVersion
+        data.depends.minecraft = targets.values().collectMany { it.minecraft }
+        // Lowest tested build overall; MinecraftTarget enforces each target's own minimum.
+        data.depends['fabric-api'] = '>=' + targets.values()*.'fabric-api'.min { rootProject.versionKey(it) }
+        targets.keySet().each { id ->
+            data.mixins << "questplus.${id}.mixins.json".toString()
+            data.entrypoints["questplus:${id}".toString()] = ["dev.questplus.compat.${id}.CommonAdapterImpl".toString()]
+            data.entrypoints["questplus:${id}/client".toString()] = ["dev.questplus.compat.${id}.ClientAdapterImpl".toString()]
+        }
+        data.custom = (data.custom ?: [:]) + ['questplus:targets': targets]
+        metadata.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data))
+    }
+}
+
+test {
+    useJUnitPlatform()
+    // Tests read sources and assets relative to mod/.
+    workingDir = rootProject.projectDir
+    systemProperty 'joml.nounsafe', 'true'
+}
+
+// Animation libraries are intentionally not embedded in release artifacts.
+tasks.register('verifyNativeRenderer') {
+    group = 'verification'
+    // Inspect the actual artifact uploaded to Modrinth / CurseForge.
+    dependsOn tasks.named('jar')
+    doLast {
+        new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
+            def entries = jar.entries().toList()*.name
+            assert !entries.any { it.startsWith('META-INF/jars/') } : 'Standalone release JAR must not embed any external library'
+            assert !jar.getInputStream(jar.getEntry('questplus.client.mixins.json')).getText('UTF-8').contains('TabletFaceCaptureMixin')
+            // Every target ships its own native first-person hook.
+            rootProject.targetMetadata.keySet().each { id ->
+                def entry = jar.getEntry("questplus.${id}.mixins.json")
+                assert entry != null : "Missing questplus.${id}.mixins.json"
+                assert jar.getInputStream(entry).getText('UTF-8').contains('TabletNativeFirstPersonMixin') : id
+            }
+        }
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyNativeRenderer') }
+
+// Server GameTests never load client mixins, so check every mixin of this target statically
+// against its own Minecraft: target classes, injected methods, @At targets, accessors, shadows.
+// The client GameTests' MixinEnvironment.audit() stays the runtime proof.
+def verifyMixinTargets = tasks.register('verifyMixinTargets') {
+    group = 'verification'
+    def classpath = sourceSets.main.compileClasspath
+    def output = tasks.named('compileJava').flatMap { it.destinationDirectory }
+    def configs = [shared('server/src/main/resources/questplus.mixins.json'),
+                   shared('client/src/main/resources/questplus.client.mixins.json'),
+                   file("src/main/resources/questplus.${adapterId}.mixins.json")]
+    inputs.files(classpath, configs)
+    inputs.dir(output)
+    doLast {
+        def jars = classpath.files.findAll { it.name.endsWith('.jar') }.collect { new java.util.zip.ZipFile(it) }
+        def nodes = [:]
+        def node = { String name ->
+            if (!nodes.containsKey(name)) {
+                def own = new File(output.get().asFile, name + '.class')
+                def bytes = own.file ? own.bytes : jars.findResult { jar ->
+                    def entry = jar.getEntry(name + '.class')
+                    entry ? jar.getInputStream(entry).bytes : null
+                }
+                nodes[name] = bytes ? rootProject.classNode(bytes) : null
+            }
+            nodes[name]
+        }
+        def values = { annotation ->
+            def list = annotation?.values ?: []
+            (0..<list.size()).step(2).collectEntries { [(list[it]): list[it + 1]] }
+        }
+        def annotationsOf = { element -> (element.invisibleAnnotations ?: []) + (element.visibleAnnotations ?: []) }
+        // Searches the owner, its superclasses and its interfaces, like JVM member resolution.
+        def member = { String owner, Closure matches ->
+            def pending = [owner], seen = [] as Set
+            while (pending) {
+                def c = node(pending.pop())
+                if (c == null || !seen.add(c.name)) continue
+                if (matches(c)) return true
+                pending.addAll(((c.interfaces ?: []) + (c.superName ? [c.superName] : [])))
+            }
+            false
+        }
+        def errors = []
+        configs.each { config ->
+            def json = new groovy.json.JsonSlurper().parse(config)
+            ((json.mixins ?: []) + (json.client ?: []) + (json.server ?: [])).each { simple ->
+                def mixin = node("${json.package}.${simple}".replace('.', '/'))
+                def classAnnotations = annotationsOf(mixin)
+                def declared = values(classAnnotations.find { it.desc == 'Lorg/spongepowered/asm/mixin/Mixin;' })
+                def optional = classAnnotations.any { it.desc == 'Lorg/spongepowered/asm/mixin/Pseudo;' }
+                def targets = (declared.value ?: [])*.internalName + (declared.targets ?: [])*.replace('.', '/')
+                targets.each { target ->
+                    if (node(target) == null) {
+                        if (!optional) errors << "${simple}: no class ${target}"
+                        return
+                    }
+                    def hasMethod = { String spec ->
+                        def name = spec.contains('(') ? spec.substring(0, spec.indexOf('(')) : spec
+                        def desc = spec.contains('(') ? spec.substring(spec.indexOf('(')) : null
+                        node(target).methods.any { it.name == name && (desc == null || it.desc == desc) }
+                    }
+                    mixin.fields.findAll { f -> annotationsOf(f).any { it.desc.endsWith('/Shadow;') } }.each { f ->
+                        if (!member(target) { c -> c.fields.any { it.name == f.name } }) errors << "${simple}: no field ${target}.${f.name}"
+                    }
+                    mixin.methods.each { m ->
+                        annotationsOf(m).each { a ->
+                            def v = values(a)
+                            if (a.desc.endsWith('/Accessor;') && v.value && !member(target) { c -> c.fields.any { it.name == v.value } })
+                                errors << "${simple}: no field ${target}.${v.value}"
+                            if (a.desc.endsWith('/Shadow;') && !member(target) { c -> c.methods.any { it.name == m.name - 'shadow$' && it.desc == m.desc } })
+                                errors << "${simple}: no method ${target}.${m.name}${m.desc}"
+                            (v.method ?: []).each { spec -> if (!hasMethod(spec)) errors << "${simple}: no method ${target}.${spec}" }
+                            def ats = v.at instanceof List ? v.at : (v.at ? [v.at] : [])
+                            ats.each { at ->
+                                def point = values(at).target
+                                def call = point =~ '^L([^;]+);([^(:]+)(.*)$'
+                                if (!call.matches() || call.group(1).startsWith('dev/questplus/')) return
+                                String owner = call.group(1), name = call.group(2), desc = call.group(3)
+                                def found = desc.startsWith(':')
+                                    ? member(owner) { c -> c.fields.any { it.name == name && ':' + it.desc == desc } }
+                                    : member(owner) { c -> c.methods.any { it.name == name && it.desc == desc } }
+                                if (!found) errors << "${simple}: no @At target ${point}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        jars*.close()
+        if (errors) throw new GradleException("Mixins do not match Minecraft ${project.minecraft_version}:\n  " + errors.join('\n  '))
+    }
+}
+verifyMixinTargets.configure { dependsOn tasks.named('compileJava') }
+tasks.named('check') { dependsOn verifyMixinTargets }
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'questplus-test'
+        enableGameTests = true
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+// Fabric API creates the gametest source set above. Use split source folders
+// without creating a second mod or duplicating entrypoints.
+sourceSets.named('gametest') {
+    java.setSrcDirs([shared('server/src/gametest/java'), shared('client/src/gametest/java'), 'src/gametest/java'])
+    resources.setSrcDirs([shared('server/src/gametest/resources'), shared('client/src/gametest/resources')])
+}
+
+// Loom cleans its default directory; our overridden test world needs cleaning too.
+tasks.named('deleteGameTestRunDir', Delete) {
+    delete layout.buildDirectory.dir('gametest')
+}
+
+// Fabric's shared launch setup must not clean a running GameTest world for normal clients.
+afterEvaluate {
+    def acceptEula = tasks.named('acceptGameTestEula')
+    tasks.named('configureLaunch') {
+        setDependsOn(dependsOn.findAll { it != acceptEula })
+    }
+    tasks.named('runGameTest') { dependsOn acceptEula }
+    tasks.named('runClientGameTest') { dependsOn acceptEula }
+}
+
+tasks.register('verifyGameTestLaunchIsolation') {
+    group = 'verification'
+    doLast {
+        // Walk declared dependsOn only: resolving full task dependencies here would also resolve the
+        // run classpath, which names the other targets' exportAdapters and deadlocks on their locks.
+        def declared = { task ->
+            task.dependsOn.collectMany { d ->
+                if (d instanceof Task) return [d]
+                if (d instanceof org.gradle.api.tasks.TaskProvider) return [d.get()]
+                if (d instanceof CharSequence) return [tasks.findByPath(d.toString())].findAll()
+                if (d instanceof Collection) return d.findAll { it instanceof Task }
+                []
+            }
+        }
+        def containsTask
+        containsTask = { task, target, seen ->
+            if (!seen.add(task)) return false
+            task == target || declared(task).any { containsTask(it, target, seen) }
+        }
+        def cleanup = tasks.named('deleteGameTestRunDir').get()
+        assert !containsTask(tasks.named('runClient').get(), cleanup, [] as Set) : 'Normal client must not delete GameTest worlds'
+        ['runGameTest', 'runClientGameTest'].each { name ->
+            assert containsTask(tasks.named(name).get(), cleanup, [] as Set) : "${name} must clean its test world"
+        }
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyGameTestLaunchIsolation') }
+
+dependencies {
+    gametestImplementation fabricApi.module('fabric-gametest-api-v1', project.fabric_version)
+    gametestImplementation fabricApi.module('fabric-client-gametest-api-v1', project.fabric_version)
+    // External energy runtime exists only in GameTests exercising modded battery targets.
+    gametestImplementation 'teamreborn:energy:5.0.0'
+    gametestRuntimeOnly 'teamreborn:energy:5.0.0'
+    // Opt-in real content mods; never part of the release or ordinary client runs.
+    if (providers.gradleProperty('objectiveCompatibility').isPresent()) {
+        gametestRuntimeOnly 'maven.modrinth:7vxePowz:dRScyUeE' // Farmer's Delight Refabricated
+        gametestRuntimeOnly 'maven.modrinth:QivVPB8W:yeFv1Dnk' // The Graveyard
+        gametestRuntimeOnly 'maven.modrinth:DhOXUfnP:uut3GStm' // Villagers Trading Plus
+        gametestRuntimeOnly 'maven.modrinth:8BmcQJ2H:kSxHvs99' // GeckoLib
+        gametestRuntimeOnly 'maven.modrinth:L6jvzao4:isnpTNbP' // Epic Knights
+        gametestRuntimeOnly 'maven.modrinth:lhGA9TYQ:1pMaB6So' // Architectury
+        gametestRuntimeOnly 'maven.modrinth:9s6osm5g:fg2uyxOW' // Cloth Config
+        gametestRuntimeOnly 'maven.modrinth:3eMENr4V:QexrQWIs' // Tech Reborn (includes Reborn Core)
+    }
+}
+
+processGametestResources {
+    def compatibility = providers.gradleProperty('objectiveCompatibility').isPresent()
+    inputs.property 'objectiveCompatibility', compatibility
+    doLast {
+        def metadata = destinationDir.toPath().resolve('fabric.mod.json').toFile()
+        def data = new groovy.json.JsonSlurper().parse(metadata)
+        if (compatibility) data.entrypoints['fabric-gametest'].addAll([
+            'dev.questplus.fabric.ThirdPartyObjectivesGameTest',
+            'dev.questplus.fabric.ResourceCompatibilityGameTest'
+        ])
+        metadata.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data))
+    }
+}
+
+// The newest target keeps the historical run/client and run/server worlds; older targets get
+// their own folders so a world is never opened by an older Minecraft.
+def interactiveRunDir = { String side ->
+    def dir = rootProject.file(project == rootProject.referenceTarget ? "../run/${side}" : "../run/${name}/${side}")
+    projectDir.toPath().relativize(dir.toPath()).toString().replace('\\', '/')
+}
+loom {
+    runs {
+        client {
+            runDir interactiveRunDir('client')
+        }
+        server {
+            runDir interactiveRunDir('server')
+        }
+        gameTest {
+            runDir 'build/gametest'
+            vmArg '-Xmx1G'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-results.xml').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.output=${layout.buildDirectory.file('integration-saves.json').get().asFile.absolutePath}"
+            vmArg "-Dquestplus.integration.teams=${layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath}"
+        }
+        clientGameTest {
+            if(providers.gradleProperty('boardClientTest').isPresent())vmArg '-Dquestplus.boardClientTest=true'
+            if (providers.gradleProperty('questGiverClientTest').isPresent())
+                vmArg '-Dquestplus.questGiverClientTest=true'
+            if (providers.gradleProperty('relayClientTest').isPresent())
+                vmArg '-Dquestplus.relayClientTest=true'
+            if (providers.gradleProperty('worldBlocksClientTest').isPresent())
+                vmArg '-Dquestplus.worldBlocksClientTest=true'
+            if (providers.gradleProperty('teamClientTest').isPresent())
+                vmArg '-Dquestplus.teamClientTest=true'
+        }
+    }
+}
+
+tasks.register('integrationTest') {
+    group = 'verification'
+    description = 'Run real dedicated-server gameplay tests and verify final JSON saves after shutdown.'
+    dependsOn tasks.named('runGameTest')
+    doLast {
+        def coverage = new groovy.json.JsonSlurper().parse(shared('server/src/gametest/resources/objective-coverage.json'))
+        def report = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(layout.buildDirectory.file('gametest-results.xml').get().asFile)
+        def cases = report.getElementsByTagName('testcase')
+        coverage.keySet().each { scenario ->
+            def testName = 'questplus-test:' + scenario.replace('.', '_')
+                .replaceAll('([a-z0-9])([A-Z])', '$1_$2').toLowerCase(Locale.ROOT)
+            def test = (0..<cases.length).collect { cases.item(it) }.find { it.getAttribute('name') == testName }
+            assert test != null && test.getElementsByTagName('failure').length == 0 : "Missing or failed objective scenario: ${scenario}"
+        }
+        logger.lifecycle("Verified in-game coverage for ${coverage.values().sum { it.size() }} shipped triggers")
+        def expected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-saves.json').get().asFile)
+        assert expected.players.size() >= 140
+        expected.players.each { uuid ->
+            def saved = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${uuid}.json"))
+            assert saved.schemaVersion == 2
+            assert saved.quests['questplus:survival/logs'].completed
+        }
+        def recipient = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${expected.recipient}.json"))
+        assert recipient.claims['questplus:survival/logs'] == 'delivered'
+        def teamExpected = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('integration-teams.json').get().asFile)
+        def memberA = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.a}.json"))
+        def memberB = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.b}.json"))
+        def team = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "teams/${teamExpected.team}.json"))
+        assert memberA.teamId == null && memberB.teamId == null
+        assert memberA.quests['questplus:team_integration'].completed && memberB.quests['questplus:team_integration'].completed
+        assert memberA.claims['questplus:team_integration'] == 'delivered'
+        assert memberB.entitlements['questplus:team_integration'] != null
+        assert team.disbanded && team.members.empty
+        logger.lifecycle("Quest Plus shutdown saves verified: ${expected.players.size()} UUIDs and durable reward ledger")
+    }
+}
+
+// One interactive client/server at a time: the newest target, unless -Pmc picks another or
+// the task path names this target (./gradlew :26.1:runClient). Test runs cover every target.
+def requested = gradle.startParameter.taskNames.any { it.startsWith("${path}:") }
+def interactive = project == rootProject.referenceTarget || rootProject.targets.size() == 1 || requested
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach { onlyIf { interactive } }

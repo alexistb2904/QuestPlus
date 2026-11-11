@@ -1,19 +1,12 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.textures.FilterMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.render.GuiRenderer;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
-import org.joml.Vector4f;
-import java.util.List;
 
 /**
  * Persistent GUI atlas drawn by Minecraft's own backend-independent renderer.
@@ -24,8 +17,7 @@ public final class TabletSurfaceRenderer {
 	private static final Identifier BODY = Identifier.fromNamespaceAndPath("questplus",
 			"textures/fp/questplus_first_person.png");
 	private static final GuiRenderState STATE = new GuiRenderState();
-	private static RenderTarget target;
-	private static GuiRenderer renderer;
+	private static ClientAdapter.OffscreenGui surface;
 	private static boolean rendering;
 	private static int pixelScale = 6;
 
@@ -81,12 +73,12 @@ public final class TabletSurfaceRenderer {
 	 * Keep the last rendered UI on the physical display while it is being put away.
 	 */
 	public static boolean hasSurface() {
-		return target != null && QuestClientTabletFlow.nativeHandsActive()
+		return surface != null && QuestClientTabletFlow.nativeHandsActive()
 				&& (active() || QuestClientTabletFlow.closing());
 	}
 
 	public static RenderTarget target() {
-		return rendering ? target : null;
+		return rendering ? surface.target() : null;
 	}
 
 	public static void render() {
@@ -98,14 +90,9 @@ public final class TabletSurfaceRenderer {
 			close();
 			pixelScale = requestedScale;
 		}
-		if (target == null) {
-			target = new TextureTarget("Quest Plus tablet", atlasWidth(), atlasHeight(), GpuFormat.RGBA8_UNORM,
-					GpuFormat.D32_FLOAT);
-			renderer = new GuiRenderer(STATE, mc.gameRenderer.featureRenderDispatcher(), List.of());
-			mc.getTextureManager().register(TEXTURE, new AtlasTexture(target));
+		if (surface == null) {
+			surface = ClientAdapter.INSTANCE.offscreenGui("Quest Plus tablet", STATE, atlasWidth(), atlasHeight(), TEXTURE);
 		}
-		var window = mc.gameRenderer.gameRenderState().windowRenderState;
-		int oldWidth = window.width, oldHeight = window.height, oldScale = window.guiScale;
 		RenderSystem.backupProjectionMatrix();
 		try {
 			rendering = true;
@@ -114,12 +101,12 @@ public final class TabletSurfaceRenderer {
 					mc.mouseHandler.getScaledYPos(mc.getWindow()));
 			int x = point == null ? -10000 : (int) (point.x() / uiScale()),
 					y = point == null ? -10000 : (int) (point.y() / uiScale());
-			if (!(mc.gui.screen() instanceof QuestScreen)) {
+			if (!(ClientAdapter.INSTANCE.screen(mc) instanceof QuestScreen)) {
 				x = -10000;
 				y = -10000;
 			}
 			var graphics = new GuiGraphicsExtractor(mc, STATE, x, y);
-			graphics.blit(RenderPipelines.GUI_TEXTURED, BODY, 0, 0, 0, 0, 256, 256, 256, 256);
+			ClientAdapter.INSTANCE.blitTextured(graphics, BODY, 0, 0, 0, 0, 256, 256, 256, 256);
 			graphics.nextStratum();
 			graphics.pose().pushMatrix();
 			graphics.pose().translate(SCREEN_X, 0);
@@ -138,17 +125,8 @@ public final class TabletSurfaceRenderer {
 			graphics.extractDeferredElements(x, y, mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
 			graphics.disableScissor();
 			graphics.pose().popMatrix();
-			window.width = atlasWidth();
-			window.height = atlasHeight();
-			window.guiScale = 1;
-			RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(target.getColorTexture(),
-					new Vector4f(0, 0, 0, 0), target.getDepthTexture(), 0);
-			renderer.render();
-			renderer.endFrame();
+			surface.render();
 		} finally {
-			window.width = oldWidth;
-			window.height = oldHeight;
-			window.guiScale = oldScale;
 			rendering = false;
 			dev.questplus.fabric.client.ui.QuestSkin.renderScale = 0;
 			RenderSystem.restoreProjectionMatrix();
@@ -156,23 +134,8 @@ public final class TabletSurfaceRenderer {
 	}
 
 	public static void close() {
-		if (renderer != null)
-			renderer.close();
-		if (target != null)
-			target.destroyBuffers();
-		renderer = null;
-		target = null;
-	}
-
-	private static final class AtlasTexture extends AbstractTexture {
-		AtlasTexture(RenderTarget target) {
-			texture = target.getColorTexture();
-			textureView = target.getColorTextureView();
-			sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);
-		}
-
-		@Override
-		public void close() {
-		}
+		if (surface != null)
+			surface.close();
+		surface = null;
 	}
 }

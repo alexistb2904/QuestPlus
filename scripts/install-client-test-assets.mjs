@@ -18,7 +18,8 @@ export function repositoryRoot(scriptUrl=import.meta.url){
  return path.resolve(path.dirname(fileURLToPath(scriptUrl)),'..');
 }
 
-export const MC_VERSION='26.3';
+// The GPU matrix sets QUESTPLUS_MC_VERSION to test another Minecraft target.
+export const mcVersion=()=>process.env.QUESTPLUS_MC_VERSION||'26.3';
 export const ASSETS=Object.freeze([
  {id:'sodium',type:'mod',loader:'fabric',ext:'.jar'},
  {id:'iris',type:'mod',loader:'fabric',ext:'.jar'},
@@ -46,7 +47,7 @@ function meetsMinimum(version,required) {
 }
 export function selectVersion(versions,asset){
  if(!Array.isArray(versions))throw Error('Invalid Modrinth version list for '+asset.id);
- const available=versions.filter(v=>v&&v.game_versions?.includes(MC_VERSION)&&
+ const available=versions.filter(v=>v&&v.game_versions?.includes(mcVersion())&&
   (!asset.loader||v.loaders?.includes(asset.loader))&&meetsMinimum(v.version_number,asset.minVersion)
   &&v.files?.some(f=>f.filename?.toLowerCase().endsWith(asset.ext)));
  const ranked=available.sort((a,b)=>{
@@ -54,7 +55,7 @@ export function selectVersion(versions,asset){
   return priority(b)-priority(a)||String(b.date_published||'').localeCompare(String(a.date_published||''));
  });
  const found=ranked.find(v=>v.version_type!=='alpha');
- if(!found)throw Error('No stable or beta '+MC_VERSION+' '+(asset.loader||asset.type)+' version for '+asset.id+
+ if(!found)throw Error('No stable or beta '+mcVersion()+' '+(asset.loader||asset.type)+' version for '+asset.id+
    (asset.minVersion?' (minimum '+asset.minVersion+' for QuestPlus compatibility)':''));
  return found;
 }
@@ -71,7 +72,7 @@ export function selectFile(version,asset){
 }
 async function apiVersions(asset){
  const url=new URL(API+'/project/'+asset.id+'/version');
- url.searchParams.set('game_versions',JSON.stringify([MC_VERSION]));
+ url.searchParams.set('game_versions',JSON.stringify([mcVersion()]));
  if(asset.loader)url.searchParams.set('loaders',JSON.stringify([asset.loader]));
  const res=await fetch(url,{headers:{'User-Agent':userAgent},signal:timeout()});
  if(!res.ok)throw Error('Modrinth returned HTTP '+res.status+' for '+asset.id);
@@ -110,7 +111,7 @@ export async function installAsset(asset,root,record=null,{update=false}={}){
   }
   throw Error('Checksum mismatch on existing '+target+'; refusing to overwrite');
  }
- console.log('[DOWNLOAD] '+asset.id+' -> '+folder+' (Minecraft '+MC_VERSION+')');
+ console.log('[DOWNLOAD] '+asset.id+' -> '+folder+' (Minecraft '+mcVersion()+')');
  const response=await fetch(file.url,{headers:{'User-Agent':userAgent},signal:timeout()});
  if(!response.ok||!response.body)throw Error('Download failed: '+asset.id+' HTTP '+response.status);
  const real=new URL(response.url);
@@ -140,13 +141,13 @@ export async function installAsset(asset,root,record=null,{update=false}={}){
 export async function installAll(root,{update=false}={}){
  const manifestFile=path.join(root,'run','client','questplus-test-assets.json');
  let current={};
- try{const data=JSON.parse(await readFile(manifestFile,'utf8'));if(data.gameVersion===MC_VERSION)current=data.entries||{}}catch{}
+ try{const data=JSON.parse(await readFile(manifestFile,'utf8'));if(data.gameVersion===mcVersion())current=data.entries||{}}catch{}
  const out={...current},errors=[];
  for(const asset of ASSETS){
   try{
    out[asset.id]=await installAsset(asset,root,current[asset.id],{update});
    await mkdir(path.dirname(manifestFile),{recursive:true});
-   await writeFile(manifestFile,JSON.stringify({gameVersion:MC_VERSION,entries:out},null,2)+'\n');
+   await writeFile(manifestFile,JSON.stringify({gameVersion:mcVersion(),entries:out},null,2)+'\n');
   }catch(e){errors.push(asset.id+': '+e.message);console.error('[FAILED] '+asset.id+': '+e.message)}
  }
  if(errors.length)throw Error(errors.length+' test asset(s) not installed. '+errors.join(' | '));

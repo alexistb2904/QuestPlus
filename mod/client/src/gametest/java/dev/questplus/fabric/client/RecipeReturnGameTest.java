@@ -1,5 +1,6 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,7 @@ final class RecipeReturnGameTest {
 		try (var world = context.worldBuilder().create()) {
 			context.waitFor(client -> QuestPlusClient.STATE.ready, 600);
 			context.runOnClient(client -> {
-				client.gui.setScreen(null);
+				ClientAdapter.INSTANCE.setScreen(client, null);
 				QuestPlusClient.settings.animations = true;
 				QuestPlusClient.settings.tablet = true;
 				QuestPlusClient.settings.reducedMotion = false;
@@ -20,11 +21,11 @@ final class RecipeReturnGameTest {
 				QuestClientTabletFlow.toggle(client);
 			});
 			context.waitFor(client -> TabletSurfaceRenderer.active(), 160);
-			var parent = context.computeOnClient(client -> (QuestScreen) client.gui.screen());
+			var parent = context.computeOnClient(client -> (QuestScreen) ClientAdapter.INSTANCE.screen(client));
 			context.runOnClient(client -> {
 				if (!QuestRecipeViewer.open(new ItemStack(Items.CRAFTING_TABLE)))
 					throw new AssertionError("Recipes did not open");
-				if (client.gui.screen() == parent)
+				if (ClientAdapter.INSTANCE.screen(client) == parent)
 					throw new AssertionError("Recipe viewer left the quest screen active");
 			});
 			context.waitTicks(20);
@@ -34,10 +35,10 @@ final class RecipeReturnGameTest {
 					throw new AssertionError("Recipes released the 3D tablet");
 			});
 			context.takeScreenshot("recipes-tablet-behind");
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitTicks(10);
 			context.runOnClient(client -> {
-				if (client.gui.screen() != parent || !TabletSurfaceRenderer.active())
+				if (ClientAdapter.INSTANCE.screen(client) != parent || !TabletSurfaceRenderer.active())
 					throw new AssertionError("Recipes did not return to the 3D tablet");
 				try {
 					var attached = QuestScreen.class.getDeclaredField("attachedToScreenFace");
@@ -49,7 +50,7 @@ final class RecipeReturnGameTest {
 				}
 			});
 			context.takeScreenshot("recipes-tablet-return");
-			context.runOnClient(client -> client.gui.screen().onClose());
+			context.runOnClient(client -> ClientAdapter.INSTANCE.screen(client).onClose());
 			context.waitFor(client -> !QuestClientTabletFlow.nativeHandsActive(), 160);
 			context.runOnClient(client -> {
 				if (TabletSurfaceRenderer.hidesHud())

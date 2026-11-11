@@ -1,5 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.compat.ClientAdapter;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.questplus.fabric.QuestGiver;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -129,8 +131,8 @@ final class QuestGiverRenderer extends EntityRenderer<QuestGiver, QuestGiverRend
 		dispatch.boundingBoxWidth /= dispatch.scale;
 		dispatch.boundingBoxHeight /= dispatch.scale;
 		dispatch.scale = 1;
-		g.entity(dispatch, size, new org.joml.Vector3f(0, dispatch.boundingBoxHeight / 2 + .0625f, 0), rotation, camera,
-				x1, y1, x2, y2);
+		ClientAdapter.INSTANCE.entity(g, dispatch, size, new org.joml.Vector3f(0, dispatch.boundingBoxHeight / 2 + .0625f, 0),
+				rotation, camera, x1, y1, x2, y2);
 	}
 
 	static final class SkinState extends HumanoidRenderState {
