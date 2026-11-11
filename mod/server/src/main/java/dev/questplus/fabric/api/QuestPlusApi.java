@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 public final class QuestPlusApi {
 	private static final Gson GSON = new Gson();
 
-	/** A detached view of collective quest progress; it contains no reward ledger. */
+	/** A detached view of collective quest progress. It contains no reward ledger. */
 	public record Progress(boolean started, boolean completed, boolean terminal, long cycles, int tier,
 			Map<String, Long> objectives) {
 		public Progress {
@@ -70,7 +70,7 @@ public final class QuestPlusApi {
         return QuestPlusMod.runtime().player(player.getUUID()).teamId;
     }
 
-	/** The active progress authority; team membership alone does not imply sharing. */
+	/** The active progress authority. Team membership alone does not imply sharing. */
 	public static dev.questplus.team.ProgressScope getProgressScope(ServerPlayer player) throws IOException {
 		requireServerThread(player);
 		return QuestPlusMod.runtime().progressScope(player.getUUID());
@@ -168,7 +168,7 @@ public final class QuestPlusApi {
         setObjectiveProgress(player, questId, objectiveId, Math.addExact(current, amount));
     }
 
-    /** Subscribe to server-side changes; close the handle when the integration unloads. */
+    /** Subscribe to server-side changes. Close the handle when the integration unloads. */
     public static AutoCloseable onQuestEvent(QuestPlusEvents.Type type,
             java.util.function.Consumer<QuestPlusEvents.Change> listener) {
         return QuestPlusEvents.subscribe(type, listener);
@@ -268,7 +268,7 @@ public final class QuestPlusApi {
 	}
 
 	/**
-	 * Explicitly opt a trusted handler into immutable pools; public previews
+	 * Explicitly opt a trusted handler into immutable pools. Public previews
 	 * contain only its type and authored label.
 	 */
 	public static void registerPoolReward(String id, Consumer<JsonObject> validator,

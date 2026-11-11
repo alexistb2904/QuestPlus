@@ -5,7 +5,7 @@ import java.util.*;
 
 /**
  * Optional, server-side integration lifecycle. Adapters register during mod
- * initialization; QuestPlus never loads or links an optional scripting engine.
+ * initialization. QuestPlus never loads or links an optional scripting engine.
  */
 public final class QuestPlusAdapters {
     public interface Adapter {

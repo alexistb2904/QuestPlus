@@ -3,18 +3,14 @@ package dev.questplus.fabric.client;
 import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.QuestNetwork;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.*;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import dev.questplus.platform.ClientPlatform;
 import net.minecraft.client.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.resources.Identifier;
 import java.util.*;
 
-public final class QuestPlusClient implements ClientModInitializer {
+public final class QuestPlusClient {
 	public static final QuestClientState STATE = new QuestClientState();
 	public static ClientSettings settings;
 	/** Only newly-unlocked quests show a blue category marker until viewed. */
@@ -39,15 +35,15 @@ public final class QuestPlusClient implements ClientModInitializer {
 	}
 
 	public static void action(String action, String argument) {
-		if (ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE))
-			ClientPlayNetworking.send(new QuestNetwork.Action(action, argument));
+		if (ClientPlatform.canSend(QuestNetwork.Action.TYPE))
+			ClientPlatform.send(new QuestNetwork.Action(action, argument));
 		else
 			STATE.error = "unsupported";
 	}
 
 	public static void chooseReward(String quest, String token, int slot, int option) {
-		if (ClientPlayNetworking.canSend(QuestNetwork.ChooseReward.TYPE))
-			ClientPlayNetworking.send(new QuestNetwork.ChooseReward(quest, UUID.fromString(token), slot, option));
+		if (ClientPlatform.canSend(QuestNetwork.ChooseReward.TYPE))
+			ClientPlatform.send(new QuestNetwork.ChooseReward(quest, UUID.fromString(token), slot, option));
 		else
 			STATE.error = "unsupported";
 	}
@@ -57,53 +53,62 @@ public final class QuestPlusClient implements ClientModInitializer {
 		action("sync", "");
 	}
 
-	@Override
-	public void onInitializeClient() {
+	private QuestPlusClient() {
+	}
+
+	/** Registers client hooks once. Runs after {@code QuestPlusMod.initialize()}. */
+	public static void initialize() {
 		ClientAdapter.INSTANCE.initialize();
 		settings = ClientSettings.load();
 		QuestWorldBlockRenderer.register();
 		QuestLootChestRenderer.register();
 		QuestGiverRenderer.register();
-		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestGiverNetwork.Look.TYPE,
-				(packet, context) -> context.client().execute(() -> QuestGiverLooks.receive(packet)));
-		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestGiverNetwork.Dialog.TYPE,
-				(packet, context) -> context.client().execute(() -> {
-					if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestGiverScreen screen
-							&& screen.entity() == packet.entity())
-						screen.receive(packet);
-					else
-						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestGiverScreen(packet));
-				}));
-		ClientPlayNetworking.registerGlobalReceiver(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE,
-				(packet, context) -> context.client().execute(() -> {
-					if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestStationScreen screen) screen.receive(packet);
-					else if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestRelayScreen screen) screen.receive(packet);
-					else if (ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBlockScreen screen) screen.receive(packet);
-					else if(ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBoardScreen screen)screen.receive(packet);
-					else if(ClientAdapter.INSTANCE.screen(context.client()) instanceof QuestBlockPicker picker)picker.receive(packet);
-					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==0)
-						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestBoardScreen(packet));
-					else if(com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind").getAsInt()==2)
-						ClientAdapter.INSTANCE.setScreen(context.client(), new QuestRelayScreen(packet));
-					else ClientAdapter.INSTANCE.setScreen(context.client(), new QuestStationScreen(packet));
-				}));
+		ClientPlatform.receive(dev.questplus.fabric.QuestGiverNetwork.Look.TYPE, QuestGiverLooks::receive);
+		ClientPlatform.receive(dev.questplus.fabric.QuestGiverNetwork.Dialog.TYPE, packet -> {
+			var client = Minecraft.getInstance();
+			if (ClientAdapter.INSTANCE.screen(client) instanceof QuestGiverScreen screen
+					&& screen.entity() == packet.entity())
+				screen.receive(packet);
+			else
+				ClientAdapter.INSTANCE.setScreen(client, new QuestGiverScreen(packet));
+		});
+		ClientPlatform.receive(dev.questplus.fabric.QuestBlockNetwork.Snapshot.TYPE, packet -> {
+			var client = Minecraft.getInstance();
+			if (ClientAdapter.INSTANCE.screen(client) instanceof QuestStationScreen screen)
+				screen.receive(packet);
+			else if (ClientAdapter.INSTANCE.screen(client) instanceof QuestRelayScreen screen)
+				screen.receive(packet);
+			else if (ClientAdapter.INSTANCE.screen(client) instanceof QuestBlockScreen screen)
+				screen.receive(packet);
+			else if (ClientAdapter.INSTANCE.screen(client) instanceof QuestBoardScreen screen)
+				screen.receive(packet);
+			else if (ClientAdapter.INSTANCE.screen(client) instanceof QuestBlockPicker picker)
+				picker.receive(packet);
+			else if (com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind")
+					.getAsInt() == 0)
+				ClientAdapter.INSTANCE.setScreen(client, new QuestBoardScreen(packet));
+			else if (com.google.gson.JsonParser.parseString(packet.data()).getAsJsonObject().get("kind")
+					.getAsInt() == 2)
+				ClientAdapter.INSTANCE.setScreen(client, new QuestRelayScreen(packet));
+			else
+				ClientAdapter.INSTANCE.setScreen(client, new QuestStationScreen(packet));
+		});
 		TabletPoseClient.register();
 		QuestClientTabletFlow.register();
 		PunchyTabletCompat.register();
 		FirstPersonTabletCompat.register();
-		open = KeyMappingHelper.registerKeyMapping(
+		open = ClientPlatform.registerKey(
 				new KeyMapping("questplus.client.open", ClientAdapter.INSTANCE.keys().j(), KeyMapping.Category.MISC));
-		ClientPlayNetworking.registerGlobalReceiver(QuestNetwork.State.TYPE,
-				(payload, context) -> context.client().execute(() -> receive(payload)));
-		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+		ClientPlatform.receive(QuestNetwork.State.TYPE, QuestPlusClient::receive);
+		ClientPlatform.onJoin(client -> {
 			clear();
 			sync();
 		});
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+		ClientPlatform.onDisconnect(client -> {
 			clear();
 			client.execute(QuestGiverLooks::clear);
 		});
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+		ClientPlatform.onClientTick(client -> {
 			while (open.consumeClick())
 				if (client.player != null)
 					QuestClientTabletFlow.toggle(client);
@@ -113,10 +118,10 @@ public final class QuestPlusClient implements ClientModInitializer {
 				STATE.error = "timeout";
 			}
 			if (client.player != null && fragments == null && !STATE.ready && now - lastSync > 10000
-					&& ClientPlayNetworking.canSend(QuestNetwork.Action.TYPE))
+					&& ClientPlatform.canSend(QuestNetwork.Action.TYPE))
 				sync();
 		});
-		HudElementRegistry.addLast(Identifier.parse("questplus:pinned"), (graphics, delta) -> QuestHud.draw(graphics));
+		ClientPlatform.hud(Identifier.parse("questplus:pinned"), (graphics, delta) -> QuestHud.draw(graphics));
 	}
 
 	private static void clear() {

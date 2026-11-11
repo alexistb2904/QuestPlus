@@ -197,7 +197,7 @@ public final class ObjectiveActionsGameTest {
 			f.expect("fish", 0);
 			f.expect("any", 0);
 			var hook = new FishingHook(f.player, helper.getLevel(), 0, 0);
-			// Only fast-forward the bite timer; retrieval, loot generation and mixins are real.
+			// Only fast-forward the bite timer. Retrieval, loot generation and mixins are real.
 			var nibble = FishingHook.class.getDeclaredField("nibble");
 			nibble.setAccessible(true);
 			nibble.setInt(hook, 20);

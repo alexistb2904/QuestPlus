@@ -70,7 +70,7 @@ export function saveQuestTemplate(quest, label, storage = globalThis.localStorag
 export function buildSavedQuest(template, category, id, title, position) {
 	if (!template?.quest || !Array.isArray(template.quest.objectives)) throw Error("Invalid saved quest template");
 	const q = structuredClone(template.quest);
-	// The caller generates unique quest and objective IDs; no prerequisite references cross projects.
+	// The caller generates unique quest and objective IDs. No prerequisite references cross projects.
 	q.id = id;
 	q.category = category.id;
 	q.layout = { x: position.x, y: position.y };

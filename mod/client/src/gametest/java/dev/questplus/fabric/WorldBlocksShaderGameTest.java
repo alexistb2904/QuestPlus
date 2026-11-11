@@ -26,7 +26,7 @@ import java.util.*;
 public final class WorldBlocksShaderGameTest {
     /** Share of pixels outside the footprint allowed to change: shader noise stays far below, the reported bug covered half the frame. */
     private static final double MAX_STRAY=.02;
-    /** Masks the left half, where the crate, its particles and loot stand; the right half shows only wall, floor and station. */
+    /** Masks the left half, where the crate, its particles and loot stand. The right half shows only wall, floor and station. */
     private static final boolean[] RIGHT_HALF=new boolean[1280*720];
     static{for(int y=0;y<720;y++)Arrays.fill(RIGHT_HALF,y*1280,y*1280+640,true);}
     public static void run(ClientGameTestContext context){

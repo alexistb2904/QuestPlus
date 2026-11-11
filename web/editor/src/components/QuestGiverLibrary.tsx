@@ -32,7 +32,7 @@ type Edit = (change: (config: any) => void, field?: string) => void;
 const ID = /^[a-z0-9_.-]{1,64}$/;
 const TAGS = ["#minecraft:village", "#minecraft:abandoned_camp", "#minecraft:mineshaft", "#minecraft:ocean_ruin", "#minecraft:ruined_portal", "#minecraft:shipwreck"];
 
-/** Typed as text so a half-typed "0," or "0." survives; a French decimal comma is accepted. */
+/** Typed as text so a half-typed "0," or "0." survives. A French decimal comma is accepted. */
 function ChanceInput({ chance, label, onChange }: { chance: number; label: string; onChange: (chance: number) => void }) {
 	const [draft, setDraft] = useState<string | null>(null);
 	return (

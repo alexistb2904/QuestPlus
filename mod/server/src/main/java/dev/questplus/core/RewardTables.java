@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Resolves authored weighted rewards once, at quest completion. Entitlements
  * store the selected concrete rewards, so claiming never rolls again on retry
- * or reconnect. Commands and nested pools are forbidden; trusted extensions
+ * or reconnect. Commands and nested pools are forbidden. Trusted extensions
  * must explicitly opt in.
  */
 public final class RewardTables {
@@ -92,7 +92,7 @@ public final class RewardTables {
 	}
 
 	/**
-	 * Loot pools may intentionally award nothing; random pools always award an
+	 * Loot pools may intentionally award nothing. Random pools always award an
 	 * option.
 	 */
 	public static void validateLoot(JsonObject data) {
@@ -196,7 +196,7 @@ public final class RewardTables {
 	}
 
 	/**
-	 * Same roll; {@code rarest[0]} is lowered to the smallest chance of any option
+	 * Same roll. {@code rarest[0]} is lowered to the smallest chance of any option
 	 * actually drawn from weights, so rarity is decided on the server with the roll.
 	 */
 	public static List<QuestDefinition.Reward> resolve(List<QuestDefinition.Reward> authored, double[] rarest) {

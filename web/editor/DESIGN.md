@@ -84,7 +84,7 @@ The graph stays visible between the library and the properties. Objectives and o
 - Desktop density, three columns, and compact panels and controls.
 - Green for primary actions, purple for selection, and red for destructive actions and errors.
 - Grass trim and thick node frames are intentional exceptions drawn from the reference.
-- Lucide interface icons; Minecraft icons represent items and blocks.
+- Lucide interface icons. Minecraft icons represent items and blocks.
 
 ## Colors
 
@@ -92,7 +92,7 @@ The palette combines dark stone grays and wood browns with action green and sele
 
 ### Primary
 
-- **Action green** (#3d8d20 to #21600e): create, save, and export; border #73b548.
+- **Action green** (#3d8d20 to #21600e): create, save, and export. Border #73b548.
 - **Selection purple** (#ae73e8): active items, graph selection, and enabled controls.
 
 ### Neutral
@@ -105,13 +105,13 @@ The palette combines dark stone grays and wood browns with action green and sele
 
 ## Typography
 
-**Headings:** Pixelify Sans 700, locally hosted, with a sans-serif fallback. The editor nameplate uses 27 px; panel headings use 21 px.
+**Headings:** Pixelify Sans 700, locally hosted, with a sans-serif fallback. The editor nameplate uses 27 px. Panel headings use 21 px.
 
 **Body and controls:** Segoe UI, Arial, sans-serif. Body text uses 13 px and controls use 12 px. Numeric inputs use tabular figures. The interface language and quest content language are independent.
 
 ## Layout
 
-On desktop, the workspace grid uses `270px minmax(0, 1fr) 355px` with 9 px between columns; the library can be collapsed. At 1600 px and above, side columns become 295 and 390 px. At 1350 px or less they become 235 and 320 px, and at 1100 px or less 205 and 285 px; the toolbar may wrap.
+On desktop, the workspace grid uses `270px minmax(0, 1fr) 355px` with 9 px between columns. The library can be collapsed. At 1600 px and above, side columns become 295 and 390 px. At 1350 px or less they become 235 and 320 px, and at 1100 px or less 205 and 285 px. The toolbar may wrap.
 
 At 780 px or less, areas stack: library, graph and details, then properties. The graph retains touch gestures, and tabs scroll horizontally. The compact layout removes the nameplate and landscape to leave room for tasks.
 
@@ -127,7 +127,7 @@ Panels and buttons use 4 px corners, fields 3 px, and nodes 5 px. The 3 px node 
 
 ### Buttons
 
-Command buttons have a minimum height of 33 px, 11 px horizontal padding, and a stone gradient background. The primary button uses a green gradient; delete actions use a red gradient. Disabled buttons have reduced opacity. Keyboard focus uses a 2 px light purple outline with a 3 px offset.
+Command buttons have a minimum height of 33 px, 11 px horizontal padding, and a stone gradient background. The primary button uses a green gradient. Delete actions use a red gradient. Disabled buttons have reduced opacity. Keyboard focus uses a 2 px light purple outline with a 3 px offset.
 
 ### Inputs / Fields
 
@@ -135,11 +135,11 @@ Fields use a #18181de8 background, #6a626d border, 3 px radius, 30 px minimum he
 
 ### Quest graph
 
-The canvas is a pannable dark grid. Each node, 162 × 66 px before zoom, combines a Minecraft item icon and a title; a purple border and background indicate selection. Prerequisite links connect quests. A minimap, zoom, and snapping support navigation.
+The canvas is a pannable dark grid. Each node, 162 × 66 px before zoom, combines a Minecraft item icon and a title. A purple border and background indicate selection. Prerequisite links connect quests. A minimap, zoom, and snapping support navigation.
 
 ### Quest details
 
-Tabs provide access to objectives, rewards, prerequisites, progression, NPCs, and translations; advanced JSON remains accessible. The NPC tab picks which quest giver offers the quest and opens the Quest givers library, a wide dialog built on the reward-library shell: an NPC list, then appearance, spawn-place tiles and a quest search grouped by chapter. The `npc_interact` objective lives in the Objectives tab like any other objective.
+Tabs provide access to objectives, rewards, prerequisites, progression, NPCs, and translations. Advanced JSON remains accessible. The NPC tab picks which quest giver offers the quest and opens the Quest givers library, a wide dialog built on the reward-library shell: an NPC list, then appearance, spawn-place tiles and a quest search grouped by chapter. The `npc_interact` objective lives in the Objectives tab like any other objective.
 
 ## Do's and Don'ts
 

@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import javax.imageio.ImageIO;
 
 /**
- * Local resource-pack assets only; theme files cannot fetch URLs or read
+ * Local resource-pack assets only. Theme files cannot fetch URLs or read
  * arbitrary files.
  */
 public final class QuestResourceTheme {

@@ -1,10 +1,10 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.*;
 import dev.questplus.fabric.client.ui.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +22,7 @@ public final class QuestBoardScreen extends Screen {
     private final List<String> pins=new ArrayList<>();
     private int left,top,panelWidth,panelHeight,sideWidth,listX,listY,listWidth,listHeight,scroll,page;
     private boolean editable,ranking,dirty,ownerSettings;
-    /** The last Apply was refused; kept until the next edit (periodic snapshots carry no error). */
+    /** The last Apply was refused. Kept until the next edit (periodic snapshots carry no error). */
     private boolean rejected;
     private String owner;
     /** The last pinned/automatic/mixed choice, restored when leaving the leaderboard tab. */
@@ -132,7 +132,7 @@ public final class QuestBoardScreen extends Screen {
             }
             result.add(row);
         }
-        // Live rows follow the saved config; ranking rows carry no quest id and are skipped.
+        // Live rows follow the saved config. Ranking rows carry no quest id and are skipped.
         if(!questMode().equals("pinned"))for(var e:state.getAsJsonArray("rows")){
             var row=e.getAsJsonObject();String id=row.has("id")?row.get("id").getAsString():"";
             if(!id.isEmpty()&&!pins.subList(0,pinCount()).contains(id))result.add(row);
@@ -160,7 +160,7 @@ public final class QuestBoardScreen extends Screen {
         var choices=QuestBlockPicker.questChoices().stream().filter(q->!pins.contains(q.id())).toList();
         ClientAdapter.INSTANCE.setScreen(minecraft, new QuestBlockPicker(this,choices,id->{if(pins.size()<32&&!pins.contains(id))pins.add(id);changed();}));
     }
-    private void save(){ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"save",config.toString(),owner,state.get("size").getAsInt()));}
+    private void save(){ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"save",config.toString(),owner,state.get("size").getAsInt()));}
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
         String subtitle=t(config.get("scope").getAsString().equals("TEAM")?"team":"personal").getString();
         if(state.has("boardWidth")&&state.get("modular").getAsBoolean())subtitle+=" · "+state.get("boardWidth").getAsInt()+" × "+state.get("boardHeight").getAsInt();
@@ -200,7 +200,7 @@ public final class QuestBoardScreen extends Screen {
         text(g,t(hint).getString(),x+8,y+18,w-16,QuestSkin.DIM);
     }
     private void text(GuiGraphicsExtractor g,String s,int x,int y,int w,int color){g.text(font,font.plainSubstrByWidth(s,Math.max(0,w)),x,y,color,false);}
-    /** {@code quest} rows get a progress bar; {@code controls} rows reserve room for the pin buttons. */
+    /** {@code quest} rows get a progress bar. {@code controls} rows reserve room for the pin buttons. */
     private void drawRow(GuiGraphicsExtractor g,JsonObject row,int x,int y,int w,boolean quest,boolean controls){
         QuestSkin.panel(g,x,y,w,39,QuestSkin.FIELD,QuestSkin.LINE);
         ItemStack icon=Items.PAPER.getDefaultInstance();
@@ -225,5 +225,5 @@ public final class QuestBoardScreen extends Screen {
         if(next==scroll)return super.mouseScrolled(x,y,h,v);scroll=next;rebuildWidgets();return true;
     }
     @Override public boolean isPauseScreen(){return false;}
-    @Override public void onClose(){ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"close","","",0));super.onClose();}
+    @Override public void onClose(){ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"close","","",0));super.onClose();}
 }

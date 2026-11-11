@@ -83,7 +83,7 @@ export default function App() {
 	const [templatesOpen, setTemplatesOpen] = useState(false);
 	const [tablesOpen, setTablesOpen] = useState(false),
 		[tableFocus, setTableFocus] = useState(""),
-		/** The quest-giver library is open when set; the value is the NPC to show first. */
+		/** The quest-giver library is open when set. The value is the NPC to show first. */
 		[giverFocus, setGiverFocus] = useState<string | null>(null),
 		[issueAlert, setIssueAlert] = useState<{ where: string; message: string } | null>(null),
 		alertedIssues = useRef<Set<string> | null>(null);
@@ -575,7 +575,7 @@ export default function App() {
 											const q = project.quests.find((q) => q.id === x.where);
 											if (q) goQuest(q.id);
 										}}>
-										<strong>{x.where}</strong> — {tUI(x.message)}
+										<strong>{x.where}</strong>: {tUI(x.message)}
 									</button>
 								))
 							) : (
@@ -927,7 +927,7 @@ export default function App() {
 					<div>
 						<strong>{tUI("Validation error")}</strong>
 						<p>
-							<b>{tUI(issueAlert.where)}</b> — {tUI(issueAlert.message)}
+							<b>{tUI(issueAlert.where)}</b>: {tUI(issueAlert.message)}
 						</p>
 					</div>
 					<button

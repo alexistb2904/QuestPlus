@@ -1,5 +1,5 @@
 // Vanilla places a quest giver can spawn, as shown in Quest Studio. Each entry is one
-// config.json spawn rule target; tags (#) group the variants of a structure.
+// config.json spawn rule target. Tags (#) group the variants of a structure.
 
 export const VILLAGES = [
 	{ target: "minecraft:village_plains", name: "Plains village", icon: "minecraft:hay_block" },

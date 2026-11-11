@@ -16,13 +16,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
-/** Category-first catalogue; identifiers are kept only as selection values. */
+/** Category-first catalogue. Identifiers are kept only as selection values. */
 final class QuestBlockPicker extends Screen {
     record Choice(String id, String title, String icon, String category) {
         Choice(String id, String title) { this(id, title, "", ""); }
     }
     private record Icon(String value, int x, int y) {}
-    /** Rows are a control tall with a gap between them; the dialog never grows past seven. */
+    /** Rows are a control tall with a gap between them. The dialog never grows past seven. */
     private static final int PITCH = ROW + GAP, ROWS_Y = BAR + 8 + ROW + GAP, CAP = 18;
     private final net.minecraft.client.gui.Font font = QuestSkin.font();
     private final Screen parent;
@@ -105,7 +105,7 @@ final class QuestBlockPicker extends Screen {
             }));
             if (!choice.icon.isEmpty()) {
                 row.icon(item(choice.icon));
-                // Pack images take the item's place inside the row; see extractRenderState.
+                // Pack images take the item's place inside the row. See extractRenderState.
                 if (choice.icon.startsWith("data:")) icons.add(new Icon(choice.icon, row.getX() + 3, y + (ROW - 12) / 2));
             }
         }

@@ -1,7 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Loader;
 import dev.questplus.fabric.QuestPlusMod;
-import net.fabricmc.loader.api.FabricLoader;
 import java.lang.reflect.Proxy;
 
 /**
@@ -13,7 +13,7 @@ final class FirstPersonTabletCompat {
 	}
 
 	static void register() {
-		if (!FabricLoader.getInstance().isModLoaded("firstperson"))
+		if (!Loader.isModLoaded("firstperson"))
 			return;
 		try {
 			var loader = FirstPersonTabletCompat.class.getClassLoader();

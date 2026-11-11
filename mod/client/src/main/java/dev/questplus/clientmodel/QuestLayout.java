@@ -79,7 +79,7 @@ public final class QuestLayout {
 
 		Map<String, Point> result = new LinkedHashMap<>();
 		Map<Cell, List<String>> cells = new HashMap<>();
-		// Custom positions remain exact; authors may deliberately overlap them.
+		// Custom positions remain exact. Authors may deliberately overlap them.
 		quests.values().forEach(q -> {
 			if (q.layout() != null) {
 				Point point = new Point(q.layout().x(), q.layout().y());
@@ -105,7 +105,7 @@ public final class QuestLayout {
 					continue;
 				double x = (i - (ids.size() - 1) / 2.0) * HORIZONTAL_GAP, y = layer.getKey() * VERTICAL_GAP;
 				Point point = new Point(x, y);
-				// Move right to the first free grid slot; explicit coordinates always win.
+				// Move right to the first free grid slot. Explicit coordinates always win.
 				while (overlaps(cells, result, point))
 					point = new Point(point.x() + HORIZONTAL_GAP, y);
 				result.put(id, point);

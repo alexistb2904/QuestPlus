@@ -12,7 +12,7 @@ import java.util.*;
 import net.fabricmc.loader.api.FabricLoader;
 
 /**
- * Transactions operate exclusively on detached item stacks; the inventory
+ * Transactions operate exclusively on detached item stacks. The inventory
  * journal commits the resulting plan.
  */
 final class QuestResourceContainers {

@@ -113,7 +113,7 @@ export function hubTargets(kind) {
 	return current[map[kind] || kind] || [];
 }
 
-/** Authoring-only metadata; gameplay events and validation remain server-owned. */
+/** Authoring-only metadata. Gameplay events and validation remain server-owned. */
 export function hubEditorDescriptors(kind) {
 	return (current.extensions || []).filter((d) => d.kind === kind);
 }

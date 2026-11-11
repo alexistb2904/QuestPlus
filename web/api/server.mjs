@@ -439,7 +439,7 @@ async function handler(req, res) {
 						job: null,
 						jobStatus: null,
 					};
-					// Account for the cached bytes plus retained strings/objects; this is not a heap measurement.
+					// Account for the cached bytes plus retained strings/objects. This is not a heap measurement.
 					s.data = sessionData(files, registry, s.revision, s.serverName);
 					s.bytes = s.data.length * 3;
 					sessionRoom(s.bytes);
@@ -568,7 +568,7 @@ async function handler(req, res) {
 			if (!s.job || s.job.id !== split[6]) throw fail(404, "Unknown publication");
 			return json(res, 200, s.jobStatus);
 		}
-		// Anyone can publish an unlisted immutable pack; the ID is a 192-bit read capability.
+		// Anyone can publish an unlisted immutable pack. The ID is a 192-bit read capability.
 		// This does not permit editing any server. Limit uploads to protect public deployments.
 		if (req.method === "POST" && p === "/v1/packs") {
 			if (cleaning || packWrites >= 2 || packCount >= MAX_PACKS || packBytes >= MAX_PACK_BYTES) throw fail(503, "Pack storage capacity reached; retry later");

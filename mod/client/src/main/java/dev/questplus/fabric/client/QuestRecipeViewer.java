@@ -1,8 +1,8 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Loader;
 import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -40,8 +40,7 @@ final class QuestRecipeViewer {
 	}
 
 	static boolean available() {
-		var loader = FabricLoader.getInstance();
-		return loader.isModLoaded("roughlyenoughitems") || loader.isModLoaded("jei");
+		return Loader.isModLoaded("roughlyenoughitems") || Loader.isModLoaded("jei");
 	}
 
 	static boolean open(ItemStack stack) {
@@ -56,15 +55,14 @@ final class QuestRecipeViewer {
 	}
 
 	private static boolean openViewer(ItemStack stack) {
-		var loader = FabricLoader.getInstance();
 		try {
-			if (loader.isModLoaded("roughlyenoughitems") && Rei.open(stack))
+			if (Loader.isModLoaded("roughlyenoughitems") && Rei.open(stack))
 				return true;
 		} catch (LinkageError | RuntimeException error) {
 			QuestPlusMod.LOGGER.warn("Cannot open REI recipes", error);
 		}
 		try {
-			if (loader.isModLoaded("jei"))
+			if (Loader.isModLoaded("jei"))
 				return QuestJeiPlugin.open(stack);
 		} catch (LinkageError | RuntimeException error) {
 			QuestPlusMod.LOGGER.warn("Cannot open JEI recipes", error);
@@ -72,7 +70,7 @@ final class QuestRecipeViewer {
 		return false;
 	}
 
-	// Loaded only after Fabric confirms REI is installed.
+	// Loaded only after the mod loader confirms REI is installed.
 	private static final class Rei {
 		static boolean open(ItemStack stack) {
 			return me.shedaniel.rei.api.client.view.ViewSearchBuilder.builder()

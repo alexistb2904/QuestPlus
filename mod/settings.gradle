@@ -1,18 +1,28 @@
 pluginManagement {
     repositories {
         maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.neoforged.net/releases' }
         gradlePluginPortal()
         mavenCentral()
     }
 }
 rootProject.name = 'questplus'
 
-// Every versions/<minecraft> folder with a gradle.properties is one validated Minecraft
-// target. See versions/README.md. -Pmc=<folder> configures a single target only.
+// Every versions/<minecraft> folder with a gradle.properties is one validated Fabric target (:<minecraft>);
+// its neoforge/gradle.properties, when present, is the NeoForge target (:neoforge-<minecraft>).
+// See versions/README.md. -Pmc=<folder> and -Ploader=fabric|neoforge select targets.
 def targets = file('versions').listFiles().findAll { new File(it, 'gradle.properties').file }*.name
 def only = startParameter.projectProperties.mc
+def loader = startParameter.projectProperties.loader
 if (only && !targets.contains(only)) throw new GradleException("Unknown -Pmc=${only}, known targets: ${targets}")
+if (loader && !(loader in ['fabric', 'neoforge'])) throw new GradleException("Unknown -Ploader=${loader}, use fabric or neoforge")
 targets.findAll { !only || it == only }.each { name ->
-    include name
-    project(":${name}").projectDir = file("versions/${name}")
+    if (loader != 'neoforge') {
+        include name
+        project(":${name}").projectDir = file("versions/${name}")
+    }
+    if (loader != 'fabric' && new File(file("versions/${name}"), 'neoforge/gradle.properties').file) {
+        include "neoforge-${name}"
+        project(":neoforge-${name}").projectDir = file("versions/${name}/neoforge")
+    }
 }

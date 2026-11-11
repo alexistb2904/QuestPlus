@@ -1,9 +1,9 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import com.google.gson.*;
 import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.core.Localization;
-import net.fabricmc.fabric.api.networking.v1.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
 /**
- * NPC quest dialog. The server decides what each quest offers this player; the
+ * NPC quest dialog. The server decides what each quest offers this player. The
  * client only asks to accept or turn in within an open, nearby session.
  */
 public final class QuestGiverNetwork {
@@ -48,7 +48,7 @@ public final class QuestGiverNetwork {
 	}
 
 	/**
-	 * One NPC's appearance; an empty {@code npc} clears every appearance before a
+	 * One NPC's appearance. An empty {@code npc} clears every appearance before a
 	 * full resend.
 	 */
 	public record Look(String npc, String data) implements CustomPacketPayload {
@@ -69,7 +69,7 @@ public final class QuestGiverNetwork {
 
 	/** Every NPC appearance, to a player who just joined or after a quest reload. */
 	static void sendLooks(ServerPlayer player) {
-		if (!ServerPlayNetworking.canSend(player, Look.TYPE))
+		if (!Platform.canSend(player, Look.TYPE))
 			return;
 		Map<String, dev.questplus.core.QuestNpcs.Npc> npcs;
 		try {
@@ -77,14 +77,14 @@ public final class QuestGiverNetwork {
 		} catch (IllegalStateException unavailable) {
 			return;
 		}
-		ServerPlayNetworking.send(player, new Look("", ""));
+		Platform.send(player, new Look("", ""));
 		for (var npc : npcs.values()) {
 			var look = new JsonObject();
 			look.addProperty("model", npc.look().model());
 			look.addProperty("villager", npc.look().villager());
 			if (!npc.look().skin().isEmpty())
 				look.addProperty("skin", npc.look().skin());
-			ServerPlayNetworking.send(player, new Look(npc.id(), look.toString()));
+			Platform.send(player, new Look(npc.id(), look.toString()));
 		}
 	}
 
@@ -95,24 +95,22 @@ public final class QuestGiverNetwork {
 	}
 
 	static void register() {
-		PayloadTypeRegistry.clientboundPlay().register(Dialog.TYPE, Dialog.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(Request.TYPE, Request.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(Look.TYPE, Look.CODEC);
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sendLooks(handler.player));
-		ServerPlayNetworking.registerGlobalReceiver(Request.TYPE,
-				(packet, context) -> context.server().execute(() -> handle(context.player(), packet)));
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			SESSIONS.remove(handler.player.getUUID());
-			LAST.remove(handler.player.getUUID());
+		Platform.clientbound(Dialog.TYPE, Dialog.CODEC);
+		Platform.serverbound(Request.TYPE, Request.CODEC, QuestGiverNetwork::handle);
+		Platform.clientbound(Look.TYPE, Look.CODEC);
+		Platform.onPlayerJoin(QuestGiverNetwork::sendLooks);
+		Platform.onPlayerDisconnect((player, server) -> {
+			SESSIONS.remove(player.getUUID());
+			LAST.remove(player.getUUID());
 		});
-		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+		Platform.onServerStopped(server -> {
 			SESSIONS.clear();
 			LAST.clear();
 		});
 	}
 
 	static void open(ServerPlayer player, QuestGiver giver) {
-		if (player.isSpectator() || !ServerPlayNetworking.canSend(player, Dialog.TYPE))
+		if (player.isSpectator() || !Platform.canSend(player, Dialog.TYPE))
 			return;
 		var session = new Session(giver.getId(), UUID.randomUUID(), player.level().getServer().getTickCount() + 6000);
 		SESSIONS.put(player.getUUID(), session);
@@ -190,7 +188,7 @@ public final class QuestGiverNetwork {
 					var entry = new JsonObject();
 					entry.addProperty("status", status);
 					var projected = ClientProjection.quests(List.of(quest), state).get(0).getAsJsonObject();
-					// The dialog shows plain text; rich images would only bloat the packet.
+					// The dialog shows plain text. Rich images would only bloat the packet.
 					projected.remove("descriptionRich");
 					entry.add("quest", projected);
 					var progress = new JsonObject();
@@ -216,6 +214,6 @@ public final class QuestGiverNetwork {
 		}
 		if (!json.has("npc"))
 			json.addProperty("npc", giver.getName().getString());
-		ServerPlayNetworking.send(player, new Dialog(giver.getId(), session.token(), json.toString()));
+		Platform.send(player, new Dialog(giver.getId(), session.token(), json.toString()));
 	}
 }

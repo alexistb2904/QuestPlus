@@ -4,7 +4,7 @@ import com.google.gson.*;
 import java.util.Set;
 
 /**
- * Bounded authored component predicates; Minecraft validates the component
+ * Bounded authored component predicates. Minecraft validates the component
  * codecs at reload.
  */
 public final class ItemComponents {

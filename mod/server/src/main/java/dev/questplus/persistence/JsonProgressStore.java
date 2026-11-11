@@ -157,7 +157,7 @@ public final class JsonProgressStore implements AutoCloseable {
 	/**
 	 * Non-critical autosave only: snapshot mutable state on the server thread, then
 	 * perform JSON serialization + strict decode on the single IO worker. The queue
-	 * is bounded and ordered with reward transactions; callers must re-dirty the
+	 * is bounded and ordered with reward transactions. Callers must re-dirty the
 	 * same player IDs if the returned future fails.
 	 */
 	public CompletableFuture<Void> saveAutosaveBatch(Map<UUID, PlayerProgress> states) {

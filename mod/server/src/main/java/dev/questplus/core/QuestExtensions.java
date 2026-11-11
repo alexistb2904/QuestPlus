@@ -43,7 +43,7 @@ public final class QuestExtensions {
 	public static JsonElement parsed(String json) {
 		var value = PARSED.get(json);
 		if (value == null) {
-			// Reloads leave old strings behind; a full reset keeps the cache bounded.
+			// Reloads leave old strings behind. A full reset keeps the cache bounded.
 			if (PARSED.size() >= 4096)
 				PARSED.clear();
 			PARSED.put(json, value = JsonParser.parseString(json));

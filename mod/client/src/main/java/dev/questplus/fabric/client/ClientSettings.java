@@ -1,7 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Loader;
 import com.google.gson.Gson;
-import net.fabricmc.loader.api.FabricLoader;
 import dev.questplus.fabric.QuestPlusMod;
 import java.nio.file.*;
 import java.util.*;
@@ -9,7 +9,7 @@ import java.util.*;
 public final class ClientSettings {
 	public static final int MAX_PINNED = 3;
 	private static final Gson JSON = new Gson();
-	private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("questplus-client.json");
+	private static final Path FILE = Loader.configDir().resolve("questplus-client.json");
 	public boolean hud = true, notifications = true, blur = true, animations = true, reducedMotion, tablet = true;
 	public boolean tabletTransitions = true;
 	public int treeResolution = 4;

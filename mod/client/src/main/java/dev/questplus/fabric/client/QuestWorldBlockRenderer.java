@@ -1,9 +1,9 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.questplus.fabric.*;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.blockentity.*;
@@ -22,7 +22,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Static models carry the frame; cached rows carry quests, progress and the leaderboard. */
+/** Static models carry the frame. Cached rows carry quests, progress and the leaderboard. */
 public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestUtilityEntity,QuestWorldBlockRenderer.State> {
     /** The mod's outline face at its lowest oversample: world text is minified and sampled NEAREST. */
     private static final Style UI=face("ui_2"),BOLD=face("bold_2");
@@ -76,7 +76,7 @@ public final class QuestWorldBlockRenderer implements BlockEntityRenderer<QuestU
         int ellipsis=font.width(Component.literal("…").withStyle(style));
         return width<ellipsis?font.substrByWidth(text,Math.max(0,width)).getString():font.substrByWidth(text,width-ellipsis).getString()+"…";
     }
-    static void register(){BlockEntityRendererRegistry.register(QuestWorldBlocks.ENTITY,QuestWorldBlockRenderer::new);}
+    static void register(){ClientPlatform.blockEntityRenderer(QuestWorldBlocks.ENTITY,QuestWorldBlockRenderer::new);}
     @Override public State createRenderState(){return new State();}
     @Override public void extractRenderState(QuestUtilityEntity be,State state,float delta,Vec3 camera,ModelFeatureRenderer.CrumblingOverlay overlay){
         BlockEntityRenderer.super.extractRenderState(be,state,delta,camera,overlay);

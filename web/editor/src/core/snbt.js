@@ -1,4 +1,4 @@
-/** Bounded FTB/vanilla SNBT reader; no executable expressions or lossy long numbers. */
+/** Bounded FTB/vanilla SNBT reader. No executable expressions or lossy long numbers. */
 export function parseSnbt(source, { preserveLongs = false } = {}) {
 	if (source.length > 2_000_000) throw Error("SNBT too large");
 	let i = 0,

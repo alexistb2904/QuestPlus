@@ -816,7 +816,7 @@ export function inspectFtbPack(documents, { fluidUnits = "millibuckets", energyR
 				safe = false;
 			}
 		if (!safe) continue;
-		// Keep source dependencies only for a second pass; never publish unresolved references.
+		// Keep source dependencies only for a second pass. Never publish unresolved references.
 		project.quests.push(quest);
 	}
 

@@ -197,7 +197,7 @@ public final class TabletCompatibilityTest {
 			var image = javax.imageio.ImageIO.read(screenshot.toFile());
 			int parchment = 0, total = 0;
 			// Centre of the held display at the fixed test camera, away from arms and world
-			// geometry. The parchment UI is warm when lit and neutral grey when world-lit; sky or
+			// geometry. The parchment UI is warm when lit and neutral grey when world-lit. Sky or
 			// grass behind a missing display is blue or green, and a specular glare is saturated white.
 			for (int y = image.getHeight() * 35 / 100; y < image.getHeight() * 60 / 100; y++)
 				for (int x = image.getWidth() * 35 / 100; x < image.getWidth() * 65 / 100; x++) {

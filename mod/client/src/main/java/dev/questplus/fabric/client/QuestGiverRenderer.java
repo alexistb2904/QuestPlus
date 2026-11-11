@@ -1,10 +1,10 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.questplus.fabric.QuestGiver;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.npc.BabyVillagerModel;
@@ -75,7 +75,7 @@ final class QuestGiverRenderer extends EntityRenderer<QuestGiver, QuestGiverRend
 	}
 
 	static void register() {
-		EntityRendererRegistry.register(QuestGiver.TYPE, QuestGiverRenderer::new);
+		ClientPlatform.entityRenderer(QuestGiver.TYPE, QuestGiverRenderer::new);
 	}
 
 	@Override

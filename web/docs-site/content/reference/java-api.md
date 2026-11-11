@@ -1,6 +1,6 @@
 # Java integration
 
-Call `dev.questplus.fabric.api.QuestPlusApi` from your **server side** Fabric mod.
+Call `dev.questplus.fabric.api.QuestPlusApi` from your **server side** Fabric or NeoForge mod. The API and its `dev.questplus.fabric` package names are the same on both loaders.
 
 On the Minecraft server thread, `getQuests(player)` lists loaded IDs and
 `getQuest(player, id)` returns a detached JSON representation of the loaded
@@ -147,7 +147,7 @@ Also available: `onObjectiveProgress`, `onObjectiveCompleted`, `onRewardClaimed`
 
 ## Future KubeJS bridge
 
-KubeJS is **not** a QuestPlus dependency. Trusted Fabric mods can register a lifecycle adapter at initialization:
+KubeJS is **not** a QuestPlus dependency. Trusted Fabric or NeoForge mods can register a lifecycle adapter at initialization:
 
 ```java
 QuestPlusApi.registerAdapter("example:bridge", new QuestPlusAdapters.Adapter() {

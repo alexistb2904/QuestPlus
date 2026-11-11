@@ -29,7 +29,7 @@ Open **Rewards**, add **XP points**, and enter `25`. Leave the quest on **once**
 ## Export and play
 
 1. Check that validation reports no issues and select **Export ZIP**.
-2. Create a disposable world with QuestPlus and Fabric API, then close the world.
+2. Create a disposable world with QuestPlus (and Fabric API on Fabric), then close the world.
 3. Back up its `questplus/` folder. Replace the definition files with your export so `categories/`, `quests/` and `config.json` sit directly inside `<world>/questplus/`.
 4. Reopen the world, use survival mode and press **J**. Select **First Steps**, then **Gather oak logs**.
 5. Pin the quest, close the tablet and break eight oak logs. Open the quest again and claim the XP.

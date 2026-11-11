@@ -1,7 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Loader;
 import dev.questplus.fabric.QuestPlusMod;
-import net.fabricmc.loader.api.FabricLoader;
 import java.lang.reflect.Method;
 import java.util.function.BooleanSupplier;
 
@@ -18,7 +18,7 @@ final class PunchyTabletCompat {
 	}
 
 	static void register() {
-		if (!FabricLoader.getInstance().isModLoaded("punchy"))
+		if (!Loader.isModLoaded("punchy"))
 			return;
 		try {
 			Class<?> api = Class.forName("punchy.api.PunchyApi", false, PunchyTabletCompat.class.getClassLoader());

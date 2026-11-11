@@ -72,7 +72,7 @@ export function selectedOwner(project, selection, categoryId) {
 	if (selection.type === "category") return project.categories.find((c) => c.id === selection.id);
 	return project.categories.find((c) => c.id === categoryId)?.annotations?.find((a) => a.id === selection.id);
 }
-/** Locale fallback for authored annotations; ignore the studio's untouched "Note" seed. */
+/** Locale fallback for authored annotations. Ignore the studio's untouched "Note" seed. */
 export const annotationText = (annotation, lang = "en_us") => {
 	const map = annotation?.text || {};
 	const authored = Object.entries(map).filter(([, value]) => typeof value === "string" && value.trim() && value.trim() !== "Note");
@@ -152,7 +152,7 @@ export const emptyProject = () => ({ categories: [], quests: [], config: { schem
 export function demoProject() {
 	return copy(BUILTIN_PROJECT);
 }
-/** Missing order sorts after explicitly ordered categories; ties are deterministic. */
+/** Missing order sorts after explicitly ordered categories. Ties are deterministic. */
 export function orderedCategories(categories) {
 	return [...categories].sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) || a.id.localeCompare(b.id));
 }
@@ -890,7 +890,7 @@ export function compactCategoryImages(category) {
 	else delete result.images;
 	return result;
 }
-/** Accept both legacy inline data URIs and compact exports; reject broken references. */
+/** Accept both legacy inline data URIs and compact exports. Reject broken references. */
 export function expandCategoryImages(category) {
 	if (!category.images) return category;
 	const result = structuredClone(category),
@@ -926,7 +926,7 @@ export function fileMap(p) {
 		return ns === "questplus" ? path : ns + "/" + path;
 	};
 	put("config.json", p.config || { schemaVersion: 1, autosaveSeconds: 5 });
-	// Named tables are resolved by the server registry; editor settings stay separate
+	// Named tables are resolved by the server registry. Editor settings stay separate
 	// from quest/category/config JSON objects.
 	put("queststudio-compatibility.json", {
 		format: 1,

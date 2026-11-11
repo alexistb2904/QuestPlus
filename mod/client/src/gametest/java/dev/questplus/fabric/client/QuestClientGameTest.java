@@ -569,7 +569,7 @@ public final class QuestClientGameTest implements FabricClientGameTest {
 		}
 	}
 
-	/** Typing opens the side list without losing the caret; the chart is never filtered; Escape closes it. */
+	/** Typing opens the side list without losing the caret. The chart is never filtered. Escape closes it. */
 	private static void searchListTrial(ClientGameTestContext context) {
 		int before = context.computeOnClient(client -> visibleNodes((QuestScreen) ClientAdapter.INSTANCE.screen(client)));
 		context.runOnClient(client -> {

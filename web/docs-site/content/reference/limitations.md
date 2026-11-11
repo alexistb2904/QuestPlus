@@ -7,7 +7,8 @@
 - Repeatable and tiered quests
 - Reward choices, random pools and tables
 - Team progression and server commands
-- Java integrations with other Fabric mods
+- Fabric and NeoForge
+- Java integrations with other Fabric or NeoForge mods
 - Compatible FTB Quests imports
 - Offline or approved online editing
 
@@ -15,7 +16,8 @@
 
 | Request                                 | Limit                           |
 | --------------------------------------- | ------------------------------- |
-| Forge, NeoForge or Bedrock              | No supported build              |
+| Forge or Bedrock                        | No supported build              |
+| NeoForge on Minecraft 26.1 or 26.1.1    | No stable NeoForge build        |
 | Run arbitrary scripts from quest files  | Not permitted                   |
 | Track unknown mod actions automatically | Requires a Java integration     |
 | Import every FTB custom task            | May require a manual conversion |

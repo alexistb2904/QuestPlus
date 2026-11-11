@@ -71,8 +71,8 @@ Create a team from the tablet, invite your friends and work toward **shared ques
 
 |           |                                     |
 | --------- | ----------------------------------- |
-| Minecraft | Java 26.1 to 26.3         |
-| Loader    | Fabric, with Fabric API             |
+| Minecraft | Java 26.1 to 26.3 (NeoForge: 26.1.2, 26.2, 26.3) |
+| Loader    | Fabric with Fabric API, or NeoForge |
 | Java      | 25 or newer                         |
 | Install   | On the client and on the server     |
 | Languages | English, French, Spanish, Chinese   |

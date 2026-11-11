@@ -238,7 +238,7 @@ final class QuestHubFiles {
 				}
 				return;
 			} catch (AccessDeniedException locked) {
-				// Windows scanners briefly hold fresh pack files; never replace a failed move with a copy.
+				// Windows scanners briefly hold fresh pack files. Never replace a failed move with a copy.
 				if (attempt >= 9)
 					throw locked;
 				try {

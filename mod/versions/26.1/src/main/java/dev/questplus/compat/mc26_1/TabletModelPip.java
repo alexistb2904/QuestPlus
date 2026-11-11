@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
-/** 26.1 {@code GuiGraphicsExtractor.skin} only accepts a PlayerModel; this is the same renderer for any model. */
+/** 26.1 {@code GuiGraphicsExtractor.skin} only accepts a PlayerModel. This is the same renderer for any model. */
 final class TabletModelPip {
 	private TabletModelPip() {}
 

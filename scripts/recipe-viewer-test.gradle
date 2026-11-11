@@ -1,5 +1,5 @@
 // Run with: gradlew runClientGameTest -I scripts/recipe-viewer-test.gradle
-// Uses the JEI already installed in the development client; isolates the test world.
+// Uses the JEI already installed in the development client. Isolates the test world.
 allprojects {
     afterEvaluate {
         // Profiles pin 26.3 mods: configure the newest Minecraft target only, never launch the others.

@@ -1,6 +1,6 @@
 package dev.questplus.fabric;
 
-import net.fabricmc.fabric.api.networking.v1.*;
+import dev.questplus.platform.Platform;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -43,15 +43,13 @@ public final class TabletPoseNetwork {
 	}
 
 	public static void register() {
-		PayloadTypeRegistry.serverboundPlay().register(Request.TYPE, Request.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(State.TYPE, State.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(Request.TYPE,
-				(payload, context) -> context.server().execute(() -> request(context.player(), payload.open)));
-		EntityTrackingEvents.START_TRACKING.register((entity, viewer) -> {
+		Platform.serverbound(Request.TYPE, Request.CODEC, (player, payload) -> request(player, payload.open));
+		Platform.clientbound(State.TYPE, State.CODEC);
+		Platform.onStartTracking((entity, viewer) -> {
 			if (entity instanceof ServerPlayer player && ACTIVE.containsKey(player.getUUID()))
 				send(viewer, player.getUUID(), true);
 		});
-		EntityTrackingEvents.STOP_TRACKING.register((entity, viewer) -> {
+		Platform.onStopTracking((entity, viewer) -> {
 			if (entity instanceof ServerPlayer player && ACTIVE.containsKey(player.getUUID()))
 				send(viewer, player.getUUID(), false);
 		});
@@ -78,12 +76,12 @@ public final class TabletPoseNetwork {
 	}
 
 	private static void send(ServerPlayer viewer, UUID id, boolean open) {
-		if (ServerPlayNetworking.canSend(viewer, State.TYPE))
-			ServerPlayNetworking.send(viewer, new State(id, open));
+		if (Platform.canSend(viewer, State.TYPE))
+			Platform.send(viewer, new State(id, open));
 	}
 
 	private static void broadcast(ServerPlayer player, boolean open) {
-		for (ServerPlayer viewer : PlayerLookup.tracking(player))
+		for (ServerPlayer viewer : Platform.tracking(player))
 			send(viewer, player.getUUID(), open);
 	}
 

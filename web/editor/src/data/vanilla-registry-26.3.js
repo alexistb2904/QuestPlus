@@ -1,5 +1,5 @@
 // Generated from misode/mcmeta tag 26.3-registries, item/data.json + block/data.json.
-// Minecraft Java 26.3 complete vanilla registry; not a hand-picked asset sample.
+// Minecraft Java 26.3 complete vanilla registry. Not a hand-picked asset sample.
 // Regenerate from the corresponding pinned release for future supported versions.
 export const VERSION = "26.3";
 export const ITEM_IDS = [

@@ -1,15 +1,14 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Platform;
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import dev.questplus.fabric.QuestPlusMod;
 import dev.questplus.fabric.QuestTabletItem;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.CameraType;
 
@@ -34,8 +33,8 @@ final class QuestClientTabletFlow {
 	}
 
 	static void register() {
-		ClientPreAttackCallback.EVENT.register((client, player, clicks) -> {
-			if (clicks > 0 && stage == Stage.CARRIED && shouldCarry(client)) {
+		ClientPlatform.onAttack(client -> {
+			if (stage == Stage.CARRIED && shouldCarry(client)) {
 				try {
 					if (TabletNativeAnimation.play("questplus.carry_attack")) {
 						stage = Stage.STRIKING;
@@ -47,17 +46,18 @@ final class QuestClientTabletFlow {
 			}
 			return false;
 		});
-		UseItemCallback.EVENT.register((player, level, hand) -> useTablet(
-				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
-		UseBlockCallback.EVENT.register((player, level, hand, hit) -> useTablet(
-				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
-		UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> useTablet(
-				player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide()));
-		ClientTickEvents.END_CLIENT_TICK.register(QuestClientTabletFlow::tick);
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+		Platform.onUseItem(QuestClientTabletFlow::useTablet);
+		Platform.onUseBlock(QuestClientTabletFlow::useTablet);
+		Platform.onUseEntity(QuestClientTabletFlow::useTablet);
+		ClientPlatform.onClientTick(QuestClientTabletFlow::tick);
+		ClientPlatform.onDisconnect(client -> {
 			stop();
 			reset();
 		});
+	}
+
+	private static InteractionResult useTablet(Player player, Level level, InteractionHand hand) {
+		return useTablet(player.getItemInHand(hand).getItem() instanceof QuestTabletItem, level.isClientSide());
 	}
 
 	private static InteractionResult useTablet(boolean tablet, boolean clientSide) {
@@ -144,7 +144,7 @@ final class QuestClientTabletFlow {
 	}
 
 	private static void open(Minecraft client) {
-		// Switch to first person before opening; native cannot draw the tablet in third
+		// Switch to first person before opening. Native cannot draw the tablet in third
 		// person.
 		if (tabletAvailable() && client.options.getCameraType() != CameraType.FIRST_PERSON) {
 			previousCamera = client.options.getCameraType();
@@ -340,7 +340,7 @@ final class QuestClientTabletFlow {
 					reset();
 				}
 			} else if (stage == Stage.HELD && QuestRecipeViewer.tabletScreen() == null) {
-				// Another mod/screen replaced our GUI; clear the lingering pose.
+				// Another mod/screen replaced our GUI. Clear the lingering pose.
 				stop();
 				reset();
 			}

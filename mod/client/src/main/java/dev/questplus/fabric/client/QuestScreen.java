@@ -160,7 +160,7 @@ public final class QuestScreen extends Screen {
 	private long closingAt;
 	private float visualOffset;
 	private boolean attachedToScreenFace;
-	// Keep the same 500×300 widget space in 3D and scaled 2D; never resize widgets.
+	// Keep the same 500×300 widget space in 3D and scaled 2D. Never resize widgets.
 	private double screenScale = 1, screenOffsetX, screenOffsetY;
 	private Double pendingInterfaceScale;
 	private String keyboardQuest;
@@ -253,7 +253,7 @@ public final class QuestScreen extends Screen {
 		right = width;
 		bottom = height;
 		int fw = width, fh = height;
-		// The right panel opens only for a selected quest or a search; otherwise the chart
+		// The right panel opens only for a selected quest or a search. Otherwise the chart
 		// takes the whole width.
 		boolean narrow = fw < 480, panel = sidebarOpen();
 		overlayDetails = panel && narrow;
@@ -334,7 +334,7 @@ public final class QuestScreen extends Screen {
 		init();
 	}
 
-	/** The right panel shows the selected quest, else the search results; with neither it is closed. */
+	/** The right panel shows the selected quest, else the search results. With neither it is closed. */
 	private boolean sidebarOpen() {
 		return selected != null || !query.isEmpty();
 	}
@@ -351,7 +351,7 @@ public final class QuestScreen extends Screen {
 		boolean wasOpen = sidebarOpen(), dropDetails = selected != null && !value.isEmpty();
 		query = value;
 		journalScroll = 0;
-		// Typing asks for the results list; rebuild only when the panel opens, closes or swaps.
+		// Typing asks for the results list. Rebuild only when the panel opens, closes or swaps.
 		if (dropDetails) {
 			selected = null;
 			rewardView = false;
@@ -366,7 +366,7 @@ public final class QuestScreen extends Screen {
 			return;
 		if (!Objects.equals(quest.category(), category))
 			chooseCategory(quest.category());
-		// A search result may be one the status chip hides; show every quest rather than open a blank spot.
+		// A search result may be one the status chip hides. Show every quest rather than open a blank spot.
 		String s = status(id);
 		if (!filter.equals("all") && !s.equals(filter) && !(filter.equals("completed") && s.equals("reward_ready")))
 			filter = "all";
@@ -552,7 +552,7 @@ public final class QuestScreen extends Screen {
 
 	@Override
 	public void extractBackground(GuiGraphicsExtractor g, int mx, int my, float delta) {
-		// Preserve the real first-person tablet frame; an opaque GUI backdrop would
+		// Preserve the real first-person tablet frame. An opaque GUI backdrop would
 		// hide it.
 		if (QuestClientTabletFlow.nativeHandsActive())
 			return;
@@ -586,9 +586,9 @@ public final class QuestScreen extends Screen {
 		g.pose().translate(0, visualOffset);
 		my -= (int) visualOffset;
 		if (settings.tablet) {
-			// FP PAL already draws the arms and 3D tablet; do not render them twice.
+			// FP PAL already draws the arms and 3D tablet. Do not render them twice.
 			if (!QuestClientTabletFlow.nativeHandsActive()) {
-				// Only the 2D fallback needs a frame; the native tablet supplies its own.
+				// Only the 2D fallback needs a frame. The native tablet supplies its own.
 				QuestSkin.panel(g, left - 5, top - 5, right - left + 10, bottom - top + 10, 0xff211914, 0xff9a6c4b);
 				g.fill(left - 3, top - 3, right + 3, bottom + 3, 0xff191815);
 			}
@@ -768,12 +768,12 @@ public final class QuestScreen extends Screen {
 		g.fill(x, y + 2, x + w, y + 33, QuestSkin.PANEL);
 		g.fill(x, y + 33, x + w, y + 34, QuestSkin.INK);
 		drawIcon(g, c.has("icon") ? c.get("icon").getAsString() : "minecraft:book", x + 6, y + 8);
-		// Claim all sits at the band's right end; the progress block gives way first.
+		// Claim all sits at the band's right end. The progress block gives way first.
 		int claim = claimAllButton != null && claimAllButton.visible ? claimAllButton.getWidth() + 8 : 0;
 		boolean progress = w - claim > 240;
 		int room = Math.max(1, w - 34 - (progress ? 90 : 0) - claim);
 		String title = localized(c.getAsJsonObject("title"));
-		// The category name is the screen's one big line; it drops to body size rather than truncate.
+		// The category name is the screen's one big line. It drops to body size rather than truncate.
 		boolean big = font.width(QuestSkin.title(title)) <= room;
 		if (big)
 			QuestSkin.big(g, font, title, x + 28, y + 5, QuestSkin.INK);
@@ -887,7 +887,7 @@ public final class QuestScreen extends Screen {
 			g.pose().translate(-x, -y);
 			String shape = state.quests.get(id).presentation().shape(), status = statuses.get(id);
 			drawQuestShape(g, shape, x, y, r, color(id));
-			// A reward waiting is circled in red; the selection rule sits outside it.
+			// A reward waiting is circled in red. The selection rule sits outside it.
 			if (status.equals("reward_ready"))
 				QuestSkin.panel(g, x - r - 2, y - r - 2, 2 * r + 4, 2 * r + 4, 0, QuestSkin.CLAIM);
 			if (id.equals(selected) || id.equals(keyboardQuest)) {
@@ -949,10 +949,10 @@ public final class QuestScreen extends Screen {
 		g.pose().translate(x1, y1);
 		g.pose().rotate((float) Math.atan2((double) y2 - y1, (double) x2 - x1));
 		g.pose().scale((float) zoom);
-		// The coordinates were already camera-transformed; scale line thickness
+		// The coordinates were already camera-transformed. Scale line thickness
 		// while keeping the two endpoints at their exact screen positions.
 		int units = Math.max(1, (int) Math.ceil(length / zoom));
-		// Explored trails are solid and heavier; the rest are dashed, unless the
+		// Explored trails are solid and heavier. The rest are dashed, unless the
 		// dashes would cost more fills than a long zoomed-out edge is worth.
 		if (!dashed || units > 448)
 			g.fill(0, dashed ? 0 : -1, units, 1, color);
@@ -1039,7 +1039,7 @@ public final class QuestScreen extends Screen {
 
 	private void drawQuestShape(GuiGraphicsExtractor g, String shape, int x, int y, int radius, int edge) {
 		QuestResourceTheme.ensureShape(shape);
-		// The state colour fills the marker; the ink outline keeps it readable on parchment.
+		// The state colour fills the marker. The ink outline keeps it readable on parchment.
 		if (shape.equals("square")) {
 			QuestSkin.panel(g, x - radius, y - radius, radius * 2, radius * 2, edge, QuestSkin.INK);
 			return;
@@ -1074,7 +1074,7 @@ public final class QuestScreen extends Screen {
 
 	private void updateRenderCache() {
 		String language = minecraft.options.languageCode;
-		// The search never hides chart nodes; it filters the panel's list. Only the status chips filter here.
+		// The search never hides chart nodes. It filters the panel's list. Only the status chips filter here.
 		if (filteredSequence != state.sequence || filteredCatalogue != catalogue
 				|| !Objects.equals(filteredFilter, filter) || !Objects.equals(filteredLanguage, language)) {
 			filteredSequence = state.sequence;
@@ -1135,7 +1135,7 @@ public final class QuestScreen extends Screen {
 
 	/**
 	 * The search results: every quest of every category whose title, or whose
-	 * category's title, contains the query; the category on screen first. Rebuilt
+	 * category's title, contains the query. The category on screen first. Rebuilt
 	 * on query, progress or catalogue changes only.
 	 */
 	private void updateJournal() {
@@ -1223,7 +1223,7 @@ public final class QuestScreen extends Screen {
 							QuestSkin.INK, false);
 					if (active)
 						QuestSkin.bar(g, x + 16, rowY + 15, w - 27, 2, row.fraction(), QuestSkin.ACTIVE);
-					// State is a swatch with the chart's mark and, on hover, words; never a colour alone.
+					// State is a swatch with the chart's mark and, on hover, words. Never a colour alone.
 					int sx = x + w - 7, sy = rowY + 7;
 					boolean done = row.status().equals("completed");
 					QuestSkin.panel(g, sx, sy, 7, 7, done ? QuestSkin.INK : statusColor(row.status()), QuestSkin.INK);
@@ -1498,7 +1498,7 @@ public final class QuestScreen extends Screen {
 					continue;
 				}
 				if (row.heading()) {
-					// More air above a heading than below it; the rule ties it to its rows.
+					// More air above a heading than below it. The rule ties it to its rows.
 					QuestSkin.text(g, font, QuestSkin.bold(row.lines().get(0)), x, rowY + 9, QuestSkin.DIM, false);
 					g.fill(x, rowY + 19, x + w, rowY + 20, QuestSkin.LINE);
 					rowY += h;
@@ -1512,7 +1512,7 @@ public final class QuestScreen extends Screen {
 					textX += 26;
 				}
 				for (int i = 0; i < row.lineCount(); i++) {
-					// A lone label sits on the icon's centre line; wrapped or counted rows start at the top padding.
+					// A lone label sits on the icon's centre line. Wrapped or counted rows start at the top padding.
 					int textY = rowY + (row.icon().isEmpty() ? 0
 							: row.lineCount() == 1 && row.progress() == null ? 8 : 5) + i * 11;
 					if (row.formatted() == null)

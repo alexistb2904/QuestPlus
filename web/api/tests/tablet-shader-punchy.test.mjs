@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const read = (p) => readFileSync(path.join(root, p), "utf8");
+const versions = readdirSync(path.join(root, "mod/versions")).filter((v) => existsSync(path.join(root, "mod/versions", v, "gradle.properties")));
+const versionMixins = (name) => versions.map((v) =>
+	[v, read(`mod/versions/${v}/src/main/java/dev/questplus/compat/mc${v.replace(".", "_")}/mixin/${name}.java`)]);
 
 test("First Person Model yields through its activation API without changing player settings", () => {
 	const compat = read("mod/client/src/main/java/dev/questplus/fabric/client/FirstPersonTabletCompat.java");
@@ -14,12 +17,11 @@ test("First Person Model yields through its activation API without changing play
 });
 
 test("native first-person renderer claims only QuestPlus tablet frames", () => {
-	const hands = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletNativeFirstPersonMixin.java");
 	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletNativeFirstPersonRenderer.java");
-	assert.match(hands, /FirstPersonHandsAndItemsRenderer\.class/);
-	assert.match(hands, /submitHandsWithItems/);
-	assert.match(hands, /TabletNativeFirstPersonRenderer\.submit/);
-	assert.match(hands, /ci\.cancel\(\)/);
+	for (const [version, hands] of versionMixins("TabletNativeFirstPersonMixin")) {
+		assert.match(hands, /TabletNativeFirstPersonRenderer\.submit/, version);
+		assert.match(hands, /ci\.cancel\(\)|return !questplus\$tablet;/, version + ": vanilla hands are skipped for tablet frames");
+	}
 	assert.match(renderer, /TabletNativeArms\.active\(\)/);
 	assert.match(renderer, /RenderTypes\.entityCutout/);
 });
@@ -51,10 +53,10 @@ test("native screen materials preserve matte and emissive shader behavior", () =
 });
 
 test("active shaders always bypass global menu blur regardless of self illumination", () => {
-	const game = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletGameRendererMixin.java");
+	for (const [version, game] of versionMixins("TabletGameRendererMixin"))
+		assert.match(game, /TabletShaderCompat\.backgroundBlurEnabled\(\)/, version);
 	const options = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletBlurMixin.java");
 	const screen = read("mod/client/src/main/java/dev/questplus/fabric/client/QuestScreen.java");
-	assert.match(game, /TabletShaderCompat\.backgroundBlurEnabled\(\)/);
 	assert.match(options, /TabletShaderCompat\.backgroundBlurEnabled\(\)/);
 	assert.match(screen, /TabletShaderCompat\.backgroundBlurEnabled\(\)/);
 	assert.match(screen, /b\.active\s*=\s*false/);
@@ -75,7 +77,6 @@ test("tablet body and interactive screen use separate native render passes", () 
 test("Esc and stalled animation cannot indefinitely hide hotbar and first-person state", () => {
 	const flow = read("mod/client/src/main/java/dev/questplus/fabric/client/QuestClientTabletFlow.java");
 	const renderer = read("mod/client/src/main/java/dev/questplus/fabric/client/TabletSurfaceRenderer.java");
-	const hud = read("mod/client/src/main/java/dev/questplus/fabric/client/mixin/TabletHudMixin.java");
 	assert.match(renderer, /nativeHandsActive\(\)\s*&&\s*screen\(\)\s*!=\s*null/);
 	assert.match(renderer, /return QuestRecipeViewer\.tabletScreen\(\)/);
 	assert.match(flow, /CLOSE_WATCHDOG_NANOS\s*=\s*2_500_000_000L/);
@@ -83,7 +84,8 @@ test("Esc and stalled animation cannot indefinitely hide hotbar and first-person
 	assert.match(flow, /System\.nanoTime\(\)\s*-\s*closingSince\s*>\s*CLOSE_WATCHDOG_NANOS/);
 	assert.match(flow, /stop\(\);\s*reset\(\);\s*return;/);
 	assert.match(flow, /closingSince\s*=\s*0/);
-	assert.match(hud, /TabletSurfaceRenderer\.hidesHud\(\)/);
+	for (const [version, hud] of versionMixins("TabletHudMixin"))
+		assert.match(hud, /TabletSurfaceRenderer\.hidesHud\(\)/, version);
 });
 
 test("Punchy remains disabled while native tablet hands own animation", () => {
@@ -110,7 +112,7 @@ test("removed independent shader-safe toggle and translated automatic blur expla
 });
 
 test("the release builds use only native runtime components", () => {
-	const build = read("mod/build.gradle");
+	const build = read("mod/build.gradle") + read("mod/gradle/minecraft-target.gradle") + read("mod/gradle/neoforge-target.gradle");
 	const mixins = read("mod/client/src/main/resources/questplus.client.mixins.json");
 	assert.doesNotMatch(build, /include ['"](?:maven\.modrinth|curse\.maven|de\.marhali|teamreborn)/);
 	assert.match(build, /verifyNativeRenderer/);

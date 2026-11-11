@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.storage.LevelResource;
-import team.reborn.energy.api.EnergyStorage;
 import java.nio.file.*;
 import java.util.*;
 
@@ -150,8 +149,7 @@ public final class FtbParityIntegrationTest {
 		var player = connect(helper, "ftb-resources");
 		player.giveExperienceLevels(5);
 		player.getInventory().setItem(5, new ItemStack(Items.WATER_BUCKET));
-		var battery = new ItemStack(FtbTestItems.battery);
-		battery.set(EnergyStorage.ENERGY_COMPONENT, 50L);
+		var battery = LoaderTestSupport.battery(50);
 		player.getInventory().setItem(6, battery);
 		Runnable idle = () -> helper.assertTrue(!runtime.isBusy(player.getUUID()), "Await durable resource write");
 		helper.startSequence().thenWaitUntil(idle).thenExecute(step(() -> {
@@ -171,7 +169,7 @@ public final class FtbParityIntegrationTest {
 					"Fabric container emptied and bucket retained");
 			helper.assertTrue(
 					runtime.submitItem(player, "questplus:ftb_resources", "energy") == 100
-							&& player.getInventory().getItem(6).getOrDefault(EnergyStorage.ENERGY_COMPONENT, 0L) == 40,
+							&& LoaderTestSupport.energy(player.getInventory().getItem(6)) == 40,
 					"Energy adapter extracts real energy using explicit FE ratio");
 			helper.assertTrue(runtime.state(player.getUUID()).quests.get("questplus:ftb_resources").completed,
 					"All real submissions complete quest");

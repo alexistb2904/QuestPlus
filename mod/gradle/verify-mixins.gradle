@@ -1,0 +1,95 @@
+// Server GameTests never load client mixins, so check every mixin of this target statically
+// against its own Minecraft (NeoForge-patched on NeoForge targets): target classes, injected
+// methods, @At targets, accessors, shadows. The client tests' MixinEnvironment.audit() stays the
+// runtime proof. The applying target script sets `mixinConfigs`.
+def verifyMixinTargets = tasks.register('verifyMixinTargets') {
+    group = 'verification'
+    def classpath = sourceSets.main.compileClasspath
+    def output = tasks.named('compileJava').flatMap { it.destinationDirectory }
+    def configs = project.mixinConfigs
+    def skipped = project.findProperty('mixinSkip') ?: []
+    inputs.files(classpath, configs)
+    inputs.dir(output)
+    doLast {
+        def jars = classpath.files.findAll { it.name.endsWith('.jar') }.collect { new java.util.zip.ZipFile(it) }
+        def nodes = [:]
+        def node = { String name ->
+            if (!nodes.containsKey(name)) {
+                def own = new File(output.get().asFile, name + '.class')
+                def bytes = own.file ? own.bytes : jars.findResult { jar ->
+                    def entry = jar.getEntry(name + '.class')
+                    entry ? jar.getInputStream(entry).bytes : null
+                }
+                nodes[name] = bytes ? rootProject.classNode(bytes) : null
+            }
+            nodes[name]
+        }
+        def values = { annotation ->
+            def list = annotation?.values ?: []
+            (0..<list.size()).step(2).collectEntries { [(list[it]): list[it + 1]] }
+        }
+        def annotationsOf = { element -> (element.invisibleAnnotations ?: []) + (element.visibleAnnotations ?: []) }
+        // Searches the owner, its superclasses and its interfaces, like JVM member resolution.
+        def member = { String owner, Closure matches ->
+            def pending = [owner], seen = [] as Set
+            while (pending) {
+                def c = node(pending.pop())
+                if (c == null || !seen.add(c.name)) continue
+                if (matches(c)) return true
+                pending.addAll(((c.interfaces ?: []) + (c.superName ? [c.superName] : [])))
+            }
+            false
+        }
+        def errors = []
+        configs.each { config ->
+            def json = new groovy.json.JsonSlurper().parse(config)
+            // Mixins the target's loader never applies (TargetMixinPlugin.appliesOn).
+            ((json.mixins ?: []) + (json.client ?: []) + (json.server ?: [])).findAll { !(it in skipped) }.each { simple ->
+                def mixin = node("${json.package}.${simple}".replace('.', '/'))
+                def classAnnotations = annotationsOf(mixin)
+                def declared = values(classAnnotations.find { it.desc == 'Lorg/spongepowered/asm/mixin/Mixin;' })
+                def optional = classAnnotations.any { it.desc == 'Lorg/spongepowered/asm/mixin/Pseudo;' }
+                def targets = (declared.value ?: [])*.internalName + (declared.targets ?: [])*.replace('.', '/')
+                targets.each { target ->
+                    if (node(target) == null) {
+                        if (!optional) errors << "${simple}: no class ${target}"
+                        return
+                    }
+                    def hasMethod = { String spec ->
+                        def name = spec.contains('(') ? spec.substring(0, spec.indexOf('(')) : spec
+                        def desc = spec.contains('(') ? spec.substring(spec.indexOf('(')) : null
+                        node(target).methods.any { it.name == name && (desc == null || it.desc == desc) }
+                    }
+                    mixin.fields.findAll { f -> annotationsOf(f).any { it.desc.endsWith('/Shadow;') } }.each { f ->
+                        if (!member(target) { c -> c.fields.any { it.name == f.name } }) errors << "${simple}: no field ${target}.${f.name}"
+                    }
+                    mixin.methods.each { m ->
+                        annotationsOf(m).each { a ->
+                            def v = values(a)
+                            if (a.desc.endsWith('/Accessor;') && v.value && !member(target) { c -> c.fields.any { it.name == v.value } })
+                                errors << "${simple}: no field ${target}.${v.value}"
+                            if (a.desc.endsWith('/Shadow;') && !member(target) { c -> c.methods.any { it.name == m.name - 'shadow$' && it.desc == m.desc } })
+                                errors << "${simple}: no method ${target}.${m.name}${m.desc}"
+                            (v.method ?: []).each { spec -> if (!hasMethod(spec)) errors << "${simple}: no method ${target}.${spec}" }
+                            def ats = v.at instanceof List ? v.at : (v.at ? [v.at] : [])
+                            ats.each { at ->
+                                def point = values(at).target
+                                def call = point =~ '^L([^;]+);([^(:]+)(.*)$'
+                                if (!call.matches() || call.group(1).startsWith('dev/questplus/')) return
+                                String owner = call.group(1), name = call.group(2), desc = call.group(3)
+                                def found = desc.startsWith(':')
+                                    ? member(owner) { c -> c.fields.any { it.name == name && ':' + it.desc == desc } }
+                                    : member(owner) { c -> c.methods.any { it.name == name && it.desc == desc } }
+                                if (!found) errors << "${simple}: no @At target ${point}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        jars*.close()
+        if (errors) throw new GradleException("Mixins do not match Minecraft ${project.minecraft_version}:\n  " + errors.join('\n  '))
+    }
+}
+verifyMixinTargets.configure { dependsOn tasks.named('compileJava') }
+tasks.named('check') { dependsOn verifyMixinTargets }

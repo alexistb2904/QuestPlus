@@ -364,7 +364,7 @@ public final class RewardIntegrationTest {
 							pending(runtime, bid).getValue().rewards().getFirst().type().equals("questplus:choice"),
 							"Teammate choice remains personal");
 					runtime.chooseReward(a, "questplus:choice_integration", token[0], 1, 0);
-					// Disconnect during the async choice write; reconnect must use the persisted
+					// Disconnect during the async choice write. Reconnect must use the persisted
 					// result.
 					server.getPlayerList().remove(a);
 					runtime.disconnect(aid);

@@ -2,19 +2,27 @@
 
 ## Required environment
 
-QuestPlus runs on **Minecraft Java 26.1, 26.1.1, 26.1.2, 26.2 and 26.3** with **Fabric** and **Java 25**. One JAR covers all of them: it detects the running Minecraft and loads the matching code. Install the same QuestPlus release and a Fabric API for your Minecraft version on clients and the server.
+QuestPlus runs on **Fabric** and **NeoForge** with **Java 25**. Each release has one JAR per loader: `questplus-<version>.jar` for Fabric and `questplus-<version>-neoforge.jar` for NeoForge. Each JAR covers every Minecraft version its loader supports: it detects the running Minecraft and loads the matching code. Install the same QuestPlus release and loader on clients and the server.
 
-The minimum versions are **Fabric Loader 0.19.5** and the Fabric API build each version was tested with:
+| Minecraft | Fabric (minimum Fabric API) | NeoForge (minimum build) |
+| --- | --- | --- |
+| 26.1, 26.1.1 | 0.155.3+26.1.2 | Not supported |
+| 26.1.2 | 0.155.3+26.1.2 | 26.1.2.126 |
+| 26.2 | 0.161.0+26.2 | 26.2.0.93 |
+| 26.3 | 0.161.0+26.3 | 26.3.0.102 |
 
-| Minecraft | Minimum Fabric API |
-| --- | --- |
-| 26.1, 26.1.1, 26.1.2 | 0.155.3+26.1.2 |
-| 26.2 | 0.161.0+26.2 |
-| 26.3 | 0.161.0+26.3 |
+On Fabric, the minimum loader is **Fabric Loader 0.19.5** and Fabric API is installed separately. NeoForge needs nothing else. NeoForge only publishes beta builds for Minecraft 26.1 and 26.1.1, and QuestPlus supports stable NeoForge builds only.
 
-The tablet animations are built in and no animation library is bundled or required. Fabric API is installed separately. Check the requirements of the release you download.
+The tablet animations are built in and no animation library is bundled or required. Check the requirements of the release you download.
 
-There is no supported Forge, NeoForge or Bedrock build.
+Quest packs, worlds and player progress are identical on both loaders, so a world can move between them. There is no supported Forge or Bedrock build.
+
+### Loader differences
+
+- **Energy.** On NeoForge, the Submission Station always accepts FE. On Fabric it needs the separately installed Team Reborn Energy API.
+- **Deaths.** On NeoForge, death objectives are counted before the mob's drops appear. On Fabric, after.
+- **Mod list icon.** On NeoForge for Minecraft 26.1.2 and 26.2, the mod list shows no QuestPlus icon.
+- **Third-party mods.** JEI and REI integration and the shader and animation mod checks below were run on Fabric only.
 
 ## Shaders and animation mods
 
@@ -66,7 +74,7 @@ Custom machine events, stage providers, fluid transfers and energy transfers nee
 
 Studio can convert supported FTB definitions and reports excluded mechanics. This is a conversion workflow, not a runtime dependency on FTB Quests. Unsupported tasks and their dependents need manual work.
 
-Definition import does not migrate player saves. Progress migration is a separate operator workflow. Test the converted pack in its actual Fabric environment before shipping it.
+Definition import does not migrate player saves. Progress migration is a separate operator workflow. Test the converted pack in its actual Fabric or NeoForge environment before shipping it.
 
 ## What to test for a release
 

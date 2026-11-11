@@ -37,7 +37,7 @@ jobs:
       - run: npm run build
 
   server:
-    name: Fabric server (Java 25)
+    name: Fabric + NeoForge servers (Java 25)
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:

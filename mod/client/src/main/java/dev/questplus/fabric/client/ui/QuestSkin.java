@@ -24,7 +24,7 @@ public final class QuestSkin {
 
 	/**
 	 * The quest screens' own typeface. Minecraft's pixel face is only sharp at
-	 * whole scales, and the tablet is seen in perspective; an outline face
+	 * whole scales, and the tablet is seen in perspective. An outline face
 	 * rasterised at the exact texel density of the pass being drawn stays smooth
 	 * at any size, for no per-frame cost. Glyphs it lacks (CJK) fall back to the
 	 * game's default font.
@@ -38,7 +38,7 @@ public final class QuestSkin {
 	private static final int[] OVERSAMPLE = { 1, 2, 3, 4, 6, 8 };
 	private static final FontDescription.Resource[][] SAMPLES = new FontDescription.Resource[FACES.length][OVERSAMPLE.length];
 	public static final Style BOLD = Style.EMPTY.withFont(face("bold")), TITLE = Style.EMPTY.withFont(face("title"));
-	/** Texels per logical pixel of the offscreen pass in progress; 0 means the window's GUI scale. */
+	/** Texels per logical pixel of the offscreen pass in progress. 0 means the window's GUI scale. */
 	public static float renderScale;
 	private static Font font;
 

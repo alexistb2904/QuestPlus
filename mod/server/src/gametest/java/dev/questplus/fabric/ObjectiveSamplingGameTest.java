@@ -95,7 +95,11 @@ public final class ObjectiveSamplingGameTest {
 		armor.enchant(server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
 				.getOrThrow(Enchantments.PROTECTION), 2);
 		player.setItemSlot(EquipmentSlot.CHEST, armor);
-		// Other integration fixtures reload the catalogue during startup; movement baselines reset on reload.
+		var samplesField = AdvancedEvents.class.getDeclaredField("SAMPLES");
+		samplesField.setAccessible(true);
+		var samples = (Map<?, ?>) samplesField.get(null);
+		Object[] movedFrom = {null};
+		// Other integration fixtures reload the catalogue during startup. Movement baselines reset on reload.
 		helper.startSequence().thenExecuteAfter(250, () -> {}).thenWaitUntil(f::idle).thenWaitUntil(() -> {
 			f.expect("inventory", 5);
 			f.expect("levels", 5);
@@ -117,8 +121,15 @@ public final class ObjectiveSamplingGameTest {
 			armor.enchant(server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
 					.getOrThrow(Enchantments.PROTECTION), 3);
 			player.setOnGround(true);
+			movedFrom[0] = samples.get(player.getUUID());
 			player.checkMovementStatistics(2, 0, 0);
 		}).thenWaitUntil(() -> {
+			// A reload by a concurrent test drops the baseline, so the next one already includes the move.
+			var sample = samples.get(player.getUUID());
+			if (f.count("travel") == 0 && sample != null && sample != movedFrom[0]) {
+				movedFrom[0] = sample;
+				player.checkMovementStatistics(2, 0, 0);
+			}
 			f.expect("inventory", 0);
 			f.expect("levels", 2);
 			f.expect("points", 16);

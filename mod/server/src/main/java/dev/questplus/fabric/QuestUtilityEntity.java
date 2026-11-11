@@ -5,11 +5,6 @@ import com.mojang.serialization.JsonOps;
 import dev.questplus.core.*;
 import dev.questplus.persistence.BlockAccount;
 import dev.questplus.team.*;
-import net.fabricmc.fabric.api.transfer.v1.item.*;
-import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.*;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -29,8 +24,15 @@ import java.util.*;
 public final class QuestUtilityEntity extends BlockEntity implements WorldlyContainer {
     UUID owner, boundTeam;
     QuestBlockConfig config=QuestBlockConfig.DEFAULT;
-    private ItemStack stack=ItemStack.EMPTY;
+    /** One bucket in the droplet unit stations store (81 per millibucket, Fabric's unit). */
+    static final long BUCKET=81_000;
+    // Resource buffers: the loader's QuestStationStorage exposes them to pipes and hoppers.
+    ItemStack stack=ItemStack.EMPTY;
+    QuestFluid fluid=QuestFluid.EMPTY;
+    long fluidAmount;
     long energy;
+    /** Loader-owned handler objects, created once per block entity by QuestStationStorage. */
+    Object storages;
     Object optionalEnergyStorage;
     int signal, configuredTier;
     boolean resizing;
@@ -39,33 +41,22 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     private QuestDefinition.Objective cachedObjective;
     private String moveToken;
     public String status="unconfigured";
-    /** {@code id} names the quest a row shows; empty for leaderboard and objective rows. */
+    /** {@code id} names the quest a row shows. Empty for leaderboard and objective rows. */
     public record Row(String title, String icon, String progress, String state, String player, String detail, double fraction, String count, String id) {}
     public List<Row> rows=List.of();
     public List<Row> leaders=List.of();
     public long contentRevision;
     public int boardWidth=1,boardHeight=1;
     public BlockPos boardAnchor;
-    final SingleStackStorage items=new SingleStackStorage() {
-        protected ItemStack getStack() { return stack; }
-        protected void setStack(ItemStack value) { stack=value; }
-        protected boolean canInsert(ItemVariant v) { return accepts(v.toStack()); }
-        protected boolean canExtract(ItemVariant v) { return input(null); }
-        protected int getCapacity(ItemVariant v) { return (int)Math.min(v.getItem().getDefaultMaxStackSize(), remaining("item_turn_in")); }
-        protected void onFinalCommit() { resourcesChanged(); }
-    };
-    final SingleVariantStorage<FluidVariant> fluids=new SingleVariantStorage<>() {
-        protected FluidVariant getBlankVariant() { return FluidVariant.blank(); }
-        protected long getCapacity(FluidVariant variant) { return Math.min(FluidConstants.BUCKET,remaining("fluid_submit")*81); }
-        protected boolean canInsert(FluidVariant v) {
-            var objective=objective();
-            return objective!=null && objective.event().equals("fluid_submit")
-                    && BuiltInRegistries.FLUID.getKey(v.getFluid()).toString().equals(objective.target())
-                    && remaining("fluid_submit")>0;
-        }
-        protected boolean canExtract(FluidVariant v) {return input(null);}
-        protected void onFinalCommit() { resourcesChanged(); }
-    };
+    int itemCapacity(Item item) { return (int)Math.min(item.getDefaultMaxStackSize(), remaining("item_turn_in")); }
+    /** Droplets of fluid this station accepts now. */
+    long fluidCapacity() { return Math.min(BUCKET,remaining("fluid_submit")*81); }
+    boolean acceptsFluid(net.minecraft.world.level.material.Fluid value) {
+        var objective=objective();
+        return objective!=null && objective.event().equals("fluid_submit")
+                && BuiltInRegistries.FLUID.getKey(value).toString().equals(objective.target())
+                && remaining("fluid_submit")>0;
+    }
     public QuestUtilityEntity(BlockPos pos, BlockState state) { super(QuestWorldBlocks.ENTITY,pos,state);boardAnchor=pos; }
     int kind() { return ((QuestUtilityBlock)getBlockState().getBlock()).kind; }
     public String stationQuestId() { return kind()==1 && config.quests().size()==1 ? config.quests().getFirst() : ""; }
@@ -129,7 +120,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
                     throw new IOException("Destination retains another station's resources");
             }
             restore(source.data());moveToken=null;
-            var destination=account(stack,fluids.amount,energy);
+            var destination=account(stack,fluidAmount,energy);
             if(source.id().equals(destination.id()))rt.saveBlock(destination);
             else {
                 var empty=source.data().deepCopy();empty.remove("moveToken");empty.remove("owner");empty.remove("team");
@@ -202,7 +193,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             return rt.storageRemaining(owner,config.scope(),boundTeam,config.quests().getFirst(),o.id(),context());
         } catch(Exception error) { return 0; }
     }
-    private boolean accepts(ItemStack item) {
+    boolean accepts(ItemStack item) {
         var o=objective();
         if(item.isEmpty() || o==null || remaining("item_turn_in")<=0) return false;
         return ItemComponents.targets(o).stream().anyMatch(t->t.startsWith("#")
@@ -215,7 +206,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         var data=QuestExtensions.parsed(o.data()).getAsJsonObject();
         return data.has("fePerEnergy") ? data.get("fePerEnergy").getAsInt() : 1;
     }
-    private boolean hasResources() { return !stack.isEmpty() || fluids.amount>0 || energy>0; }
+    private boolean hasResources() { return !stack.isEmpty() || fluidAmount>0 || energy>0; }
     void resourcesChanged() {
         if(persisting || level==null || level.isClientSide() || isRemoved() || moveToken!=null) return;
         try { persist(); status="ready"; QuestWorldBlocks.enqueue(this); }
@@ -229,7 +220,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         data.addProperty("config",config.encode()); data.addProperty("tier",configuredTier);
         var ops=RegistryOps.create(JsonOps.INSTANCE,level.registryAccess());
         data.add("item",ItemStack.OPTIONAL_CODEC.encodeStart(ops,item).getOrThrow());
-        data.add("fluid",FluidVariant.CODEC.encodeStart(ops,fluids.variant).getOrThrow());
+        data.add("fluid",QuestFluid.CODEC.encodeStart(ops,fluid).getOrThrow());
         data.addProperty("fluidAmount",fluidAmount); data.addProperty("energy",energyAmount);
         if(moveToken!=null)data.addProperty("moveToken",moveToken);
         return new BlockAccount(1,accountId(),level.dimension().identifier().toString(),worldPosition.asLong(),data);
@@ -240,13 +231,13 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         config=QuestBlockConfig.parse(data.get("config").getAsString()); configuredTier=data.get("tier").getAsInt();
         var ops=RegistryOps.create(JsonOps.INSTANCE,level.registryAccess());
         stack=ItemStack.OPTIONAL_CODEC.parse(ops,data.get("item")).getOrThrow();
-        fluids.variant=FluidVariant.CODEC.parse(ops,data.get("fluid")).getOrThrow();
-        fluids.amount=data.get("fluidAmount").getAsLong(); energy=data.get("energy").getAsLong();
+        fluid=QuestFluid.CODEC.parse(ops,data.get("fluid")).getOrThrow();
+        fluidAmount=data.get("fluidAmount").getAsLong(); energy=data.get("energy").getAsLong();
         moveToken=data.has("moveToken")?data.get("moveToken").getAsString():null;
-        if(fluids.amount<0 || fluids.amount>FluidConstants.BUCKET || energy<0 || energy>1000000)
+        if(fluidAmount<0 || fluidAmount>BUCKET || energy<0 || energy>1000000)
             throw new IllegalArgumentException("Invalid stored block resources");
     }
-    void persist() throws IOException { QuestPlusMod.runtime().saveBlock(account(stack,fluids.amount,energy)); }
+    void persist() throws IOException { QuestPlusMod.runtime().saveBlock(account(stack,fluidAmount,energy)); }
     void refresh() {
         if(owner==null) return;
         try {
@@ -268,13 +259,13 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(remaining==0) { status=config.automation()?"blocked":"disabled"; return; }
         long amount= switch(o.event()) {
             case "item_turn_in"->accepts(stack) ? Math.min(64,stack.getCount()) : 0;
-            case "fluid_submit"->BuiltInRegistries.FLUID.getKey(fluids.variant.getFluid()).toString().equals(o.target()) ? fluids.amount/81 : 0;
+            case "fluid_submit"->BuiltInRegistries.FLUID.getKey(fluid.fluid().value()).toString().equals(o.target()) ? fluidAmount/81 : 0;
             case "energy_submit"->Math.multiplyExact(energy,(long)energyRatio()); default->0;
         };
         amount=Math.min(amount,remaining); if(amount<=0) { status="waiting"; return; }
         if(o.event().equals("energy_submit")) amount=amount/energyRatio()*energyRatio();
         if(amount==0) return;
-        ItemStack after=stack.copy(); long fluidAfter=fluids.amount,energyAfter=energy;
+        ItemStack after=stack.copy(); long fluidAfter=fluidAmount,energyAfter=energy;
         String target=o.target().startsWith("#") ? "minecraft:air" : o.target(); Set<String> tags=Set.of();
         if(o.event().equals("item_turn_in")) {
             target=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
@@ -286,8 +277,8 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(o.event().equals("item_turn_in")) ctx.put("itemComponents",QuestItemStacks.components(stack,level.registryAccess()));
         QuestPlusMod.runtime().submitStorage(owner,config.scope(),boundTeam,new QuestEvent(o.event(),target,tags,amount,ctx),
                 account(after,fluidAfter,energyAfter));
-        stack=after; fluids.amount=fluidAfter; energy=energyAfter;
-        if(fluids.amount==0) fluids.variant=FluidVariant.blank();
+        stack=after; fluidAmount=fluidAfter; energy=energyAfter;
+        if(fluidAmount==0) fluid=QuestFluid.EMPTY;
         status="active"; nextRetry=level.getGameTime()+5; super.setChanged();
         setSignal((int)Math.min(15,Math.max(1,15-remaining(o.event())*15/Math.max(1,o.count()))));
     }
@@ -354,7 +345,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(size<0 || size>3) throw new IllegalArgumentException("Invalid board size");
         var state=getBlockState(); int old=state.getValue(QuestUtilityBlock.SIZE); var facing=state.getValue(QuestUtilityBlock.FACING);
         if(!QuestUtilityBlock.room(level,worldPosition,facing,size,old)) throw new IllegalArgumentException("Not enough supported space");
-        // Expand first; removing old tiles afterwards must not trigger multiblock destruction.
+        // Expand first. Removing old tiles afterwards must not trigger multiblock destruction.
         resizing=true;
         try {
             QuestUtilityBlock.assemble(level,worldPosition,facing,size);
@@ -419,7 +410,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
             if(!config.boardMode().equals("automatic"))for(String id:config.quests())
                 visible.stream().filter(q->q.id().equals(id)).findFirst().ifPresent(order::add);
             if(!config.boardMode().equals("pinned")) {
-                // Started quests first, most advanced on top; then quests that can be started now,
+                // Started quests first, most advanced on top. Then quests that can be started now,
                 // so a fresh world (no progress yet) still shows what the player can work on.
                 visible.stream().filter(q->p.quests.containsKey(q.id())&&p.quests.get(q.id()).inProgress())
                         .sorted(Comparator.comparingDouble((QuestDefinition q)->fraction(q,p)).reversed()).forEach(order::add);
@@ -493,7 +484,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
         if(kind()==1 && moveToken==null && level!=null && !level.isClientSide() && initialized && !next.is(QuestWorldBlocks.STATION)) {
             // Commit the empty account before returning buffered resources to the world.
             try {
-                var drop=stack.copy();QuestPlusMod.runtime().saveBlock(account(ItemStack.EMPTY,fluids.amount,energy));
+                var drop=stack.copy();QuestPlusMod.runtime().saveBlock(account(ItemStack.EMPTY,fluidAmount,energy));
                 stack=ItemStack.EMPTY;
                 if(!drop.isEmpty())net.minecraft.world.level.block.Block.popResource(level,worldPosition,drop);
             } catch(IOException e) { QuestPlusMod.LOGGER.error("Retained station account for recovery at {}",worldPosition,e); }
@@ -502,12 +493,7 @@ public final class QuestUtilityEntity extends BlockEntity implements WorldlyCont
     }
     boolean insertHeld(ServerPlayer actor,InteractionHand hand,Direction side) {
         if(actor.isCreative()||actor.isSpectator()||!input(side))return false;
-        if(net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorageUtil.interactWithFluidStorage(fluids,actor,hand))return true;
-        var held=actor.getItemInHand(hand);
-        try(var tx=Transaction.openOuter()) {
-            long count=items.insert(ItemVariant.of(held),held.getCount(),tx);
-            if(count<=0)return false;held.shrink((int)count);tx.commit();return true;
-        }
+        return QuestStationStorage.insertHeld(this,actor,hand);
     }
     @Override public int getContainerSize() { return kind()==1?1:0; }
     @Override public boolean isEmpty() { return stack.isEmpty(); }

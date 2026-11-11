@@ -94,7 +94,7 @@ class QuestNpcsTest {
 		assertEquals(List.of("test:stone"),
 				engine.apply(player, new QuestEvent("block_break", "minecraft:stone", Set.of(), 1, Map.of())));
 
-		// A repeatable quest is offered again once completed; accepting starts a fresh attempt.
+		// A repeatable quest is offered again once completed. Accepting starts a fresh attempt.
 		assertTrue(engine.acceptBlocker(player, "test:stone", Map.of()).isEmpty());
 		engine.accept(player, "test:stone", Map.of());
 		assertEquals(0L, player.quests.get("test:stone").counters.getOrDefault("a", 0L));

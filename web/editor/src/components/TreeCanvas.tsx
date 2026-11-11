@@ -526,7 +526,7 @@ export function TreeCanvas({
 								tabIndex={0}
 								onPointerDown={(e) => {
 									if (!onRoute || tool !== "select") return;
-									// Persist only the clicked anchor; generated orthogonal elbows are visual.
+									// Persist only the clicked anchor. Generated orthogonal elbows are visual.
 									const localPoint = local(e),
 										index = nearestSegment(points, localPoint);
 									const next = insertWaypoint(authored || [], index, routePosition(e));

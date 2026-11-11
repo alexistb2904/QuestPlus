@@ -1,17 +1,17 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.*;
 import dev.questplus.fabric.client.ui.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import java.util.*;
 import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
-/** Uses the tablet's native controls; the server owns every applied value. */
+/** Uses the tablet's native controls. The server owns every applied value. */
 public final class QuestBlockScreen extends Screen {
     private final net.minecraft.client.gui.Font font=QuestSkin.font();
     private QuestBlockNetwork.Snapshot snapshot;
@@ -122,7 +122,7 @@ public final class QuestBlockScreen extends Screen {
     }
     private void rebuildWidgetsPreserving(){collect();rebuildWidgets();}
     private void send(String action){
-        collect();ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),action,config.toString(),draftOwner,size));
+        collect();ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),action,config.toString(),draftOwner,size));
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
         int kind=state.get("kind").getAsInt();
@@ -145,7 +145,7 @@ public final class QuestBlockScreen extends Screen {
     }
     @Override public boolean isPauseScreen(){return false;}
     @Override public void onClose(){
-        ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"close","","",0));
+        ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(),snapshot.token(),"close","","",0));
         super.onClose();
     }
 }

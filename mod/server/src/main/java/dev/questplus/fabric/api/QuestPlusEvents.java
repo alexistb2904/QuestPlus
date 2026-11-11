@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 /**
  * Server-thread lifecycle notifications for trusted integrations. Listeners are
- * optional; the hot path does no work without subscribers.
+ * optional. The hot path does no work without subscribers.
  */
 public final class QuestPlusEvents {
     public enum Type {

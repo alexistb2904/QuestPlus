@@ -34,7 +34,7 @@ public final class ClientGameTestShims {
 	}
 
 	/**
-	 * Fabric API's capture renders an extra frame; on 26.1 that frame reaches Sodium after its
+	 * Fabric API's capture renders an extra frame. On 26.1 that frame reaches Sodium after its
 	 * terrain uniforms were released ("Global terrain uniforms have not been updated"), so read the
 	 * frame Minecraft rendered itself on the next tick instead.
 	 */

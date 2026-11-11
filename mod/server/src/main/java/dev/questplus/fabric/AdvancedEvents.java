@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import dev.questplus.core.QuestEvent;
 import dev.questplus.core.QuestRegistry;
 import net.minecraft.core.component.DataComponents;
@@ -7,8 +8,6 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,8 +44,8 @@ public final class AdvancedEvents {
 	}
 
 	public static void register() {
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> SAMPLES.remove(handler.player.getUUID()));
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+		Platform.onPlayerDisconnect((player, server) -> SAMPLES.remove(player.getUUID()));
+		Platform.onServerStopping(server -> {
 			SAMPLES.clear();
 			cursor = 0;
 			ticks = 0;
@@ -58,7 +57,7 @@ public final class AdvancedEvents {
 	public static void tick(MinecraftServer server) {
 		var registry = QuestPlusMod.runtime().registry();
 		if (registry != sampledRegistry) {
-			// A reload can introduce new state objectives; refresh every player's first
+			// A reload can introduce new state objectives. Refresh every player's first
 			// sample.
 			sampledRegistry = registry;
 			samplingEnabled = SAMPLED_EVENTS.stream().anyMatch(registry::hasEvent);

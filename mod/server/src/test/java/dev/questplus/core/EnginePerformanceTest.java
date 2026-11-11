@@ -87,7 +87,7 @@ class EnginePerformanceTest {
 		counted.scans = 0;
 		Set<String> changed = new HashSet<>();
 		engine.applyDetailed(state, event(), changed);
-		// The pre-event snapshot is the memo left by the previous event; only the post-event one is rebuilt.
+		// The pre-event snapshot is the memo left by the previous event. Only the post-event one is rebuilt.
 		assertEquals(1, counted.scans);
 		assertEquals(101, changed.size());
 		assertFalse(changed.contains("test:not_started"));

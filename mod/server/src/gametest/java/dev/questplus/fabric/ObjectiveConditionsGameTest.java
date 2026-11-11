@@ -65,7 +65,7 @@ public final class ObjectiveConditionsGameTest {
 			zombie.hurtServer(level, level.damageSources().playerAttack(player), 1000);
 			helper.assertTrue(progress.quests.get("questplus:conditions_gametest").counters.get("kill") == 1,
 					"Kill with matching weapon, armor and 30 hearts counts once");
-			var item = new ItemEntity(level, player.getX(), player.getY(), player.getZ(), new ItemStack(FtbTestItems.battery));
+			var item = new ItemEntity(level, player.getX(), player.getY(), player.getZ(), new ItemStack(LoaderTestSupport.battery));
 			item.setNoPickUpDelay();
 			level.addFreshEntity(item);
 			item.playerTouch(player);

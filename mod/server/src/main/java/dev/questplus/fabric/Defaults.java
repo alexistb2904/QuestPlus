@@ -64,7 +64,7 @@ public final class Defaults {
 		Files.createDirectories(directory.resolve("categories"));
 		Files.createDirectories(directory.resolve("npcs"));
 
-		// Install only resources listed in the manifest; historical samples remain available for migration and tests.
+		// Install only resources listed in the manifest. Historical samples remain available for migration and tests.
 		try (var manifest = resource("index.txt");
 				var reader = new BufferedReader(new InputStreamReader(manifest, StandardCharsets.UTF_8))) {
 			for (String file : reader.lines().filter(s -> !s.isBlank() && !s.equals("config.json")).toList()) {
@@ -97,7 +97,7 @@ public final class Defaults {
 		}
 	}
 
-	/** Bundled NPCs may also spawn in structures added by a newer Minecraft; drop only those rules. */
+	/** Bundled NPCs may also spawn in structures added by a newer Minecraft. Drop only those rules. */
 	static JsonElement availableNpcs(JsonElement npcs, Predicate<String> knownStructure) {
 		var copy = npcs.deepCopy();
 		for (var npc : copy.getAsJsonArray()) {

@@ -1,7 +1,7 @@
 import labels from "../data/minecraft-search-labels-26.3.json" with { type: "json" };
 import { hubNames, hubRegistry } from "./hub-registry.js";
 
-// A registry replacement drops its index with GC; labels can vary with the UI locale.
+// A registry replacement drops its index with GC. Labels can vary with the UI locale.
 const indexes = new WeakMap();
 function searchable(id, label) {
 	const registry = hubRegistry();

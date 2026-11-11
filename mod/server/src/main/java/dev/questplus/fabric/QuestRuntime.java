@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import com.google.gson.JsonArray;
 
 import dev.questplus.core.*;
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.LevelResource;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Mutable state belongs to the Minecraft server thread; workers only receive
+ * Mutable state belongs to the Minecraft server thread. Workers only receive
  * serialized snapshots.
  */
 public final class QuestRuntime implements AutoCloseable {
@@ -68,7 +68,7 @@ public final class QuestRuntime implements AutoCloseable {
 	private boolean npcTurnIn = true;
 	private Map<String, Integer> crateNoDrop = Map.of("passive", 4000, "monster", 600, "boss", 0);
 	/**
-	 * Extra crate bosses: entity IDs or #tags; a leading "!" excludes, and
+	 * Extra crate bosses: entity IDs or #tags. A leading "!" excludes, and
 	 * exclusions win over built-in bosses.
 	 */
 	private List<String> crateBosses = List.of();
@@ -80,7 +80,7 @@ public final class QuestRuntime implements AutoCloseable {
 	private int autosaveTicks;
 	private int ticks;
 	/**
-	 * Crate entitlement key -> tick it may auto-deliver; memory only, so a restart
+	 * Crate entitlement key -> tick it may auto-deliver. Memory only, so a restart
 	 * just delivers.
 	 */
 	private final Map<String, Integer> crateHolds = new HashMap<>();
@@ -108,7 +108,7 @@ public final class QuestRuntime implements AutoCloseable {
 		Path world = server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize();
 		definitions = world.resolve("questplus");
 		Defaults.installWorld(
-				net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("questplus/default"),
+				dev.questplus.platform.Loader.configDir().resolve("questplus/default"),
 				definitions, this::hasStructure);
 		inventoryMarker = new InventoryMarker(server);
 		store = JsonProgressStore.withSavedMarker(world.resolve("data/questplus"), new JsonProgressStore.SavedMarker() {
@@ -126,7 +126,7 @@ public final class QuestRuntime implements AutoCloseable {
 		});
 		try {
 			reload();
-			Path configDir = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("questplus");
+			Path configDir = dev.questplus.platform.Loader.configDir().resolve("questplus");
 			try {
 				if (QuestHubFiles.autoSyncEnabled(configDir.resolve("sync.json")))
 					QuestHubFiles.syncDefaults(configDir.resolve("default"), world, this);
@@ -458,7 +458,7 @@ public final class QuestRuntime implements AutoCloseable {
 	}
 
 	/**
-	 * Whether this Minecraft version has the structure or structure tag; adapts
+	 * Whether this Minecraft version has the structure or structure tag. Adapts
 	 * bundled defaults.
 	 */
 	public boolean hasStructure(String target) {
@@ -993,7 +993,7 @@ public final class QuestRuntime implements AutoCloseable {
 		for (var award : awards)
 			for (UUID member : members) {
 				var online = server.getPlayerList().getPlayer(member);
-				if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
+				if (online != null && !Platform.canSend(online, QuestNetwork.State.TYPE))
 					online.sendSystemMessage(award.rewards().isEmpty()
 							? Messages.text(online, "questplus.completed_no_reward",
 									title(online, registry.get(award.questId())))
@@ -1059,7 +1059,7 @@ public final class QuestRuntime implements AutoCloseable {
 	}
 
 	/**
-	 * Rolls on the server; auto-delivery waits {@code holdTicks} so the reveal
+	 * Rolls on the server. Auto-delivery waits {@code holdTicks} so the reveal
 	 * plays first.
 	 */
 	public OpenedCrate openCrate(ServerPlayer actor, net.minecraft.world.InteractionHand hand, int holdTicks)
@@ -1244,7 +1244,7 @@ public final class QuestRuntime implements AutoCloseable {
 			for (var award : completed)
 				for (UUID member : members) {
 					var online = server.getPlayerList().getPlayer(member);
-					if (online != null && !ServerPlayNetworking.canSend(online, QuestNetwork.State.TYPE))
+					if (online != null && !Platform.canSend(online, QuestNetwork.State.TYPE))
 						online.sendSystemMessage(award.rewards().isEmpty()
 								? Messages.text(online, "questplus.completed_no_reward",
 										title(online, registry.get(award.questId())))
@@ -1293,7 +1293,7 @@ public final class QuestRuntime implements AutoCloseable {
 
 	public void event(ServerPlayer player, QuestEvent event) {
 		assertThread();
-		// Manual acknowledgements are valid even in creative/spectator; only gameplay
+		// Manual acknowledgements are valid even in creative/spectator. Only gameplay
 		// counters are restricted.
 		if (closing || storageFailed
 				|| (!event.type().equals("manual") && (player.isSpectator() || player.isCreative()))
@@ -1302,7 +1302,7 @@ public final class QuestRuntime implements AutoCloseable {
 		if (!event.type().equals("player_death") && !registry.hasCandidate(event.type(), event.target(), event.tags()))
 			return;
 		if (busy.contains(player.getUUID())) {
-			// Polls are sampled again; queued stale snapshots can overflow or complete a
+			// Polls are sampled again. Queued stale snapshots can overflow or complete a
 			// lost gaze.
 			if (Set.of("inventory_count", "xp_levels", "xp_points", "custom_stat", "advancement_complete",
 					"observe_block", "observe_entity", "stage").contains(event.type()))
@@ -1428,7 +1428,7 @@ public final class QuestRuntime implements AutoCloseable {
 				if (current != null) {
 					long weight = Math.max(1,
 							current.quests.size() + current.claims.size() + 4L * current.entitlements.size());
-					// One oversized profile is allowed through; never starve it behind smaller
+					// One oversized profile is allowed through. Never starve it behind smaller
 					// saves.
 					if (!snapshots.isEmpty() && work + weight > AUTOSAVE_STATE_BUDGET) {
 						postponed.add(id);
@@ -1950,7 +1950,7 @@ public final class QuestRuntime implements AutoCloseable {
 							shared.rewardClaims.put(key, "delivered");
 							dirtyTeams.add(rewardScope);
 						}
-						// Keep only the latest receipt per quest; the compact claims ledger prevents
+						// Keep only the latest receipt per quest. The compact claims ledger prevents
 						// replay.
 						progress.entitlements.entrySet()
 								.removeIf(e -> !e.getKey().equals(key) && e.getValue().questId().equals(id)

@@ -7,26 +7,38 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const file = (p) => readFileSync(path.join(root, p), "utf8");
 
-test("only three runtime root components exist and Fabric entrypoints remain stable", () => {
-	for (const dir of ["web/editor", "web/api", "mod/client/src/main/java", "mod/client/src/main/resources", "mod/server/src/main/java", "mod/server/src/main/resources"])
+test("only three runtime root components exist and both loaders' entrypoints stay thin", () => {
+	for (const dir of ["web/editor", "web/api", "mod/client/src/main/java", "mod/client/src/main/resources", "mod/server/src/main/java", "mod/server/src/main/resources", "mod/fabric/src/main/java", "mod/neoforge/src/main/java"])
 		assert.ok(existsSync(path.join(root, dir)), dir + " missing");
 	assert.equal(existsSync(path.join(root, "hub")), false, "old standalone Hub must be gone");
 	assert.equal(existsSync(path.join(root, "src")), false, "old unpartitioned source root must be gone");
-	const entry = JSON.parse(file("mod/server/src/main/resources/fabric.mod.json"));
+	const entry = JSON.parse(file("mod/fabric/src/main/resources/fabric.mod.json"));
 	assert.equal(entry.id, "questplus");
-	assert.equal(entry.entrypoints.main[0], "dev.questplus.fabric.QuestPlusMod");
-	assert.equal(entry.entrypoints.client[0], "dev.questplus.fabric.client.QuestPlusClient");
+	assert.equal(entry.entrypoints.main[0], "dev.questplus.platform.fabric.QuestPlusFabric");
+	assert.equal(entry.entrypoints.client[0], "dev.questplus.platform.fabric.QuestPlusFabricClient");
+	assert.match(file("mod/fabric/src/main/java/dev/questplus/platform/fabric/QuestPlusFabric.java"), /QuestPlusMod\.initialize\(\)/);
+	assert.match(file("mod/neoforge/src/main/resources/META-INF/neoforge.mods.toml"), /modId = "questplus"/);
+	assert.match(file("mod/neoforge/src/main/java/dev/questplus/platform/neoforge/QuestPlusNeoForge.java"), /@Mod\("questplus"\)[\s\S]*QuestPlusMod\.initialize\(\)/);
 	assert.ok(existsSync(path.join(root, "mod/client/src/main/resources/questplus.client.mixins.json")));
 	assert.ok(existsSync(path.join(root, "mod/server/src/main/resources/questplus.mixins.json")));
 });
 
-test("one universal Java artifact compiles both source sets including tests and GameTests", () => {
+test("one JAR per loader compiles the shared source sets including tests and GameTests", () => {
 	const gradle = file("mod/build.gradle");
-	for (const dir of ["client/src/main/java", "server/src/main/java", "client/src/test/java", "server/src/test/java", "client/src/gametest/java", "server/src/gametest/java"])
-		assert.ok(gradle.includes(dir), dir + " missing from Gradle");
-	assert.match(gradle, /processResources/);
+	const fabric = file("mod/gradle/minecraft-target.gradle");
+	const neoforge = file("mod/gradle/neoforge-target.gradle");
+	for (const [loader, script] of [["fabric", fabric], ["neoforge", neoforge]]) {
+		for (const dir of ["client/src/main/java", "server/src/main/java", "client/src/test/java", "server/src/test/java", "server/src/gametest/java", `${loader}/src/main/java`])
+			assert.ok(script.includes(dir), `${dir} missing from the ${loader} target`);
+		assert.match(script, /processResources/);
+		assert.match(script, /rootProject\.sharedResources/);
+	}
+	assert.ok(fabric.includes("client/src/gametest/java"));
+	assert.match(fabric, /createSourceSet = true/);
+	assert.match(neoforge, /clientSmokeTest/);
 	assert.match(gradle, /web\/editor\/src\/data/);
-	assert.match(gradle, /createSourceSet = true/);
+	assert.match(gradle, /universalJar/);
+	assert.match(gradle, /neoforgeJar/);
 	assert.doesNotMatch(gradle, /include\(['"]client['"]\)|include\(['"]server['"]\)/);
 });
 

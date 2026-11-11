@@ -1,10 +1,10 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import com.mojang.blaze3d.vertex.*;
 import com.google.gson.*;
 import com.mojang.math.Axis;
 import dev.questplus.fabric.QuestLootChest;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -93,7 +93,7 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 	}
 
 	static void register() {
-		BlockEntityRendererRegistry.register(QuestLootChest.ENTITY, QuestLootChestRenderer::new);
+		ClientPlatform.blockEntityRenderer(QuestLootChest.ENTITY, QuestLootChestRenderer::new);
 		QuestLootChest.clientTicker = QuestLootChestRenderer::tick;
 	}
 
@@ -390,7 +390,7 @@ public final class QuestLootChestRenderer implements BlockEntityRenderer<Stage, 
 	}
 
 	/**
-	 * Shader packs light dust like terrain, so it turns black at night; trails are
+	 * Shader packs light dust like terrain, so it turns black at night. Trails are
 	 * always full-bright.
 	 */
 	private static void dust(Level level, int color, float size, double x, double y, double z) {

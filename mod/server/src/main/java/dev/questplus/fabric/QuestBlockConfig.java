@@ -4,7 +4,7 @@ import com.google.gson.*;
 import dev.questplus.team.ProgressScope;
 import java.util.*;
 
-/** Bounded, server-validated configuration; resource balances never come from a packet. */
+/** Bounded, server-validated configuration. Resource balances never come from a packet. */
 public record QuestBlockConfig(ProgressScope scope, List<String> quests, String category, String objective,
         String boardMode, String leaderboard, String condition, String output, int threshold,
         boolean all, int faces, boolean automation, boolean advanceTiers) {

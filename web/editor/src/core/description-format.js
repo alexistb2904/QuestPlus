@@ -1,5 +1,5 @@
 import { richToHtml } from "./rich-format.js";
-// Quest descriptions keep their existing locale-string schema; § codes are Minecraft formatting.
+// Quest descriptions keep their existing locale-string schema. § codes are Minecraft formatting.
 export const DESCRIPTION_COLORS = {
 	0: "#000000",
 	1: "#0000aa",
@@ -86,7 +86,7 @@ export function descriptionText(parts) {
 	return result;
 }
 
-// Descriptions can be larger than annotation parts; render each text chunk without truncation.
+// Descriptions can be larger than annotation parts. Render each text chunk without truncation.
 export function descriptionHtml(parts) {
 	return (parts || [])
 		.map((part) => {
@@ -113,7 +113,7 @@ function colorValue(value) {
 					.join("")
 		: null;
 }
-// Read browser editing markup directly; descriptions are not constrained by annotation media limits.
+// Read browser editing markup directly. Descriptions are not constrained by annotation media limits.
 export function descriptionFromDom(root) {
 	const parts = [];
 	const push = (text, style) => {

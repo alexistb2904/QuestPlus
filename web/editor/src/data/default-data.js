@@ -7,7 +7,7 @@ import EXPLORERS from './explorers-catalogue.json' with { type: 'json' };
 export const BUILTIN_PROJECT = {
 	categories: [...CHALLENGES.categories, ...EQUIPMENT.categories, ...EXPLORERS.categories],
 	quests: [...CHALLENGES.quests, ...EQUIPMENT.quests, ...EXPLORERS.quests],
-	// The Explorers' quest givers; the server merges the same list into a new world's config.json.
+	// The Explorers' quest givers. The server merges the same list into a new world's config.json.
 	config: { schemaVersion: 1, autosaveSeconds: 5, npcs: EXPLORERS.npcs },
 	targetMinecraftVersion: "26.3",
 	editorLocales: ["en_us", "fr_fr"],

@@ -2,6 +2,7 @@ package dev.questplus.compat;
 
 import java.util.List;
 import java.util.Set;
+import dev.questplus.platform.Loader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -14,6 +15,11 @@ public final class TargetMixinPlugin implements IMixinConfigPlugin {
 		return mixinPackage.startsWith("dev.questplus.compat." + targetId + ".");
 	}
 
+	/** NeoForge draws the HUD as GUI layers (the hooked methods do not exist); its glue hides those layers instead. */
+	static boolean appliesOn(String loader, String mixinClassName) {
+		return !(loader.equals("neoforge") && mixinClassName.endsWith(".TabletHudMixin"));
+	}
+
 	@Override
 	public void onLoad(String mixinPackage) {
 		active = belongsTo(mixinPackage, MinecraftTarget.active().id());
@@ -21,7 +27,7 @@ public final class TargetMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		return active;
+		return active && appliesOn(Loader.name(), mixinClassName);
 	}
 
 	@Override

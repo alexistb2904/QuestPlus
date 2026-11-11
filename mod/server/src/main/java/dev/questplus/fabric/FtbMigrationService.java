@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Private world files and OP commands only; no player or reward data enters the
+ * Private world files and OP commands only. No player or reward data enters the
  * web protocol.
  */
 final class FtbMigrationService {

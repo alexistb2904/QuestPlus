@@ -24,7 +24,7 @@ import java.security.MessageDigest;
 import java.util.*;
 
 /**
- * JSON-rich annotations are rendered by Minecraft itself; no HTML, network
+ * JSON-rich annotations are rendered by Minecraft itself. No HTML, network
  * fetches or external hosting. Media is bounded, decoded on the client, and
  * cached as native GPU textures.
  */
@@ -217,7 +217,7 @@ final class RichAnnotationRenderer {
 						.withItalic(bool(p, "italic")).withUnderlined(bool(p, "underline"))
 						.withStrikethrough(bool(p, "strike"));
 				int highlight = p.has("highlight") ? hex(p.get("highlight").getAsString(), 0) : 0;
-				// Text on its own highlight keeps the authored pair; text on parchment must read on it.
+				// Text on its own highlight keeps the authored pair. Text on parchment must read on it.
 				int color = !p.has("color") ? QuestSkin.INK
 						: highlight != 0 ? hex(p.get("color").getAsString(), QuestSkin.INK)
 								: QuestSkin.onPaper(hex(p.get("color").getAsString(), QuestSkin.INK));

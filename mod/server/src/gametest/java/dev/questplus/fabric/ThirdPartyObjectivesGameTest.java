@@ -21,7 +21,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.*;
 
-/** Only registered by -PobjectiveCompatibility; missing mods fail instead of skipping. */
+/** Only registered by -PobjectiveCompatibility. Missing mods fail instead of skipping. */
 public final class ThirdPartyObjectivesGameTest {
 	private static Item item(String id) {
 		return BuiltInRegistries.ITEM.getOptional(Identifier.parse(id)).orElseThrow();
@@ -118,7 +118,7 @@ public final class ThirdPartyObjectivesGameTest {
 			var boss = (LivingEntity) f.spawn(BuiltInRegistries.ENTITY_TYPE
 					.getOptional(Identifier.parse("graveyard:lich")).orElseThrow());
 			helper.assertTrue(boss.getMaxHealth() > 20, "Real third-party boss attributes are loaded");
-			// Advance actual boss phases; phase transitions must never be credited as deaths.
+			// Advance actual boss phases. Phase transitions must never be credited as deaths.
 			for (int phase = 0; phase < 8 && !boss.isDeadOrDying(); phase++) {
 				boss.getClass().getMethod("setInvulTimer", int.class).invoke(boss, 0);
 				boss.getClass().getMethod("setPhaseInvulTimer", int.class).invoke(boss, 0);

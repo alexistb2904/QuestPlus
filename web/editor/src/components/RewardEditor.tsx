@@ -152,7 +152,7 @@ function TableLink({
 		</div>
 	);
 }
-/** A quest reward that gives the crate item of a named table; the player opens it later in Minecraft. */
+/** A quest reward that gives the crate item of a named table. The player opens it later in Minecraft. */
 function CrateReward({
 	reward: r,
 	options,

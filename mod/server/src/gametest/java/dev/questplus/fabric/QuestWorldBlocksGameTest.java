@@ -2,9 +2,6 @@ package dev.questplus.fabric;
 
 import dev.questplus.team.ProgressScope;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.fabricmc.fabric.api.transfer.v1.item.*;
-import net.fabricmc.fabric.api.transfer.v1.fluid.*;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.*;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
@@ -164,7 +161,7 @@ public final class QuestWorldBlocksGameTest {
                     station[0]=(QuestUtilityEntity)level.getBlockEntity(p);var be=station[0];be.claim(aid);be.serverTick();
                     var cfg=new QuestBlockConfig(ProgressScope.TEAM,List.of("questplus:blocks_team"),"","items","pinned","players","completed","binary",1,true,63,true,false);
                     be.configure(a,cfg,null,0);h.assertTrue(!be.canConfigure(b),"Ordinary member cannot reconfigure owner's station");
-                    try(var tx=Transaction.openOuter()){be.items.insert(ItemVariant.of(Items.STONE),2,tx);tx.commit();}be.refresh();
+                    LoaderTestSupport.insertItems(be,Items.STONE,2);be.refresh();
                     h.assertTrue(rt.state(bid).quests.get("questplus:blocks_team").counters.get("items")==2,"Selected team scope shared with second player");
                     h.assertTrue(!rt.player(bid).quests.containsKey("questplus:blocks_team"),"Personal progress remains separate");
                     rt.changeTeam(m->m.sharedQuestProgress(aid,false));
@@ -194,7 +191,7 @@ public final class QuestWorldBlocksGameTest {
                 """.formatted(rt.categories().getFirst().id()));rt.reload();
         var p=h.absolutePos(new BlockPos(2,1,2));level.setBlock(p,QuestWorldBlocks.STATION.defaultBlockState(),3);
         var station=(QuestUtilityEntity)level.getBlockEntity(p);station.claim(actor.getUUID());station.serverTick();station.configure(actor,config("questplus:blocks_tier","items"),null,0);
-        try(var tx=Transaction.openOuter()){station.items.insert(ItemVariant.of(Items.STONE),2,tx);tx.commit();}station.refresh();
+        LoaderTestSupport.insertItems(station,Items.STONE,2);station.refresh();
         h.assertTrue(rt.state(actor.getUUID()).quests.get("questplus:blocks_tier").tier==1,"First tier completes");
         h.assertTrue(!station.canPlaceItem(0,new ItemStack(Items.STONE)),"Default stops before next tier");
         var cfg=new QuestBlockConfig(ProgressScope.PERSONAL,List.of("questplus:blocks_tier"),"","items","pinned","players","tier","analog",2,true,63,true,true);
@@ -202,7 +199,7 @@ public final class QuestWorldBlocksGameTest {
         var r=p.east(2);level.setBlock(r,QuestWorldBlocks.RELAY.defaultBlockState(),3);
         var relay=(QuestUtilityEntity)level.getBlockEntity(r);relay.claim(actor.getUUID());relay.serverTick();relay.configure(actor,cfg,null,0);
         h.assertTrue(relay.signal==7,"One of two tiers gives analog signal seven");
-        try(var tx=Transaction.openOuter()){station.items.insert(ItemVariant.of(Items.STONE),2,tx);tx.commit();}station.refresh();relay.refresh();
+        LoaderTestSupport.insertItems(station,Items.STONE,2);station.refresh();relay.refresh();
         h.assertTrue(relay.signal==15,"Final tier gives signal fifteen");
         var stage=new QuestBlockConfig(ProgressScope.PERSONAL,List.of(),"questplus:blocks_stage","","pinned","players","stage","pulse",1,true,63,false,false);
         relay.configure(actor,stage,null,0);h.assertTrue(relay.signal==0,"Stage initially locked");
@@ -225,28 +222,24 @@ public final class QuestWorldBlocksGameTest {
         level.setBlock(p,QuestWorldBlocks.STATION.defaultBlockState(),3);
         var source=(QuestUtilityEntity)level.getBlockEntity(p);source.claim(actor.getUUID());source.serverTick();
         source.configure(actor,config("questplus:blocks_move","items"),null,0);
-        try(var tx=Transaction.openOuter()){source.items.insert(ItemVariant.of(Items.STONE),3,tx);tx.commit();}
+        LoaderTestSupport.insertItems(source,Items.STONE,3);
         source.configure(actor,config("questplus:blocks_move","fluid"),null,0);
-        try(var tx=Transaction.openOuter()){source.fluids.insert(FluidVariant.of(Fluids.WATER),8100,tx);tx.commit();}
+        LoaderTestSupport.insertFluid(source,Fluids.WATER,8100);
         source.configure(actor,config("questplus:blocks_move","energy"),null,0);
-        var energy=team.reborn.energy.api.EnergyStorage.SIDED.find(level,p,Direction.UP);
-        var oldItems=ItemStorage.SIDED.find(level,p,Direction.UP);
-        var oldFluid=FluidStorage.SIDED.find(level,p,Direction.UP);
-        try(var tx=Transaction.openOuter()){energy.insert(500,tx);tx.commit();}
+        var old=LoaderTestSupport.probe(level,p,Direction.UP);
+        old.insertEnergy(500,true);
         var packed=Block.getDrops(source.getBlockState(),level,p,source).getFirst();
         level.removeBlock(p,false);
         var destination=p.east(2);level.setBlock(destination,QuestWorldBlocks.STATION.defaultBlockState(),3);
         var moved=(QuestUtilityEntity)level.getBlockEntity(destination);moved.claim(actor.getUUID(),packed);
-        h.assertTrue(moved.getItem(0).getCount()==3 && moved.fluids.amount==8100 && moved.energy==500,"All buffers move together");
+        h.assertTrue(moved.getItem(0).getCount()==3 && moved.fluidAmount==8100 && moved.energy==500,"All buffers move together");
         h.assertTrue(moved.owner.equals(actor.getUUID()),"Ownership retained by packed item");
-        try(var tx=Transaction.openOuter()) {
-            h.assertTrue(oldItems.extract(ItemVariant.of(Items.STONE),3,tx)==0,"Stale item capability cannot debit moved buffers");
-            h.assertTrue(oldFluid.extract(FluidVariant.of(Fluids.WATER),8100,tx)==0,"Stale fluid capability disabled");
-            h.assertTrue(energy.extract(500,tx)==0,"Stale energy capability disabled");
-        }
+        h.assertTrue(old.extractItems(Items.STONE,3,false)==0,"Stale item capability cannot debit moved buffers");
+        h.assertTrue(old.extractFluid(Fluids.WATER,8100,false)==0,"Stale fluid capability disabled");
+        h.assertTrue(old.extractEnergy(500,false)==0,"Stale energy capability disabled");
         var duplicate=destination.east(2);level.setBlock(duplicate,QuestWorldBlocks.STATION.defaultBlockState(),3);
         var second=(QuestUtilityEntity)level.getBlockEntity(duplicate);second.claim(actor.getUUID(),packed.copy());
-        h.assertTrue(second.isEmpty()&&second.fluids.amount==0&&second.energy==0,"Replayed packed item cannot duplicate balances");
+        h.assertTrue(second.isEmpty()&&second.fluidAmount==0&&second.energy==0,"Replayed packed item cannot duplicate balances");
         h.assertTrue(!QuestBlockNetwork.authorized(actor,destination,UUID.randomUUID()),"Forged configuration token rejected");
         var other=player(h);h.assertTrue(!moved.canConfigure(other),"Other player cannot configure personal station");
         h.assertTrue(moved.getBlockState().getPistonPushReaction()==dev.questplus.compat.CommonAdapter.INSTANCE.immovable(),"Piston movement rejected");
@@ -280,14 +273,12 @@ public final class QuestWorldBlocksGameTest {
         level.setBlock(pos,QuestWorldBlocks.STATION.defaultBlockState(),3);
         var be=(QuestUtilityEntity)level.getBlockEntity(pos);be.claim(actor.getUUID());be.serverTick();
         be.configure(actor,config("questplus:blocks_resources","items"),null,0);
-        var storage=ItemStorage.SIDED.find(level,pos,Direction.UP);
-        h.assertTrue(storage!=null,"Sided item capability registered");
-        try(var tx=Transaction.openOuter()){
-            h.assertTrue(storage.insert(ItemVariant.of(Items.DIRT),64,tx)==0,"Useless input rejected");
-            h.assertTrue(storage.insert(ItemVariant.of(Items.STONE),64,tx)==4,"Input bounded to objective");
-        }
+        var storage=LoaderTestSupport.probe(level,pos,Direction.UP);
+        h.assertTrue(storage.hasItems(),"Sided item capability registered");
+        h.assertTrue(storage.insertItems(Items.DIRT,64,false)==0,"Useless input rejected");
+        h.assertTrue(storage.insertItems(Items.STONE,64,false)==4,"Input bounded to objective");
         h.assertTrue(be.isEmpty(),"Aborted insertion restores inventory");
-        try(var tx=Transaction.openOuter()){storage.insert(ItemVariant.of(Items.STONE),4,tx);tx.commit();}
+        storage.insertItems(Items.STONE,4,true);
         var saved=be.saveWithFullMetadata(level.registryAccess());
         // Reloading the block resolves the journalled balance rather than stale chunk contents.
         level.removeBlockEntity(pos);var restored=(QuestUtilityEntity)net.minecraft.world.level.block.entity.BlockEntity.loadStatic(pos,QuestWorldBlocks.STATION.defaultBlockState(),saved,level.registryAccess());
@@ -299,16 +290,16 @@ public final class QuestWorldBlocksGameTest {
         h.assertTrue(QuestPlusMod.runtime().state(actor.getUUID()).quests.get("questplus:blocks_resources").counters.get("items")==4,"Offline progress committed");
         restored.refresh();h.assertTrue(QuestPlusMod.runtime().player(actor.getUUID()).blockContributions==4,"No duplicate consumption");
         restored.configure(actor,config("questplus:blocks_resources","fluid"),null,0);
-        var fluid=FluidStorage.SIDED.find(level,pos,Direction.UP);
-        try(var tx=Transaction.openOuter()){h.assertTrue(fluid.insert(FluidVariant.of(Fluids.LAVA),81000,tx)==0,"Wrong fluid rejected");}
-        try(var tx=Transaction.openOuter()){h.assertTrue(fluid.insert(FluidVariant.of(Fluids.WATER),81000,tx)==81000,"Fluid capability accepts one bucket");tx.commit();}
-        restored.refresh();h.assertTrue(restored.fluids.amount==0,"Fluid consumed using 81 droplets per mB");
+        var fluid=LoaderTestSupport.probe(level,pos,Direction.UP);
+        h.assertTrue(fluid.insertFluid(Fluids.LAVA,81000,false)==0,"Wrong fluid rejected");
+        h.assertTrue(fluid.insertFluid(Fluids.WATER,81000,true)==81000,"Fluid capability accepts one bucket");
+        restored.refresh();h.assertTrue(restored.fluidAmount==0,"Fluid consumed using 81 droplets per mB");
         restored.configure(actor,config("questplus:blocks_resources","energy"),null,0);
-        var energy=team.reborn.energy.api.EnergyStorage.SIDED.find(level,pos,Direction.UP);
-        h.assertTrue(energy!=null,"Optional energy capability registered");
-        try(var tx=Transaction.openOuter()){h.assertTrue(energy.insert(1000,tx)==1000,"Energy accepted");}
+        var energy=LoaderTestSupport.probe(level,pos,Direction.UP);
+        h.assertTrue(energy.hasEnergy(),"Optional energy capability registered");
+        h.assertTrue(energy.insertEnergy(1000,false)==1000,"Energy accepted");
         h.assertTrue(restored.energy==0,"Energy rollback");
-        try(var tx=Transaction.openOuter()){energy.insert(1000,tx);tx.commit();}
+        energy.insertEnergy(1000,true);
         restored.refresh();h.assertTrue(restored.energy==0,"Energy consumed");
         h.assertTrue(QuestPlusMod.runtime().state(actor.getUUID()).quests.get("questplus:blocks_resources").completed,"All resources complete one quest");
         h.assertTrue(QuestPlusMod.runtime().player(actor.getUUID()).entitlements.containsKey("questplus:blocks_resources"),"Offline reward entitlement retained");
@@ -362,7 +353,7 @@ public final class QuestWorldBlocksGameTest {
         Runnable idle=()->{if(rt.isBusy(id)){java.util.concurrent.locks.LockSupport.parkNanos(1000000);h.fail("Await durable team operation");}};
         h.startSequence().thenExecute(step(()->rt.changeTeam(m->m.create(id,"Board team"))))
                 .thenWaitUntil(idle).thenExecute(step(()->{
-                    // Progress now lands in the shared team record; the player's personal record stays empty.
+                    // Progress now lands in the shared team record. The player's personal record stays empty.
                     rt.setObjectiveProgress(actor,"questplus:blocks_teamboard","items",2);
                     QuestUtilityBlock.assemble(level,origin,Direction.NORTH,0);
                     var board=(QuestUtilityEntity)level.getBlockEntity(origin);board.claim(id);board.serverTick();

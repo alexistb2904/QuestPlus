@@ -1,7 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import com.google.gson.*;
-import net.fabricmc.fabric.api.networking.v1.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,10 +32,9 @@ public final class QuestBlockNetwork {
     private static final Map<UUID,String> SENT=new HashMap<>();
     private QuestBlockNetwork(){}
     static void register(){
-        PayloadTypeRegistry.serverboundPlay().register(Request.TYPE,Request.CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(Snapshot.TYPE,Snapshot.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(Request.TYPE,(packet,ctx)->ctx.server().execute(()->handle(ctx.player(),packet)));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->{SESSIONS.remove(handler.player.getUUID());LAST.remove(handler.player.getUUID());SENT.remove(handler.player.getUUID());});
+        Platform.serverbound(Request.TYPE,Request.CODEC,QuestBlockNetwork::handle);
+        Platform.clientbound(Snapshot.TYPE,Snapshot.CODEC);
+        Platform.onPlayerDisconnect((player,server)->{SESSIONS.remove(player.getUUID());LAST.remove(player.getUUID());SENT.remove(player.getUUID());});
     }
     static void clear(){SESSIONS.clear();LAST.clear();SENT.clear();}
     static void tick(MinecraftServer server){
@@ -47,7 +46,7 @@ public final class QuestBlockNetwork {
         }
     }
     static void open(ServerPlayer actor,QuestUtilityEntity block){
-        if(actor.isSpectator()||!actor.level().mayInteract(actor,block.getBlockPos())||!ServerPlayNetworking.canSend(actor,Snapshot.TYPE))return;
+        if(actor.isSpectator()||!actor.level().mayInteract(actor,block.getBlockPos())||!Platform.canSend(actor,Snapshot.TYPE))return;
         if(block.owner==null)block.claim(actor.getUUID());
         var session=new Session(block,UUID.randomUUID(),actor.level().getServer().getTickCount()+12000);
         SESSIONS.put(actor.getUUID(),session);send(actor,session,"");
@@ -90,7 +89,7 @@ public final class QuestBlockNetwork {
         json.addProperty("owner",be.owner==null?"":be.owner.toString());json.addProperty("team",be.boundTeam==null?"":be.boundTeam.toString());
         json.addProperty("kind",be.kind());json.addProperty("size",be.kind()==0?be.getBlockState().getValue(QuestUtilityBlock.SIZE):0);
         json.addProperty("status",be.status);json.addProperty("signal",be.signal);json.addProperty("error",error);
-        json.addProperty("items",be.getItem(0).getCount());json.addProperty("fluid",be.fluids.amount/81);json.addProperty("energy",be.energy);
+        json.addProperty("items",be.getItem(0).getCount());json.addProperty("fluid",be.fluidAmount/81);json.addProperty("energy",be.energy);
         json.add("rows",QuestBlockConfig.JSON.toJsonTree(be.rows));json.add("leaders",QuestBlockConfig.JSON.toJsonTree(be.leaders));
         json.addProperty("modular",be.kind()==0&&QuestBoardParts.modular(be.getBlockState()));
         json.addProperty("boardWidth",be.boardWidth);json.addProperty("boardHeight",be.boardHeight);
@@ -112,6 +111,6 @@ public final class QuestBlockNetwork {
         }catch(Exception ignored){}
         json.add("players",choices);
         String data=json.toString(),key=session.token+data;
-        if(!key.equals(SENT.put(actor.getUUID(),key)))ServerPlayNetworking.send(actor,new Snapshot(be.getBlockPos(),session.token,data));
+        if(!key.equals(SENT.put(actor.getUUID(),key)))Platform.send(actor,new Snapshot(be.getBlockPos(),session.token,data));
     }
 }

@@ -1,7 +1,7 @@
 // A deliberately small, portable format shared by Quest Studio and the Minecraft client.
 // Images are embedded data URIs (never remote URLs). Everything is serialized as JSON.
 export const RICH_FONTS = ["default", "uniform", "alt", "illageralt"];
-// Image uploads have no product-imposed byte limit; device memory and transport remain finite.
+// Image uploads have no product-imposed byte limit. Device memory and transport remain finite.
 
 const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (x) => ESC[x]);

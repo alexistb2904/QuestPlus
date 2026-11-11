@@ -22,7 +22,7 @@ public final class TabletRenderer {
 	}
 
 	/**
-	 * The requested aperture is 5:3; the caller draws the GUI inside it afterwards.
+	 * The requested aperture is 5:3. The caller draws the GUI inside it afterwards.
 	 */
 	public static void draw(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom) {
 		int width = right - left, height = bottom - top;

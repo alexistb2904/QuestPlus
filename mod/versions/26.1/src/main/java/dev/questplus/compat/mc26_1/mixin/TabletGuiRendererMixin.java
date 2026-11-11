@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** 26.1 GuiRenderer draws into Minecraft's main target; the tablet atlas redirects it. */
+/** 26.1 GuiRenderer draws into Minecraft's main target. The tablet atlas redirects it. */
 @Mixin(GuiRenderer.class)
 abstract class TabletGuiRendererMixin {
 	@Redirect(method = "draw", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getMainRenderTarget()Lcom/mojang/blaze3d/pipeline/RenderTarget;"))

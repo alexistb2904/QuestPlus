@@ -1,11 +1,11 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.core.QuestDefinition;
 import dev.questplus.fabric.QuestBlockNetwork;
 import dev.questplus.fabric.client.ui.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
@@ -16,14 +16,14 @@ import net.minecraft.world.item.*;
 import java.util.*;
 import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
-/** A local station draft; progress and resource balances always come from the server. */
+/** A local station draft. Progress and resource balances always come from the server. */
 public final class QuestStationScreen extends Screen {
     private final net.minecraft.client.gui.Font font = QuestSkin.font();
     private QuestBlockNetwork.Snapshot snapshot;
     private JsonObject state, config, pending;
     private String owner, pendingOwner;
     private boolean dirty, editable, ownerSettings;
-    /** Section box heights; offsets below are from the window top. */
+    /** Section box heights. Offsets below are from the window top. */
     private static final int QUEST_BOX = 138, BUFFER_BOX = 34, AUTOMATION_BOX = 68, SIDES_BOX = 80;
     private int left, top, panelWidth, panelHeight, scroll, columnWidth, rightWidth, right, questY, settingsY, bufferY;
     private QuestButton returnItems, apply, ownerButton;
@@ -175,13 +175,13 @@ public final class QuestStationScreen extends Screen {
     }
     private void send(String action) {
         if (action.equals("save")) { pending = config.deepCopy(); pendingOwner = owner; }
-        ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), action, config.toString(), owner, 0));
+        ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), action, config.toString(), owner, 0));
     }
     private void text(GuiGraphicsExtractor g, Component value, int x, int y, int w, int color) {
         QuestSkin.text(g, font, QuestSkin.fit(font, value.getString(), w), x, y, color, false);
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
-        // The saved team, which the scope pair below does not show; nothing otherwise, so the title centres.
+        // The saved team, which the scope pair below does not show. Nothing otherwise, so the title centres.
         boolean team = state.getAsJsonObject("config").get("scope").getAsString().equals("TEAM");
         window(g, font, width, height, left, top, panelWidth, panelHeight, new ItemStack(dev.questplus.fabric.QuestWorldBlocks.STATION),
                 title, team && state.has("teamName") && !state.get("teamName").getAsString().isEmpty()
@@ -251,7 +251,7 @@ public final class QuestStationScreen extends Screen {
         scroll = next; rebuildWidgets(); return true;
     }
     @Override public void onClose() {
-        ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "close", "", "", 0));
+        ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "close", "", "", 0));
         super.onClose();
     }
     @Override public boolean isPauseScreen() { return false; }

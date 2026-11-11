@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 /**
- * Pixel frame; EditBox supplies cursor, selection, IME and accessible text
+ * Pixel frame. EditBox supplies cursor, selection, IME and accessible text
  * input.
  */
 public final class QuestTextField extends EditBox {

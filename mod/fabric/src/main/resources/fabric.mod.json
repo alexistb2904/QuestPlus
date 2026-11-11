@@ -8,10 +8,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.questplus.fabric.QuestPlusMod"
+			"dev.questplus.platform.fabric.QuestPlusFabric"
 		],
 		"client": [
-			"dev.questplus.fabric.client.QuestPlusClient"
+			"dev.questplus.platform.fabric.QuestPlusFabricClient"
 		],
 		"jei_mod_plugin": [
 			"dev.questplus.fabric.client.QuestJeiPlugin"

@@ -1,6 +1,6 @@
 # Integrate another mod
 
-Quest Plus accepts trusted **server side Fabric integrations**.
+Quest Plus accepts trusted **server side Fabric or NeoForge integrations**. The API is the same on both loaders.
 
 | What you need                | API                                                   |
 | ---------------------------- | ----------------------------------------------------- |

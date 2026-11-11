@@ -2,14 +2,17 @@
 
 | Requirement    | Version              |
 | -------------- | -------------------- |
-| Minecraft Java | 26.1 to 26.3         |
-| Loader         | Fabric               |
+| Minecraft Java | 26.1 to 26.3 (NeoForge: 26.1.2, 26.2, 26.3) |
+| Loader         | Fabric or NeoForge   |
 | Java           | 25+                  |
-| Fabric API     | For your Minecraft   |
+| Fabric API     | Fabric only, for your Minecraft |
 
-Install Quest Plus and Fabric API in `mods/` on the client and server.
+Download the JAR for your loader: `questplus-<version>.jar` for Fabric, `questplus-<version>-neoforge.jar` for NeoForge.
 
-The tablet animations are built into Quest Plus. No separate animation library is needed. The 2D interface remains available in settings. Fabric API is still required separately.
+- **Fabric:** put Quest Plus and Fabric API in `mods/` on the client and server.
+- **NeoForge:** put Quest Plus in `mods/` on the client and server. No other mod is required.
+
+The tablet animations are built into Quest Plus. No separate animation library is needed. The 2D interface remains available in settings. Minimum loader versions are listed in [Compatibility](/guide/compatibility).
 
 ## Check the installation
 

@@ -1,5 +1,6 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Loader;
 import com.google.gson.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
@@ -12,7 +13,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
-import net.fabricmc.loader.api.FabricLoader;
 import java.net.URI;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
@@ -46,7 +46,7 @@ final class QuestHubService implements AutoCloseable {
 	}
 
 	private Path defaults() {
-		return FabricLoader.getInstance().getConfigDir().resolve("questplus/default").toAbsolutePath().normalize();
+		return Loader.configDir().resolve("questplus/default").toAbsolutePath().normalize();
 	}
 
 	QuestHubService(MinecraftServer server) {
@@ -56,7 +56,7 @@ final class QuestHubService implements AutoCloseable {
 				.build();
 		Path config = world.resolve("questplus-hub.json");
 		if (!Files.exists(config))
-			config = FabricLoader.getInstance().getConfigDir().resolve("questplus-hub.json");
+			config = Loader.configDir().resolve("questplus-hub.json");
 		try {
 			if (!Files.exists(config)) {
 				QuestPlusMod.LOGGER.info("Quest Studio connected editing uses {} by default.", origin);
@@ -172,8 +172,7 @@ final class QuestHubService implements AutoCloseable {
 			result.getAsJsonArray(kind).forEach(id -> ids.add(id.getAsString()));
 			assets.put(kind, ids);
 		}
-		List<Path> roots = FabricLoader.getInstance().getAllMods().stream().flatMap(mod -> mod.getRootPaths().stream())
-				.toList();
+		List<Path> roots = Loader.modRoots();
 		result.add("assets", new StudioRegistryAssets(roots).collect(assets));
 		return result;
 	}

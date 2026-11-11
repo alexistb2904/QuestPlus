@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * Small Bedrock geometry reader for QuestPlus's first-person tablet.
- * It renders only the tablet subtree; Minecraft provides the player arms.
+ * It renders only the tablet subtree. Minecraft provides the player arms.
  */
 final class TabletNativeGeometry {
 	enum Pass { BODY, SCREEN, EFFECTS }

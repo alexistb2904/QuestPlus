@@ -1,0 +1,219 @@
+// One NeoForge target: versions/<mc>/neoforge. Builds the same shared sources and the same
+// versions/<mc> adapters as the Fabric target :<mc>, with mod/neoforge as the loader glue.
+version = rootProject.version
+group = rootProject.group
+def minecraftFolder = rootProject.minecraftFolder(project)
+base.archivesName = "questplus-neoforge-mc${minecraftFolder}"
+def shared = { String path -> rootProject.file(path) }
+def adapterId = rootProject.adapterId(project)
+def otherTargets = rootProject.neoforgeTargets.findAll { it != project }
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://api.modrinth.com/maven' }
+    // Only for the @GameTest annotation the shared GameTests are written with.
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+sourceSets {
+    main {
+        java.setSrcDirs([shared('server/src/main/java'), shared('client/src/main/java'), shared('neoforge/src/main/java'),
+                         '../src/main/java', 'src/main/java'])
+        resources.setSrcDirs([shared('server/src/main/resources'), shared('client/src/main/resources'),
+                              shared('neoforge/src/main/resources'), '../src/main/resources', 'src/main/resources'])
+    }
+    test {
+        java.setSrcDirs([shared('server/src/test/java'), shared('client/src/test/java'), shared('neoforge/src/test/java')])
+        resources.setSrcDirs([shared('server/src/test/resources')])
+    }
+    // Fabric-only suites: opt-in third-party mods and client tests (Fabric client GameTest API).
+    gametest {
+        java.setSrcDirs([shared('server/src/gametest/java'), shared('neoforge/src/gametest/java'), '../src/gametest/java', 'src/gametest/java'])
+        java.exclude '**/ResourceCompatibilityGameTest.java', '**/ThirdPartyObjectivesGameTest.java', '**/testmixin/**', '**/ClientGameTestShims.java'
+        resources.setSrcDirs([shared('server/src/gametest/resources'), shared('neoforge/src/gametest/resources')])
+        resources.exclude 'questplus-test.client.mixins.json'
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+}
+
+dependencies {
+    // Same API JARs as the Fabric targets, so shared classes compile to identical bytecode.
+    compileOnly 'com.google.j2objc:j2objc-annotations:3.0.0'
+    compileOnly('maven.modrinth:rei:rKsAE6bX') { transitive = false }
+    compileOnly('maven.modrinth:jei:hif1VmML') { transitive = false }
+    gametestImplementation('net.fabricmc.fabric-api:fabric-gametest-api-v1:4.0.36+3434d6d95d') { transitive = false }
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    // Tests read sources and assets relative to mod/.
+    workingDir = rootProject.projectDir
+    systemProperty 'joml.nounsafe', 'true'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+// NeoForge runs get their own worlds: registries differ between loaders.
+def runDir = { String side -> rootProject.file("../run/neoforge/${minecraftFolder}/${side}") }
+
+neoForge {
+    version = project.neoforge_version
+    mods {
+        // The GameTests share packages with the mod (JPMS forbids splitting them across mods), so in
+        // dev runs they are part of it. QuestPlusTestNeoForge only acts when questplus.gametest is set.
+        questplus {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.gametest
+        }
+    }
+    runs {
+        client {
+            client()
+            gameDirectory = runDir('client')
+        }
+        server {
+            server()
+            gameDirectory = runDir('server')
+            programArgument '--nogui'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gametest
+            loadedMods = [mods.questplus]
+            systemProperty 'questplus.gametest', 'true'
+            gameDirectory = layout.buildDirectory.dir('gametest').get().asFile
+            jvmArgument '-Xmx1G'
+            programArguments.addAll('--report', layout.buildDirectory.file('gametest-results.xml').get().asFile.absolutePath)
+            systemProperty 'questplus.integration.output', layout.buildDirectory.file('integration-saves.json').get().asFile.absolutePath
+            systemProperty 'questplus.integration.teams', layout.buildDirectory.file('integration-teams.json').get().asFile.absolutePath
+        }
+        clientSmokeTest {
+            client()
+            sourceSet = sourceSets.gametest
+            loadedMods = [mods.questplus]
+            gameDirectory = layout.buildDirectory.dir('client-smoke').get().asFile
+            systemProperty 'questplus.clientSmokeTest', layout.buildDirectory.file('client-smoke.json').get().asFile.absolutePath
+        }
+    }
+}
+neoForge.addModdingDependenciesTo(sourceSets.gametest)
+neoForge.addModdingDependenciesTo(sourceSets.test)
+
+def cleanGameTest = tasks.register('deleteGameTestRunDir', Delete) { delete layout.buildDirectory.dir('gametest') }
+tasks.matching { it.name == 'runGameTestServer' }.configureEach { dependsOn cleanGameTest }
+
+tasks.register('verifyNeoForgeJar') {
+    group = 'verification'
+    dependsOn tasks.named('jar')
+    doLast {
+        new java.util.zip.ZipFile(tasks.named('jar').get().archiveFile.get().asFile).withCloseable { jar ->
+            def entries = jar.entries().toList()*.name
+            assert jar.getEntry('META-INF/neoforge.mods.toml') != null && jar.getEntry('META-INF/questplus-targets.json') != null
+            assert !entries.any { it.startsWith('META-INF/jars/') } : 'Standalone release JAR must not embed any external library'
+            assert jar.getEntry('fabric.mod.json') == null : 'NeoForge JAR must not carry Fabric metadata'
+            assert !entries.any { it.startsWith('net/fabricmc/') || it.startsWith('team/reborn/') } : 'No Fabric classes'
+            assert !entries.any { it.contains('QuestPlusTestNeoForge') || it.contains('ClientSmokeTest') } : 'No test harness'
+            rootProject.neoforgeMetadata.keySet().each { id ->
+                def entry = jar.getEntry("questplus.${id}.mixins.json")
+                assert entry != null : "Missing questplus.${id}.mixins.json"
+                assert jar.getInputStream(entry).getText('UTF-8').contains('TabletNativeFirstPersonMixin') : id
+                assert jar.getEntry("dev/questplus/compat/${id}/NeoForgeClientAdapterImpl.class") != null : id
+            }
+        }
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyNeoForgeJar') }
+
+def prepareClientSmoke = tasks.register('prepareClientSmokeTest') {
+    def dir = layout.buildDirectory.dir('client-smoke').get().asFile
+    def result = layout.buildDirectory.file('client-smoke.json').get().asFile
+    doLast {
+        project.delete(new File(dir, 'saves'), new File(dir, 'screenshots'), result)
+        dir.mkdirs()
+        // First-launch prompts would otherwise stop the client before the title screen. An unfocused
+        // test window must not pause the integrated server.
+        new File(dir, 'options.txt').text = ['onboardAccessibility:false', 'skipMultiplayerWarning:true', 'tutorialStep:none',
+            'joinedFirstServer:true', 'pauseOnLostFocus:false', 'renderDistance:4', 'soundCategory_master:0.0'].join(System.lineSeparator())
+    }
+}
+tasks.matching { it.name == 'runClientSmokeTest' }.configureEach { dependsOn prepareClientSmoke }
+tasks.register('clientSmokeTest') {
+    group = 'verification'
+    description = 'Start a real NeoForge client (needs a window), play a world with every Quest Plus block, verify the result.'
+    dependsOn tasks.named('runClientSmokeTest')
+    doLast {
+        def file = layout.buildDirectory.file('client-smoke.json').get().asFile
+        if (!file.file) throw new GradleException('Client smoke test wrote no result: the client crashed before finishing')
+        def result = new groovy.json.JsonSlurper().parse(file)
+        result.passed.each { logger.lifecycle("  passed: ${it}") }
+        if (!result.ok) throw new GradleException("NeoForge client smoke test failed on Minecraft ${result.minecraft}: ${result.error}")
+        logger.lifecycle("NeoForge client smoke test passed on Minecraft ${result.minecraft}; screenshots in ${layout.buildDirectory.dir('client-smoke/screenshots').get().asFile}")
+    }
+}
+
+tasks.register('integrationTest') {
+    group = 'verification'
+    description = 'Run the shared dedicated-server GameTests on NeoForge and verify final JSON saves after shutdown.'
+    dependsOn tasks.named('runGameTestServer')
+    doLast {
+        rootProject.verifyIntegration(layout.buildDirectory.file('gametest-results.xml').get().asFile,
+            layout.buildDirectory.file('integration-saves.json').get().asFile,
+            layout.buildDirectory.file('integration-teams.json').get().asFile)
+    }
+}
+
+ext.mixinConfigs = [shared('server/src/main/resources/questplus.mixins.json'),
+                    shared('client/src/main/resources/questplus.client.mixins.json'),
+                    shared('neoforge/src/main/resources/questplus.neoforge.mixins.json'),
+                    file("../src/main/resources/questplus.${adapterId}.mixins.json")]
+// NeoForge hides HUD layers instead (TargetMixinPlugin.appliesOn).
+ext.mixinSkip = ['TabletHudMixin']
+apply from: rootProject.file('gradle/verify-mixins.gradle')
+
+def exportAdapters = tasks.register('exportAdapters', Sync) {
+    from(tasks.named('compileJava')) { include "dev/questplus/compat/${adapterId}/**" }
+    from('../src/main/resources') { include "questplus.${adapterId}.mixins.json" }
+    into layout.buildDirectory.dir('adapter-export')
+}
+// Every run and JAR carries all NeoForge targets' adapters, exactly like the universal JAR.
+otherTargets.each { other ->
+    sourceSets.main.output.dir(other.layout.buildDirectory.dir('adapter-export'), builtBy: "${other.path}:exportAdapters")
+}
+
+processResources {
+    def resourceVersion = project.version
+    def targets = rootProject.neoforgeMetadata
+    inputs.property 'version', resourceVersion
+    inputs.property 'targets', targets
+    rootProject.sharedResources(it)
+    // Minecraft compatibility is generated from versions/*/neoforge: never hand-edit it in the TOML.
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(version: resourceVersion,
+            minecraft_range: targets.values().collectMany { it.minecraft }.collect { "[${it}]" }.join(','),
+            neoforge_minimum: targets.values()*.neoforge.min { rootProject.versionKey(it) },
+            target_mixins: targets.keySet().collect { "\n[[mixins]]\nconfig = \"questplus.${it}.mixins.json\"\n" }.join(''))
+    }
+    doLast {
+        def file = new File(destinationDir, 'META-INF/questplus-targets.json')
+        file.parentFile.mkdirs()
+        file.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(targets))
+    }
+}
+
+// A bare `./gradlew runClient` keeps starting the Fabric client only (dev.bat, scripts): NeoForge
+// clients and servers start when their task path is named (./gradlew :neoforge-26.3:runClient).
+def requested = gradle.startParameter.taskNames.any { it.startsWith("${path}:") }
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach { onlyIf { requested } }
+tasks.named('check') { dependsOn tasks.named('integrationTest') }

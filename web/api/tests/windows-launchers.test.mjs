@@ -32,19 +32,21 @@ test("compile persists the selected version before Gradle and exports only a suc
 		const properties = "# Project settings\r\nminecraft_version=26.3\r\nmod_version=0.2.0\r\nmaven_group=dev.questplus\r\n";
 		writeFileSync(path.join(temp, "mod/gradle.properties"), properties);
 		writeFileSync(path.join(temp, "scripts/_gradle.bat"), '@echo off\r\necho %* > "%~dp0..\\args.txt"\r\ncopy /y "%~dp0..\\mod\\gradle.properties" "%~dp0..\\build-properties.txt" >nul\r\nexit /b %BUILD_TEST_EXIT%\r\n');
-		const run = (input, code = "0") => spawnSync("cmd.exe", ["/d", "/c", "dev.bat compile"], {
+		const run = (input, code = "0") => spawnSync("cmd.exe", ["/d", "/c", ".\\dev.bat compile"], {
 			cwd: temp, input: input + "\r\n", encoding: "utf8", timeout: 15000,
 			env: { ...process.env, BUILD_TEST_EXIT: code },
 		});
 		for (const [input, version] of [["", "0.2.0"], ["0.3.0-beta.1+test", "0.3.0-beta.1+test"], ["", "0.3.0-beta.1+test"]]) {
 			writeFileSync(path.join(temp, `mod/build/libs/questplus-${version}.jar`), version);
+			writeFileSync(path.join(temp, `mod/build/libs/questplus-${version}-neoforge.jar`), version + " neoforge");
 			const result = run(input);
 			assert.equal(result.status, 0, result.stdout + result.stderr);
 			const expectedProperties = properties.replace("mod_version=0.2.0", `mod_version=${version}`);
 			assert.equal(readFileSync(path.join(temp, "mod/gradle.properties"), "utf8"), expectedProperties);
 			assert.equal(readFileSync(path.join(temp, "build-properties.txt"), "utf8"), expectedProperties);
-			assert.equal(readFileSync(path.join(temp, "args.txt"), "utf8").trim(), "jar");
+			assert.equal(readFileSync(path.join(temp, "args.txt"), "utf8").trim(), "universalJar neoforgeJar");
 			assert.equal(readFileSync(path.join(temp, `output/questplus-${version}.jar`), "utf8"), version);
+			assert.equal(readFileSync(path.join(temp, `output/questplus-${version}-neoforge.jar`), "utf8"), version + " neoforge");
 		}
 		for (const invalid of ["../bad", '0.3.0" & echo injected', "0.3.0|bad"]) {
 			rmSync(path.join(temp, "args.txt"));

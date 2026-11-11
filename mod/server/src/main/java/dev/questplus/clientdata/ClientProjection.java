@@ -5,7 +5,7 @@ import dev.questplus.core.*;
 import java.util.*;
 
 /**
- * Explicit read-only projection; persistence records and reward extension data
+ * Explicit read-only projection. Persistence records and reward extension data
  * stay on the server.
  */
 public final class ClientProjection {

@@ -30,7 +30,7 @@
 			"dev.questplus.fabric.RewardIntegrationTest",
 			"dev.questplus.fabric.FtbParityIntegrationTest"
 		],
-		"main": ["dev.questplus.fabric.FtbTestItems"]
+		"main": ["dev.questplus.fabric.LoaderTestSupport"]
 	},
 	"depends": {
 		"questplus": "*",

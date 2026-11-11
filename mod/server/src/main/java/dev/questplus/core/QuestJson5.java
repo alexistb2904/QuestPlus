@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 /**
  * Strict, bounded JSON5 reader for quest definitions. Uses only Minecraft's
- * bundled Gson AST; deliberately rejects non-finite numbers and executable code.
+ * bundled Gson AST. Deliberately rejects non-finite numbers and executable code.
  */
 public final class QuestJson5 {
 	private QuestJson5() {}

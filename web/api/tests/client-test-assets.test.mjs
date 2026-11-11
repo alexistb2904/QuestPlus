@@ -5,10 +5,19 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { ASSETS, MC_VERSION, installAsset, repositoryRoot, selectFile, selectVersion } from "../../../scripts/install-client-test-assets.mjs";
+import { ASSETS, installAsset, mcVersion, repositoryRoot, selectFile, selectVersion } from "../../../scripts/install-client-test-assets.mjs";
 
 test("all requested client mods, animation resource pack and 3 shaders are configured for 26.3", () => {
-	assert.equal(MC_VERSION, "26.3");
+	const override = process.env.QUESTPLUS_MC_VERSION;
+	delete process.env.QUESTPLUS_MC_VERSION;
+	try {
+		assert.equal(mcVersion(), "26.3");
+		process.env.QUESTPLUS_MC_VERSION = "26.1";
+		assert.equal(mcVersion(), "26.1");
+	} finally {
+		if (override === undefined) delete process.env.QUESTPLUS_MC_VERSION;
+		else process.env.QUESTPLUS_MC_VERSION = override;
+	}
 	assert.deepEqual(
 		ASSETS.filter((x) => x.type === "shader").map((x) => x.id),
 		["makeup-ultra-fast-shaders", "complementary-reimagined", "bliss-shader"]
@@ -40,7 +49,7 @@ test("version selection rejects other Minecraft versions and loaders; prefers st
 		make("beta", "26.3", ["fabric"], "beta"),
 		make("release", "26.3", ["fabric"], "release"),
 	];
-	// Use the version_number published by Modrinth; Punchy before 3.1 cannot
+	// Use the version_number published by Modrinth. Punchy before 3.1 cannot
 	// hand off the first-person arm renderer to FP PAL.
 	versions[2].version_number = "3.1";
 	versions[3].version_number = "3.2";

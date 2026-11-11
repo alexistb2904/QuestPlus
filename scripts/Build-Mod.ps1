@@ -17,7 +17,7 @@ try {
         Write-Host "[OK] Project version updated to $version"
     }
 
-    & "$PSScriptRoot/_gradle.bat" universalJar
+    & "$PSScriptRoot/_gradle.bat" universalJar neoforgeJar
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     $jar = "$root/mod/build/libs/questplus-$version.jar"
@@ -29,6 +29,11 @@ try {
     $destination = Join-Path $output "questplus-$version.jar"
     Copy-Item -LiteralPath $jar -Destination $destination -Force
     Write-Host "[OK] Compiled mod: $destination"
+    $neoforge = "$root/mod/build/libs/questplus-$version-neoforge.jar"
+    if (Test-Path -LiteralPath $neoforge -PathType Leaf) {
+        Copy-Item -LiteralPath $neoforge -Destination (Join-Path $output "questplus-$version-neoforge.jar") -Force
+        Write-Host "[OK] Compiled NeoForge mod: $output/questplus-$version-neoforge.jar"
+    }
     exit 0
 } catch {
     Write-Host "[ERROR] $($_.Exception.Message)" -ForegroundColor Red

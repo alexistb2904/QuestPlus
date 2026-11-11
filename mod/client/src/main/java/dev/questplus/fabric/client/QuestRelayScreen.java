@@ -1,10 +1,10 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import com.google.gson.*;
 import dev.questplus.fabric.QuestBlockNetwork;
 import dev.questplus.fabric.client.ui.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,13 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import java.util.*;
 import static dev.questplus.fabric.client.QuestBlockChrome.*;
 
-/** A local draft of the relay settings; only Apply changes the server block. */
+/** A local draft of the relay settings. Only Apply changes the server block. */
 public final class QuestRelayScreen extends Screen {
-    /** A section box; {@code head} is the offset of the rule under its title and hint, 0 for none. */
+    /** A section box. {@code head} is the offset of the rule under its title and hint, 0 for none. */
     private record Panel(int x, int y, int width, int height, String title, String hint, String icon, int head) {}
     private record Label(Component text, int x, int y, int width, int color) {}
     private record Icon(String value, int x, int y) {}
-    /** Tabs sit under the ink bar; the scrolling body starts under them. */
+    /** Tabs sit under the ink bar. The scrolling body starts under them. */
     private static final int TABS_Y = BAR + 8, BODY_Y = TABS_Y + ROW + 8, REDSTONE = 34;
     private final net.minecraft.client.gui.Font font = QuestSkin.font();
     private QuestBlockNetwork.Snapshot snapshot;
@@ -65,7 +65,7 @@ public final class QuestRelayScreen extends Screen {
     @Override protected void init() {
         clearWidgets(); panels.clear(); labels.clear(); icons.clear(); stage = null; threshold = null;
         catalogueRevision = QuestPlusClient.STATE.catalogueRevision;
-        // A dialog sized to the configuration tab, 460 wide; columns stack below 400.
+        // A dialog sized to the configuration tab, 460 wide. Columns stack below 400.
         panelWidth = Math.min(460, width - 16); narrow = panelWidth < 400;
         int inner = panelWidth - 2 * PAD, targetWidth = narrow ? inner : (inner - 8) * 40 / 100;
         int triggerWidth = narrow ? inner : inner - targetWidth - 8;
@@ -272,7 +272,7 @@ public final class QuestRelayScreen extends Screen {
     }
     private void rebuild() { collect(); rebuildWidgets(); }
     private void save() {
-        collect(); ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "save", config.toString(), owner, 0));
+        collect(); ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "save", config.toString(), owner, 0));
     }
     private void updateApply() {
         String category = stage != null && config.get("condition").getAsString().equals("stage") ? stage.getValue() : config.get("category").getAsString();
@@ -328,7 +328,7 @@ public final class QuestRelayScreen extends Screen {
             if (mx >= line.x && mx < line.x + line.width && my >= line.y && my < line.y + 10 && font.width(line.text) > line.width) {
                 hover = line.text; break;
             }
-        // The header context line is the only place the team shows; a cut one hovers in full.
+        // The header context line is the only place the team shows. A cut one hovers in full.
         int contextX = left + PAD + 22, contextRoom = ownerButton.getX() - 8 - contextX;
         if (hover == null && mx >= contextX && mx < contextX + contextRoom && my >= top + 16 && my < top + 28
                 && font.width(context) > contextRoom) hover = Component.literal(context);
@@ -345,6 +345,6 @@ public final class QuestRelayScreen extends Screen {
     @Override public void resize(int width, int height) { collect(); super.resize(width, height); }
     @Override public boolean isPauseScreen() { return false; }
     @Override public void onClose() {
-        ClientPlayNetworking.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "close", "", "", 0)); super.onClose();
+        ClientPlatform.send(new QuestBlockNetwork.Request(snapshot.pos(), snapshot.token(), "close", "", "", 0)); super.onClose();
     }
 }

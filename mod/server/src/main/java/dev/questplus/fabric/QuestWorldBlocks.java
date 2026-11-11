@@ -1,13 +1,9 @@
 package dev.questplus.fabric;
 
 import dev.questplus.compat.CommonAdapter;
+import dev.questplus.platform.Platform;
 
 import dev.questplus.persistence.BlockAccount;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.transfer.v1.item.*;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
 import net.minecraft.resources.*;
@@ -28,7 +24,7 @@ public final class QuestWorldBlocks {
     private static final Set<QuestUtilityEntity> LEADERBOARDS = new HashSet<>();
     private static final Map<String,List<QuestUtilityEntity.Row>> RANKINGS = new HashMap<>();
     private static int rankingTick = Integer.MIN_VALUE;
-    /** Ranking inputs per known player; a progress change drops only that player's entry. */
+    /** Ranking inputs per known player. A progress change drops only that player's entry. */
     private record Totals(String order,long completed,long contributions){}
     private static final Map<UUID,Totals> TOTALS = new HashMap<>();
     private static int totalsTick;
@@ -38,18 +34,10 @@ public final class QuestWorldBlocks {
         STATION = block("submission_station", 1);
         RELAY = block("quest_relay", 2);
         ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Identifier.parse("questplus:utility"),
-                FabricBlockEntityTypeBuilder.create(QuestUtilityEntity::new, BOARD, STATION, RELAY).build());
-        ItemStorage.SIDED.registerForBlockEntity((be, side) -> !be.input(side) ? null : new net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage<>(be.items) {
-            protected boolean canInsert(ItemVariant value) {return be.input(side);}
-            protected boolean canExtract(ItemVariant value) {return be.input(side);}
-        }, ENTITY);
-        FluidStorage.SIDED.registerForBlockEntity((be, side) -> !be.input(side) ? null : new net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage<>(be.fluids) {
-            protected boolean canInsert(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant value) {return be.input(side);}
-            protected boolean canExtract(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant value) {return be.input(side);}
-        }, ENTITY);
-        if (FabricLoader.getInstance().isModLoaded("team_reborn_energy")) QuestBlockEnergy.register();
+                Platform.blockEntityType(QuestUtilityEntity::new, BOARD, STATION, RELAY));
+        QuestStationStorage.register(ENTITY);
         QuestBlockNetwork.register();
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
+        Platform.onServerTick(server -> {
             int budget = 32;
             long deadline=System.nanoTime()+2_000_000;
             while (budget-- > 0 && !DIRTY.isEmpty() && System.nanoTime()<deadline) {
@@ -64,7 +52,7 @@ public final class QuestWorldBlocks {
             }
             QuestBlockNetwork.tick(server);
         });
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+        Platform.onServerStopped(server -> {
             LOADED.clear(); DIRTY.clear(); BOARD_GEOMETRY.clear(); OWNERS.clear(); LEADERBOARDS.clear(); RANKINGS.clear();
             TOTALS.clear(); totalsTick=0;
             rankingTick=Integer.MIN_VALUE; QuestBlockNetwork.clear();

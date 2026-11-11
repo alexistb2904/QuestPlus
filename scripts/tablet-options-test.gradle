@@ -1,4 +1,4 @@
-// Isolated GPU regression for tablet options; does not touch run/client.
+// Isolated GPU regression for tablet options. Does not touch run/client.
 allprojects {
     afterEvaluate {
         loom.runs.clientGameTest {

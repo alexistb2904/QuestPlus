@@ -78,7 +78,7 @@ final class QuestToast {
 		int accent = finish ? 0xffd9ae73 : 0xffa9c08b;
 		g.pose().pushMatrix();
 		g.pose().scale(scale);
-		// One compact toast: icon, event, quest title; no colored left-side banner.
+		// One compact toast: icon, event, quest title. No colored left-side banner.
 		g.fill(x + 1, y + 2, x + w + 1, y + 40, 0x44000000);
 		g.fill(x, y, x + w, y + 38, 0xe5191b1a);
 		g.fill(x + 6, y + 5, x + 30, y + 31, 0xff302820);

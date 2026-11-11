@@ -1,4 +1,4 @@
-// Groups and help text for the objective and reward type pickers. English is the key; tUI translates via TYPE_ROWS.
+// Groups and help text for the objective and reward type pickers. English is the key. TUI translates via TYPE_ROWS.
 /** @type {[string, string[]][]} */
 export const OBJECTIVE_GROUPS = [
 	["Blocks", ["block_break", "block_place", "block_interact", "observe_block"]],

@@ -1,13 +1,10 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import dev.questplus.compat.CommonAdapter;
 
 import dev.questplus.core.Localization;
 import dev.questplus.core.QuestNpcs;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -62,10 +59,10 @@ public final class QuestGiver extends PathfinderMob {
 		TYPE = Registry.register(BuiltInRegistries.ENTITY_TYPE, key,
 				EntityType.Builder.<QuestGiver>of(QuestGiver::new, MobCategory.MISC).sized(.6f, 1.95f).eyeHeight(1.62f)
 						.clientTrackingRange(10).build(key));
-		FabricDefaultAttributeRegistry.register(TYPE, Mob.createMobAttributes());
-		ServerChunkEvents.CHUNK_GENERATE.register(QuestGiver::generated);
-		ServerTickEvents.END_SERVER_TICK.register(QuestGiver::placePending);
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> PENDING.clear());
+		Platform.registerAttributes(TYPE, Mob.createMobAttributes());
+		Platform.onChunkGenerated(QuestGiver::generated);
+		Platform.onServerTick(QuestGiver::placePending);
+		Platform.onServerStopped(server -> PENDING.clear());
 		QuestGiverNetwork.register();
 	}
 
@@ -81,7 +78,7 @@ public final class QuestGiver extends PathfinderMob {
 
 	void npc(QuestNpcs.Npc definition) {
 		entityData.set(NPC, definition.id());
-		// shortcut: the floating name uses the en_us name; localize client-side if packs need per-player names.
+		// shortcut: the floating name uses the en_us name. Localize client-side if packs need per-player names.
 		setCustomName(Component.literal(Localization.text(definition.name(), "en_us", Map.of())));
 		setCustomNameVisible(true);
 	}
@@ -164,7 +161,7 @@ public final class QuestGiver extends PathfinderMob {
 		} catch (IllegalStateException unavailable) {
 			return;
 		}
-		// shortcut: pending spawns live in memory; a restart before the column loads drops that spawn.
+		// shortcut: pending spawns live in memory. A restart before the column loads drops that spawn.
 		var iterator = PENDING.iterator();
 		while (iterator.hasNext()) {
 			var pending = iterator.next();
@@ -193,7 +190,7 @@ public final class QuestGiver extends PathfinderMob {
 		return giver;
 	}
 
-	/** Lowest standable block in the structure's column, else the surface; null over water or lava. */
+	/** Lowest standable block in the structure's column, else the surface. Null over water or lava. */
 	private static BlockPos spot(ServerLevel level, Pending pending) {
 		var column = pending.column();
 		for (int y = pending.minY(); y <= pending.maxY(); y++) {

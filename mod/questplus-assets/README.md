@@ -16,7 +16,7 @@ The converter updates the first person animation and geometry copies in `animati
 
 The item model is edited separately in `blockbench/questplus_tablet_item.bbmodel`. No script creates it. Save the project, then use **File › Export › Export Block/Item Model** to overwrite `mod/client/src/main/resources/assets/questplus/models/item/tablet.json`. Its texture is `textures/fp/questplus_first_person.png`, shared with the first person model.
 
-World blocks (board, station, relay) follow the same rule; see `WORLD-BLOCKS.md`.
+World blocks (board, station, relay) follow the same rule. See `WORLD-BLOCKS.md`.
 
 ## Third person
 

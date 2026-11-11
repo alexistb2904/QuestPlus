@@ -1,5 +1,5 @@
 // Small dependency-free ZIP implementation for portable QuestPlus packs.
-// ZIP STORE writer; reader accepts STORE and DEFLATE (native DecompressionStream).
+// ZIP STORE writer. Reader accepts STORE and DEFLATE (native DecompressionStream).
 // No servers/uploads: all project files stay in the browser.
 const utf8 = new TextEncoder(),
 	decoder = new TextDecoder("utf-8", { fatal: true });

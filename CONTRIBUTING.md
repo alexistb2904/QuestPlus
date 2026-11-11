@@ -1,6 +1,6 @@
 # Contributing
 
-Issues and pull requests are welcome. Describe the problem, how to reproduce it, and the Minecraft, Fabric and QuestPlus versions where relevant. For a change, explain its behavior and the checks you ran. Please keep changes focused and do not include worlds, credentials, caches or generated build outputs.
+Issues and pull requests are welcome. Describe the problem, how to reproduce it, and the Minecraft, loader (Fabric or NeoForge) and QuestPlus versions where relevant. For a change, explain its behavior and the checks you ran. Please keep changes focused and do not include worlds, credentials, caches or generated build outputs.
 
 ## Fresh checkout
 
@@ -21,7 +21,7 @@ npm ci
 npm test
 ```
 
-These are the checks required before merging. `./gradlew build` covers every supported Minecraft version (see [Minecraft targets](mod/versions/README.md), which also explains how to add one). The Fabric server integration tests additionally run with `cd mod && ./gradlew integrationTest`. Client GameTests need a graphical Minecraft environment: `cd mod && ./gradlew runClientGameTest`. They are separate from unit tests. Windows users can run `dev.bat doctor` to check prerequisites, `dev.bat test` for the automated suite, or `dev.bat` for the menu. See [development](docs/development.md) and [Windows testing](docs/windows-testing.md).
+These are the checks required before merging. `./gradlew build` covers every supported Minecraft version on both Fabric and NeoForge (see [Minecraft targets](mod/versions/README.md), which also explains how to add one). The server integration tests of both loaders additionally run with `cd mod && ./gradlew integrationTest`. Client tests need a graphical Minecraft environment: `cd mod && ./gradlew runClientGameTest -Ploader=fabric` and `./gradlew :neoforge-26.3:clientSmokeTest -Pmc=26.3`. They are separate from unit tests. Windows users can run `dev.bat doctor` to check prerequisites, `dev.bat test` for the automated suite, or `dev.bat` for the menu. See [development](docs/development.md) and [Windows testing](docs/windows-testing.md).
 
 For the standalone editor, run `npm run dev` in `web/editor` it works without the API. For connected editing, see [the API setup](web/api/README.md). Local keys, worlds and API data stay ignored use the example configuration and generate your own credentials.
 

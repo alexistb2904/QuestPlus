@@ -1,7 +1,7 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.Loader;
 import dev.questplus.fabric.QuestPlusMod;
-import net.fabricmc.loader.api.FabricLoader;
 import java.lang.reflect.Method;
 
 /**
@@ -51,7 +51,7 @@ public final class TabletShaderCompat {
 
 
 	private static IrisAccess findIris() {
-		if (!FabricLoader.getInstance().isModLoaded("iris"))
+		if (!Loader.isModLoaded("iris"))
 			return null;
 		try {
 			Class<?> api = Class.forName("net.irisshaders.iris.api.v0.IrisApi", false,

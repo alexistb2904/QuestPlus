@@ -33,7 +33,7 @@ export function validateGpuLog(log,profile){
 }
 
 async function main(args){
- // --mc=<mod/versions folder> picks the Minecraft target; the newest folder by default.
+ // --mc=<mod/versions folder> picks the Minecraft target. The newest folder by default.
  const root=repositoryRoot();
  const targets=(await readdir(path.join(root,'mod','versions'),{withFileTypes:true})).filter(d=>d.isDirectory()).map(d=>d.name)
   .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));

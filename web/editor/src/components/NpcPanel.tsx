@@ -13,7 +13,7 @@ type Props = {
 	onManage: (npc: string) => void;
 };
 
-/** Every quest giver that offers this quest, one card each; the givers themselves are edited in their library. */
+/** Every quest giver that offers this quest, one card each. The givers themselves are edited in their library. */
 export function NpcPanel({ project, quest, language, onConfig, onManage }: Props) {
 	const npcs: Npc[] = project.config?.npcs || [];
 	const givers = npcs.filter((npc) => npc.quests.includes(quest.id));

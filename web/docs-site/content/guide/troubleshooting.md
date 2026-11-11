@@ -4,7 +4,7 @@ Start with the symptom below. Keep a copy of your exported pack and the relevant
 
 ## The tablet does not open
 
-Confirm that QuestPlus and Fabric API are installed for the same Minecraft Java version (26.1, 26.1.1, 26.1.2, 26.2 or 26.3) on the client and server. Check Minecraft Controls for the QuestPlus binding and conflicts with **J**. Try the flat 2D interface if the problem occurs during a 3D animation.
+Confirm that the client and server use the same loader and Minecraft Java version (26.1, 26.1.1, 26.1.2, 26.2 or 26.3, NeoForge starts at 26.1.2). Use the QuestPlus JAR for that loader, plus Fabric API on Fabric. Check Minecraft Controls for the QuestPlus binding and conflicts with **J**. Try the flat 2D interface if the problem occurs during a 3D animation.
 
 ## A quest is missing or locked
 
@@ -51,6 +51,6 @@ Use `/questplus rollback` to restore the latest definition backup when appropria
 
 ## Report a reproducible issue
 
-Include Minecraft, Fabric Loader, Fabric API and QuestPlus versions, the smallest affected quest, the action you performed and the expected result. Add a screenshot and the relevant log excerpt. For rendering issues, include shader and animation mod versions.
+Include Minecraft, loader (Fabric Loader and Fabric API, or NeoForge) and QuestPlus versions, the smallest affected quest, the action you performed and the expected result. Add a screenshot and the relevant log excerpt. For rendering issues, include shader and animation mod versions.
 
 Remove session credentials, editor tokens, private session links and unrelated player information before sharing files in [an issue](https://github.com/alexistb2904/QuestPlus/issues).

@@ -2,12 +2,7 @@ package dev.questplus.fabric;
 
 import dev.questplus.core.QuestEvent;
 import dev.questplus.fabric.api.QuestPlusAdapters;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.*;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import dev.questplus.platform.Platform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +11,7 @@ import org.slf4j.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class QuestPlusMod implements ModInitializer {
+public final class QuestPlusMod {
 	public static final Logger LOGGER = LoggerFactory.getLogger("questplus");
 	private static QuestRuntime runtime;
 	private static volatile String startupError;
@@ -45,8 +40,11 @@ public final class QuestPlusMod implements ModInitializer {
 		return runtime;
 	}
 
-	@Override
-	public void onInitialize() {
+	private QuestPlusMod() {
+	}
+
+	/** Registers content, payloads and listeners once, while the loader accepts registry entries. */
+	public static void initialize() {
 		QuestCrateItem.register();
 		QuestLootChest.register();
 		QuestTabletItem.register();
@@ -59,9 +57,8 @@ public final class QuestPlusMod implements ModInitializer {
 		AdvancedEvents.register();
 		ObservationEvents.register();
 		ParityRewards.install();
-		CommandRegistrationCallback.EVENT
-				.register((dispatcher, access, environment) -> QuestCommands.register(dispatcher));
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+		Platform.onRegisterCommands(QuestCommands::register);
+		Platform.onServerStarted(server -> {
 			try {
 				runtime = new QuestRuntime(server);
 				hub = new QuestHubService(server);
@@ -75,7 +72,7 @@ public final class QuestPlusMod implements ModInitializer {
 						net.minecraft.network.chat.Component.literal("Quest Plus: " + startupError)));
 			}
 		});
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+		Platform.onServerStopping(server -> {
 			QuestPlusAdapters.serverStopped();
 			if (hub != null) {
 				hub.close();
@@ -94,7 +91,7 @@ public final class QuestPlusMod implements ModInitializer {
 			QuestNetwork.clear();
 			TabletPoseNetwork.clear();
 		});
-		ServerTickEvents.END_SERVER_TICK.register(server -> {
+		Platform.onServerTick(server -> {
 			if (runtime != null) {
 				runtime.tick();
 				AdvancedEvents.tick(server);
@@ -105,25 +102,23 @@ public final class QuestPlusMod implements ModInitializer {
 					hub.tick();
 			}
 		});
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+		Platform.onPlayerDisconnect((player, server) -> {
 			if (runtime != null)
-				runtime.disconnect(handler.player.getUUID());
-			QuestNetwork.disconnect(handler.player.getUUID(), server);
+				runtime.disconnect(player.getUUID());
+			QuestNetwork.disconnect(player.getUUID(), server);
 			if (hub != null)
-				hub.disconnect(handler.player.getUUID());
-			TabletPoseNetwork.disconnect(handler.player);
-			BREAK_TOOLS.remove(handler.player.getUUID());
+				hub.disconnect(player.getUUID());
+			TabletPoseNetwork.disconnect(player);
+			BREAK_TOOLS.remove(player.getUUID());
 		});
-		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
-			if (runtime != null && runtime.registry().hasEvent("block_break") && player instanceof ServerPlayer)
+		Platform.onBeforeBlockBreak((player, pos, state) -> {
+			if (runtime != null && runtime.registry().hasEvent("block_break"))
 				BREAK_TOOLS.put(player.getUUID(), new BreakTool(pos.immutable(),
 						BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString()));
-			return true;
 		});
-		PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {
-			var tool = BREAK_TOOLS.remove(player.getUUID());
-			if (runtime != null && runtime.registry().hasEvent("block_break")
-					&& player instanceof ServerPlayer serverPlayer) {
+		Platform.onAfterBlockBreak((serverPlayer, pos, state) -> {
+			var tool = BREAK_TOOLS.remove(serverPlayer.getUUID());
+			if (runtime != null && runtime.registry().hasEvent("block_break")) {
 				String target = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
 				var tags = state.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
 				if (runtime.registry().hasCandidate("block_break", target, tags)) {
@@ -134,7 +129,7 @@ public final class QuestPlusMod implements ModInitializer {
 				}
 			}
 		});
-		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+		Platform.onLivingDeath((entity, source) -> {
 			if (runtime == null)
 				return;
 			runtime.dropCrate(entity);

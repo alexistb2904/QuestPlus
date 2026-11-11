@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 public interface ClientAdapter {
 	ClientAdapter INSTANCE = MinecraftTarget.active().adapter("/client", ClientAdapter.class);
 
-	/** Registers target-specific client hooks; called first by the client entrypoint. */
+	/** Registers target-specific client hooks. Called first by the client entrypoint. */
 	default void initialize() {}
 
 	/** Input codes of the running target, never inlined into shared code (GLFW before 26.3, SDL after). */
@@ -41,7 +41,7 @@ public interface ClientAdapter {
 	void skin(GuiGraphicsExtractor graphics, Model.Simple model, Identifier texture, float scale, float rotationX,
 			float rotationY, float pivotY, int x0, int y0, int x1, int y1);
 
-	/** {@code GuiGraphicsExtractor.entity}; its vector parameters changed to read-only JOML types after 26.1. */
+	/** {@code GuiGraphicsExtractor.entity}. Its vector parameters changed to read-only JOML types after 26.1. */
 	void entity(GuiGraphicsExtractor graphics, EntityRenderState state, float scale, Vector3f translation,
 			Quaternionf rotation, Quaternionf overrideCameraAngle, int x0, int y0, int x1, int y1);
 

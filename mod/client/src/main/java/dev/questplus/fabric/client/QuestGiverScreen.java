@@ -1,12 +1,12 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import com.google.gson.*;
 import dev.questplus.clientdata.QuestPresentation;
 import dev.questplus.core.QuestDefinition;
 import dev.questplus.fabric.QuestGiver;
 import dev.questplus.fabric.QuestGiverNetwork;
 import dev.questplus.fabric.client.ui.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,14 +22,14 @@ import static dev.questplus.fabric.client.QuestBlockChrome.*;
 /**
  * An NPC hands out its quest: the NPC itself in a portrait at the left, its
  * words at the right, then what it needs and what it pays. Declining only
- * closes the dialog; the offer stays open for later.
+ * closes the dialog. The offer stays open for later.
  */
 public final class QuestGiverScreen extends Screen {
 	private static final Gson JSON = new Gson();
 	/** The minimum height still frames the whole NPC in its portrait. */
 	private static final int MAX_WIDTH = 420, MAX_HEIGHT = 300, MIN_HEIGHT = 196, PORTRAIT = 92, ACTION = 88, TILE = 22,
 			CELL = 24;
-	/** Up to this many rewards read as labelled tiles; more become an icon grid named in the hover box. */
+	/** Up to this many rewards read as labelled tiles. More become an icon grid named in the hover box. */
 	private static final int REWARD_TILES = 4;
 	private final net.minecraft.client.gui.Font font = QuestSkin.font();
 	private QuestGiverNetwork.Dialog dialog;
@@ -37,7 +37,7 @@ public final class QuestGiverScreen extends Screen {
 	private int page, left, top, w, h, scroll, contentHeight;
 	private String hover;
 
-	/** One laid-out piece of the speech column; {@code x}/{@code y} are relative to the column. */
+	/** One laid-out piece of the speech column. {@code x}/{@code y} are relative to the column. */
 	private interface Block {
 		int height();
 
@@ -81,7 +81,7 @@ public final class QuestGiverScreen extends Screen {
 
 	private void send(String action) {
 		var entry = current();
-		ClientPlayNetworking.send(new QuestGiverNetwork.Request(dialog.entity(), dialog.token(), action,
+		ClientPlatform.send(new QuestGiverNetwork.Request(dialog.entity(), dialog.token(), action,
 				entry == null ? "" : entry.getAsJsonObject("quest").get("id").getAsString()));
 	}
 
@@ -117,7 +117,7 @@ public final class QuestGiverScreen extends Screen {
 		left = (width - w) / 2;
 		var entry = current();
 		layout(entry);
-		// Short exchanges get a short window; long offers use the full height and scroll.
+		// Short exchanges get a short window. Long offers use the full height and scroll.
 		h = Math.min(Math.min(MAX_HEIGHT, height - 16), Math.max(MIN_HEIGHT, BAR + PAD + contentHeight + 10 + FOOTER + 8));
 		top = (height - h) / 2;
 		addRenderableWidget(new QuestButton(Component.literal("✕"), left + w - PAD - ROW, top + (BAR - ROW) / 2, ROW, ROW,
@@ -237,7 +237,7 @@ public final class QuestGiverScreen extends Screen {
 						QuestSkin.panel(g, cx, y, CELL - 2, CELL - 2, QuestSkin.FIELD, hot ? QuestSkin.INK : QuestSkin.LINE);
 						var icon = rewardIcon(reward);
 						g.item(icon, cx + 3, y + 3);
-						// The game's own font for counts, like every inventory slot; amounts read without hovering.
+						// The game's own font for counts, like every inventory slot. Amounts read without hovering.
 						int amount = reward.has("count") ? reward.get("count").getAsInt()
 								: reward.has("amount") ? reward.get("amount").getAsInt() : 1;
 						if (amount > 1)
@@ -429,7 +429,7 @@ public final class QuestGiverScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		if (ClientPlayNetworking.canSend(QuestGiverNetwork.Request.TYPE))
+		if (ClientPlatform.canSend(QuestGiverNetwork.Request.TYPE))
 			send("close");
 		super.onClose();
 	}

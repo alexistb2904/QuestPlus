@@ -1,12 +1,12 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import com.google.gson.*;
 import dev.questplus.clientdata.ClientProjection;
 import dev.questplus.core.QuestEvent;
 import dev.questplus.team.TeamData;
 import dev.questplus.network.DefinitionCache;
 import dev.questplus.network.StateTransfers;
-import net.fabricmc.fabric.api.networking.v1.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -88,12 +88,9 @@ public final class QuestNetwork {
 	}
 
 	public static void register() {
-		PayloadTypeRegistry.clientboundPlay().register(State.TYPE, State.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(Action.TYPE, Action.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(ChooseReward.TYPE, ChooseReward.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(ChooseReward.TYPE,
-				(payload, context) -> context.server().execute(() -> {
-					var player = context.player();
+		Platform.clientbound(State.TYPE, State.CODEC);
+		Platform.serverbound(Action.TYPE, Action.CODEC, QuestNetwork::handle);
+		Platform.serverbound(ChooseReward.TYPE, ChooseReward.CODEC, (player, payload) -> {
 					if (!allowRequest(player))
 						return;
 					try {
@@ -102,14 +99,12 @@ public final class QuestNetwork {
 					} catch (Exception rejected) {
 						error(player, "action_rejected", rejected.getMessage());
 					}
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(Action.TYPE,
-				(payload, context) -> context.server().execute(() -> handle(context.player(), payload)));
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+				});
+		Platform.onPlayerJoin(player -> {
 			// Presence only affects the player's team, not every player on the server.
-			invalidatePresence(handler.player.getUUID());
-			if (ServerPlayNetworking.canSend(handler.player, State.TYPE))
-				invalidate(handler.player.getUUID());
+			invalidatePresence(player.getUUID());
+			if (Platform.canSend(player, State.TYPE))
+				invalidate(player.getUUID());
 		});
 	}
 
@@ -170,7 +165,7 @@ public final class QuestNetwork {
 					DIRTY.add(id);
 			});
 		}
-		// Cap serialization + packet bursts per tick; duplicate invalidations coalesce.
+		// Cap serialization + packet bursts per tick. Duplicate invalidations coalesce.
 		// Active queues are drained fairly on successive ticks, not all at once.
 		int processed = 0;
 		long deadline = System.nanoTime() + 4_000_000;
@@ -180,7 +175,7 @@ public final class QuestNetwork {
 			UUID id = pending.next();
 			pending.remove();
 			ServerPlayer player = server.getPlayerList().getPlayer(id);
-			if (player == null || !ServerPlayNetworking.canSend(player, State.TYPE)) {
+			if (player == null || !Platform.canSend(player, State.TYPE)) {
 				TRANSFERS.remove(id);
 				continue;
 			}
@@ -201,8 +196,8 @@ public final class QuestNetwork {
 		try {
 			TRANSFERS.drain(256 * 1024, 64 * 1024, (id, part) -> {
 				var player = server.getPlayerList().getPlayer(id);
-				if (player != null && ServerPlayNetworking.canSend(player, State.TYPE))
-					ServerPlayNetworking.send(player,
+				if (player != null && Platform.canSend(player, State.TYPE))
+					Platform.send(player,
 							new State(part.transfer(), part.index(), part.total(), part.data()));
 			});
 		} catch (Exception error) {
@@ -360,7 +355,7 @@ public final class QuestNetwork {
 	}
 
 	public static void notice(ServerPlayer player, String title, String description, String icon) {
-		if (!ServerPlayNetworking.canSend(player, State.TYPE)) {
+		if (!Platform.canSend(player, State.TYPE)) {
 			player.sendSystemMessage(net.minecraft.network.chat.Component
 					.literal(title + (description.isBlank() ? "" : "\n" + description)));
 			return;
@@ -378,7 +373,7 @@ public final class QuestNetwork {
 	}
 
 	private static void error(ServerPlayer player, String code, String detail) {
-		if (!ServerPlayNetworking.canSend(player, State.TYPE))
+		if (!Platform.canSend(player, State.TYPE))
 			return;
 		JsonObject response = new JsonObject();
 		response.addProperty("type", "error");

@@ -2,12 +2,12 @@
 
 Visual contract: stained oak, worn iron, copper fasteners, dark slate and small
 amethyst runes, sampled from the tablet's material language. No glass neon panels.
-All geometry is baked Minecraft JSON; no per-frame geometry construction.
+All geometry is baked Minecraft JSON. No per-frame geometry construction.
 
 * Quest Board: wall mounted slate writing surface, thick timber frame and corner
   straps. Place individual modules to build rectangles, strips, columns or irregular
   outlines, up to 256 connected modules. Sixteen border combinations join in all four
-  horizontal orientations. Each module retains its own settings; connected modules
+  horizontal orientations. Each module retains its own settings. Connected modules
   belonging to the same owner share configuration. Text stays inside filled rectangles.
   Legacy fixed-size boards remain compatible.
 * Submission Station: wooden cabinet, iron foot/rim, top hatch with copper handle,
@@ -18,7 +18,7 @@ All geometry is baked Minecraft JSON; no per-frame geometry construction.
   output state. Its nine-pixel collision height follows the cabinet.
 
 Editable sources are in `blockbench/world/`. Every runtime block model has its own
-`.bbmodel`; no script generates or modifies geometry. The board and station embed
+`.bbmodel`. No script generates or modifies geometry. The board and station embed
 the original 64×64 material atlas (`textures/block/questplus_utility.png`); the relay
 has its own 64×64 pixel atlas for the cabinet and signal states. The four assembled
 board projects (`quest_board_2x3` … `quest_board_4x6`) are Generic Models for
@@ -33,21 +33,21 @@ atlas, also save the texture over the PNG in `textures/block/`. Commit the
 * Legacy fixed boards: `quest_board_c`, `_n`, `_s`, `_e`, `_w`, `_ne`, `_nw`, `_se`, `_sw`.
 * Modular boards: `quest_board_module_0` … `quest_board_module_15`. The number is the
   set of framed borders: north = 1, south = 2, west = 4, east = 8 (`15` is framed on
-  all sides, `0` has no frame). The slate stops at the inner edge of every frame;
-  letting it run under the frame makes the faces z-fight on the board's outer edge.
+  all sides, `0` has no frame). The slate stops at the inner edge of every frame.
+  Letting it run under the frame makes the faces z-fight on the board's outer edge.
   A change to a frame piece must be made in each module that contains that border.
 
 Blockstates (`blockstates/quest_board.json`: 384 legacy rules, 64 modular rules) and
-item files are plain JSON with no geometry; edit them directly when needed.
+item files are plain JSON with no geometry. Edit them directly when needed.
 
-`quest_board_module_15.bbmodel` also stores the board item's display transforms;
-`models/item/quest_board.json` copies them. Dropped items use quarter scale; both
+`quest_board_module_15.bbmodel` also stores the board item's display transforms.
+`models/item/quest_board.json` copies them. Dropped items use quarter scale. Both
 third-person hands use 0.4 scale with the wall-offset depth recentered around the grip.
 
 ## In-game use
 
 Craft the blocks or find them in the QuestPlus creative tab. Place a board by
-clicking a wall. Each click consumes one module; place neighbors to extend the
+clicking a wall. Each click consumes one module. Place neighbors to extend the
 surface in either direction. Hold another board module to build directly against
 an existing module. Every module requires wall support. Breaking a module returns
 one item in survival and leaves the neighbors and their settings intact. Legacy
@@ -67,8 +67,8 @@ continuation. Its dedicated screen separates the linked quest/objective, exact
 objective progress, stored resources and highlighted input sides. The searchable
 quest picker lists all visible quests and selects the first compatible deposit
 objective when one exists. Quests without a deposit objective remain browsable,
-with an explicit explanation and Apply disabled; possession and gameplay objectives
-keep their original behavior. Ownership settings list up to 64 online players; their UUID
+with an explicit explanation and Apply disabled. Possession and gameplay objectives
+keep their original behavior. Ownership settings list up to 64 online players. Their UUID
 field also supports an offline owner. Owner/operator permissions protect ownership
 transfer. Team owners and managers can configure a station bound to their team.
 

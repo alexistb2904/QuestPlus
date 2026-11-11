@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 import java.util.*;
 
-/** Each NPC's appearance as the server last sent it; custom skins live as dynamic textures. */
+/** Each NPC's appearance as the server last sent it. Custom skins live as dynamic textures. */
 final class QuestGiverLooks {
 	record Look(boolean villager, String villagerType, Identifier skin) {
 	}
@@ -38,7 +38,7 @@ final class QuestGiverLooks {
 				var image = NativeImage.read(png);
 				Minecraft.getInstance().getTextureManager().register(skin, new DynamicTexture(() -> "QuestPlus NPC skin", image));
 			} catch (Exception unreadable) {
-				// The server validated the PNG; a client that still cannot read it falls back to the mod's skin.
+				// The server validated the PNG. A client that still cannot read it falls back to the mod's skin.
 				skin = DEFAULT_SKIN;
 			}
 		}

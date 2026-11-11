@@ -1,12 +1,10 @@
 package dev.questplus.fabric.client;
 
+import dev.questplus.platform.ClientPlatform;
 import dev.questplus.compat.ClientAdapter;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.questplus.fabric.TabletPoseNetwork;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.*;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -33,42 +31,38 @@ public final class TabletPoseClient {
 
 	public static void register() {
 		registerModelCompatibility();
-		ClientPlayNetworking.registerGlobalReceiver(TabletPoseNetwork.State.TYPE,
-				(packet, ctx) -> ctx.client().execute(() -> {
-					changeLevel(ctx.client().level);
-					transition(packet.player(), packet.open());
-				}));
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+		ClientPlatform.receive(TabletPoseNetwork.State.TYPE, packet -> {
+			changeLevel(Minecraft.getInstance().level);
+			transition(packet.player(), packet.open());
+		});
+		ClientPlatform.onDisconnect(client -> {
 			POSES.clear();
 			level = null;
 			sent = false;
 			heartbeat = 0;
 		});
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+		ClientPlatform.onClientTick(client -> {
 			changeLevel(client.level);
 			long time = System.nanoTime();
 			boolean animate = animated();
 			POSES.values().removeIf(p -> p.finishedClosed(time, animate));
-			if (client.player == null || !ClientPlayNetworking.canSend(TabletPoseNetwork.Request.TYPE))
+			if (client.player == null || !ClientPlatform.canSend(TabletPoseNetwork.Request.TYPE))
 				return;
 			boolean now = (ClientAdapter.INSTANCE.screen(client) instanceof QuestScreen || QuestClientTabletFlow.thirdPersonHolding())
 					&& client.player.isAlive() && !client.player.isSpectator();
 			if (now != sent || (now && ++heartbeat >= 100)) {
 				if (now != sent)
 					transition(client.player.getUUID(), now);
-				ClientPlayNetworking.send(new TabletPoseNetwork.Request(now));
+				ClientPlatform.send(new TabletPoseNetwork.Request(now));
 				sent = now;
 				heartbeat = 0;
 			}
 		});
-		LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
-			if (renderer instanceof AvatarRenderer<?>avatar)
-				helper.register(new Layer(avatar));
-		});
+		ClientPlatform.avatarLayer(Layer::new);
 	}
 
 	private static void registerModelCompatibility() {
-		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("entity_model_features")) return;
+		if (!dev.questplus.platform.Loader.isModLoaded("entity_model_features")) return;
 		try {
 			var api = Class.forName("traben.entity_model_features.EMFAnimationApi");
 			var entity = Class.forName("traben.entity_texture_features.utils.ETFEntity");

@@ -5,7 +5,7 @@ import dev.questplus.core.QuestDefinition;
 import java.util.Set;
 
 /**
- * Small display rules shared by the GUI and HUD; server projection remains
+ * Small display rules shared by the GUI and HUD. Server projection remains
  * authoritative.
  */
 public final class QuestPresentation {

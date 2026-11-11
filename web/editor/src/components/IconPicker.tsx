@@ -20,7 +20,7 @@ export function ItemIcon({ id, version = "26.3", size = 30 }: { id?: string; ver
 					loading="lazy"
 					src={url}
 					onError={() => setFail((f) => f + 1)}
-					// Animated vanilla textures are vertical frame strips; show only the first frame.
+					// Animated vanilla textures are vertical frame strips. Show only the first frame.
 					onLoad={(e) => e.currentTarget.classList.toggle("strip", e.currentTarget.naturalHeight > e.currentTarget.naturalWidth)}
 				/> : <Package size={Math.min(size, 24)} aria-hidden="true" />}
 		</span>

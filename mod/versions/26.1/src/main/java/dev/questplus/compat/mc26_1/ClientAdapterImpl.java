@@ -10,7 +10,7 @@ import dev.questplus.compat.ClientAdapter;
 import dev.questplus.compat.mc26_1.mixin.GameRendererFogAccessor;
 import dev.questplus.compat.mc26_1.mixin.GuiGraphicsStateAccessor;
 import java.util.List;
-import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
+import dev.questplus.platform.ClientPlatform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.render.GuiRenderer;
@@ -32,7 +32,9 @@ public final class ClientAdapterImpl implements ClientAdapter {
 
 	@Override
 	public void initialize() {
-		PictureInPictureRendererRegistry.register(context -> new TabletModelPip.Renderer(context.bufferSource()));
+		// Same buffer the GUI renderer hands to vanilla picture-in-picture renderers.
+		ClientPlatform.pictureInPicture(TabletModelPip.State.class,
+				() -> new TabletModelPip.Renderer(Minecraft.getInstance().renderBuffers().bufferSource()));
 	}
 
 	@Override

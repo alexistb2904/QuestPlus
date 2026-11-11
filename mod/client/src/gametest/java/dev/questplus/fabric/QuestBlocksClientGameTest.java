@@ -65,7 +65,7 @@ public final class QuestBlocksClientGameTest {
                 var buttons=ClientAdapter.INSTANCE.screen(client).children().stream().filter(QuestButton.class::isInstance).map(QuestButton.class::cast).toList();
                 var back=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.station.back").getString())).findFirst().orElseThrow();
                 var apply=buttons.stream().filter(b->b.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("questplus.blocks.save").getString())).findFirst().orElseThrow();
-                // The status shares the footer row with Apply; the footer rule sits 6px above it.
+                // The status shares the footer row with Apply. The footer rule sits 6px above it.
                 if(apply.getY()-6<=back.getY()+back.getHeight())throw new AssertionError("Station owner footer overlaps the Back button");
             });
             clickLabel(context,net.minecraft.network.chat.Component.translatable("questplus.station.back").getString());
@@ -124,7 +124,7 @@ public final class QuestBlocksClientGameTest {
                 var p=instance.getPlayerList().getPlayers().getFirst();var be=(QuestUtilityEntity)p.level().getBlockEntity(pos[1]);
                 if(be.rows.size()!=2||be.rows.get(0).fraction()!=.5||!be.rows.get(1).count().equals("4 / 8"))throw new AssertionError("Station display did not track half progress: "+be.rows);
                 try(var tx=net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()){
-                    be.items.insert(net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(Items.STONE),4,tx);tx.commit();
+                    QuestStationStorage.items(be).insert(net.fabricmc.fabric.api.transfer.v1.item.ItemVariant.of(Items.STONE),4,tx);tx.commit();
                 }
             });
             context.waitFor(client->QuestClientState.flag(QuestPlusClient.STATE.progress("questplus:blocks_client"),"completed"),300);

@@ -1,8 +1,8 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import dev.questplus.compat.CommonAdapter;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -23,13 +23,13 @@ import java.util.*;
  * removes itself after {@link #DURATION}, and cannot be mined, pushed or looted.
  */
 public final class QuestLootChest extends Block implements EntityBlock {
-	/** Animation beats in ticks from placement; the client renderer uses the same clock. */
+	/** Animation beats in ticks from placement. The client renderer uses the same clock. */
 	public static final int OPEN = 40, BURST = 84, COLLECT = 125, DURATION = 150;
 	/** Auto-delivery waits until the loot flies to its owner. */
 	static final int DELIVER = COLLECT + 5;
 	public static QuestLootChest BLOCK;
 	public static BlockEntityType<Stage> ENTITY;
-	/** Set by the client entrypoint; dedicated servers never load client code. */
+	/** Set by the client entrypoint. Dedicated servers never load client code. */
 	public static BlockEntityTicker<Stage> clientTicker;
 	private static final VoxelShape SHAPE = box(1, 0, 2, 15, 14, 14);
 
@@ -44,7 +44,7 @@ public final class QuestLootChest extends Block implements EntityBlock {
 				new QuestLootChest(BlockBehaviour.Properties.of().setId(key).strength(-1, 3_600_000).noLootTable()
 						.noOcclusion().lightLevel(s -> 10).sound(SoundType.WOOD).pushReaction(CommonAdapter.INSTANCE.immovable())));
 		ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id,
-				FabricBlockEntityTypeBuilder.create(Stage::new, BLOCK).build());
+				Platform.blockEntityType(Stage::new, BLOCK));
 	}
 
 	/** Where a crate used on {@code clicked} would stand, or null when it cannot be staged there. */
@@ -93,7 +93,7 @@ public final class QuestLootChest extends Block implements EntityBlock {
 	}
 
 	public static final class Stage extends BlockEntity {
-		/** Game time of placement; -1 (e.g. /setblock) removes the stage on its first tick. */
+		/** Game time of placement. -1 (e.g. /setblock) removes the stage on its first tick. */
 		public long start = -1;
 		public int rarity;
 		public List<ItemStack> items = List.of();

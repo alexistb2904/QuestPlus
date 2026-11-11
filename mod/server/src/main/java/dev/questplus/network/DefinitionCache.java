@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * Only sanitized projections are cached; visibility and redaction are part of
+ * Only sanitized projections are cached. Visibility and redaction are part of
  * the key.
  */
 public final class DefinitionCache {

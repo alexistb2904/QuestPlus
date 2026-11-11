@@ -6,7 +6,7 @@ Create a quest pack in Quest Studio, test it in Minecraft, and ship it as the de
 
 ## Create your quests
 
-1. Install Quest Plus and Fabric API in your modpack, then [open Quest Studio](https://quest.alexistb.com/).
+1. Install Quest Plus in your modpack (with Fabric API on Fabric), then [open Quest Studio](https://quest.alexistb.com/).
 2. Create a project, add categories and quests, and set their objectives, prerequisites and rewards. Use IDs from the mods installed in your pack.
 3. Fix the validation errors and select **Export ZIP**. Keep the ZIP as a backup: browser drafts are local to that browser.
 
@@ -55,7 +55,7 @@ You can instead use `/questplus retrieve` and then `/questplus retrieve confirm`
 3. Review the warnings and source to QuestPlus ID mapping. Select the quests to import, their prerequisites are included automatically. Set the source fluid units and FE per Fabric energy unit to match the original pack. Download the report and source backup if needed.
 4. Select **Replace project**, inspect the result, fix any reported issues and export a Quest Plus ZIP. Install it into a test world and play through the imported quests.
 
-Unsupported quests and their dependents are excluded with a reason. Custom scripts, third party tasks and Task Screens need separate work and are not automatically converted. Review warnings for unsupported rewards or mechanics, a successful import does not prove the original modpack works on Fabric or that every quest behaves identically.
+Unsupported quests and their dependents are excluded with a reason. Custom scripts, third party tasks and Task Screens need separate work and are not automatically converted. Review warnings for unsupported rewards or mechanics, a successful import does not prove the original modpack works on your loader or that every quest behaves identically.
 
 The Studio import converts **definitions**, not player saves. The separate [FTB progress migration commands](/reference/commands#recovery-and-migration-op) are an operator workflow for existing worlds.
 

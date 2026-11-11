@@ -1,5 +1,5 @@
 /** Safe multi-quest edits for modpack authors. IDs, objectives and prerequisites are never rewritten.
- * Returned project is a copy; callers validate before committing to undo history. */
+ * Returned project is a copy. Callers validate before committing to undo history. */
 export const BULK_ACTIONS = Object.freeze([
 	{ id: "hide", label: "Hide quests" },
 	{ id: "show", label: "Show quests" },

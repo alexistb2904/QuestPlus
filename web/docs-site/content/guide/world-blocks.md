@@ -84,7 +84,7 @@ Possession checks and gameplay objectives, such as breaking blocks, keep their u
 
 ### Fluids, energy and recovery
 
-Buckets work directly on the station without sneaking. Compatible pipes can transfer fluids through enabled sides. Energy transfer requires the separately installed **Team Reborn Energy API** and a compatible energy source.
+Buckets work directly on the station without sneaking. Compatible pipes can transfer fluids through enabled sides. Energy transfer requires a compatible FE source. On Fabric it also requires the separately installed **Team Reborn Energy API**.
 
 Use the return button to recover buffered items, or disable automation and extract them with a hopper. Fluid and energy buffers also allow extraction through enabled sides.
 

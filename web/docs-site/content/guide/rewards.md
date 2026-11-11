@@ -90,4 +90,4 @@ Keep tier IDs stable. Increasing a display title is safe for identity, while cha
 
 This is the `rewards` list of a quest. Save and export your project from Quest Studio.
 
-To give rewards from another Fabric mod, [register a custom reward handler](/reference/java-api). Custom rewards appear in Studio when the integration exposes an editor descriptor.
+To give rewards from another Fabric or NeoForge mod, [register a custom reward handler](/reference/java-api). Custom rewards appear in Studio when the integration exposes an editor descriptor.

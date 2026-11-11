@@ -1,50 +1,122 @@
 plugins {
     id 'base'
     id 'net.fabricmc.fabric-loom' version '1.18.4' apply false
+    id 'net.neoforged.moddev' version '2.0.148' apply false
 }
 
 version = project.mod_version
 group = project.maven_group
 
 ext.versionKey = { String v -> v.tokenize('+')[0].tokenize('.').collect { it.padLeft(6, '0') }.join('.') }
-ext.targets = subprojects.sort { versionKey(it.name) }
-ext.referenceTarget = targets.last()
-ext.adapterId = { Project target -> 'mc' + target.name.replace('.', '_') }
+ext.isNeoForge = { Project target -> target.name.startsWith('neoforge-') }
+ext.minecraftFolder = { Project target -> target.name - 'neoforge-' }
+ext.targets = subprojects.findAll { !isNeoForge(it) }.sort { versionKey(it.name) }
+ext.neoforgeTargets = subprojects.findAll { isNeoForge(it) }.sort { versionKey(minecraftFolder(it)) }
+ext.referenceTarget = targets ? targets.last() : null
+ext.neoforgeReference = neoforgeTargets ? neoforgeTargets.last() : null
+ext.adapterId = { Project target -> 'mc' + minecraftFolder(target).replace('.', '_') }
 ext.targetMetadata = targets.collectEntries { target ->
     [(adapterId(target)): [minecraft: target.validated_minecraft.tokenize(','), 'fabric-api': target.fabric_version]]
 }
+ext.neoforgeMetadata = neoforgeTargets.collectEntries { target ->
+    [(adapterId(target)): [minecraft: target.validated_minecraft.tokenize(','), neoforge: target.neoforge_version]]
+}
+ext.sharedResources = { Task task ->
+    task.from(rootProject.file('licenses/native-tablet')) { into 'META-INF/licenses/native-tablet' }
+    task.from(rootProject.file('server/src/legacy-defaults')) { into 'defaults' }
+    task.from(rootProject.file('../web/editor/src/data')) {
+        include 'challenge-catalogue.json', 'equipment-catalogue.json', 'explorers-catalogue.json'
+        into 'defaults/catalogue'
+    }
+}
+ext.loaderClasses = { String loader ->
+    def root = file("${loader}/src/main/java")
+    fileTree(root) { include '**/*.java' }.files.collect {
+        root.toPath().relativize(it.toPath()).toString().replace(File.separator, '/') - '.java'
+    }
+}
 
-// ASM is on this script's classpath (via Loom) but not on applied scripts', so share a reader.
+ext.verifyIntegration = { File report, File saves, File teams ->
+    def coverage = new groovy.json.JsonSlurper().parse(rootProject.file('server/src/gametest/resources/objective-coverage.json'))
+    def cases = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        .parse(report).getElementsByTagName('testcase')
+    coverage.keySet().each { scenario ->
+        def testName = 'questplus-test:' + scenario.replace('.', '_')
+            .replaceAll('([a-z0-9])([A-Z])', '$1_$2').toLowerCase(Locale.ROOT)
+        def test = (0..<cases.length).collect { cases.item(it) }.find { it.getAttribute('name') == testName }
+        assert test != null && test.getElementsByTagName('failure').length == 0 : "Missing or failed objective scenario: ${scenario}"
+    }
+    logger.lifecycle("Verified in-game coverage for ${coverage.values().sum { it.size() }} shipped triggers")
+    def expected = new groovy.json.JsonSlurper().parse(saves)
+    assert expected.players.size() >= 140
+    expected.players.each { uuid ->
+        def saved = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${uuid}.json"))
+        assert saved.schemaVersion == 2
+        assert saved.quests['questplus:survival/logs'].completed
+    }
+    def recipient = new groovy.json.JsonSlurper().parse(new File(expected.directory, "${expected.recipient}.json"))
+    assert recipient.claims['questplus:survival/logs'] == 'delivered'
+    def teamExpected = new groovy.json.JsonSlurper().parse(teams)
+    def memberA = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.a}.json"))
+    def memberB = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "players/${teamExpected.b}.json"))
+    def team = new groovy.json.JsonSlurper().parse(new File(teamExpected.root, "teams/${teamExpected.team}.json"))
+    assert memberA.teamId == null && memberB.teamId == null
+    assert memberA.quests['questplus:team_integration'].completed && memberB.quests['questplus:team_integration'].completed
+    assert memberA.claims['questplus:team_integration'] == 'delivered'
+    assert memberB.entitlements['questplus:team_integration'] != null
+    assert team.disbanded && team.members.empty
+    logger.lifecycle("Quest Plus shutdown saves verified: ${expected.players.size()} UUIDs and durable reward ledger")
+}
+
 ext.classNode = { byte[] bytes ->
     def node = new org.objectweb.asm.tree.ClassNode()
     new org.objectweb.asm.ClassReader(bytes).accept(node, org.objectweb.asm.ClassReader.SKIP_CODE)
     node
 }
 
-// Several game instances at once starve GameTest tick budgets: one target's game runs at a time.
 abstract class GameTestSlot implements org.gradle.api.services.BuildService<org.gradle.api.services.BuildServiceParameters.None> {}
 def gameTestSlot = gradle.sharedServices.registerIfAbsent('questplusGameTests', GameTestSlot) { maxParallelUsages = 1 }
 
-subprojects {
+configure(targets) {
     apply plugin: 'net.fabricmc.fabric-loom'
     apply from: rootProject.file('gradle/minecraft-target.gradle')
     tasks.matching { it.name in ['runGameTest', 'runClientGameTest'] }.configureEach { usesService(gameTestSlot) }
 }
+configure(neoforgeTargets) {
+    apply plugin: 'net.neoforged.moddev'
+    apply from: rootProject.file('gradle/neoforge-target.gradle')
+    tasks.matching { it.name in ['runGameTestServer', 'runClientSmokeTest'] }.configureEach { usesService(gameTestSlot) }
+}
 
 def allTargets = !gradle.startParameter.projectProperties.mc
-def releaseJar = tasks.register('universalJar', Copy) {
-    group = 'build'
-    description = allTargets ? 'Universal JAR for every validated Minecraft target.'
-        : 'Single-target JAR (-Pmc): only the selected Minecraft target is declared.'
-    from(referenceTarget.tasks.named('jar'))
-    into layout.buildDirectory.dir('libs')
-    rename { allTargets ? "questplus-${version}.jar" : "questplus-${version}+mc${referenceTarget.name}.jar" }
+if (referenceTarget) {
+    def releaseJar = tasks.register('universalJar', Copy) {
+        group = 'build'
+        description = allTargets ? 'Universal Fabric JAR for every validated Minecraft target.'
+            : 'Single-target Fabric JAR (-Pmc): only the selected Minecraft target is declared.'
+        from(referenceTarget.tasks.named('jar'))
+        into layout.buildDirectory.dir('libs')
+        rename { allTargets ? "questplus-${version}.jar" : "questplus-${version}+mc${referenceTarget.name}.jar" }
+    }
+    tasks.named('assemble') { dependsOn releaseJar }
 }
-tasks.named('assemble') { dependsOn releaseJar }
+if (neoforgeReference) {
+    def neoforgeJar = tasks.register('neoforgeJar', Copy) {
+        group = 'build'
+        description = allTargets ? 'Universal NeoForge JAR for every validated Minecraft target.'
+            : 'Single-target NeoForge JAR (-Pmc): only the selected Minecraft target is declared.'
+        from(neoforgeReference.tasks.named('jar'))
+        into layout.buildDirectory.dir('libs')
+        rename { allTargets ? "questplus-${version}-neoforge.jar" : "questplus-${version}-neoforge+mc${minecraftFolder(neoforgeReference)}.jar" }
+    }
+    tasks.named('assemble') { dependsOn neoforgeJar }
+}
 
+def everyTarget = targets + neoforgeTargets
+def comparison = referenceTarget ?: neoforgeReference
 def verifyShared = tasks.register('verifySharedBytecode') {
     group = 'verification'
-    dependsOn targets.collect { "${it.path}:compileJava" }
+    dependsOn everyTarget.collect { "${it.path}:compileJava" }
     doLast {
         def linkable = { File file ->
             def node = new org.objectweb.asm.tree.ClassNode()
@@ -60,16 +132,48 @@ def verifyShared = tasks.register('verifySharedBytecode') {
                 [(root.toPath().relativize(it.toPath()).toString().replace(File.separator, '/')): it]
             }
         }
-        def reference = classesOf(referenceTarget)
-        targets.findAll { it != referenceTarget }.each { target ->
-            def other = classesOf(target)
-            def differing = (reference.keySet() + other.keySet()).findAll { name ->
-                !reference[name] || !other[name] || linkable(reference[name]) != linkable(other[name])
+        def glue = [fabric: loaderClasses('fabric'), neoforge: loaderClasses('neoforge')]
+        def loaderOf = { Project target -> isNeoForge(target) ? 'neoforge' : 'fabric' }
+        def isGlue = { String loader, String name -> glue[loader].any { name == "${it}.class" || name.startsWith("${it}\$") } }
+        def compare = { Project reference, Project target, Closure include ->
+            def expected = classesOf(reference), actual = classesOf(target)
+            def differing = (expected.keySet() + actual.keySet()).findAll(include).findAll { name ->
+                !expected[name] || !actual[name] || linkable(expected[name]) != linkable(actual[name])
             }.sort()
-            if (differing) throw new GradleException("Shared classes differ between Minecraft ${referenceTarget.name} and ${target.name}; " +
-                "move the version-specific call into dev.questplus.compat adapters:\n  " + differing.join('\n  '))
+            if (differing) throw new GradleException("Classes differ between ${reference.name} and ${target.name}; " +
+                "move the version-specific call into dev.questplus.compat adapters (or the loader's dev.questplus.platform):\n  " + differing.join('\n  '))
+            expected.size()
         }
-        logger.lifecycle("Shared bytecode identical on ${targets*.name.join(', ')} (${reference.size()} classes)")
+        int shared = 0
+        everyTarget.findAll { it != comparison }.each { target ->
+            def sameLoader = loaderOf(target) == loaderOf(comparison)
+            shared = compare(comparison, target) { name -> sameLoader || !isGlue('fabric', name) && !isGlue('neoforge', name) }
+        }
+        if (neoforgeReference && referenceTarget)
+            neoforgeTargets.findAll { it != neoforgeReference }.each { compare(neoforgeReference, it) { true } }
+        logger.lifecycle("Shared bytecode identical on ${everyTarget*.name.join(', ')} (${shared} classes)")
     }
 }
 tasks.named('check') { dependsOn verifyShared }
+
+if (referenceTarget && neoforgeReference) {
+    def verifyPlatform = tasks.register('verifyPlatformApi') {
+        group = 'verification'
+        dependsOn "${referenceTarget.path}:compileJava", "${neoforgeReference.path}:compileJava"
+        doLast {
+            def api = { Project target, String name ->
+                def file = new File(target.tasks.named('compileJava').get().destinationDirectory.get().asFile, "dev/questplus/platform/${name}.class")
+                def node = new org.objectweb.asm.tree.ClassNode()
+                new org.objectweb.asm.ClassReader(file.bytes).accept(node, org.objectweb.asm.ClassReader.SKIP_CODE)
+                node.methods.findAll { (it.access & org.objectweb.asm.Opcodes.ACC_PUBLIC) && (it.access & org.objectweb.asm.Opcodes.ACC_STATIC) }
+                    .collect { it.name + it.desc } as Set
+            }
+            def errors = ['Loader', 'Platform', 'ClientPlatform'].collectMany { name ->
+                def fabric = api(referenceTarget, name), neoforge = api(neoforgeReference, name)
+                (fabric - neoforge).collect { "${name}.${it} missing on NeoForge" } + (neoforge - fabric).collect { "${name}.${it} missing on Fabric" }
+            }
+            if (errors) throw new GradleException("Loader platform classes disagree:\n  " + errors.join('\n  '))
+        }
+    }
+    tasks.named('check') { dependsOn verifyPlatform }
+}

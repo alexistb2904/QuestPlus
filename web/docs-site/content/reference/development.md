@@ -1,6 +1,6 @@
 # Build and contribute
 
-QuestPlus has three runtime responsibilities and two deployed units. The browser editor and optional web API form the web service. Client and server Java compile together into one Fabric JAR.
+QuestPlus has three runtime responsibilities and two deployed units. The browser editor and optional web API form the web service. Client and server Java compile together into one Fabric JAR and one NeoForge JAR. Shared code never imports a loader API: it calls `dev.questplus.platform` classes that each loader implements with identical signatures. `mod/versions/README.md` documents the Minecraft targets.
 
 ## Source map
 
@@ -10,6 +10,9 @@ QuestPlus has three runtime responsibilities and two deployed units. The browser
 | `mod/server/src/main/java/dev/questplus/core/`        | Pack validation, objective rules and progress models        |
 | `mod/server/src/main/java/dev/questplus/fabric/`      | Server lifecycle, commands, networking and integrations     |
 | `mod/server/src/main/java/dev/questplus/persistence/` | Durable progress and claims                                 |
+| `mod/fabric/`                                         | Fabric glue: entrypoints, events, payloads, Transfer API    |
+| `mod/neoforge/`                                       | NeoForge glue: `@Mod` entrypoint, events, payloads, capabilities |
+| `mod/versions/`                                       | Per Minecraft version adapters for both loaders             |
 | `web/editor/`                                         | React and TypeScript quest authoring                        |
 | `web/api/`                                            | Same origin static hosting, approvals and publication relay |
 | `web/docs-site/`                                      | This VitePress documentation                                |
@@ -25,9 +28,9 @@ cd mod
 .\gradlew.bat build
 ```
 
-In `mod/`, on other platforms use `./gradlew build` with Java 25 configured. The release artifact is written to `mod/build/libs/`.
+In `mod/`, on other platforms use `./gradlew build` with Java 25 configured. The release artifacts are written to `mod/build/libs/`: `questplus-<version>.jar` (Fabric) and `questplus-<version>-neoforge.jar`. Add `-Ploader=fabric` or `-Ploader=neoforge` to build one loader, or `-Pmc=26.2` to build one Minecraft version.
 
-On Windows, `dev.bat` option **5** (`dev.bat build`) runs the full mod build, JUnit tests, server GameTests and JAR checks. Option **10** (`dev.bat compile`) only compiles and packages the mod: enter the desired mod version, or press Enter to keep the current `mod_version` from `mod/gradle.properties`. The selected version is saved to that file before compilation, so Gradle also writes it into the generated `fabric.mod.json` inside the JAR. The script copies `questplus-<version>.jar` into `output/` at the repository root. The selected version remains saved if compilation fails. An existing output JAR with the same version is replaced only after a successful build. The Minecraft version stays unchanged.
+On Windows, `dev.bat` option **5** (`dev.bat build`) runs the full mod build, JUnit tests, server GameTests and JAR checks. Option **10** (`dev.bat compile`) only compiles and packages the mod: enter the desired mod version, or press Enter to keep the current `mod_version` from `mod/gradle.properties`. The selected version is saved to that file before compilation, so Gradle also writes it into the generated `fabric.mod.json` and `neoforge.mods.toml` inside the JARs. The script copies `questplus-<version>.jar` and `questplus-<version>-neoforge.jar` into `output/` at the repository root. The selected version remains saved if compilation fails. An existing output JAR with the same version is replaced only after a successful build. The Minecraft version stays unchanged.
 
 ## Run the required checks
 
@@ -61,17 +64,17 @@ npm ci
 npm run build
 ```
 
-The build validates Java and artifact packaging. `integrationTest` exercises the Fabric server boundary. Client GameTests require graphics support. Run Gradle compilation and GPU tests sequentially because they share generated resources.
+The build covers every Minecraft target on both loaders and validates Java and artifact packaging. `verifySharedBytecode` and `verifyPlatformApi` fail if shared code differs between targets or imports a loader API. `integrationTest` runs the same server GameTests on Fabric and NeoForge. Client tests require graphics support: `runClientGameTest` on Fabric and `clientSmokeTest` on NeoForge. Run Gradle compilation and GPU tests sequentially because they share generated resources.
 
 ## Prepare a release
 
 Review `licenses/ANIMATION-NOTICES.md` before distributing bundled libraries. The current repository notes record an unresolved redistribution prerequisite for the CommonUtils services library nested inside PAL. Passing artifact verification does not resolve that prerequisite.
 
-When release requirements are satisfied, the animation libraries are embedded dependencies and Fabric API remains external. Do not publish a capture or test JAR as a release artifact.
+When release requirements are satisfied, the animation libraries are embedded dependencies and Fabric API remains external on Fabric. Do not publish a capture or test JAR as a release artifact.
 
 ## Run locally
 
-From `mod/`, use `./gradlew runClient` or `./gradlew runServer` for the development game. Start Studio with `npm run dev` in `web/editor/`. It remains useful without the web API through local drafts and ZIP import or export.
+From `mod/`, use `./gradlew runClient` or `./gradlew runServer` for the development game on Fabric, or `./gradlew :neoforge-26.3:runClient` on NeoForge. Start Studio with `npm run dev` in `web/editor/`. It remains useful without the web API through local drafts and ZIP import or export.
 
 On Windows, `dev.bat client` also prepares and starts the local web API for solo editing, or reuses the running service. Run `/questplus editor` in your world, open the link and approve the browser code in Minecraft. Startup logs are in `run/questplus-client-web.log`. The API stays running after the game closes. If it cannot start, gameplay remains available and you can use `dev.bat api` before retrying. Direct Gradle launches and installed JARs still need a separately configured web API for connected editing in solo or multiplayer.
 

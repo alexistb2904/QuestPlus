@@ -1,0 +1,35 @@
+# Placeholders are expanded by Gradle from versions/<mc>/neoforge/gradle.properties. Never hand-edit the results.
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "questplus"
+version = "${version}"
+displayName = "Quest Plus"
+iconFile = "assets/questplus/icon.png"
+description = '''Server-authoritative JSON quest engine.'''
+
+[[mixins]]
+config = "questplus.mixins.json"
+
+[[mixins]]
+config = "questplus.client.mixins.json"
+
+[[mixins]]
+config = "questplus.neoforge.mixins.json"
+${target_mixins}
+[[dependencies.questplus]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_range}"
+ordering = "NONE"
+side = "BOTH"
+
+# Lowest tested build overall. MinecraftTarget enforces each target's own minimum.
+[[dependencies.questplus]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge_minimum},)"
+ordering = "NONE"
+side = "BOTH"

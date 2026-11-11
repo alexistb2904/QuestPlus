@@ -1,8 +1,7 @@
 package dev.questplus.fabric;
 
+import dev.questplus.platform.Platform;
 import dev.questplus.core.*;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -11,7 +10,7 @@ import java.util.*;
 
 /**
  * Server-owned six-block observation raycast. Idle players are probed at a
- * staggered low frequency; once looking at an authored objective, every tick is
+ * staggered low frequency. Once looking at an authored objective, every tick is
  * verified. ObservationCounter still requires consecutive validated ticks for
  * dwell rewards.
  */
@@ -31,8 +30,8 @@ final class ObservationEvents {
 	}
 
 	static void register() {
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> TRACKERS.remove(handler.player.getUUID()));
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+		Platform.onPlayerDisconnect((player, server) -> TRACKERS.remove(player.getUUID()));
+		Platform.onServerStopping(server -> {
 			TRACKERS.clear();
 			lastRegistry = null;
 			authoredTargets = Map.of();
@@ -98,7 +97,7 @@ final class ObservationEvents {
 					continue;
 				var previous = tracker.published.get(event);
 				Map<String, Long> values = new HashMap<>();
-				// First sample clears persisted counters; later samples reset only the old gaze.
+				// First sample clears persisted counters. Later samples reset only the old gaze.
 				for (String old : previous == null ? authored : previous.keySet())
 					values.put(old, 0L);
 				if (event.equals(type)) {

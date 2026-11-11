@@ -3657,7 +3657,7 @@ kbd {
 	outline: 2px solid #c18af6;
 }
 
-/* Diagram nodes retain authored world dimensions; their whole visual subtree is
+/* Diagram nodes retain authored world dimensions. Their whole visual subtree is
  * scaled by camera.zoom (including icons, text, images, selection handles). */
 .annotation-node {
 	box-sizing: border-box !important;
@@ -3707,7 +3707,7 @@ kbd {
 		grid-template-columns: minmax(220px, 1fr) 8px clamp(240px, var(--properties-width, 355px), min(700px, calc(100% - 294px)));
 	}
 }
-/* At laptop widths the library is an overlay; it must not consume a grid track.
+/* At laptop widths the library is an overlay. It must not consume a grid track.
    Keep the properties handle live for the diagram/properties split. */
 @media (min-width: 901px) and (max-width: 1199px) {
 	.workspace,
@@ -3961,12 +3961,12 @@ kbd {
 	text-align: left;
 }
 
-/* Thin strokes remain interactive at any scale; visible cables follow world zoom. */
+/* Thin strokes remain interactive at any scale. Visible cables follow world zoom. */
 .edges .edge-hit {
 	stroke-width: max(14px, calc(14px * var(--diagram-zoom, 1)));
 }
 
-/* Vanilla enchantment browser; custom modded IDs stay editable in GearEditor. */
+/* Vanilla enchantment browser. Custom modded IDs stay editable in GearEditor. */
 .enchantment-picker-list {
 	display: grid;
 	gap: 4px;
@@ -6976,7 +6976,7 @@ kbd {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* Condition builder v2: the root is a sentence and a flat list; only sub-groups are boxed. */
+/* Condition builder v2: the root is a sentence and a flat list. Only sub-groups are boxed. */
 .condition-builder > .cond-group.depth-0 {
 	padding: 0;
 	background: none;

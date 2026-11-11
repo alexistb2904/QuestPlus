@@ -3,7 +3,7 @@ import { exportTemplateBundle, importTemplateBundle, savedQuestTemplates } from 
 import { tUI } from "../ui/ui-i18n.js";
 import { Dialog } from "./Dialog";
 
-/** Personal templates stay local and portable; quest packs do not silently include them. */
+/** Personal templates stay local and portable. Quest packs do not silently include them. */
 export function TemplateLibrary({
 	onClose,
 	projectTemplates,
