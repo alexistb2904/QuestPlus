@@ -65,3 +65,11 @@ test("quest giver appearance accepts a villager outfit or a 64×64 PNG skin", as
 	assert.equal(check([npc({ villager: "moon" })]).length, 1);
 	assert.equal(check([npc({ skin: png(64, 64) })]).length, 1, "a skin needs the player model");
 });
+
+test("crate bosses accept entity IDs, #tags and ! exclusions only", async () => {
+	const { crateBossesValid, parseCrateBosses } = await import("../src/core/project.js");
+	const list = parseCrateBosses(" chronodawn:time_tyrant, #c:bosses\n!minecraft:wither ,");
+	assert.deepEqual(list, ["chronodawn:time_tyrant", "#c:bosses", "!minecraft:wither"]);
+	assert.ok(crateBossesValid(list) && crateBossesValid([]));
+	for (const bad of [["Warden"], ["minecraft:"], ["#!c:bosses"], [1], "minecraft:warden", Array(257).fill("a:b")]) assert.ok(!crateBossesValid(bad), String(bad));
+});

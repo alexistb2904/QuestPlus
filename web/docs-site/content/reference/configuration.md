@@ -17,17 +17,31 @@ Pack configuration, client presentation and web credentials have different owner
 }
 ```
 
-| Field                  | Accepted values                              | Default                           |
-| ---------------------- | -------------------------------------------- | --------------------------------- |
-| `schemaVersion`        | `1`                                          | Required                          |
-| `autosaveSeconds`      | Integer from 1 to 300                        | Required, bundled value is 5      |
-| `teamRewardPolicy`     | `all_members` or `contributor`               | `all_members`                     |
-| `allowDuplicateTeamNames` | Boolean. With `false`, new duplicate names are rejected, ignoring case | `true` |
-| `enableCommandRewards` | Boolean                                      | `false`                           |
-| `dropLootCrates`       | Boolean                                      | `false`                           |
-| `crateNoDrop`          | Validated weight overrides by creature group | Passive 4000, monster 600, boss 0 |
-| `npcTurnIn`            | Boolean. With `true`, rewards of NPC quests are claimed only at an NPC that offers the quest | `true` |
-| `npcs`                 | Quest givers, see below                      | None                              |
+| Field                     | Accepted values                                                                              | Default                           |
+| ------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------- |
+| `schemaVersion`           | `1`                                                                                          | Required                          |
+| `autosaveSeconds`         | Integer from 1 to 300                                                                        | Required, bundled value is 5      |
+| `teamRewardPolicy`        | `all_members` or `contributor`                                                               | `all_members`                     |
+| `allowDuplicateTeamNames` | Boolean. With `false`, new duplicate names are rejected, ignoring case                       | `true`                            |
+| `enableCommandRewards`    | Boolean                                                                                      | `false`                           |
+| `dropLootCrates`          | Boolean                                                                                      | `false`                           |
+| `crateNoDrop`             | Validated weight overrides by creature group                                                 | Passive 4000, monster 600, boss 0 |
+| `crateBosses`             | Up to 256 entity IDs or `#tags` counted as bosses for crates, see below                      | None                              |
+| `npcTurnIn`               | Boolean. With `true`, rewards of NPC quests are claimed only at an NPC that offers the quest | `true`                            |
+| `npcs`                    | Quest givers, see below                                                                      | None                              |
+
+## Crate bosses
+
+A killed mob uses the `boss` crate weights when it is the Ender Dragon, the Wither or in the `#c:bosses` tag. `crateBosses` changes that list. Quest Studio edits it in the bottom bar, next to **Enable loot crate drops**.
+
+```json
+"crateBosses": ["chronodawn:time_tyrant", "minecraft:warden", "#mymod:bosses", "!minecraft:wither"]
+```
+
+- An entity ID or a `#tag` adds those mobs to the bosses.
+- A leading `!` removes them, even the Ender Dragon, the Wither or a mob of `#c:bosses`. A removed mob counts as a monster or a passive mob.
+- Every ID and tag must exist on the server. An unknown one, for example from a mod that is not installed, rejects the reload and keeps the previous configuration.
+- Without the key, only the Ender Dragon, the Wither and `#c:bosses` are bosses.
 
 ## Quest givers (NPCs)
 

@@ -279,6 +279,10 @@ export function references(req, out = []) {
 	if (Array.isArray(req.at_least?.of)) req.at_least.of.forEach((n) => references(n, out));
 	return out;
 }
+/** config.json "crateBosses" from Studio text: entity IDs or #tags, "!" excludes. Registry existence is checked by the server. */
+export const parseCrateBosses = (text) => text.split(/[\s,]+/).filter(Boolean);
+export const crateBossesValid = (list) =>
+	Array.isArray(list) && list.length <= 256 && list.every((t) => typeof t === "string" && /^!?#?[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(t));
 /** Mirrors the server's QuestNpcs rules for config.json "npcs". */
 export function validateNpcs(npcs, questIds, fail) {
 	if (!Array.isArray(npcs) || npcs.length > 256) return fail("NPC", "Invalid NPC list");
@@ -372,6 +376,7 @@ export function validate(p) {
 			Object.values(p.config.crateNoDrop).some((n) => !Number.isInteger(n) || n < 0 || n > 1000000))
 	)
 		fail("Config", "Invalid crate drop weights");
+	if (p?.config?.crateBosses !== undefined && !crateBossesValid(p.config.crateBosses)) fail("Config", "Invalid crate bosses");
 	if (p?.config?.npcTurnIn !== undefined && typeof p.config.npcTurnIn !== "boolean") fail("Config", "Invalid NPC turn-in flag");
 	if (p?.config?.npcs !== undefined) validateNpcs(p.config.npcs, new Set(p.quests.map((q) => q.id)), fail);
 	const validateRewards = (list, label) => {

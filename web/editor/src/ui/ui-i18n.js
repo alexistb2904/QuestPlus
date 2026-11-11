@@ -99,6 +99,13 @@ const ROWS = [
 		"掉落权重（在项目设置中启用）",
 	],
 	["Enable loot crate drops", "Activer les caisses dans le butin", "Activar cajas de botín", "启用战利品箱掉落"],
+	["Crate bosses", "Boss des caisses", "Jefes de cajas", "战利品箱首领"],
+	[
+		"Entity IDs or #tags treated as bosses for crates; prefix ! to exclude",
+		"ID d'entités ou #tags traités comme boss pour les caisses ; préfixe ! pour exclure",
+		"ID de entidades o #tags tratados como jefes para las cajas; prefijo ! para excluir",
+		"视为战利品箱首领的实体 ID 或 #标签；前缀 ! 表示排除",
+	],
 	["passive", "Passifs", "Pasivos", "被动生物"],
 	["monster", "Monstres", "Monstruos", "怪物"],
 	["boss", "Boss", "Jefes", "首领"],

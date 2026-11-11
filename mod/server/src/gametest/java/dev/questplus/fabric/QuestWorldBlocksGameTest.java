@@ -119,6 +119,23 @@ public final class QuestWorldBlocksGameTest {
         }
         h.succeed();
     }
+    /** Loot tables carry both pool condition formats (26.1/26.2 "conditions", 26.3 "condition"); each target must read its own. */
+    @GameTest(maxTicks=100)
+    public void blockLootSurvivesExplosionConditionOnEveryTarget(GameTestHelper h) {
+        var level=h.getLevel();var pos=h.absolutePos(new BlockPos(1,1,1));
+        for(var block:List.of(QuestWorldBlocks.BOARD,QuestWorldBlocks.STATION,QuestWorldBlocks.RELAY)) {
+            java.util.function.Function<Float,List<ItemStack>> drops=radius->{
+                var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(level)
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,net.minecraft.world.phys.Vec3.atCenterOf(pos))
+                        .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL,ItemStack.EMPTY);
+                if(radius!=null)params.withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.EXPLOSION_RADIUS,radius);
+                return block.defaultBlockState().getDrops(params);
+            };
+            h.assertTrue(drops.apply(null).stream().anyMatch(s->s.is(block.asItem())),block+" drops itself");
+            h.assertTrue(drops.apply(Float.MAX_VALUE).isEmpty(),block+" honours survives_explosion");
+        }
+        h.succeed();
+    }
     @GameTest(maxTicks=1200)
     public void boardSnapshotCodecKeepsLargePinnedPayload(GameTestHelper h) {
         var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),h.getLevel().registryAccess());

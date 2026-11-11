@@ -47,7 +47,7 @@ import { TreeCanvas } from "./components/TreeCanvas";
 import { descriptionHtml, descriptionParts } from "./core/description-format.js";
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
-import { objectiveLabel, orderedCategories, text, validate } from "./core/project.js";
+import { objectiveLabel, orderedCategories, parseCrateBosses, text, validate } from "./core/project.js";
 import { renameRewardTable } from "./core/reward-tables.js";
 import { richToHtml } from "./core/rich-format.js";
 import { owner, useStudio } from "./hooks/useStudio";
@@ -623,6 +623,22 @@ export default function App() {
 						}
 					/>
 					{tUI("Enable loot crate drops")}
+				</label>
+				<label className="version-selector" title={tUI("Entity IDs or #tags treated as bosses for crates; prefix ! to exclude")}>
+					{tUI("Crate bosses")}
+					<input
+						key={(project.config?.crateBosses || []).join(", ")}
+						defaultValue={(project.config?.crateBosses || []).join(", ")}
+						placeholder="mymod:boss, !minecraft:wither"
+						onBlur={(e) =>
+							studio.mutate((state) => {
+								state.project.config ||= {};
+								const list = parseCrateBosses(e.target.value);
+								if (list.length) state.project.config.crateBosses = list;
+								else delete state.project.config.crateBosses;
+							}, "config:crateBosses")
+						}
+					/>
 				</label>
 				<label className="checkbox-row" title="Trusted server administrators only. Commands are disabled by default.">
 					<input

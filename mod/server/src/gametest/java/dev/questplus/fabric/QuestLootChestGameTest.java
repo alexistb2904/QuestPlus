@@ -6,6 +6,9 @@ import net.minecraft.core.*;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import dev.questplus.compat.GameTestShims;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
@@ -14,6 +17,50 @@ import net.minecraft.world.phys.*;
 import java.nio.file.*;
 
 public final class QuestLootChestGameTest {
+	/** crateBosses adds entity IDs or tags as bosses, "!" removes even built-in ones, unknown IDs reject the reload. */
+	@GameTest(maxTicks = 100)
+	public void crateBossesAreConfigurableAndValidated(GameTestHelper h) throws Exception {
+		var rt = QuestPlusMod.runtime();
+		var config = h.getLevel().getServer().getWorldPath(LevelResource.ROOT).resolve("questplus/config.json");
+		String original = Files.readString(config);
+		var spawned = new java.util.ArrayList<LivingEntity>();
+		java.util.function.Function<EntityType<? extends LivingEntity>, String> kind = type -> {
+			var entity = h.spawn(type, new BlockPos(1, 2, 1));
+			spawned.add(entity);
+			return rt.crateKind(entity);
+		};
+		try {
+			h.assertTrue(kind.apply(GameTestShims.WARDEN).equals("monster")
+					&& kind.apply(GameTestShims.WITHER).equals("boss"), "Absent key keeps built-in bosses");
+			var custom = JsonParser.parseString(original).getAsJsonObject();
+			custom.add("crateBosses", JsonParser.parseString("['minecraft:warden','#minecraft:skeletons','!minecraft:wither']"));
+			Files.writeString(config, custom.toString());
+			rt.reload();
+			h.assertTrue(kind.apply(GameTestShims.WARDEN).equals("boss"), "Listed entity is a boss");
+			h.assertTrue(kind.apply(GameTestShims.SKELETON).equals("boss"), "Listed tag is a boss");
+			h.assertTrue(kind.apply(GameTestShims.WITHER).equals("monster"), "Excluded built-in boss");
+			h.assertTrue(kind.apply(GameTestShims.ZOMBIE).equals("monster")
+					&& kind.apply(GameTestShims.COW).equals("passive"), "Others unchanged");
+			for (String bad : new String[] { "['questplus:not_a_mob']", "['#questplus:no_such_tag']", "'minecraft:warden'", "[1]" }) {
+				custom.add("crateBosses", JsonParser.parseString(bad));
+				Files.writeString(config, custom.toString());
+				boolean rejected = false;
+				try {
+					rt.reload();
+				} catch (IllegalArgumentException expected) {
+					rejected = true;
+				}
+				h.assertTrue(rejected && kind.apply(GameTestShims.WARDEN).equals("boss"),
+						"Invalid crateBosses " + bad + " is rejected and keeps the previous list");
+			}
+		} finally {
+			Files.writeString(config, original);
+			rt.reload();
+			spawned.forEach(net.minecraft.world.entity.Entity::discard);
+		}
+		h.succeed();
+	}
+
 	/** The reveal is cosmetic: the crate is consumed and saved first, delivery waits for the show, the stage cleans up. */
 	@GameTest(maxTicks = 600)
 	public void stagedCrateIsSavedFirstDeliveredAfterRevealAndCleanedUp(GameTestHelper h) throws Exception {

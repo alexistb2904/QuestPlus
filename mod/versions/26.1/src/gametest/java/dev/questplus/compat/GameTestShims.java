@@ -15,7 +15,6 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.level.GameType;
 
-/** Test-only APIs that differ on Minecraft 26.1. Compiled into this target's GameTests only, never shipped. */
 public final class GameTestShims {
 	public static final EntityType<Arrow> ARROW = EntityType.ARROW;
 	public static final EntityType<Cow> COW = EntityType.COW;
@@ -23,11 +22,13 @@ public final class GameTestShims {
 	public static final EntityType<Villager> VILLAGER = EntityType.VILLAGER;
 	public static final EntityType<Wolf> WOLF = EntityType.WOLF;
 	public static final EntityType<Zombie> ZOMBIE = EntityType.ZOMBIE;
+	public static final EntityType<net.minecraft.world.entity.monster.warden.Warden> WARDEN = EntityType.WARDEN;
+	public static final EntityType<net.minecraft.world.entity.boss.wither.WitherBoss> WITHER = EntityType.WITHER;
 
-	private GameTestShims() {}
+	private GameTestShims() {
+	}
 
 	public static ServerPlayer mockServerPlayer(GameTestHelper helper, GameType mode) {
-		// 26.1 has no makeMockServerPlayer; same body as the 26.2 helper.
 		var player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
 				new GameProfile(UUID.randomUUID(), "test-mock-player"), ClientInformation.createDefault()) {
 			@Override

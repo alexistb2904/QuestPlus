@@ -13,7 +13,6 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.level.GameType;
 
-/** Test-only APIs that differ on Minecraft 26.3. Compiled into this target's GameTests only, never shipped. */
 public final class GameTestShims {
 	public static final EntityType<Arrow> ARROW = EntityTypes.ARROW;
 	public static final EntityType<Cow> COW = EntityTypes.COW;
@@ -21,8 +20,11 @@ public final class GameTestShims {
 	public static final EntityType<Villager> VILLAGER = EntityTypes.VILLAGER;
 	public static final EntityType<Wolf> WOLF = EntityTypes.WOLF;
 	public static final EntityType<Zombie> ZOMBIE = EntityTypes.ZOMBIE;
+	public static final EntityType<net.minecraft.world.entity.monster.warden.Warden> WARDEN = EntityTypes.WARDEN;
+	public static final EntityType<net.minecraft.world.entity.boss.wither.WitherBoss> WITHER = EntityTypes.WITHER;
 
-	private GameTestShims() {}
+	private GameTestShims() {
+	}
 
 	public static ServerPlayer mockServerPlayer(GameTestHelper helper, GameType mode) {
 		return (ServerPlayer) helper.makeMockServerPlayer(mode);
