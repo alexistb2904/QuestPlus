@@ -11,6 +11,8 @@ Pack configuration, client presentation and web credentials have different owner
 
 `<world>/questplus/config.json` configures the active world. The default copy for new worlds lives at `config/questplus/default/config.json`.
 
+Quest Studio edits every field below except `schemaVersion`, `enableCommandRewards` (see [Trusted command rewards](#trusted-command-rewards)) and `npcs` (edited from a quest's **NPC** tab) under **Server & sharing → Settings**. Once the server quests are loaded, Save to server applies them with the quests. Without a server connection, the same tab edits the `config.json` of the exported ZIP, and only there can it also turn on `enableCommandRewards` for a pack you trust. A field stays locked when the server's QuestPlus version predates it: `npcTurnIn` needs 1.1.3, `crateBosses` 1.1.5 and `waitForInventorySpace` 1.1.7. Servers before 1.1.7 do not report their version, so Studio unlocks the 1.0 fields plus those their `config.json` already uses.
+
 ```json
 {
 	"schemaVersion": 1,
@@ -34,10 +36,17 @@ Pack configuration, client presentation and web credentials have different owner
 | `crateBosses`             | Up to 256 entity IDs or `#tags` counted as bosses for crates, see below                      | None                              |
 | `npcTurnIn`               | Boolean. With `true`, rewards of NPC quests are claimed only at an NPC that offers the quest | `true`                            |
 | `npcs`                    | Quest givers, see below                                                                      | None                              |
+| `waitForInventorySpace`   | Boolean. See [Full inventories](#full-inventories)                                           | `false`                           |
+
+## Full inventories
+
+By default, reward items that do not fit in the player's inventory drop on the ground at the player's feet. This applies to quest rewards and loot crates. The claim always completes, and nothing waits on the server.
+
+Set `waitForInventorySpace` to `true` to keep the previous behavior: a reward that does not fit stays saved, and the server delivers it automatically once the player has room. A manual claim with a full inventory is refused. A reward marked `onlyOne` is never dropped. It still waits while the player already holds that item.
 
 ## Crate bosses
 
-A killed mob uses the `boss` crate weights when it is the Ender Dragon, the Wither or in the `#c:bosses` tag. `crateBosses` changes that list. Quest Studio edits it in the bottom bar, next to **Enable loot crate drops**.
+A killed mob uses the `boss` crate weights when it is the Ender Dragon, the Wither or in the `#c:bosses` tag. `crateBosses` changes that list. Quest Studio edits it in **Server & sharing → Settings**, next to **Enable loot crate drops**.
 
 ```json
 "crateBosses": ["chronodawn:time_tyrant", "minecraft:warden", "#mymod:bosses", "!minecraft:wither"]

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { addChild, atPath, leaf, renderConditionTree, setAt, wrap } from "../src/core/conditions.js";
-import { demoProject, fileMap, importDocuments, validate } from "../src/core/project.js";
+import { MINECRAFT_VERSIONS, demoProject, fileMap, importDocuments, validate } from "../src/core/project.js";
 import { categoryId, questId, titleSlug, uniqueId } from "../src/core/quest-ids.js";
 import { makeZip, readZip } from "../src/core/zip.js";
 import { BLOCK_IDS, ITEM_IDS, VERSION } from "../src/data/vanilla-registry-26.3.js";
@@ -68,6 +68,26 @@ test("compatibility export carries future item versions separately from mod JSON
 		reimport = importDocuments(documents);
 	assert.equal(reimport.iconVersions["minecraft:future_item"], "26.4");
 	assert.equal(reimport.targetMinecraftVersion, "26.3");
+});
+test("Studio target versions match the Minecraft versions the mod declares", () => {
+	// A new or dropped mod/versions target must update MINECRAFT_VERSIONS (the footer select) too.
+	const versions = new URL("../../../mod/versions/", import.meta.url);
+	const declared = new Set();
+	for (const dir of fs.readdirSync(versions, { withFileTypes: true }).filter((d) => d.isDirectory()))
+		for (const file of [dir.name + "/gradle.properties", dir.name + "/neoforge/gradle.properties"]) {
+			const props = new URL(file, versions);
+			if (!fs.existsSync(props)) continue;
+			const line = fs.readFileSync(props, "utf8").match(/^validated_minecraft=(.*)$/m);
+			for (const id of line ? line[1].trim().split(",") : []) declared.add(id.trim());
+		}
+	assert.deepEqual([...MINECRAFT_VERSIONS].sort(), [...declared].sort());
+	const reimport = (target) => {
+		const p = demoProject();
+		p.targetMinecraftVersion = target;
+		return importDocuments([...fileMap(p)].map(([name, content]) => ({ name, content }))).targetMinecraftVersion;
+	};
+	assert.equal(reimport("1.21.1"), MINECRAFT_VERSIONS[0], "an unsupported saved version falls back to the newest one");
+	assert.equal(reimport("26.1"), "26.1");
 });
 test("React quest tree supports pointer drag, pinch, wheel and Minecraft layout parity", () => {
 	const read = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");

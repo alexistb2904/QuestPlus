@@ -60,6 +60,10 @@ public final class Loader {
 		return FabricLoader.getInstance().isModLoaded(id);
 	}
 
+	public static String modVersion() {
+		return version("questplus");
+	}
+
 	public static Path configDir() {
 		return FabricLoader.getInstance().getConfigDir();
 	}

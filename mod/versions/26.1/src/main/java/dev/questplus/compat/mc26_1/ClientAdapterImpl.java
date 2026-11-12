@@ -107,14 +107,14 @@ public final class ClientAdapterImpl implements ClientAdapter {
 		}
 
 		@Override
-		public void render() {
+		public void render(int guiScale) {
 			var gameRenderer = Minecraft.getInstance().gameRenderer;
 			var window = gameRenderer.getGameRenderState().windowRenderState;
 			int oldWidth = window.width, oldHeight = window.height, oldScale = window.guiScale;
 			try {
 				window.width = target.width;
 				window.height = target.height;
-				window.guiScale = 1;
+				window.guiScale = guiScale;
 				// 26.1 still uses a standard depth range: clear depth to 1, not 0.
 				RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(target.getColorTexture(), 0,
 						target.getDepthTexture(), 1);

@@ -1,5 +1,3 @@
-// Session-scoped, never persistent: the connected server is the authority for
-// modded registry IDs and bounded previews. No auth tokens or player state are stored.
 const keys = ["items", "blocks", "fluids", "entities", "effects", "enchantments", "biomes", "structures", "dimensions", "statistics", "advancements"];
 let current = {};
 const valid = (id) => /^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(id);
@@ -80,8 +78,36 @@ export function setHubRegistry(value) {
         output.extensions.push({ kind: e.kind, id: e.id, label: e.label, fields,
             ...(e.kind === "reward" && e.pool === true ? { pool: true } : {}) });
 	}
+	output.questplusVersion = typeof value?.questplusVersion === "string" && /^\d+\.\d+\.\d+/.test(value.questplusVersion) ? value.questplusVersion : "";
 	current = output;
 	return output;
+}
+export const CONFIG_KEY_SINCE = {
+	schemaVersion: "1.0.0",
+	autosaveSeconds: "1.0.0",
+	teamRewardPolicy: "1.0.0",
+	enableCommandRewards: "1.0.0",
+	dropLootCrates: "1.0.0",
+	crateNoDrop: "1.0.0",
+	allowDuplicateTeamNames: "1.0.0",
+	npcTurnIn: "1.1.3",
+	npcs: "1.1.3",
+	crateBosses: "1.1.5",
+	waitForInventorySpace: "1.1.7",
+};
+export function serverVersion(loadedConfig) {
+	if (current.questplusVersion) return current.questplusVersion;
+	let floor = "1.0.0";
+	for (const key of Object.keys(loadedConfig || {})) if (CONFIG_KEY_SINCE[key] && !hubAtLeast(CONFIG_KEY_SINCE[key], floor)) floor = CONFIG_KEY_SINCE[key];
+	return floor;
+}
+export const unsupportedConfigKeys = (config, version) => Object.keys(config || {}).filter((key) => CONFIG_KEY_SINCE[key] && !hubAtLeast(CONFIG_KEY_SINCE[key], version));
+export function hubAtLeast(min, version = current.questplusVersion) {
+	if (!version) return false;
+	const have = version.split(/[^\d.]/)[0].split(".").map(Number),
+		need = min.split(".").map(Number);
+	for (let i = 0; i < need.length; i++) if ((have[i] || 0) !== need[i]) return (have[i] || 0) > need[i];
+	return true;
 }
 export function hubRegistry() {
 	return current;
@@ -113,12 +139,10 @@ export function hubTargets(kind) {
 	return current[map[kind] || kind] || [];
 }
 
-/** Authoring-only metadata. Gameplay events and validation remain server-owned. */
 export function hubEditorDescriptors(kind) {
 	return (current.extensions || []).filter((d) => d.kind === kind);
 }
 
-/** Safe default values from server-provided data-only editor descriptors. */
 export function hubFieldDefault(field) {
     if (field.default !== undefined) return field.default;
     if (field.type === "boolean") return false;

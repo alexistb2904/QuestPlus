@@ -166,6 +166,10 @@ final class QuestHubService implements AutoCloseable {
 		tagIds(tags, "entities", BuiltInRegistries.ENTITY_TYPE);
 		result.add("tags", tags);
 		result.add("extensions", dev.questplus.fabric.api.QuestStudioDescriptors.snapshot());
+		// Quest Studio unlocks config.json settings only for mods that accept every key it writes.
+		result.addProperty("questplusVersion", Loader.modVersion());
+		// Quest Studio sets the pack's target Minecraft version from the server it loads.
+		result.addProperty("minecraftVersion", Loader.minecraftVersion());
 		Map<String, Set<String>> assets = new HashMap<>();
 		for (String kind : List.of("items", "blocks", "entities", "effects", "enchantments", "biomes", "structures")) {
 			Set<String> ids = new HashSet<>();

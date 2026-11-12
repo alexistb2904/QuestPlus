@@ -71,7 +71,8 @@ public final class QuestSkin {
 	public static double density(GuiGraphicsExtractor g) {
 		var m = g.pose();
 		return Math.hypot(m.m00(), m.m01())
-				* (renderScale > 0 ? 1 : Minecraft.getInstance().getWindow().getGuiScale());
+				* (renderScale > 0 ? dev.questplus.fabric.client.TabletSurfaceRenderer.guiScale()
+						: Minecraft.getInstance().getWindow().getGuiScale());
 	}
 
 	/** The same text with its quest face switched to the sample for this draw's density. */

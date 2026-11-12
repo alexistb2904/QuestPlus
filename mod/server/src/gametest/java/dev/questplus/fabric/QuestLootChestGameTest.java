@@ -61,6 +61,44 @@ public final class QuestLootChestGameTest {
 		h.succeed();
 	}
 
+	/** A full inventory blocks a claim only with waitForInventorySpace. Otherwise the overflow drops on the ground. */
+	@GameTest(maxTicks = 100)
+	public void fullInventoryDropsUnlessWaitingIsEnabled(GameTestHelper h) throws Exception {
+		var rt = QuestPlusMod.runtime();
+		var config = h.getLevel().getServer().getWorldPath(LevelResource.ROOT).resolve("questplus/config.json");
+		String original = Files.readString(config);
+		try {
+			var custom = JsonParser.parseString(original).getAsJsonObject();
+			custom.addProperty("waitForInventorySpace", "yes");
+			Files.writeString(config, custom.toString());
+			boolean rejected = false;
+			try {
+				rt.reload();
+			} catch (IllegalArgumentException expected) {
+				rejected = true;
+			}
+			h.assertTrue(rejected, "A non-boolean waitForInventorySpace rejects the reload");
+			custom.addProperty("waitForInventorySpace", true);
+			Files.writeString(config, custom.toString());
+			rt.reload();
+		} finally {
+			Files.writeString(config, original);
+			rt.reload();
+		}
+		var actor = QuestWorldBlocksGameTest.player(h);
+		var rewards = dev.questplus.core.QuestRegistry.rewards(
+				JsonParser.parseString("[{type:'item',item:'minecraft:diamond',count:1}]").getAsJsonArray(), (k, id) -> {
+				});
+		h.assertTrue(QuestRuntime.fits(actor, rewards, false), "Empty inventory fits");
+		for (int i = 0; i < 36; i++)
+			actor.getInventory().setItem(i, new ItemStack(Items.COBBLESTONE, 64));
+		h.assertTrue(!QuestRuntime.fits(actor, rewards, false), "Waiting mode: a full inventory blocks the claim");
+		h.assertTrue(QuestRuntime.fits(actor, rewards, true), "Default mode: the overflow drops instead");
+		h.getLevel().getServer().getPlayerList().remove(actor);
+		rt.disconnect(actor.getUUID());
+		h.succeed();
+	}
+
 	/** The reveal is cosmetic: the crate is consumed and saved first, delivery waits for the show, the stage cleans up. */
 	@GameTest(maxTicks = 600)
 	public void stagedCrateIsSavedFirstDeliveredAfterRevealAndCleanedUp(GameTestHelper h) throws Exception {

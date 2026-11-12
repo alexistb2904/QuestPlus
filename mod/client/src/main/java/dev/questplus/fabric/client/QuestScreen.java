@@ -137,14 +137,15 @@ public final class QuestScreen extends Screen {
 	private String filteredLanguage, filteredFilter;
 	private double cachedLeft = Double.NaN, cachedTop, cachedRight, cachedBottom;
 
+	/** {@code link} is the quest a requirement row opens when clicked. */
 	private record DetailRow(List<String> lines, ItemStack icon, String progress, List<FormattedCharSequence> formatted,
-			JsonObject rich, int richHeight, boolean recipe, boolean heading, double fraction) {
+			JsonObject rich, int richHeight, boolean recipe, boolean heading, double fraction, String link) {
 		DetailRow(List<String> lines, ItemStack icon, String progress) {
-			this(lines, icon, progress, null, null, 0, false, false, -1);
+			this(lines, icon, progress, null, null, 0, false, false, -1, null);
 		}
 
 		DetailRow(List<String> lines, ItemStack icon, String progress, List<FormattedCharSequence> formatted) {
-			this(lines, icon, progress, formatted, null, 0, false, false, -1);
+			this(lines, icon, progress, formatted, null, 0, false, false, -1, null);
 		}
 
 		int lineCount() {
@@ -627,7 +628,7 @@ public final class QuestScreen extends Screen {
 				g.fill(px, top + 25, px + 1, bottom - 1, QuestSkin.INK);
 			}
 			if (selected != null)
-				drawDetails(g);
+				drawDetails(g, mx, my);
 			else if (panel)
 				drawJournal(g, mx, my);
 		} else if (tab.equals("team"))
@@ -1223,34 +1224,69 @@ public final class QuestScreen extends Screen {
 							QuestSkin.INK, false);
 					if (active)
 						QuestSkin.bar(g, x + 16, rowY + 15, w - 27, 2, row.fraction(), QuestSkin.ACTIVE);
-					// State is a swatch with the chart's mark and, on hover, words. Never a colour alone.
-					int sx = x + w - 7, sy = rowY + 7;
-					boolean done = row.status().equals("completed");
-					QuestSkin.panel(g, sx, sy, 7, 7, done ? QuestSkin.INK : statusColor(row.status()), QuestSkin.INK);
-					switch (row.status()) {
-					case "completed" -> {
-						g.fill(sx + 1, sy + 3, sx + 2, sy + 4, QuestSkin.LIGHT);
-						g.fill(sx + 2, sy + 4, sx + 3, sy + 5, QuestSkin.LIGHT);
-						g.fill(sx + 3, sy + 3, sx + 4, sy + 5, QuestSkin.LIGHT);
-						g.fill(sx + 4, sy + 2, sx + 5, sy + 3, QuestSkin.LIGHT);
-						g.fill(sx + 5, sy + 1, sx + 6, sy + 2, QuestSkin.LIGHT);
-					}
-					case "reward_ready" -> {
-						g.fill(sx + 3, sy + 1, sx + 4, sy + 4, QuestSkin.LIGHT);
-						g.fill(sx + 3, sy + 5, sx + 4, sy + 6, QuestSkin.LIGHT);
-					}
-					case "active", "available" -> {
-					}
-					default -> {
-						for (int i = 0; i < 5; i++)
-							g.fill(sx + 1 + i, sy + 5 - i, sx + 2 + i, sy + 6 - i, QuestSkin.LINE);
-					}
-					}
+					statusMark(g, x + w - 7, rowY + 7, row.status());
 				}
 			}
 			rowY += h;
 		}
 		g.disableScissor();
+	}
+
+	/** State is a swatch with the chart's mark and, on hover, words. Never a colour alone. */
+	private void statusMark(GuiGraphicsExtractor g, int sx, int sy, String status) {
+		boolean done = status.equals("completed");
+		QuestSkin.panel(g, sx, sy, 7, 7, done ? QuestSkin.INK : statusColor(status), QuestSkin.INK);
+		switch (status) {
+		case "completed" -> {
+			g.fill(sx + 1, sy + 3, sx + 2, sy + 4, QuestSkin.LIGHT);
+			g.fill(sx + 2, sy + 4, sx + 3, sy + 5, QuestSkin.LIGHT);
+			g.fill(sx + 3, sy + 3, sx + 4, sy + 5, QuestSkin.LIGHT);
+			g.fill(sx + 4, sy + 2, sx + 5, sy + 3, QuestSkin.LIGHT);
+			g.fill(sx + 5, sy + 1, sx + 6, sy + 2, QuestSkin.LIGHT);
+		}
+		case "reward_ready" -> {
+			g.fill(sx + 3, sy + 1, sx + 4, sy + 4, QuestSkin.LIGHT);
+			g.fill(sx + 3, sy + 5, sx + 4, sy + 6, QuestSkin.LIGHT);
+		}
+		case "active", "available" -> {
+		}
+		default -> {
+			for (int i = 0; i < 5; i++)
+				g.fill(sx + 1 + i, sy + 5 - i, sx + 2 + i, sy + 6 - i, QuestSkin.LINE);
+		}
+		}
+	}
+
+	/**
+	 * Collects the known quests a condition names. True when the condition is only
+	 * quest completions joined by "and", so the buttons alone say all of it.
+	 */
+	private boolean requiredQuests(QuestDefinition.Condition c, Set<String> into) {
+		boolean known = c.value() != null && state.quests.containsKey(c.value());
+		if (known && Set.of("quest", "started").contains(c.operator()))
+			into.add(c.value());
+		boolean plain = c.operator().equals("and") || c.operator().equals("quest") && known;
+		if (c.children() != null)
+			for (var child : c.children())
+				plain &= requiredQuests(child, into);
+		return plain;
+	}
+
+	/** A requirement button opens its quest, the same way a search result does. */
+	private boolean clickRequirement(double x, double y) {
+		if (selected == null || rewardView || x < detailLeft || x >= right - 8 || y < detailsContentTop
+				|| y >= bottom - 5)
+			return false;
+		int rowY = detailsContentTop - detailsScroll;
+		for (var row : detailLines) {
+			int h = detailHeight(row);
+			if (row.link() != null && y >= rowY && y < rowY + h - 3) {
+				select(row.link(), true);
+				return true;
+			}
+			rowY += h;
+		}
+		return false;
 	}
 
 	private boolean clickJournal(double x, double y) {
@@ -1367,7 +1403,7 @@ public final class QuestScreen extends Screen {
 			questAction.setMessage(t(pending || QuestClientState.flag(p, "saving") ? "processing" : currentAction));
 	}
 
-	private void drawDetails(GuiGraphicsExtractor g) {
+	private void drawDetails(GuiGraphicsExtractor g, int mx, int my) {
 		recipeTargets.clear();
 		if (rewardView) {
 			drawRewardView(g);
@@ -1455,7 +1491,7 @@ public final class QuestScreen extends Screen {
 									+ (o.event().equals("fluid_transfer") ? " mB"
 											: o.event().equals("energy_transfer") ? " FE" : ""),
 							null, null, 0, !recipe.isEmpty(), false,
-							(double) value / Math.max(1, QuestPresentation.target(q, o, p))));
+							(double) value / Math.max(1, QuestPresentation.target(q, o, p)), null));
 				}
 			} else if (!QuestClientState.flag(p, "completed"))
 				append(lines,
@@ -1463,7 +1499,13 @@ public final class QuestScreen extends Screen {
 						w);
 			if (q.requires() != null) {
 				heading(lines, t("requires").getString(), w);
-				append(lines, condition(q.requires()), w);
+				var required = new LinkedHashSet<String>();
+				// A plain list of quests reads fully from its buttons. Any other logic keeps its sentence.
+				if (!requiredQuests(q.requires(), required))
+					append(lines, condition(q.requires()), w);
+				for (String id : required)
+					lines.add(new DetailRow(List.of(questName(id)), ItemStack.EMPTY, null, null, null, 0, false, false, -1,
+							id));
 			}
 			if (q.progression().equals("tiered"))
 				append(lines, t("tier_count", QuestClientState.count(p, "tier")).getString(), w);
@@ -1494,6 +1536,26 @@ public final class QuestScreen extends Screen {
 				int textX = x;
 				if (row.rich() != null) {
 					RichAnnotationRenderer.render(g, font, row.rich(), null, "en_us", x + w / 2, rowY + h / 2);
+					rowY += h;
+					continue;
+				}
+				if (row.link() != null) {
+					// A button, not bare text: framed like a field, lit on hover, with the quest's icon and an arrow.
+					boolean hover = mx >= x && mx < x + w && my >= Math.max(y, rowY) && my < Math.min(end, rowY + h - 3);
+					String status = status(row.link());
+					QuestSkin.panel(g, x, rowY, w, h - 3, hover ? QuestSkin.LIGHT : QuestSkin.FIELD,
+							hover ? QuestSkin.INK : QuestSkin.LINE);
+					g.pose().pushMatrix();
+					g.pose().translate(x + 4, rowY + 4);
+					g.pose().scale(.75f);
+					drawIcon(g, state.quests.get(row.link()).icon(), 0, 0);
+					g.pose().popMatrix();
+					QuestSkin.text(g, font, QuestSkin.fit(font, row.lines().get(0), w - 40), x + 20, rowY + 6,
+							QuestSkin.INK, false);
+					statusMark(g, x + w - 20, rowY + 6, status);
+					QuestSkin.text(g, font, "›", x + w - 9, rowY + 6, hover ? QuestSkin.INK : QuestSkin.DIM, false);
+					if (hover)
+						hoverTitle = row.lines().get(0) + " · " + t("status." + status).getString();
 					rowY += h;
 					continue;
 				}
@@ -1541,7 +1603,7 @@ public final class QuestScreen extends Screen {
 	private int detailHeight(DetailRow row) {
 		if (row.rich() != null)
 			return row.richHeight();
-		if (row.heading())
+		if (row.heading() || row.link() != null)
 			return 24;
 		return row.icon().isEmpty() ? row.lineCount() * 11 + 5
 				: Math.max(28, row.lineCount() * 11 + 14 + (row.progress() != null ? 11 : 0));
@@ -1586,7 +1648,7 @@ public final class QuestScreen extends Screen {
 		var rich = new JsonObject();
 		rich.add("en_us", parts);
 		note.add("rich", rich);
-		lines.add(new DetailRow(List.of(), ItemStack.EMPTY, null, null, note, height, false, false, -1));
+		lines.add(new DetailRow(List.of(), ItemStack.EMPTY, null, null, note, height, false, false, -1, null));
 	}
 
 	private int richDetailHeight(JsonObject part, int width) {
@@ -1621,7 +1683,7 @@ public final class QuestScreen extends Screen {
 
 	private void heading(List<DetailRow> rows, String text, int width) {
 		rows.add(new DetailRow(List.of(QuestSkin.fit(font, text, width * 9 / 10)), ItemStack.EMPTY, null, null, null, 0,
-				false, true, -1));
+				false, true, -1, null));
 	}
 
 	private void appendTile(List<DetailRow> rows, String text, int width, ItemStack item) {
@@ -2265,7 +2327,7 @@ public final class QuestScreen extends Screen {
 			for (var target : recipeTargets)
 				if (target.contains(x, y, detailsContentTop, bottom - 5))
 					return QuestRecipeViewer.open(target.stack());
-		if (clickJournal(x, y))
+		if (clickJournal(x, y) || clickRequirement(x, y))
 			return true;
 		if (x >= left + 8 && x < treeLeft - 5 && y >= railTop && y < railTop + railRows() * 26) {
 			int index = categoryScroll + (int) ((y - railTop) / 26);

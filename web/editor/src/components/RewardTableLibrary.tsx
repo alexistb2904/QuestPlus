@@ -227,7 +227,7 @@ export function RewardTableLibrary({
 													{t("Mob drops")}
 													<InfoTip
 														text={t(
-															"Relative chance that a killed mob drops this crate. 0 never drops. Drops must also be enabled in the bottom bar (Enable loot crate drops)."
+															"Relative chance that a killed mob drops this crate. 0 never drops. Drops must also be enabled in Server & sharing > Settings (Enable loot crate drops)."
 														)}
 													/>
 												</legend>

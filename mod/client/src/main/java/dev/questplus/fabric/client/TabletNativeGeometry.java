@@ -114,7 +114,7 @@ final class TabletNativeGeometry {
 			// Wound towards the viewer: the true-emissive pipeline culls back faces.
 			face(vertices, pose.last(), x1,y0,z0, x0,y0,z0, x0,y1,z0, x1,y1,z0,
 					0,0,-1, new float[] {
-					TabletSurfaceRenderer.SCREEN_X + TabletSurfaceRenderer.screenWidth(),
+					TabletSurfaceRenderer.screenX() + TabletSurfaceRenderer.screenWidth(),
 					TabletSurfaceRenderer.atlasHeight() - TabletSurfaceRenderer.screenHeight(),
 					-TabletSurfaceRenderer.screenWidth(), TabletSurfaceRenderer.screenHeight()
 					}, TabletSurfaceRenderer.atlasWidth(), TabletSurfaceRenderer.atlasHeight(), light, true);

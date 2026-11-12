@@ -3,21 +3,30 @@ import {
 	BookOpen,
 	Check,
 	ChevronRight,
+	Compass,
 	Download,
 	Eye,
 	EyeOff,
+	FilePlus2,
+	FileText,
 	Focus,
+	FolderInput,
 	FolderOpen,
+	FolderPlus,
+	Gift,
 	GitBranch,
 	Globe,
 	Grid2X2,
 	Hand,
-	Layers,
+	Languages,
+	LayoutTemplate,
+	ListChecks,
 	Magnet,
 	Minus,
 	MousePointer2,
 	Package,
 	PanelLeftOpen,
+	Pickaxe,
 	Plus,
 	Redo2,
 	Search,
@@ -26,35 +35,51 @@ import {
 	StickyNote,
 	TriangleAlert,
 	Undo2,
+	Upload,
 	Workflow,
+	Wrench,
 	X,
+	ZoomIn,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { BulkEditor } from "./components/BulkEditor";
 import { Dialog } from "./components/Dialog";
 import { FtbImportReview } from "./components/FtbImportReview";
 import { HubPanel } from "./components/HubPanel";
-import { IconPicker, ItemIcon } from "./components/IconPicker";
+import { IconPicker } from "./components/IconPicker";
 import { Inspector } from "./components/Inspector";
 import { PaneSeparator } from "./components/PaneSeparator";
 import { QuestDetails } from "./components/QuestDetails";
+import { QuestPreview } from "./components/QuestPreview";
 import { RegistryBrowser } from "./components/RegistryBrowser";
 import { QuestGiverLibrary } from "./components/QuestGiverLibrary";
 import { RewardTableLibrary } from "./components/RewardTableLibrary";
 import { Sidebar } from "./components/Sidebar";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import { MenuItem, ToolbarMenu } from "./components/ToolbarMenu";
 import { TreeCanvas } from "./components/TreeCanvas";
-import { descriptionHtml, descriptionParts } from "./core/description-format.js";
+import { WelcomeDialog } from "./components/WelcomeDialog";
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
-import { objectiveLabel, orderedCategories, parseCrateBosses, text, validate } from "./core/project.js";
+import { MINECRAFT_VERSIONS, objectiveLabel, orderedCategories, text, validate } from "./core/project.js";
 import { renameRewardTable } from "./core/reward-tables.js";
-import { richToHtml } from "./core/rich-format.js";
 import { owner, useStudio } from "./hooks/useStudio";
 import { localesOf, supportedLocales } from "./types";
 import { setUiLocale, storedUiLocale, tUI } from "./ui/ui-i18n.js";
 const logo = import.meta.env.BASE_URL + "questplus-logo.png";
 const docsUrl = import.meta.env.VITE_QUESTPLUS_DOCS_URL || "https://quest.alexistb.com/docs/";
+
+const REGISTRY_EVENTS: Record<string, string[]> = {
+	items: ["item_obtained", "item_craft", "item_smelt", "item_use", "item_consume", "fish_item", "trade", "inventory_count", "item_submit", "item_turn_in"],
+	blocks: ["block_break", "block_place", "block_interact"],
+	fluids: ["fluid_transfer"],
+	entities: ["entity_kill", "fish_entity", "tame_animal", "breed_animal", "npc_interact"],
+	biomes: ["biome_visit"],
+	structures: ["structure_visit"],
+	dimensions: ["dimension_enter"],
+	statistics: ["custom_stat"],
+	advancements: ["advancement_complete"],
+};
 
 export default function App() {
 	const studio = useStudio(),
@@ -66,9 +91,9 @@ export default function App() {
 		return l;
 	});
 	// A Hub link (?session= / ?pack=) opens the Hub panel instead, so skip the startup choice.
-	const [startupStep, setStartupStep] = useState<"resume" | "create" | null>(() => {
+	const [startupOpen, setStartupOpen] = useState(() => {
 		const params = new URLSearchParams(window.location.search);
-		return studio.hasPreviousProject && !params.get("session") && !params.get("pack") ? "resume" : null;
+		return studio.hasPreviousProject && !params.get("session") && !params.get("pack");
 	});
 	const [translationRequest, setTranslationRequest] = useState(0);
 	const [picker, setPicker] = useState<string | null>(null),
@@ -93,8 +118,8 @@ export default function App() {
 	}, [showQuestTitles]);
 	const [search, setSearch] = useState(""),
 		[grid, setGrid] = useState(true),
-		[snap, setSnap] = useState(false),
-		[gridSize, setGridSize] = useState(32),
+		[snap, setSnap] = useState(true),
+		[gridSize, setGridSize] = useState(16),
 		[tool, setTool] = useState<"select" | "pan" | "background">("select"),
 		[libraryOpen, setLibraryOpen] = useState(() => window.matchMedia("(min-width:1200px)").matches),
 		[mobilePanel, setMobilePanel] = useState<"canvas" | "properties">("canvas");
@@ -223,6 +248,10 @@ export default function App() {
 					),
 		}));
 	};
+	const objectiveFor = (kind: string) => {
+		const events = REGISTRY_EVENTS[kind] || [];
+		return selected?.objectives?.findIndex((o) => events.includes(o.event)) ?? -1;
+	};
 	const inspectorProps = {
 		project,
 		categoryId,
@@ -278,12 +307,28 @@ export default function App() {
 							<option value="zh">中文</option>
 						</select>
 					</label>
-					<span className="edition">JAVA 26.3</span>
 				</div>
 			</header>
 			<div className="command-bar stone" role="toolbar" aria-label={tUI("Editor actions")}>
+				<ToolbarMenu label={tUI("File")} icon={<FileText size={16} aria-hidden="true" />}>
+					<MenuItem icon={<FilePlus2 size={17} />} label={tUI("New project")} hint={tUI("Start an empty quest pack")} onSelect={() => studio.reset(false)} />
+					<MenuItem icon={<Compass size={17} />} label={tUI("Open sample project")} hint={tUI("Explore a finished pack to learn the editor")} onSelect={() => studio.reset(true)} />
+					<div className="toolbar-menu-separator" role="separator" />
+					<MenuItem icon={<Upload size={17} />} label={tUI("Import pack…")} hint={tUI("QuestPlus or FTB Quests, ZIP or JSON")} onSelect={() => setImportOpen(true)} />
+					<MenuItem icon={<FolderInput size={17} />} label={tUI("Import folder…")} hint={tUI("An FTB Quests or QuestPlus pack folder")} onSelect={() => folder.current?.click()} />
+					<div className="toolbar-menu-separator" role="separator" />
+					<MenuItem
+						icon={<Download size={17} />}
+						label={tUI("Export ZIP")}
+						hint={tUI("Download the pack for your server")}
+						onSelect={() => {
+							if (!studio.exportZip()) setIssuesOpen(true);
+						}}
+					/>
+				</ToolbarMenu>
 				<HubPanel
 					project={project}
+					onConfig={inspectorProps.onConfig}
 					onSaveLocal={() => {
 						const saved = studio.save();
 						if (saved) studio.toast(tUI("Saved locally"));
@@ -303,79 +348,95 @@ export default function App() {
 						});
 					}}
 				/>
-				<button className="button secondary" onClick={() => setPreviewOpen(true)} disabled={!selected}>
-					<Eye size={18} />
-					{tUI("Preview")}
-				</button>
 				<span className="divider" />
-				<button className="button secondary history-button" aria-label={tUI("Undo")} onClick={studio.undo} disabled={!studio.history.current.length} title="Ctrl+Z">
-					<Undo2 size={17} />
-					<span>{tUI("Undo")}</span>
-				</button>
-				<button className="button secondary history-button" aria-label={tUI("Redo")} onClick={studio.redo} disabled={!studio.future.current.length} title="Ctrl+Shift+Z">
-					<Redo2 size={17} />
-					<span>{tUI("Redo")}</span>
-				</button>
-				<span className="divider" />
-				<button
-					className="icon-button"
-					aria-label={tUI("Zoom out")}
-					title={tUI("Zoom out")}
-					onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom / ZOOM_STEP) })}>
-					<Minus size={17} />
-				</button>
-				<button className="zoom-reset" onClick={() => changeCamera({ ...camera, zoom: 1 })} title={tUI("Reset zoom")}>
-					{Math.round(camera.zoom * 100)}%
-				</button>
-				<button
-					className="icon-button"
-					aria-label={tUI("Zoom in")}
-					title={tUI("Zoom in")}
-					onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom * ZOOM_STEP) })}>
-					<Plus size={17} />
-				</button>
-				<button className={"icon-button toggle" + (grid ? " active" : "")} aria-label={tUI("Show grid")} aria-pressed={grid} onClick={() => setGrid((v) => !v)}>
-					<Grid2X2 size={18} />
-				</button>
-				<select className="grid-select" aria-label={tUI("Grid size")} value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))}>
-					{[8, 16, 32].map((n) => (
-						<option key={n} value={n}>
-							{n} px
-						</option>
-					))}
-				</select>
-				<button className={"button secondary snap-button" + (snap ? " active" : "")} aria-label={tUI("Snap")} aria-pressed={snap} onClick={() => setSnap((v) => !v)}>
-					<Magnet size={16} />
-					<span>{tUI("Snap")}</span>
-				</button>
+				<div className="history-group" role="group" aria-label={tUI("History")}>
+					<button className="icon-button" aria-label={tUI("Undo")} title={tUI("Undo") + " (Ctrl+Z)"} onClick={studio.undo} disabled={!studio.history.current.length}>
+						<Undo2 size={17} />
+					</button>
+					<button className="icon-button" aria-label={tUI("Redo")} title={tUI("Redo") + " (Ctrl+Shift+Z)"} onClick={studio.redo} disabled={!studio.future.current.length}>
+						<Redo2 size={17} />
+					</button>
+				</div>
 				<div className="global-search">
 					<Search size={17} />
 					<input ref={searchRef} aria-label={tUI("Search quests…")} placeholder={tUI("Search quests…")} value={search} onChange={(e) => setSearch(e.target.value)} />
 					<kbd>Ctrl K</kbd>
 				</div>
-				<button className="button secondary" onClick={() => setRegistryOpen(true)}>
-					<Package size={16} />
-					Mod Registry
-				</button>
-				<button className="button secondary" onClick={() => setBulkOpen(true)}>
-					<SlidersHorizontal size={16} />
-					Bulk Edit
-				</button>
-				<button className="button secondary" onClick={() => setTemplatesOpen(true)}>
-					<FolderOpen size={16} />
-					{tUI("Templates")}
-				</button>
-				<button
-					className="button secondary"
-					onClick={() => {
-						setTableFocus("");
-						setTablesOpen(true);
-					}}>
-					<Layers size={16} />
-					{tUI("Reward tables")}
-				</button>
-				<button className="button violet" onClick={studio.createCategory}>
-					<FolderOpen size={17} />
+				<ToolbarMenu label={tUI("View")} icon={<ZoomIn size={16} aria-hidden="true" />} summary={Math.round(camera.zoom * 100) + "%"}>
+					<div className="toolbar-menu-zoom" role="group" aria-label={tUI("Zoom")}>
+						<button
+							type="button"
+							role="menuitem"
+							className="icon-button"
+							aria-label={tUI("Zoom out")}
+							title={tUI("Zoom out")}
+							onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom / ZOOM_STEP) })}>
+							<Minus size={16} />
+						</button>
+						<button
+							type="button"
+							role="menuitem"
+							className="zoom-reset"
+							aria-label={tUI("Reset zoom")}
+							title={tUI("Reset zoom")}
+							onClick={() => changeCamera({ ...camera, zoom: 1 })}>
+							{Math.round(camera.zoom * 100)}%
+						</button>
+						<button
+							type="button"
+							role="menuitem"
+							className="icon-button"
+							aria-label={tUI("Zoom in")}
+							title={tUI("Zoom in")}
+							onClick={() => changeCamera({ ...camera, zoom: clampZoom(camera.zoom * ZOOM_STEP) })}>
+							<Plus size={16} />
+						</button>
+					</div>
+					<div className="toolbar-menu-separator" role="separator" />
+					<MenuItem role="menuitemcheckbox" checked={grid} icon={<Grid2X2 size={17} />} label={tUI("Show grid")} onSelect={() => setGrid((v) => !v)} />
+					<div className="toolbar-menu-sizes" role="group" aria-label={tUI("Grid size")}>
+						<span>{tUI("Grid size")}</span>
+						{[8, 16, 32].map((n) => (
+							<button key={n} type="button" role="menuitemradio" aria-checked={gridSize === n} onClick={() => setGridSize(n)}>
+								{n} px
+							</button>
+						))}
+					</div>
+					<MenuItem
+						role="menuitemcheckbox"
+						checked={snap}
+						icon={<Magnet size={17} />}
+						label={tUI("Snap to grid")}
+						hint={tUI("Dragged quests land on grid points")}
+						onSelect={() => setSnap((v) => !v)}
+					/>
+				</ToolbarMenu>
+				<ToolbarMenu label={tUI("Tools")} icon={<Wrench size={16} aria-hidden="true" />}>
+					<MenuItem
+						icon={<Eye size={17} />}
+						label={tUI("Quest preview")}
+						hint={tUI(selected ? "See the selected quest as players read it" : "Select a quest first")}
+						disabled={!selected}
+						onSelect={() => setPreviewOpen(true)}
+					/>
+					<div className="toolbar-menu-separator" role="separator" />
+					<MenuItem icon={<LayoutTemplate size={17} />} label={tUI("Templates")} hint={tUI("Reuse objectives and rewards")} onSelect={() => setTemplatesOpen(true)} />
+					<MenuItem
+						icon={<Gift size={17} />}
+						label={tUI("Reward tables")}
+						hint={tUI("Shared loot and crates")}
+						onSelect={() => {
+							setTableFocus("");
+							setTablesOpen(true);
+						}}
+					/>
+					<MenuItem icon={<ListChecks size={17} />} label={tUI("Bulk edit")} hint={tUI("Change many quests at once")} onSelect={() => setBulkOpen(true)} />
+					<div className="toolbar-menu-separator" role="separator" />
+					<MenuItem icon={<Package size={17} />} label={tUI("Mod registry")} hint={tUI("Look up item, block and entity IDs")} onSelect={() => setRegistryOpen(true)} />
+				</ToolbarMenu>
+				<span className="divider" />
+				<button className="button secondary add-category-button" onClick={studio.createCategory}>
+					<FolderPlus size={17} />
 					<span>{tUI("Add Category")}</span>
 				</button>
 				<button className="button primary" disabled={!cat} onClick={() => studio.createQuest()}>
@@ -437,12 +498,9 @@ export default function App() {
 						onCategory={studio.selectCategory}
 						onQuest={goQuest}
 						onNewCategory={studio.createCategory}
-						onReset={studio.reset}
 						search={search}
 						onSearch={setSearch}
 						onCollapse={() => setLibraryOpen(false)}
-						onImport={() => setImportOpen(true)}
-						onImportFolder={() => folder.current?.click()}
 					/>
 				)}
 				{libraryOpen && separator("library")}
@@ -501,6 +559,15 @@ export default function App() {
 									onClick={() => setShowQuestTitles((v) => !v)}>
 									{showQuestTitles ? <Eye size={18} /> : <EyeOff size={18} />}
 								</button>
+								<button
+									type="button"
+									className={"icon-button" + (snap ? " active" : "")}
+									aria-pressed={snap}
+									aria-label={tUI("Snap to grid")}
+									title={tUI("Snap to grid")}
+									onClick={() => setSnap((v) => !v)}>
+									<Magnet size={18} />
+								</button>
 								<button className="icon-button" disabled={!cat} onClick={studio.autoLayout} title={tUI("Auto-layout")} aria-label={tUI("Auto-layout")}>
 									<Workflow size={18} />
 								</button>
@@ -553,7 +620,9 @@ export default function App() {
 					<div className={"issues-bar stone" + (issues.length ? " error" : "")} role="status">
 						<span className="issues-icon">{issues.length ? <TriangleAlert size={16} /> : <Check size={16} />}</span>
 						<button className="subtle validation-button" onClick={() => setIssuesOpen((v) => !v)} aria-expanded={issuesOpen}>
-							{issues.length ? issues.length + " " + tUI(issues.length === 1 ? "error · click to review" : "errors · click to review") : tUI("Validation: No issues found")}
+							{issues.length
+								? issues.length + " " + tUI(issues.length === 1 ? "error · click to review" : "errors · click to review")
+								: tUI("Validation: No issues found")}
 						</button>
 						<span className="pack-stats">
 							{project.quests.length} {tUI("Quests")}
@@ -589,9 +658,13 @@ export default function App() {
 					<Inspector {...inspectorProps} />
 				</div>
 			</div>
-			<footer className="project-bar">
-				<label className="language-control">
-					{tUI("Preview language")}
+			{/* Pack-wide config.json settings live in Server & sharing > Settings, not here. */}
+			<footer className="project-bar stone">
+				<label className="pack-field">
+					<span className="pack-field-label">
+						<Languages size={14} aria-hidden="true" />
+						<span className="pack-field-text">{tUI("Preview language")}</span>
+					</span>
 					<select id="preview-language" value={language} onChange={(e) => studio.setLanguage(e.target.value)}>
 						{locales.map((id) => (
 							<option key={id} value={id}>
@@ -600,145 +673,57 @@ export default function App() {
 						))}
 					</select>
 				</label>
-				<label className="version-selector">
-					Minecraft
-					<input
+				<label className="pack-field pack-field-version">
+					<span className="pack-field-label">
+						<Pickaxe size={14} aria-hidden="true" />
+						<span className="pack-field-text">Minecraft</span>
+					</span>
+					<select
 						aria-label={tUI("Target Minecraft version")}
-						value={project.targetMinecraftVersion || "26.3"}
+						value={project.targetMinecraftVersion || MINECRAFT_VERSIONS[0]}
 						onChange={(e) =>
 							studio.mutate((s) => {
 								s.project.targetMinecraftVersion = e.target.value;
 							}, "version")
-						}
-					/>
+						}>
+						{/* A draft saved before this list existed may hold a free-typed version: show it, but not as a choice. */}
+						{!MINECRAFT_VERSIONS.includes(project.targetMinecraftVersion || MINECRAFT_VERSIONS[0]) && (
+							<option value={project.targetMinecraftVersion} disabled>
+								{project.targetMinecraftVersion}
+							</option>
+						)}
+						{MINECRAFT_VERSIONS.map((id) => (
+							<option key={id} value={id}>
+								{id}
+							</option>
+						))}
+					</select>
 				</label>
-				<label className="checkbox-row">
-					<input
-						type="checkbox"
-						checked={project.config?.dropLootCrates === true}
-						onChange={(e) =>
-							studio.mutate((state) => {
-								state.project.config.dropLootCrates = e.target.checked;
-							}, "config:crateDrops")
-						}
-					/>
-					{tUI("Enable loot crate drops")}
-				</label>
-				<label className="version-selector" title={tUI("Entity IDs or #tags treated as bosses for crates; prefix ! to exclude")}>
-					{tUI("Crate bosses")}
-					<input
-						key={(project.config?.crateBosses || []).join(", ")}
-						defaultValue={(project.config?.crateBosses || []).join(", ")}
-						placeholder="mymod:boss, !minecraft:wither"
-						onBlur={(e) =>
-							studio.mutate((state) => {
-								state.project.config ||= {};
-								const list = parseCrateBosses(e.target.value);
-								if (list.length) state.project.config.crateBosses = list;
-								else delete state.project.config.crateBosses;
-							}, "config:crateBosses")
-						}
-					/>
-				</label>
-				<label className="checkbox-row" title="Trusted server administrators only. Commands are disabled by default.">
-					<input
-						type="checkbox"
-						checked={project.config?.enableCommandRewards === true}
-						onChange={(e) =>
-							studio.mutate((state) => {
-								state.project.config ||= {};
-								state.project.config.enableCommandRewards = e.target.checked;
-							}, "config:commandRewards")
-						}
-					/>
-					{tUI("Enable server command rewards (trusted packs)")}
-				</label>
-				<a className="studio-docs-footer button" href={docsUrl} target="_blank" rel="noopener noreferrer">
-					<BookOpen size={16} aria-hidden="true" />
-					{tUI("Documentation")}
-				</a>
 				<button
 					className="button primary export-button"
 					onClick={() => {
 						if (!studio.exportZip()) setIssuesOpen(true);
 					}}>
-					<Download size={16} />
+					<Download size={16} aria-hidden="true" />
 					{tUI("Export ZIP")}
 				</button>
 			</footer>
-			{startupStep && (
-				<Dialog className="startup-dialog" title={tUI(startupStep === "resume" ? "Welcome to Quest Studio" : "Create a project")} dismissible={false} onClose={() => {}}>
-					<div className="startup-body">
-						<p>{tUI(startupStep === "resume" ? "Choose how to start. Your last browser draft is still available." : "Choose what your new project should contain.")}</p>
-						<div className="startup-choices">
-							{startupStep === "resume" ? (
-								<>
-									<button className="startup-choice" onClick={() => setStartupStep("create")}>
-										<Plus size={22} aria-hidden="true" />
-										<span>
-											<strong>{tUI("Create a new project")}</strong>
-											<small>{tUI("Start from scratch or use the bundled examples.")}</small>
-										</span>
-										<ChevronRight size={18} aria-hidden="true" />
-									</button>
-									<button className="startup-choice" onClick={() => setStartupStep(null)}>
-										<FolderOpen size={22} aria-hidden="true" />
-										<span>
-											<strong>{tUI("Resume current project")}</strong>
-											<small>{tUI("Open the last project saved in this browser.")}</small>
-										</span>
-										<ChevronRight size={18} aria-hidden="true" />
-									</button>
-								</>
-							) : (
-								<>
-									<button
-										className="startup-choice"
-										onClick={() => {
-											studio.startFresh(false);
-											setStartupStep(null);
-										}}>
-										<Square size={22} aria-hidden="true" />
-										<span>
-											<strong>{tUI("Empty project")}</strong>
-											<small>{tUI("No categories or quests. Build your own pack.")}</small>
-										</span>
-										<ChevronRight size={18} aria-hidden="true" />
-									</button>
-									<button
-										className="startup-choice"
-										onClick={() => {
-											studio.startFresh(true);
-											setStartupStep(null);
-										}}>
-										<Package size={22} aria-hidden="true" />
-										<span>
-											<strong>{tUI("Project with examples")}</strong>
-											<small>{tUI("Use the built-in Quest Plus catalogue.")}</small>
-										</span>
-										<ChevronRight size={18} aria-hidden="true" />
-									</button>
-								</>
-							)}
-						</div>
-						<a className="startup-docs-link" href={docsUrl} target="_blank" rel="noopener noreferrer">
-							<BookOpen size={19} aria-hidden="true" />
-							<span>
-								<strong>{tUI("Documentation")}</strong>
-								<small>{tUI("Learn how to create quests and integrate your mod.")}</small>
-							</span>
-							<ChevronRight size={17} aria-hidden="true" />
-						</a>
-						{startupStep === "create" && (
-							<div className="startup-footer">
-								<span>{tUI("Creating a project replaces the current browser draft. Export a ZIP first if you need a backup.")}</span>
-								<button className="button secondary" onClick={() => setStartupStep("resume")}>
-									{tUI("Back")}
-								</button>
-							</div>
-						)}
-					</div>
-				</Dialog>
+			{startupOpen && (
+				<WelcomeDialog
+					project={project}
+					language={language}
+					docsUrl={docsUrl}
+					onResume={() => setStartupOpen(false)}
+					onStartFresh={(withExamples) => {
+						studio.startFresh(withExamples);
+						setStartupOpen(false);
+					}}
+					onImport={() => {
+						setStartupOpen(false);
+						files.current?.click();
+					}}
+					onBackup={() => void studio.exportZip()}
+				/>
 			)}
 			{tablesOpen && (
 				<RewardTableLibrary
@@ -772,19 +757,26 @@ export default function App() {
 				<TemplateLibrary
 					projectTemplates={studio.state.project.questTemplates}
 					onSaveProject={studio.setProjectTemplates}
-					onSaveSelected={selected ? () => doAction("save-as-template") : undefined}
+					selectedQuest={selected}
+					language={language}
+					canCreate={!!cat}
+					onCreate={(templateId) => {
+						setTemplatesOpen(false);
+						studio.createQuest(undefined, templateId);
+					}}
 					onClose={() => setTemplatesOpen(false)}
 				/>
 			)}
 			{bulkOpen && (
 				<BulkEditor
 					project={project}
+					language={language}
 					onClose={() => setBulkOpen(false)}
 					onApply={(result, count) => {
 						studio.mutate((draft) => {
 							draft.project = result;
 						}, "bulk-edit");
-						studio.toast("Updated " + count + " quests");
+						studio.toast(tUI("Quests updated") + ": " + count);
 					}}
 				/>
 			)}
@@ -822,39 +814,16 @@ export default function App() {
 			{registryOpen && (
 				<RegistryBrowser
 					onClose={() => setRegistryOpen(false)}
-					onPick={(kind, id) => {
-						const matches: Record<string, string[]> = {
-							items: [
-								"item_obtained",
-								"item_craft",
-								"item_smelt",
-								"item_use",
-								"item_consume",
-								"fish_item",
-								"trade",
-								"inventory_count",
-								"item_submit",
-								"item_turn_in",
-							],
-							blocks: ["block_break", "block_place", "block_interact"],
-							fluids: ["fluid_transfer"],
-							entities: ["entity_kill", "fish_entity", "tame_animal", "breed_animal", "npc_interact"],
-							biomes: ["biome_visit"],
-							structures: ["structure_visit"],
-							dimensions: ["dimension_enter"],
-							statistics: ["custom_stat"],
-							advancements: ["advancement_complete"],
-						};
-						const index = selected?.objectives?.findIndex((o) => (matches[kind] || []).includes(o.event)) ?? -1;
-						if (index >= 0) {
-							studio.setField("objectives." + index + ".target", id);
-							studio.toast("Selected " + id);
-							setRegistryOpen(false);
-						} else
-							void navigator.clipboard
-								.writeText(id)
-								.then(() => studio.toast("Copied " + id))
-								.catch(() => studio.toast("Resource ID: " + id));
+					targetFor={(kind) => {
+						const index = objectiveFor(kind);
+						return index < 0 ? null : objectiveLabel(selected!.objectives[index], language);
+					}}
+					onUse={(kind, id) => {
+						const index = objectiveFor(kind);
+						if (index < 0) return;
+						studio.setField("objectives." + index + ".target", id);
+						studio.toast(tUI("Objective target set") + ": " + id);
+						setRegistryOpen(false);
 					}}
 				/>
 			)}
@@ -892,33 +861,7 @@ export default function App() {
 				</Dialog>
 			)}
 			{previewOpen && selected && (
-				<Dialog title={tUI("Quest preview")} onClose={() => setPreviewOpen(false)}>
-					<div className="quest-preview">
-						<ItemIcon id={selected.icon} size={52} />
-						<h2>{text(selected.title, language)}</h2>
-						<div
-							className="description-preview"
-							dangerouslySetInnerHTML={{
-								__html: selected.descriptionRich?.[language]?.length
-									? richToHtml(selected.descriptionRich[language])
-									: descriptionHtml(descriptionParts(text(selected.description, language))),
-							}}
-						/>
-						{selected.kind === "information" ? (
-							<p>{text(selected.narrative, language)}</p>
-						) : (
-							<ul>
-								{selected.objectives.map((o) => (
-									<li key={o.id}>
-										<span className="preview-checkbox" />
-										{objectiveLabel(o, language)}
-									</li>
-								))}
-							</ul>
-						)}
-						<p className="preview-note">{tUI("Content preview · Player progress is not simulated")}</p>
-					</div>
-				</Dialog>
+				<QuestPreview project={project} quest={selected} language={language} locales={locales} onLanguage={studio.setLanguage} onClose={() => setPreviewOpen(false)} />
 			)}
 			{studio.pendingImport && <FtbImportReview pendingImport={studio.pendingImport} onConfirm={studio.confirmFtbImport} onCancel={studio.cancelFtbImport} />}
 			{issueAlert && (

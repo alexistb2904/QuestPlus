@@ -266,7 +266,7 @@
 	"questplus.client.reward_type.questplus:stage": "阶段",
 	"questplus.client.reward_type.questplus:toast": "通知",
 	"item.questplus.loot_crate": "战利品箱",
-	"questplus.crate.opened": "箱子已开启。奖励已保存，将在背包有空间时发放。",
+	"questplus.client.toast.crate_won": "你赢得了！",
 	"item.questplus.tablet": "Quest 任务平板",
 	"itemGroup.questplus.quest": "Quest Plus",
 	"questplus.client.team_options": "队伍设置",

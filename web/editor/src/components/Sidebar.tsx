@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, FilePlus2, FolderOpen, FolderPlus, PanelLeftClose, RotateCcw, Search, Upload } from "lucide-react";
+import { ChevronRight, FolderOpen, FolderPlus, PanelLeftClose, Search, X } from "lucide-react";
 import { useState } from "react";
 import { orderedCategories, text } from "../core/project.js";
 import type { Project, Quest, Selection } from "../types";
@@ -13,14 +13,11 @@ type Props = {
 	onCategory: (id: string) => void;
 	onQuest: (id: string) => void;
 	onNewCategory: () => void;
-	onReset: (original: boolean) => void;
 	search: string;
 	onSearch: (s: string) => void;
 	onCollapse: () => void;
-	onImport: () => void;
-	onImportFolder: () => void;
 };
-export function Sidebar({ project, categoryId, selection, language, onCategory, onQuest, onNewCategory, onReset, search, onSearch, onCollapse, onImport, onImportFolder }: Props) {
+export function Sidebar({ project, categoryId, selection, language, onCategory, onQuest, onNewCategory, search, onSearch, onCollapse }: Props) {
 	const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 	const grouped = [...new Set(orderedCategories(project.categories).map((c) => c.group || ""))].flatMap((group) =>
 		orderedCategories(project.categories).filter((c) => (c.group || "") === group)
@@ -29,14 +26,19 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 	return (
 		<aside className="sidebar wood" aria-label={tUI("Library")}>
 			<div className="sidebar-header grass-trim">
-				<FolderOpen size={22} />
+				<FolderOpen size={20} aria-hidden="true" />
 				<h2>{tUI("Quest Library")}</h2>
-				<button className="icon-button" aria-label={tUI("Collapse library")} onClick={onCollapse}>
-					<PanelLeftClose size={18} />
-				</button>
+				<div className="sidebar-header-actions">
+					<button className="icon-button" aria-label={tUI("New Category")} title={tUI("New Category")} onClick={onNewCategory}>
+						<FolderPlus size={17} />
+					</button>
+					<button className="icon-button" aria-label={tUI("Collapse library")} title={tUI("Collapse library")} onClick={onCollapse}>
+						<PanelLeftClose size={17} />
+					</button>
+				</div>
 			</div>
 			<div className="search-box">
-				<Search size={16} />
+				<Search size={15} aria-hidden="true" />
 				<input
 					type="search"
 					value={search}
@@ -44,14 +46,28 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 					onChange={(e) => onSearch(e.target.value)}
 					placeholder={tUI("Search categories / quests…")}
 				/>
+				{search && (
+					<button type="button" className="search-clear" aria-label={tUI("Clear search")} title={tUI("Clear search")} onClick={() => onSearch("")}>
+						<X size={14} />
+					</button>
+				)}
 			</div>
 			<nav className="library-tree">
+				{!project.categories.length && !query && (
+					<div className="library-start">
+						<p>{tUI("No categories yet")}</p>
+						<button className="button primary" onClick={onNewCategory}>
+							<FolderPlus size={16} />
+							{tUI("New Category")}
+						</button>
+					</div>
+				)}
 				{grouped.map((c, index) => {
 					const all = project.quests.filter((q) => q.category === c.id),
 						categoryMatches = (text(c.title, language) + " " + c.id + " " + (c.group || "")).toLocaleLowerCase().includes(query);
 					const rows = query && !categoryMatches ? all.filter((q) => (text(q.title, language) + " " + q.id).toLocaleLowerCase().includes(query)) : all;
 					if (query && !categoryMatches && !rows.length) return null;
-					const open = query || !collapsed.has(c.id);
+					const open = !!query || !collapsed.has(c.id);
 					return (
 						<div className={"library-group" + (categoryId === c.id ? " current" : "")} key={c.id}>
 							{c.group && (index === 0 || grouped[index - 1].group !== c.group) && <h3 className="chapter-group-title">{c.group}</h3>}
@@ -59,7 +75,7 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 								<button
 									className="category-expander"
 									aria-label={tUI(open ? "Collapse category" : "Expand category") + " " + text(c.title, language)}
-									aria-expanded={!!open}
+									aria-expanded={open}
 									onClick={() =>
 										setCollapsed((old) => {
 											const next = new Set(old);
@@ -68,12 +84,12 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 											return next;
 										})
 									}>
-									{open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+									<ChevronRight size={15} aria-hidden="true" />
 								</button>
 								<button className={"category-item" + (selection?.type === "category" && selection.id === c.id ? " active" : "")} onClick={() => onCategory(c.id)}>
-									<ItemIcon id={c.icon} size={26} />
+									<ItemIcon id={c.icon} size={24} />
 									<strong className="cat-name">{text(c.title, language)}</strong>
-									<span className="category-count">({all.length})</span>
+									<span className="category-count">{all.length}</span>
 								</button>
 							</div>
 							{open && (
@@ -82,9 +98,10 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 										<button
 											className={"quest-item" + (selection?.type === "quest" && selection.id === q.id ? " active" : "")}
 											aria-label={text(q.title, language)}
+											aria-current={selection?.type === "quest" && selection.id === q.id ? "true" : undefined}
 											onClick={() => onQuest(q.id)}
 											key={q.id}>
-											<ItemIcon id={q.icon} size={25} />
+											<ItemIcon id={q.icon} size={22} />
 											<span className="quest-label">
 												<strong>{text(q.title, language)}</strong>
 											</span>
@@ -100,33 +117,6 @@ export function Sidebar({ project, categoryId, selection, language, onCategory, 
 					!project.categories.some((c) => (text(c.title, language) + " " + c.id + " " + (c.group || "")).toLocaleLowerCase().includes(query)) &&
 					!project.quests.some((q) => (text(q.title, language) + " " + q.id).toLocaleLowerCase().includes(query)) && <p className="library-empty">{tUI("No results")}</p>}
 			</nav>
-			<div className="library-import">
-				<button className="button secondary" onClick={onImport}>
-					<Upload size={15} />
-					{tUI("Import")}
-				</button>
-				<button className="button secondary" onClick={onImportFolder}>
-					<FolderOpen size={15} />
-					{tUI("Folder")}
-				</button>
-			</div>
-			<details className="project-options">
-				<summary>{tUI("Project options")}</summary>
-				<button className="subtle" onClick={() => onReset(true)}>
-					<RotateCcw size={13} />
-					{tUI("Load defaults")}
-				</button>
-				<button className="subtle" onClick={() => onReset(false)}>
-					<FilePlus2 size={13} />
-					{tUI("New project")}
-				</button>
-			</details>
-			<div className="sidebar-footer">
-				<button className="button secondary block" onClick={onNewCategory}>
-					<FolderPlus size={18} />
-					{tUI("New Category")}
-				</button>
-			</div>
 		</aside>
 	);
 }

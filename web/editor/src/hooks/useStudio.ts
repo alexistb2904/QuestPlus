@@ -221,7 +221,7 @@ export function useStudio() {
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
 			const position = { x: Math.round(at?.x ?? s.camera.x), y: Math.round(at?.y ?? s.camera.y) };
-			const saved = templateId.startsWith("custom:") ? savedQuestTemplates().find((t) => t.id === templateId) : null;
+			const saved = templateId.startsWith("custom:") ? (savedQuestTemplates().find((t) => t.id === templateId) ?? s.project.questTemplates?.find((t) => t.id === templateId)) : null;
 			if (templateId.startsWith("custom:") && !saved) throw Error("Saved template unavailable: " + templateId);
 			const quest = saved ? buildSavedQuest(saved, currentCategory, id, name, position) : buildQuestFromTemplate(currentCategory, id, name, position, templateId);
 			s.project.quests.push(quest);

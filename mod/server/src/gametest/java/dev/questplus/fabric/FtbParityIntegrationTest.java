@@ -152,6 +152,9 @@ public final class FtbParityIntegrationTest {
 		var battery = LoaderTestSupport.battery(50);
 		player.getInventory().setItem(6, battery);
 		Runnable idle = () -> helper.assertTrue(!runtime.isBusy(player.getUUID()), "Await durable resource write");
+		java.util.function.Supplier<List<net.minecraft.world.entity.item.ItemEntity>> dropped = () -> player.level()
+				.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, player.getBoundingBox().inflate(8, 128, 8),
+						e -> e.getItem().is(Items.STONE));
 		helper.startSequence().thenWaitUntil(idle).thenExecute(step(() -> {
 			helper.assertTrue(!runtime.state(player.getUUID()).quests.containsKey("questplus:ftb_resources"),
 					"Possessed resources do not count as submissions");
@@ -183,23 +186,18 @@ public final class FtbParityIntegrationTest {
 			runtime.openCrate(player, InteractionHand.MAIN_HAND);
 			helper.assertTrue(player.getMainHandItem().getCount() == 1,
 					"Exactly one crate consumed after saving its immutable rewards");
-		})).thenExecuteAfter(25, step(() -> {
-			var personal = runtime.player(player.getUUID());
-			helper.assertTrue(
-					personal.entitlements.values().stream().anyMatch(g -> g.questId().equals("questplus:crate")),
-					"Crate result retained while inventory is full");
-			helper.assertTrue(personal.claims.keySet().stream().noneMatch(k -> k.startsWith("questplus:crate|")),
-					"No reward reservation without free inventory space");
-			player.getInventory().setItem(1, ItemStack.EMPTY);
-		})).thenWaitUntil(() -> helper.assertTrue(player.getInventory().getItem(1).is(Items.STONE),
-				"Crate delivered automatically when space becomes available")).thenWaitUntil(idle)
+		})).thenWaitUntil(() -> helper.assertTrue(!dropped.get().isEmpty(),
+				"Full inventory: crate loot drops at the player's feet")).thenWaitUntil(idle)
 				.thenExecuteAfter(25, step(() -> {
-					helper.assertTrue(player.getInventory().getItem(1).getCount() == 1,
-							"Automatic retry does not reroll or duplicate rewards");
+					var stones = dropped.get();
+					helper.assertTrue(stones.size() == 1 && stones.getFirst().getItem().getCount() == 1
+							&& player.getInventory().countItem(Items.STONE) == 0,
+							"Dropped once, never rerolled or duplicated");
 					helper.assertTrue(
-							QuestItemStacks.components(player.getInventory().getItem(1), server.registryAccess())
+							QuestItemStacks.components(stones.getFirst().getItem(), server.registryAccess())
 									.toString().contains("grade"),
 							"Reward retains its custom component");
+					stones.forEach(net.minecraft.world.entity.Entity::discard);
 					Files.delete(file);
 					var current = JsonParser.parseString(Files.readString(metadata)).getAsJsonObject();
 					current.getAsJsonArray("rewardTables").asList()

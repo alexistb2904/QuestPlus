@@ -6,7 +6,6 @@ import { skinProblem, VILLAGER_TYPES } from "./npc-spawns.js";
 import { BIOMES, DIMENSIONS, STRUCTURES } from "./objective-targets.js";
 import { crateTableName, POOL_TYPES, poolError, resolveNamedTable, rewardTranslations } from "./reward-tables.js";
 import { mediaPattern, validRich } from "./rich-format.js";
-// Persist the public JSON v2 pack format, not the server's internal projection.
 export const EVENTS = [
 	["block_break", "Casser des blocs"],
 	["block_place", "Placer des blocs"],
@@ -65,14 +64,12 @@ export const text = (value, lang = "en_us") => {
 		.find((k) => valid(value[k]));
 	return key ? value[key] : "";
 };
-// Annotation IDs are unique within a category, not across the pack.
 export function selectedOwner(project, selection, categoryId) {
 	if (!selection) return undefined;
 	if (selection.type === "quest") return project.quests.find((q) => q.id === selection.id);
 	if (selection.type === "category") return project.categories.find((c) => c.id === selection.id);
 	return project.categories.find((c) => c.id === categoryId)?.annotations?.find((a) => a.id === selection.id);
 }
-/** Locale fallback for authored annotations. Ignore the studio's untouched "Note" seed. */
 export const annotationText = (annotation, lang = "en_us") => {
 	const map = annotation?.text || {};
 	const authored = Object.entries(map).filter(([, value]) => typeof value === "string" && value.trim() && value.trim() !== "Note");
@@ -96,8 +93,7 @@ export const annotationRich = (annotation, lang = "en_us") => {
 		.find((k) => usable(rich[k]));
 	return key ? rich[key] : null;
 };
-/** Seed a new preview/translation language from an authored source once.
- * Copies rich objects so edits never mutate the original translation. */
+
 export function seedProjectLocale(project, locale) {
 	if (!/^[a-z]{2,3}_[a-z]{2,4}$/.test(locale) || locale === "en_us") return project;
 	const seed = (map) => {
@@ -147,12 +143,13 @@ export const slug = (s) =>
 		.replace(/[^a-z0-9]+/g, "_")
 		.replace(/^_|_$/g, "") || "new";
 export const copy = (value) => structuredClone(value);
+/** Minecraft versions the mod runs on, newest first: the union of `validated_minecraft` in mod/versions. */
+export const MINECRAFT_VERSIONS = ["26.3", "26.2", "26.1.2", "26.1.1", "26.1"];
+export const supportedMinecraftVersion = (value) => (MINECRAFT_VERSIONS.includes(value) ? value : null);
 export const emptyProject = () => ({ categories: [], quests: [], config: { schemaVersion: 1, autosaveSeconds: 5 }, targetMinecraftVersion: "26.3", iconVersions: {} });
-/** The editor starts from the exact packaged challenge catalogue plus historical examples. */
 export function demoProject() {
 	return copy(BUILTIN_PROJECT);
 }
-/** Missing order sorts after explicitly ordered categories. Ties are deterministic. */
 export function orderedCategories(categories) {
 	return [...categories].sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) || a.id.localeCompare(b.id));
 }
@@ -174,7 +171,6 @@ export function quest(group, id = "questplus:quest", en = "New quest", layout = 
 	};
 }
 export function annotation(id = "note", x = 0, y = 0) {
-	// Text at 1.4x matches the 45px default quest (the game's own default is 32px).
 	return { id, x, y, text: { en_us: "Note" }, rich: { en_us: [{ type: "text", text: "Note", size: 1.4 }] }, style: "note", color: "#c6a986", width: 240, height: 140 };
 }
 export function gearRequirementText(conditions, lang = "en_us") {
@@ -369,6 +365,12 @@ export function validate(p) {
 			}
 		}
 	}
+	const seconds = p?.config?.autosaveSeconds;
+	if (p?.config && (!Number.isInteger(seconds) || seconds < 1 || seconds > 300)) fail("Config", "Autosave must be 1 to 300 seconds");
+	if (p?.config?.teamRewardPolicy !== undefined && !["all_members", "contributor"].includes(p.config.teamRewardPolicy))
+		fail("Config", "Invalid team reward policy");
+	for (const flag of ["allowDuplicateTeamNames", "enableCommandRewards"])
+		if (p?.config?.[flag] !== undefined && typeof p.config[flag] !== "boolean") fail("Config", "Invalid " + flag + " flag");
 	if (p?.config?.dropLootCrates !== undefined && typeof p.config.dropLootCrates !== "boolean") fail("Config", "Invalid crate drop flag");
 	if (
 		p?.config?.crateNoDrop !== undefined &&
@@ -379,6 +381,8 @@ export function validate(p) {
 		fail("Config", "Invalid crate drop weights");
 	if (p?.config?.crateBosses !== undefined && !crateBossesValid(p.config.crateBosses)) fail("Config", "Invalid crate bosses");
 	if (p?.config?.npcTurnIn !== undefined && typeof p.config.npcTurnIn !== "boolean") fail("Config", "Invalid NPC turn-in flag");
+	if (p?.config?.waitForInventorySpace !== undefined && typeof p.config.waitForInventorySpace !== "boolean")
+		fail("Config", "Invalid inventory space flag");
 	if (p?.config?.npcs !== undefined) validateNpcs(p.config.npcs, new Set(p.quests.map((q) => q.id)), fail);
 	const validateRewards = (list, label) => {
 		if (!Array.isArray(list)) {
@@ -958,7 +962,7 @@ export function importDocuments(documents) {
 			throw Error("JSON/JSON5 invalide dans " + name + " : " + e.message);
 		}
 		if (/(?:^|\/)queststudio-compatibility\.json$/i.test(path)) {
-			p.targetMinecraftVersion = obj.targetMinecraftVersion || "26.3";
+			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || MINECRAFT_VERSIONS[0];
 			p.iconVersions = obj.iconVersions || {};
 			if (
 				obj.editorLocales !== undefined &&

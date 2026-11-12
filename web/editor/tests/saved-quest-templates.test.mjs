@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { quest as newQuest, validate } from "../src/core/project.js";
-import { buildSavedQuest, saveQuestTemplate, savedQuestTemplates } from "../src/core/studio-template-library.js";
+import { buildSavedQuest, removeQuestTemplate, saveQuestTemplate, savedQuestTemplates } from "../src/core/studio-template-library.js";
 
 const memory = () => {
 	const store = new Map();
@@ -38,4 +38,18 @@ test("saved templates replace names without adding duplicate rows", () => {
 	saveQuestTemplate(q, "First", storage);
 	saveQuestTemplate(q, "First", storage);
 	assert.equal(savedQuestTemplates(storage).length, 1);
+});
+test("removing a saved template keeps the others", () => {
+	const storage = memory(),
+		q = newQuest({ id: "questplus:test" }, "questplus:q", "Q");
+	saveQuestTemplate(q, "First", storage);
+	saveQuestTemplate(q, "Second", storage);
+	assert.deepEqual(
+		removeQuestTemplate("custom:first", storage).map((t) => t.id),
+		["custom:second"]
+	);
+	assert.deepEqual(
+		savedQuestTemplates(storage).map((t) => t.id),
+		["custom:second"]
+	);
 });

@@ -95,13 +95,13 @@ public final class ClientAdapterImpl implements ClientAdapter {
 		}
 
 		@Override
-		public void render() {
+		public void render(int guiScale) {
 			var window = Minecraft.getInstance().gameRenderer.gameRenderState().windowRenderState;
 			int oldWidth = window.width, oldHeight = window.height, oldScale = window.guiScale;
 			try {
 				window.width = target.width;
 				window.height = target.height;
-				window.guiScale = 1;
+				window.guiScale = guiScale;
 				RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(target.getColorTexture(),
 						new Vector4f(0, 0, 0, 0), target.getDepthTexture(), 0);
 				renderer.render();

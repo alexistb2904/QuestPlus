@@ -55,8 +55,8 @@ public interface ClientAdapter {
 	interface OffscreenGui {
 		RenderTarget target();
 
-		/** Clears the target and draws the extracted state at the target size with GUI scale 1. */
-		void render();
+		/** Clears the target and draws the extracted state at the target size with {@code guiScale}. */
+		void render(int guiScale);
 
 		void close();
 	}

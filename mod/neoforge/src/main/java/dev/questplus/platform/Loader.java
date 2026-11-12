@@ -91,6 +91,10 @@ public final class Loader {
 		return loader != null && loader.getLoadingModList().getModFileById(id) != null;
 	}
 
+	public static String modVersion() {
+		return ModList.get().getModContainerById("questplus").map(c -> c.getModInfo().getVersion().toString()).orElse(null);
+	}
+
 	public static Path configDir() {
 		return FMLPaths.CONFIGDIR.get();
 	}

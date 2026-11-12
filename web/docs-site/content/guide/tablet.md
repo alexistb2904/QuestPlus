@@ -44,7 +44,7 @@ _Read the objective and its conditions before collecting or submitting resources
 | Play together          | Open the **Team** controls                        |
 | Adjust visuals         | Tablet settings for size, lighting and 2D mode    |
 
-Completing objectives makes a quest eligible for its configured rewards. Use **Claim** for that quest, or **Collect All** for eligible rewards. A choice reward requires a selection. Inventory space, team rules and reward policies can affect what is available.
+Completing objectives makes a quest eligible for its configured rewards. Use **Claim** for that quest, or **Collect All** for eligible rewards. A choice reward requires a selection. Team rules and reward policies can affect what is available. With a full inventory, items that do not fit drop at your feet unless the pack makes them wait, see [Full inventories](/reference/configuration#full-inventories).
 
 **Submit** is explicit. An item turn in consumes accepted items, while an item submission objective can check them without consuming them. XP submission consumes the requested XP. Read the objective before confirming.
 

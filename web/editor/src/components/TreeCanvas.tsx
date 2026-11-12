@@ -330,6 +330,8 @@ export function TreeCanvas({
 			aria-label={tUI("Interactive quest tree")}
 			role="region"
 			tabIndex={0}
+			// The browser would otherwise start dragging a quest's icon image instead of the quest.
+			onDragStart={(e) => e.preventDefault()}
 			onPointerDown={onDown}
 			onPointerMove={onMove}
 			onPointerUp={onUp}

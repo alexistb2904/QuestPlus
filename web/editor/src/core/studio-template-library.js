@@ -67,6 +67,12 @@ export function saveQuestTemplate(quest, label, storage = globalThis.localStorag
 	storage.setItem(KEY, serialized);
 	return item;
 }
+export function removeQuestTemplate(id, storage = globalThis.localStorage) {
+	const saved = savedQuestTemplates(storage),
+		kept = saved.filter((t) => t.id !== id);
+	if (kept.length !== saved.length) storage.setItem(KEY, JSON.stringify(kept));
+	return kept;
+}
 export function buildSavedQuest(template, category, id, title, position) {
 	if (!template?.quest || !Array.isArray(template.quest.objectives)) throw Error("Invalid saved quest template");
 	const q = structuredClone(template.quest);

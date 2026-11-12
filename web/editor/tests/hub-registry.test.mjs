@@ -85,3 +85,23 @@ test("extension descriptors validate choices and numeric defaults without script
     assert.equal(hubFieldDefault({ type: "boolean" }), false);
     setHubRegistry({});
 });
+
+test("config.json settings unlock per key from the mod version that accepts them", async () => {
+	const { hubAtLeast, serverVersion, unsupportedConfigKeys } = await import("../src/core/hub-registry.js");
+	for (const v of ["1.1.7", "1.1.8", "1.2.0", "1.10.0", "2.0.0", "1.1.7+26.3"]) assert.equal(hubAtLeast("1.1.7", v), true, v);
+	for (const v of ["1.1.6", "1.0.9", "0.9.9", ""]) assert.equal(hubAtLeast("1.1.7", v), false, v);
+	const config = { schemaVersion: 1, autosaveSeconds: 5, npcs: [], crateBosses: [], waitForInventorySpace: true, futureKey: 1 };
+	assert.deepEqual(unsupportedConfigKeys(config, "1.0.0"), ["npcs", "crateBosses", "waitForInventorySpace"]);
+	assert.deepEqual(unsupportedConfigKeys(config, "1.1.5"), ["waitForInventorySpace"]);
+	assert.deepEqual(unsupportedConfigKeys(config, "1.1.7"), []);
+	// Mods before 1.1.7 report no version: the keys of their own config.json give a floor.
+	setHubRegistry({});
+	assert.equal(serverVersion({ schemaVersion: 1, autosaveSeconds: 5 }), "1.0.0");
+	assert.equal(serverVersion({ npcTurnIn: true }), "1.1.3");
+	assert.equal(serverVersion({ npcs: [], crateBosses: [] }), "1.1.5");
+	setHubRegistry({ questplusVersion: "1.1.7" });
+	assert.equal(serverVersion({}), "1.1.7");
+	setHubRegistry({ questplusVersion: "<script>" });
+	assert.equal(serverVersion({}), "1.0.0");
+	setHubRegistry({});
+});

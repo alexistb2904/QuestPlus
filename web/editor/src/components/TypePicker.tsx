@@ -22,9 +22,9 @@ export function catalogOptions(
 	return list;
 }
 
-const anchorVar = (id: string) => ({ "--anchor": "--qp" + id.replace(/[^a-zA-Z0-9_-]/g, "") }) as React.CSSProperties;
+export const anchorVar = (id: string) => ({ "--anchor": "--qp" + id.replace(/[^a-zA-Z0-9_-]/g, "") }) as React.CSSProperties;
 // CSS anchor positioning attaches popovers to their trigger. Engines without it get fixed coordinates once on open.
-function place(anchor: HTMLElement | null, popover: HTMLElement | null, above = false) {
+export function place(anchor: HTMLElement | null, popover: HTMLElement | null, above = false) {
 	if (!anchor || !popover || CSS.supports("anchor-name: --a")) return;
 	const r = anchor.getBoundingClientRect();
 	Object.assign(popover.style, {

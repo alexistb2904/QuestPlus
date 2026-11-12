@@ -25,8 +25,8 @@ import java.util.*;
 public final class QuestLootChest extends Block implements EntityBlock {
 	/** Animation beats in ticks from placement. The client renderer uses the same clock. */
 	public static final int OPEN = 40, BURST = 84, COLLECT = 125, DURATION = 150;
-	/** Auto-delivery waits until the loot flies to its owner. */
-	static final int DELIVER = COLLECT + 5;
+	/** Auto-delivery waits until the chest has vanished, so the inventory never spoils the reveal. */
+	static final int DELIVER = DURATION;
 	public static QuestLootChest BLOCK;
 	public static BlockEntityType<Stage> ENTITY;
 	/** Set by the client entrypoint. Dedicated servers never load client code. */

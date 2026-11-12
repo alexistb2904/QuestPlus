@@ -5,10 +5,12 @@ export function ResourceGrid({
 	items,
 	onPick,
 	renderIcon,
+	selected,
 }: {
 	items: { id: string; label: string }[];
 	onPick: (id: string) => void;
 	renderIcon?: (id: string) => React.ReactNode;
+	selected?: string;
 }) {
 	const ref = useRef<HTMLDivElement>(null),
 		pending = useRef<number | null>(null),
@@ -61,7 +63,7 @@ export function ResourceGrid({
 			<div style={{ height: rows * rowHeight, position: "relative" }}>
 				<div className="registry-virtual-rows" style={{ top: first * rowHeight, gridTemplateColumns: `repeat(${columns},minmax(0,1fr))` }}>
 					{items.slice(first * columns, last * columns).map(({ id, label }, offset) => (
-						<button key={id} data-index={first * columns + offset} type="button" className="picker-item" title={id} onClick={() => onPick(id)}>
+						<button key={id} data-index={first * columns + offset} type="button" className="picker-item" title={id} aria-pressed={selected === undefined ? undefined : selected === id} onClick={() => onPick(id)}>
 							{renderIcon?.(id)}
 							<span>{label}</span>
 						</button>

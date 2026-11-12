@@ -266,7 +266,7 @@
 	"questplus.client.reward_type.questplus:stage": "Etapa",
 	"questplus.client.reward_type.questplus:toast": "Notificación",
 	"item.questplus.loot_crate": "Caja de botín",
-	"questplus.crate.opened": "Caja abierta. Las recompensas se guardarán y entregarán cuando haya espacio.",
+	"questplus.client.toast.crate_won": "¡HAS GANADO!",
 	"item.questplus.tablet": "Tableta Quest",
 	"itemGroup.questplus.quest": "Quest Plus",
 	"questplus.client.team_options": "Opciones de equipo",

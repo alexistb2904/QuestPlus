@@ -64,6 +64,8 @@ public final class QuestRuntime implements AutoCloseable {
 	private boolean allowDuplicateTeamNames = true;
 	private boolean commandRewardsEnabled;
 	private boolean dropLootCrates;
+	/** Off by default: item rewards that do not fit drop at the player's feet instead of waiting. */
+	private boolean waitForInventorySpace;
 	private Map<String, QuestNpcs.Npc> npcs = Map.of();
 	private boolean npcTurnIn = true;
 	private Map<String, Integer> crateNoDrop = Map.of("passive", 4000, "monster", 600, "boss", 0);
@@ -158,7 +160,7 @@ public final class QuestRuntime implements AutoCloseable {
 		assertThread();
 		var config = Defaults.readObject(definitions.resolve("config.json"));
 		if (!Set.of("schemaVersion", "autosaveSeconds", "teamRewardPolicy", "enableCommandRewards", "dropLootCrates",
-				"crateNoDrop", "crateBosses", "allowDuplicateTeamNames", "npcTurnIn", "npcs")
+				"crateNoDrop", "crateBosses", "allowDuplicateTeamNames", "npcTurnIn", "npcs", "waitForInventorySpace")
 				.containsAll(config.keySet()) || !config.has("schemaVersion") || !config.has("autosaveSeconds")
 				|| !config.get("schemaVersion").isJsonPrimitive()
 				|| !config.get("schemaVersion").getAsJsonPrimitive().isNumber()
@@ -186,6 +188,11 @@ public final class QuestRuntime implements AutoCloseable {
 				|| !config.getAsJsonPrimitive("dropLootCrates").isBoolean()))
 			throw new IllegalArgumentException("dropLootCrates must be boolean");
 		boolean candidateDrops = config.has("dropLootCrates") && config.get("dropLootCrates").getAsBoolean();
+		if (config.has("waitForInventorySpace") && (!config.get("waitForInventorySpace").isJsonPrimitive()
+				|| !config.getAsJsonPrimitive("waitForInventorySpace").isBoolean()))
+			throw new IllegalArgumentException("waitForInventorySpace must be boolean");
+		boolean candidateWait = config.has("waitForInventorySpace")
+				&& config.get("waitForInventorySpace").getAsBoolean();
 		if (config.has("npcTurnIn")
 				&& (!config.get("npcTurnIn").isJsonPrimitive() || !config.getAsJsonPrimitive("npcTurnIn").isBoolean()))
 			throw new IllegalArgumentException("npcTurnIn must be boolean");
@@ -449,6 +456,7 @@ public final class QuestRuntime implements AutoCloseable {
 		teamRewardPolicy = policy;
 		commandRewardsEnabled = allowCommands;
 		dropLootCrates = candidateDrops;
+		waitForInventorySpace = candidateWait;
 		crateNoDrop = Map.copyOf(candidateNoDrop);
 		crateBosses = List.copyOf(candidateBosses);
 		autosaveTicks = seconds * 20;
@@ -1052,10 +1060,30 @@ public final class QuestRuntime implements AutoCloseable {
 	public record OpenedCrate(String key, List<ItemStack> display, int rarity) {
 	}
 
+	/** Instant open: delivery and its toast come from the auto-claim, never the chat. */
 	public void openCrate(ServerPlayer actor, net.minecraft.world.InteractionHand hand) throws IOException {
 		openCrate(actor, hand, 0);
-		actor.sendSystemMessage(net.minecraft.network.chat.Component.translatableWithFallback("questplus.crate.opened",
-				"Loot crate opened; rewards are saved and delivered when inventory space is available."));
+	}
+
+	/** End-of-reveal toast naming what the crate gave. */
+	private void crateWon(ServerPlayer player, List<QuestDefinition.Reward> rewards) {
+		var won = new ArrayList<String>();
+		String icon = "minecraft:chest";
+		for (var reward : rewards)
+			if (reward.type().equals("item")) {
+				var stacks = QuestItemStacks.rewards(reward, server.registryAccess());
+				if (stacks.isEmpty())
+					continue;
+				if (won.isEmpty())
+					icon = BuiltInRegistries.ITEM.getKey(stacks.getFirst().getItem()).toString();
+				String name = stacks.getFirst().getHoverName().getString();
+				won.add(reward.count() > 1 ? reward.count() + "× " + name : name);
+			} else if (reward.type().equals("experience"))
+				won.add(reward.amount() + " XP");
+			else if (reward.type().equals("experience_levels"))
+				won.add(reward.amount() + " lvl");
+		QuestNetwork.notice(player, Messages.text(player, "questplus.client.toast.crate_won").getString(),
+				String.join(", ", won), icon);
 	}
 
 	/**
@@ -1398,10 +1426,13 @@ public final class QuestRuntime implements AutoCloseable {
 							next = entry;
 					}
 					if (next != null) {
-						boolean toast = next.getValue().rewards().stream()
+						var grant = next.getValue();
+						boolean toast = grant.rewards().stream()
 								.anyMatch(r -> r.policy().autoClaim().equals("enabled"));
-						claim(actor, next.getValue().questId(), next.getKey(), toast ? null : () -> {
-						});
+						claim(actor, grant.questId(), next.getKey(),
+								grant.questId().equals("questplus:crate") ? () -> crateWon(actor, grant.rewards())
+										: toast ? null : () -> {
+										});
 					}
 				} catch (IOException | IllegalArgumentException | IllegalStateException unavailable) {
 					/* Retry after inventory space or the current transaction changes. */ }
@@ -1872,7 +1903,8 @@ public final class QuestRuntime implements AutoCloseable {
 			throw new IllegalArgumentException("Choose your reward first: /questplus choose <quest> <option number>");
 		if (claiming.contains(uuid))
 			throw new IllegalArgumentException("Reward already reserved; pending claims require administrator review");
-		if (!fits(player, rewards))
+		boolean spill = !waitForInventorySpace;
+		if (!fits(player, rewards, spill))
 			throw new IllegalArgumentException("Inventory needs more free space");
 		UUID rewardScope = rewards.getFirst().policy().teamScope();
 		TeamData shared = rewardScope == null ? null : teams.rewardScope(rewardScope);
@@ -1904,7 +1936,7 @@ public final class QuestRuntime implements AutoCloseable {
 					}
 					// A durable reservation is never replayed: JSON and vanilla inventory cannot
 					// commit atomically.
-					if (server.getPlayerList().getPlayer(uuid) != player || !fits(player, rewards)) {
+					if (server.getPlayerList().getPlayer(uuid) != player || !fits(player, rewards, spill)) {
 						player.sendSystemMessage(Messages.text(player, "questplus.error",
 								"Reward reserved; disconnected or inventory changed. Administrator review required"));
 						return;
@@ -1917,7 +1949,9 @@ public final class QuestRuntime implements AutoCloseable {
 								player.giveExperienceLevels(reward.amount());
 							else if (reward.type().equals("item"))
 								for (var stack : QuestItemStacks.rewards(reward, server.registryAccess())) {
-									if (!player.getInventory().add(stack) || !stack.isEmpty())
+									if ((!player.getInventory().add(stack) || !stack.isEmpty())
+											&& !(spill && player.spawnAtLocation(
+												(net.minecraft.server.level.ServerLevel) player.level(), stack) != null))
 										throw new IllegalStateException("Inventory changed during reward delivery");
 								}
 							else if (reward.type().equals("questplus:message")) {
@@ -1968,7 +2002,8 @@ public final class QuestRuntime implements AutoCloseable {
 				}));
 	}
 
-	private static boolean fits(ServerPlayer player, List<QuestDefinition.Reward> rewards) {
+	/** With {@code spill}, items that do not fit drop on the ground, so a full inventory never blocks a claim. */
+	static boolean fits(ServerPlayer player, List<QuestDefinition.Reward> rewards, boolean spill) {
 		for (var reward : rewards) {
 			if (reward.type().equals("questplus:advancement")) {
 				var data = com.google.gson.JsonParser.parseString(reward.data()).getAsJsonObject();
@@ -2004,7 +2039,7 @@ public final class QuestRuntime implements AutoCloseable {
 							left -= add;
 						}
 					}
-					if (left > 0)
+					if (left > 0 && !spill)
 						return false;
 				}
 		return true;

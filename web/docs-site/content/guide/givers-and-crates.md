@@ -60,7 +60,7 @@ A **loot crate** is an item that holds one draw from a reward table. You can rec
 
 </details>
 
-The server draws and saves your rewards before the reveal starts. The chest is only a show. It cannot be mined, pushed or looted, and it removes itself after about seven seconds. If your inventory is full, the rewards wait until there is room.
+The chest is only a show. It cannot be mined, pushed or looted, and it removes itself after about seven seconds. If your inventory is full, what does not fit drops at your feet. A pack can make rewards wait for free space instead, see [Full inventories](/reference/configuration#full-inventories).
 
 | Label     | Color  | Chance of the draw |
 | --------- | ------ | ------------------ |
@@ -83,7 +83,7 @@ A crate is never rated below the Minecraft rarity of the items it shows. The rev
 3. Set the crate name, its color and the enchantment glint.
 4. Hand it out. Add a **Loot crate** reward to a quest, copy the **Give command** for an operator, or set the **Mob drops** weights for passive mobs, monsters and bosses.
 
-Mob drops also need **Enable loot crate drops** in the Studio bottom bar. This is the `dropLootCrates` field of the [pack configuration](/reference/configuration).
+Mob drops also need **Enable loot crate drops** in Studio, under **Server & sharing → Settings**. This is the `dropLootCrates` field of the [pack configuration](/reference/configuration).
 
 ::: warning Keep table names stable
 The table name is the identifier stored in every crate. Crates already given to players stop opening after their table is renamed.

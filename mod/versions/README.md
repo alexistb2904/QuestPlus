@@ -156,8 +156,11 @@ benchmark and JEI scripts in `scripts/` pin 26.3 Fabric mods and configure the n
    Only then set each loader's `validated_minecraft` to the exact versions you ran.
 6. The newest folder becomes each loader's reference target automatically (release JARs, `run/client`).
    Update the mods pinned in `scripts/*.gradle` and `scripts/test-tablet-compatibility.mjs`.
+7. Add every new `validated_minecraft` entry to `MINECRAFT_VERSIONS` in
+   `web/editor/src/core/project.js`, newest first. It is the only list in Quest Studio's
+   Minecraft select (project bar). `web/editor/tests/studio-ux.test.mjs` fails until both match.
 
-To drop a version, delete its folder. To drop only NeoForge for it, delete `<mc>/neoforge/gradle.properties`.
+To drop a version, delete its folder. Remove it from `MINECRAFT_VERSIONS` too. To drop only NeoForge for it, delete `<mc>/neoforge/gradle.properties`.
 
 ## Hotfix releases
 
@@ -169,6 +172,8 @@ it belongs to, without a new folder, once:
    `./gradlew :<folder>:compileJava -Pmc=<folder> -Pminecraft_version=<hotfix>` with the normal build.
 2. its tests ran on it: `test`, `integrationTest` and `runClientGameTest` with the same two
    properties, and `node scripts/test-tablet-compatibility.mjs --mc=<folder> --minecraft=<hotfix>`.
+
+Then add the hotfix to `MINECRAFT_VERSIONS` in `web/editor/src/core/project.js` (step 7 above).
 
 This is how 26.1 and 26.1.1 share the `26.1` folder on Fabric. If the bytes differ, the hotfix changed an
 API the adapters use and it needs its own folder.

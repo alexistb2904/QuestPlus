@@ -52,16 +52,16 @@ test("JavaScript source files are organized inside src rather than the editor ro
 });
 
 test("saved project startup choice uses the React modal and reset path", () => {
-	const app = read("../src/App.tsx"),
+	const app = read("../src/components/WelcomeDialog.tsx"),
 		hook = read("../src/hooks/useStudio.ts");
 	const dialog = read("../src/components/Dialog.tsx"),
 		tr = read("../src/ui/ui-i18n-additional.js");
-	for (const label of ["Resume current project", "Create a new project", "Empty project", "Project with examples"]) {
+	for (const label of ["Resume current project", "Empty project", "Project with examples", "Replace draft"]) {
 		assert.ok(app.includes(label), label);
 		assert.ok(tr.includes(label), label);
 	}
-	assert.match(app, /studio\.startFresh\(false\)/);
-	assert.match(app, /studio\.startFresh\(true\)/);
+	assert.match(app, /onStartFresh\(pending === "examples"\)/);
+	assert.match(read("../src/App.tsx"), /studio\.startFresh\(withExamples\)/);
 	assert.match(dialog, /dismissible\?:\s*boolean/);
 	assert.match(hook, /history\.current = \[\]/);
 });
