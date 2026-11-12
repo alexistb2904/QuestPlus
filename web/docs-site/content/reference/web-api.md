@@ -1,3 +1,8 @@
+---
+title: "Quest Hub HTTP API"
+description: "Reference for the Quest Hub HTTP API: public requests, approved editor requests and the operator approval lifecycle."
+---
+
 # Quest Hub HTTP API
 
 Quest Hub is an **optional** web service. The static Quest Studio site does not host these endpoints.

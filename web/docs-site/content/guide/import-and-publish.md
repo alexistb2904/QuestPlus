@@ -1,3 +1,8 @@
+---
+title: "Import and publish quest packs"
+description: "Export a quest pack ZIP, import FTB Quests, and publish to a live Minecraft server through an operator approved Quest Studio session with safe rollback."
+---
+
 # Import and publish
 
 ## Export a quest pack

@@ -1,3 +1,8 @@
+---
+title: "Java API for Fabric and NeoForge"
+description: "Use the Quest Plus Java API from a server side Fabric or NeoForge mod to read quests, report custom events and react to quest progress."
+---
+
 # Java integration
 
 Call `dev.questplus.fabric.api.QuestPlusApi` from your **server side** Fabric or NeoForge mod. The API and its `dev.questplus.fabric` package names are the same on both loaders.

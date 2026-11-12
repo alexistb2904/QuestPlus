@@ -1,6 +1,9 @@
 ---
 layout: home
 markdownStyles: false
+title: "Quest Plus: Minecraft quest mod for Fabric and NeoForge 26.1+"
+titleTemplate: false
+description: "Free quest mod for Minecraft Java 26.1, 26.2 and 26.3 on Fabric and NeoForge. Animated quest tablet, quest blocks, NPC quest givers, loot crates, teams and a visual editor with FTB Quests import."
 ---
 
 <script setup>
@@ -94,6 +97,12 @@ onMounted(() => {
     </div>
   </div>
   <a class="qp-frame" :href="withBase('/guide/studio.html')"><img :src="withBase('/media/studio.webp')" alt="Quest Studio with the quest library, a quest diagram, objectives and properties" width="1920" height="1080" loading="lazy"></a>
+</section>
+
+<section class="qp-row__copy qp-ftb">
+  <h2>Coming from FTB Quests?</h2>
+  <p>Quest Studio imports FTB Quests chapters in SNBT, JSON or JSON5, shows a conversion report and exports a Quest Plus pack for Minecraft 26.1 to 26.3. Operators can migrate existing player progress with a preview and a rollback.</p>
+  <a class="qp-link" :href="withBase('/guide/ftb-quests-alternative.html')">Move a modpack from FTB Quests →</a>
 </section>
 
 <nav class="qp-paths" aria-label="Guides by audience">

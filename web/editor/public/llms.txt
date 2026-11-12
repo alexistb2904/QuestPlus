@@ -1,0 +1,44 @@
+# Quest Plus
+
+> Quest Plus is a free quest mod for Minecraft Java Edition 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 on Fabric and NeoForge (Java 25). Players follow quest trees on an animated tablet, deliver resources to in world quest blocks, talk to NPC quest givers, open loot crates and share progress in teams. Modpack creators build quest packs in Quest Studio, a free browser editor that also imports FTB Quests chapters.
+
+- Download: https://modrinth.com/mod/quest-plus and https://www.curseforge.com/minecraft/mc-mods/quest-plus
+- Source code: https://github.com/alexistb2904/QuestPlus
+- Quest Studio editor: https://quest.alexistb.com/
+- One Fabric JAR (needs Fabric API) and one NeoForge JAR per release. NeoForge is supported on 26.1.2, 26.2 and 26.3. No Forge or Bedrock build.
+- Quest Plus has no runtime dependency on FTB Quests. Quest Studio converts supported FTB Quests chapters (SNBT, JSON, JSON5), and `/questplus migrate-ftb` migrates player progress on a server.
+
+## Players
+
+- [Install Quest Plus](https://quest.alexistb.com/docs/guide/install.html): requirements and installation on Fabric or NeoForge
+- [Use the tablet](https://quest.alexistb.com/docs/guide/tablet.html): open with J, read quests, pin them to the HUD, claim rewards
+- [Quest blocks](https://quest.alexistb.com/docs/guide/world-blocks.html): Quest Board, Submission Station, Quest Relay
+- [Quest givers and loot crates](https://quest.alexistb.com/docs/guide/givers-and-crates.html)
+- [Teams](https://quest.alexistb.com/docs/guide/teams.html)
+- [Compatibility](https://quest.alexistb.com/docs/guide/compatibility.html): Minecraft versions, loaders, shaders, other mods
+- [Troubleshooting](https://quest.alexistb.com/docs/guide/troubleshooting.html)
+
+## Modpack creators
+
+- [Coming from FTB Quests](https://quest.alexistb.com/docs/guide/ftb-quests-alternative.html): import FTB Quests chapters and migrate progress to Minecraft 26.1+
+- [Guide for modpack creators](https://quest.alexistb.com/docs/guide/modpack-creators.html)
+- [Quest Studio](https://quest.alexistb.com/docs/guide/studio.html)
+- [Your first quest](https://quest.alexistb.com/docs/guide/first-quest.html)
+- [Objectives](https://quest.alexistb.com/docs/guide/objectives.html)
+- [Rewards and progression](https://quest.alexistb.com/docs/guide/rewards.html)
+- [Import and publish](https://quest.alexistb.com/docs/guide/import-and-publish.html)
+- [JSON5 pack format](https://quest.alexistb.com/docs/reference/pack-format.html)
+
+## Developers and server operators
+
+- [Commands](https://quest.alexistb.com/docs/reference/commands.html)
+- [Java API for Fabric and NeoForge](https://quest.alexistb.com/docs/reference/java-api.html)
+- [Integrate another mod](https://quest.alexistb.com/docs/reference/extensions.html)
+- [Configuration](https://quest.alexistb.com/docs/reference/configuration.html)
+- [Host the web service](https://quest.alexistb.com/docs/reference/hosting.html)
+
+## Optional
+
+- [Capabilities and limits](https://quest.alexistb.com/docs/reference/limitations.html)
+- [Quest Hub HTTP API](https://quest.alexistb.com/docs/reference/web-api.html)
+- [Build and contribute](https://quest.alexistb.com/docs/reference/development.html)

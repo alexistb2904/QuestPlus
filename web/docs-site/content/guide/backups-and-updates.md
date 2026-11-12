@@ -1,3 +1,8 @@
+---
+title: "Backups and quest pack updates"
+description: "Back up worlds, quest definitions and player progress before updating a Quest Plus pack. Keep quest IDs stable to preserve progression."
+---
+
 # Backups and pack updates
 
 Quest definitions and player progress are stored separately. Back up the complete world before installing a pack update or changing quest mechanics.

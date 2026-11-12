@@ -1,3 +1,8 @@
+---
+title: "Troubleshooting"
+description: "Fix common Quest Plus problems: the tablet does not open, a quest is missing or locked, an objective does not advance, or a reward was not delivered."
+---
+
 # Troubleshooting
 
 Start with the symptom below. Keep a copy of your exported pack and the relevant `logs/latest.log` before changing definitions or progress.

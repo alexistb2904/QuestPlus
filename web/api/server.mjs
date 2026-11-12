@@ -306,6 +306,7 @@ const fileTypes = {
 	".ico": "image/x-icon",
 	".woff2": "font/woff2",
 	".ttf": "font/ttf",
+	".txt": "text/plain; charset=utf-8",
 };
 // The built Studio is a few megabytes of files that never change while running: keep them in memory,
 // already gzipped, so a busy site neither opens a file per request nor ships a 1.2 MB bundle raw.
@@ -341,7 +342,7 @@ async function serveStudio(req, res, p) {
 	}
 	if (route.includes("\\") || route.includes("\\0") || route.split("/").includes("..") || route.startsWith("//")) throw fail(400, "Unsafe static path");
 	if (route === "/" || route === "/index.html") route = "/index.html";
-	if (!/^\/(?:index\.html|assets\/[a-zA-Z0-9_./-]+|fonts\/[a-zA-Z0-9_./-]+|textures\/[a-zA-Z0-9_./-]+|[a-zA-Z0-9_-]+\.(?:png|webp|svg|ico|json))$/.test(route))
+	if (!/^\/(?:index\.html|assets\/[a-zA-Z0-9_./-]+|fonts\/[a-zA-Z0-9_./-]+|textures\/[a-zA-Z0-9_./-]+|[a-zA-Z0-9_-]+\.(?:png|webp|svg|ico|json|txt))$/.test(route))
 		throw fail(404, "Unknown static resource");
 	const file = path.resolve(STATIC_DIR, "." + route);
 	if (!file.startsWith(STATIC_DIR + path.sep)) throw fail(404, "Unknown static resource");

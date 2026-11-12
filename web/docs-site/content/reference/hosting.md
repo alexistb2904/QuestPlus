@@ -1,3 +1,8 @@
+---
+title: "Host the Quest Studio web service"
+description: "Self host the Quest Studio Hub with Docker: editor, documentation and API on one HTTPS origin, temporary sessions and immutable shared packs."
+---
+
 # Host the web service
 
 Quest Studio's optional Hub serves the editor and `/api/` from the same origin. It relays temporary editing sessions and stores immutable shared packs. Minecraft performs all quest validation and changes. A static editor supports offline ZIP editing but not connected publishing.

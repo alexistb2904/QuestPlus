@@ -1,3 +1,8 @@
+---
+title: "Capabilities and limits"
+description: "What Quest Plus supports and what it does not: Forge, Bedrock, scripts, unknown mod actions and FTB Quests custom tasks."
+---
+
 # Capabilities and limits
 
 ## Supported

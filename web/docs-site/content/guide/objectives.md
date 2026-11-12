@@ -1,3 +1,8 @@
+---
+title: "Quest objectives (tasks)"
+description: "Every built in Quest Plus objective type: break and place blocks, collect and submit items, kill mobs, fishing, advancements, dimensions, stats and more."
+---
+
 # Objectives
 
 An objective is an action or state a player must satisfy. Open a quest in **Quest Studio**, go to **Objectives**, and choose a type. Every built in type is listed below.

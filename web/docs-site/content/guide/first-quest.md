@@ -1,3 +1,8 @@
+---
+title: "Create your first Minecraft quest"
+description: "Step by step tutorial: create a category, a quest that asks for eight oak logs and a 25 XP reward in Quest Studio, then test it in Minecraft."
+---
+
 # Create your first quest
 
 Build a small quest that asks the player to break eight oak logs and awards 25 XP. This walkthrough uses the offline editor. You can publish the same project through an approved server session later.

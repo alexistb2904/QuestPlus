@@ -1,3 +1,8 @@
+---
+title: "Quest rewards and progression"
+description: "Configure Quest Plus rewards: items, XP, commands, reward choices, random pools, reward tables and loot crates, stages and quest progression."
+---
+
 # Rewards and progression
 
 Select a quest in **Quest Studio**, open **Rewards**, and add a reward. These are the built in reward types available in the editor.

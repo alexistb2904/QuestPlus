@@ -1,3 +1,8 @@
+---
+title: "Play quests in a team"
+description: "Create a Quest Plus team, invite friends and share quest progression and rewards on a Minecraft multiplayer server, with leaderboards on Quest Boards."
+---
+
 # Play in a team
 
 A team shares quest progression by default. Its managers can turn sharing off while keeping the team together. The server owns membership, permissions, invitations and progress. You can manage your team in the tablet or use commands in chat.

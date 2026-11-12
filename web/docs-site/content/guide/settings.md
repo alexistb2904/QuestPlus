@@ -1,3 +1,8 @@
+---
+title: "Tablet settings and accessibility"
+description: "Choose the tablet display mode, interface scale, HUD position and notifications. Quest Plus client settings are local and never change server quests."
+---
+
 # Tablet settings and accessibility
 
 Open **Settings** in the tablet. These preferences are local to your Minecraft client and do not change server quest definitions or rewards.

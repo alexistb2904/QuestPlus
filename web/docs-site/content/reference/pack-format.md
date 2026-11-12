@@ -1,3 +1,8 @@
+---
+title: "JSON5 quest pack format"
+description: "Reference for the Quest Plus JSON5 quest pack format: example quest, folder layout, categories, configuration and companion files."
+---
+
 # JSON5 quest packs
 
 Quest Studio generates the files for you. Direct JSON5 editing is also supported.

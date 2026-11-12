@@ -1,3 +1,8 @@
+---
+title: "Translate quest content"
+description: "Translate Minecraft quest titles and descriptions into fr_fr, es_es, zh_cn and other locales in the Quest Studio Localization tab."
+---
+
 # Translate quest content
 
 Write an English title and description first. The source language is `en_us`.

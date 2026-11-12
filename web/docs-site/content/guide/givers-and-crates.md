@@ -1,3 +1,8 @@
+---
+title: "Quest givers (NPCs) and loot crates"
+description: "Meet Quest Plus quest givers in villages and ruins, accept their quests and open animated loot crates. Pack creators can add their own NPCs and crates."
+---
+
 # Quest givers and loot crates
 
 Some quests start with a conversation, and some rewards arrive in a crate that you open yourself. The bundled pack uses both, and pack creators can add their own.

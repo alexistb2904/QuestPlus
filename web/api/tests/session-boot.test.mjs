@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -61,6 +61,11 @@ test("a public Hub issues scoped session credentials", async () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
 		assert.ok(ready, "API starts with session authentication enabled");
+		await writeFile(path.join(dir, "robots.txt"), "User-agent: *\n");
+		const robots = await fetch(base + "/robots.txt");
+		assert.equal(robots.status, 200, "crawlers find robots.txt at the site root");
+		assert.match(robots.headers.get("content-type"), /^text\/plain/);
+		assert.equal((await fetch(base + "/missing.txt")).status, 404);
 		const created = await api("/api/server/sessions", "POST", { serverName: "Independent server", files });
 		assert.equal(created.status, 201);
 		assert.match(created.data.serverToken, /^[A-Za-z0-9_-]{40,}$/);

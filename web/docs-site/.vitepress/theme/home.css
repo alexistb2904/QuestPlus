@@ -233,6 +233,10 @@ a.qp-frame:hover {
 	border-color: #8a6c4a;
 }
 
+.qp-ftb {
+	margin-top: clamp(48px, 7vw, 88px);
+}
+
 .qp-paths {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -1,3 +1,8 @@
+---
+title: "Use the quest tablet"
+description: "Open the Quest Plus tablet with J to browse quest chapters and quest trees, read objectives, pin quests to your HUD and claim rewards in Minecraft."
+---
+
 # Use the tablet
 
 Press **J** to open the tablet. Change the key in Minecraft Controls if another mod uses it. You do not need to hold the tablet item to use this shortcut.

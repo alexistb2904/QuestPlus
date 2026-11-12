@@ -1,3 +1,8 @@
+---
+title: "Guide for modpack creators: build, import FTB Quests and ship"
+description: "Create quests for your Minecraft 26.1+ modpack in Quest Studio, import FTB Quests chapters, test in a world and ship the quest pack as the default."
+---
+
 # Guide for modpack creators
 
 Create a quest pack in Quest Studio, test it in Minecraft, and ship it as the default for new worlds. You can also bring supported FTB Quests definitions into Studio.
@@ -57,7 +62,7 @@ You can instead use `/questplus retrieve` and then `/questplus retrieve confirm`
 
 Unsupported quests and their dependents are excluded with a reason. Custom scripts, third party tasks and Task Screens need separate work and are not automatically converted. Review warnings for unsupported rewards or mechanics, a successful import does not prove the original modpack works on your loader or that every quest behaves identically.
 
-The Studio import converts **definitions**, not player saves. The separate [FTB progress migration commands](/reference/commands#recovery-and-migration-op) are an operator workflow for existing worlds.
+The Studio import converts **definitions**, not player saves. The separate [FTB progress migration commands](/reference/commands#recovery-and-migration-op) are an operator workflow for existing worlds. See [Coming from FTB Quests](/guide/ftb-quests-alternative) for the complete move to Minecraft 26.1+.
 
 ## Edit a running server
 

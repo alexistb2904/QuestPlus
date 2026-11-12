@@ -1,3 +1,8 @@
+---
+title: "Integrate another mod"
+description: "Expose your Fabric or NeoForge mod to Quest Plus: registry browser, custom editor forms, quest stages and reusable rewards."
+---
+
 # Integrate another mod
 
 Quest Plus accepts trusted **server side Fabric or NeoForge integrations**. The API is the same on both loaders.

@@ -1,3 +1,8 @@
+---
+title: "Quest Studio: free visual Minecraft quest editor"
+description: "Quest Studio is a free browser editor for Minecraft quest packs. Build quest trees, objectives and rewards offline, export a ZIP or publish to a live server."
+---
+
 # Quest Studio
 
 [**Open Quest Studio →**](https://quest.alexistb.com/)

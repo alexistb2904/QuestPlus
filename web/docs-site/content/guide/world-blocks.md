@@ -1,3 +1,8 @@
+---
+title: "Quest blocks: Quest Board, Submission Station and Quest Relay"
+description: "Craft the Quest Board, Submission Station and Quest Relay to build a Minecraft quest hub with leaderboards, hopper and pipe deliveries and redstone output."
+---
+
 # Quest blocks
 
 Bring quests into your world with three craftable blocks: a **Quest Board** for shared displays, a **Submission Station** for resource deposits, and a **Quest Relay** for redstone automation. Find them in the QuestPlus creative tab or craft them with the grids below. Every recipe produces **one block**.

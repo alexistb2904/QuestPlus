@@ -1,3 +1,8 @@
+---
+title: "Configuration"
+description: "Quest Plus configuration files: world pack config, crate bosses, quest givers (NPCs), client presentation and web credentials."
+---
+
 # Configuration
 
 Pack configuration, client presentation and web credentials have different owners. Change the file that belongs to the behavior you intend to configure.

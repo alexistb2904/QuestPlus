@@ -1,3 +1,8 @@
+---
+title: "Install Quest Plus on Fabric or NeoForge (Minecraft 26.1+)"
+description: "Download and install the Quest Plus quest mod for Minecraft Java 26.1, 26.2 and 26.3 on Fabric (with Fabric API) or NeoForge, on clients and dedicated servers."
+---
+
 # Install Quest Plus
 
 | Requirement    | Version              |

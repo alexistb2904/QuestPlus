@@ -1,3 +1,8 @@
+---
+title: "Build and contribute"
+description: "Build Quest Plus from source for Fabric and NeoForge, run the required checks and contribute to the Minecraft quest mod and Quest Studio."
+---
+
 # Build and contribute
 
 QuestPlus has three runtime responsibilities and two deployed units. The browser editor and optional web API form the web service. Client and server Java compile together into one Fabric JAR and one NeoForge JAR. Shared code never imports a loader API: it calls `dev.questplus.platform` classes that each loader implements with identical signatures. `mod/versions/README.md` documents the Minecraft targets.

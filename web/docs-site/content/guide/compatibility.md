@@ -1,3 +1,8 @@
+---
+title: "Compatibility: Minecraft 26.1 to 26.3, Fabric, NeoForge, shaders"
+description: "Quest Plus supports Minecraft Java 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 on Fabric and NeoForge with Java 25. Shader, Sodium, Iris and FTB Quests compatibility notes."
+---
+
 # Compatibility
 
 ## Required environment
@@ -80,4 +85,4 @@ Definition import does not migrate player saves. Progress migration is a separat
 
 Test a fresh world, an upgraded world copy, a dedicated server and two real clients. Include team changes, reconnects, reward choices, submission failure and rollback. A browser preview or a single integrated client does not establish full multiplayer compatibility.
 
-[Troubleshooting](/guide/troubleshooting) · [FTB import](/guide/modpack-creators#import-ftb-quests)
+[Troubleshooting](/guide/troubleshooting) · [FTB import](/guide/modpack-creators#import-ftb-quests) · [Coming from FTB Quests](/guide/ftb-quests-alternative)

@@ -1,3 +1,8 @@
+---
+title: "Categories and quests"
+description: "Create quest categories (chapters), add quests and connect prerequisites to build a progression tree in Quest Studio for Minecraft."
+---
+
 # Categories and quests
 
 ## Create a category

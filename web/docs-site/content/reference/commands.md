@@ -1,3 +1,8 @@
+---
+title: "Commands"
+description: "All /questplus commands for players, teams and operators, including quest grant and reset, recovery and FTB Quests progress migration."
+---
+
 # Commands
 
 Use namespaced quest IDs such as `questplus:survival/logs`. **OP** commands require operator permission.
