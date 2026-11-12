@@ -11,17 +11,20 @@ The public API uses `/api/`. Previous `/v1/` routes remain available for existin
 
 ## Public requests
 
-| Endpoint              | Purpose                |
-| --------------------- | ---------------------- |
-| `GET /health`         | Check the service      |
-| `POST /api/packs`     | Share an unlisted pack |
-| `GET /api/packs/<id>` | Fetch a shared pack    |
+| Endpoint              | Purpose                          |
+| --------------------- | -------------------------------- |
+| `GET /health`         | Check the service                |
+| `POST /api/packs`     | Share an unlisted pack           |
+| `GET /api/packs/<id>` | Fetch a shared pack              |
+| `POST /api/feedback`  | Send feedback to the maintainers |
 
 ```sh
 curl https://your-hub.example/health
 ```
 
 Send `POST /api/packs` with JSON containing a `files` object of pack definition files. The response provides a temporary share URL. Keep unlisted pack IDs private.
+
+`POST /api/feedback` takes `{ "rating": "good" | "bad", "message": "..." }` (1 to 2000 characters) and forwards it to the Discord webhook set in `FEEDBACK_DISCORD_WEBHOOK_URL`. It answers `503` when no webhook is configured.
 
 ## Approved editor requests
 

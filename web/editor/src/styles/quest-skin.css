@@ -4953,6 +4953,20 @@ kbd {
 .reward-error {
 	color: var(--error);
 }
+.ask-text-dialog {
+	width: min(440px, calc(100vw - 32px));
+}
+.ask-text-dialog .field small {
+	display: block;
+	min-height: 1.4em;
+	margin-top: 5px;
+}
+.ask-text-note {
+	color: var(--muted);
+}
+.ask-text-dialog input[aria-invalid="true"] {
+	border-color: #c16861;
+}
 
 /* Shape only the surface so ports, resize controls and focus remain accessible. */
 .graph-node:not(.shape-square) {
@@ -5465,6 +5479,66 @@ kbd {
 	font-weight: 600;
 	text-decoration: none;
 	background: #302739;
+}
+button.studio-docs-link {
+	font-family: inherit;
+	cursor: pointer;
+}
+.feedback-dialog {
+	width: min(480px, calc(100vw - 32px));
+}
+.feedback-rating {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+.feedback-rating .button {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+}
+.feedback-rating .button.selected {
+	border-color: #cc9be7;
+	background: #4a3658;
+	color: #fff;
+}
+.feedback-message {
+	width: 100%;
+	box-sizing: border-box;
+	resize: vertical;
+	font: inherit;
+}
+.ai-prompt-dialog {
+	width: min(720px, calc(100vw - 32px));
+}
+.ai-prompt-notice {
+	margin-bottom: 10px;
+}
+.ai-prompt-form {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	column-gap: 12px;
+}
+.ai-prompt-form > .field {
+	grid-column: span 3;
+}
+.ai-prompt-form > .wide {
+	grid-column: 1 / -1;
+}
+.ai-prompt-form > .third {
+	grid-column: span 2;
+}
+@media (max-width: 600px) {
+	.ai-prompt-form > .field {
+		grid-column: 1 / -1;
+	}
+}
+.form-control.ai-prompt-text {
+	resize: vertical;
+	font-family: ui-monospace, Consolas, monospace;
+	line-height: 1.5;
 }
 .studio-docs-link:hover,
 .studio-docs-link:focus-visible {

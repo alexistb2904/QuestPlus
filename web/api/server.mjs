@@ -30,6 +30,7 @@ const MAX_SESSIONS = limit("HUB_MAX_SESSIONS", 128),
 const MAX_PACKS = limit("HUB_MAX_PACKS", 256),
 	MAX_PACK_BYTES = limit("HUB_MAX_PACK_BYTES", 256 * 1024 * 1024);
 const MAX_SESSION_CREATES = limit("HUB_SESSION_CREATES_PER_MINUTE", 30);
+const FEEDBACK_WEBHOOK = process.env.FEEDBACK_DISCORD_WEBHOOK_URL || "";
 const PROXY_HOPS = Number(process.env.HUB_TRUST_PROXY_HOPS || 0);
 if (!Number.isSafeInteger(PROXY_HOPS) || PROXY_HOPS < 0 || PROXY_HOPS > 8) throw Error("Invalid HUB_TRUST_PROXY_HOPS");
 const MAX_BODY = MAX_BYTES + 1024 * 1024,
@@ -382,8 +383,18 @@ function logRequest(req, res, started) {
 	// Session IDs let anyone ask for approval, so they stay out of the logs.
 	const route = p.replace(/(\/sessions\/)[^/]+/, "$1*");
 	console.log(
-		new Date().toISOString() + " " + req.method + " " + route + " " + res.statusCode + " " + (Date.now() - started) + "ms" +
-			(req.headers.origin ? " origin=" + req.headers.origin : "") + (res.errorMessage ? " error=" + JSON.stringify(res.errorMessage) : "")
+		new Date().toISOString() +
+			" " +
+			req.method +
+			" " +
+			route +
+			" " +
+			res.statusCode +
+			" " +
+			(Date.now() - started) +
+			"ms" +
+			(req.headers.origin ? " origin=" + req.headers.origin : "") +
+			(res.errorMessage ? " error=" + JSON.stringify(res.errorMessage) : "")
 	);
 }
 async function handler(req, res) {
@@ -580,6 +591,37 @@ async function handler(req, res) {
 			rateLimit(req, "session", 240, 60_000, s.id);
 			if (!s.job || s.job.id !== split[6]) throw fail(404, "Unknown publication");
 			return json(res, 200, s.jobStatus);
+		}
+		// The webhook URL is a write credential for the Discord channel, so it never leaves the server.
+		if (req.method === "POST" && p === "/v1/feedback") {
+			if (!FEEDBACK_WEBHOOK) throw fail(503, "Feedback is not configured on this server");
+			if (Number(req.headers["content-length"] || 0) > 16384) throw fail(413, "Feedback too large");
+			rateLimit(req, "feedback", 5, 10 * 60_000);
+			const input = await body(req),
+				message = typeof input.message === "string" ? input.message.trim() : "";
+			if (input.rating !== "good" && input.rating !== "bad") throw fail(400, "Rating must be good or bad");
+			if (!message || message.length > 2000) throw fail(400, "Message must be 1 to 2000 characters");
+			const source = input.source === "docs" ? "Documentation" : "Quest Studio",
+				page = typeof input.page === "string" ? input.page.slice(0, 200) : "";
+			const sent = await fetch(FEEDBACK_WEBHOOK, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				signal: AbortSignal.timeout(8000),
+				body: JSON.stringify({
+					allowed_mentions: { parse: [] },
+					embeds: [
+						{
+							title: (input.rating === "good" ? "👍 Positive" : "👎 Negative") + " feedback from " + source,
+							description: message,
+							color: input.rating === "good" ? 0x3ba55d : 0xed4245,
+							fields: page ? [{ name: "Page", value: page }] : [],
+							timestamp: new Date().toISOString(),
+						},
+					],
+				}),
+			}).catch(() => null);
+			if (!sent?.ok) throw fail(502, "Feedback could not be delivered, retry later");
+			return json(res, 202, { ok: true });
 		}
 		// Anyone can publish an unlisted immutable pack. The ID is a 192-bit read capability.
 		// This does not permit editing any server. Limit uploads to protect public deployments.

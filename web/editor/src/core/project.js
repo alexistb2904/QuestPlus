@@ -961,6 +961,14 @@ export function importDocuments(documents) {
 		} catch (e) {
 			throw Error("JSON/JSON5 invalide dans " + name + " : " + e.message);
 		}
+		// A single-file pack, like the catalogues or what the AI prompt asks for.
+		if (Array.isArray(obj.categories) && Array.isArray(obj.quests)) {
+			p.categories.push(...obj.categories.map(expandCategoryImages));
+			p.quests.push(...obj.quests);
+			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || p.targetMinecraftVersion;
+			valid++;
+			continue;
+		}
 		if (/(?:^|\/)queststudio-compatibility\.json$/i.test(path)) {
 			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || MINECRAFT_VERSIONS[0];
 			p.iconVersions = obj.iconVersions || {};

@@ -51,6 +51,8 @@ questplus/
 
 Install the pack under `<world>/questplus/`. Player save data is stored separately.
 
+Studio also opens a single JSON file shaped as `{ "targetMinecraftVersion": "26.3", "categories": [...], "quests": [...] }`. This is the format the prompt behind the **Create your own** button in Studio asks an AI to produce. Export it as a ZIP to get the folder layout above.
+
 ## Configuration and companion files
 
 A minimal `config.json` uses the configuration schema, which is separate from the quest schema version.

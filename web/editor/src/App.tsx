@@ -40,10 +40,14 @@ import {
 	Wrench,
 	X,
 	ZoomIn,
+	MessageSquareHeart,
+	Hammer,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AiPromptDialog } from "./components/AiPromptDialog";
 import { BulkEditor } from "./components/BulkEditor";
 import { Dialog } from "./components/Dialog";
+import { FeedbackDialog } from "./components/FeedbackDialog";
 import { FtbImportReview } from "./components/FtbImportReview";
 import { HubPanel } from "./components/HubPanel";
 import { IconPicker } from "./components/IconPicker";
@@ -104,6 +108,8 @@ export default function App() {
 		[previewOpen, setPreviewOpen] = useState(false);
 	const [registryOpen, setRegistryOpen] = useState(false);
 	const [importOpen, setImportOpen] = useState(false);
+	const [feedbackOpen, setFeedbackOpen] = useState(false);
+	const [aiOpen, setAiOpen] = useState(false);
 	const [bulkOpen, setBulkOpen] = useState(false);
 	const [templatesOpen, setTemplatesOpen] = useState(false);
 	const [tablesOpen, setTablesOpen] = useState(false),
@@ -291,6 +297,14 @@ export default function App() {
 						<BookOpen size={16} aria-hidden="true" />
 						<span>{tUI("Documentation")}</span>
 					</a>
+					<button type="button" className="studio-docs-link" onClick={() => setFeedbackOpen(true)} title={tUI("Send feedback")} aria-label={tUI("Send feedback")}>
+						<MessageSquareHeart size={16} aria-hidden="true" />
+						<span>{tUI("Feedback")}</span>
+					</button>
+					<button type="button" className="studio-docs-link" onClick={() => setAiOpen(true)} title={tUI("Create your own quest pack")} aria-label={tUI("Create your own quest pack")}>
+						<Hammer size={16} aria-hidden="true" />
+						<span>{tUI("Create your own")}</span>
+					</button>
 					<label className="language-control">
 						<Globe size={15} />
 						<span className="sr-only">Interface</span>
@@ -836,6 +850,8 @@ export default function App() {
 					onClose={() => setPicker(null)}
 				/>
 			)}
+			{feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
+			{aiOpen && <AiPromptDialog version={project.targetMinecraftVersion} onClose={() => setAiOpen(false)} />}
 			{jsonOpen && (
 				<Dialog title={tUI("Advanced JSON")} onClose={() => setJsonOpen(false)}>
 					<textarea className="json-textarea" aria-label={tUI("Advanced JSON")} spellCheck={false} value={jsonContent} onChange={(e) => setJsonContent(e.target.value)} />

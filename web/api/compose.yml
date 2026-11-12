@@ -21,6 +21,7 @@ services:
             HUB_MAX_STATE_BYTES: ${HUB_MAX_STATE_BYTES:-67108864}
             HUB_MAX_PACKS: ${HUB_MAX_PACKS:-256}
             HUB_MAX_PACK_BYTES: ${HUB_MAX_PACK_BYTES:-268435456}
+            FEEDBACK_DISCORD_WEBHOOK_URL: ${FEEDBACK_DISCORD_WEBHOOK_URL:-}
         ports:
             - "127.0.0.1:8787:8787"
         volumes:

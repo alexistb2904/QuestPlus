@@ -24,6 +24,7 @@ import {
 import { categoryId, questId } from "../core/quest-ids.js";
 import { withPrerequisite } from "../core/quest-links.js";
 import { buildQuestFromTemplate } from "../core/quest-templates.js";
+import { askText } from "../components/AskText";
 import { readStoredStudioSession, STUDIO_STORAGE_KEY } from "../core/startup-session.js";
 import { buildSavedQuest, savedQuestTemplates, saveQuestTemplate } from "../core/studio-template-library.js";
 import { makeZip, readZip } from "../core/zip.js";
@@ -200,8 +201,8 @@ export function useStudio() {
 			),
 		}));
 	}
-	function createCategory() {
-		const name = prompt(tUI("Category (English)"), tUI("New category"))?.trim();
+	async function createCategory() {
+		const name = await askText({ title: tUI("New category"), label: tUI("Category (English)"), initial: tUI("New category") });
 		if (!name) return;
 		mutate((s) => {
 			const id = categoryId(name, new Set(s.project.categories.map((c) => c.id)));
@@ -214,9 +215,9 @@ export function useStudio() {
 			s.camera = { x: 0, y: 0, zoom: 1 };
 		});
 	}
-	function createQuest(at?: { x: number; y: number }, templateId = "basic") {
+	async function createQuest(at?: { x: number; y: number }, templateId = "basic") {
 		if (!currentCategory) return toast(tUI("Create a category first"));
-		const name = prompt(tUI("Quest (English)"), tUI("New quest"))?.trim();
+		const name = await askText({ title: tUI("New quest"), label: tUI("Quest (English)"), initial: tUI("New quest") });
 		if (!name) return;
 		mutate((s) => {
 			const id = questId(currentCategory.id, name, new Set(s.project.quests.map((q) => q.id)));
@@ -272,12 +273,18 @@ export function useStudio() {
 				.split(".")
 				.reduce((value: any, key) => value?.[key], selected);
 			if (!reward) return;
-			const name = prompt(tUI("Save named table"), text(reward.text, "en_us") || tUI("Reward table"))?.trim();
-			if (!name || name.length > 80) return;
-			const existing = state.project.rewardTables?.some((table) => table.name === name);
-			if (existing && !confirm(tUI("Replace this saved table?"))) return;
-			mutate((s) => {
-				s.project.rewardTables = [...(s.project.rewardTables || []).filter((table) => table.name !== name), { name, reward: copy(reward) }];
+			void askText({
+				title: tUI("Save named table"),
+				label: tUI("Name"),
+				initial: text(reward.text, "en_us") || tUI("Reward table"),
+				submit: tUI("Save"),
+				maxLength: 80,
+				warn: (name) => (latest.current.project.rewardTables?.some((table) => table.name === name) ? tUI("A saved table with this name will be replaced.") : ""),
+			}).then((name) => {
+				if (!name) return;
+				mutate((s) => {
+					s.project.rewardTables = [...(s.project.rewardTables || []).filter((table) => table.name !== name), { name, reward: copy(reward) }];
+				});
 			});
 			return;
 		}
@@ -285,14 +292,15 @@ export function useStudio() {
 		if (kind === "save-as-template") {
 			const selected = state.project.quests.find((q) => state.selection?.type === "quest" && q.id === state.selection.id);
 			if (!selected) return;
-			const name = prompt("Save quest template as", text(selected.title, "en_us"))?.trim();
-			if (!name) return;
-			try {
-				saveQuestTemplate(selected, name);
-				toast("Template saved. Right-click the diagram to use it.");
-			} catch (error) {
-				toast("Could not save template: " + (error as Error).message);
-			}
+			void askText({ title: tUI("Save quest template as"), label: tUI("Name"), initial: text(selected.title, "en_us"), submit: tUI("Save"), maxLength: 64 }).then((name) => {
+				if (!name) return;
+				try {
+					saveQuestTemplate(selected, name);
+					toast("Template saved. Right-click the diagram to use it.");
+				} catch (error) {
+					toast("Could not save template: " + (error as Error).message);
+				}
+			});
 			return;
 		}
 		if (kind === "create-quest") return createQuest();
