@@ -965,6 +965,9 @@ export function importDocuments(documents) {
 		if (Array.isArray(obj.categories) && Array.isArray(obj.quests)) {
 			p.categories.push(...obj.categories.map(expandCategoryImages));
 			p.quests.push(...obj.quests);
+			// Only these two extras: the rest of config.json (command rewards...) stays the author's choice.
+			if (Array.isArray(obj.npcs)) p.config.npcs = [...(p.config.npcs || []), ...obj.npcs];
+			if (Array.isArray(obj.rewardTables)) p.rewardTables = [...(p.rewardTables || []), ...obj.rewardTables];
 			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || p.targetMinecraftVersion;
 			valid++;
 			continue;
