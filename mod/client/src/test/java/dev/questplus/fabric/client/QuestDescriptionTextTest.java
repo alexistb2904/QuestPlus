@@ -7,6 +7,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.StringDecomposer;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +91,31 @@ class QuestDescriptionTextTest {
 		var prepared = QuestDescriptionText.prepare(input.toString());
 		assertEquals(input.substring(1), prepared.plain());
 		assertEquals(0x10000, prepared.literalSection());
+	}
+
+	@Test
+	void linksAreMarkedAndFoundUnderThePointer() {
+		String input = "§lSee https://minecraft.wiki/w/Portal. Not http://x.y or ftp://example.com";
+		String plain = input.substring(2);
+		var prepared = QuestDescriptionText.prepare(input, true);
+		var chars = glyphs(prepared);
+		assertEquals(plain, text(chars));
+		URI uri = URI.create("https://minecraft.wiki/w/Portal");
+		int start = plain.indexOf("https"), end = start + uri.toString().length();
+		for (int i = 0; i < chars.size(); i++) {
+			assertEquals(i >= start && i < end, chars.get(i).style().getClickEvent() != null, "glyph " + i);
+			assertTrue(chars.get(i).style().isBold(), "the link keeps the surrounding style");
+		}
+		var widths = new StringSplitter((cp, style) -> 1f);
+		FormattedCharSequence line = sink -> StringDecomposer.iterateFormatted(prepared.component(), Style.EMPTY, sink);
+		assertNull(QuestDescriptionText.linkAt(widths, line, start - .5));
+		assertEquals(uri, QuestDescriptionText.linkAt(widths, line, start + .5));
+		assertEquals(uri, QuestDescriptionText.linkAt(widths, line, end - .5));
+		assertNull(QuestDescriptionText.linkAt(widths, line, end + .5));
+		assertNull(QuestDescriptionText.linkAt(widths, line, -1));
+		assertNull(QuestDescriptionText.linkAt(widths, line, 1000));
+		assertTrue(glyphs(QuestDescriptionText.prepare(input)).stream().noneMatch(g -> g.style().getClickEvent() != null),
+				"text on a screen without link clicks stays plain");
 	}
 
 	@Test

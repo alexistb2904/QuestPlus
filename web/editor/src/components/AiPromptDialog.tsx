@@ -16,6 +16,7 @@ const FIELDS: { key: string; label: string; placeholder: string; multiline?: boo
 	{ key: "size", label: "Size", placeholder: "5 categories, about 80 quests", span: "third" },
 	{ key: "languages", label: "Other quest languages", placeholder: "fr_fr, es_es", span: "third" },
 	{ key: "rewards", label: "Rewards style", placeholder: "XP and useful items, generous or tight", span: "third" },
+	{ key: "tone", label: "Tone and guidance level", placeholder: "Relaxed and fully guided, expert with short hints, roleplay... Leave empty to let the AI deduce it", span: "wide" },
 ];
 
 function storedDetails(): Details {

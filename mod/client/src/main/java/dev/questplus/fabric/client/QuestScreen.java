@@ -10,6 +10,7 @@ import dev.questplus.team.TeamRole;
 import dev.questplus.fabric.client.ui.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1273,6 +1274,35 @@ public final class QuestScreen extends Screen {
 	}
 
 	/** A requirement button opens its quest, the same way a search result does. */
+	/** The link of the quest description under the pointer, or null. */
+	private java.net.URI detailLink(double x, double y) {
+		if (selected == null || rewardView || x < detailLeft || x >= right - 8 || y < detailsContentTop
+				|| y >= bottom - 5)
+			return null;
+		int rowY = detailsContentTop - detailsScroll;
+		for (var row : detailLines) {
+			int h = detailHeight(row);
+			if (row.formatted() != null && y >= rowY && y < rowY + h) {
+				int line = (int) ((y - rowY) / 11);
+				return line >= row.formatted().size() ? null
+						: QuestDescriptionText.linkAt(font.getSplitter(), row.formatted().get(line),
+								(x - detailLeft) / QuestSkin.TEXT_SCALE);
+			}
+			rowY += h;
+		}
+		return null;
+	}
+
+	private boolean clickLink(double x, double y) {
+		var uri = detailLink(x, y);
+		if (uri == null)
+			return false;
+		// Never straight to the browser: vanilla's prompt shows the whole address and asks first.
+		ConfirmLinkScreen.confirmLinkNow(this, uri, false);
+		QuestRecipeViewer.hold(this);
+		return true;
+	}
+
 	private boolean clickRequirement(double x, double y) {
 		if (selected == null || rewardView || x < detailLeft || x >= right - 8 || y < detailsContentTop
 				|| y >= bottom - 5)
@@ -1464,7 +1494,7 @@ public final class QuestScreen extends Screen {
 				if (!inline.isEmpty())
 					appendRichRow(lines, inline, w);
 			} else {
-				var formattedDescription = QuestDescriptionText.prepare(description);
+				var formattedDescription = QuestDescriptionText.prepare(description, true);
 				String plainDescription = formattedDescription.plain();
 				if (!QuestPresentation.redundantDescription(plainDescription, labels) && !plainDescription.isBlank()) {
 					var formatted = font.split(formattedDescription.component(), Math.max(1, w)).stream()
@@ -1598,6 +1628,9 @@ public final class QuestScreen extends Screen {
 			rowY += h;
 		}
 		g.disableScissor();
+		var link = detailLink(mx, my);
+		if (link != null)
+			hoverTitle = link.toString();
 	}
 
 	private int detailHeight(DetailRow row) {
@@ -2327,7 +2360,7 @@ public final class QuestScreen extends Screen {
 			for (var target : recipeTargets)
 				if (target.contains(x, y, detailsContentTop, bottom - 5))
 					return QuestRecipeViewer.open(target.stack());
-		if (clickJournal(x, y) || clickRequirement(x, y))
+		if (clickJournal(x, y) || clickRequirement(x, y) || clickLink(x, y))
 			return true;
 		if (x >= left + 8 && x < treeLeft - 5 && y >= railTop && y < railTop + railRows() * 26) {
 			int index = categoryScroll + (int) ((y - railTop) / 26);

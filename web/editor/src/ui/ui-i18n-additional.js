@@ -30,6 +30,13 @@ export const UI_ADDITIONAL = [
 	["Other quest languages", "Autres langues des quêtes", "Otros idiomas de las misiones", "其他任务语言"],
 	["Rewards style", "Style des récompenses", "Estilo de recompensas", "奖励风格"],
 	["XP and useful items, generous or tight", "XP et objets utiles, généreux ou serré", "XP y objetos útiles, generoso o ajustado", "经验和实用物品，丰厚或节制"],
+	["Tone and guidance level", "Ton et niveau de guidage", "Tono y nivel de guía", "语气和引导程度"],
+	[
+		"Relaxed and fully guided, expert with short hints, roleplay... Leave empty to let the AI deduce it",
+		"Détendu et très guidé, expert avec de courts indices, roleplay... Laissez vide pour que l'IA le déduise",
+		"Relajado y muy guiado, experto con pistas breves, roleplay... Déjalo vacío para que la IA lo deduzca",
+		"轻松且全程引导、面向高手的简短提示、角色扮演……留空则由 AI 推断",
+	],
 	["Preview the prompt", "Voir le prompt", "Ver el prompt", "预览提示词"],
 	["AI prompt", "Prompt IA", "Prompt de IA", "AI 提示词"],
 	["Copy prompt", "Copier le prompt", "Copiar el prompt", "复制提示词"],

@@ -29,3 +29,9 @@ test("the example follows its own layout rules and shows a confirmation quest an
 	assert.ok(quests.some((q) => q.objectives.some((o) => o.event === "manual")));
 	assert.ok(AI_PROMPT_EXAMPLE.categories[0].linkRoutes.length);
 });
+
+test("the tone field fills the prompt and falls back to deduction", () => {
+	const prompt = aiPrompt("26.3", { tone: "Hardcore, short hints" });
+	assert.ok(prompt.includes("- Tone and guidance level: Hardcore, short hints\n"));
+	assert.ok(aiPrompt("26.3").includes("- Tone and guidance level: not specified, deduce it as explained below\n"));
+});

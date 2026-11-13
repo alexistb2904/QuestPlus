@@ -30,6 +30,12 @@ final class QuestRecipeViewer {
 		session = null;
 	}
 
+	/** Keeps the tablet held while a screen that {@code parent} just opened is shown. */
+	static void hold(QuestScreen parent) {
+		var current = ClientAdapter.INSTANCE.screen(Minecraft.getInstance());
+		session = current != null && current != parent ? new Session(parent, current) : null;
+	}
+
 	record Target(ItemStack stack, int x, int y) {
 		boolean contains(double mx, double my, int clipTop, int clipBottom) {
 			return mx >= x && mx < x + 16 && my >= Math.max(y, clipTop) && my < Math.min(y + 16, clipBottom);
