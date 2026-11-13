@@ -21,13 +21,11 @@ test("the form fills the prompt and empty fields fall back to defaults", () => {
 	assert.match(prompt, /- Size: not specified, choose what fits best\n/);
 });
 
-test("every example quest sits inside a background with margin", () => {
-	const notes = AI_PROMPT_EXAMPLE.categories[0].annotations.filter((a) => a.style === "background");
-	for (const q of AI_PROMPT_EXAMPLE.quests) {
-		const { x, y } = q.layout;
-		assert.ok(
-			notes.some((b) => Math.abs(x - b.x) + 22 + 30 <= b.width / 2 && Math.abs(y - b.y) + 22 + 30 <= b.height / 2),
-			q.id
-		);
-	}
+test("the example follows its own layout rules and shows a confirmation quest and a routed link", () => {
+	const quests = AI_PROMPT_EXAMPLE.quests;
+	for (const [i, a] of quests.entries())
+		for (const b of quests.slice(i + 1))
+			assert.ok(Math.hypot(a.layout.x - b.layout.x, a.layout.y - b.layout.y) >= (a.size + b.size) / 2 + 30, a.id + " / " + b.id);
+	assert.ok(quests.some((q) => q.objectives.some((o) => o.event === "manual")));
+	assert.ok(AI_PROMPT_EXAMPLE.categories[0].linkRoutes.length);
 });
