@@ -2,6 +2,7 @@ import JSON5 from "json5";
 import { BUILTIN_PROJECT } from "../data/default-data.js";
 import { isCategoryLink } from "./diagram-geometry.js";
 import { hubEditorDescriptors } from "./hub-registry.js";
+import { closestModVersion, configKeysTooNew, MOD_VERSIONS, RETIRED_EVENTS, targetModVersion } from "./mod-versions.js";
 import { skinProblem, VILLAGER_TYPES } from "./npc-spawns.js";
 import { BIOMES, DIMENSIONS, STRUCTURES } from "./objective-targets.js";
 import { crateTableName, POOL_TYPES, poolError, resolveNamedTable, rewardTranslations } from "./reward-tables.js";
@@ -10,41 +11,40 @@ export const EVENTS = [
 	["block_break", "Casser des blocs"],
 	["block_place", "Placer des blocs"],
 	["block_interact", "Interagir avec un bloc"],
-	["item_obtained", "Obtenir des objets"],
-	["item_craft", "Fabriquer"],
-	["item_smelt", "Cuire"],
+	["item_obtained", "Ramasser des objets"],
+	["item_craft", "Fabriquer des objets"],
+	["item_smelt", "Retirer d’un four"],
 	["item_use", "Utiliser un objet"],
-	["item_consume", "Consommer"],
-	["fish_item", "Pêcher un objet"],
-	["trade", "Échanger"],
-	["entity_kill", "Tuer des entités"],
-	["fish_entity", "Pêcher une entité"],
-	["questplus:fish_any", "Pêcher des poissons (toutes espèces)"],
-	["tame_animal", "Apprivoiser"],
-	["breed_animal", "Reproduire"],
-	["npc_interact", "Parler à un PNJ"],
+	["item_consume", "Manger ou boire"],
+	["fish_item", "Pêcher des objets"],
+	["trade", "Acheter à un villageois"],
+	["entity_kill", "Tuer des créatures"],
+	["fish_entity", "Accrocher une créature"],
+	["tame_animal", "Apprivoiser des animaux"],
+	["breed_animal", "Faire reproduire des animaux"],
+	["npc_interact", "Clic droit sur une créature"],
 	["biome_visit", "Visiter un biome"],
 	["structure_visit", "Visiter une structure"],
 	["dimension_enter", "Entrer dans une dimension"],
-	["xp_submit_levels", "Remettre des niveaux XP"],
-	["xp_submit_points", "Remettre des points XP"],
-	["item_submit", "Soumettre (sans retrait)"],
-	["item_turn_in", "Remettre et consommer"],
-	["fluid_submit", "Remettre un fluide"],
-	["energy_submit", "Remettre de l’énergie"],
-	["fluid_transfer", "Transférer un fluide"],
-	["energy_transfer", "Transférer de l’énergie"],
-	["inventory_count", "Posséder des objets"],
+	["xp_submit_levels", "Payer des niveaux d’XP (retirés)"],
+	["xp_submit_points", "Payer des points d’XP (retirés)"],
+	["item_submit", "Montrer des objets (gardés)"],
+	["item_turn_in", "Remettre des objets (retirés)"],
+	["fluid_submit", "Remettre un fluide (retiré)"],
+	["energy_submit", "Remettre de l’énergie (retirée)"],
+	["fluid_transfer", "Fluide transféré (API de mod)"],
+	["energy_transfer", "Énergie transférée (API de mod)"],
+	["inventory_count", "Avoir dans l’inventaire"],
 	["travel_distance", "Parcourir une distance"],
-	["observe_block", "Observer un bloc"],
-	["observe_entity", "Observer une entité"],
+	["observe_block", "Regarder un bloc"],
+	["observe_entity", "Regarder une créature"],
 	["stage", "Posséder un stage"],
 	["location", "Atteindre une position"],
-	["xp_points", "Posséder des points XP"],
-	["xp_levels", "Posséder des niveaux XP"],
+	["xp_points", "Avoir des points d’XP"],
+	["xp_levels", "Avoir un niveau d’XP"],
 	["custom_stat", "Atteindre une statistique Minecraft"],
-	["advancement_complete", "Compléter un advancement"],
-	["equipment_check", "Vérifier un équipement"],
+	["advancement_complete", "Obtenir un progrès"],
+	["equipment_check", "Porter ou tenir un équipement"],
 	["player_death", "Mourir"],
 	["manual", "Manuel"],
 ];
@@ -146,7 +146,7 @@ export const copy = (value) => structuredClone(value);
 /** Minecraft versions the mod runs on, newest first: the union of `validated_minecraft` in mod/versions. */
 export const MINECRAFT_VERSIONS = ["26.3", "26.2", "26.1.2", "26.1.1", "26.1"];
 export const supportedMinecraftVersion = (value) => (MINECRAFT_VERSIONS.includes(value) ? value : null);
-export const emptyProject = () => ({ categories: [], quests: [], config: { schemaVersion: 1, autosaveSeconds: 5 }, targetMinecraftVersion: "26.3", iconVersions: {} });
+export const emptyProject = () => ({ categories: [], quests: [], config: { schemaVersion: 1, autosaveSeconds: 5 }, targetMinecraftVersion: "26.3", targetModVersion: MOD_VERSIONS[0], iconVersions: {} });
 export function demoProject() {
 	return copy(BUILTIN_PROJECT);
 }
@@ -224,7 +224,7 @@ export function objectiveLabel(o, lang = "fr_fr") {
 		block_break: ["Casser", "Break"],
 		block_place: ["Placer", "Place"],
 		block_interact: ["Interagir avec", "Interact with"],
-		item_obtained: ["Obtenir", "Obtain"],
+		item_obtained: ["Ramasser", "Pick up"],
 		item_craft: ["Fabriquer", "Craft"],
 		item_smelt: ["Cuire", "Smelt"],
 		item_use: ["Utiliser", "Use"],
@@ -235,11 +235,11 @@ export function objectiveLabel(o, lang = "fr_fr") {
 		entity_kill: ["Vaincre", "Defeat"],
 		tame_animal: ["Apprivoiser", "Tame"],
 		breed_animal: ["Faire reproduire", "Breed"],
-		npc_interact: ["Parler à", "Talk to"],
+		npc_interact: ["Clic droit sur", "Right-click"],
 		biome_visit: ["Visiter", "Visit"],
 		structure_visit: ["Visiter", "Visit"],
 		dimension_enter: ["Entrer dans", "Enter"],
-		inventory_count: ["Posséder", "Hold"],
+		inventory_count: ["Avoir", "Have"],
 		travel_distance: ["Parcourir", "Travel"],
 		location: ["Atteindre", "Reach"],
 		player_death: ["Mourir", "Die"],
@@ -324,6 +324,7 @@ export function validate(p) {
 		seenC = new Set(),
 		seenQ = new Set();
 	const fail = (where, message) => issues.push({ where, message });
+	for (const key of configKeysTooNew(p)) fail("config.json", "Réglage absent de la version QuestPlus ciblée : " + key);
 	const translations = (value) =>
 		value &&
 		typeof value === "object" &&
@@ -936,6 +937,7 @@ export function fileMap(p) {
 	put("queststudio-compatibility.json", {
 		format: 1,
 		targetMinecraftVersion: p.targetMinecraftVersion || "26.3",
+		targetModVersion: targetModVersion(p),
 		iconVersions: p.iconVersions || {},
 		editorLocales: p.editorLocales || [],
 		rewardTables: p.rewardTables || [],
@@ -947,7 +949,8 @@ export function fileMap(p) {
 	map.set("index.txt", [...map.keys()].join("\n") + "\n");
 	return map;
 }
-export function importDocuments(documents) {
+/** report.converted counts objectives rewritten from an older QuestPlus version. */
+export function importDocuments(documents, report = {}) {
 	const p = emptyProject();
 	let valid = 0;
 	for (const { name, content } of documents) {
@@ -969,11 +972,13 @@ export function importDocuments(documents) {
 			if (Array.isArray(obj.npcs)) p.config.npcs = [...(p.config.npcs || []), ...obj.npcs];
 			if (Array.isArray(obj.rewardTables)) p.rewardTables = [...(p.rewardTables || []), ...obj.rewardTables];
 			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || p.targetMinecraftVersion;
+			p.targetModVersion = closestModVersion(obj.targetModVersion);
 			valid++;
 			continue;
 		}
 		if (/(?:^|\/)queststudio-compatibility\.json$/i.test(path)) {
 			p.targetMinecraftVersion = supportedMinecraftVersion(obj.targetMinecraftVersion) || MINECRAFT_VERSIONS[0];
+			p.targetModVersion = closestModVersion(obj.targetModVersion);
 			p.iconVersions = obj.iconVersions || {};
 			if (
 				obj.editorLocales !== undefined &&
@@ -995,5 +1000,17 @@ export function importDocuments(documents) {
 		valid++;
 	}
 	if (!valid) throw Error("Aucune catégorie ou quête trouvée. Choisissez un dossier ou ZIP QuestPlus.");
+	report.converted = 0;
+	for (const q of p.quests) for (const o of Array.isArray(q?.objectives) ? q.objectives : []) if (migrateObjective(o)) report.converted++;
 	return p;
+}
+const ANY_FISH = ["minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish"];
+/** Rewrites an event retired by RETIRED_EVENTS and returns true. The server applies the same rewrite. */
+export function migrateObjective(o) {
+	if (!Object.hasOwn(RETIRED_EVENTS, o?.event)) return false;
+	// questplus:fish_any was a duplicate of fish_item over the four fish.
+	o.event = "fish_item";
+	o.target = ANY_FISH[0];
+	o.data = { ...(o.data || {}), targets: ANY_FISH };
+	return true;
 }

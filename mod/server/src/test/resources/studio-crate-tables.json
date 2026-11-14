@@ -1,6 +1,7 @@
 {
   "format": 1,
   "targetMinecraftVersion": "26.3",
+  "targetModVersion": "1.1.8",
   "iconVersions": {},
   "editorLocales": [],
   "rewardTables": [

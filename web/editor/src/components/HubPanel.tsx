@@ -2,6 +2,7 @@ import { AlertCircle, Check, Copy, Download, Globe, Link2, Save, Server, Setting
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { hubHttpError, isHubOverloaded } from "../core/hub-errors.js";
 import { hubRegistry, serverVersion, setHubRegistry, unsupportedConfigKeys } from "../core/hub-registry.js";
+import { closestModVersion } from "../core/mod-versions.js";
 import { fileMap, importDocuments, supportedMinecraftVersion, validate } from "../core/project.js";
 import type { Project } from "../types";
 import { tUI } from "../ui/ui-i18n.js";
@@ -97,11 +98,16 @@ export function HubPanel({
 			feedback("Copy unavailable. Select and copy the text manually.", "error");
 		}
 	};
+	const converted = useRef<string | undefined>(undefined);
 	const loadProject = (data: HubData) => {
-		const next = importDocuments(data.files);
-		// The connected server's own Minecraft version wins over the one saved in the pack.
+		const report: { converted?: number } = {},
+			next = importDocuments(data.files, report);
+		// The connected server's own Minecraft and QuestPlus versions win over the ones saved in the pack.
 		const minecraft = supportedMinecraftVersion(data.registry?.minecraftVersion);
 		if (minecraft) next.targetMinecraftVersion = minecraft;
+		// Servers before 1.1.7 do not report their version. A shared pack has no registry and keeps its own.
+		if (data.registry) next.targetModVersion = closestModVersion(typeof data.registry.questplusVersion === "string" ? data.registry.questplusVersion : "1.1.6");
+		converted.current = report.converted ? tUI("Objectives converted from an older QuestPlus version:") + " " + report.converted : undefined;
 		const issues = validate(next);
 		if (issues.length) throw Error(issues[0].where + ": " + tUI(issues[0].message));
 		if (!window.confirm(tUI("Replace the editor content with this pack? Export a ZIP first to keep a separate copy."))) return false;
@@ -175,7 +181,7 @@ export function HubPanel({
 				setLoaded(true);
 				setVersion(serverVersion(next.config));
 				setSavedProject(JSON.stringify(next));
-				feedback("Server quests loaded. Save will apply your changes to this server.", "success");
+				feedback("Server quests loaded. Save will apply your changes to this server.", "success", converted.current);
 			} else feedback("Browser approved. Load the server quests to start editing.", "success");
 		});
 	const publish = () =>
@@ -258,7 +264,7 @@ export function HubPanel({
 						? "Shared pack opened in the editor. Save to publish it to your connected server."
 						: "Shared pack opened. Edit it, export a ZIP or connect a server.",
 					"success",
-					undefined,
+					converted.current,
 					true
 				);
 		}, true);

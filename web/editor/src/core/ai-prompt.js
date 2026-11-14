@@ -1,3 +1,5 @@
+import { MOD_VERSIONS, modSupports } from "./mod-versions.js";
+
 // A tiny but complete pack the prompt shows the AI. tests/ai-prompt.test.mjs keeps it valid.
 const label = (id, x, y, text, color) => ({ id, style: "label", x, y, width: 240, height: 34, color, text: { en_us: text }, rich: { en_us: [{ type: "text", text, color, size: 1.4 }] } });
 const quest = (id, x, y, look, title, description, objectives, rewards, requires) => ({
@@ -15,8 +17,7 @@ const quest = (id, x, y, look, title, description, objectives, rewards, requires
 	...(requires && { requires }),
 	layout: { x, y },
 });
-const obtain = (...items) => items.map((item) => ({ id: item.split(/[:_]/).pop(), event: "item_obtained", target: "minecraft:" + item, count: 1 }));
-const craft = (item) => [{ id: "craft", event: "item_craft", target: "minecraft:" + item, count: 1 }];
+const craft = (...items) => items.map((item) => ({ id: item.split(/[:_]/).pop(), event: "item_craft", target: "minecraft:" + item, count: 1 }));
 const done = (id) => ({ quest: "mypack:" + id });
 const FREE = { size: 36, shape: "circle" };
 
@@ -67,8 +68,8 @@ export const AI_PROMPT_EXAMPLE = {
 			110,
 			{ size: 45, shape: "rounded_square" },
 			"Leather Armor",
-			"Get a full leather set.",
-			obtain("leather_helmet", "leather_chestplate", "leather_leggings", "leather_boots"),
+			"Craft a full leather set.",
+			craft("leather_helmet", "leather_chestplate", "leather_leggings", "leather_boots"),
 			[{ type: "experience", amount: 50 }]
 		),
 		quest(
@@ -77,8 +78,8 @@ export const AI_PROMPT_EXAMPLE = {
 			200,
 			{ size: 50, shape: "rounded_square" },
 			"Iron Armor",
-			"Get a full iron set.",
-			obtain("iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots"),
+			"Craft a full iron set.",
+			craft("iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots"),
 			[{ type: "experience", amount: 120 }],
 			done("leather_armor")
 		),
@@ -89,8 +90,8 @@ export const AI_PROMPT_EXAMPLE = {
 			300,
 			{ size: 60, shape: "diamond" },
 			"Diamond Armor",
-			"Get a full diamond set.",
-			obtain("diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"),
+			"Craft a full diamond set.",
+			craft("diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"),
 			[{ type: "experience", amount: 300 }],
 			{ and: [done("iron_armor"), done("iron_pickaxe")] }
 		),
@@ -201,7 +202,8 @@ export const AI_PROMPT_SAMPLES = {
 
 export const AI_PROMPT_FIELDS = ["theme", "mods", "goals", "guided", "size", "languages", "rewards", "tone"];
 
-export function aiPrompt(version, details = {}) {
+export function aiPrompt(version, details = {}, modVersion = MOD_VERSIONS[0]) {
+	const links = modSupports("descriptionLinks", modVersion);
 	const example = JSON.stringify({ ...AI_PROMPT_EXAMPLE, targetMinecraftVersion: version }, null, 1);
 	const v = (key, fallback = "not specified, choose what fits best") => String(details[key] || "").trim().replace(/\s*\n\s*/g, ", ") || fallback;
 	const S = AI_PROMPT_SAMPLES,
@@ -285,8 +287,12 @@ How to write a tutorial:
 - Adapt how much you guide to the tone. A beginner friendly or relaxed pack gets every step spelled out. An expert or hardcore pack gets short hints and leaves the discovery to the player. A roleplay pack gives the same steps in character. In every case, explain fully the mods listed as complex or little known, and keep vanilla and well known mods brief.
 
 Links:
-- To go further, a tutorial may end with a link, for example "More on the wiki: https://minecraft.wiki/w/Nether_portal". Write the full https address as plain text in the quest description: the game makes it clickable and asks the player before opening it. A link completes the explanation, it never replaces it.
-- Choose the site of every link yourself, and only one that is clearly trustworthy: well known, widely used by Minecraft players, and the natural home of that information (the official site or wiki of the mod, its official download page, the Minecraft Wiki, a major community wiki, the official channel of the author). Never link to a small or little known site, a site with few users, a file hosting or link shortening site, or anything that could carry harmful content. Only give an address you are sure exists. When in doubt, give no link.
+${
+		links
+			? `- To go further, a tutorial may end with a link, for example "More on the wiki: https://minecraft.wiki/w/Nether_portal". Write the full https address as plain text in the quest description: the game makes it clickable and asks the player before opening it. A link completes the explanation, it never replaces it.
+- Choose the site of every link yourself, and only one that is clearly trustworthy: well known, widely used by Minecraft players, and the natural home of that information (the official site or wiki of the mod, its official download page, the Minecraft Wiki, a major community wiki, the official channel of the author). Never link to a small or little known site, a site with few users, a file hosting or link shortening site, or anything that could carry harmful content. Only give an address you are sure exists. When in doubt, give no link.`
+			: "- Never write web links: this QuestPlus version shows them as plain text the player cannot open."
+	}
 
 ### 3.6 Write every text for the player
 Titles, descriptions, objective texts, annotations and quest giver names only talk about the game: a mod, a mechanic, an item, a goal, the story.
@@ -326,49 +332,50 @@ Optional fields: "text" (a text map that replaces the label), "optional", "condi
 Every event:
 | Event | Target | The count is |
 | --- | --- | --- |
-| block_break | block ID or # tag | blocks broken |
-| block_place | block ID or # tag | blocks placed |
-| block_interact | block ID or # tag | right clicks on the block |
-| observe_block | block ID or # tag | time spent looking at it, in ticks (20 per second) |
-| item_obtained | item ID or # tag | items picked up, added up over time |
-| item_craft | item ID or # tag | items crafted |
-| item_smelt | item ID or # tag | items taken out of a furnace |
-| item_use | item ID or # tag | right clicks with the item |
-| item_consume | item ID or # tag | items eaten or drunk |
-| fish_item | item ID or # tag | items fished |
-| trade | item ID or # tag | items bought from a villager |
-| inventory_count | item ID or # tag | items held right now. Nothing is taken and the count can go back down |
-| item_submit | item ID or # tag | items shown when the player presses Submit. They are checked and kept |
+| block_break | block ID or # tag | blocks broken by the player. Explosions and pistons never count |
+| block_place | block ID or # tag | blocks placed by hand |
+| block_interact | block ID or # tag | right clicks the block reacts to (opening a chest, pressing a button). A click that does nothing never counts |
+| observe_block | block ID or # tag | time spent looking at it without looking away, from 6 blocks or closer, in ticks (20 per second). Looking away starts over |
+| item_obtained | item ID or # tag | items picked up from the ground, added up over time. Crafted items, furnace output, items taken from a chest and items given by command never count |
+| item_craft | item ID or # tag | items the player takes out of a crafting table or the inventory grid. Smithing table, stonecutter and loom results never count. An item received from someone else never counts |
+| item_smelt | item ID or # tag | items the player takes out of a furnace, smoker or blast furnace. Hoppers and campfires never count |
+| item_use | item ID or # tag | right clicks with the item that do something (throwing, placing, starting to eat, flint and steel) |
+| item_consume | item ID or # tag | items the player finishes eating or drinking |
+| fish_item | item ID or # tag | items reeled in with a fishing rod. For any fish, target "minecraft:cod" with "data": { "targets": ["minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish"] } |
+| trade | item ID or # tag | trades with a villager whose result is the item. Each trade counts 1, whatever the stack size. The target is what the player receives |
+| inventory_count | item ID or # tag | items held right now in the inventory or offhand, however they were obtained. Worn armor is not counted. Nothing is taken and the count can go back down |
+| item_submit | item ID or # tag | items shown when the player presses Submit. They are checked once, locked in and kept |
 | item_turn_in | item ID or # tag | items handed over and consumed. Deposits add up, and a Submission Station (4.12) can automate them |
-| entity_kill | entity ID or # tag | kills |
+| entity_kill | entity ID or # tag | kills by the player, their arrows or their tamed wolf |
 | tame_animal | entity ID or # tag | animals tamed |
-| breed_animal | entity ID or # tag | animals bred |
-| fish_entity | entity ID or # tag | creatures hooked with a fishing rod |
-| observe_entity | entity ID or # tag | time spent looking at it, in ticks |
-| npc_interact | entity ID or # tag | right clicks on that kind of entity (for example "minecraft:villager"). It does not point to a quest giver |
-| questplus:fish_any | "questplus:fish" | fish caught, whatever the species |
-| biome_visit | biome ID | 1 |
-| structure_visit | structure ID | 1 |
-| dimension_enter | dimension ID | 1 |
-| travel_distance | "questplus:travel" | distance in centimeters: 100 is one block, 100000 is one kilometer |
+| breed_animal | entity ID or # tag | babies born from parents of that species that the player fed |
+| fish_entity | entity ID or # tag | creatures pulled with a fishing rod hook. This is not fishing for items |
+| observe_entity | entity ID or # tag | time spent looking at it without looking away, in ticks |
+| npc_interact | entity ID or # tag | right clicks the entity reacts to (opening a villager's trades, milking a cow). It does not point to a quest giver |
+| biome_visit | biome ID | 1. Already standing in it counts |
+| structure_visit | structure ID | 1. The player must stand inside it, being near is not enough |
+| dimension_enter | dimension ID | 1. Already being there counts |
+| travel_distance | "questplus:travel" | distance in centimeters, by any means except teleports: 100 is one block, 100000 is one kilometer |
 | location | "questplus:position" | 1. Needs a "position" condition, see below |
-| xp_levels | "questplus:levels" | XP level the player has right now |
-| xp_points | "questplus:points" | XP points the player has right now |
-| xp_submit_levels | "questplus:levels" | XP levels paid by the player |
-| xp_submit_points | "questplus:points" | XP points paid by the player |
+| xp_levels | "questplus:levels" | XP level the player has right now. Nothing is taken |
+| xp_points | "questplus:points" | XP points the player has right now. Nothing is taken |
+| xp_submit_levels | "questplus:levels" | XP levels paid by the player, taken from them |
+| xp_submit_points | "questplus:points" | XP points paid by the player, taken from them |
 | equipment_check | "questplus:gear" | 1. Needs a "questplus:gear" condition, see below |
-| advancement_complete | advancement ID | 1 |
-| custom_stat | Minecraft custom statistic ID | value of the statistic to reach |
+| advancement_complete | advancement ID | 1. An advancement earned before the quest counts |
+| custom_stat | Minecraft custom statistic ID | value of the statistic to reach. It is the total since the player first joined the world, not since the quest started |
 | stage | stage ID (4.10) | 1 |
 | player_death | "questplus:death" | deaths |
 | manual | the id of its own quest | 1. This is the confirmation objective of part 3.5 |
-| fluid_submit | fluid ID | millibuckets paid into a Submission Station (1000 is one bucket) |
-| energy_submit | "questplus:fe" | FE paid into a Submission Station |
+| fluid_submit | fluid ID | millibuckets drained from the player's buckets or tanks, or paid into a Submission Station (1000 is one bucket) |
+| energy_submit | "questplus:fe" | FE drained from the player's batteries or paid into a Submission Station |
 | fluid_transfer, energy_transfer | | Never use them, they need a dedicated integration mod |
 
 Notes on the events:
 - Confirmation objective, written in full: { "id": "read", "event": "manual", "target": "<the id of this quest>", "count": 1, "text": { "en_us": "Understood" } }
 - Pick the item event that matches the intent: item_craft or item_obtained for a first step, inventory_count for a stock to own, item_turn_in for a delivery or a cost, equipment_check for gear that must really be worn.
+- item_obtained only sees items picked up from the ground: mob drops, mined blocks, items thrown by another player. Use it for raw resources gathered in the world. Loot from a chest (treasure, structure loot), a crafted result or a furnace output never triggers it, so "find" or "own" an item is inventory_count.
+- item_craft only counts what the player crafts. In multiplayer, a friend or a teammate who hands over the item does not complete it, every player or team must craft it. Use it when crafting is the lesson. When only having the item matters, use inventory_count instead.
 - Several accepted items for one objective: "data": { "targets": [...] } lists every accepted item ID or # tag (32 at most, the main target included). It works on the item events. Sample: ${j(S.objectives.alternatives)}
 - location: the player stands inside a box. All six bounds are required. You do not know the map, so only use it for a height or a depth, with very wide x and z bounds. Sample: ${j(S.objectives.depth)}
 - equipment_check: the player wears or holds the listed gear. Slots are head, chest, legs, feet, mainhand, offhand and inventory. "enchantments" is optional. Sample: ${j(S.objectives.gear)}
@@ -527,8 +534,12 @@ ${example}
 Before answering, check that:
 - Content: every quest comes from a mod in my list or from vanilla. Each category has confirmation quests that explain its mods and mechanics. Every feature of part 4 that you used is there because this pack needs it, not because it exists.
 - Prerequisites: most quests have none. Every "requires" points to an existing quest, with no cycle.
+- Quest by quest, read each quest one last time and check that what you wrote matches what you meant. This catches gross mistakes:
+  - Rewards: a quest is expected to give a reward. For each quest with "rewards": [], check that it is on purpose (a confirmation quest, a read only page, a tiered quest that pays through its tiers). If the quest was meant to pay, add the reward. Also check that each reward suits the quest: its worth matches the effort and the rewards style of part 1, it is useful at that point of the progression, and it never hands out the very thing a later quest asks the player to make.
+  - Progression: a quest meant to be done again (a contract, a bounty, a delivery, a daily task) really has "repeatable" or "infinite", with a cooldown that makes sense. A quest meant as milestones really has "tiered" and its tiers. Every other quest is "once".
+  - Prerequisites: a quest meant as a step of a guided chain, a gear tier or a gated milestone really has its "requires". A quest meant to be free has none. No quest is locked behind something unrelated.
 - IDs and fields: every ID is valid and real, every text has en_us, and no field is unknown.
 - Features: tier thresholds strictly increase, every quest listed by a quest giver exists, and every table name used by a reward or a crate exists in "rewardTables".
-- Texts: no text describes the layout or the shape of a chapter. Every link is an https address on a well known, trustworthy site.
+- Texts: no text describes the layout or the shape of a chapter.${links ? " Every link is an https address on a well known, trustworthy site." : " No web link."}
 - Layout: no category is a plain grid unless I asked for one, sizes and shapes follow one legend, nodes do not overlap, every "linkRoutes" entry matches a real link of its category, and framed notes are rare.`;
 }

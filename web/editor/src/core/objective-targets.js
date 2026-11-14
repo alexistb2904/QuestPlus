@@ -256,22 +256,22 @@ export const OBJECTIVE_UI = Object.freeze({
 	block_break: { kind: "block", amount: "Blocks" },
 	block_place: { kind: "block", amount: "Blocks" },
 	block_interact: { kind: "block", amount: "Interactions" },
-	item_obtained: { kind: "item", amount: "Items obtained" },
+	item_obtained: { kind: "item", amount: "Items picked up" },
 	item_craft: { kind: "item", amount: "Items crafted" },
-	item_smelt: { kind: "item", amount: "Items smelted" },
+	item_smelt: { kind: "item", amount: "Items taken out" },
 	item_use: { kind: "item", amount: "Uses" },
-	item_consume: { kind: "item", amount: "Items consumed" },
+	item_consume: { kind: "item", amount: "Items eaten or drunk" },
 	fish_item: { kind: "item", amount: "Items caught" },
-	trade: { kind: "item", amount: "Items traded" },
+	trade: { kind: "item", amount: "Trades" },
 	inventory_count: { kind: "item", amount: "Required in inventory" },
 	item_submit: { kind: "item", amount: "Items to verify" },
-	item_turn_in: { kind: "item", amount: "Items to consume" },
+	item_turn_in: { kind: "item", amount: "Items to take" },
 	fluid_submit: { kind: "fluid", amount: "Millibuckets (mB)" },
 	energy_submit: { kind: "custom", amount: "Energy (FE)" },
 	fluid_transfer: { kind: "fluid", amount: "Fluid (mB)" },
 	energy_transfer: { kind: "custom", amount: "Energy (FE)" },
 	entity_kill: { kind: "entity", amount: "Kills" },
-	fish_entity: { kind: "entity", amount: "Entities caught" },
+	fish_entity: { kind: "entity", amount: "Creatures hooked" },
 	tame_animal: { kind: "entity", amount: "Animals tamed" },
 	breed_animal: { kind: "entity", amount: "Animals bred" },
 	npc_interact: { kind: "entity", amount: "Interactions" },
@@ -288,7 +288,6 @@ export const OBJECTIVE_UI = Object.freeze({
 	xp_points: { kind: "custom", amount: "XP points" },
 	custom_stat: { kind: "custom", amount: "Stat value" },
 	advancement_complete: { kind: "custom", amount: null },
-	"questplus:fish_any": { kind: "custom", amount: "Fish" },
 	manual: { kind: "manual", amount: "Confirmations" },
 });
 export const objectiveUi = (event) => OBJECTIVE_UI[event] || { kind: "custom", amount: "Count" };
@@ -310,23 +309,21 @@ export const changeObjectiveEvent = (objective, event, questId) => {
 	const sameRegistry = oldKind === newKind && ["block", "item", "entity", "biome", "structure", "dimension", "fluid"].includes(newKind);
 	const target = sameRegistry
 		? objective.target
-		: event === "questplus:fish_any"
-			? "questplus:fish"
-			: event === "equipment_check"
-				? "questplus:gear"
-				: ["xp_levels", "xp_submit_levels"].includes(event)
-					? "questplus:levels"
-					: ["xp_points", "xp_submit_points"].includes(event)
-						? "questplus:points"
-						: ["energy_transfer", "energy_submit"].includes(event)
-							? "questplus:fe"
-							: event === "custom_stat"
-								? "minecraft:jump"
-								: event === "advancement_complete"
-									? "minecraft:story/mine_stone"
-									: event === "manual"
-										? questId || "questplus:manual"
-										: initialTarget(event);
+		: event === "equipment_check"
+			? "questplus:gear"
+			: ["xp_levels", "xp_submit_levels"].includes(event)
+				? "questplus:levels"
+				: ["xp_points", "xp_submit_points"].includes(event)
+					? "questplus:points"
+					: ["energy_transfer", "energy_submit"].includes(event)
+						? "questplus:fe"
+						: event === "custom_stat"
+							? "minecraft:jump"
+							: event === "advancement_complete"
+								? "minecraft:story/mine_stone"
+								: event === "manual"
+									? questId || "questplus:manual"
+									: initialTarget(event);
 	const next = { ...objective, event, target, count: sameRegistry ? objective.count : event === "travel_distance" ? 100 : 1 };
 	if (objective.event !== event) delete next.data;
 	const cleaned = removePositionCondition(objective.conditions);
@@ -379,44 +376,43 @@ export const setPositionRadius = (root, value) => {
 };
 
 export const EVENT_LABELS = {
-	observe_block: "Observe a block",
-	observe_entity: "Observe an entity",
+	observe_block: "Look at a block",
+	observe_entity: "Look at a creature",
 	stage: "Have a stage",
 	block_break: "Break blocks",
 	block_place: "Place blocks",
-	block_interact: "Interact with block",
-	item_obtained: "Obtain items",
+	block_interact: "Right-click a block",
+	item_obtained: "Pick up items",
 	item_craft: "Craft items",
-	item_smelt: "Smelt items",
-	item_use: "Use item",
-	item_consume: "Consume item",
-	fish_item: "Fish item",
-	trade: "Trade item",
-	inventory_count: "Hold items",
-	item_submit: "Submit without consuming",
-	item_turn_in: "Submit and consume",
-	fluid_submit: "Submit fluid",
-	energy_submit: "Submit energy",
-	fluid_transfer: "Transfer fluid",
-	energy_transfer: "Transfer energy",
-	entity_kill: "Kill entities",
-	fish_entity: "Fish entity",
-	"questplus:fish_any": "Fish (any species)",
-	tame_animal: "Tame animal",
+	item_smelt: "Take from a furnace",
+	item_use: "Use an item",
+	item_consume: "Eat or drink",
+	fish_item: "Fish up items",
+	trade: "Buy from a villager",
+	inventory_count: "Have in inventory",
+	item_submit: "Show items (kept)",
+	item_turn_in: "Hand over items (taken)",
+	fluid_submit: "Hand over fluid (taken)",
+	energy_submit: "Hand over energy (taken)",
+	fluid_transfer: "Fluid moved (mod API)",
+	energy_transfer: "Energy moved (mod API)",
+	entity_kill: "Kill creatures",
+	fish_entity: "Hook a creature",
+	tame_animal: "Tame animals",
 	breed_animal: "Breed animals",
-	npc_interact: "Interact with NPC",
-	biome_visit: "Visit biome",
-	structure_visit: "Visit structure",
-	dimension_enter: "Enter dimension",
-	travel_distance: "Travel distance",
-	location: "Reach position",
+	npc_interact: "Right-click a creature",
+	biome_visit: "Visit a biome",
+	structure_visit: "Visit a structure",
+	dimension_enter: "Enter a dimension",
+	travel_distance: "Travel a distance",
+	location: "Reach a position",
 	player_death: "Die",
-	equipment_check: "Verified Equipment",
-	xp_levels: "Reach an XP level",
+	equipment_check: "Wear or hold gear",
+	xp_levels: "Have an XP level",
 	xp_points: "Have XP points",
-	xp_submit_points: "Submit XP points",
-	xp_submit_levels: "Submit XP levels",
-	custom_stat: "Reach a Minecraft stat",
-	advancement_complete: "Complete an advancement",
+	xp_submit_points: "Pay XP points (taken)",
+	xp_submit_levels: "Pay XP levels (taken)",
+	custom_stat: "Reach a Minecraft statistic",
+	advancement_complete: "Earn an advancement",
 	manual: "Manual confirmation",
 };

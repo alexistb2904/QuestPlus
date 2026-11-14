@@ -1,3 +1,4 @@
+import { Plus, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { tUI } from "../ui/ui-i18n.js";
 import { EnchantmentPicker } from "./EnchantmentPicker";
@@ -64,6 +65,22 @@ function EnchantmentId({ id, taken, onRename, onBrowse }: { id: string; taken: R
 	);
 }
 
+// Slot labels read as the second half of a sentence: "Iron helmet, worn on head".
+const SLOT_PHRASES: Record<string, string> = {
+	inventory: "In inventory",
+	mainhand: "In main hand",
+	offhand: "In off hand",
+	head: "Worn on head",
+	chest: "Worn on chest",
+	legs: "Worn on legs",
+	feet: "Worn on feet",
+};
+const itemName = (id: string) =>
+	String(id || "")
+		.split(":")
+		.pop()
+		?.replace(/_/g, " ") || "";
+
 export function GearEditor({ conditions, onChange }: { conditions: any; onChange: (next: any) => void }) {
 	const [pick, setPick] = useState<number | null>(null);
 	const [pickEnchant, setPickEnchant] = useState<{ item: number; previous?: string } | null>(null);
@@ -78,116 +95,98 @@ export function GearEditor({ conditions, onChange }: { conditions: any; onChange
 	};
 	return (
 		<div className="gear-editor">
-			<div className="gear-toolbar">
-				<label className="field">
-					<span>{tUI("Armor preset")}</span>
-					<select
-						defaultValue=""
-						aria-label={tUI("Armor preset")}
-						onChange={(e) => {
-							if (e.target.value) change(armorPreset(e.target.value));
-							e.target.value = "";
-						}}>
-						<option value="">{tUI("Select set…")}</option>
-						{MATERIALS.map((m) => (
-							<option key={m} value={m}>
-								{tUI(m)}
-							</option>
-						))}
-					</select>
-				</label>
-				<button type="button" className="button secondary" onClick={() => change([...items, { slot: "mainhand", item: "minecraft:diamond_pickaxe", enchantments: {} }])}>
-					{tUI("Add equipment")}
-				</button>
-			</div>
-			<div className="gear-list">
+			<ul className="gear-list" aria-label={tUI("Required equipment")}>
 				{items.map((gear, i) => (
-					<section className="gear-item-editor" key={i}>
-						<div className="gear-item-heading">
-							<ItemIcon id={gear.item} size={28} />
-							<div className="gear-item-name">
-								<strong>{tUI(gear.slot)}</strong>
-								<span title={gear.item}>
-									{String(gear.item || "")
-										.split(":")
-										.pop()
-										?.replace(/_/g, " ")}
+					<li className="gear-row" key={i}>
+						<ItemIcon id={gear.item} size={32} />
+						<div className="gear-row-main">
+							<div className="gear-row-title">
+								<strong title={gear.item}>{itemName(gear.item) || tUI("Equipment item")}</strong>
+								<span className="field gear-slot">
+									<select value={gear.slot} aria-label={tUI("Equipment slot") + " " + (i + 1)} onChange={(e) => edit(i, { slot: e.target.value })}>
+										{GEAR_SLOTS.map((slot) => (
+											<option key={slot} value={slot}>
+												{tUI(SLOT_PHRASES[slot] || slot)}
+											</option>
+										))}
+									</select>
 								</span>
 							</div>
-							<button
-								type="button"
-								className="tiny danger"
-								aria-label={tUI("Remove equipment") + " " + (i + 1)}
-								onClick={() => change(items.filter((_, n) => n !== i))}>
-								×
+							<span className="gear-item-entry">
+								<input
+									value={gear.item}
+									spellCheck={false}
+									aria-label={tUI("Equipment item") + " " + (i + 1)}
+									onChange={(e) => edit(i, { item: e.target.value })}
+									placeholder="modid:custom_armor"
+								/>
+								<button type="button" className="button secondary" onClick={() => setPick(i)}>
+									{tUI("Browse")}
+								</button>
+							</span>
+							{Object.entries(gear.enchantments || {}).map(([id, level]) => (
+								<div className="gear-enchantment" key={id}>
+									<EnchantmentId
+										id={id}
+										taken={gear.enchantments || {}}
+										onBrowse={() => setPickEnchant({ item: i, previous: id })}
+										onRename={(newId) => {
+											const next = { ...(gear.enchantments || {}) };
+											delete next[id];
+											next[newId] = level;
+											edit(i, { enchantments: next });
+										}}
+									/>
+									<label className="field gear-enchantment-level">
+										<span>{tUI("Minimum level")}</span>
+										<input type="number" min={1} max={10} value={level} onChange={(e) => enchant(i, id, Number(e.target.value))} />
+									</label>
+									<button type="button" className="tiny danger" aria-label={tUI("Remove enchantment")} onClick={() => enchant(i, id, null)}>
+										<X size={14} aria-hidden="true" />
+									</button>
+								</div>
+							))}
+							{/* Modded IDs stay possible: pick any enchantment, then edit its ID field. */}
+							<button type="button" className="gear-add-enchantment" title={tUI("Browse enchantments")} onClick={() => setPickEnchant({ item: i })}>
+								<Plus size={13} aria-hidden="true" />
+								{tUI("Enchantment")}
 							</button>
 						</div>
-						<div className="gear-fields">
-							<label className="field">
-								<span>{tUI("Equipment slot")}</span>
-								<select value={gear.slot} aria-label={tUI("Equipment slot") + " " + (i + 1)} onChange={(e) => edit(i, { slot: e.target.value })}>
-									{GEAR_SLOTS.map((slot) => (
-										<option key={slot} value={slot}>
-											{tUI(slot)}
-										</option>
-									))}
-								</select>
-							</label>
-							<label className="field gear-item-id">
-								<span>{tUI("Equipment item")}</span>
-								<span className="gear-item-entry">
-									<input
-										value={gear.item}
-										spellCheck={false}
-										aria-label={tUI("Equipment item") + " " + (i + 1)}
-										onChange={(e) => edit(i, { item: e.target.value })}
-										placeholder="modid:custom_armor"
-									/>
-									<button type="button" className="button secondary" onClick={() => setPick(i)}>
-										{tUI("Browse")}
-									</button>
-								</span>
-							</label>
-						</div>
-						{Object.entries(gear.enchantments || {}).map(([id, level]) => (
-							<div className="gear-enchantment" key={id}>
-								<EnchantmentId
-									id={id}
-									taken={gear.enchantments || {}}
-									onBrowse={() => setPickEnchant({ item: i, previous: id })}
-									onRename={(newId) => {
-										const next = { ...(gear.enchantments || {}) };
-										delete next[id];
-										next[newId] = level;
-										edit(i, { enchantments: next });
-									}}
-								/>
-								<label className="field gear-enchantment-level">
-									<span>{tUI("Minimum level")}</span>
-									<input type="number" min={1} max={10} value={level} onChange={(e) => enchant(i, id, Number(e.target.value))} />
-								</label>
-								<button type="button" className="tiny danger" aria-label={tUI("Remove enchantment")} onClick={() => enchant(i, id, null)}>
-									×
-								</button>
-							</div>
-						))}
 						<button
 							type="button"
-							className="gear-add-enchantment"
-							onClick={() => {
-								const existing = gear.enchantments || {};
-								let id = "minecraft:protection",
-									n = 2;
-								while (Object.hasOwn(existing, id)) id = "modid:enchantment_" + n++;
-								enchant(i, id, 1);
-							}}>
-							+ {tUI("Enchantment")}
+							className="tiny danger"
+							aria-label={tUI("Remove equipment") + " " + (i + 1)}
+							title={tUI("Remove equipment")}
+							onClick={() => change(items.filter((_, n) => n !== i))}>
+							<X size={14} aria-hidden="true" />
 						</button>
-						<button type="button" className="gear-add-enchantment" onClick={() => setPickEnchant({ item: i })}>
-							{tUI("Browse enchantments")}
-						</button>
-					</section>
+					</li>
 				))}
+			</ul>
+			<div className="gear-toolbar">
+				<button type="button" className="button secondary" onClick={() => change([...items, { slot: "mainhand", item: "minecraft:diamond_pickaxe", enchantments: {} }])}>
+					<Plus size={14} aria-hidden="true" />
+					{tUI("Add equipment")}
+				</button>
+				<label className="gear-preset">
+					<span>{tUI("Armor preset")}</span>
+					<span className="field">
+						<select
+							defaultValue=""
+							aria-label={tUI("Armor preset")}
+							onChange={(e) => {
+								if (e.target.value) change(armorPreset(e.target.value));
+								e.target.value = "";
+							}}>
+							<option value="">{tUI("Select set…")}</option>
+							{MATERIALS.map((m) => (
+								<option key={m} value={m}>
+									{tUI(m)}
+								</option>
+							))}
+						</select>
+					</span>
+				</label>
 			</div>
 			{pickEnchant !== null && (
 				<EnchantmentPicker

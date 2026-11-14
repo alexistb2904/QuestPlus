@@ -454,7 +454,7 @@
 				},
 				{
 					"id": "heart",
-					"event": "item_obtained",
+					"event": "inventory_count",
 					"target": "minecraft:heart_of_the_sea",
 					"count": 1
 				}

@@ -4100,135 +4100,179 @@ kbd {
 	}
 }
 
-/* Equipment rows stay compact and keep the item identifier editable. */
-.objective-inputs-custom:has(.gear-editor) {
+/* Equipment objective: the action sits on top, then one sentence-like row per required item. */
+.objective-row > .objective-inputs:has(> .gear-editor) {
 	grid-template-columns: minmax(0, 1fr);
+	align-items: start;
+}
+.objective-inputs:has(> .gear-editor) > .type-picker {
+	max-width: 270px;
 }
 .gear-editor {
 	min-width: 0;
 	display: grid;
-	gap: 10px;
-}
-.gear-toolbar {
-	display: flex;
-	align-items: end;
 	gap: 8px;
-	flex-wrap: wrap;
-}
-.gear-toolbar .field {
-	flex: 1;
-	min-width: 150px;
-	max-width: 280px;
-	margin: 0;
-}
-.gear-toolbar .button {
-	min-height: 33px;
 }
 .gear-list {
-	container-type: inline-size;
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 305px), 1fr));
-	gap: 8px;
-}
-.gear-item-editor {
-	min-width: 0;
-	padding: 9px;
-	border: 1px solid #625668;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 1px solid #4b494f;
 	border-radius: 4px;
-	background: #28232e;
+	background: #1b1c20;
 }
-.gear-item-heading {
+.gear-row {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr) auto;
+	gap: 10px;
+	align-items: start;
+	padding: 9px 10px;
+}
+.gear-row + .gear-row {
+	border-top: 1px solid #34323a;
+}
+.gear-row > .mc-icon {
+	margin-top: 1px;
+}
+.gear-row-main {
+	min-width: 0;
+	display: grid;
+	gap: 6px;
+}
+.gear-row-title {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	margin-bottom: 8px;
+	flex-wrap: wrap;
+	gap: 4px 10px;
+	min-height: 28px;
 }
-.gear-item-heading .tiny {
-	margin-left: auto;
-}
-.gear-item-name {
-	display: flex;
-	flex-direction: column;
+.gear-row-title strong {
+	display: inline-block;
 	min-width: 0;
-	gap: 2px;
-	line-height: 1.25;
+	font-size: 13px;
+	font-weight: 600;
+	color: #f1eee9;
+	overflow-wrap: anywhere;
 }
-.gear-item-name strong {
-	font-size: 12px;
-	color: #f1e6f4;
+.gear-row-title strong::first-letter {
+	text-transform: uppercase;
 }
-.gear-item-name span {
-	font-size: 11px;
-	color: #d1c1d7;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	text-transform: capitalize;
-}
-.gear-fields {
-	display: grid;
-	grid-template-columns: minmax(105px, 0.75fr) minmax(0, 1.6fr);
-	gap: 8px;
-	align-items: end;
-}
-.gear-fields .field,
-.gear-enchantment .field {
+.objective-inputs .gear-slot,
+.gear-slot {
+	display: inline-flex;
 	margin: 0;
-	min-width: 0;
+}
+.objective-row .gear-slot select {
+	min-height: 26px;
+	padding: 2px 27px 2px 9px;
+	border-color: #6b5a78;
+	border-radius: 13px;
+	background-color: #2a2532;
+	box-shadow: none;
+	color: #dec2ff;
+	font-size: 12px;
+	font-weight: 600;
 }
 .gear-item-entry {
-	display: flex !important;
+	display: flex;
 	gap: 5px;
-	margin: 0 !important;
 	align-items: center;
+	min-width: 0;
+	max-width: 420px;
+}
+.gear-item-entry input,
+.objective-row .gear-enchantment input {
+	min-height: 28px;
+	padding: 3px 8px;
+	border: 1px solid #655967;
+	border-radius: 4px;
+	background-color: #17151d;
+	box-shadow: inset 0 1px 3px #0005;
 }
 .gear-item-entry input {
 	flex: 1;
 	min-width: 0;
+	font:
+		11px Consolas,
+		monospace;
+	color: #c1b9b1;
+}
+.objective-row .gear-enchantment label,
+.objective-row .gear-enchantment .field > span {
+	display: block;
+	margin-bottom: 3px;
+	font-size: 10px;
+	font-weight: 600;
+	color: #c7bacf;
 }
 .gear-item-entry .button {
-	min-height: 33px;
-	padding: 0 7px;
+	min-height: 28px;
+	padding: 0 8px;
+	font-size: 11px;
 }
 .gear-enchantment {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 76px auto;
 	gap: 7px;
 	align-items: end;
-	margin-top: 8px;
+	max-width: 420px;
+}
+.gear-enchantment .field {
+	margin: 0;
+	min-width: 0;
 }
 .gear-enchantment input[aria-invalid="true"] {
 	border-color: #f19f94;
 	outline: 1px solid #f19f94;
 }
 .gear-enchantment .tiny {
-	min-height: 33px;
+	min-height: 28px;
 }
 .gear-add-enchantment {
-	margin-top: 8px;
+	justify-self: start;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	border: 0;
 	background: none;
 	color: #d8b7eb;
 	font-size: 11px;
 	font-weight: 600;
-	padding: 3px 0;
+	padding: 2px 0;
 	cursor: pointer;
 }
 .gear-add-enchantment:hover {
+	color: #f1e0ff;
 	text-decoration: underline;
+	text-underline-offset: 2px;
 }
-@container (max-width:420px) {
-	.gear-fields {
-		grid-template-columns: 1fr;
-	}
-	.gear-enchantment {
-		grid-template-columns: minmax(0, 1fr) 60px auto;
-	}
+.gear-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.gear-toolbar > .button {
+	min-height: 30px;
+	gap: 5px;
+}
+.gear-preset {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 11px;
+	color: #c1b9b1;
+}
+.objective-inputs .gear-preset .field {
+	margin: 0;
+}
+.objective-row .gear-preset select {
+	min-height: 30px;
+	min-width: 150px;
+	font-size: 12px;
 }
 @media (max-width: 600px) {
-	.gear-fields {
-		grid-template-columns: 1fr;
-	}
 	.gear-enchantment {
 		grid-template-columns: minmax(0, 1fr) 60px auto;
 	}
@@ -4355,14 +4399,8 @@ kbd {
 }
 .gear-enchantment-id-entry .button {
 	padding: 0 7px;
-	min-height: 33px;
+	min-height: 28px;
 	font-size: 11px;
-}
-.gear-enchantment .gear-enchantment-id > label {
-	display: block;
-	font-size: 11px;
-	font-weight: 550;
-	margin-bottom: 4px;
 }
 
 /* QuestPlus Hub progressive enhancement. The normal offline editor stays usable. */
@@ -6105,6 +6143,137 @@ button.studio-docs-link {
 .objective-foot > .disclosure.open {
 	order: 1;
 	flex-basis: 100%;
+}
+
+/* Every objective reads as one sentence: the action, then its subject with an icon, then the amount. */
+.objective-row > .objective-inputs {
+	align-items: end;
+	column-gap: 14px;
+}
+.objective-subject {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr);
+	gap: 10px;
+	align-items: end;
+	min-width: 0;
+}
+.objective-subject > .mc-icon {
+	align-self: center;
+	margin-top: 20px;
+}
+.objective-subject-glyph {
+	display: grid;
+	place-items: center;
+	height: 32px;
+	border: 1px solid #4b494f;
+	border-radius: 4px;
+	background: #1b1c20;
+	color: #d2bdde;
+}
+.objective-subject-main {
+	min-width: 0;
+	display: grid;
+	gap: 4px;
+}
+.objective-subject-main > strong {
+	overflow: hidden;
+	color: #f1eee9;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 16px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.objective-subject-main > strong::first-letter {
+	text-transform: uppercase;
+}
+.objective-subject-main > strong.empty {
+	color: #aca39a;
+	font-weight: 500;
+}
+.objective-subject-entry {
+	display: flex;
+	gap: 5px;
+	min-width: 0;
+}
+.objective-row .objective-subject-entry input {
+	flex: 1;
+	min-width: 0;
+	min-height: 33px;
+	padding: 4px 8px;
+	border: 1px solid #655967;
+	border-radius: 4px;
+	background-color: #17151d;
+	box-shadow: inset 0 1px 3px #0005;
+	color: #c1b9b1;
+	font:
+		11px Consolas,
+		monospace;
+}
+.objective-row .objective-subject-entry input:hover {
+	border-color: #8b7595;
+}
+.objective-row .objective-subject-entry input:focus {
+	border-color: #ba88db;
+	outline: 2px solid #bb86e633;
+	outline-offset: 0;
+}
+.objective-subject-entry .button {
+	min-height: 33px;
+	padding: 0 10px;
+	font-size: 11px;
+}
+.objective-row > .objective-inputs > .field {
+	margin: 0;
+}
+/* Beats the shared ".field > span" label rule, which also matches this wrapper. */
+.objective-row .objective-amount > .objective-amount-entry {
+	position: relative;
+	display: flex;
+	align-items: center;
+	margin: 0;
+}
+.objective-amount-entry > svg {
+	position: absolute;
+	left: 9px;
+	color: #aca39a;
+	pointer-events: none;
+}
+.objective-row .objective-amount-entry input {
+	width: 100%;
+	padding-left: 25px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Secondary settings recede until opened, so the sentence above stays the first thing read. */
+.objective-row > .objective-foot {
+	margin-top: 10px;
+	padding-top: 7px;
+	border-top: 1px solid #3a3740;
+	gap: 2px;
+}
+.objective-foot > .checkbox-row {
+	min-height: 26px;
+	color: #c1b9b1;
+	font-size: 11px;
+}
+.objective-foot > .disclosure > .disclosure-trigger {
+	min-height: 26px;
+	padding: 3px 8px;
+	border-color: transparent;
+	background: transparent;
+	box-shadow: none;
+	color: #c1b9b1;
+}
+.objective-foot > .disclosure > .disclosure-trigger:hover {
+	background: #2f2b35;
+	color: #f1eee9;
+}
+.objective-foot > .disclosure.open > .disclosure-trigger {
+	border-color: #6b5a78;
+	background: #3a2f44;
+	color: #f1dfff;
 }
 .detail-actions {
 	display: flex;

@@ -1,4 +1,4 @@
-import { Check, Gift, GitBranch, Globe, MessageCircle, Plus, Repeat2, Search, Target, Trash2, TriangleAlert, X } from "lucide-react";
+import { Award, Castle, ChartColumn, Check, Gift, GitBranch, Hash, Trees, Globe, MessageCircle, Plus, Repeat2, Search, Target, Trash2, TriangleAlert, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { descriptionParts } from "../core/description-format.js";
 import { hubEditorDescriptors, hubFieldDefault } from "../core/hub-registry.js";
@@ -17,7 +17,7 @@ import type { Category, Objective, Project, Quest, Reward } from "../types";
 import { localesOf, supportedLocales } from "../types";
 import { OBJECTIVE_GROUPS, OBJECTIVE_HINTS } from "../ui/type-catalog.js";
 import { tUI } from "../ui/ui-i18n.js";
-import { armorPreset, GearEditor, updateGear } from "./GearEditor";
+import { armorPreset, GearEditor, getGear, updateGear } from "./GearEditor";
 import { ItemIcon, TargetPicker } from "./IconPicker";
 import type { Props } from "./Inspector";
 import { ConditionEditor, Disclosure, Field, Select, Translated } from "./Inspector";
@@ -213,6 +213,9 @@ function LocalizationPanel({
 }
 
 const eventNames: Record<string, string> = Object.fromEntries(EVENTS.map(([id]) => [id, EVENT_LABELS[id] || id]));
+// Targets without an item texture get a drawn glyph instead of the generic package fallback.
+const SUBJECT_ICONS: Record<string, typeof Trees> = { biome: Trees, structure: Castle, advancement: Award, statistic: ChartColumn, custom: Hash };
+const readableId = (id: string) => String(id || "").replace(/^#/, "").split(":").pop()?.replace(/[_/]/g, " ") || "";
 type PickerKind = "block" | "item" | "entity" | "biome" | "structure" | "statistic" | "advancement" | "fluid";
 function ObjectiveInputs({
 	objective: o,
@@ -305,19 +308,36 @@ function ObjectiveInputs({
 					{!DIMENSIONS.some(([id]) => id === o.target) && <Field label="Target ID" value={o.target} onChange={editTarget} placeholder="modid:dimension" />}
 				</div>
 			);
+		const SubjectIcon = SUBJECT_ICONS[pickerKind];
+		const id = String(o.target || "").replace(/^#/, "");
 		return (
-			<div className="target-field">
-				<Field
-					label={kind === "custom" ? "Custom target ID" : "Target ID"}
-					value={o.target}
-					onChange={editTarget}
-					placeholder={kind === "custom" ? "modid:target" : "minecraft:stone"}
-				/>
-				{browse && (
-					<button type="button" className="button secondary" onClick={() => onBrowse(i, pickerKind as PickerKind)}>
-						{tUI("Browse")}
-					</button>
+			<div className="objective-subject">
+				{SubjectIcon ? (
+					<span className="mc-icon objective-subject-glyph" aria-hidden="true">
+						<SubjectIcon size={20} />
+					</span>
+				) : (
+					<ItemIcon id={kind === "entity" && id.startsWith("minecraft:") ? id + "_spawn_egg" : id} size={32} />
 				)}
+				<div className="objective-subject-main">
+					<strong className={id ? "" : "empty"} title={o.target}>
+						{id ? readableId(o.target) : tUI("Choose target")}
+					</strong>
+					<span className="objective-subject-entry">
+						<input
+							aria-label={tUI(kind === "custom" ? "Custom target ID" : "Target ID")}
+							spellCheck={false}
+							value={o.target ?? ""}
+							placeholder={kind === "custom" ? "modid:target" : "minecraft:stone"}
+							onChange={(e) => editTarget(e.target.value)}
+						/>
+						{browse && (
+							<button type="button" className="button secondary" onClick={() => onBrowse(i, pickerKind as PickerKind)}>
+								{tUI("Browse")}
+							</button>
+						)}
+					</span>
+				</div>
 			</div>
 		);
 	};
@@ -344,7 +364,15 @@ function ObjectiveInputs({
                     <small role="status">This objective requires a server extension not currently available in Studio. Its data is preserved.</small>
                 )}
 			{field()}
-			{label && kind !== "distance" && <Field label={label} type="number" value={o.count} onChange={editCount} />}
+			{label && kind !== "distance" && (
+				<label className="field objective-amount">
+					<span>{tUI(label)}</span>
+					<span className="objective-amount-entry">
+						<X size={12} aria-hidden="true" />
+						<input type="number" min={1} aria-label={tUI(label)} value={o.count ?? ""} onChange={(e) => editCount(Number(e.target.value))} />
+					</span>
+				</label>
+			)}
 			{hubEditorDescriptors("event")
 				.find((d) => d.id === o.event)
 				?.fields.map((f) => (
@@ -386,32 +414,6 @@ function ObjectiveInputs({
 					onChange={(v) => onUpdate(path + ".data", { ...o.data, fePerEnergy: Math.max(1, Math.min(1000000, Math.floor(v) || 1)) })}
 				/>
 			)}
-			{kind === "item" && (
-				<Disclosure title="Item matching">
-					<Select
-						label="Component matching"
-						value={o.data?.matchComponents || "none"}
-						options={["none", "exact", "partial"].map((v) => [v, v])}
-						onChange={(matchComponents) => onUpdate(path + ".data", { ...o.data, matchComponents })}
-					/>
-					{o.data?.matchComponents && o.data.matchComponents !== "none" && (
-						<ItemComponentField
-							value={o.data?.components as Record<string, unknown> | undefined}
-							onChange={(components) => onUpdate(path + ".data", { ...o.data, components: components || {} })}
-						/>
-					)}
-					<Field
-						label="Alternative item IDs or tags"
-						value={Array.isArray(o.data?.targets) ? o.data.targets.join(", ") : ""}
-						onChange={(value) => {
-							const data = { ...o.data };
-							if (value.trim()) data.targets = value.split(",").map((v) => v.trim());
-							else delete data.targets;
-							onUpdate(path + ".data", data);
-						}}
-					/>
-				</Disclosure>
-			)}
 			{fieldPicker && (
 				<TargetPicker
 					kind={fieldPicker.kind}
@@ -423,6 +425,35 @@ function ObjectiveInputs({
 				/>
 			)}
 		</div>
+	);
+}
+
+function ItemMatching({ objective: o, path, onUpdate }: { objective: Objective; path: string; onUpdate: Props["onUpdate"] }) {
+	return (
+		<Disclosure title="Item matching">
+			<Select
+				label="Component matching"
+				value={o.data?.matchComponents || "none"}
+				options={["none", "exact", "partial"].map((v) => [v, v])}
+				onChange={(matchComponents) => onUpdate(path + ".data", { ...o.data, matchComponents })}
+			/>
+			{o.data?.matchComponents && o.data.matchComponents !== "none" && (
+				<ItemComponentField
+					value={o.data?.components as Record<string, unknown> | undefined}
+					onChange={(components) => onUpdate(path + ".data", { ...o.data, components: components || {} })}
+				/>
+			)}
+			<Field
+				label="Alternative item IDs or tags"
+				value={Array.isArray(o.data?.targets) ? o.data.targets.join(", ") : ""}
+				onChange={(value) => {
+					const data = { ...o.data };
+					if (value.trim()) data.targets = value.split(",").map((v) => v.trim());
+					else delete data.targets;
+					onUpdate(path + ".data", data);
+				}}
+			/>
+		</Disclosure>
 	);
 }
 
@@ -572,7 +603,7 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 								{(quest.objectives || []).map((o, i) => (
 									<div className="mini-card objective-row" key={o.id}>
 										<div className="mini-card-head">
-											<ItemIcon id={o.target?.replace(/^#/, "")} size={25} />
+											<ItemIcon id={o.event === "equipment_check" ? getGear(o.conditions)[0]?.item : o.target?.replace(/^#/, "")} size={25} />
 											<strong>
 												{i + 1}. {objectiveLabel(o, language)}
 											</strong>
@@ -598,6 +629,7 @@ export function QuestDetails({ project, selection, language, onUpdate, onAction,
 												<input type="checkbox" checked={!!o.optional} onChange={(e) => onUpdate("objectives." + i + ".optional", e.target.checked)} />
 												{ui("Optional objective")}
 											</label>
+											{objectiveUi(o.event).kind === "item" && <ItemMatching objective={o} path={"objectives." + i} onUpdate={onUpdate} />}
 											<Disclosure title="Custom label">
 												<Translated label="Text" prefix={"objectives." + i + ".text"} value={o.text} language={language} onUpdate={onUpdate} />
 											</Disclosure>

@@ -91,7 +91,7 @@
 	"questplus.client.empty": "No quests in this category.",
 	"questplus.client.objective.block_break": "Break: %s",
 	"questplus.client.objective.block_place": "Place: %s",
-	"questplus.client.objective.item_obtained": "Obtain: %s",
+	"questplus.client.objective.item_obtained": "Pick up: %s",
 	"questplus.client.objective.inventory_count": "Carry: %s",
 	"questplus.client.objective.entity_kill": "Defeat: %s",
 	"questplus.client.objective.biome_visit": "Visit: %s",

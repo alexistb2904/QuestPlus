@@ -28,12 +28,12 @@ function storedDetails(): Details {
 	}
 }
 
-export function AiPromptDialog({ version, onClose }: { version?: string; onClose: () => void }) {
+export function AiPromptDialog({ version, modVersion, onClose }: { version?: string; modVersion?: string; onClose: () => void }) {
 	const [target, setTarget] = useState(version && MINECRAFT_VERSIONS.includes(version) ? version : MINECRAFT_VERSIONS[0]),
 		[details, setDetails] = useState(storedDetails),
 		[copied, setCopied] = useState(false),
 		area = useRef<HTMLTextAreaElement>(null);
-	const prompt = aiPrompt(target, details);
+	const prompt = aiPrompt(target, details, modVersion);
 	useEffect(() => {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(details));

@@ -29,7 +29,7 @@ Then save the quest as `quests/basics/stone.json5`.
 	category: "example:basics",
 	icon: "minecraft:stone",
 	title: { en_us: "Collect stone" },
-	objectives: [{ id: "stone", event: "item_obtained", target: "minecraft:stone", count: 32 }],
+	objectives: [{ id: "stone", event: "item_obtained", target: "minecraft:cobblestone", count: 32 }],
 	rewards: [{ type: "experience", amount: 50 }],
 	progression: "once",
 }

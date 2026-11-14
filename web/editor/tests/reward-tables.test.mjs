@@ -69,6 +69,7 @@ test("crate tables export exactly the shared server fixture and give the same it
 	const fixture = JSON.parse(readFileSync(new URL("../../../mod/server/src/test/resources/studio-crate-tables.json", import.meta.url), "utf8")),
 		project = emptyProject();
 	project.rewardTables = structuredClone(fixture.rewardTables);
+	project.targetModVersion = fixture.targetModVersion;
 	assert.deepEqual(validate(project), []);
 	assert.deepEqual(JSON.parse(fileMap(project).get("queststudio-compatibility.json")), fixture);
 	assert.equal(

@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { addChild, atPath, leaf, renderConditionTree, setAt, wrap } from "../src/core/conditions.js";
+import { hubAtLeast } from "../src/core/hub-registry.js";
+import { MOD_FEATURES, MOD_VERSIONS, closestModVersion, modVersionNotes } from "../src/core/mod-versions.js";
 import { MINECRAFT_VERSIONS, demoProject, fileMap, importDocuments, validate } from "../src/core/project.js";
 import { categoryId, questId, titleSlug, uniqueId } from "../src/core/quest-ids.js";
 import { makeZip, readZip } from "../src/core/zip.js";
@@ -88,6 +90,46 @@ test("Studio target versions match the Minecraft versions the mod declares", () 
 	};
 	assert.equal(reimport("1.21.1"), MINECRAFT_VERSIONS[0], "an unsupported saved version falls back to the newest one");
 	assert.equal(reimport("26.1"), "26.1");
+});
+test("Studio target QuestPlus versions follow the mod release and convert older packs", () => {
+	// A release bump in mod/gradle.properties must be listed in MOD_VERSIONS (the footer select).
+	const release = fs.readFileSync(new URL("../../../mod/gradle.properties", import.meta.url), "utf8").match(/^mod_version=(.*)$/m)[1].trim();
+	assert.ok(MOD_VERSIONS.includes(release), "MOD_VERSIONS lists " + release);
+	assert.ok(hubAtLeast(release, MOD_VERSIONS[0]), "the newest target is not older than the built mod");
+	const roundTrip = (target) => {
+		const p = demoProject();
+		if (target !== undefined) p.targetModVersion = target;
+		return importDocuments([...fileMap(p)].map(([name, content]) => ({ name, content }))).targetModVersion;
+	};
+	assert.equal(roundTrip(undefined), MOD_VERSIONS[0], "the latest version is the default");
+	assert.equal(roundTrip("1.1.5"), "1.1.5");
+	assert.equal(closestModVersion("1.1.9"), MOD_VERSIONS[0]);
+	assert.equal(closestModVersion("1.0.4"), MOD_VERSIONS[MOD_VERSIONS.length - 1]);
+
+	const old = demoProject();
+	old.quests[0].objectives = [{ id: "fish", event: "questplus:fish_any", target: "questplus:fish", count: 5 }];
+	const report = {},
+		converted = importDocuments([...fileMap(old)].map(([name, content]) => ({ name, content })), report);
+	assert.equal(report.converted, 1);
+	assert.deepEqual(converted.quests[0].objectives[0], {
+		id: "fish",
+		event: "fish_item",
+		target: "minecraft:cod",
+		count: 5,
+		data: { targets: ["minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish"] },
+	});
+	assert.deepEqual(validate(converted), []);
+
+	const p = demoProject();
+	p.config = { ...p.config, waitForInventorySpace: true };
+	p.targetModVersion = "1.1.6";
+	assert.match(validate(p)[0].message, /waitForInventorySpace/, "an older server would reject a newer config key");
+	p.targetModVersion = "1.1.7";
+	assert.deepEqual(validate(p), []);
+	p.quests[0].description = { en_us: "More: https://minecraft.wiki/w/Stone" };
+	assert.equal(modVersionNotes(p).length, 1, "links are plain text before " + MOD_FEATURES.descriptionLinks);
+	p.targetModVersion = MOD_FEATURES.descriptionLinks;
+	assert.deepEqual(modVersionNotes(p), []);
 });
 test("React quest tree supports pointer drag, pinch, wheel and Minecraft layout parity", () => {
 	const read = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");

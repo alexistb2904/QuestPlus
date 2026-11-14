@@ -77,6 +77,7 @@ export type Project = {
 	quests: Quest[];
 	config: any;
 	targetMinecraftVersion?: string;
+	targetModVersion?: string;
 	iconVersions?: Record<string, string>;
 	editorLocales?: string[];
 };

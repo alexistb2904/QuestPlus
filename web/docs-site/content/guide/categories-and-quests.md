@@ -21,7 +21,7 @@ Category IDs connect quests to chapters. Use a stable namespaced identifier such
 4. Link prerequisite quests in the diagram.
 5. Export the finished pack.
 
-**Example:** To make _Collect Stone_, add `item_obtained` targeting `minecraft:stone` with count `32`. Reward the player with XP or items.
+**Example:** To make _Collect Stone_, add `item_obtained` targeting `minecraft:cobblestone` with count `32` (mined stone drops cobblestone, and only items picked up from the ground count). Reward the player with XP or items.
 
 Use a right-click template for common quest types. You can also add decorative annotations.
 

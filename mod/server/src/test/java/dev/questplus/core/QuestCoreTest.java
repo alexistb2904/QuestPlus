@@ -63,6 +63,26 @@ class QuestCoreTest {
 	}
 
 	@Test
+	void legacyAnyFishObjectiveLoadsAsFishItemOverTheFourFish() throws Exception {
+		write("fishing", """
+				{"schemaVersion":1,"id":"questplus:fishing","category":"questplus:general",
+				 "icon":"minecraft:cod","title":{"en_us":"Fishing"},
+				 "objectives":[{"id":"any","event":"questplus:fish_any","target":"questplus:fish","count":3}],
+				 "rewards":[],"progression":"once"}
+				""");
+		QuestRegistry registry = load();
+		var objective = registry.get("questplus:fishing").objectives().getFirst();
+		assertEquals("any", objective.id());
+		assertEquals("fish_item", objective.event());
+		var engine = new QuestEngine(registry);
+		var player = new PlayerProgress();
+		for (String fish : List.of("minecraft:salmon", "minecraft:tropical_fish", "minecraft:cod"))
+			engine.apply(player, new QuestEvent("fish_item", fish, Set.of(), 1, Map.of()));
+		assertEquals(3L, player.quests.get("questplus:fishing").counters.get("any"));
+		assertTrue(registry.candidates(new QuestEvent("fish_item", "minecraft:ink_sac", Set.of(), 1, Map.of())).isEmpty());
+	}
+
+	@Test
 	void tagsSaturationAndDependencySnapshot() throws Exception {
 		write("a", quest("a", "#minecraft:logs", ""));
 		write("b", quest("b", "minecraft:oak_log", ",\"requires\":{\"quest\":\"questplus:a\"}"));

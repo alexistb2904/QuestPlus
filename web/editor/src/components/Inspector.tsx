@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Copy, Gift, Info, Layers, PenLine, Plus, SlidersHorizontal, Target, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Copy, Filter, Gift, Info, Layers, PenLine, Plus, SlidersHorizontal, Target, Trash2 } from "lucide-react";
 import React, { useId, useMemo, useRef, useState } from "react";
 import { addToGroup, childrenOf, groupView, setAt, setGroupMode } from "../core/conditions.js";
 import { descriptionParts } from "../core/description-format.js";
@@ -153,7 +153,7 @@ export function Section({ title, children }: { title: string; children: React.Re
 export function Disclosure({ title, children }: { title: string; children: React.ReactNode }) {
 	const [open, setOpen] = useState(false),
 		id = useId(),
-		Icon = title === "Conditions" ? SlidersHorizontal : PenLine;
+		Icon = title === "Conditions" ? SlidersHorizontal : title === "Item matching" ? Filter : PenLine;
 	return (
 		<div className={"disclosure" + (open ? " open" : "")}>
 			<button type="button" className="disclosure-trigger" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)}>

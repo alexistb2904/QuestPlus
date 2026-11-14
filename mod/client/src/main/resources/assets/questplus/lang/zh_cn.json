@@ -91,7 +91,7 @@
 	"questplus.client.empty": "此类别中没有任务。",
 	"questplus.client.objective.block_break": "破坏：%s",
 	"questplus.client.objective.block_place": "放置：%s",
-	"questplus.client.objective.item_obtained": "获取：%s",
+	"questplus.client.objective.item_obtained": "拾取：%s",
 	"questplus.client.objective.inventory_count": "持有：%s",
 	"questplus.client.objective.entity_kill": "击败：%s",
 	"questplus.client.objective.biome_visit": "探索：%s",

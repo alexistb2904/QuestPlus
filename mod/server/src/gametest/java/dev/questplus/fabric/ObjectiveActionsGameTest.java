@@ -184,6 +184,7 @@ public final class ObjectiveActionsGameTest {
 
 	@GameTest(maxTicks = 300)
 	public void realFishingLootAndTrustedTransfers(GameTestHelper helper) throws Exception {
+		// 'any' keeps the retired questplus:fish_any ID to prove old packs still load and count fish.
 		var f = new ObjectiveTestFixture(helper, "fishing", """
 				[{id:'fish',event:'fish_item',target:'minecraft:cod',count:10},
 				 {id:'any',event:'questplus:fish_any',target:'questplus:fish',count:10},

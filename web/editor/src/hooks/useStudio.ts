@@ -591,7 +591,8 @@ export function useStudio() {
 				return;
 			}
 			if (!confirm(tUI("Replace the current quest pack?"))) return;
-			const p = importDocuments(docs) as Project,
+			const conversion: { converted?: number } = {},
+				p = importDocuments(docs, conversion) as Project,
 				errors = validate(p);
 			if (errors.length) throw Error(errors[0].where + ": " + errors[0].message);
 			mutate((s) => {
@@ -601,7 +602,7 @@ export function useStudio() {
 				s.camera = { x: 0, y: 0, zoom: 1 };
 				s.language = "en_us";
 			});
-			toast(tUI("Pack imported"));
+			toast(tUI("Pack imported") + (conversion.converted ? ". " + tUI("Objectives converted from an older QuestPlus version:") + " " + conversion.converted : ""));
 		} catch (e) {
 			toast(tUI("Import error:") + " " + (e as Error).message);
 		}

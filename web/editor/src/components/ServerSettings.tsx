@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CONFIG_KEY_SINCE, hubAtLeast } from "../core/hub-registry.js";
+import { targetModVersion } from "../core/mod-versions.js";
 import { parseCrateBosses } from "../core/project.js";
 import type { Project } from "../types";
 import { tUI } from "../ui/ui-i18n.js";
@@ -11,17 +12,18 @@ const integer = (text: string, min: number, max: number, fallback: number) => {
 	return text.trim() && Number.isInteger(n) ? Math.min(max, Math.max(min, n)) : fallback;
 };
 
-/** Offline, these settings write the exported ZIP's config.json. Connected, they are gated by the server's QuestPlus version. */
+/** Offline, these settings write the exported ZIP's config.json for the pack's target QuestPlus version. Connected, the server's version gates them. */
 export function ServerSettings({ project, onConfig, version, offline = false }: { project: Project; onConfig: OnConfig; version: string; offline?: boolean }) {
 	const config = project.config || {};
 	const noDrop = { ...NO_DROP, ...config.crateNoDrop };
 	const gate = (key: keyof typeof CONFIG_KEY_SINCE, control: ReactNode) => {
 		const since = CONFIG_KEY_SINCE[key],
-			locked = !offline && (!version || !hubAtLeast(since, version));
+			gateVersion = offline ? targetModVersion(project) : version,
+			locked = !gateVersion || !hubAtLeast(since, gateVersion);
 		return (
 			<fieldset className="hub-setting" disabled={locked}>
 				{control}
-				{version && locked && <small className="hub-setting-lock">{tUI("Requires QuestPlus") + " " + since}</small>}
+				{gateVersion && locked && <small className="hub-setting-lock">{tUI("Requires QuestPlus") + " " + since}</small>}
 			</fieldset>
 		);
 	};

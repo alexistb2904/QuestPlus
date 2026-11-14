@@ -91,7 +91,7 @@
 	"questplus.client.empty": "Aucune quête dans cette catégorie.",
 	"questplus.client.objective.block_break": "Casser : %s",
 	"questplus.client.objective.block_place": "Poser : %s",
-	"questplus.client.objective.item_obtained": "Obtenir : %s",
+	"questplus.client.objective.item_obtained": "Ramasser : %s",
 	"questplus.client.objective.inventory_count": "Posséder : %s",
 	"questplus.client.objective.entity_kill": "Vaincre : %s",
 	"questplus.client.objective.biome_visit": "Visiter : %s",

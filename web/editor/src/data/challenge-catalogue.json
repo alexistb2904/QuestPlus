@@ -7565,8 +7565,9 @@
 			"objectives": [
 				{
 					"id": "fish",
-					"event": "questplus:fish_any",
-					"target": "questplus:fish",
+					"event": "fish_item",
+					"target": "minecraft:cod",
+					"data": { "targets": ["minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish"] },
 					"count": 1,
 					"text": {
 						"en_us": "Catch any 50 / 200 / 500 vanilla fish",
@@ -9341,8 +9342,9 @@
 			"objectives": [
 				{
 					"id": "fish",
-					"event": "questplus:fish_any",
-					"target": "questplus:fish",
+					"event": "fish_item",
+					"target": "minecraft:cod",
+					"data": { "targets": ["minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish"] },
 					"count": 12,
 					"text": {
 						"en_us": "Catch 12 vanilla fish of any species",

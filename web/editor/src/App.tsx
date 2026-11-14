@@ -42,6 +42,7 @@ import {
 	ZoomIn,
 	MessageSquareHeart,
 	Hammer,
+	Info,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AiPromptDialog } from "./components/AiPromptDialog";
@@ -65,6 +66,7 @@ import { TreeCanvas } from "./components/TreeCanvas";
 import { WelcomeDialog } from "./components/WelcomeDialog";
 import { clampZoom, ZOOM_STEP } from "./core/editor-geometry.js";
 import { clampPaneSize } from "./core/pane-resize.js";
+import { MOD_VERSIONS, modVersionNotes, targetModVersion } from "./core/mod-versions.js";
 import { MINECRAFT_VERSIONS, objectiveLabel, orderedCategories, text, validate } from "./core/project.js";
 import { renameRewardTable } from "./core/reward-tables.js";
 import { owner, useStudio } from "./hooks/useStudio";
@@ -167,7 +169,8 @@ export default function App() {
 		folder = useRef<HTMLInputElement>(null),
 		searchRef = useRef<HTMLInputElement>(null);
 	const locales = useMemo(() => localesOf(project), [project]),
-		issues = useMemo(() => validate(project), [project]);
+		issues = useMemo(() => validate(project), [project]),
+		modNotes: string[] = useMemo(() => modVersionNotes(project), [project]);
 	// Announce a new validation problem once the author pauses, so a half-typed ID does not flash an alert on every key.
 	useEffect(() => {
 		const key = (x: { where: string; message: string }) => x.where + "\u0000" + x.message,
@@ -713,6 +716,27 @@ export default function App() {
 						))}
 					</select>
 				</label>
+				<label className="pack-field pack-field-version" title={modNotes.map((note) => tUI(note)).join("\n") || undefined}>
+					<span className="pack-field-label">
+						<Package size={14} aria-hidden="true" />
+						<span className="pack-field-text">QuestPlus</span>
+						{modNotes.length > 0 && <Info size={13} className="pack-field-note" aria-label={modNotes.map((note) => tUI(note)).join(" ")} />}
+					</span>
+					<select
+						aria-label={tUI("Target QuestPlus version")}
+						value={targetModVersion(project)}
+						onChange={(e) =>
+							studio.mutate((s) => {
+								s.project.targetModVersion = e.target.value;
+							}, "mod-version")
+						}>
+						{MOD_VERSIONS.map((id, i) => (
+							<option key={id} value={id}>
+								{i === 0 ? id + " · " + tUI("latest") : id}
+							</option>
+						))}
+					</select>
+				</label>
 				<button
 					className="button primary export-button"
 					onClick={() => {
@@ -851,7 +875,7 @@ export default function App() {
 				/>
 			)}
 			{feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
-			{aiOpen && <AiPromptDialog version={project.targetMinecraftVersion} onClose={() => setAiOpen(false)} />}
+			{aiOpen && <AiPromptDialog version={project.targetMinecraftVersion} modVersion={targetModVersion(project)} onClose={() => setAiOpen(false)} />}
 			{jsonOpen && (
 				<Dialog title={tUI("Advanced JSON")} onClose={() => setJsonOpen(false)}>
 					<textarea className="json-textarea" aria-label={tUI("Advanced JSON")} spellCheck={false} value={jsonContent} onChange={(e) => setJsonContent(e.target.value)} />

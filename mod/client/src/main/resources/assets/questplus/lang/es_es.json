@@ -91,7 +91,7 @@
 	"questplus.client.empty": "No hay misiones en esta categoría.",
 	"questplus.client.objective.block_break": "Romper: %s",
 	"questplus.client.objective.block_place": "Colocar: %s",
-	"questplus.client.objective.item_obtained": "Conseguir: %s",
+	"questplus.client.objective.item_obtained": "Recoger: %s",
 	"questplus.client.objective.inventory_count": "Tener: %s",
 	"questplus.client.objective.entity_kill": "Derrotar: %s",
 	"questplus.client.objective.biome_visit": "Visitar: %s",

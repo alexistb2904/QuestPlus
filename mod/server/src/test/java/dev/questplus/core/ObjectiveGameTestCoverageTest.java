@@ -28,7 +28,7 @@ final class ObjectiveGameTestCoverageTest {
 		Set<String> shipped = new TreeSet<>();
 		for (Object key : events.keySet()) {
 			String id = key.toString();
-			if (!id.contains(":") || id.equals("questplus:fish_any"))
+			if (!id.contains(":"))
 				shipped.add(id);
 		}
 		assertEquals(shipped, covered, "New built-in objectives require an in-game coverage scenario");

@@ -153,7 +153,7 @@ function convertTask(t, id, index, chapter) {
 			if (filter) {
 				if (mode !== "none") throw Error("component matching on smart filters requires an adapter");
 				objective.data = { targets: filter };
-				objective.text = { en_us: (consume ? "Turn in " : craft ? "Craft " : "Obtain ") + objective.count + " × any of: " + filter.join(", ") };
+				objective.text = { en_us: (consume ? "Turn in " : craft ? "Craft " : "Have ") + objective.count + " × any of: " + filter.join(", ") };
 			} else if (mode !== "none") objective.data = { components: t.item?.components || {}, matchComponents: mode };
 			return objective;
 		}

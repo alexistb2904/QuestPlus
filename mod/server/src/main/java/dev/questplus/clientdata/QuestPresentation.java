@@ -47,7 +47,7 @@ public final class QuestPresentation {
 		case "block_break" -> new String[] { "Break", "Casser", "Romper", "破坏" };
 		case "block_place" -> new String[] { "Place", "Placer", "Colocar", "放置" };
 		case "block_interact" -> new String[] { "Interact with", "Interagir avec", "Interactuar con", "交互" };
-		case "item_obtained" -> new String[] { "Obtain", "Obtenir", "Conseguir", "获取" };
+		case "item_obtained" -> new String[] { "Pick up", "Ramasser", "Recoger", "拾取" };
 		case "item_craft" -> new String[] { "Craft", "Fabriquer", "Fabricar", "合成" };
 		case "item_smelt" -> new String[] { "Smelt", "Cuire", "Fundir", "熔炼" };
 		case "item_use" -> new String[] { "Use", "Utiliser", "Usar", "使用" };
@@ -57,7 +57,7 @@ public final class QuestPresentation {
 		case "entity_kill" -> new String[] { "Defeat", "Vaincre", "Derrotar", "击败" };
 		case "tame_animal" -> new String[] { "Tame", "Apprivoiser", "Domesticar", "驯服" };
 		case "breed_animal" -> new String[] { "Breed", "Faire reproduire", "Criar", "繁殖" };
-		case "npc_interact" -> new String[] { "Talk to", "Parler à", "Hablar con", "交谈" };
+		case "npc_interact" -> new String[] { "Right-click", "Clic droit sur", "Clic derecho en", "右键点击" };
 		case "biome_visit", "structure_visit" -> new String[] { "Visit", "Visiter", "Visitar", "探索" };
 		case "dimension_enter" -> new String[] { "Enter", "Entrer dans", "Entrar en", "进入" };
 		case "fluid_submit" -> new String[] { "Submit fluid (mB)", "Remettre du fluide (mB)", "Entregar fluido (mB)",
@@ -66,8 +66,8 @@ public final class QuestPresentation {
 				"Entregar energía (FE)", "提交能量（FE）" };
 		case "fluid_transfer" -> new String[] { "Transfer fluid", "Transférer le fluide", "Transferir fluido", "传输流体" };
 		case "energy_transfer" -> new String[] { "Transfer FE", "Transférer FE", "Transferir FE", "传输能量" };
-		case "inventory_count" -> new String[] { "Hold", "Posséder", "Tener", "持有" };
-		case "item_submit" -> new String[] { "Submit", "Soumettre", "Entregar", "提交" };
+		case "inventory_count" -> new String[] { "Have", "Avoir", "Tener", "持有" };
+		case "item_submit" -> new String[] { "Show", "Montrer", "Mostrar", "出示" };
 		case "item_turn_in" -> new String[] { "Turn in", "Remettre", "Entregar y consumir", "交付并消耗" };
 		case "travel_distance" -> new String[] { "Travel", "Parcourir", "Recorrer", "行进" };
 		case "location" -> new String[] { "Reach", "Atteindre", "Llegar a", "抵达" };

@@ -258,23 +258,15 @@ public final class AdvancedEvents {
 		var registry = runtime.registry();
 		// No item-component serialization or inventory/gear snapshots for unrelated
 		// items.
-		if (!registry.hasEvent(type) && !(type.equals("fish_item") && registry.hasEvent("questplus:fish_any")))
+		if (!registry.hasEvent(type))
 			return;
 		String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-		if (registry.hasEvent(type)) {
-			Set<String> tags = stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
-			if (registry.hasCandidate(type, itemId, tags)) {
-				var context = QuestPlusMod.context(player);
-				context.put("itemComponents", QuestItemStacks.components(stack, player.registryAccess()));
-				runtime.event(player, new QuestEvent(type, itemId, tags, count, context));
-			}
+		Set<String> tags = stack.typeHolder().tags().map(t -> t.location().toString()).collect(Collectors.toSet());
+		if (registry.hasCandidate(type, itemId, tags)) {
+			var context = QuestPlusMod.context(player);
+			context.put("itemComponents", QuestItemStacks.components(stack, player.registryAccess()));
+			runtime.event(player, new QuestEvent(type, itemId, tags, count, context));
 		}
-		// Aggregate the four vanilla catches, without examining any unrelated quest
-		// event.
-		if (type.equals("fish_item")
-				&& Set.of("minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish")
-						.contains(itemId))
-			emit(player, "questplus:fish_any", "questplus:fish", Set.of(), count);
 	}
 
 	public static void block(ServerPlayer player, String type, BlockState state) {

@@ -11,6 +11,9 @@ import java.util.*;
 import java.util.stream.*;
 
 public final class QuestRegistry {
+	private static final List<String> ANY_FISH = List.of("minecraft:cod", "minecraft:salmon", "minecraft:pufferfish",
+			"minecraft:tropical_fish");
+
 	@FunctionalInterface
 	public interface ValidationHook {
 		void validate(String kind, String id);
@@ -315,10 +318,21 @@ public final class QuestRegistry {
 			String oid = string(v, "id"), event = string(v, "event"), target = string(v, "target");
 			if (!oid.matches("[a-z0-9_.-]+") || !ids.add(oid))
 				throw new IllegalArgumentException("Invalid objective " + oid);
+			// questplus:fish_any duplicated fish_item over the four fish. Older packs still load.
+			boolean anyFish = event.equals("questplus:fish_any");
+			if (anyFish) {
+				event = "fish_item";
+				target = ANY_FISH.getFirst();
+			}
 			QuestExtensions.event(event);
 			identifier(target.startsWith("#") ? target.substring(1) : target);
 			hook.validate(event, target);
-			JsonObject data = v.has("data") ? object(v, "data") : new JsonObject();
+			JsonObject data = v.has("data") ? object(v, "data").deepCopy() : new JsonObject();
+			if (anyFish) {
+				var fish = new JsonArray();
+				ANY_FISH.forEach(fish::add);
+				data.add("targets", fish);
+			}
 			QuestExtensions.validateObjective(event, data);
 			if (ItemComponents.supports(event) && data.has("targets"))
 				for (var alternative : data.getAsJsonArray("targets"))
