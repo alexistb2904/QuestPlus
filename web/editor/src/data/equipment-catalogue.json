@@ -6,270 +6,683 @@
 			"icon": "minecraft:netherite_chestplate",
 			"title": {
 				"en_us": "Master of Equipment",
-				"fr_fr": "Maître des équipements"
+				"fr_fr": "Maître des équipements",
+				"es_es": "Maestro del equipo",
+				"zh_cn": "装备大师"
 			},
 			"description": {
 				"en_us": "Collect, equip and optimize legendary armors, weapons and tools.",
-				"fr_fr": "Collectionnez et perfectionnez vos armures, armes et outils légendaires."
+				"fr_fr": "Collectionnez et perfectionnez vos armures, armes et outils légendaires.",
+				"es_es": "Colecciona, equipa y perfecciona armaduras, armas y herramientas legendarias.",
+				"zh_cn": "收集、装备并优化传奇盔甲、武器和工具。"
 			},
 			"annotations": [
 				{
-					"id": "section_1",
-					"x": -586,
-					"y": -245,
-					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"id": "chapter_heading",
+					"x": 0,
+					"y": -560,
+					"style": "heading",
+					"color": "#e0d0b0",
+					"width": 265,
+					"height": 56,
 					"text": {
-						"en_us": "Armor collection",
-						"fr_fr": "Collection d’armures"
+						"en_us": "Wear your legend.",
+						"fr_fr": "Portez votre légende.",
+						"es_es": "Viste tu leyenda.",
+						"zh_cn": "穿上你的传奇。"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
-								"text": "Armor collection",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Wear your legend.",
+								"color": "#e0d0b0",
+								"size": 1.6
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
-								"text": "Collection d’armures",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Portez votre légende.",
+								"color": "#e0d0b0",
+								"size": 1.6
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Viste tu leyenda.",
+								"color": "#e0d0b0",
+								"size": 1.6
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "穿上你的传奇。",
+								"color": "#e0d0b0",
+								"size": 1.6
 							}
 						]
 					}
 				},
 				{
-					"id": "section_2",
-					"x": -586,
-					"y": 199,
+					"id": "label_sets",
+					"x": 0,
+					"y": -362,
 					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"color": "#d8c8a8",
+					"width": 114,
+					"height": 30,
+					"text": {
+						"en_us": "Armor sets",
+						"fr_fr": "Panoplies",
+						"es_es": "Conjuntos de armadura",
+						"zh_cn": "盔甲套装"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Armor sets",
+								"color": "#d8c8a8",
+								"size": 1.2
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Panoplies",
+								"color": "#d8c8a8",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Conjuntos de armadura",
+								"color": "#d8c8a8",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "盔甲套装",
+								"color": "#d8c8a8",
+								"size": 1.2
+							}
+						]
+					}
+				},
+				{
+					"id": "label_enchanted",
+					"x": -200,
+					"y": 30,
+					"style": "label",
+					"color": "#b8c8f0",
+					"width": 181,
+					"height": 30,
 					"text": {
 						"en_us": "Enchanted armor",
-						"fr_fr": "Armures enchantées"
+						"fr_fr": "Armures enchantées",
+						"es_es": "Armaduras encantadas",
+						"zh_cn": "附魔盔甲"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
 								"text": "Enchanted armor",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#b8c8f0",
+								"size": 1.2
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
 								"text": "Armures enchantées",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#b8c8f0",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Armaduras encantadas",
+								"color": "#b8c8f0",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "附魔盔甲",
+								"color": "#b8c8f0",
+								"size": 1.2
 							}
 						]
 					}
 				},
 				{
-					"id": "section_3",
-					"x": -66,
-					"y": -245,
+					"id": "label_melee",
+					"x": -460,
+					"y": -390,
 					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"color": "#f0b0a0",
+					"width": 148,
+					"height": 30,
 					"text": {
 						"en_us": "Melee weapons",
-						"fr_fr": "Armes de mêlée"
+						"fr_fr": "Armes de mêlée",
+						"es_es": "Armas cuerpo a cuerpo",
+						"zh_cn": "近战武器"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
 								"text": "Melee weapons",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#f0b0a0",
+								"size": 1.2
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
 								"text": "Armes de mêlée",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#f0b0a0",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Armas cuerpo a cuerpo",
+								"color": "#f0b0a0",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "近战武器",
+								"color": "#f0b0a0",
+								"size": 1.2
 							}
 						]
 					}
 				},
 				{
-					"id": "section_4",
-					"x": 454,
-					"y": -245,
+					"id": "label_ranged",
+					"x": -620,
+					"y": 30,
 					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"color": "#a8d0f0",
+					"width": 173,
+					"height": 30,
 					"text": {
-						"en_us": "Ranged & mobility",
-						"fr_fr": "Distance et mobilité"
+						"en_us": "Ranged and flight",
+						"fr_fr": "Distance et vol",
+						"es_es": "Distancia y vuelo",
+						"zh_cn": "远程与飞行"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
-								"text": "Ranged & mobility",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Ranged and flight",
+								"color": "#a8d0f0",
+								"size": 1.2
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
-								"text": "Distance et mobilité",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Distance et vol",
+								"color": "#a8d0f0",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Distancia y vuelo",
+								"color": "#a8d0f0",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "远程与飞行",
+								"color": "#a8d0f0",
+								"size": 1.2
 							}
 						]
 					}
 				},
 				{
-					"id": "section_5",
-					"x": -66,
-					"y": 199,
+					"id": "label_tools",
+					"x": 500,
+					"y": -380,
 					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"color": "#c8e0a0",
+					"width": 181,
+					"height": 30,
 					"text": {
 						"en_us": "Tools of the trade",
-						"fr_fr": "Outils de métier"
+						"fr_fr": "Outils du métier",
+						"es_es": "Herramientas del oficio",
+						"zh_cn": "行业工具"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
 								"text": "Tools of the trade",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#c8e0a0",
+								"size": 1.2
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
-								"text": "Outils de métier",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Outils du métier",
+								"color": "#c8e0a0",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Herramientas del oficio",
+								"color": "#c8e0a0",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "行业工具",
+								"color": "#c8e0a0",
+								"size": 1.2
 							}
 						]
 					}
 				},
 				{
-					"id": "section_6",
-					"x": 454,
-					"y": 199,
+					"id": "label_master",
+					"x": 250,
+					"y": 520,
 					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
+					"color": "#f0d890",
+					"width": 148,
+					"height": 30,
 					"text": {
-						"en_us": "Mastery",
-						"fr_fr": "Maîtrise"
+						"en_us": "Master of all",
+						"fr_fr": "Maître de tout",
+						"es_es": "Maestro de todo",
+						"zh_cn": "全能大师"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
-								"text": "Mastery",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Master of all",
+								"color": "#f0d890",
+								"size": 1.2
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
-								"text": "Maîtrise",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Maître de tout",
+								"color": "#f0d890",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Maestro de todo",
+								"color": "#f0d890",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "全能大师",
+								"color": "#f0d890",
+								"size": 1.2
 							}
 						]
 					}
+				}
+			],
+			"linkRoutes": [
+				{
+					"from": "questplus:equipment/set_leather",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": -180,
+							"y": -120
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_01",
-					"x": -520,
-					"y": -93,
-					"width": 464,
-					"height": 382,
-					"style": "background",
-					"color": "#947b63",
-					"text": {
-						"en_us": "Armor collection"
-					}
+					"from": "questplus:equipment/set_golden",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": -156,
+							"y": -210
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_02",
-					"x": -520,
-					"y": 402,
-					"width": 464,
-					"height": 484,
-					"style": "background",
-					"color": "#74718e",
-					"text": {
-						"en_us": "Enchanted armor"
-					}
+					"from": "questplus:equipment/set_copper",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": -90,
+							"y": -276
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_03",
-					"x": 0,
-					"y": -93,
-					"width": 464,
-					"height": 382,
-					"style": "background",
-					"color": "#947b63",
-					"text": {
-						"en_us": "Melee weapons"
-					}
+					"from": "questplus:equipment/set_chainmail",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": 0,
+							"y": -300
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_04",
-					"x": 520,
-					"y": -93,
-					"width": 464,
-					"height": 382,
-					"style": "background",
-					"color": "#74718e",
-					"text": {
-						"en_us": "Ranged & mobility"
-					}
+					"from": "questplus:equipment/set_iron",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": 90,
+							"y": -276
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_05",
-					"x": 0,
-					"y": 402,
-					"width": 464,
-					"height": 484,
-					"style": "background",
-					"color": "#947b63",
-					"text": {
-						"en_us": "Tools of the trade"
-					}
+					"from": "questplus:equipment/set_diamond",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": 156,
+							"y": -210
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
 				},
 				{
-					"id": "section_06",
-					"x": 520,
-					"y": 402,
-					"width": 464,
-					"height": 484,
-					"style": "background",
-					"color": "#74718e",
-					"text": {
-						"en_us": "Mastery"
-					}
+					"from": "questplus:equipment/set_netherite",
+					"to": "questplus:equipment/armor_collector",
+					"points": [
+						{
+							"x": 180,
+							"y": -120
+						},
+						{
+							"x": 0,
+							"y": -120
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/explorer_boots",
+					"to": "questplus:equipment/imperial_armor",
+					"points": [
+						{
+							"x": -141,
+							"y": 164
+						},
+						{
+							"x": 0,
+							"y": 215
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/shadow_leggings",
+					"to": "questplus:equipment/imperial_armor",
+					"points": [
+						{
+							"x": -86,
+							"y": 92
+						},
+						{
+							"x": 0,
+							"y": 215
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/deep_helmet",
+					"to": "questplus:equipment/imperial_armor",
+					"points": [
+						{
+							"x": 0,
+							"y": 65
+						},
+						{
+							"x": 0,
+							"y": 215
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/titan_chest",
+					"to": "questplus:equipment/imperial_armor",
+					"points": [
+						{
+							"x": 86,
+							"y": 92
+						},
+						{
+							"x": 0,
+							"y": 215
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/eternal_armor",
+					"to": "questplus:equipment/imperial_armor",
+					"points": [
+						{
+							"x": 141,
+							"y": 164
+						},
+						{
+							"x": 0,
+							"y": 215
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/fortune_pick",
+					"to": "questplus:equipment/miners_kit",
+					"points": [
+						{
+							"x": 440,
+							"y": -290
+						},
+						{
+							"x": 570,
+							"y": -230
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/silk_pick",
+					"to": "questplus:equipment/miners_kit",
+					"points": [
+						{
+							"x": 440,
+							"y": -170
+						},
+						{
+							"x": 570,
+							"y": -230
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/sword_master",
+					"to": "questplus:equipment/equipment_master",
+					"points": [
+						{
+							"x": -460,
+							"y": -230
+						},
+						{
+							"x": -460,
+							"y": -230
+						},
+						{
+							"x": -320,
+							"y": -230
+						},
+						{
+							"x": -320,
+							"y": 420
+						},
+						{
+							"x": 0,
+							"y": 420
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/eternal_wings",
+					"to": "questplus:equipment/equipment_master",
+					"points": [
+						{
+							"x": -460,
+							"y": 175
+						},
+						{
+							"x": -460,
+							"y": 175
+						},
+						{
+							"x": -320,
+							"y": 175
+						},
+						{
+							"x": -320,
+							"y": 420
+						},
+						{
+							"x": 0,
+							"y": 420
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/fortune_pick",
+					"to": "questplus:equipment/equipment_master",
+					"points": [
+						{
+							"x": 440,
+							"y": -290
+						},
+						{
+							"x": 440,
+							"y": -290
+						},
+						{
+							"x": 330,
+							"y": -290
+						},
+						{
+							"x": 330,
+							"y": 420
+						},
+						{
+							"x": 0,
+							"y": 420
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/silk_pick",
+					"to": "questplus:equipment/equipment_master",
+					"points": [
+						{
+							"x": 440,
+							"y": -170
+						},
+						{
+							"x": 440,
+							"y": -170
+						},
+						{
+							"x": 330,
+							"y": -170
+						},
+						{
+							"x": 330,
+							"y": 420
+						},
+						{
+							"x": 0,
+							"y": 420
+						}
+					]
+				},
+				{
+					"from": "questplus:equipment/eternal_armor",
+					"to": "questplus:equipment/equipment_master",
+					"points": [
+						{
+							"x": 141,
+							"y": 164
+						},
+						{
+							"x": 141,
+							"y": 164
+						},
+						{
+							"x": 150,
+							"y": 420
+						},
+						{
+							"x": 0,
+							"y": 420
+						}
+					]
 				}
 			]
 		}
@@ -280,14 +693,18 @@
 			"id": "questplus:equipment/set_leather",
 			"category": "questplus:equipment",
 			"icon": "minecraft:leather_chestplate",
-			"size": 45,
+			"size": 38,
 			"title": {
 				"en_us": "Master of Leather",
-				"fr_fr": "Maître du cuir"
+				"fr_fr": "Maître du cuir",
+				"es_es": "Maestro del cuero",
+				"zh_cn": "皮革大师"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -331,8 +748,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -672,
-				"y": -156
+				"x": -180,
+				"y": -120
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -340,14 +760,18 @@
 			"id": "questplus:equipment/set_copper",
 			"category": "questplus:equipment",
 			"icon": "minecraft:copper_chestplate",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Copper Age",
-				"fr_fr": "L'âge du cuivre"
+				"fr_fr": "L'âge du cuivre",
+				"es_es": "La edad del cobre",
+				"zh_cn": "铜器时代"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -391,8 +815,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -571,
-				"y": -156
+				"x": -90,
+				"y": -276
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -400,14 +827,18 @@
 			"id": "questplus:equipment/set_iron",
 			"category": "questplus:equipment",
 			"icon": "minecraft:iron_chestplate",
-			"size": 45,
+			"size": 46,
 			"title": {
 				"en_us": "Iron Knight",
-				"fr_fr": "Le chevalier de fer"
+				"fr_fr": "Le chevalier de fer",
+				"es_es": "Caballero de hierro",
+				"zh_cn": "钢铁骑士"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -451,8 +882,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -469,
-				"y": -156
+				"x": 90,
+				"y": -276
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -460,14 +894,18 @@
 			"id": "questplus:equipment/set_golden",
 			"category": "questplus:equipment",
 			"icon": "minecraft:golden_chestplate",
-			"size": 45,
+			"size": 40,
 			"title": {
 				"en_us": "Golden Sovereign",
-				"fr_fr": "L'armure du roi"
+				"fr_fr": "L'armure du roi",
+				"es_es": "Soberano dorado",
+				"zh_cn": "黄金君主"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -511,8 +949,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -368,
-				"y": -156
+				"x": -156,
+				"y": -210
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -520,14 +961,18 @@
 			"id": "questplus:equipment/set_chainmail",
 			"category": "questplus:equipment",
 			"icon": "minecraft:chainmail_chestplate",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Forgotten Mail",
-				"fr_fr": "Les mailles oubliées"
+				"fr_fr": "Les mailles oubliées",
+				"es_es": "La cota olvidada",
+				"zh_cn": "被遗忘的锁链甲"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -571,8 +1016,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -672,
-				"y": -55
+				"x": 0,
+				"y": -300
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -580,14 +1028,18 @@
 			"id": "questplus:equipment/set_diamond",
 			"category": "questplus:equipment",
 			"icon": "minecraft:diamond_chestplate",
-			"size": 45,
+			"size": 48,
 			"title": {
 				"en_us": "Diamond Warrior",
-				"fr_fr": "Le guerrier de diamant"
+				"fr_fr": "Le guerrier de diamant",
+				"es_es": "Guerrero de diamante",
+				"zh_cn": "钻石战士"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -631,8 +1083,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -571,
-				"y": -55
+				"x": 156,
+				"y": -210
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -640,14 +1095,18 @@
 			"id": "questplus:equipment/set_netherite",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 50,
 			"title": {
 				"en_us": "Netherite Lord",
-				"fr_fr": "Le seigneur de Netherite"
+				"fr_fr": "Le seigneur de Netherite",
+				"es_es": "Señor de la netherita",
+				"zh_cn": "下界合金领主"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -691,8 +1150,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -469,
-				"y": -55
+				"x": 180,
+				"y": -120
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -700,14 +1162,18 @@
 			"id": "questplus:equipment/armor_collector",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 66,
 			"title": {
 				"en_us": "Armor Collector",
-				"fr_fr": "Le collectionneur d'armures"
+				"fr_fr": "Le collectionneur d'armures",
+				"es_es": "Coleccionista de armaduras",
+				"zh_cn": "盔甲收藏家"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -776,8 +1242,11 @@
 				]
 			},
 			"layout": {
-				"x": -571,
-				"y": 46
+				"x": 0,
+				"y": -120
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -785,14 +1254,18 @@
 			"id": "questplus:equipment/diamond_p4",
 			"category": "questplus:equipment",
 			"icon": "minecraft:diamond_chestplate",
-			"size": 45,
+			"size": 40,
 			"title": {
 				"en_us": "Diamond Bulwark",
-				"fr_fr": "Le rempart de diamant"
+				"fr_fr": "Le rempart de diamant",
+				"es_es": "Baluarte de diamante",
+				"zh_cn": "钻石壁垒"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -844,8 +1317,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -672,
-				"y": 288
+				"x": -250,
+				"y": 170
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -853,14 +1329,18 @@
 			"id": "questplus:equipment/netherite_p4",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 40,
 			"title": {
 				"en_us": "Netherite Bulwark",
-				"fr_fr": "Le rempart de Netherite"
+				"fr_fr": "Le rempart de Netherite",
+				"es_es": "Baluarte de netherita",
+				"zh_cn": "下界合金壁垒"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -912,8 +1392,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -571,
-				"y": 288
+				"x": -250,
+				"y": 290
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -921,14 +1404,18 @@
 			"id": "questplus:equipment/netherite_unbreaking",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 40,
 			"title": {
 				"en_us": "Built to Last",
-				"fr_fr": "À l'épreuve du temps"
+				"fr_fr": "À l'épreuve du temps",
+				"es_es": "Hecho para durar",
+				"zh_cn": "经久耐用"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -980,8 +1467,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -469,
-				"y": 288
+				"x": 250,
+				"y": 170
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -989,14 +1479,18 @@
 			"id": "questplus:equipment/perfect_bulwark",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 40,
 			"title": {
 				"en_us": "Perfect Bulwark",
-				"fr_fr": "Le blindage parfait"
+				"fr_fr": "Le blindage parfait",
+				"es_es": "Baluarte perfecto",
+				"zh_cn": "完美壁垒"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1052,8 +1546,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -368,
-				"y": 288
+				"x": 250,
+				"y": 290
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -1061,14 +1558,18 @@
 			"id": "questplus:equipment/eternal_armor",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 50,
 			"title": {
 				"en_us": "Eternal Armor",
-				"fr_fr": "L'équipement éternel"
+				"fr_fr": "L'équipement éternel",
+				"es_es": "Armadura eterna",
+				"zh_cn": "永恒盔甲"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1128,8 +1629,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -672,
-				"y": 389
+				"x": 141,
+				"y": 164
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1137,14 +1641,18 @@
 			"id": "questplus:equipment/deep_helmet",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_helmet",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Helm of the Depths",
-				"fr_fr": "Le casque des profondeurs"
+				"fr_fr": "Le casque des profondeurs",
+				"es_es": "Yelmo de las profundidades",
+				"zh_cn": "深渊头盔"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1179,8 +1687,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -571,
-				"y": 389
+				"x": 0,
+				"y": 65
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1188,14 +1699,18 @@
 			"id": "questplus:equipment/explorer_boots",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_boots",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Explorer's Boots",
-				"fr_fr": "Les bottes de l'explorateur"
+				"fr_fr": "Les bottes de l'explorateur",
+				"es_es": "Botas del explorador",
+				"zh_cn": "探险家之靴"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1230,8 +1745,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -469,
-				"y": 389
+				"x": -141,
+				"y": 164
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1239,14 +1757,18 @@
 			"id": "questplus:equipment/shadow_leggings",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_leggings",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Shadow Leggings",
-				"fr_fr": "Les jambières de l'ombre"
+				"fr_fr": "Les jambières de l'ombre",
+				"es_es": "Grebas de las sombras",
+				"zh_cn": "暗影护腿"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1280,8 +1802,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -368,
-				"y": 389
+				"x": -86,
+				"y": 92
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1289,14 +1814,18 @@
 			"id": "questplus:equipment/titan_chest",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Titan's Chestplate",
-				"fr_fr": "Le plastron du titan"
+				"fr_fr": "Le plastron du titan",
+				"es_es": "Peto del titán",
+				"zh_cn": "泰坦胸甲"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1330,8 +1859,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -672,
-				"y": 490
+				"x": 86,
+				"y": 92
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1339,14 +1871,18 @@
 			"id": "questplus:equipment/imperial_armor",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 66,
 			"title": {
 				"en_us": "Imperial Armor",
-				"fr_fr": "L'armure impériale"
+				"fr_fr": "L'armure impériale",
+				"es_es": "Armadura imperial",
+				"zh_cn": "帝王盔甲"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1431,8 +1967,11 @@
 				]
 			},
 			"layout": {
-				"x": -571,
-				"y": 591
+				"x": 0,
+				"y": 215
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -1440,14 +1979,18 @@
 			"id": "questplus:equipment/netherite_blade",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Blade from the Depths",
-				"fr_fr": "La lame des profondeurs"
+				"fr_fr": "La lame des profondeurs",
+				"es_es": "Hoja de las profundidades",
+				"zh_cn": "深渊之刃"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1476,8 +2019,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -101,
-				"y": -156
+				"x": -575,
+				"y": -230
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1485,14 +2031,18 @@
 			"id": "questplus:equipment/sharp_blade",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "A Keen Edge",
-				"fr_fr": "Une lame bien aiguisée"
+				"fr_fr": "Une lame bien aiguisée",
+				"es_es": "Un filo afilado",
+				"zh_cn": "锋利之刃"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1523,8 +2073,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 0,
-				"y": -156
+				"x": -460,
+				"y": -345
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1532,14 +2085,18 @@
 			"id": "questplus:equipment/sword_master",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_sword",
-			"size": 45,
+			"size": 56,
 			"title": {
 				"en_us": "Sword Master",
-				"fr_fr": "Le maître épéiste"
+				"fr_fr": "Le maître épéiste",
+				"es_es": "Maestro de la espada",
+				"zh_cn": "剑术大师"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1574,8 +2131,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 101,
-				"y": -156
+				"x": -460,
+				"y": -230
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -1583,14 +2143,18 @@
 			"id": "questplus:equipment/battle_axe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_axe",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Warrior's Axe",
-				"fr_fr": "La hache du guerrier"
+				"fr_fr": "La hache du guerrier",
+				"es_es": "Hacha del guerrero",
+				"zh_cn": "战士之斧"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1624,8 +2188,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -101,
-				"y": -55
+				"x": -541,
+				"y": -311
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1633,14 +2200,18 @@
 			"id": "questplus:equipment/legendary_bow",
 			"category": "questplus:equipment",
 			"icon": "minecraft:bow",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Legendary Bow",
-				"fr_fr": "L'arc légendaire"
+				"fr_fr": "L'arc légendaire",
+				"es_es": "Arco legendario",
+				"zh_cn": "传奇之弓"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1674,8 +2245,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 419,
-				"y": -156
+				"x": -490,
+				"y": 286
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1683,14 +2257,18 @@
 			"id": "questplus:equipment/hunter_crossbow",
 			"category": "questplus:equipment",
 			"icon": "minecraft:crossbow",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Hunter's Crossbow",
-				"fr_fr": "L'arbalète du chasseur"
+				"fr_fr": "L'arbalète du chasseur",
+				"es_es": "Ballesta del cazador",
+				"zh_cn": "猎人之弩"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1723,8 +2301,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 520,
-				"y": -156
+				"x": -564,
+				"y": 224
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1732,14 +2313,18 @@
 			"id": "questplus:equipment/storm_trident",
 			"category": "questplus:equipment",
 			"icon": "minecraft:trident",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Storm Trident",
-				"fr_fr": "Le trident des tempêtes"
+				"fr_fr": "Le trident des tempêtes",
+				"es_es": "Tridente de la tormenta",
+				"zh_cn": "风暴三叉戟"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1774,8 +2359,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 621,
-				"y": -156
+				"x": -564,
+				"y": 126
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1783,14 +2371,18 @@
 			"id": "questplus:equipment/riptide_trident",
 			"category": "questplus:equipment",
 			"icon": "minecraft:trident",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Wandering Trident",
-				"fr_fr": "Le trident du voyageur"
+				"fr_fr": "Le trident du voyageur",
+				"es_es": "Tridente errante",
+				"zh_cn": "漫游三叉戟"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1824,8 +2416,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 419,
-				"y": -55
+				"x": -490,
+				"y": 64
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1833,14 +2428,18 @@
 			"id": "questplus:equipment/titan_mace",
 			"category": "questplus:equipment",
 			"icon": "minecraft:mace",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Titan's Mace",
-				"fr_fr": "La masse du titan"
+				"fr_fr": "La masse du titan",
+				"es_es": "Maza del titán",
+				"zh_cn": "泰坦重锤"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1874,8 +2473,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 0,
-				"y": -55
+				"x": -460,
+				"y": -115
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1883,14 +2485,18 @@
 			"id": "questplus:equipment/legendary_spear",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_spear",
-			"size": 45,
+			"size": 44,
 			"title": {
 				"en_us": "Legendary Spear",
-				"fr_fr": "La lance légendaire"
+				"fr_fr": "La lance légendaire",
+				"es_es": "Lanza legendaria",
+				"zh_cn": "传奇长矛"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1923,8 +2529,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 101,
-				"y": -55
+				"x": -541,
+				"y": -149
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1932,14 +2541,18 @@
 			"id": "questplus:equipment/fortune_pick",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
-			"size": 45,
+			"size": 46,
 			"title": {
 				"en_us": "Fortune Pickaxe",
-				"fr_fr": "La pioche du mineur"
+				"fr_fr": "La pioche du mineur",
+				"es_es": "Pico de fortuna",
+				"zh_cn": "时运之镐"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -1973,8 +2586,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -101,
-				"y": 288
+				"x": 440,
+				"y": -290
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -1982,14 +2598,18 @@
 			"id": "questplus:equipment/silk_pick",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
-			"size": 45,
+			"size": 46,
 			"title": {
 				"en_us": "Silk Touch Pickaxe",
-				"fr_fr": "Le toucher de soie"
+				"fr_fr": "Le toucher de soie",
+				"es_es": "Pico de toque de seda",
+				"zh_cn": "精准采集之镐"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2023,8 +2643,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 0,
-				"y": 288
+				"x": 440,
+				"y": -170
+			},
+			"presentation": {
+				"shape": "rounded_square"
 			}
 		},
 		{
@@ -2032,14 +2655,18 @@
 			"id": "questplus:equipment/woodcutter_axe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_axe",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Woodcutter's Axe",
-				"fr_fr": "La hache du bûcheron"
+				"fr_fr": "La hache du bûcheron",
+				"es_es": "Hacha del leñador",
+				"zh_cn": "伐木工之斧"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2072,8 +2699,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 101,
-				"y": 288
+				"x": 440,
+				"y": -30
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -2081,14 +2711,18 @@
 			"id": "questplus:equipment/endless_shovel",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_shovel",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Endless Shovel",
-				"fr_fr": "La pelle infatigable"
+				"fr_fr": "La pelle infatigable",
+				"es_es": "Pala sin fin",
+				"zh_cn": "无尽之锹"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2121,8 +2755,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": -101,
-				"y": 389
+				"x": 560,
+				"y": 30
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -2130,14 +2767,18 @@
 			"id": "questplus:equipment/farmer_hoe",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_hoe",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Farmer's Tool",
-				"fr_fr": "L'outil du cultivateur"
+				"fr_fr": "L'outil du cultivateur",
+				"es_es": "La herramienta del granjero",
+				"zh_cn": "农夫的工具"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2170,8 +2811,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 0,
-				"y": 389
+				"x": 440,
+				"y": 90
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -2179,14 +2823,18 @@
 			"id": "questplus:equipment/eternal_wings",
 			"category": "questplus:equipment",
 			"icon": "minecraft:elytra",
-			"size": 45,
+			"size": 56,
 			"title": {
 				"en_us": "Eternal Wings",
-				"fr_fr": "Les ailes éternelles"
+				"fr_fr": "Les ailes éternelles",
+				"es_es": "Alas eternas",
+				"zh_cn": "永恒之翼"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2218,8 +2866,11 @@
 			],
 			"progression": "once",
 			"layout": {
-				"x": 520,
-				"y": -55
+				"x": -460,
+				"y": 175
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -2227,14 +2878,18 @@
 			"id": "questplus:equipment/miners_kit",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_pickaxe",
-			"size": 45,
+			"size": 56,
 			"title": {
 				"en_us": "The Miner's Collection",
-				"fr_fr": "La panoplie du mineur"
+				"fr_fr": "La panoplie du mineur",
+				"es_es": "La colección del minero",
+				"zh_cn": "矿工收藏"
 			},
 			"description": {
 				"en_us": "Equip or carry the required gear with the specified enchantments at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Equipa o lleva a la vez el equipo requerido con los encantamientos indicados.",
+				"zh_cn": "同时装备或携带带有指定附魔的所需装备。"
 			},
 			"objectives": [
 				{
@@ -2288,8 +2943,11 @@
 				]
 			},
 			"layout": {
-				"x": 0,
-				"y": 490
+				"x": 570,
+				"y": -230
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -2297,14 +2955,18 @@
 			"id": "questplus:equipment/equipment_master",
 			"category": "questplus:equipment",
 			"icon": "minecraft:netherite_chestplate",
-			"size": 45,
+			"size": 92,
 			"title": {
 				"en_us": "Master of Equipment",
-				"fr_fr": "Le maître des équipements"
+				"fr_fr": "Le maître des équipements",
+				"es_es": "Maestro del equipo",
+				"zh_cn": "装备大师"
 			},
 			"description": {
 				"en_us": "Own an optimized Netherite armor set, legendary sword, complementary pickaxes, and enchanted Elytra at the same time.",
-				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis."
+				"fr_fr": "Équipez ou transportez simultanément les pièces indiquées avec leurs enchantements requis.",
+				"es_es": "Ten a la vez una armadura de netherita optimizada, una espada legendaria, picos complementarios y unos élitros encantados.",
+				"zh_cn": "同时拥有一套优化的下界合金盔甲、一把传奇之剑、互补的镐和附魔鞘翅。"
 			},
 			"objectives": [
 				{
@@ -2422,9 +3084,65 @@
 				]
 			},
 			"layout": {
-				"x": 520,
-				"y": 288
+				"x": 0,
+				"y": 480
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:equipment/welcome",
+			"category": "questplus:equipment",
+			"icon": "minecraft:armor_stand",
+			"presentation": {
+				"subtitle": {
+					"en_us": "Chapter guide",
+					"fr_fr": "Guide du chapitre",
+					"es_es": "Guía del capítulo",
+					"zh_cn": "章节指南"
+				},
+				"shape": "octagon"
+			},
+			"title": {
+				"en_us": "The Armory",
+				"fr_fr": "L'armurerie",
+				"es_es": "La armería",
+				"zh_cn": "军械库"
+			},
+			"description": {
+				"en_us": "These quests check what you actually wear and hold: put the pieces on, or keep them in your inventory when the quest says so. Complete each armor set from leather to netherite, enchant them, and forge the weapons and tools of a true adventurer. Some pieces need precise enchantments: read the requirements before you go to the anvil.",
+				"fr_fr": "Ces quêtes vérifient ce que vous portez et tenez vraiment : enfilez les pièces, ou gardez-les dans votre inventaire quand la quête le précise. Complétez chaque panoplie du cuir à la netherite, enchantez-les, et forgez les armes et outils d'un véritable aventurier. Certaines pièces exigent des enchantements précis : lisez les conditions avant de passer à l'enclume.",
+				"es_es": "Estas misiones comprueban lo que de verdad llevas puesto y en la mano: ponte las piezas, o guárdalas en tu inventario cuando la misión lo indique. Completa cada conjunto de armadura, del cuero a la netherita, encántalos y forja las armas y herramientas de un verdadero aventurero. Algunas piezas necesitan encantamientos precisos: lee los requisitos antes de ir al yunque.",
+				"zh_cn": "这些任务检查你实际穿戴和手持的东西：穿上装备，或在任务要求时把它们放在物品栏里。从皮革到下界合金完成每一套盔甲，为它们附魔，并锻造真正冒险家的武器和工具。有些装备需要精确的附魔：去铁砧之前请先阅读要求。"
+			},
+			"objectives": [
+				{
+					"id": "read",
+					"event": "manual",
+					"target": "questplus:equipment/welcome",
+					"count": 1,
+					"text": {
+						"en_us": "Suit up",
+						"fr_fr": "S'équiper",
+						"es_es": "Equípate",
+						"zh_cn": "整装待发"
+					}
+				}
+			],
+			"rewards": [
+				{
+					"type": "experience",
+					"amount": 15
+				}
+			],
+			"progression": "once",
+			"layout": {
+				"x": 0,
+				"y": -440
+			},
+			"size": 72
 		}
 	]
 }

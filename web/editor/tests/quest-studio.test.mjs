@@ -11,7 +11,7 @@ test("new editor sessions start with EXACT quest definitions shipped by QuestPlu
 	const p = demoProject();
 	assert.deepEqual(p, BUILTIN_PROJECT);
 	assert.equal(p.categories.length, 17);
-	assert.equal(p.quests.length, 219);
+	assert.equal(p.quests.length, 252);
 	assert.deepEqual(validate(p), []);
 	const files = fileMap(p);
 	assert.ok(files.has("quests/quarries/stone_mountain.json5"));
@@ -64,7 +64,7 @@ test("ZIP import/export preserves the shipped data and edited world coordinates"
 	const zip = makeZip(fileMap(p)),
 		docs = await readZip(zip),
 		after = importDocuments(docs);
-	assert.equal(after.quests.length, 219);
+	assert.equal(after.quests.length, 252);
 	assert.equal(after.categories.length, 17);
 	assert.deepEqual(
 		after.quests.map((q) => q.layout),

@@ -10,7 +10,7 @@
 
 **Your quest log is no longer a menu. It is an object you pull out in the middle of your world.**
 
-Quest Plus is a complete questing mod built around an **animated 3D tablet**. Follow quest trees, deliver resources to blocks in your base, meet quest givers on your travels and crack open loot crates. Play the **219 bundled quests** or build your own adventure with a visual editor.
+Quest Plus is a complete questing mod built around an **animated 3D tablet**. Follow quest trees, deliver resources to blocks in your base, meet quest givers on your travels and crack open loot crates. Play the **252 bundled quests** or build your own adventure with a visual editor.
 
 ![The tablet opens in the player's hands, shows a quest tree and closes](https://quest.alexistb.com/docs/store/02-tablet.gif)
 

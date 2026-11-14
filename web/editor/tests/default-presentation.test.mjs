@@ -24,7 +24,7 @@ test("default quest icons use real items and reflect their objectives", () => {
 });
 
 test("default thematic islands have explicit positions with room for nodes and labels", () => {
-	assert.equal(BUILTIN_PROJECT.quests.length, 219);
+	assert.equal(BUILTIN_PROJECT.quests.length, 252);
 	for (const category of BUILTIN_PROJECT.categories) {
 		const rows = BUILTIN_PROJECT.quests.filter((q) => q.category === category.id);
 		for (const [i, q] of rows.entries()) {
@@ -45,4 +45,22 @@ test("default thematic islands have explicit positions with room for nodes and l
 		);
 	}
 	assert.deepEqual(validate(BUILTIN_PROJECT), []);
+});
+
+test("every translated catalogue text also ships in Spanish and Simplified Chinese", () => {
+	const missing = [];
+	const walk = (node) => {
+		if (Array.isArray(node)) return node.forEach(walk);
+		if (!node || typeof node !== "object") return;
+		if (typeof node.en_us === "string" && "fr_fr" in node) {
+			if (!node.es_es || !node.zh_cn) missing.push(node.en_us);
+			return;
+		}
+		Object.values(node).forEach(walk);
+	};
+	walk(BUILTIN_PROJECT);
+	assert.deepEqual(missing, []);
+	for (const category of BUILTIN_PROJECT.categories)
+		for (const note of category.annotations.filter((a) => a.rich)) assert.ok(note.rich.es_es && note.rich.zh_cn, note.id);
+	assert.deepEqual(BUILTIN_PROJECT.editorLocales, ["en_us", "fr_fr", "es_es", "zh_cn"]);
 });

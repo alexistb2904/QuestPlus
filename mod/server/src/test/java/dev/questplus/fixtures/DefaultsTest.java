@@ -86,7 +86,7 @@ class DefaultsTest {
 		Defaults.install(definitions);
 		QuestRegistry registry = QuestRegistry.load(definitions.resolve("quests"), (kind, id) -> {
 		});
-		assertEquals(219, registry.all().size(), "Only maintained challenge, equipment and explorer quests");
+		assertEquals(252, registry.all().size(), "Only maintained challenge, equipment and explorer quests");
 
 		Set<String> categories = new HashSet<>();
 		try (var files = Files.walk(definitions.resolve("categories"))) {
@@ -116,7 +116,9 @@ class DefaultsTest {
 		});
 		assertEquals(10, npcs.values().stream().mapToInt(npc -> npc.quests().size()).sum(),
 				"Every explorer quest is offered by an NPC");
+		// The guild ledger is a read only page that explains where to find the givers.
 		assertTrue(registry.all().stream().filter(q -> q.category().equals("questplus:explorers"))
+				.filter(q -> !"information".equals(q.kind()))
 				.allMatch(q -> npcs.values().stream().anyMatch(npc -> npc.quests().contains(q.id()))));
 		assertEquals("tiered", registry.get("questplus:quarries/stone_mountain").progression());
 		assertEquals("repeatable", registry.get("questplus:contracts/skeleton_bounty").progression());

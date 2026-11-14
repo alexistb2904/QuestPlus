@@ -6,172 +6,312 @@
 			"icon": "minecraft:filled_map",
 			"title": {
 				"en_us": "The Explorers",
-				"fr_fr": "Les Explorateurs"
+				"fr_fr": "Les Explorateurs",
+				"es_es": "Los exploradores",
+				"zh_cn": "探险家"
 			},
 			"description": {
 				"en_us": "The guild's members are scattered across the world. Find them in villages, ruins and camps: each one has a request for you.",
-				"fr_fr": "Les membres de la guilde sont dispersés à travers le monde. Trouvez-les dans les villages, les ruines et les campements : chacun a une requête pour vous."
+				"fr_fr": "Les membres de la guilde sont dispersés à travers le monde. Trouvez-les dans les villages, les ruines et les campements : chacun a une requête pour vous.",
+				"es_es": "Los miembros del gremio están repartidos por el mundo. Búscalos en aldeas, ruinas y campamentos: cada uno tiene un encargo para ti.",
+				"zh_cn": "公会成员散布在世界各地。在村庄、废墟和营地中找到他们：每个人都有一个委托给你。"
 			},
 			"annotations": [
 				{
 					"id": "chapter_heading",
 					"x": 0,
-					"y": -374,
+					"y": -660,
 					"style": "heading",
-					"color": "#c6a986",
-					"width": 563,
+					"color": "#d8c8a0",
+					"width": 545,
 					"height": 56,
 					"text": {
 						"en_us": "Seek out the guild across the world.",
-						"fr_fr": "Retrouvez la guilde aux quatre coins du monde."
+						"fr_fr": "Retrouvez la guilde aux quatre coins du monde.",
+						"es_es": "Busca al gremio por todo el mundo.",
+						"zh_cn": "在世界各地寻找公会。"
 					},
 					"rich": {
 						"en_us": [
 							{
 								"type": "text",
 								"text": "Seek out the guild across the world.",
-								"color": "#c6a986",
-								"size": 1.4
+								"color": "#d8c8a0",
+								"size": 1.6
 							}
 						],
 						"fr_fr": [
 							{
 								"type": "text",
 								"text": "Retrouvez la guilde aux quatre coins du monde.",
-								"color": "#c6a986",
-								"size": 1.4
-							}
-						]
-					}
-				},
-				{
-					"id": "section_1",
-					"x": -581,
-					"y": -245,
-					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
-					"text": {
-						"en_us": "Marlo, in the villages",
-						"fr_fr": "Marlo, dans les villages"
-					},
-					"rich": {
-						"en_us": [
-							{
-								"type": "text",
-								"text": "Marlo, in the villages",
-								"color": "#b1a28e",
-								"size": 1.4
+								"color": "#d8c8a0",
+								"size": 1.6
 							}
 						],
-						"fr_fr": [
+						"es_es": [
 							{
 								"type": "text",
-								"text": "Marlo, dans les villages",
-								"color": "#b1a28e",
-								"size": 1.4
-							}
-						]
-					}
-				},
-				{
-					"id": "section_2",
-					"x": -66,
-					"y": -245,
-					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
-					"text": {
-						"en_us": "Sela, in the ruins",
-						"fr_fr": "Sela, dans les ruines"
-					},
-					"rich": {
-						"en_us": [
-							{
-								"type": "text",
-								"text": "Sela, in the ruins",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "Busca al gremio por todo el mundo.",
+								"color": "#d8c8a0",
+								"size": 1.6
 							}
 						],
-						"fr_fr": [
+						"zh_cn": [
 							{
 								"type": "text",
-								"text": "Sela, dans les ruines",
-								"color": "#b1a28e",
-								"size": 1.4
+								"text": "在世界各地寻找公会。",
+								"color": "#d8c8a0",
+								"size": 1.6
 							}
 						]
 					}
 				},
 				{
-					"id": "section_3",
-					"x": 449,
-					"y": -245,
-					"style": "label",
-					"color": "#b1a28e",
-					"width": 281,
-					"height": 34,
-					"text": {
-						"en_us": "Oswin, on the roads",
-						"fr_fr": "Oswin, sur les routes"
-					},
-					"rich": {
-						"en_us": [
-							{
-								"type": "text",
-								"text": "Oswin, on the roads",
-								"color": "#b1a28e",
-								"size": 1.4
-							}
-						],
-						"fr_fr": [
-							{
-								"type": "text",
-								"text": "Oswin, sur les routes",
-								"color": "#b1a28e",
-								"size": 1.4
-							}
-						]
-					}
-				},
-				{
-					"id": "section_01",
-					"x": -515,
-					"y": -194,
-					"width": 464,
-					"height": 180,
-					"style": "background",
-					"color": "#947b63",
-					"text": {
-						"en_us": "Marlo, in the villages"
-					}
-				},
-				{
-					"id": "section_02",
+					"id": "label_marlo",
 					"x": 0,
-					"y": -194,
-					"width": 464,
-					"height": 180,
-					"style": "background",
-					"color": "#9a8456",
+					"y": -565,
+					"style": "label",
+					"color": "#e0cf98",
+					"width": 215,
+					"height": 30,
 					"text": {
-						"en_us": "Sela, in the ruins"
+						"en_us": "Marlo the Cartographer",
+						"fr_fr": "Marlo le cartographe",
+						"es_es": "Marlo el Cartógrafo",
+						"zh_cn": "制图师马洛"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Marlo the Cartographer",
+								"color": "#e0cf98",
+								"size": 1.2
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Marlo le cartographe",
+								"color": "#e0cf98",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Marlo el Cartógrafo",
+								"color": "#e0cf98",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "制图师马洛",
+								"color": "#e0cf98",
+								"size": 1.2
+							}
+						]
 					}
 				},
 				{
-					"id": "section_03",
-					"x": 515,
-					"y": -194,
-					"width": 464,
-					"height": 180,
-					"style": "background",
-					"color": "#6f7d5c",
+					"id": "label_sela",
+					"x": 329,
+					"y": 255,
+					"style": "label",
+					"color": "#e0b080",
+					"width": 265,
+					"height": 30,
 					"text": {
-						"en_us": "Oswin, on the roads"
+						"en_us": "Sela the Treasure Hunter",
+						"fr_fr": "Sela la chasseuse de trésors",
+						"es_es": "Sela la Cazadora de Tesoros",
+						"zh_cn": "寻宝人塞拉"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Sela the Treasure Hunter",
+								"color": "#e0b080",
+								"size": 1.2
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Sela la chasseuse de trésors",
+								"color": "#e0b080",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Sela la Cazadora de Tesoros",
+								"color": "#e0b080",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "寻宝人塞拉",
+								"color": "#e0b080",
+								"size": 1.2
+							}
+						]
 					}
+				},
+				{
+					"id": "label_oswin",
+					"x": -329,
+					"y": 255,
+					"style": "label",
+					"color": "#a8d0b0",
+					"width": 181,
+					"height": 30,
+					"text": {
+						"en_us": "Oswin the Wanderer",
+						"fr_fr": "Oswin le vagabond",
+						"es_es": "Oswin el Vagabundo",
+						"zh_cn": "流浪者奥斯温"
+					},
+					"rich": {
+						"en_us": [
+							{
+								"type": "text",
+								"text": "Oswin the Wanderer",
+								"color": "#a8d0b0",
+								"size": 1.2
+							}
+						],
+						"fr_fr": [
+							{
+								"type": "text",
+								"text": "Oswin le vagabond",
+								"color": "#a8d0b0",
+								"size": 1.2
+							}
+						],
+						"es_es": [
+							{
+								"type": "text",
+								"text": "Oswin el Vagabundo",
+								"color": "#a8d0b0",
+								"size": 1.2
+							}
+						],
+						"zh_cn": [
+							{
+								"type": "text",
+								"text": "流浪者奥斯温",
+								"color": "#a8d0b0",
+								"size": 1.2
+							}
+						]
+					}
+				}
+			],
+			"linkRoutes": [
+				{
+					"from": "questplus:explorers/blank_pages",
+					"to": "questplus:explorers/four_winds",
+					"points": [
+						{
+							"x": 0,
+							"y": -150
+						},
+						{
+							"x": 0,
+							"y": -265
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/four_winds",
+					"to": "questplus:explorers/far_horizon",
+					"points": [
+						{
+							"x": 0,
+							"y": -265
+						},
+						{
+							"x": 0,
+							"y": -380
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/far_horizon",
+					"to": "questplus:explorers/living_atlas",
+					"points": [
+						{
+							"x": 0,
+							"y": -380
+						},
+						{
+							"x": 0,
+							"y": -495
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/tombs_of_the_sands",
+					"to": "questplus:explorers/sunken_gold",
+					"points": [
+						{
+							"x": 130,
+							"y": 75
+						},
+						{
+							"x": 229,
+							"y": 132
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/sunken_gold",
+					"to": "questplus:explorers/patient_brushwork",
+					"points": [
+						{
+							"x": 229,
+							"y": 132
+						},
+						{
+							"x": 329,
+							"y": 190
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/campfire_tales",
+					"to": "questplus:explorers/above_the_clouds",
+					"points": [
+						{
+							"x": -130,
+							"y": 75
+						},
+						{
+							"x": -229,
+							"y": 132
+						}
+					]
+				},
+				{
+					"from": "questplus:explorers/above_the_clouds",
+					"to": "questplus:explorers/edge_of_the_world",
+					"points": [
+						{
+							"x": -229,
+							"y": 132
+						},
+						{
+							"x": -329,
+							"y": 190
+						}
+					]
 				}
 			]
 		}
@@ -182,14 +322,18 @@
 			"id": "questplus:explorers/blank_pages",
 			"category": "questplus:explorers",
 			"icon": "minecraft:map",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Blank Pages",
-				"fr_fr": "Pages blanches"
+				"fr_fr": "Pages blanches",
+				"es_es": "Páginas en blanco",
+				"zh_cn": "空白页"
 			},
 			"description": {
 				"en_us": "Every explorer starts with an empty map and a needle that points home. Make yours, and I will teach you to fill it.",
-				"fr_fr": "Tout explorateur commence avec une carte vierge et une aiguille qui pointe vers chez lui. Fabriquez les vôtres, je vous apprendrai à les remplir."
+				"fr_fr": "Tout explorateur commence avec une carte vierge et une aiguille qui pointe vers chez lui. Fabriquez les vôtres, je vous apprendrai à les remplir.",
+				"es_es": "Todo explorador empieza con un mapa vacío y una aguja que apunta a casa. Fabrica los tuyos y te enseñaré a llenarlo.",
+				"zh_cn": "每个探险家都从一张空白地图和一根指向家的指针开始。做好你自己的，我会教你如何填满它。"
 			},
 			"objectives": [
 				{
@@ -219,8 +363,11 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -667,
-				"y": -156
+				"x": 0,
+				"y": -150
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -228,14 +375,18 @@
 			"id": "questplus:explorers/four_winds",
 			"category": "questplus:explorers",
 			"icon": "minecraft:compass",
-			"size": 45,
+			"size": 48,
 			"title": {
 				"en_us": "The Four Winds",
-				"fr_fr": "Les quatre vents"
+				"fr_fr": "Les quatre vents",
+				"es_es": "Los cuatro vientos",
+				"zh_cn": "四方之风"
 			},
 			"description": {
 				"en_us": "Sand, snow, jungle and red clay: a map is only worth the lands it has seen. Go and see them for me.",
-				"fr_fr": "Sable, neige, jungle et argile rouge : une carte ne vaut que par les terres qu'elle a vues. Allez les voir pour moi."
+				"fr_fr": "Sable, neige, jungle et argile rouge : une carte ne vaut que par les terres qu'elle a vues. Allez les voir pour moi.",
+				"es_es": "Arena, nieve, jungla y arcilla roja: un mapa solo vale las tierras que ha visto. Ve a verlas por mí.",
+				"zh_cn": "沙、雪、丛林和红土：一张地图的价值只取决于它见过的土地。替我去看看它们吧。"
 			},
 			"objectives": [
 				{
@@ -280,8 +431,11 @@
 				"quest": "questplus:explorers/blank_pages"
 			},
 			"layout": {
-				"x": -566,
-				"y": -156
+				"x": 0,
+				"y": -265
+			},
+			"presentation": {
+				"shape": "pentagon"
 			}
 		},
 		{
@@ -289,14 +443,18 @@
 			"id": "questplus:explorers/far_horizon",
 			"category": "questplus:explorers",
 			"icon": "minecraft:spyglass",
-			"size": 45,
+			"size": 48,
 			"title": {
 				"en_us": "The Far Horizon",
-				"fr_fr": "L'horizon lointain"
+				"fr_fr": "L'horizon lointain",
+				"es_es": "El horizonte lejano",
+				"zh_cn": "遥远的地平线"
 			},
 			"description": {
 				"en_us": "The edge of my map moves every time I reach it. Walk five kilometres and tell me where it went.",
-				"fr_fr": "Le bord de ma carte recule chaque fois que je l'atteins. Parcourez cinq kilomètres et dites-moi où il est parti."
+				"fr_fr": "Le bord de ma carte recule chaque fois que je l'atteins. Parcourez cinq kilomètres et dites-moi où il est parti.",
+				"es_es": "El borde de mi mapa se mueve cada vez que lo alcanzo. Camina cinco kilómetros y dime adónde se fue.",
+				"zh_cn": "每当我到达地图的边缘，它就会移动。走五公里，告诉我它去了哪里。"
 			},
 			"objectives": [
 				{
@@ -326,8 +484,11 @@
 				"quest": "questplus:explorers/four_winds"
 			},
 			"layout": {
-				"x": -464,
-				"y": -156
+				"x": 0,
+				"y": -380
+			},
+			"presentation": {
+				"shape": "pentagon"
 			}
 		},
 		{
@@ -335,14 +496,18 @@
 			"id": "questplus:explorers/living_atlas",
 			"category": "questplus:explorers",
 			"icon": "minecraft:filled_map",
-			"size": 45,
+			"size": 58,
 			"title": {
 				"en_us": "The Living Atlas",
-				"fr_fr": "L'atlas vivant"
+				"fr_fr": "L'atlas vivant",
+				"es_es": "El atlas vivo",
+				"zh_cn": "活地图集"
 			},
 			"description": {
 				"en_us": "My atlas still lacks the villages of the far lands. Visit them, and the guild will remember your name.",
-				"fr_fr": "Il manque encore à mon atlas les villages des terres lointaines. Rendez-leur visite, et la guilde se souviendra de votre nom."
+				"fr_fr": "Il manque encore à mon atlas les villages des terres lointaines. Rendez-leur visite, et la guilde se souviendra de votre nom.",
+				"es_es": "A mi atlas aún le faltan las aldeas de las tierras lejanas. Visítalas y el gremio recordará tu nombre.",
+				"zh_cn": "我的地图集还缺少远方土地的村庄。去探访它们，公会会记住你的名字。"
 			},
 			"objectives": [
 				{
@@ -381,8 +546,11 @@
 				"quest": "questplus:explorers/far_horizon"
 			},
 			"layout": {
-				"x": -363,
-				"y": -156
+				"x": 0,
+				"y": -495
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -390,14 +558,18 @@
 			"id": "questplus:explorers/tombs_of_the_sands",
 			"category": "questplus:explorers",
 			"icon": "minecraft:chiseled_sandstone",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Tombs of Sand and Vine",
-				"fr_fr": "Tombeaux de sable et de lianes"
+				"fr_fr": "Tombeaux de sable et de lianes",
+				"es_es": "Tumbas de arena y lianas",
+				"zh_cn": "沙与藤之墓"
 			},
 			"description": {
 				"en_us": "Two temples, one under the sand, one under the leaves. Mind the traps: I lost a good friend to a tripwire.",
-				"fr_fr": "Deux temples, l'un sous le sable, l'autre sous les feuilles. Attention aux pièges : j'ai perdu un ami à cause d'un fil tendu."
+				"fr_fr": "Deux temples, l'un sous le sable, l'autre sous les feuilles. Attention aux pièges : j'ai perdu un ami à cause d'un fil tendu.",
+				"es_es": "Dos templos, uno bajo la arena y otro bajo las hojas. Cuidado con las trampas: perdí a un buen amigo por un cable trampa.",
+				"zh_cn": "两座神殿，一座在沙下，一座在叶下。小心陷阱：我曾因为一根绊线失去了一位好朋友。"
 			},
 			"objectives": [
 				{
@@ -427,8 +599,11 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": -101,
-				"y": -156
+				"x": 130,
+				"y": 75
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -436,14 +611,18 @@
 			"id": "questplus:explorers/sunken_gold",
 			"category": "questplus:explorers",
 			"icon": "minecraft:heart_of_the_sea",
-			"size": 45,
+			"size": 48,
 			"title": {
 				"en_us": "Sunken Gold",
-				"fr_fr": "L'or englouti"
+				"fr_fr": "L'or englouti",
+				"es_es": "Oro hundido",
+				"zh_cn": "沉没的黄金"
 			},
 			"description": {
 				"en_us": "Wrecks keep their captains' maps, and those maps lead to buried chests. Bring back the treasure's heart.",
-				"fr_fr": "Les épaves gardent les cartes de leurs capitaines, et ces cartes mènent à des coffres enterrés. Rapportez-en le cœur du trésor."
+				"fr_fr": "Les épaves gardent les cartes de leurs capitaines, et ces cartes mènent à des coffres enterrés. Rapportez-en le cœur du trésor.",
+				"es_es": "Los naufragios guardan los mapas de sus capitanes, y esos mapas llevan a cofres enterrados. Trae el corazón del tesoro.",
+				"zh_cn": "沉船保存着船长的地图，而这些地图通向埋藏的宝箱。把宝藏之心带回来。"
 			},
 			"objectives": [
 				{
@@ -476,8 +655,11 @@
 				"quest": "questplus:explorers/tombs_of_the_sands"
 			},
 			"layout": {
-				"x": 0,
-				"y": -156
+				"x": 229,
+				"y": 132
+			},
+			"presentation": {
+				"shape": "pentagon"
 			}
 		},
 		{
@@ -485,14 +667,18 @@
 			"id": "questplus:explorers/patient_brushwork",
 			"category": "questplus:explorers",
 			"icon": "minecraft:brush",
-			"size": 45,
+			"size": 58,
 			"title": {
 				"en_us": "Patient Brushwork",
-				"fr_fr": "Coups de pinceau patients"
+				"fr_fr": "Coups de pinceau patients",
+				"es_es": "Cepillado paciente",
+				"zh_cn": "耐心的清扫"
 			},
 			"description": {
 				"en_us": "The oldest ruins hide under the gravel of the trails. Take a brush, and take your time.",
-				"fr_fr": "Les ruines les plus anciennes se cachent sous le gravier des sentiers. Prenez un pinceau, et prenez votre temps."
+				"fr_fr": "Les ruines les plus anciennes se cachent sous le gravier des sentiers. Prenez un pinceau, et prenez votre temps.",
+				"es_es": "Las ruinas más antiguas se esconden bajo la grava de los senderos. Toma un pincel y tómate tu tiempo.",
+				"zh_cn": "最古老的废墟藏在小径的沙砾之下。拿上刷子，慢慢来。"
 			},
 			"objectives": [
 				{
@@ -525,8 +711,11 @@
 				"quest": "questplus:explorers/sunken_gold"
 			},
 			"layout": {
-				"x": 101,
-				"y": -156
+				"x": 329,
+				"y": 190
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
 		},
 		{
@@ -534,14 +723,18 @@
 			"id": "questplus:explorers/campfire_tales",
 			"category": "questplus:explorers",
 			"icon": "minecraft:campfire",
-			"size": 45,
+			"size": 42,
 			"title": {
 				"en_us": "Campfire Tales",
-				"fr_fr": "Histoires au coin du feu"
+				"fr_fr": "Histoires au coin du feu",
+				"es_es": "Historias junto a la fogata",
+				"zh_cn": "营火故事"
 			},
 			"description": {
 				"en_us": "Sit down, traveller. Light a fire of your own and share some berries; the road is long and stories are free.",
-				"fr_fr": "Asseyez-vous, voyageur. Allumez votre propre feu et partagez quelques baies ; la route est longue et les histoires sont gratuites."
+				"fr_fr": "Asseyez-vous, voyageur. Allumez votre propre feu et partagez quelques baies ; la route est longue et les histoires sont gratuites.",
+				"es_es": "Siéntate, viajero. Enciende tu propia fogata y comparte unas bayas: el camino es largo y las historias son gratis.",
+				"zh_cn": "坐下吧，旅人。点燃你自己的火，分享一些浆果：路很长，故事是免费的。"
 			},
 			"objectives": [
 				{
@@ -571,8 +764,11 @@
 			"progression": "once",
 			"objectiveMode": "all",
 			"layout": {
-				"x": 414,
-				"y": -156
+				"x": -130,
+				"y": 75
+			},
+			"presentation": {
+				"shape": "circle"
 			}
 		},
 		{
@@ -580,14 +776,18 @@
 			"id": "questplus:explorers/above_the_clouds",
 			"category": "questplus:explorers",
 			"icon": "minecraft:goat_horn",
-			"size": 45,
+			"size": 48,
 			"title": {
 				"en_us": "Above the Clouds",
-				"fr_fr": "Au-dessus des nuages"
+				"fr_fr": "Au-dessus des nuages",
+				"es_es": "Por encima de las nubes",
+				"zh_cn": "云层之上"
 			},
 			"description": {
 				"en_us": "From the highest peaks you can see three days of walking. Climb the jagged and the frozen ones.",
-				"fr_fr": "Du haut des plus hauts sommets, on voit trois jours de marche. Gravissez les pics déchiquetés et les pics gelés."
+				"fr_fr": "Du haut des plus hauts sommets, on voit trois jours de marche. Gravissez les pics déchiquetés et les pics gelés.",
+				"es_es": "Desde los picos más altos se ven tres días de camino. Escala los escarpados y los helados.",
+				"zh_cn": "从最高的山峰上，你能看到三天的路程。去攀登尖峭山峰和冰封山峰吧。"
 			},
 			"objectives": [
 				{
@@ -620,8 +820,11 @@
 				"quest": "questplus:explorers/campfire_tales"
 			},
 			"layout": {
-				"x": 515,
-				"y": -156
+				"x": -229,
+				"y": 132
+			},
+			"presentation": {
+				"shape": "pentagon"
 			}
 		},
 		{
@@ -629,14 +832,18 @@
 			"id": "questplus:explorers/edge_of_the_world",
 			"category": "questplus:explorers",
 			"icon": "minecraft:red_mushroom",
-			"size": 45,
+			"size": 58,
 			"title": {
 				"en_us": "Edge of the World",
-				"fr_fr": "Le bout du monde"
+				"fr_fr": "Le bout du monde",
+				"es_es": "El fin del mundo",
+				"zh_cn": "世界的边缘"
 			},
 			"description": {
 				"en_us": "They say there are islands of giant mushrooms where no monster walks. Walk ten kilometres, find one, and come back to tell me.",
-				"fr_fr": "On raconte qu'il existe des îles de champignons géants où aucun monstre ne marche. Parcourez dix kilomètres, trouvez-en une, et revenez me raconter."
+				"fr_fr": "On raconte qu'il existe des îles de champignons géants où aucun monstre ne marche. Parcourez dix kilomètres, trouvez-en une, et revenez me raconter.",
+				"es_es": "Dicen que hay islas de champiñones gigantes donde no camina ningún monstruo. Camina diez kilómetros, encuentra una y vuelve a contármelo.",
+				"zh_cn": "听说有些巨型蘑菇岛上没有任何怪物出没。走十公里，找到一座，然后回来告诉我。"
 			},
 			"objectives": [
 				{
@@ -672,9 +879,49 @@
 				"quest": "questplus:explorers/above_the_clouds"
 			},
 			"layout": {
-				"x": 616,
-				"y": -156
+				"x": -329,
+				"y": 190
+			},
+			"presentation": {
+				"shape": "diamond"
 			}
+		},
+		{
+			"schemaVersion": 2,
+			"id": "questplus:explorers/guild_ledger",
+			"category": "questplus:explorers",
+			"icon": "minecraft:writable_book",
+			"title": {
+				"en_us": "The Explorers' Guild",
+				"fr_fr": "La guilde des explorateurs",
+				"es_es": "El gremio de los exploradores",
+				"zh_cn": "探险家公会"
+			},
+			"description": {
+				"en_us": "The guild's members wander the world. Right click one of them to read their request: once accepted, it appears in this chapter.\nMarlo the Cartographer lives in villages, most often in the taiga.\nSela the Treasure Hunter camps by desert pyramids, jungle temples and trail ruins.\nOswin the Wanderer rests in abandoned camps, or anywhere on the road.\nThey only appear in newly generated land, so keep exploring.",
+				"fr_fr": "Les membres de la guilde parcourent le monde. Faites un clic droit sur l'un d'eux pour lire sa demande : une fois acceptée, elle apparaît dans ce chapitre.\nMarlo le cartographe vit dans les villages, surtout dans la taïga.\nSela la chasseuse de trésors campe près des pyramides du désert, des temples de la jungle et des ruines de sentiers.\nOswin le vagabond se repose dans les camps abandonnés, ou n'importe où sur la route.\nIls n'apparaissent que dans les terres nouvellement générées : continuez d'explorer.",
+				"es_es": "Los miembros del gremio recorren el mundo. Haz clic derecho sobre uno de ellos para leer su encargo: una vez aceptado, aparece en este capítulo.\nMarlo el Cartógrafo vive en las aldeas, sobre todo en la taiga.\nSela la Cazadora de Tesoros acampa junto a las pirámides del desierto, los templos de la jungla y las ruinas de senderos.\nOswin el Vagabundo descansa en los campamentos abandonados, o en cualquier parte del camino.\nSolo aparecen en tierras recién generadas, así que sigue explorando.",
+				"zh_cn": "公会成员在世界各地漫游。右键点击其中一人来阅读他们的委托：接受后，它会出现在本章中。\n制图师马洛住在村庄里，最常在针叶林村庄。\n寻宝人塞拉在沙漠神殿、丛林神庙和古迹废墟旁扎营。\n流浪者奥斯温在废弃营地歇脚，或在路上的任何地方。\n他们只出现在新生成的土地上，所以继续探索吧。"
+			},
+			"objectives": [],
+			"rewards": [],
+			"progression": "once",
+			"presentation": {
+				"subtitle": {
+					"en_us": "Chapter guide",
+					"fr_fr": "Guide du chapitre",
+					"es_es": "Guía del capítulo",
+					"zh_cn": "章节指南"
+				},
+				"shape": "octagon"
+			},
+			"kind": "information",
+			"acknowledgement": "read_only",
+			"layout": {
+				"x": 0,
+				"y": 0
+			},
+			"size": 76
 		}
 	],
 	"npcs": [
@@ -682,11 +929,18 @@
 			"id": "marlo_cartographer",
 			"name": {
 				"en_us": "Marlo the Cartographer",
-				"fr_fr": "Marlo le cartographe"
+				"fr_fr": "Marlo le cartographe",
+				"es_es": "Marlo el Cartógrafo",
+				"zh_cn": "制图师马洛"
 			},
 			"model": "villager",
 			"villager": "taiga",
-			"quests": ["questplus:explorers/blank_pages", "questplus:explorers/four_winds", "questplus:explorers/far_horizon", "questplus:explorers/living_atlas"],
+			"quests": [
+				"questplus:explorers/blank_pages",
+				"questplus:explorers/four_winds",
+				"questplus:explorers/far_horizon",
+				"questplus:explorers/living_atlas"
+			],
 			"spawns": [
 				{
 					"type": "structure",
@@ -704,11 +958,17 @@
 			"id": "sela_treasure_hunter",
 			"name": {
 				"en_us": "Sela the Treasure Hunter",
-				"fr_fr": "Sela la chasseuse de trésors"
+				"fr_fr": "Sela la chasseuse de trésors",
+				"es_es": "Sela la Cazadora de Tesoros",
+				"zh_cn": "寻宝人塞拉"
 			},
 			"model": "villager",
 			"villager": "desert",
-			"quests": ["questplus:explorers/tombs_of_the_sands", "questplus:explorers/sunken_gold", "questplus:explorers/patient_brushwork"],
+			"quests": [
+				"questplus:explorers/tombs_of_the_sands",
+				"questplus:explorers/sunken_gold",
+				"questplus:explorers/patient_brushwork"
+			],
 			"spawns": [
 				{
 					"type": "structure",
@@ -736,10 +996,16 @@
 			"id": "oswin_wanderer",
 			"name": {
 				"en_us": "Oswin the Wanderer",
-				"fr_fr": "Oswin le vagabond"
+				"fr_fr": "Oswin le vagabond",
+				"es_es": "Oswin el Vagabundo",
+				"zh_cn": "流浪者奥斯温"
 			},
 			"model": "player",
-			"quests": ["questplus:explorers/campfire_tales", "questplus:explorers/above_the_clouds", "questplus:explorers/edge_of_the_world"],
+			"quests": [
+				"questplus:explorers/campfire_tales",
+				"questplus:explorers/above_the_clouds",
+				"questplus:explorers/edge_of_the_world"
+			],
 			"spawns": [
 				{
 					"type": "structure",

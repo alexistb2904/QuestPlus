@@ -4,57 +4,62 @@ import test from "node:test";
 import { backgroundRect, edgePoints, insertWaypoint, nearestSegment } from "../src/core/diagram-geometry.js";
 import { BUILTIN_PROJECT } from "../src/data/default-data.js";
 
-test("all 219 built-in quests are aligned in disjoint tablet-compatible compartments", () => {
-	let total = 0;
+const SHAPES = ["square", "circle", "rounded_square", "diamond", "pentagon", "hexagon", "octagon", "heart", "gear"];
+const refs = (node, out = []) => {
+	if (node && typeof node === "object") {
+		if (typeof node.quest === "string") out.push(node.quest);
+		for (const value of Object.values(node)) refs(value, out);
+	}
+	return out;
+};
+
+test("every built-in chapter opens on one guide and draws its story without overlaps", () => {
+	assert.equal(BUILTIN_PROJECT.quests.length, 252);
 	for (const category of BUILTIN_PROJECT.categories) {
-		const labels = (category.annotations || []).filter((note) => note.style === "label");
-		const backgrounds = (category.annotations || []).filter((note) => note.style === "background");
 		const quests = BUILTIN_PROJECT.quests.filter((quest) => quest.category === category.id);
-		total += quests.length;
-		assert.ok(labels.length > 0, category.id + " has no sections");
-		assert.equal(backgrounds.length, labels.length, category.id + " backgrounds");
-		for (const box of backgrounds) {
-			assert.ok(Number.isInteger(box.width) && Number.isInteger(box.height));
-			assert.ok(box.width > 0 && box.height > 0);
-			const label = labels.find((note) => note.text.en_us === box.text.en_us);
-			assert.ok(label, category.id + " missing heading for " + box.id);
-			assert.equal(label.y, box.y - box.height / 2 + 39, category.id + " title baseline");
-			assert.equal(label.x, box.x - box.width / 2 + 166, category.id + " title left alignment");
-		}
+		const guides = quests.filter((quest) => quest.presentation?.subtitle?.en_us === "Chapter guide");
+		assert.equal(guides.length, 1, category.id + " guide");
+		const guide = guides[0];
+		assert.equal(guide.presentation.shape, "octagon");
+		assert.ok(guide.kind === "information" || guide.objectives.some((o) => o.event === "manual" && o.target === guide.id), guide.id);
+		assert.ok(guide.description.en_us && guide.description.fr_fr, guide.id);
 		for (const quest of quests) {
-			assert.ok(Number.isFinite(quest.layout?.x) && Number.isFinite(quest.layout?.y), quest.id);
-			const inside = backgrounds.filter((box) => Math.abs(quest.layout.x - box.x) <= box.width / 2 - 23 && Math.abs(quest.layout.y - box.y) <= box.height / 2 - 23);
-			assert.equal(inside.length, 1, quest.id + " must lie in exactly one section");
-			const box = inside[0];
-			assert.equal((quest.layout.y - (box.y - box.height / 2) - 128) % 101, 0, quest.id + " must be row-aligned");
+			assert.ok(SHAPES.includes(quest.presentation?.shape), quest.id + " shape");
+			assert.ok(Number.isInteger(quest.size) && quest.size >= 36 && quest.size <= 92, quest.id + " size");
 		}
+		// Size shows importance: the guide or a milestone is the largest node of its chapter.
+		assert.ok(quests.every((q) => q.size <= Math.max(guide.size, ...quests.filter((m) => m.presentation.shape === "diamond").map((m) => m.size))), category.id);
 		for (let i = 0; i < quests.length; i++)
-			for (let j = i + 1; j < quests.length; j++)
-				assert.ok(Math.hypot(quests[i].layout.x - quests[j].layout.x, quests[i].layout.y - quests[j].layout.y) >= 98, quests[i].id + " overlaps " + quests[j].id);
-		const topByRow = new Map();
-		for (const box of backgrounds) {
-			const row = box.y - box.height / 2,
-				label = labels.find((note) => note.text.en_us === box.text.en_us);
-			if (topByRow.has(row)) assert.equal(label.y, topByRow.get(row), category.id + " headings on same row");
-			topByRow.set(row, label.y);
+			for (let j = i + 1; j < quests.length; j++) {
+				const a = quests[i], b = quests[j];
+				assert.ok(Math.hypot(a.layout.x - b.layout.x, a.layout.y - b.layout.y) >= (a.size + b.size) / 2 + 25, a.id + " overlaps " + b.id);
+			}
+		for (const note of category.annotations.filter((a) => a.style !== "background"))
+			for (const quest of quests)
+				assert.ok(Math.abs(quest.layout.x - note.x) >= note.width / 2 + quest.size / 2 || Math.abs(quest.layout.y - note.y) >= note.height / 2 + quest.size / 2, note.id + " covers " + quest.id);
+		assert.ok(category.annotations.filter((a) => a.style === "note").length <= 2, category.id + " notes");
+		for (const route of category.linkRoutes || []) {
+			const to = BUILTIN_PROJECT.quests.find((q) => q.id === route.to);
+			assert.equal(to.category, category.id);
+			assert.ok(refs(to.requires).includes(route.from), route.from + " -> " + route.to);
 		}
 	}
-	assert.equal(total, 219);
 });
 
-test("homestead and equipment have coherent thematic compartments with aligned titles", () => {
+test("the armory fans each armor set into its trophy and the house keeps its rooms", () => {
 	const homestead = BUILTIN_PROJECT.categories.find((c) => c.id === "questplus:homestead");
 	const equipment = BUILTIN_PROJECT.categories.find((c) => c.id === "questplus:equipment");
 	assert.deepEqual(
 		homestead.annotations.filter((a) => a.style === "background").map((a) => a.text.en_us),
-		["A place to live", "Spaces to discover", "Working rooms"]
+		["A place to live", "The hearth", "Spaces to discover", "Working rooms"]
 	);
-	const boxes = equipment.annotations.filter((a) => a.style === "background");
-	assert.equal(boxes.length, 6);
-	assert.ok(boxes.find((b) => b.text.en_us === "Enchanted armor").y > boxes.find((b) => b.text.en_us === "Armor collection").y);
-	assert.equal(boxes.find((b) => b.text.en_us === "Melee weapons").y, boxes.find((b) => b.text.en_us === "Armor collection").y);
-	assert.equal(boxes.find((b) => b.text.en_us === "Ranged & mobility").y, boxes.find((b) => b.text.en_us === "Armor collection").y);
-	assert.ok(BUILTIN_PROJECT.quests.some((q) => q.id === "questplus:equipment/equipment_master"));
+	const collector = BUILTIN_PROJECT.quests.find((q) => q.id === "questplus:equipment/armor_collector");
+	const sets = refs(collector.requires);
+	assert.equal(sets.length, 7);
+	for (const set of sets) assert.ok(equipment.linkRoutes.some((r) => r.from === set && r.to === collector.id), set);
+	const master = BUILTIN_PROJECT.quests.find((q) => q.id === "questplus:equipment/equipment_master");
+	assert.equal(master.presentation.shape, "diamond");
+	assert.ok(BUILTIN_PROJECT.quests.filter((q) => q.category === equipment.id).every((q) => q.size <= master.size));
 });
 
 test("routing creates one user waypoint on a cable without persisting invisible elbows", () => {
